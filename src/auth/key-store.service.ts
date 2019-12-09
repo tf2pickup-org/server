@@ -21,7 +21,6 @@ export class KeyStoreService {
 
   constructor(
     private configService: ConfigService,
-    private keyStorePassphare: string,
   ) {
     this.initialize();
   }
@@ -68,7 +67,7 @@ export class KeyStoreService {
           privateKey: privateKey.export({
             format: 'pem',
             type: 'pkcs8',
-            passphrase: this.keyStorePassphare,
+            passphrase: this.configService.keyStorePassphare,
             cipher: 'aes-256-cbc',
           }) as string,
           publicKey: publicKey.export({
@@ -87,7 +86,7 @@ export class KeyStoreService {
         const privateKey = createPrivateKey({
           key: keyPair.privateKey,
           format: 'pem',
-          passphrase: this.keyStorePassphare,
+          passphrase: this.configService.keyStorePassphare,
         });
 
         const publicKey = createPublicKey({

@@ -31,4 +31,8 @@ export class ConfigService {
     return this.config.KEY_STORE_FILE;
   }
 
+  get keyStorePassphare() {
+    return this.config.KEY_STORE_PASSPHARE;
+  }
+
 }

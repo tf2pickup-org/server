@@ -9,9 +9,6 @@ import { authenticate } from 'passport';
 import { TypegooseModule } from 'nestjs-typegoose';
 import { RefreshToken } from './models/refresh-token';
 import { KeyStoreService } from './key-store.service';
-import { ConfigService } from 'src/config/config.service';
-import { parse } from 'dotenv';
-import { readFileSync } from 'fs';
 
 @Module({
   imports: [
@@ -24,15 +21,7 @@ import { readFileSync } from 'fs';
   providers: [
     AuthService,
     SteamStrategy,
-    {
-      provide: KeyStoreService,
-      useFactory: (configService: ConfigService) => {
-        const config = parse(readFileSync('keystore.env'));
-        const keyStorePassphare = config.KEY_STORE_PASSPHARE;
-        return new KeyStoreService(configService, keyStorePassphare);
-      },
-      inject: [ ConfigService ],
-    },
+    KeyStoreService,
   ],
   controllers: [
     AuthController,
