@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { ConfigService } from 'src/config/config.service';
+import { ConfigService } from '@/config/config.service';
 import { Player } from './models/player';
 import { DocumentType, ReturnModelType } from '@typegoose/typegoose';
 import { SteamProfile } from './models/steam-profile';
@@ -26,7 +26,7 @@ export class PlayersService {
   async createPlayer(steamProfile: SteamProfile): Promise<DocumentType<Player>> {
     const etf2lProfile = await this.etf2lProfileService.fetchPlayerInfo(steamProfile.id);
     if (etf2lProfile.bans && etf2lProfile.bans.filter(ban => ban.end > Date.now()).length > 0) {
-      throw new Error('This account is banned on ETF2L.');
+      throw new Error('this account is banned on ETF2L');
     }
 
     const player = await this.playerModel.create({
