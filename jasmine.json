@@ -1,0 +1,8 @@
+{
+  "spec_dir": ".",
+  "spec_files": [
+    "src/**/*.[sS]pec.ts"
+  ],
+  "stopSpecOnExpectationFailure": false,
+  "random": true
+}
