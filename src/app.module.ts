@@ -6,6 +6,7 @@ import { ConfigModule } from './config/config.module';
 import { ConfigService } from './config/config.service';
 import { AuthModule } from './auth/auth.module';
 import { PlayersModule } from './players/players.module';
+import { ProfileModule } from './profile/profile.module';
 
 function createMongodbUri(host: string, port: string, db: string) {
   return `mongodb://${host}:${port}/${db}`;
@@ -25,8 +26,9 @@ function createMongodbUri(host: string, port: string, db: string) {
     ConfigModule,
     AuthModule,
     PlayersModule,
+    ProfileModule,
   ],
-  controllers: [ AppController] ,
+  controllers: [ AppController ],
   providers: [ AppService ],
 })
 export class AppModule { }
