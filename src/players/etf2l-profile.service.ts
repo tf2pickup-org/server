@@ -28,10 +28,10 @@ export class Etf2lProfileService {
         } else {
           switch (response.status) {
             case 404:
-              return throwError('no ETF2L profile');
+              return throwError(new Error('no ETF2L profile'));
 
             default:
-              return throwError(`${response.status}: ${response.statusText}`);
+              return throwError(new Error(`${response.status}: ${response.statusText}`));
           }
         }
       }),
