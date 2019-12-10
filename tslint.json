@@ -16,7 +16,14 @@
     "interface-name": [false],
     "arrow-parens": false,
     "object-literal-sort-keys": false,
-    "max-classes-per-file": false
+    "max-classes-per-file": false,
+    "variable-name": {
+      "options": [
+        "ban-keywords",
+        "check-format",
+        "allow-leading-underscore"
+      ]
+    }
   },
   "rulesDirectory": []
 }
