@@ -35,4 +35,8 @@ export class ConfigService {
     return this.config.KEY_STORE_PASSPHARE;
   }
 
+  get superUser() {
+    return this.config.SUPER_USER;
+  }
+
 }

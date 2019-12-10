@@ -33,7 +33,7 @@ export class PlayersService {
       steamId: steamProfile.id,
       name: etf2lProfile.name,
       avatarUrl: steamProfile.photos[0].value,
-      role: null,
+      role: this.configService.superUser === steamProfile.id ? 'super-user' : null,
       etf2lProfileId: etf2lProfile.id,
     });
 

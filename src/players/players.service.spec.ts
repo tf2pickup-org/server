@@ -6,11 +6,18 @@ import { getModelToken } from 'nestjs-typegoose';
 import { SteamProfile } from './models/steam-profile';
 
 class ConfigServiceStub {
-
+  superUser = null;
 }
 
 class Etf2lProfileServiceStub {
-  fetchPlayerInfo(steamId: string) { return null; }
+  fetchPlayerInfo(steamId: string): any {
+    return {
+      id: 12345,
+      name: 'FAKE_ETF2L_NAME',
+      country: 'SOME_COUNTRY',
+      classes: [],
+    };
+  }
 }
 
 const playerModel = {
@@ -21,6 +28,7 @@ const playerModel = {
 
 describe('PlayersService', () => {
   let service: PlayersService;
+  let configService: ConfigServiceStub;
   let etf2lProfileService: Etf2lProfileServiceStub;
 
   beforeEach(async () => {
@@ -34,6 +42,7 @@ describe('PlayersService', () => {
     }).compile();
 
     service = module.get<PlayersService>(PlayersService);
+    configService = module.get(ConfigService);
     etf2lProfileService = module.get(Etf2lProfileService);
   });
 
@@ -74,7 +83,7 @@ describe('PlayersService', () => {
     it('should deny creating profiles for players with ETF2L bans', async () => {
       const banEnd = new Date();
       banEnd.setHours(banEnd.getHours() + 1);
-      const spy = spyOn(etf2lProfileService, 'fetchPlayerInfo').and.returnValue({ bans: [ { end: banEnd } ] });
+      const spy = spyOn(etf2lProfileService, 'fetchPlayerInfo').and.returnValue({ bans: [ { end: banEnd.getTime(), reason: '', start: 0 } ] });
       await expectAsync(service.createPlayer(steamProfile)).toBeRejectedWithError('this account is banned on ETF2L');
       expect(spy).toHaveBeenCalledWith('FAKE_STEAM_ID');
     });
@@ -82,9 +91,9 @@ describe('PlayersService', () => {
     it('should eventually create new player', async () => {
       const banEnd = new Date();
       banEnd.setHours(banEnd.getHours() - 1);
-      spyOn(etf2lProfileService, 'fetchPlayerInfo').and.returnValue({ id: 12345, name: 'FAKE_ETF2L_NAME', bans: [ { end: banEnd } ] });
+      spyOn(etf2lProfileService, 'fetchPlayerInfo').and.returnValue({ id: 12345, name: 'FAKE_ETF2L_NAME', bans: [ { end: banEnd.getTime() } ] });
 
-      const player = { name: 'FAKE_NAME' };
+      const player = { id: 'FAKE_STEAM_ID', name: 'FAKE_NAME' };
       const spy = spyOn(playerModel, 'create').and.returnValue(player);
 
       const ret = await service.createPlayer(steamProfile);
@@ -97,6 +106,20 @@ describe('PlayersService', () => {
         etf2lProfileId: 12345,
       });
       expect(ret as any).toEqual(player);
+    });
+
+    it('should assign the super-user role', async () => {
+      configService.superUser = 'FAKE_STEAM_ID';
+      const spy = spyOn(playerModel, 'create');
+      await service.createPlayer(steamProfile);
+
+      expect(spy).toHaveBeenCalledWith({
+        steamId: 'FAKE_STEAM_ID',
+        name: 'FAKE_ETF2L_NAME',
+        avatarUrl: 'FAKE_AVATAR_URL',
+        role: 'super-user',
+        etf2lProfileId: 12345,
+      });
     });
   });
 });
