@@ -9,10 +9,16 @@ import { authenticate } from 'passport';
 import { TypegooseModule } from 'nestjs-typegoose';
 import { RefreshToken } from './models/refresh-token';
 import { KeyStoreService } from './key-store.service';
+import { JwtStrategy } from './jwt.strategy';
+
+const passportModule = PassportModule.register({
+  defaultStrategy: 'jwt',
+  session: false,
+});
 
 @Module({
   imports: [
-    PassportModule.register({ defaultStrategy: 'jwt' }),
+    passportModule,
     TypegooseModule.forFeature([ RefreshToken ]),
 
     ConfigModule,
@@ -20,11 +26,15 @@ import { KeyStoreService } from './key-store.service';
   ],
   providers: [
     AuthService,
-    SteamStrategy,
     KeyStoreService,
+    SteamStrategy,
+    JwtStrategy,
   ],
   controllers: [
     AuthController,
+  ],
+  exports: [
+    passportModule,
   ],
 })
 export class AuthModule implements NestModule {
