@@ -96,7 +96,7 @@ describe('PlayersService', () => {
         role: null,
         etf2lProfileId: 12345,
       });
-      expect(ret).toEqual(player);
+      expect(ret as any).toEqual(player);
     });
   });
 });

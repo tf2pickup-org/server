@@ -9,9 +9,7 @@ import { Player } from './models/player';
   imports: [
     HttpModule,
     ConfigModule,
-    TypegooseModule.forFeature([
-      Player,
-    ]),
+    TypegooseModule.forFeature([ Player ]),
   ],
   providers: [
     PlayersService,
