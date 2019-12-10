@@ -40,4 +40,19 @@ export class PlayersService {
     return player;
   }
 
+  /**
+   * Player accepts the rules.
+   * Without accepting the rules, player cannot join the queue nor any game.
+   */
+  async acceptTerms(playerId: string): Promise<DocumentType<Player>> {
+    const player = await this.findById(playerId);
+    if (!player) {
+      throw new Error('no such player');
+    }
+
+    player.hasAcceptedRules = true;
+    await player.save();
+    return player;
+  }
+
 }

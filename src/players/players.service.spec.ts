@@ -122,4 +122,25 @@ describe('PlayersService', () => {
       });
     });
   });
+
+  describe('#acceptTerms', () => {
+    it('should accept the terms', async () => {
+      const player = {
+        hasAcceptedRules: false,
+        save: () => null,
+      };
+      const spy = spyOn(service, 'findById').and.returnValue(new Promise(resolve => resolve(player as any)));
+      const spy2 = spyOn(player, 'save');
+
+      await service.acceptTerms('FAKE_ID');
+      expect(spy).toHaveBeenCalledWith('FAKE_ID');
+      expect(player.hasAcceptedRules).toBe(true);
+      expect(spy2).toHaveBeenCalled();
+    });
+
+    it('should fail if the given user doesn\'t exist', async () => {
+      spyOn(service, 'findById').and.returnValue(new Promise(resolve => resolve(null)));
+      await expectAsync(service.acceptTerms('FAKE_ID')).toBeRejectedWithError('no such player');
+    });
+  });
 });
