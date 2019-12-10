@@ -25,8 +25,8 @@ export class AuthController {
           return res.sendStatus(401);
         }
 
-        const refreshToken = this.authService.generateJwtToken('refresh', user.id);
-        const authToken = this.authService.generateJwtToken('auth', user.id);
+        const refreshToken = this.authService.generateJwtToken('refresh', user._id);
+        const authToken = this.authService.generateJwtToken('auth', user._id);
         return res.redirect(`${this.configService.clientUrl}?refresh_token=${refreshToken}&auth_token=${authToken}`);
       })(req, res, next);
     });
