@@ -5,12 +5,13 @@ import { Etf2lProfileService } from './etf2l-profile.service';
 import { TypegooseModule } from 'nestjs-typegoose';
 import { Player } from './models/player';
 import { PlayerBansService } from './services/player-bans.service';
+import { PlayerBan } from './models/player-ban';
 
 @Module({
   imports: [
     HttpModule,
     ConfigModule,
-    TypegooseModule.forFeature([ Player ]),
+    TypegooseModule.forFeature([ Player, PlayerBan ]),
   ],
   providers: [
     PlayersService,
@@ -19,6 +20,7 @@ import { PlayerBansService } from './services/player-bans.service';
   ],
   exports: [
     PlayersService,
+    PlayerBansService,
   ],
 })
 export class PlayersModule { }

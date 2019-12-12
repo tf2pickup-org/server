@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { QueueSlot } from '@/queue/queue-slot';
 import { PlayersService } from '@/players/services/players.service';
 import { QueueConfigService } from './queue-config.service';
+import { PlayerBansService } from '@/players/services/player-bans.service';
 
 // waiting: waiting for players
 // ready: players are expected to ready up
@@ -17,6 +18,7 @@ export class QueueService {
   constructor(
     private playersService: PlayersService,
     private queueConfigService: QueueConfigService,
+    private playerBansService: PlayerBansService,
   ) {
     this.resetSlots();
   }
