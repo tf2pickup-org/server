@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { QueueSlot } from '@/queue/queue-slot';
 import { PlayersService } from '@/players/services/players.service';
 import { QueueConfigService } from './queue-config.service';
@@ -15,6 +15,7 @@ type QueueState = 'waiting' | 'ready' | 'launching';
 export class QueueService {
 
   slots: QueueSlot[] = [];
+  private logger = new Logger(QueueService.name);
   private _state = new BehaviorSubject<QueueState>('waiting');
   private timer: NodeJS.Timer;
 
@@ -49,6 +50,7 @@ export class QueueService {
 
   reset() {
     this.resetSlots();
+    this.logger.log('queue reset');
     setImmediate(() => this.maybeUpdateState());
   }
 
@@ -95,6 +97,7 @@ export class QueueService {
       targetSlot.ready = true;
     }
 
+    this.logger.log(`player ${player.name} joined the queue (slotId=${targetSlot.id}, gameClass=${targetSlot.gameClass})`);
     setImmediate(() => this.maybeUpdateState());
     return [ targetSlot, ...oldSlots ];
   }
@@ -107,6 +110,7 @@ export class QueueService {
       }
 
       this.clearSlot(slot);
+      this.logger.log(`slot ${slot.id} (gameClass=${slot.gameClass}) free`);
       setImmediate(() => this.maybeUpdateState());
       return slot;
     } else {
@@ -121,6 +125,7 @@ export class QueueService {
 
     const slots = this.slots.filter(s => playerIds.includes(s.playerId));
     slots.forEach(s => this.clearSlot(s));
+    slots.forEach(slot => this.logger.log(`slot ${slot.id} (gameClass=${slot.gameClass}) free (player was kicked)`));
     setImmediate(() => this.maybeUpdateState());
   }
 
@@ -132,6 +137,7 @@ export class QueueService {
     const slot = this.slots.find(s => s.playerId === playerId);
     if (slot) {
       slot.ready = true;
+      this.logger.log(`slot ${slot.id} ready (${this.readyPlayerCount}/${this.requiredPlayerCount})`);
       setImmediate(() => this.maybeUpdateState());
       return slot;
     } else {
@@ -201,6 +207,8 @@ export class QueueService {
     } else if (oldState === 'ready' && newState === 'launching') {
       clearTimeout(this.timer);
     }
+
+    this.logger.log(`queue state change (${oldState} => ${newState})`);
   }
 
   private readyUpTimeout() {

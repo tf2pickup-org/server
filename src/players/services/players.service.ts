@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@/config/config.service';
 import { Player } from '../models/player';
 import { DocumentType, ReturnModelType } from '@typegoose/typegoose';
@@ -8,6 +8,8 @@ import { InjectModel } from 'nestjs-typegoose';
 
 @Injectable()
 export class PlayersService {
+
+  private logger = new Logger(PlayersService.name);
 
   constructor(
     private configService: ConfigService,
@@ -37,6 +39,7 @@ export class PlayersService {
       etf2lProfileId: etf2lProfile.id,
     });
 
+    this.logger.log(`created new player (name: ${player?.name})`);
     return player;
   }
 
