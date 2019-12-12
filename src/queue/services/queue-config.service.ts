@@ -14,7 +14,7 @@ export class QueueConfigService {
   constructor(
     private configService: ConfigService,
   ) {
-    const configFileName = join(__dirname, '..', 'configs', `${this.configService.queueConfig}.json`);
+    const configFileName = join('configs', 'queue', `${this.configService.queueConfig}.json`);
     this.logger.log(`Using ${configFileName} for queue config`);
     const data = readFileSync(configFileName, 'utf-8');
     this.queueConfig = JSON.parse(data) as QueueConfig;
