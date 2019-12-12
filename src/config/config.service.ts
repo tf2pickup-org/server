@@ -39,4 +39,8 @@ export class ConfigService {
     return this.config.SUPER_USER;
   }
 
+  get queueConfig() {
+    return this.config.QUEUE_CONFIG;
+  }
+
 }

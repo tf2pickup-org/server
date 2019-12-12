@@ -8,20 +8,20 @@ export class Player {
   name!: string;
 
   @prop({ required: true, unique: true })
-  public steamId!: string;
+  steamId!: string;
 
   @prop({ default: () => new Date() })
-  public joinedAt?: Date;
+  joinedAt?: Date;
 
   @prop()
-  public avatarUrl?: string;
+  avatarUrl?: string;
 
   @prop()
-  public role?: PlayerRole;
+  role?: PlayerRole;
 
   @prop({ default: false })
-  public hasAcceptedRules!: boolean;
+  hasAcceptedRules!: boolean;
 
   @prop()
-  public etf2lProfileId?: number;
+  etf2lProfileId?: number;
 }

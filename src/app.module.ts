@@ -7,6 +7,9 @@ import { ConfigService } from './config/config.service';
 import { AuthModule } from './auth/auth.module';
 import { PlayersModule } from './players/players.module';
 import { ProfileModule } from './profile/profile.module';
+import { QueueModule } from './queue/queue.module';
+import { GamesModule } from './games/games.module';
+import { GameServersModule } from './game-servers/game-servers.module';
 
 function createMongodbUri(host: string, port: string, db: string) {
   return `mongodb://${host}:${port}/${db}`;
@@ -27,6 +30,9 @@ function createMongodbUri(host: string, port: string, db: string) {
     AuthModule,
     PlayersModule,
     ProfileModule,
+    QueueModule,
+    GamesModule,
+    GameServersModule,
   ],
   controllers: [ AppController ],
   providers: [ AppService ],

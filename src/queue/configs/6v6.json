@@ -1,0 +1,35 @@
+{
+  "teamCount": 2,
+  "classes": [
+    {
+      "name": "scout",
+      "count": 2
+    },
+    {
+      "name": "soldier",
+      "count": 2
+    },
+    {
+      "name": "demoman",
+      "count": 1
+    },
+    {
+      "name": "medic",
+      "count": 1
+    }
+  ],
+  "readyUptimeout": 40000,
+  "queueReadyTimeout": 60000,
+  "maps": [
+    "cp_process_final",
+    "cp_snakewater_final1",
+    "cp_sunshine",
+    "cp_granary_pro_rc8",
+    "cp_gullywash_final1",
+    "cp_reckoner_rc2",
+    "cp_prolands_rc2t"
+  ],
+  "execConfigs": [
+    "etf2l_6v6_5cp"
+  ]
+}

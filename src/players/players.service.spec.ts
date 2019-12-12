@@ -50,10 +50,10 @@ describe('PlayersService', () => {
     expect(service).toBeDefined();
   });
 
-  describe('#findById()', () => {
+  describe('#getById()', () => {
     it('should query playerModel', () => {
       const spy = spyOn(playerModel, 'findById');
-      service.findById('FAKE_ID');
+      service.getById('FAKE_ID');
       expect(spy).toHaveBeenCalledWith('FAKE_ID');
     });
   });
@@ -129,7 +129,7 @@ describe('PlayersService', () => {
         hasAcceptedRules: false,
         save: () => null,
       };
-      const spy = spyOn(service, 'findById').and.returnValue(new Promise(resolve => resolve(player as any)));
+      const spy = spyOn(service, 'getById').and.returnValue(new Promise(resolve => resolve(player as any)));
       const spy2 = spyOn(player, 'save');
 
       await service.acceptTerms('FAKE_ID');
@@ -139,7 +139,7 @@ describe('PlayersService', () => {
     });
 
     it('should fail if the given user doesn\'t exist', async () => {
-      spyOn(service, 'findById').and.returnValue(new Promise(resolve => resolve(null)));
+      spyOn(service, 'getById').and.returnValue(new Promise(resolve => resolve(null)));
       await expectAsync(service.acceptTerms('FAKE_ID')).toBeRejectedWithError('no such player');
     });
   });

@@ -15,7 +15,7 @@ export class PlayersService {
     @InjectModel(Player) private playerModel: ReturnModelType<typeof Player>,
   ) { }
 
-  async findById(id: string): Promise<DocumentType<Player>> {
+  async getById(id: string): Promise<DocumentType<Player>> {
     return await this.playerModel.findById(id);
   }
 
@@ -45,7 +45,7 @@ export class PlayersService {
    * Without accepting the rules, player cannot join the queue nor any game.
    */
   async acceptTerms(playerId: string): Promise<DocumentType<Player>> {
-    const player = await this.findById(playerId);
+    const player = await this.getById(playerId);
     if (!player) {
       throw new Error('no such player');
     }
