@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { QueueSlot } from '@/queue/queue-slot';
-import { PlayersService } from '@/players/players.service';
+import { PlayersService } from '@/players/services/players.service';
 import { QueueConfigService } from './queue-config.service';
 
 // waiting: waiting for players

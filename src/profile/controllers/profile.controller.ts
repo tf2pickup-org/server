@@ -2,7 +2,7 @@ import { Controller, Get, Post, Query, HttpCode, BadRequestException } from '@ne
 import { Auth } from '@/auth/auth.decorator';
 import { User } from '@/auth/user.decorator';
 import { Player } from '@/players/models/player';
-import { PlayersService } from '@/players/players.service';
+import { PlayersService } from '@/players/services/players.service';
 
 @Controller('profile')
 export class ProfileController {

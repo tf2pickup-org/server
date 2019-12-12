@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@/config/config.service';
-import { Player } from './models/player';
+import { Player } from '../models/player';
 import { DocumentType, ReturnModelType } from '@typegoose/typegoose';
-import { SteamProfile } from './models/steam-profile';
-import { Etf2lProfileService } from './etf2l-profile.service';
+import { SteamProfile } from '../models/steam-profile';
+import { Etf2lProfileService } from '../etf2l-profile.service';
 import { InjectModel } from 'nestjs-typegoose';
 
 @Injectable()

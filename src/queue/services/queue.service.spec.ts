@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { QueueService } from './queue.service';
-import { PlayersService } from '@/players/players.service';
+import { PlayersService } from '@/players/services/players.service';
 import { Player } from '@/players/models/player';
 import { QueueConfigService } from './queue-config.service';
 

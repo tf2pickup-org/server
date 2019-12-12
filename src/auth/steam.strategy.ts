@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import steam = require('passport-steam');
-import { PlayersService } from 'src/players/players.service';
+import { PlayersService } from '@/players/services/players.service';
 import { ConfigService } from 'src/config/config.service';
 import { SteamProfile } from 'src/players/models/steam-profile';
 import { PassportStrategy } from '@nestjs/passport';

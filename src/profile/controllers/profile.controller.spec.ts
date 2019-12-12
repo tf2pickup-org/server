@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ProfileController } from './profile.controller';
 import { Player } from '@/players/models/player';
-import { PlayersService } from '@/players/players.service';
+import { PlayersService } from '@/players/services/players.service';
 
 class PlayersServiceStub {
   acceptTerms(playerId: string) { return null; }
