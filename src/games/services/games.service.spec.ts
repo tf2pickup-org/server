@@ -7,6 +7,8 @@ import { QueueConfigService } from '@/queue/services/queue-config.service';
 import { Player } from '@/players/models/player';
 import { PlayerSkill } from '@/players/models/player-skill';
 import { QueueSlot } from '@/queue/queue-slot';
+import { GameServersService } from '@/game-servers/services/game-servers.service';
+import { ConfigService } from '@/config/config.service';
 
 const gameModel = {
   findById: async (id: string) => new Promise(resolve => resolve(null)),
@@ -52,9 +54,33 @@ class QueueConfigServiceStub {
   };
 }
 
+class GameServersServiceStub {
+  gameServer = {
+    name: 'FAKE_GAME_SERVER_NAME',
+    address: 'melkor.tf',
+    port: 27015,
+    rconPassword: 'FAKE_RCON_PASSWORD',
+    isAvailable: true,
+    isOnline: true,
+    isFree: true,
+    resolvedIpAddresses: [
+      '192.168.1.1',
+    ],
+    mumbleChannelName: 'FAKE_MUMBLE_GAME_CHANNEL',
+  };
+  findFreeGameServer() { return new Promise(resolve => resolve(this.gameServer)); }
+  takeServer(serverId: string) { return null; }
+}
+
+class ConfigServiceStub {
+  mumbleServerUrl = 'FAKE_MUMBLE_URL';
+  mumbleChannelName = 'FAKE_MUMBLE_CHANNEL';
+}
+
 describe('GamesService', () => {
   let service: GamesService;
   let queueConfigService: QueueConfigServiceStub;
+  let gameServersService: GameServersServiceStub;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -64,11 +90,14 @@ describe('GamesService', () => {
         { provide: PlayersService, useClass: PlayersServiceStub },
         { provide: PlayerSkillService, useClass: PlayerSkillServiceStub },
         { provide: QueueConfigService, useClass: QueueConfigServiceStub },
+        { provide: GameServersService, useClass: GameServersServiceStub },
+        { provide: ConfigService, useClass: ConfigServiceStub },
       ],
     }).compile();
 
     service = module.get<GamesService>(GamesService);
     queueConfigService = module.get(QueueConfigService);
+    gameServersService = module.get(GameServersService);
   });
 
   it('should be defined', () => {
@@ -119,6 +148,32 @@ describe('GamesService', () => {
           'FAKE_PLAYER_ID_6', 'FAKE_PLAYER_ID_7', 'FAKE_PLAYER_ID_8', 'FAKE_PLAYER_ID_9', 'FAKE_PLAYER_ID_10', 'FAKE_PLAYER_ID_11' ],
         assignedSkills: jasmine.any(Object),
       });
+    });
+  });
+
+  describe('#launch()', () => {
+    it('should fail when trying to launch an non-existent game', async () => {
+      spyOn(gameModel, 'findById').and.returnValue(new Promise(resolve => resolve(null)));
+      await expectAsync(service.launch('FAKE_ID')).toBeRejectedWithError('no such game');
+    });
+
+    it('should fail when trying to launch agame that has already been launched', async () => {
+      spyOn(gameModel, 'findById').and.returnValue(new Promise(resolve => resolve({ state: 'started' })));
+      await expectAsync(service.launch('FAKE_ID')).toBeRejectedWithError('game already launched');
+    });
+
+    it('should take the first free server', async () => {
+      const game: any = {
+        state: 'launching',
+        save: () => null,
+      };
+      spyOn(gameModel, 'findById').and.returnValue(new  Promise(resolve => resolve(game)));
+      const findFreeGameServerSpy = spyOn(gameServersService, 'findFreeGameServer').and.callThrough();
+      const takeServerSpy = spyOn(gameServersService, 'takeServer').and.callThrough();
+      await service.launch('FAKE_GAME_ID');
+      expect(findFreeGameServerSpy).toHaveBeenCalled();
+      expect(takeServerSpy).toHaveBeenCalled();
+      expect(game.mumbleUrl).toEqual('mumble://FAKE_MUMBLE_URL/FAKE_MUMBLE_CHANNEL/FAKE_MUMBLE_GAME_CHANNEL');
     });
   });
 });

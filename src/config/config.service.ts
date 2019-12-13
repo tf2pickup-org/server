@@ -43,4 +43,12 @@ export class ConfigService {
     return this.config.QUEUE_CONFIG;
   }
 
+  get mumbleServerUrl() {
+    return this.config.MUMBLE_SERVER_URL;
+  }
+
+  get mumbleChannelName() {
+    return this.config.MUMBLE_CHANNEL_NAME;
+  }
+
 }
