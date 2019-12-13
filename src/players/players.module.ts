@@ -6,6 +6,7 @@ import { TypegooseModule } from 'nestjs-typegoose';
 import { Player } from './models/player';
 import { PlayerBansService } from './services/player-bans.service';
 import { PlayerBan } from './models/player-ban';
+import { PlayerSkillService } from './services/player-skill.service';
 
 @Module({
   imports: [
@@ -17,10 +18,12 @@ import { PlayerBan } from './models/player-ban';
     PlayersService,
     Etf2lProfileService,
     PlayerBansService,
+    PlayerSkillService,
   ],
   exports: [
     PlayersService,
     PlayerBansService,
+    PlayerSkillService,
   ],
 })
 export class PlayersModule { }
