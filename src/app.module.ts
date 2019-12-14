@@ -10,6 +10,7 @@ import { ProfileModule } from './profile/profile.module';
 import { QueueModule } from './queue/queue.module';
 import { GamesModule } from './games/games.module';
 import { GameServersModule } from './game-servers/game-servers.module';
+import { SharedModule } from './shared/shared.module';
 
 function createMongodbUri(host: string, port: string, db: string) {
   return `mongodb://${host}:${port}/${db}`;
@@ -33,6 +34,7 @@ function createMongodbUri(host: string, port: string, db: string) {
     QueueModule,
     GamesModule,
     GameServersModule,
+    SharedModule,
   ],
   controllers: [ AppController ],
   providers: [ AppService ],

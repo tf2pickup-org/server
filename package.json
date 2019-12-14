@@ -22,6 +22,8 @@
     "@nestjs/passport": "^6.1.1",
     "@nestjs/platform-express": "^6.7.2",
     "@typegoose/typegoose": "^6.1.7",
+    "class-transformer": "^0.2.3",
+    "class-validator": "^0.11.0",
     "dotenv": "^8.2.0",
     "gamedig": "^2.0.20",
     "generate-password": "^1.4.2",
