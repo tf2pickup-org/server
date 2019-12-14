@@ -23,7 +23,10 @@
         "check-format",
         "allow-leading-underscore"
       ]
-    }
+    },
+    "no-focused-test": true
   },
-  "rulesDirectory": []
+  "rulesDirectory": [
+    "tslint-no-focused-test"
+  ]
 }
