@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { Etf2lProfileService } from './etf2l-profile.service';
 import { HttpService } from '@nestjs/common';
-import { Etf2lProfile } from './models/etf2l-profile';
+import { Etf2lProfile } from '../models/etf2l-profile';
 import { of } from 'rxjs';
 
 class HttpServiceStub {

@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { PlayersService } from './players.service';
 import { ConfigService } from '@/config/config.service';
-import { Etf2lProfileService } from '../etf2l-profile.service';
+import { Etf2lProfileService } from './etf2l-profile.service';
 import { getModelToken } from 'nestjs-typegoose';
 import { SteamProfile } from '../models/steam-profile';
 
