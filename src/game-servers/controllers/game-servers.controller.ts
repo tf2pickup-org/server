@@ -30,7 +30,7 @@ export class GameServersController {
   }
 
   @Post()
-  @Auth()
+  @Auth('super-user')
   @UsePipes(ValidationPipe)
   async addGameServer(@Body() gameServer: GameServer) {
     return this.gameServersService.addGameServer(gameServer);
