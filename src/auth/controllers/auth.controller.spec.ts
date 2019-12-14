@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { AuthController } from './auth.controller';
 import { ConfigService } from '@/config/config.service';
 import { HttpAdapterHost } from '@nestjs/core';
-import { AuthService } from './auth.service';
+import { AuthService } from '../services/auth.service';
 
 class ConfigServiceStub {
   clientUrl = '';

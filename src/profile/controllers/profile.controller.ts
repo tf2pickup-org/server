@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Query, HttpCode, BadRequestException } from '@nestjs/common';
-import { Auth } from '@/auth/auth.decorator';
-import { User } from '@/auth/user.decorator';
+import { Auth } from '@/auth/decorators/auth.decorator';
+import { User } from '@/auth/decorators/user.decorator';
 import { Player } from '@/players/models/player';
 import { PlayersService } from '@/players/services/players.service';
 

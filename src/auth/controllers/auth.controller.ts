@@ -2,7 +2,7 @@ import { Controller } from '@nestjs/common';
 import { HttpAdapterHost } from '@nestjs/core';
 import { authenticate } from 'passport';
 import { ConfigService } from '@/config/config.service';
-import { AuthService } from './auth.service';
+import { AuthService } from '../services/auth.service';
 
 @Controller('auth')
 export class AuthController {

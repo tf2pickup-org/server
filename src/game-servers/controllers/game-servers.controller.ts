@@ -2,7 +2,7 @@ import { Controller, Get, Param, NotFoundException, Post, Body, UsePipes, Valida
 import { GameServersService } from '../services/game-servers.service';
 import { RemoveRconPassword } from '../decorators/remove-rcon-password.decorator';
 import { ObjectIdValidationPipe } from '@/shared/pipes/object-id-validation.pipe';
-import { Auth } from '@/auth/auth.decorator';
+import { Auth } from '@/auth/decorators/auth.decorator';
 import { GameServer } from '../models/game-server';
 
 @Controller('game-servers')

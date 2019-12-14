@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { sign } from 'jsonwebtoken';
 import { InjectModel } from 'nestjs-typegoose';
-import { RefreshToken } from './models/refresh-token';
+import { RefreshToken } from '../models/refresh-token';
 import { ReturnModelType } from '@typegoose/typegoose';
 import { KeyStoreService } from './key-store.service';
 
