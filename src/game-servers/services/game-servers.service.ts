@@ -26,9 +26,19 @@ export class GameServersService implements OnModuleInit {
   }
 
   async addGameServer(gameServer: Partial<GameServer>): Promise<DocumentType<GameServer>> {
-    const addresses = await resolve(gameServer.address);
-    this.logger.log(`resolved addresses for ${gameServer.address}: ${addresses}`);
-    gameServer.resolvedIpAddresses = addresses;
+    const resolvedIpAddresses = await resolve(gameServer.address);
+    this.logger.log(`resolved addresses for ${gameServer.address}: ${resolvedIpAddresses}`);
+    gameServer.resolvedIpAddresses = resolvedIpAddresses;
+
+    if (!gameServer.mumbleChannelName) {
+      const latestServer = await this.gameServerModel.findOne({ mumbleChannelName: { $ne: null } }, {}, { sort: { createdAt: -1 } });
+      if (latestServer) {
+        const id = parseInt(latestServer.mumbleChannelName, 10) + 1;
+        gameServer.mumbleChannelName = `${id}`;
+      } else {
+        gameServer.mumbleChannelName = '1';
+      }
+    }
 
     const ret = await this.gameServerModel.create(gameServer);
     this.logger.log(`game server ${ret.id} (${ret.name}) added`);
