@@ -14,6 +14,7 @@ class GameServersServiceStub {
   async getAllGameServers() { return new Promise(resolve => resolve([ this.gameServer ])); }
   async getById(id: string) { return new Promise(resolve => resolve(this.gameServer)); }
   async addGameServer(gameServer: any) { return new Promise(resolve => resolve(gameServer)); }
+  async removeGameServer(id: string) { return new  Promise(resolve => resolve()); }
 }
 
 describe('GameServers Controller', () => {
@@ -65,6 +66,14 @@ describe('GameServers Controller', () => {
       const ret = await controller.addGameServer(gameServersService.gameServer);
       expect(spy).toHaveBeenCalledWith(gameServersService.gameServer);
       expect(ret).toEqual(gameServersService.gameServer as any);
+    });
+  });
+
+  describe('#removeGameServer()', () => {
+    it('should call the service', async () => {
+      const spy = spyOn(gameServersService, 'removeGameServer').and.callThrough();
+      await controller.removeGameServer('FAKE_ID');
+      expect(spy).toHaveBeenCalledWith('FAKE_ID');
     });
   });
 });
