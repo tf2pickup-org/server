@@ -1,10 +1,12 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
 import { ConfigService } from '@/config/config.service';
 import { Player } from '../models/player';
 import { DocumentType, ReturnModelType } from '@typegoose/typegoose';
 import { SteamProfile } from '../models/steam-profile';
 import { Etf2lProfileService } from './etf2l-profile.service';
 import { InjectModel } from 'nestjs-typegoose';
+import { GamesService } from '@/games/services/games.service';
+import { PlayerStats } from '../models/player-stats';
 
 @Injectable()
 export class PlayersService {
@@ -15,6 +17,7 @@ export class PlayersService {
     private configService: ConfigService,
     private etf2lProfileService: Etf2lProfileService,
     @InjectModel(Player) private playerModel: ReturnModelType<typeof Player>,
+    @Inject(forwardRef(() => GamesService)) private gamesService: GamesService,
   ) { }
 
   async getAll(): Promise<Array<DocumentType<Player>>> {
@@ -73,6 +76,12 @@ export class PlayersService {
     player.hasAcceptedRules = true;
     await player.save();
     return player;
+  }
+
+  async getPlayerStats(playerId: string): Promise<PlayerStats> {
+    const gamesPlayed = await this.gamesService.getPlayerGameCount(playerId, { endedOnly: true });
+    const classesPlayed = await this.gamesService.getPlayerPlayedClassCount(playerId);
+    return { player: playerId, gamesPlayed, classesPlayed };
   }
 
 }

@@ -148,6 +148,9 @@ describe('GamesService', () => {
       const spy = spyOn(gameModel, 'countDocuments').and.callThrough();
       await service.getPlayerGameCount('FAKE_ID');
       expect(spy).toHaveBeenCalledWith({ players: 'FAKE_ID' });
+
+      await service.getPlayerGameCount('FAKE_ID', { endedOnly: true });
+      expect(spy).toHaveBeenCalledWith({ players: 'FAKE_ID', state: 'ended' });
     });
   });
 

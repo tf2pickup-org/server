@@ -4,6 +4,7 @@ import { PlayersService } from '../services/players.service';
 import { Player } from '../models/player';
 import { GamesService } from '@/games/services/games.service';
 import { Game } from '@/games/models/game';
+import { PlayerStats } from '../models/player-stats';
 
 class PlayersServiceStub {
   player: Player = {
@@ -12,9 +13,20 @@ class PlayersServiceStub {
     steamId: 'FAKE_STEAM_ID',
     hasAcceptedRules: true,
   };
+  stats: PlayerStats = {
+    player: 'FAKE_ID',
+    gamesPlayed: 220,
+    classesPlayed: {
+      scout: 19,
+      soldier: 102,
+      demoman: 0,
+      medic: 92,
+    },
+  };
   getAll() { return new Promise(resolve => resolve([ this.player ])); }
   getById(id: string) { return new Promise(resolve => resolve(this.player)); }
   updatePlayer(playerId: string, update: Partial<Player>) { return new Promise(resolve => resolve(this.player)); }
+  getPlayerStats(playerId: string) { return new Promise(resolve => resolve(this.stats)); }
 }
 
 class GamesServiceStub {
@@ -22,7 +34,6 @@ class GamesServiceStub {
     { number: 1, map: 'cp_fake_rc1', state: 'ended' },
     { number: 2, map: 'cp_fake_rc2', state: 'launching' },
   ];
-
   getPlayerGames(playerId: string, sort: any = { launchedAt: -1 }, limit: number = 10, skip: number = 0) {
     return new Promise(resolve => resolve(this.games));
   }
@@ -100,6 +111,15 @@ describe('Players Controller', () => {
 
     it('should throw an error unless the sort param is correct', async () => {
       await expectAsync(controller.getPlayerGames('FAKE_ID', 3, 5, 'lol')).toBeRejectedWithError();
+    });
+  });
+
+  describe('#getPlayerStats()', () => {
+    it('should return player stats', async () => {
+      const spy = spyOn(playersService, 'getPlayerStats').and.callThrough();
+      const ret = await controller.getPlayerStats('FAKE_ID');
+      expect(spy).toHaveBeenCalledWith('FAKE_ID');
+      expect(ret).toEqual(playersService.stats);
     });
   });
 });

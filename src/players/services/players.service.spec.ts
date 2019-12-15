@@ -4,6 +4,7 @@ import { ConfigService } from '@/config/config.service';
 import { Etf2lProfileService } from './etf2l-profile.service';
 import { getModelToken } from 'nestjs-typegoose';
 import { SteamProfile } from '../models/steam-profile';
+import { GamesService } from '@/games/services/games.service';
 
 class ConfigServiceStub {
   superUser = null;
@@ -20,6 +21,18 @@ class Etf2lProfileServiceStub {
   }
 }
 
+class GamesServiceStub {
+  classCount = {
+    scout: 19,
+    soldier: 102,
+    demoman: 0,
+    medic: 92,
+  };
+
+  getPlayerGameCount(playerId: string, options: any) { return 220; }
+  getPlayerPlayedClassCount(playerId: string) { return this.classCount; }
+}
+
 const playerModel = {
   findById: (id: string) => null,
   findOne: (obj: any) => null,
@@ -30,6 +43,7 @@ describe('PlayersService', () => {
   let service: PlayersService;
   let configService: ConfigServiceStub;
   let etf2lProfileService: Etf2lProfileServiceStub;
+  let gamesService: GamesServiceStub;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -38,12 +52,14 @@ describe('PlayersService', () => {
         { provide: ConfigService, useClass: ConfigServiceStub },
         { provide: Etf2lProfileService, useClass: Etf2lProfileServiceStub },
         { provide: getModelToken('Player'), useValue: playerModel },
+        { provide: GamesService, useClass: GamesServiceStub },
       ],
     }).compile();
 
     service = module.get<PlayersService>(PlayersService);
     configService = module.get(ConfigService);
     etf2lProfileService = module.get(Etf2lProfileService);
+    gamesService = module.get(GamesService);
   });
 
   it('should be defined', () => {
@@ -163,6 +179,21 @@ describe('PlayersService', () => {
     it('should fail if the given user doesn\'t exist', async () => {
       spyOn(service, 'getById').and.returnValue(new Promise(resolve => resolve(null)));
       await expectAsync(service.acceptTerms('FAKE_ID')).toBeRejectedWithError('no such player');
+    });
+  });
+
+  describe('#getPlayerStats()', () => {
+    it('should return the stats', async () => {
+      const spy1 = spyOn(gamesService, 'getPlayerGameCount').and.callThrough();
+      const spy2 = spyOn(gamesService, 'getPlayerPlayedClassCount').and.callThrough();
+      const ret = await service.getPlayerStats('FAKE_ID');
+      expect(spy1).toHaveBeenCalledWith('FAKE_ID', { endedOnly: true });
+      expect(spy2).toHaveBeenCalledWith('FAKE_ID');
+      expect(ret).toEqual({
+        player: 'FAKE_ID',
+        gamesPlayed: 220,
+        classesPlayed: gamesService.classCount,
+      });
     });
   });
 });

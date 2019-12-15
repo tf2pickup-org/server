@@ -61,4 +61,9 @@ export class PlayersController {
     return { results, itemCount };
   }
 
+  @Get(':id/stats')
+  async getPlayerStats(@Param('id', ObjectIdValidationPipe) playerId: string) {
+    return await this.playersService.getPlayerStats(playerId);
+  }
+
 }

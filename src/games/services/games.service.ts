@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
 import { InjectModel } from 'nestjs-typegoose';
 import { ReturnModelType, DocumentType } from '@typegoose/typegoose';
 import { Game } from '../models/game';
@@ -15,6 +15,10 @@ interface GameSortOptions {
   launchedAt: 1 | -1;
 }
 
+interface GetPlayerGameCountOptions {
+  endedOnly?: boolean;
+}
+
 @Injectable()
 export class GamesService {
 
@@ -22,7 +26,7 @@ export class GamesService {
 
   constructor(
     @InjectModel(Game) private gameModel: ReturnModelType<typeof Game>,
-    private playersService: PlayersService,
+    @Inject(forwardRef(() => PlayersService)) private playersService: PlayersService,
     private playerSkillService: PlayerSkillService,
     private queueConfigService: QueueConfigService,
     private gameServersService: GameServersService,
@@ -45,8 +49,29 @@ export class GamesService {
       .skip(skip);
   }
 
-  async getPlayerGameCount(playerId: string) {
-    return await this.gameModel.countDocuments({ players: playerId });
+  async getPlayerGameCount(playerId: string, options: GetPlayerGameCountOptions = { }) {
+    const defaultOptions: GetPlayerGameCountOptions = { endedOnly: false };
+    const _options = { ...defaultOptions, ...options };
+
+    let criteria: any = { players: playerId };
+    if (_options.endedOnly) {
+      criteria = { ...criteria, state: 'ended' };
+    }
+
+    return await this.gameModel.countDocuments(criteria);
+  }
+
+  async getPlayerPlayedClassCount(playerId: string): Promise<{ [gameClass: string]: number }> {
+    // fixme refactor this to aggregate
+    const allGames = await this.gameModel.find({ players: playerId, state: 'ended' });
+    return this.queueConfigService.queueConfig.classes
+      .map(cls => cls.name)
+      .reduce((prev, gameClass) => {
+        prev[gameClass] = allGames
+          .filter(g => !!g.slots.find(s => s.playerId === playerId && s.gameClass === gameClass))
+          .length;
+        return prev;
+      }, {});
   }
 
   async create(queueSlots: QueueSlot[], map: string): Promise<DocumentType<Game>> {
