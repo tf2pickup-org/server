@@ -1,4 +1,4 @@
-import { Module, HttpModule, forwardRef } from '@nestjs/common';
+import { Module, HttpModule } from '@nestjs/common';
 import { PlayersService } from './services/players.service';
 import { ConfigModule } from 'src/config/config.module';
 import { Etf2lProfileService } from './services/etf2l-profile.service';
@@ -9,11 +9,16 @@ import { PlayerBan } from './models/player-ban';
 import { PlayerSkillService } from './services/player-skill.service';
 import { PlayerSkill } from './models/player-skill';
 import { PlayersController } from './controllers/players.controller';
+import { standardSchemaOptions } from '@/utils/standard-schema-options';
 
 @Module({
   imports: [
     HttpModule,
-    TypegooseModule.forFeature([ Player, PlayerBan, PlayerSkill ]),
+    TypegooseModule.forFeature([
+      standardSchemaOptions(Player),
+      PlayerBan,
+      PlayerSkill,
+    ]),
 
     ConfigModule,
   ],

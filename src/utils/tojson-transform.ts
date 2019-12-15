@@ -18,7 +18,3 @@ export function removeRconPassword(doc: Document, ret: any) {
     delete ret.rconPassword;
   }
 }
-
-export function chain(...transformFunctions: TransformFn[]): TransformFn {
-  return (doc: Document, ret: any) => transformFunctions.forEach(fn => fn(doc, ret));
-}
