@@ -8,6 +8,7 @@ import { PlayerBansService } from './services/player-bans.service';
 import { PlayerBan } from './models/player-ban';
 import { PlayerSkillService } from './services/player-skill.service';
 import { PlayerSkill } from './models/player-skill';
+import { PlayersController } from './controllers/players.controller';
 
 @Module({
   imports: [
@@ -26,6 +27,9 @@ import { PlayerSkill } from './models/player-skill';
     PlayersService,
     PlayerBansService,
     PlayerSkillService,
+  ],
+  controllers: [
+    PlayersController,
   ],
 })
 export class PlayersModule { }

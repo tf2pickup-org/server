@@ -17,6 +17,10 @@ export class PlayersService {
     @InjectModel(Player) private playerModel: ReturnModelType<typeof Player>,
   ) { }
 
+  async getAll(): Promise<Array<DocumentType<Player>>> {
+    return await this.playerModel.find();
+  }
+
   async getById(id: string): Promise<DocumentType<Player>> {
     return await this.playerModel.findById(id);
   }
