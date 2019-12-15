@@ -12,6 +12,7 @@ class PlayersServiceStub {
   };
   getAll() { return new Promise(resolve => resolve([ this.player ])); }
   getById(id: string) { return new Promise(resolve => resolve(this.player)); }
+  updatePlayer(playerId: string, update: Partial<Player>) { return new Promise(resolve => resolve(this.player)); }
 }
 
 describe('Players Controller', () => {
@@ -54,6 +55,15 @@ describe('Players Controller', () => {
     it('should return 404', async () => {
       spyOn(playersService, 'getById').and.returnValue(new Promise(resolve => resolve(null)));
       await expectAsync(controller.getPlayer('FAKE_ID')).toBeRejectedWithError();
+    });
+  });
+
+  describe('#updatePlayer()', () => {
+    it('should update the player', async () => {
+      const spy = spyOn(playersService, 'updatePlayer').and.callThrough();
+      const ret = await controller.updatePlayer('FAKE_ID', { name: 'FAKE_NEW_NAME' });
+      expect(spy).toHaveBeenCalledWith('FAKE_ID', { name: 'FAKE_NEW_NAME' });
+      expect(ret).toEqual(playersService.player as any);
     });
   });
 });

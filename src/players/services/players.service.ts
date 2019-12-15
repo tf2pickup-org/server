@@ -47,6 +47,19 @@ export class PlayersService {
     return player;
   }
 
+  async updatePlayer(playerId: string, update: Partial<Player>): Promise<DocumentType<Player>> {
+    const player = await this.getById(playerId);
+    if (player) {
+      if (update.name) {
+        player.name = update.name;
+      }
+
+      return await player.save();
+    } else {
+      return null;
+    }
+  }
+
   /**
    * Player accepts the rules.
    * Without accepting the rules, player cannot join the queue nor any game.

@@ -123,6 +123,28 @@ describe('PlayersService', () => {
     });
   });
 
+  describe('#updatePlayer()', () => {
+    it('should update and save', async () => {
+      const player = {
+        name: 'OLD_NAME',
+        save: () => null,
+      };
+
+      const spy = spyOn(service, 'getById').and.returnValue(new Promise(resolve => resolve(player as any)));
+      const spy2 = spyOn(player, 'save');
+
+      await service.updatePlayer('FAKE_ID', { name: 'NEW_NAME' });
+      expect(spy).toHaveBeenCalledWith('FAKE_ID');
+      expect(player.name).toEqual('NEW_NAME');
+      expect(spy2).toHaveBeenCalled();
+    });
+
+    it('should return null if the given player does not exist', async () => {
+      spyOn(service, 'getById').and.returnValue(new Promise(resolve => resolve(null)));
+      expect(await service.updatePlayer('FAKE_ID', { })).toBeNull();
+    });
+  });
+
   describe('#acceptTerms', () => {
     it('should accept the terms', async () => {
       const player = {
