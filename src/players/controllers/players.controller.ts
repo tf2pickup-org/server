@@ -1,14 +1,16 @@
-import { Controller, Get, Param, NotFoundException, Patch, Body } from '@nestjs/common';
+import { Controller, Get, Param, NotFoundException, Patch, Body, BadRequestException, ParseIntPipe, Query } from '@nestjs/common';
 import { PlayersService } from '../services/players.service';
 import { ObjectIdValidationPipe } from '@/shared/pipes/object-id-validation.pipe';
 import { Player } from '../models/player';
 import { Auth } from '@/auth/decorators/auth.decorator';
+import { GamesService } from '@/games/services/games.service';
 
 @Controller('players')
 export class PlayersController {
 
   constructor(
     private playersService: PlayersService,
+    private gamesService: GamesService,
   ) { }
 
   @Get()
@@ -30,6 +32,33 @@ export class PlayersController {
   @Auth('admin', 'super-user')
   async updatePlayer(@Param('id', ObjectIdValidationPipe) playerId: string, @Body() player: Partial<Player>) {
     return await this.playersService.updatePlayer(playerId, player);
+  }
+
+  @Get(':id/games')
+  async getPlayerGames(@Param('id', ObjectIdValidationPipe) playerId: string, @Query('limit', ParseIntPipe) limit: number = 10,
+                       @Query('offset', ParseIntPipe) offset: number = 0, @Query('sort') sort: string = '-launched_at') {
+    let sortParam: { launchedAt: 1 | -1 };
+    switch (sort) {
+      case '-launched_at':
+      case '-launchedAt':
+        sortParam = { launchedAt: -1 };
+        break;
+
+      case 'launched_at':
+      case 'launchedAt':
+        sortParam = { launchedAt: 1 };
+        break;
+
+      default:
+        throw new BadRequestException('invalid value for the sort parameter');
+    }
+
+    const [ results, itemCount ] = await Promise.all([
+      this.gamesService.getPlayerGames(playerId, sortParam, limit, offset),
+      this.gamesService.getPlayerGameCount(playerId),
+    ]);
+
+    return { results, itemCount };
   }
 
 }

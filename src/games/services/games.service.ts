@@ -11,6 +11,10 @@ import { GameServersService } from '@/game-servers/services/game-servers.service
 import { GameServer } from '@/game-servers/models/game-server';
 import { ConfigService } from '@/config/config.service';
 
+interface GameSortOptions {
+  launchedAt: 1 | -1;
+}
+
 @Injectable()
 export class GamesService {
 
@@ -25,8 +29,24 @@ export class GamesService {
     private configService: ConfigService,
   ) { }
 
+  async getGameCount(): Promise<number> {
+    return await this.gameModel.estimatedDocumentCount();
+  }
+
   async getById(gameId: string): Promise<DocumentType<Game>> {
     return await this.gameModel.findById(gameId);
+  }
+
+  async getPlayerGames(playerId: string, sort: GameSortOptions = { launchedAt: -1 }, limit: number = 10, skip: number = 0) {
+    return await this.gameModel
+      .find({ players: playerId })
+      .sort(sort)
+      .limit(limit)
+      .skip(skip);
+  }
+
+  async getPlayerGameCount(playerId: string) {
+    return await this.gameModel.countDocuments({ players: playerId });
   }
 
   async create(queueSlots: QueueSlot[], map: string): Promise<DocumentType<Game>> {

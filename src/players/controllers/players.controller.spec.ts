@@ -2,6 +2,8 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { PlayersController } from './players.controller';
 import { PlayersService } from '../services/players.service';
 import { Player } from '../models/player';
+import { GamesService } from '@/games/services/games.service';
+import { Game } from '@/games/models/game';
 
 class PlayersServiceStub {
   player: Player = {
@@ -15,20 +17,35 @@ class PlayersServiceStub {
   updatePlayer(playerId: string, update: Partial<Player>) { return new Promise(resolve => resolve(this.player)); }
 }
 
+class GamesServiceStub {
+  games: Game[] = [
+    { number: 1, map: 'cp_fake_rc1', state: 'ended' },
+    { number: 2, map: 'cp_fake_rc2', state: 'launching' },
+  ];
+
+  getPlayerGames(playerId: string, sort: any = { launchedAt: -1 }, limit: number = 10, skip: number = 0) {
+    return new Promise(resolve => resolve(this.games));
+  }
+  getPlayerGameCount() { return new Promise(resolve => resolve(2)); }
+}
+
 describe('Players Controller', () => {
   let controller: PlayersController;
   let playersService: PlayersServiceStub;
+  let gamesService: GamesServiceStub;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         { provide: PlayersService, useClass: PlayersServiceStub },
+        { provide: GamesService, useClass: GamesServiceStub },
       ],
       controllers: [PlayersController],
     }).compile();
 
     controller = module.get<PlayersController>(PlayersController);
     playersService = module.get(PlayersService);
+    gamesService = module.get(GamesService);
   });
 
   it('should be defined', () => {
@@ -64,6 +81,25 @@ describe('Players Controller', () => {
       const ret = await controller.updatePlayer('FAKE_ID', { name: 'FAKE_NEW_NAME' });
       expect(spy).toHaveBeenCalledWith('FAKE_ID', { name: 'FAKE_NEW_NAME' });
       expect(ret).toEqual(playersService.player as any);
+    });
+  });
+
+  describe('#getPlayerGames()', () => {
+    it('should return player games', async () => {
+      const spy1 = spyOn(gamesService, 'getPlayerGames').and.callThrough();
+      const spy2 = spyOn(gamesService, 'getPlayerGameCount').and.callThrough();
+
+      const ret = await controller.getPlayerGames('FAKE_ID', 44, 52, 'launched_at');
+      expect(spy1).toHaveBeenCalledWith('FAKE_ID', { launchedAt: 1 }, 44, 52);
+      expect(spy2).toHaveBeenCalled();
+      expect(ret).toEqual({
+        results: gamesService.games,
+        itemCount: 2,
+      } as any);
+    });
+
+    it('should throw an error unless the sort param is correct', async () => {
+      await expectAsync(controller.getPlayerGames('FAKE_ID', 3, 5, 'lol')).toBeRejectedWithError();
     });
   });
 });
