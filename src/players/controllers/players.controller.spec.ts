@@ -5,6 +5,8 @@ import { Player } from '../models/player';
 import { GamesService } from '@/games/services/games.service';
 import { Game } from '@/games/models/game';
 import { PlayerStats } from '../models/player-stats';
+import { PlayerSkillService } from '../services/player-skill.service';
+import { PlayerSkill } from '../models/player-skill';
 
 class PlayersServiceStub {
   player: Player = {
@@ -40,16 +42,26 @@ class GamesServiceStub {
   getPlayerGameCount() { return new Promise(resolve => resolve(2)); }
 }
 
+class PlayerSkillServiceStub {
+  skill: PlayerSkill = {
+    player: 'FAKE_ID' as any,
+    skill: new Map<string, number>([['scout', 2], ['soldier', 2], ['demoman', 1], ['medic', 2]]),
+  };
+  getPlayerSkill(playerId: string) { return new Promise(resolve => resolve(this.skill)); }
+}
+
 describe('Players Controller', () => {
   let controller: PlayersController;
   let playersService: PlayersServiceStub;
   let gamesService: GamesServiceStub;
+  let playerSkillService: PlayerSkillServiceStub;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         { provide: PlayersService, useClass: PlayersServiceStub },
         { provide: GamesService, useClass: GamesServiceStub },
+        { provide: PlayerSkillService, useClass: PlayerSkillServiceStub },
       ],
       controllers: [PlayersController],
     }).compile();
@@ -57,6 +69,7 @@ describe('Players Controller', () => {
     controller = module.get<PlayersController>(PlayersController);
     playersService = module.get(PlayersService);
     gamesService = module.get(GamesService);
+    playerSkillService = module.get(PlayerSkillService);
   });
 
   it('should be defined', () => {
@@ -120,6 +133,15 @@ describe('Players Controller', () => {
       const ret = await controller.getPlayerStats('FAKE_ID');
       expect(spy).toHaveBeenCalledWith('FAKE_ID');
       expect(ret).toEqual(playersService.stats);
+    });
+  });
+
+  describe('#getPlayerSkill()', () => {
+    it('should return player skill', async () => {
+      const spy = spyOn(playerSkillService, 'getPlayerSkill').and.callThrough();
+      const ret = await controller.getPlayerSkill('FAKE_ID');
+      expect(spy).toHaveBeenCalledWith('FAKE_ID');
+      expect(ret).toEqual(playerSkillService.skill.skill);
     });
   });
 });

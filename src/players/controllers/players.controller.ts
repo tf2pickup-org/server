@@ -4,6 +4,7 @@ import { ObjectIdValidationPipe } from '@/shared/pipes/object-id-validation.pipe
 import { Player } from '../models/player';
 import { Auth } from '@/auth/decorators/auth.decorator';
 import { GamesService } from '@/games/services/games.service';
+import { PlayerSkillService } from '../services/player-skill.service';
 
 @Controller('players')
 export class PlayersController {
@@ -11,6 +12,7 @@ export class PlayersController {
   constructor(
     private playersService: PlayersService,
     private gamesService: GamesService,
+    private playerSkillService: PlayerSkillService,
   ) { }
 
   @Get()
@@ -64,6 +66,12 @@ export class PlayersController {
   @Get(':id/stats')
   async getPlayerStats(@Param('id', ObjectIdValidationPipe) playerId: string) {
     return await this.playersService.getPlayerStats(playerId);
+  }
+
+  @Get(':id/skill')
+  @Auth('admin', 'super-user')
+  async getPlayerSkill(@Param('id', ObjectIdValidationPipe) playerId: string) {
+    return (await this.playerSkillService.getPlayerSkill(playerId)).skill;
   }
 
 }
