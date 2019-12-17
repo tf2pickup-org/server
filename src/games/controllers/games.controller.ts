@@ -1,0 +1,48 @@
+import { Controller, Get, Query, ParseIntPipe, BadRequestException, Param, NotFoundException } from '@nestjs/common';
+import { GamesService } from '../services/games.service';
+import { ObjectIdValidationPipe } from '@/shared/pipes/object-id-validation.pipe';
+
+@Controller('games')
+export class GamesController {
+
+  constructor(
+    private gamesService: GamesService,
+  ) { }
+
+  @Get()
+  async getGames(@Query('limit', ParseIntPipe) limit: number = 10, @Query('offset', ParseIntPipe) offset: number = 0, @Query('sort') sort: string = '-launched_at') {
+    let sortParam: { launchedAt: 1 | -1 };
+    switch (sort) {
+      case '-launched_at':
+      case '-launchedAt':
+        sortParam = { launchedAt: -1 };
+        break;
+
+      case 'launched_at':
+      case 'launchedAt':
+        sortParam = { launchedAt: 1 };
+        break;
+
+      default:
+        throw new BadRequestException('invalid value for the sort parameter');
+    }
+
+    const [ results, itemCount ] = await Promise.all([
+      this.gamesService.getGames(sortParam, limit, offset),
+      this.gamesService.getGameCount(),
+    ]);
+
+    return { results, itemCount };
+  }
+
+  @Get(':id')
+  async getGame(@Param('id', ObjectIdValidationPipe) gameId: string) {
+    const game = await this.gamesService.getById(gameId);
+    if (game) {
+      return game;
+    } else {
+      throw new NotFoundException();
+    }
+  }
+
+}

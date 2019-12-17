@@ -7,6 +7,7 @@ import { QueueModule } from '@/queue/queue.module';
 import { ConfigModule } from '@/config/config.module';
 import { GameServersModule } from '@/game-servers/game-servers.module';
 import { standardSchemaOptions } from '@/utils/standard-schema-options';
+import { GamesController } from './controllers/games.controller';
 
 @Module({
   imports: [
@@ -21,6 +22,9 @@ import { standardSchemaOptions } from '@/utils/standard-schema-options';
   ],
   exports: [
     GamesService,
+  ],
+  controllers: [
+    GamesController,
   ],
 })
 export class GamesModule { }

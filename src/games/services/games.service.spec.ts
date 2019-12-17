@@ -12,7 +12,7 @@ import { ConfigService } from '@/config/config.service';
 
 const gameModel = {
   estimatedDocumentCount: async () => new Promise(resolve => resolve(44)),
-  find: async (args: any) => new Promise(resolve => resolve(null)),
+  find: async (args?: any) => new Promise(resolve => resolve(null)),
   findById: async (id: string) => new Promise(resolve => resolve(null)),
   findOne: async (args: any) => new Promise(resolve => resolve(null)),
   create: async (obj: any) => new Promise(resolve => resolve(null)),
@@ -121,6 +121,25 @@ describe('GamesService', () => {
       const spy = spyOn(gameModel, 'findById').and.callThrough();
       await service.getById('FAKE_ID');
       expect(spy).toHaveBeenCalledWith('FAKE_ID');
+    });
+  });
+
+  describe('#getGames()', () => {
+    it('should query model', async () => {
+      // tslint:disable-next-line: one-variable-per-declaration
+      let sort: any, limit: any, skip: any;
+
+      const findResult = {
+        sort: arg => { sort = arg; return findResult; },
+        limit: arg => { limit = arg; return findResult; },
+        skip: arg => { skip = arg; return findResult; },
+      };
+      const findSpy = spyOn(gameModel, 'find').and.returnValue(findResult as any);
+      await service.getGames({ launchedAt: 1 }, 44, 28);
+      expect(sort).toEqual({ launchedAt: 1 });
+      expect(limit).toBe(44);
+      expect(skip).toBe(28);
+      expect(findSpy).toHaveBeenCalledWith();
     });
   });
 

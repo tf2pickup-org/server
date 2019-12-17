@@ -41,6 +41,14 @@ export class GamesService {
     return await this.gameModel.findById(gameId);
   }
 
+  async getGames(sort: GameSortOptions = { launchedAt: -1 }, limit: number, skip: number) {
+    return await this.gameModel
+      .find()
+      .sort(sort)
+      .limit(limit)
+      .skip(skip);
+  }
+
   async getPlayerGames(playerId: string, sort: GameSortOptions = { launchedAt: -1 }, limit: number = 10, skip: number = 0) {
     return await this.gameModel
       .find({ players: playerId })
