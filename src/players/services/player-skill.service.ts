@@ -15,4 +15,15 @@ export class PlayerSkillService {
     return skill;
   }
 
+  async setPlayerSkill(playerId: string, newSkill: { [gameClass: string]: number }): Promise<DocumentType<PlayerSkill>> {
+    const skill = await this.playerSkillModel.findOne({ player: playerId });
+    if (skill) {
+      skill.skill = new Map(Object.entries(newSkill));
+      skill.save();
+      return skill;
+    } else {
+      return null;
+    }
+  }
+
 }

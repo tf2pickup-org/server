@@ -1,4 +1,4 @@
-import { Controller, Get, Param, NotFoundException, Patch, Body, BadRequestException, ParseIntPipe, Query } from '@nestjs/common';
+import { Controller, Get, Param, NotFoundException, Patch, Body, BadRequestException, ParseIntPipe, Query, Put } from '@nestjs/common';
 import { PlayersService } from '../services/players.service';
 import { ObjectIdValidationPipe } from '@/shared/pipes/object-id-validation.pipe';
 import { Player } from '../models/player';
@@ -72,6 +72,13 @@ export class PlayersController {
   @Auth('admin', 'super-user')
   async getPlayerSkill(@Param('id', ObjectIdValidationPipe) playerId: string) {
     return (await this.playerSkillService.getPlayerSkill(playerId)).skill;
+  }
+
+  @Put(':id/skill')
+  @Auth('admin', 'super-user')
+  // todo validate skill
+  async setPlayerSkill(@Param('id', ObjectIdValidationPipe) playerId: string, @Body() newSkill: { [className: string]: number }) {
+    return (await this.playerSkillService.setPlayerSkill(playerId, newSkill)).skill;
   }
 
 }

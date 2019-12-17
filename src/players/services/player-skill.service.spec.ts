@@ -2,8 +2,17 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { PlayerSkillService } from './player-skill.service';
 import { getModelToken } from 'nestjs-typegoose';
 
-const playerSkillModel = {
+const skill = {
+  player: 'FAKE_ID',
+  skill: {
+    scout: 3,
+    medic: 2,
+  },
+  save: () => null,
+};
 
+const playerSkillModel = {
+  findOne: (criteria: any) => skill,
 };
 
 describe('PlayerSkillService', () => {
@@ -22,5 +31,25 @@ describe('PlayerSkillService', () => {
 
   it('should be defined', () => {
     expect(service).toBeDefined();
+  });
+
+  describe('#getPlayerSkill()', () => {
+    it('should retrieve player skill', async () => {
+      const spy = spyOn(playerSkillModel, 'findOne').and.callThrough();
+      const ret = await service.getPlayerSkill('FAKE_ID');
+      expect(spy).toHaveBeenCalledWith({ player: 'FAKE_ID' });
+      expect(ret).toEqual(skill as any);
+    });
+  });
+
+  describe('#setPlayerSkill()', () => {
+    it('should set player skill', async () => {
+      const spyFindOne = spyOn(playerSkillModel, 'findOne').and.callThrough();
+      const spySave = spyOn(skill, 'save');
+      const ret = await service.setPlayerSkill('FAKE_ID', { scout: 2 });
+      expect(spyFindOne).toHaveBeenCalledWith({ player: 'FAKE_ID' });
+      expect(spySave).toHaveBeenCalled();
+      expect(ret.skill).toEqual(new Map([['scout', 2]]));
+    });
   });
 });

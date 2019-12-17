@@ -48,6 +48,7 @@ class PlayerSkillServiceStub {
     skill: new Map<string, number>([['scout', 2], ['soldier', 2], ['demoman', 1], ['medic', 2]]),
   };
   getPlayerSkill(playerId: string) { return new Promise(resolve => resolve(this.skill)); }
+  setPlayerSkill(playerId: string, skill: any) { return new Promise(resolve => resolve(this.skill)); }
 }
 
 describe('Players Controller', () => {
@@ -141,6 +142,16 @@ describe('Players Controller', () => {
       const spy = spyOn(playerSkillService, 'getPlayerSkill').and.callThrough();
       const ret = await controller.getPlayerSkill('FAKE_ID');
       expect(spy).toHaveBeenCalledWith('FAKE_ID');
+      expect(ret).toEqual(playerSkillService.skill.skill);
+    });
+  });
+
+  describe('#setPlayerSkill()', () => {
+    it('should set player skill', async () => {
+      const skill = { soldier: 1, medic: 2 };
+      const spy = spyOn(playerSkillService, 'setPlayerSkill').and.callThrough();
+      const ret = await controller.setPlayerSkill('FAKE_ID', skill);
+      expect(spy).toHaveBeenCalledWith('FAKE_ID', skill);
       expect(ret).toEqual(playerSkillService.skill.skill);
     });
   });
