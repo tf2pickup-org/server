@@ -7,6 +7,7 @@ import { Game } from '@/games/models/game';
 import { PlayerStats } from '../models/player-stats';
 import { PlayerSkillService } from '../services/player-skill.service';
 import { PlayerSkill } from '../models/player-skill';
+import { PlayerBansService } from '../services/player-bans.service';
 
 class PlayersServiceStub {
   player: Player = {
@@ -51,11 +52,51 @@ class PlayerSkillServiceStub {
   setPlayerSkill(playerId: string, skill: any) { return new Promise(resolve => resolve(this.skill)); }
 }
 
+class PlayerBansServiceStub {
+  bans = [
+    {
+        player: '5d448875b963ff7e00c6b6b3',
+        admin: '5d448875b963ff7e00c6b6b3',
+        start: '2019-12-16T00:23:55.000Z',
+        end: '2019-12-17T01:51:49.183Z',
+        reason: 'test',
+        id: '5df833c256e77d8768130f9a',
+    },
+    {
+        player: '5d448875b963ff7e00c6b6b3',
+        start: '2019-10-29T13:23:38.626Z',
+        end: '2019-10-29T14:23:38.626Z',
+        reason: 'test',
+        admin: '5d448875b963ff7e00c6b6b3',
+        id: '5db83d5a593cc645933cce54',
+    },
+    {
+        player: '5d448875b963ff7e00c6b6b3',
+        start: '2019-10-25T12:15:54.882Z',
+        end: '2019-10-25T12:16:25.442Z',
+        reason: 'test',
+        admin: '5d448875b963ff7e00c6b6b3',
+        id: '5db2e77abbf17f2a9101a9f6',
+    },
+    {
+        player: '5d448875b963ff7e00c6b6b3',
+        start: '2019-10-25T12:06:20.123Z',
+        end: '2019-10-25T12:06:28.919Z',
+        reason: 'test',
+        admin: '5d448875b963ff7e00c6b6b3',
+        id: '5db2e53c80e22f6e05200875',
+    },
+  ];
+  getPlayerBans(playerId: string) { return new Promise(resolve => resolve(this.bans)); }
+  addPlayerBan(ban: any) { return new Promise(resolve => resolve(ban)); }
+}
+
 describe('Players Controller', () => {
   let controller: PlayersController;
   let playersService: PlayersServiceStub;
   let gamesService: GamesServiceStub;
   let playerSkillService: PlayerSkillServiceStub;
+  let playerBansService: PlayerBansServiceStub;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -63,6 +104,7 @@ describe('Players Controller', () => {
         { provide: PlayersService, useClass: PlayersServiceStub },
         { provide: GamesService, useClass: GamesServiceStub },
         { provide: PlayerSkillService, useClass: PlayerSkillServiceStub },
+        { provide: PlayerBansService, useClass: PlayerBansServiceStub },
       ],
       controllers: [PlayersController],
     }).compile();
@@ -71,6 +113,7 @@ describe('Players Controller', () => {
     playersService = module.get(PlayersService);
     gamesService = module.get(GamesService);
     playerSkillService = module.get(PlayerSkillService);
+    playerBansService = module.get(PlayerBansService);
   });
 
   it('should be defined', () => {
@@ -153,6 +196,37 @@ describe('Players Controller', () => {
       const ret = await controller.setPlayerSkill('FAKE_ID', skill);
       expect(spy).toHaveBeenCalledWith('FAKE_ID', skill);
       expect(ret).toEqual(playerSkillService.skill.skill);
+    });
+  });
+
+  describe('#getPlayerBans()', () => {
+    it('should return player bans', async () => {
+      const spy = spyOn(playerBansService, 'getPlayerBans').and.callThrough();
+      const ret = await controller.getPlayerBans('FAKE_ID');
+      expect(spy).toHaveBeenCalledWith('FAKE_ID');
+      expect(ret).toEqual(playerBansService.bans as any);
+    });
+  });
+
+  describe('#addPlayerBan()', () => {
+    const ban = {
+      player: '5d448875b963ff7e00c6b6b3',
+      admin: '5d448875b963ff7e00c6b6b3',
+      start: '2019-12-16T00:23:55.000Z',
+      end: '2019-12-17T01:51:49.183Z',
+      reason: 'dupa',
+      id: '5df833c256e77d8768130f9a',
+    };
+
+    it('should add player ban', async () => {
+      const spy = spyOn(playerBansService, 'addPlayerBan').and.callThrough();
+      const ret = await controller.addPlayerBan('FAKE_ID', ban as any, { id: '5d448875b963ff7e00c6b6b3' });
+      expect(spy).toHaveBeenCalledWith(ban);
+      expect(ret).toEqual(ban as any);
+    });
+
+    it('should fail if the authorized user id is not the same as admin\'s', async () => {
+      await expectAsync(controller.addPlayerBan('FAKE_ID', ban as any, { id: 'SOME_ID' })).toBeRejectedWithError();
     });
   });
 });

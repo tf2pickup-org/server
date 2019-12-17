@@ -10,7 +10,15 @@ export class PlayerBansService {
     @InjectModel(PlayerBan) private playerBanModel: ReturnModelType<typeof PlayerBan>,
   ) { }
 
-  async getActiveBansForPlayer(playerId: string): Promise<PlayerBan[]> {
+  async getById(banId: string): Promise<PlayerBan> {
+    return await this.playerBanModel.findById(banId);
+  }
+
+  async getPlayerBans(playerId: string): Promise<PlayerBan[]> {
+    return await this.playerBanModel.find({ player: playerId }).sort({ start: -1 });
+  }
+
+  async getPlayerActiveBans(playerId: string): Promise<PlayerBan[]> {
     return await this.playerBanModel.find({
       player: playerId,
       end: {

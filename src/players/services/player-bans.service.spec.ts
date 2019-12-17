@@ -3,10 +3,9 @@ import { PlayerBansService } from './player-bans.service';
 import { getModelToken } from 'nestjs-typegoose';
 import { PlayerBan } from '../models/player-ban';
 import { Types } from 'mongoose';
-import { DocumentType } from '@typegoose/typegoose';
 
 const playerBanModel = {
-  find: (obj: any) => null,
+  find: (obj: any) => ({ sort: () => null }),
   findById: (id: string) => null,
   create: (obj: any) => null,
 };
@@ -29,10 +28,26 @@ describe('PlayerBansService', () => {
     expect(service).toBeDefined();
   });
 
-  describe('#getActiveBansForPlayer()', () => {
+  describe('#getById()', () => {
+    it('should query model', async () => {
+      const spy = spyOn(playerBanModel, 'findById');
+      await service.getById('FAKE_BAN_ID');
+      expect(spy).toHaveBeenCalledWith('FAKE_BAN_ID');
+    });
+  });
+
+  describe('#getPlayerBans()', () => {
+    it('should query model', async () => {
+      const spy = spyOn(playerBanModel, 'find').and.callThrough();
+      await service.getPlayerBans('FAKE_PLAYER_ID');
+      expect(spy).toHaveBeenCalledWith({ player: 'FAKE_PLAYER_ID' });
+    });
+  });
+
+  describe('#getPlayerActiveBans()', () => {
     it('should query model', async () => {
       const spy = spyOn(playerBanModel, 'find');
-      await service.getActiveBansForPlayer('FAKE_PLAYER_ID');
+      await service.getPlayerActiveBans('FAKE_PLAYER_ID');
       expect(spy).toHaveBeenCalledWith({
         player: 'FAKE_PLAYER_ID',
         end: {

@@ -17,7 +17,7 @@ import { GamesModule } from '@/games/games.module';
     HttpModule,
     TypegooseModule.forFeature([
       standardSchemaOptions(Player),
-      PlayerBan,
+      standardSchemaOptions(PlayerBan),
       PlayerSkill,
     ]),
 

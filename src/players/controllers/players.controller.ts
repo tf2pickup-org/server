@@ -1,10 +1,14 @@
-import { Controller, Get, Param, NotFoundException, Patch, Body, BadRequestException, ParseIntPipe, Query, Put } from '@nestjs/common';
+import { Controller, Get, Param, NotFoundException, Patch, Body, BadRequestException, ParseIntPipe, Query, Put, Post, UsePipes, ValidationPipe,
+  HttpCode } from '@nestjs/common';
 import { PlayersService } from '../services/players.service';
 import { ObjectIdValidationPipe } from '@/shared/pipes/object-id-validation.pipe';
 import { Player } from '../models/player';
 import { Auth } from '@/auth/decorators/auth.decorator';
 import { GamesService } from '@/games/services/games.service';
 import { PlayerSkillService } from '../services/player-skill.service';
+import { PlayerBansService } from '../services/player-bans.service';
+import { PlayerBan } from '../models/player-ban';
+import { User } from '@/auth/decorators/user.decorator';
 
 @Controller('players')
 export class PlayersController {
@@ -13,6 +17,7 @@ export class PlayersController {
     private playersService: PlayersService,
     private gamesService: GamesService,
     private playerSkillService: PlayerSkillService,
+    private playerBansService: PlayerBansService,
   ) { }
 
   @Get()
@@ -79,6 +84,46 @@ export class PlayersController {
   // todo validate skill
   async setPlayerSkill(@Param('id', ObjectIdValidationPipe) playerId: string, @Body() newSkill: { [className: string]: number }) {
     return (await this.playerSkillService.setPlayerSkill(playerId, newSkill)).skill;
+  }
+
+  @Get(':id/bans')
+  @Auth('admin', 'super-user')
+  async getPlayerBans(@Param('id', ObjectIdValidationPipe) playerId: string) {
+    return await this.playerBansService.getPlayerBans(playerId);
+  }
+
+  @Post(':id/bans')
+  @Auth('admin', 'super-user')
+  @UsePipes(ValidationPipe)
+  async addPlayerBan(@Param('id', ObjectIdValidationPipe) playerId: string, @Body() playerBan: PlayerBan, @User() user: any) {
+    if ((playerBan.admin as unknown as string) !== user.id) {
+      throw new BadRequestException('the admin field must be the same as authorized user\'s id');
+    }
+    return await this.playerBansService.addPlayerBan(playerBan);
+  }
+
+  @Post(':playerId/bans/:banId')
+  @Auth('admin', 'super-user')
+  @HttpCode(200)
+  async updatePlayerBan(@Param('playerId', ObjectIdValidationPipe) playerId: string, @Param('banId', ObjectIdValidationPipe) banId: string,
+                        @Query('revoke') revoke: any) {
+    const player = await this.playersService.getById(playerId);
+    if (!player) {
+      throw new NotFoundException('player not found');
+    }
+
+    const ban = await this.playerBansService.getById(banId);
+    if (!ban) {
+      throw new NotFoundException('ban not found');
+    }
+
+    if (ban.player.toString() !== playerId) {
+      throw new BadRequestException('the given ban is not of the user\'s');
+    }
+
+    if (revoke !== undefined) {
+      return this.playerBansService.revokeBan(banId);
+    }
   }
 
 }

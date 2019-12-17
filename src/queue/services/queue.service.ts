@@ -74,7 +74,7 @@ export class QueueService {
       throw new Error('player has not accepted rules');
     }
 
-    const bans = await this.playerBansService.getActiveBansForPlayer(playerId);
+    const bans = await this.playerBansService.getPlayerActiveBans(playerId);
     if (bans.length > 0) {
       throw new Error('player is banned');
     }
@@ -236,6 +236,5 @@ export class QueueService {
     slots.forEach(s => s.ready = false);
     this._state.next('waiting');
   }
-
 
 }

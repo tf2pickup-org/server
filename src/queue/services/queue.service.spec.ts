@@ -38,7 +38,7 @@ class QueueConfigServiceStub {
 }
 
 class PlayerBansServiceStub {
-  getActiveBansForPlayer(playerId: string) {
+  getPlayerActiveBans(playerId: string) {
     return new Promise(resolve => resolve([]));
   }
 }
@@ -90,7 +90,7 @@ describe('QueueService', () => {
     });
 
     it('should fail if the player is banned', async () => {
-      spyOn(playerBansService, 'getActiveBansForPlayer').and.returnValue(new Promise(resolve => resolve([{}])));
+      spyOn(playerBansService, 'getPlayerActiveBans').and.returnValue(new Promise(resolve => resolve([{}])));
       await expectAsync(service.join(0, 'FAKE_ID')).toBeRejectedWithError('player is banned');
     });
 
