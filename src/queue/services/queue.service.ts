@@ -3,7 +3,7 @@ import { QueueSlot } from '@/queue/queue-slot';
 import { PlayersService } from '@/players/services/players.service';
 import { QueueConfigService } from './queue-config.service';
 import { PlayerBansService } from '@/players/services/player-bans.service';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { pairwise, distinctUntilChanged } from 'rxjs/operators';
 import { GamesService } from '@/games/services/games.service';
 
@@ -20,6 +20,9 @@ export class QueueService {
   private _state = new BehaviorSubject<QueueState>('waiting');
   private timer: NodeJS.Timer;
 
+  // events
+  private _playerLeave = new Subject<string>();
+
   get requiredPlayerCount(): number {
     return this.slots.length;
   }
@@ -34,6 +37,10 @@ export class QueueService {
 
   get state(): Observable<QueueState> {
     return this._state.asObservable();
+  }
+
+  get playerLeave(): Observable<string> {
+    return this._playerLeave.asObservable();
   }
 
   constructor(
@@ -122,6 +129,7 @@ export class QueueService {
 
       this.clearSlot(slot);
       this.logger.log(`slot ${slot.id} (gameClass=${slot.gameClass}) free`);
+      this._playerLeave.next(playerId);
       setImmediate(() => this.maybeUpdateState());
       return slot;
     } else {
@@ -135,7 +143,8 @@ export class QueueService {
     }
 
     const slots = this.slots.filter(s => playerIds.includes(s.playerId));
-    slots.forEach(s => this.clearSlot(s));
+    slots.forEach(slot => this._playerLeave.next(slot.playerId));
+    slots.forEach(slot => this.clearSlot(slot));
     slots.forEach(slot => this.logger.log(`slot ${slot.id} (gameClass=${slot.gameClass}) free (player was kicked)`));
     setImmediate(() => this.maybeUpdateState());
   }
