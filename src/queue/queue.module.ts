@@ -5,6 +5,7 @@ import { ConfigModule } from '@/config/config.module';
 import { PlayersModule } from '@/players/players.module';
 import { GamesModule } from '@/games/games.module';
 import { MapVoteService } from './services/map-vote.service';
+import { GameLauncherService } from './services/game-launcher.service';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { MapVoteService } from './services/map-vote.service';
     QueueService,
     QueueConfigService,
     MapVoteService,
+    GameLauncherService,
   ],
   exports: [
     QueueService,
