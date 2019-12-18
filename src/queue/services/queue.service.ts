@@ -1,10 +1,11 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
 import { QueueSlot } from '@/queue/queue-slot';
 import { PlayersService } from '@/players/services/players.service';
 import { QueueConfigService } from './queue-config.service';
 import { PlayerBansService } from '@/players/services/player-bans.service';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { pairwise, distinctUntilChanged } from 'rxjs/operators';
+import { GamesService } from '@/games/services/games.service';
 
 // waiting: waiting for players
 // ready: players are expected to ready up
@@ -39,6 +40,7 @@ export class QueueService {
     private playersService: PlayersService,
     private queueConfigService: QueueConfigService,
     private playerBansService: PlayerBansService,
+    @Inject(forwardRef(() => GamesService)) private gamesService: GamesService,
   ) {
     this.state.pipe(
       distinctUntilChanged(),
@@ -79,6 +81,11 @@ export class QueueService {
       throw new Error('player is banned');
     }
 
+    const game = await this.gamesService.getPlayerActiveGame(playerId);
+    if (game) {
+      throw new Error('player involved in a currently active game');
+    }
+
     const targetSlot = this.slots.find(s => s.id === slotId);
     if (!targetSlot) {
       throw new Error('no such slot');
@@ -90,9 +97,13 @@ export class QueueService {
 
     // remove player from any slot(s) he could be occupying
     const oldSlots = this.slots.filter(s => s.playerId === playerId);
+    const oldFriend = oldSlots.find(s => !!s.friend)?.friend;
     oldSlots.forEach(s => this.clearSlot(s));
 
     targetSlot.playerId = playerId;
+    if (targetSlot.gameClass === 'medic') {
+      targetSlot.friend = oldFriend;
+    }
     if (this._state.value === 'ready') {
       targetSlot.ready = true;
     }

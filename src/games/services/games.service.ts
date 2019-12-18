@@ -82,6 +82,10 @@ export class GamesService {
       }, {});
   }
 
+  async getPlayerActiveGame(playerId: string): Promise<DocumentType<Game>> {
+    return await this.gameModel.findOne({ state: /launching|started/, players: playerId });
+  }
+
   async create(queueSlots: QueueSlot[], map: string): Promise<DocumentType<Game>> {
     if (!queueSlots.every(slot => !!slot.playerId)) {
       throw new Error('queue not full');

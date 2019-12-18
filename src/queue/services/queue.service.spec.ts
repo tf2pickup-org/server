@@ -4,6 +4,7 @@ import { PlayersService } from '@/players/services/players.service';
 import { Player } from '@/players/models/player';
 import { QueueConfigService } from './queue-config.service';
 import { PlayerBansService } from '@/players/services/player-bans.service';
+import { GamesService } from '@/games/services/games.service';
 
 class PlayersServiceStub {
 
@@ -43,11 +44,16 @@ class PlayerBansServiceStub {
   }
 }
 
+class GamesServiceStub {
+  getPlayerActiveGame(playerId: string) { return new Promise(resolve => resolve(null)); }
+}
+
 describe('QueueService', () => {
   let service: QueueService;
   let playersService: PlayersServiceStub;
   let queueConfigService: QueueConfigServiceStub;
   let playerBansService: PlayerBansServiceStub;
+  let gamesService: GamesServiceStub;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -56,6 +62,7 @@ describe('QueueService', () => {
         { provide: PlayersService, useClass: PlayersServiceStub },
         { provide: QueueConfigService, useClass: QueueConfigServiceStub },
         { provide: PlayerBansService, useClass: PlayerBansServiceStub },
+        { provide: GamesService, useClass: GamesServiceStub },
       ],
     }).compile();
 
@@ -63,6 +70,7 @@ describe('QueueService', () => {
     playersService = module.get(PlayersService);
     queueConfigService = module.get(QueueConfigService);
     playerBansService = module.get(PlayerBansService);
+    gamesService = module.get(GamesService);
   });
 
   it('should be defined', () => {
@@ -94,6 +102,11 @@ describe('QueueService', () => {
       await expectAsync(service.join(0, 'FAKE_ID')).toBeRejectedWithError('player is banned');
     });
 
+    it('should fail if the player is currently playing a game', async () => {
+      spyOn(gamesService, 'getPlayerActiveGame').and.returnValue(new Promise(resolve => resolve({ number: 1, state: 'started' })));
+      await expectAsync(service.join(0, 'FAKE_ID')).toBeRejectedWithError('player involved in a currently active game');
+    });
+
     it('should fail when trying to join an ivalid slot', async () => {
       await expectAsync(service.join(1234567, 'FAKE_ID')).toBeRejectedWithError('no such slot');
     });
@@ -118,6 +131,18 @@ describe('QueueService', () => {
       expect(newSlots.find(s => s.playerId === 'FAKE_PLAYER_ID')).toBeTruthy();
       expect(oldSlots[0].playerId).toBeNull();
     });
+
+    it('should remember friend when changing slots', async () => {
+      const medicSlots = service.slots.filter(s => s.gameClass === 'medic');
+      expect(medicSlots.length).toBe(2);
+
+      let slots = await service.join(medicSlots[0].id, 'FAKE_ID');
+      slots[0].friend = 'FAKE_FRIEND_ID';
+
+      slots = await service.join(medicSlots[1].id, 'FAKE_ID');
+      expect(slots.find(s => s.playerId === 'FAKE_ID').friend).toEqual('FAKE_FRIEND_ID');
+    });
+
   });
 
   describe('#leave()', () => {
