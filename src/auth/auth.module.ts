@@ -10,6 +10,7 @@ import { TypegooseModule } from 'nestjs-typegoose';
 import { RefreshToken } from './models/refresh-token';
 import { KeyStoreService } from './services/key-store.service';
 import { JwtStrategy } from './strategies/jwt.strategy';
+import { AuthGateway } from './gateways/auth.gateway';
 
 const passportModule = PassportModule.register({
   defaultStrategy: 'jwt',
@@ -29,6 +30,7 @@ const passportModule = PassportModule.register({
     KeyStoreService,
     SteamStrategy,
     JwtStrategy,
+    AuthGateway,
   ],
   controllers: [
     AuthController,

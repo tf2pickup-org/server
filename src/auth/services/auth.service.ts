@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { sign } from 'jsonwebtoken';
+import { sign, verify } from 'jsonwebtoken';
 import { InjectModel } from 'nestjs-typegoose';
 import { RefreshToken } from '../models/refresh-token';
 import { ReturnModelType } from '@typegoose/typegoose';
@@ -40,6 +40,23 @@ export class AuthService {
       default:
         throw new Error('unknown purpose');
     }
+  }
+
+  async refreshTokens(oldRefreshToken: string): Promise<{ refreshToken: string, authToken: string }> {
+    const key = this.keyStoreService.getKey('refresh', 'verify');
+
+    const result = await this.refreshTokenModel.findOne({ value: oldRefreshToken });
+    if (!result) {
+      throw new Error('token invalid');
+    }
+
+    const decoded = verify(oldRefreshToken, key, { algorithms: ['ES512'] }) as { id: string; iat: number; exp: number };
+    await result.remove();
+
+    const userId = decoded.id;
+    const refreshToken = this.generateJwtToken('refresh', userId);
+    const authToken = this.generateJwtToken('auth', userId);
+    return { refreshToken, authToken };
   }
 
 }

@@ -1,8 +1,10 @@
-import { Controller } from '@nestjs/common';
+import { Controller, Get, Post, Query, BadRequestException } from '@nestjs/common';
 import { HttpAdapterHost } from '@nestjs/core';
 import { authenticate } from 'passport';
 import { ConfigService } from '@/config/config.service';
 import { AuthService } from '../services/auth.service';
+import { User } from '../decorators/user.decorator';
+import { Auth } from '../decorators/auth.decorator';
 
 @Controller('auth')
 export class AuthController {
@@ -30,6 +32,23 @@ export class AuthController {
         return res.redirect(`${this.configService.clientUrl}?refresh_token=${refreshToken}&auth_token=${authToken}`);
       })(req, res, next);
     });
+  }
+
+  @Post()
+  async refreshToken(@Query('refreshToken') oldRefreshToken: string) {
+    if (oldRefreshToken !== undefined) {
+      const { refreshToken, authToken } = await this.authService.refreshTokens(oldRefreshToken);
+      return { refreshToken, authToken };
+    } else {
+      throw new BadRequestException('no valid operation specified');
+    }
+  }
+
+  @Get('wstoken')
+  @Auth()
+  refreshWsToken(@User() user) {
+    const wsToken = this.authService.generateJwtToken('ws', user.id);
+    return { wsToken };
   }
 
 }
