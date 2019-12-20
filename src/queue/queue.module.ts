@@ -6,7 +6,7 @@ import { PlayersModule } from '@/players/players.module';
 import { GamesModule } from '@/games/games.module';
 import { MapVoteService } from './services/map-vote.service';
 import { GameLauncherService } from './services/game-launcher.service';
-import { QueueGateway } from './queue.gateway';
+import { QueueGateway } from './gateways/queue.gateway';
 import { QueueController } from './controllers/queue.controller';
 
 @Module({
