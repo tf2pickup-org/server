@@ -17,7 +17,7 @@ export class QueueService {
 
   slots: QueueSlot[] = [];
   private logger = new Logger(QueueService.name);
-  private _state = new BehaviorSubject<QueueState>('waiting');
+  private _stateChange = new BehaviorSubject<QueueState>('waiting');
   private timer: NodeJS.Timer;
 
   // events
@@ -35,8 +35,12 @@ export class QueueService {
     return this.slots.filter(s => s.ready).length;
   }
 
-  get state(): Observable<QueueState> {
-    return this._state.asObservable();
+  get state(): QueueState {
+    return this._stateChange.value;
+  }
+
+  get stateChange(): Observable<QueueState> {
+    return this._stateChange.asObservable();
   }
 
   get playerLeave(): Observable<string> {
@@ -49,7 +53,7 @@ export class QueueService {
     private playerBansService: PlayerBansService,
     @Inject(forwardRef(() => GamesService)) private gamesService: GamesService,
   ) {
-    this.state.pipe(
+    this.stateChange.pipe(
       distinctUntilChanged(),
       pairwise(),
     ).subscribe(([oldState, newState]) => this.onStateChange(oldState, newState));
@@ -70,7 +74,7 @@ export class QueueService {
    * @param {string} playerId ID of the player who joins the queue.
    */
   async join(slotId: number, playerId: string): Promise<QueueSlot[]> {
-    if (this._state.value === 'launching') {
+    if (this.state === 'launching') {
       throw new Error('cannot join the queue at this stage');
     }
 
@@ -111,7 +115,7 @@ export class QueueService {
     if (targetSlot.gameClass === 'medic') {
       targetSlot.friend = oldFriend;
     }
-    if (this._state.value === 'ready') {
+    if (this.state === 'ready') {
       targetSlot.ready = true;
     }
 
@@ -123,7 +127,7 @@ export class QueueService {
   async leave(playerId: string): Promise<QueueSlot> {
     const slot = this.slots.find(s => s.playerId === playerId);
     if (slot) {
-      if (slot.ready && this._state.value !== 'waiting') {
+      if (slot.ready && this.state !== 'waiting') {
         throw new Error('cannot leave at this stage');
       }
 
@@ -138,7 +142,7 @@ export class QueueService {
   }
 
   kick(...playerIds: string[]) {
-    if (this._state.value === 'launching') {
+    if (this.state === 'launching') {
       return;
     }
 
@@ -150,7 +154,7 @@ export class QueueService {
   }
 
   readyUp(playerId: string): QueueSlot {
-    if (this._state.value !== 'ready') {
+    if (this.state !== 'ready') {
       throw new Error('queue not ready');
     }
 
@@ -200,23 +204,23 @@ export class QueueService {
 
   private maybeUpdateState() {
     // check whether we can change state
-    switch (this._state.value) {
+    switch (this.state) {
       case 'waiting':
         if (this.playerCount === this.requiredPlayerCount) {
-          this._state.next('ready');
+          this._stateChange.next('ready');
         }
         break;
 
       case 'ready':
         if (this.playerCount === 0) {
-          this._state.next('waiting');
+          this._stateChange.next('waiting');
         } else if (this.readyPlayerCount === this.requiredPlayerCount) {
-          this._state.next('launching');
+          this._stateChange.next('launching');
         }
         break;
 
       case 'launching':
-        this._state.next('waiting');
+        this._stateChange.next('waiting');
         break;
     }
   }
@@ -254,7 +258,7 @@ export class QueueService {
   private unreadyQueue() {
     const slots = this.slots.filter(s => s.ready);
     slots.forEach(s => s.ready = false);
-    this._state.next('waiting');
+    this._stateChange.next('waiting');
   }
 
 }

@@ -7,6 +7,7 @@ import { GamesModule } from '@/games/games.module';
 import { MapVoteService } from './services/map-vote.service';
 import { GameLauncherService } from './services/game-launcher.service';
 import { QueueGateway } from './queue.gateway';
+import { QueueController } from './controllers/queue.controller';
 
 @Module({
   imports: [
@@ -25,5 +26,6 @@ import { QueueGateway } from './queue.gateway';
     QueueService,
     QueueConfigService,
   ],
+  controllers: [QueueController],
 })
 export class QueueModule { }

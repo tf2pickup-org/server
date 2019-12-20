@@ -9,7 +9,7 @@ interface MapVote {
   map: Tf2Map;
 }
 
-interface MapVoteResult {
+export interface MapVoteResult {
   map: Tf2Map;
   voteCount: number;
 }

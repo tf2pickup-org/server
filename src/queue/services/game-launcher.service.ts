@@ -10,7 +10,7 @@ export class GameLauncherService implements OnModuleInit {
   ) { }
 
   onModuleInit() {
-    this.queueService.state.pipe(
+    this.queueService.stateChange.pipe(
       filter(state => state === 'launching'),
     ).subscribe(() => this.launchGame());
   }
