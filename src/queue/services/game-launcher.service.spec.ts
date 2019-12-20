@@ -4,7 +4,7 @@ import { QueueService } from './queue.service';
 import { Subject } from 'rxjs';
 
 class QueueServiceStub {
-  state = new Subject<string>();
+  stateChange = new Subject<string>();
   reset() { }
 }
 
@@ -32,7 +32,7 @@ describe('GameLauncherService', () => {
 
   it('should eventually reset the queue', () => {
     const spy = spyOn(queueService, 'reset');
-    queueService.state.next('launching');
+    queueService.stateChange.next('launching');
     expect(spy).toHaveBeenCalled();
   });
 });
