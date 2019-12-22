@@ -1,4 +1,5 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
+import { WsException } from '@nestjs/websockets';
 
 @Injectable()
 export class WsAuthorizedGuard implements CanActivate {
@@ -8,7 +9,7 @@ export class WsAuthorizedGuard implements CanActivate {
     if (client?.request?.user?.logged_in) {
       return true;
     } else {
-      return false;
+      throw new WsException('unauthorized');
     }
   }
 }
