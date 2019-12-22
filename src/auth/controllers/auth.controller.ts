@@ -35,7 +35,7 @@ export class AuthController {
   }
 
   @Post()
-  async refreshToken(@Query('refreshToken') oldRefreshToken: string) {
+  async refreshToken(@Query('refresh_token') oldRefreshToken: string) {
     if (oldRefreshToken !== undefined) {
       const { refreshToken, authToken } = await this.authService.refreshTokens(oldRefreshToken);
       return { refreshToken, authToken };
