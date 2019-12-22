@@ -22,6 +22,7 @@ export class QueueService {
 
   // events
   private _playerLeave = new Subject<string>();
+  private _slotsChange = new Subject<QueueSlot[]>();
 
   get requiredPlayerCount(): number {
     return this.slots.length;
@@ -47,6 +48,10 @@ export class QueueService {
     return this._playerLeave.asObservable();
   }
 
+  get slotsChange(): Observable<QueueSlot[]> {
+    return this._slotsChange.asObservable();
+  }
+
   constructor(
     private playersService: PlayersService,
     private queueConfigService: QueueConfigService,
@@ -59,6 +64,18 @@ export class QueueService {
     ).subscribe(([oldState, newState]) => this.onStateChange(oldState, newState));
 
     this.resetSlots();
+  }
+
+  getSlotById(id: number): QueueSlot {
+    return this.slots.find(s => s.id === id);
+  }
+
+  findSlotByPlayerId(playerId: string): QueueSlot {
+    return this.slots.find(s => s.playerId === playerId);
+  }
+
+  isInQueue(playerId: string): boolean {
+    return !!this.slots.find(s => s.playerId === playerId);
   }
 
   reset() {
@@ -97,7 +114,7 @@ export class QueueService {
       throw new Error('player involved in a currently active game');
     }
 
-    const targetSlot = this.slots.find(s => s.id === slotId);
+    const targetSlot = this.getSlotById(slotId);
     if (!targetSlot) {
       throw new Error('no such slot');
     }
@@ -120,12 +137,14 @@ export class QueueService {
     }
 
     this.logger.log(`player ${player.name} joined the queue (slotId=${targetSlot.id}, gameClass=${targetSlot.gameClass})`);
+    const slots = [ targetSlot, ...oldSlots ];
+    this._slotsChange.next(slots);
     setImmediate(() => this.maybeUpdateState());
-    return [ targetSlot, ...oldSlots ];
+    return slots;
   }
 
-  async leave(playerId: string): Promise<QueueSlot> {
-    const slot = this.slots.find(s => s.playerId === playerId);
+  leave(playerId: string): QueueSlot {
+    const slot = this.findSlotByPlayerId(playerId);
     if (slot) {
       if (slot.ready && this.state !== 'waiting') {
         throw new Error('cannot leave at this stage');
@@ -134,10 +153,11 @@ export class QueueService {
       this.clearSlot(slot);
       this.logger.log(`slot ${slot.id} (gameClass=${slot.gameClass}) free`);
       this._playerLeave.next(playerId);
+      this._slotsChange.next([ slot ]);
       setImmediate(() => this.maybeUpdateState());
       return slot;
     } else {
-      return null;
+      throw new Error('slot already free');
     }
   }
 
@@ -150,6 +170,7 @@ export class QueueService {
     slots.forEach(slot => this._playerLeave.next(slot.playerId));
     slots.forEach(slot => this.clearSlot(slot));
     slots.forEach(slot => this.logger.log(`slot ${slot.id} (gameClass=${slot.gameClass}) free (player was kicked)`));
+    this._slotsChange.next(slots);
     setImmediate(() => this.maybeUpdateState());
   }
 
@@ -158,23 +179,16 @@ export class QueueService {
       throw new Error('queue not ready');
     }
 
-    const slot = this.slots.find(s => s.playerId === playerId);
+    const slot = this.findSlotByPlayerId(playerId);
     if (slot) {
       slot.ready = true;
       this.logger.log(`slot ${slot.id} ready (${this.readyPlayerCount}/${this.requiredPlayerCount})`);
+      this._slotsChange.next([ slot ]);
       setImmediate(() => this.maybeUpdateState());
       return slot;
     } else {
       throw new Error('player is not in the queue');
     }
-  }
-
-  getSlotById(id: number): QueueSlot {
-    return this.slots.find(s => s.id === id);
-  }
-
-  isInQueue(playerId: string): boolean {
-    return !!this.slots.find(s => s.playerId === playerId);
   }
 
   private resetSlots() {
