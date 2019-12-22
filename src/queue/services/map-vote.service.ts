@@ -3,6 +3,7 @@ import { Tf2Map } from '../tf2-map';
 import { QueueConfigService } from './queue-config.service';
 import { QueueService } from './queue.service';
 import { maxBy, shuffle } from 'lodash';
+import { BehaviorSubject, Observable } from 'rxjs';
 
 interface MapVote {
   playerId: string;
@@ -17,11 +18,16 @@ export interface MapVoteResult {
 @Injectable()
 export class MapVoteService implements OnModuleInit {
 
+  private _results = new BehaviorSubject<MapVoteResult[]>([]);
+
   public mapOptions: Tf2Map[];
 
   get results(): MapVoteResult[] {
-    return this.mapOptions
-      .map(map => ({ map, voteCount: this.voteCountForMap(map) }));
+    return this._results.value;
+  }
+
+  get resultsChange(): Observable<MapVoteResult[]> {
+    return this._results.asObservable();
   }
 
   private lastPlayedMap: string;
@@ -56,6 +62,8 @@ export class MapVoteService implements OnModuleInit {
       ...this.votes.filter(v => v.playerId !== playerId),
       { map, playerId },
     ];
+
+    this._results.next(this.getResults());
   }
 
   playerVote(playerId: string): Tf2Map {
@@ -78,10 +86,17 @@ export class MapVoteService implements OnModuleInit {
     this.mapOptions = shuffle(this.queueConfigService.queueConfig.maps.filter(m => m !== this.lastPlayedMap))
       .slice(0, this.mapVoteOptionCount);
     this.votes = [];
+    this._results.next(this.getResults());
   }
 
   private resetPlayerVote(playerId: string) {
     this.votes = [ ...this.votes.filter(v => v.playerId !== playerId) ];
+    this._results.next(this.getResults());
+  }
+
+  private getResults() {
+    return this.mapOptions
+      .map(map => ({ map, voteCount: this.voteCountForMap(map) }));
   }
 
 }
