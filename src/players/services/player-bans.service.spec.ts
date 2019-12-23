@@ -3,12 +3,17 @@ import { PlayerBansService } from './player-bans.service';
 import { getModelToken } from 'nestjs-typegoose';
 import { PlayerBan } from '../models/player-ban';
 import { Types } from 'mongoose';
+import { OnlinePlayersService } from './online-players.service';
 
 const playerBanModel = {
   find: (obj: any) => ({ sort: () => null }),
   findById: (id: string) => null,
-  create: (obj: any) => null,
+  create: (obj: any) => obj,
 };
+
+class OnlinePlayersServiceStub {
+
+}
 
 describe('PlayerBansService', () => {
   let service: PlayerBansService;
@@ -18,6 +23,7 @@ describe('PlayerBansService', () => {
       providers: [
         PlayerBansService,
         { provide: getModelToken('PlayerBan'), useValue: playerBanModel },
+        { provide: OnlinePlayersService, useClass: OnlinePlayersServiceStub },
       ],
     }).compile();
 
@@ -58,31 +64,45 @@ describe('PlayerBansService', () => {
   });
 
   describe('#addPlayerBan()', () => {
-    it('should create ban via model', async () => {
+    let ban: Partial<PlayerBan>;
+
+    beforeEach(() => {
       const end = new Date();
       end.setHours(end.getHours() + 1);
 
-      const ban: Partial<PlayerBan> = {
+      ban = {
         player: new Types.ObjectId(),
         admin: new Types.ObjectId(),
         start: new Date(),
         end,
         reason: 'just testing',
       };
+    });
 
-      const spy = spyOn(playerBanModel, 'create');
-
+    it('should create ban via model', async () => {
+      const spy = spyOn(playerBanModel, 'create').and.callThrough();
       await service.addPlayerBan(ban);
       expect(spy).toHaveBeenCalledWith(ban);
+    });
+
+    it('should emit the event', async done => {
+      service.banAdded.subscribe(playerId => {
+        expect(playerId).toEqual(ban.player.toString());
+        done();
+      });
+
+      await service.addPlayerBan(ban);
     });
   });
 
   describe('#revokeBan()', () => {
-    it('should revoke the ban', async () => {
+    let ban: any;
+
+    beforeEach(() =>  {
       const end = new Date();
       end.setHours(end.getHours() + 1);
 
-      const ban = {
+      ban = {
         player: new Types.ObjectId(),
         admin: new Types.ObjectId(),
         start: new Date(),
@@ -90,13 +110,25 @@ describe('PlayerBansService', () => {
         reason: 'just testing',
         save: () => new Promise(resolve => resolve(null)),
       };
+    });
 
+    it('should revoke the ban', async () => {
       const spy = spyOn(playerBanModel, 'findById').and.returnValue(new Promise(resolve => resolve(ban)));
       const saveSpy = spyOn(ban, 'save').and.callThrough();
 
       await service.revokeBan('FAKE_BAN_ID');
       expect(spy).toHaveBeenCalledWith('FAKE_BAN_ID');
       expect(saveSpy).toHaveBeenCalled();
+    });
+
+    it('should emit the event', async done => {
+      service.banRevoked.subscribe(playerId => {
+        expect(playerId).toEqual(ban.player.toString());
+        done();
+      });
+
+      spyOn(playerBanModel, 'findById').and.returnValue(new Promise(resolve => resolve(ban)));
+      await service.revokeBan('FAKE_BAN_ID');
     });
   });
 });

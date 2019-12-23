@@ -1,14 +1,41 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, OnModuleInit, Logger } from '@nestjs/common';
 import { InjectModel } from 'nestjs-typegoose';
 import { PlayerBan } from '../models/player-ban';
 import { ReturnModelType, DocumentType } from '@typegoose/typegoose';
+import { Subject, merge } from 'rxjs';
+import { OnlinePlayersService } from './online-players.service';
 
 @Injectable()
-export class PlayerBansService {
+export class PlayerBansService implements OnModuleInit {
+
+  private logger = new Logger(PlayerBansService.name);
+  private _banAdded = new Subject<string>();
+  private _banRevoked = new Subject<string>();
+
+  get banAdded() {
+    return this._banAdded.asObservable();
+  }
+
+  get banRevoked() {
+    return this._banRevoked.asObservable();
+  }
 
   constructor(
     @InjectModel(PlayerBan) private playerBanModel: ReturnModelType<typeof PlayerBan>,
+    private onlinePlayersService: OnlinePlayersService,
   ) { }
+
+  onModuleInit() {
+    merge(
+      this.banAdded,
+      this.banRevoked,
+    ).subscribe(playerId => {
+      this.onlinePlayersService.getSocketsForPlayer(playerId).forEach(async socket => {
+        const bans = await this.getPlayerActiveBans(playerId);
+        socket.emit('profile update', { bans });
+      });
+    });
+  }
 
   async getById(banId: string): Promise<PlayerBan> {
     return await this.playerBanModel.findById(banId);
@@ -29,14 +56,9 @@ export class PlayerBansService {
 
   async addPlayerBan(playerBan: Partial<PlayerBan>): Promise<DocumentType<PlayerBan>> {
     const addedBan = await this.playerBanModel.create(playerBan);
-    // const playerId = addedBan.player.toString();
-    // this.emit('player_banned', playerId);
-    // this.onlinePlayersService.getSocketsForPlayer(addedBan.player.toString()).forEach(async socket => {
-    //   const bans = await this.getActiveBansForPlayer(addedBan.player.toString());
-    //   socket.emit('profile update', { bans });
-    // });
-
-    // this.discordService.notifyBan(addedBan);
+    const playerId = addedBan.player.toString();
+    this._banAdded.next(playerId);
+    this.logger.log(`ban added for player ${playerId} (reason: ${playerBan.reason})`);
     return addedBan;
   }
 
@@ -45,11 +67,9 @@ export class PlayerBansService {
     ban.end = new Date();
     await ban.save();
 
-    // this.onlinePlayersService.getSocketsForPlayer(ban.player.toString()).forEach(async socket => {
-    //   const bans = await this.getActiveBansForPlayer(ban.player.toString());
-    //   socket.emit('profile update', { bans });
-    // });
-
+    const playerId = ban.player.toString();
+    this._banRevoked.next(playerId);
+    this.logger.log(`ban revoked for player ${playerId}`);
     return ban;
   }
 
