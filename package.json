@@ -32,7 +32,7 @@
     "lodash": "4.17.15",
     "mongoose": "5.7.14",
     "nestjs-typegoose": "7.0.0",
-    "passport": "0.4.0",
+    "passport": "0.4.1",
     "passport-jwt": "4.0.0",
     "passport-steam": "1.0.12",
     "reflect-metadata": "0.1.13",
