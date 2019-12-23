@@ -7,6 +7,7 @@ import { Etf2lProfileService } from './etf2l-profile.service';
 import { InjectModel } from 'nestjs-typegoose';
 import { GamesService } from '@/games/services/games.service';
 import { PlayerStats } from '../models/player-stats';
+import { Etf2lProfile } from '../models/etf2l-profile';
 
 @Injectable()
 export class PlayersService {
@@ -33,17 +34,36 @@ export class PlayersService {
   }
 
   async createPlayer(steamProfile: SteamProfile): Promise<DocumentType<Player>> {
-    const etf2lProfile = await this.etf2lProfileService.fetchPlayerInfo(steamProfile.id);
-    if (etf2lProfile.bans && etf2lProfile.bans.filter(ban => ban.end > Date.now()).length > 0) {
-      throw new Error('this account is banned on ETF2L');
+    let etf2lProfile: Etf2lProfile;
+    let name = steamProfile.displayName;
+
+    try {
+      etf2lProfile = await this.etf2lProfileService.fetchPlayerInfo(steamProfile.id);
+
+      if (etf2lProfile.bans && etf2lProfile.bans.filter(ban => ban.end > Date.now()).length > 0) {
+        throw new Error('this account is banned on ETF2L');
+      }
+
+      name = etf2lProfile.name;
+    } catch (error) {
+      switch (error.message) {
+        case 'no etf2l profile':
+          if (this.configService.requireEtf2lAccount === 'true') {
+            throw error;
+          }
+          break;
+
+        default:
+          throw error;
+      }
     }
 
     const player = await this.playerModel.create({
       steamId: steamProfile.id,
-      name: etf2lProfile.name,
+      name,
       avatarUrl: steamProfile.photos[0].value,
       role: this.configService.superUser === steamProfile.id ? 'super-user' : null,
-      etf2lProfileId: etf2lProfile.id,
+      etf2lProfileId: etf2lProfile?.id,
     });
 
     this.logger.log(`created new player (name: ${player?.name})`);

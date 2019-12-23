@@ -8,6 +8,7 @@ import { GamesService } from '@/games/services/games.service';
 
 class ConfigServiceStub {
   superUser = null;
+  requireEtf2lAccount = false;
 }
 
 class Etf2lProfileServiceStub {
@@ -91,6 +92,7 @@ describe('PlayersService', () => {
     };
 
     it('should deny creating profiles without ETF2L profile', async () => {
+      configService.requireEtf2lAccount = true;
       const spy = spyOn(etf2lProfileService, 'fetchPlayerInfo').and.throwError('no ETF2L profile');
       await expectAsync(service.createPlayer(steamProfile)).toBeRejected();
       expect(spy).toHaveBeenCalledWith('FAKE_STEAM_ID');

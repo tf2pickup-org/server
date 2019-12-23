@@ -51,4 +51,8 @@ export class ConfigService {
     return this.config.MUMBLE_CHANNEL_NAME;
   }
 
+  get requireEtf2lAccount() {
+    return this.config.REQUIRE_ETF2L_ACCOUNT;
+  }
+
 }
