@@ -22,7 +22,7 @@ export class ProfileController {
   @HttpCode(204)
   async acceptTerms(@User() user: Player, @Query('accept_terms') acceptTerms: string) {
     if (acceptTerms !== undefined) {
-      await this.playersService.acceptTerms(user._id);
+      await this.playersService.acceptTerms(user.id);
     } else {
       throw new BadRequestException();
     }

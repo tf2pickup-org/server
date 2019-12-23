@@ -11,7 +11,7 @@ import { PlayerBansService } from '../services/player-bans.service';
 
 class PlayersServiceStub {
   player: Player = {
-    _id: 'FAKE_ID',
+    id: 'FAKE_ID',
     name: 'FAKE_PLAYER_NAME',
     steamId: 'FAKE_STEAM_ID',
     hasAcceptedRules: true,

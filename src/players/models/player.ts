@@ -2,7 +2,7 @@ import { prop } from '@typegoose/typegoose';
 import { PlayerRole } from './player-role';
 
 export class Player {
-  _id: string;
+  id: string;
 
   @prop({ required: true, unique: true, trim: true })
   name!: string;

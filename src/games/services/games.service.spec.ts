@@ -21,7 +21,7 @@ const gameModel = {
 
 class PlayersServiceStub {
   player: Player = {
-    _id: 'FAKE_PLAYER_ID',
+    id: 'FAKE_PLAYER_ID',
     steamId: 'FAKE_STEAM_ID',
     name: 'FAKE_PLAYER_NAME',
     hasAcceptedRules: true,

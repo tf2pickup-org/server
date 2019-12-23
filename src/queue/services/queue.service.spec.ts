@@ -9,7 +9,7 @@ import { GamesService } from '@/games/services/games.service';
 class PlayersServiceStub {
 
   player: Player = {
-    _id: 'FAKE_PLAYER_ID',
+    id: 'FAKE_PLAYER_ID',
     name: 'FAKE_PLAYER_NAME',
     steamId: 'FAKE_STEAM_ID',
     joinedAt: new Date(),

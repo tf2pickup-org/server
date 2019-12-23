@@ -29,7 +29,7 @@ describe('Profile Controller', () => {
 
   describe('#getProfile()', () => {
     it('should return the logged-in user\'s profile', () => {
-      const user: Player = { _id: 'FAKE_ID', name: 'FAKE_USER_NAME', steamId: 'FAKE_STEAM_ID', hasAcceptedRules: false };
+      const user: Player = { id: 'FAKE_ID', name: 'FAKE_USER_NAME', steamId: 'FAKE_STEAM_ID', hasAcceptedRules: false };
       expect(controller.getProfile(user)).toEqual(user);
     });
   });
@@ -37,12 +37,12 @@ describe('Profile Controller', () => {
   describe('#acceptTerms', () => {
     it('should call players service', async () => {
       const spy = spyOn(playersService, 'acceptTerms');
-      await controller.acceptTerms({ _id: 'FAKE_ID' } as Player, '');
+      await controller.acceptTerms({ id: 'FAKE_ID' } as Player, '');
       expect(spy).toHaveBeenCalledWith('FAKE_ID');
     });
 
     it('should reject invalid requests', async () => {
-      await expectAsync(controller.acceptTerms({ _id: 'FAKE_ID' } as Player, undefined)).toBeRejected();
+      await expectAsync(controller.acceptTerms({ id: 'FAKE_ID' } as Player, undefined)).toBeRejected();
     });
   });
 });
