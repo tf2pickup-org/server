@@ -9,6 +9,7 @@ import { GameServersModule } from '@/game-servers/game-servers.module';
 import { standardSchemaOptions } from '@/utils/standard-schema-options';
 import { GamesController } from './controllers/games.controller';
 import { removeGameAssignedSkills } from '@/utils/tojson-transform';
+import { GamesGateway } from './gateways/games.gateway';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { removeGameAssignedSkills } from '@/utils/tojson-transform';
   ],
   providers: [
     GamesService,
+    GamesGateway,
   ],
   exports: [
     GamesService,

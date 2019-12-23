@@ -10,6 +10,7 @@ import { QueueConfigService } from '@/queue/services/queue-config.service';
 import { GameServersService } from '@/game-servers/services/game-servers.service';
 import { GameServer } from '@/game-servers/models/game-server';
 import { ConfigService } from '@/config/config.service';
+import { Subject } from 'rxjs';
 
 interface GameSortOptions {
   launchedAt: 1 | -1;
@@ -23,6 +24,16 @@ interface GetPlayerGameCountOptions {
 export class GamesService {
 
   private logger = new Logger(GamesService.name);
+  private _gameCreated = new Subject<Game>(); // todo pass only game id
+  private _gameUpdated = new Subject<Game>();
+
+  get gameCreated() {
+    return this._gameCreated.asObservable();
+  }
+
+  get gameUpdated() {
+    return this._gameUpdated.asObservable();
+  }
 
   constructor(
     @InjectModel(Game) private gameModel: ReturnModelType<typeof Game>,
@@ -108,6 +119,7 @@ export class GamesService {
       assignedSkills,
     });
 
+    this._gameCreated.next(game);
     return game;
   }
 
@@ -163,6 +175,7 @@ export class GamesService {
     await this.gameServersService.takeServer(server.id);
     game.gameServer = server;
     await game.save();
+    this._gameUpdated.next(game);
   }
 
   private async resolveMumbleUrl(game: DocumentType<Game>, server: GameServer) {
@@ -170,6 +183,7 @@ export class GamesService {
       `mumble://${this.configService.mumbleServerUrl}/${this.configService.mumbleChannelName}/${server.mumbleChannelName}`;
     game.mumbleUrl = mumbleUrl;
     await game.save();
+    this._gameUpdated.next(game);
   }
 
 }

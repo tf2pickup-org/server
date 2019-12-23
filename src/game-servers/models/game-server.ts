@@ -15,7 +15,7 @@ export class GameServer {
 
   @IsPort()
   @prop({ required: true })
-  port!: number;
+  port!: string;
 
   @IsString()
   @prop({ required: true })
