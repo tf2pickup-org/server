@@ -10,7 +10,8 @@
     "dev": "nest start --watch --debug",
     "prod": "node dist/main",
     "lint": "tslint -p tsconfig.json -c tslint.json",
-    "test": "ts-node -r tsconfig-paths/register node_modules/jasmine/bin/jasmine --config=jasmine.json"
+    "test": "ts-node -r tsconfig-paths/register node_modules/jasmine/bin/jasmine --config=jasmine.json",
+    "test:ci": "nyc --reporter=lcov npm run test"
   },
   "dependencies": {
     "@nestjs/common": "6.10.7",
@@ -60,6 +61,7 @@
     "@types/supertest": "2.0.8",
     "jasmine": "3.5.0",
     "jasmine-ts": "0.3.0",
+    "nyc": "^15.0.0",
     "prettier": "1.19.1",
     "supertest": "4.0.2",
     "ts-loader": "6.2.1",
