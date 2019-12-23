@@ -1,6 +1,6 @@
 import { Injectable, HttpService } from '@nestjs/common';
 import { Etf2lProfile } from '../models/etf2l-profile';
-import { switchMap } from 'rxjs/operators';
+import { switchMap, tap, catchError } from 'rxjs/operators';
 import { of, throwError } from 'rxjs';
 
 interface Etf2lPlayerResponse {
@@ -22,13 +22,23 @@ export class Etf2lProfileService {
 
   async fetchPlayerInfo(steamId: string): Promise<Etf2lProfile> {
     return this.httpService.get<Etf2lPlayerResponse>(`${this.etf2lEndpoint}/player/${steamId}`).pipe(
+      catchError(error => {
+        const response = error.response;
+        switch (response.status) {
+          case 404:
+            return throwError(new Error('no etf2l profile'));
+
+          default:
+            return throwError(new Error(`${response.status}: ${response.statusText}`));
+        }
+      }),
       switchMap(response => {
         if (response.status === 200) {
           return of(response.data.player);
         } else {
           switch (response.status) {
             case 404:
-              return throwError(new Error('no ETF2L profile'));
+              return throwError(new Error('no etf2l profile'));
 
             default:
               return throwError(new Error(`${response.status}: ${response.statusText}`));

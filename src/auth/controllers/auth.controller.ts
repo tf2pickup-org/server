@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Query, BadRequestException } from '@nestjs/common';
+import { Controller, Get, Post, Query, BadRequestException, Logger } from '@nestjs/common';
 import { HttpAdapterHost } from '@nestjs/core';
 import { authenticate } from 'passport';
 import { ConfigService } from '@/config/config.service';
@@ -8,6 +8,8 @@ import { Auth } from '../decorators/auth.decorator';
 
 @Controller('auth')
 export class AuthController {
+
+  private logger = new Logger(AuthController.name);
 
   constructor(
     private configService: ConfigService,
@@ -20,7 +22,8 @@ export class AuthController {
     this.adapterHost.httpAdapter.get('/auth/steam/return', (req, res, next) => {
       return authenticate('steam', (error, user) => {
         if (error) {
-          return res.redirect(`${this.configService.clientUrl}/auth-error?error=${error}`);
+          this.logger.warn(`Steam login error for ${user}: ${error}`);
+          return res.redirect(`${this.configService.clientUrl}/auth-error?error=${error.message}`);
         }
 
         if (!user) {

@@ -50,7 +50,7 @@ describe('Etf2lProfileService', () => {
 
     it('should handle 404', async () => {
       spyOn(httpService, 'get').and.returnValue(of({ status: 404 }));
-      await expectAsync(service.fetchPlayerInfo('')).toBeRejectedWithError('no ETF2L profile');
+      await expectAsync(service.fetchPlayerInfo('')).toBeRejectedWithError('no etf2l profile');
     });
 
     it('should forward any other error', async () => {
