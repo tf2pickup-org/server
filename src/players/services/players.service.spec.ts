@@ -5,6 +5,7 @@ import { Etf2lProfileService } from './etf2l-profile.service';
 import { getModelToken } from 'nestjs-typegoose';
 import { SteamProfile } from '../models/steam-profile';
 import { GamesService } from '@/games/services/games.service';
+import { OnlinePlayersService } from './online-players.service';
 
 class ConfigServiceStub {
   superUser = null;
@@ -40,11 +41,16 @@ const playerModel = {
   create: (object: any) => null,
 };
 
+class OnlinePlayersServiceStub {
+  getSocketsForPlayer(playerId: string) { return []; }
+}
+
 describe('PlayersService', () => {
   let service: PlayersService;
   let configService: ConfigServiceStub;
   let etf2lProfileService: Etf2lProfileServiceStub;
   let gamesService: GamesServiceStub;
+  let onlinePlayersService: OnlinePlayersServiceStub;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -54,6 +60,7 @@ describe('PlayersService', () => {
         { provide: Etf2lProfileService, useClass: Etf2lProfileServiceStub },
         { provide: getModelToken('Player'), useValue: playerModel },
         { provide: GamesService, useClass: GamesServiceStub },
+        { provide: OnlinePlayersService, useClass: OnlinePlayersServiceStub },
       ],
     }).compile();
 
@@ -61,6 +68,7 @@ describe('PlayersService', () => {
     configService = module.get(ConfigService);
     etf2lProfileService = module.get(Etf2lProfileService);
     gamesService = module.get(GamesService);
+    onlinePlayersService = module.get(OnlinePlayersService);
   });
 
   it('should be defined', () => {
@@ -142,12 +150,12 @@ describe('PlayersService', () => {
   });
 
   describe('#updatePlayer()', () => {
-    it('should update and save', async () => {
-      const player = {
-        name: 'OLD_NAME',
-        save: () => null,
-      };
+    const player = {
+      name: 'OLD_NAME',
+      save: () => null,
+    };
 
+    it('should update and save', async () => {
       const spy = spyOn(service, 'getById').and.returnValue(new Promise(resolve => resolve(player as any)));
       const spy2 = spyOn(player, 'save');
 
@@ -155,6 +163,18 @@ describe('PlayersService', () => {
       expect(spy).toHaveBeenCalledWith('FAKE_ID');
       expect(player.name).toEqual('NEW_NAME');
       expect(spy2).toHaveBeenCalled();
+    });
+
+    it('should emit updated player over websocket', async () => {
+      spyOn(service, 'getById').and.returnValue(new Promise(resolve => resolve(player as any)));
+
+      const socket = { emit: (...args: any[]) => null };
+      const spy = spyOn(onlinePlayersService, 'getSocketsForPlayer').and.returnValue([ socket ] as any);
+      const spy2 = spyOn(socket, 'emit').and.callThrough();
+
+      await service.updatePlayer('FAKE_ID', { name: 'NEW_NAME' });
+      expect(spy).toHaveBeenCalledWith('FAKE_ID');
+      expect(spy2).toHaveBeenCalledWith('profile update', { name: 'NEW_NAME' });
     });
 
     it('should return null if the given player does not exist', async () => {

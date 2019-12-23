@@ -41,6 +41,7 @@ class QueueConfigServiceStub {
 }
 
 class PlayerBansServiceStub {
+  banAdded = new Subject<string>();
   getPlayerActiveBans(playerId: string) {
     return new Promise(resolve => resolve([]));
   }

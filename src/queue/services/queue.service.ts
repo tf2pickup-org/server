@@ -3,7 +3,7 @@ import { QueueSlot } from '@/queue/queue-slot';
 import { PlayersService } from '@/players/services/players.service';
 import { QueueConfigService } from './queue-config.service';
 import { PlayerBansService } from '@/players/services/player-bans.service';
-import { BehaviorSubject, Observable, Subject } from 'rxjs';
+import { BehaviorSubject, Observable, Subject, merge } from 'rxjs';
 import { pairwise, distinctUntilChanged } from 'rxjs/operators';
 import { GamesService } from '@/games/services/games.service';
 import { OnlinePlayersService } from '@/players/services/online-players.service';
@@ -69,7 +69,10 @@ export class QueueService implements OnModuleInit {
   }
 
   onModuleInit() {
-    this.onlinePlayersService.playerLeft.subscribe(playerId => this.kick(playerId));
+    merge(
+      this.playerBansService.banAdded,
+      this.onlinePlayersService.playerLeft,
+    ).subscribe(playerId => this.kick(playerId));
   }
 
   getSlotById(id: number): QueueSlot {

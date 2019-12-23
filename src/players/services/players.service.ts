@@ -8,6 +8,7 @@ import { InjectModel } from 'nestjs-typegoose';
 import { GamesService } from '@/games/services/games.service';
 import { PlayerStats } from '../models/player-stats';
 import { Etf2lProfile } from '../models/etf2l-profile';
+import { OnlinePlayersService } from './online-players.service';
 
 @Injectable()
 export class PlayersService {
@@ -19,6 +20,7 @@ export class PlayersService {
     private etf2lProfileService: Etf2lProfileService,
     @InjectModel(Player) private playerModel: ReturnModelType<typeof Player>,
     @Inject(forwardRef(() => GamesService)) private gamesService: GamesService,
+    private onlinePlayersService: OnlinePlayersService,
   ) { }
 
   async getAll(): Promise<Array<DocumentType<Player>>> {
@@ -77,7 +79,10 @@ export class PlayersService {
         player.name = update.name;
       }
 
-      return await player.save();
+      await player.save();
+      this.onlinePlayersService.getSocketsForPlayer(playerId).forEach(socket => socket.emit('profile update', { name: player.name }));
+
+      return player;
     } else {
       return null;
     }
