@@ -19,6 +19,10 @@ class QueueServiceStub {
   readyUp(playerId: string) {
     return { id: 0, playerId, ready: true };
   }
+
+  markFriend(playerId: string, friendId: string) {
+    return new Promise(resolve => resolve({ id: 0, player: playerId, friend: friendId }));
+  }
 }
 
 class MapVoteServiceStub {
@@ -73,6 +77,15 @@ describe('QueueGateway', () => {
       const ret = gateway.playerReady({ request: { user: { id: 'FAKE_ID' } } });
       expect(spy).toHaveBeenCalledWith('FAKE_ID');
       expect(ret).toEqual({ id: 0, playerId: 'FAKE_ID', ready: true } as any);
+    });
+  });
+
+  describe('#markFriend()', () => {
+    it('should mark friend', async () => {
+      const spy = spyOn(queueService, 'markFriend').and.callThrough();
+      const ret = await gateway.markFriend({ request: { user: { id: 'FAKE_ID' } } }, { friendPlayerId: 'FAKE_FRIEND_ID' });
+      expect(spy).toHaveBeenCalledWith('FAKE_ID', 'FAKE_FRIEND_ID');
+      expect(ret).toEqual({ id: 0, player: 'FAKE_ID', friend: 'FAKE_FRIEND_ID' } as any);
     });
   });
 

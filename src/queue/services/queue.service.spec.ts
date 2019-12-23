@@ -78,12 +78,12 @@ describe('QueueService', () => {
   });
 
   it('should be empty initially', () => {
-    // expect(service.state).toEqual('waiting');
+    expect(service.state).toEqual('waiting');
     expect(service.slots.length).toBe(12);
     expect(service.slots.every(s => s.playerId === null)).toBe(true);
     expect(service.slots.every(s => s.ready === false)).toBe(true);
     expect(service.playerCount).toEqual(0);
-    // expect(service.readyPlayerCount).toEqual(0);
+    expect(service.readyPlayerCount).toEqual(0);
   });
 
   describe('#join()', () => {
@@ -150,8 +150,8 @@ describe('QueueService', () => {
       await service.join(0, 'FAKE_PLAYER_ID');
     });
 
-    it('should reset the slot', async () => {
-      const slot = await service.leave('FAKE_PLAYER_ID');
+    it('should reset the slot', () => {
+      const slot = service.leave('FAKE_PLAYER_ID');
       expect(slot.id).toBe(0);
       expect(slot.playerId).toBe(null);
       expect(slot.ready).toBe(false);
@@ -176,6 +176,42 @@ describe('QueueService', () => {
     it('should fail if the queue is not in ready up state', async () => {
       await service.join(0, 'FAKE_PLAYER_ID');
       expect(() => service.readyUp('FAKE_PLAYER_ID')).toThrowError('queue not ready');
+    });
+  });
+
+  describe('#markFriend()', () => {
+    let medicSlot: number;
+    let soldierSlot: number;
+
+    beforeEach(() => {
+      medicSlot = service.slots.find(s => s.gameClass === 'medic').id;
+      soldierSlot = service.slots.find(s => s.gameClass === 'soldier').id;
+    });
+
+    it('should deny if the given friend is not in the queue', async () => {
+      await service.join(medicSlot, 'FAKE_MEDIC_ID');
+      expectAsync(service.markFriend('FAKE_MEDIC_ID', 'FAKE_SOLDIER_ID')).toBeRejected();
+    });
+
+    it('should deny classes other than medic', async () => {
+      await service.join(medicSlot, 'FAKE_MEDIC_ID');
+      await service.join(soldierSlot, 'FAKE_SOLDIER_ID');
+      expectAsync(service.markFriend('FAKE_SOLDIER_ID', 'FAKE_MEDIC_ID')).toBeRejected();
+    });
+
+    it('should deny marking the other medic', async () => {
+      const otherMedicSlot = service.slots.find(s => s.gameClass === 'medic' && s.id !== medicSlot).id;
+      await service.join(medicSlot, 'FAKE_MEDIC_ID');
+      await service.join(otherMedicSlot, 'FAKE_SOLDIER_ID');
+      expectAsync(service.markFriend('FAKE_MEDIC_ID', 'FAKE_SOLDIER_ID')).toBeRejected();
+    });
+
+    it('should save friends id', async () => {
+      await service.join(medicSlot, 'FAKE_MEDIC_ID');
+      await service.join(soldierSlot, 'FAKE_SOLDIER_ID');
+
+      const slot = await service.markFriend('FAKE_MEDIC_ID', 'FAKE_SOLDIER_ID');
+      expect(slot.friend).toEqual('FAKE_SOLDIER_ID');
     });
   });
 });

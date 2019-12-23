@@ -32,6 +32,12 @@ export class QueueGateway implements OnGatewayInit {
   }
 
   @WsAuthorized()
+  @SubscribeMessage('mark friend')
+  async markFriend(client: any, paylod: { friendPlayerId: string }) {
+    return await this.queueService.markFriend(client.request.user.id, paylod.friendPlayerId);
+  }
+
+  @WsAuthorized()
   @SubscribeMessage('vote for map')
   voteForMap(client: any, payload: { map: Tf2Map }) {
     this.mapVoteService.voteForMap(client.request.user.id, payload.map);
