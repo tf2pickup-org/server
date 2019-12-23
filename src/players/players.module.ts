@@ -11,6 +11,8 @@ import { PlayerSkill } from './models/player-skill';
 import { PlayersController } from './controllers/players.controller';
 import { standardSchemaOptions } from '@/utils/standard-schema-options';
 import { GamesModule } from '@/games/games.module';
+import { OnlinePlayersService } from './services/online-players.service';
+import { PlayersGateway } from './gateways/players.gateway';
 
 @Module({
   imports: [
@@ -29,11 +31,14 @@ import { GamesModule } from '@/games/games.module';
     Etf2lProfileService,
     PlayerBansService,
     PlayerSkillService,
+    OnlinePlayersService,
+    PlayersGateway,
   ],
   exports: [
     PlayersService,
     PlayerBansService,
     PlayerSkillService,
+    OnlinePlayersService,
   ],
   controllers: [
     PlayersController,

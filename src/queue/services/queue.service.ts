@@ -1,4 +1,4 @@
-import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
+import { Injectable, Logger, Inject, forwardRef, OnModuleInit } from '@nestjs/common';
 import { QueueSlot } from '@/queue/queue-slot';
 import { PlayersService } from '@/players/services/players.service';
 import { QueueConfigService } from './queue-config.service';
@@ -6,6 +6,7 @@ import { PlayerBansService } from '@/players/services/player-bans.service';
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { pairwise, distinctUntilChanged } from 'rxjs/operators';
 import { GamesService } from '@/games/services/games.service';
+import { OnlinePlayersService } from '@/players/services/online-players.service';
 
 // waiting: waiting for players
 // ready: players are expected to ready up
@@ -13,7 +14,7 @@ import { GamesService } from '@/games/services/games.service';
 type QueueState = 'waiting' | 'ready' | 'launching';
 
 @Injectable()
-export class QueueService {
+export class QueueService implements OnModuleInit {
 
   slots: QueueSlot[] = [];
   private logger = new Logger(QueueService.name);
@@ -57,6 +58,7 @@ export class QueueService {
     private queueConfigService: QueueConfigService,
     private playerBansService: PlayerBansService,
     @Inject(forwardRef(() => GamesService)) private gamesService: GamesService,
+    private onlinePlayersService: OnlinePlayersService,
   ) {
     this.stateChange.pipe(
       distinctUntilChanged(),
@@ -64,6 +66,10 @@ export class QueueService {
     ).subscribe(([oldState, newState]) => this.onStateChange(oldState, newState));
 
     this.resetSlots();
+  }
+
+  onModuleInit() {
+    this.onlinePlayersService.playerLeft.subscribe(playerId => this.kick(playerId));
   }
 
   getSlotById(id: number): QueueSlot {

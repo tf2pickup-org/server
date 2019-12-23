@@ -5,6 +5,8 @@ import { Player } from '@/players/models/player';
 import { QueueConfigService } from './queue-config.service';
 import { PlayerBansService } from '@/players/services/player-bans.service';
 import { GamesService } from '@/games/services/games.service';
+import { OnlinePlayersService } from '@/players/services/online-players.service';
+import { Subject } from 'rxjs';
 
 class PlayersServiceStub {
 
@@ -48,12 +50,17 @@ class GamesServiceStub {
   getPlayerActiveGame(playerId: string) { return new Promise(resolve => resolve(null)); }
 }
 
+class OnlinePlayersServiceStub {
+  playerLeft = new Subject<string>();
+}
+
 describe('QueueService', () => {
   let service: QueueService;
   let playersService: PlayersServiceStub;
   let queueConfigService: QueueConfigServiceStub;
   let playerBansService: PlayerBansServiceStub;
   let gamesService: GamesServiceStub;
+  let onlinePlayersService: OnlinePlayersServiceStub;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -63,6 +70,7 @@ describe('QueueService', () => {
         { provide: QueueConfigService, useClass: QueueConfigServiceStub },
         { provide: PlayerBansService, useClass: PlayerBansServiceStub },
         { provide: GamesService, useClass: GamesServiceStub },
+        { provide: OnlinePlayersService, useClass: OnlinePlayersServiceStub },
       ],
     }).compile();
 
@@ -71,7 +79,10 @@ describe('QueueService', () => {
     queueConfigService = module.get(QueueConfigService);
     playerBansService = module.get(PlayerBansService);
     gamesService = module.get(GamesService);
+    onlinePlayersService = module.get(OnlinePlayersService);
   });
+
+  beforeEach(() => service.onModuleInit());
 
   it('should be defined', () => {
     expect(service).toBeDefined();
@@ -161,6 +172,8 @@ describe('QueueService', () => {
   describe('#kick()', () => {
     beforeEach(async () => {
       await service.join(0, 'FAKE_PLAYER_ID');
+      const slot = service.getSlotById(0);
+      expect(slot.playerId).toBe('FAKE_PLAYER_ID');
     });
 
     it('should reset the slot', () => {
@@ -169,6 +182,13 @@ describe('QueueService', () => {
       expect(slot.playerId).toBe(null);
       expect(slot.ready).toBe(false);
       expect(service.playerCount).toBe(0);
+    });
+
+    it('should be invoked when the player leaves the webpage', () => {
+      const slot = service.getSlotById(0);
+      expect(slot.playerId).toBe('FAKE_PLAYER_ID');
+      onlinePlayersService.playerLeft.next('FAKE_PLAYER_ID');
+      expect(slot.playerId).toBe(null);
     });
   });
 
