@@ -2,9 +2,24 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { ProfileController } from './profile.controller';
 import { Player } from '@/players/models/player';
 import { PlayersService } from '@/players/services/players.service';
+import { GamesService } from '@/games/services/games.service';
+import { PlayerBansService } from '@/players/services/player-bans.service';
+import { MapVoteService } from '@/queue/services/map-vote.service';
 
 class PlayersServiceStub {
   acceptTerms(playerId: string) { return null; }
+}
+
+class GamesServiceStub {
+  getPlayerActiveGame(playerId: string) { return new Promise(resolve => resolve(null)); }
+}
+
+class PlayerBansServiceStub {
+  getPlayerActiveBans(playerId: string) { return new Promise(resolve => resolve([])); }
+}
+
+class MapVoteServiceStub {
+  playerVote(playerId: string) { return 'cp_badlands'; }
 }
 
 describe('Profile Controller', () => {
@@ -15,6 +30,9 @@ describe('Profile Controller', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         { provide: PlayersService, useClass: PlayersServiceStub },
+        { provide: GamesService, useClass: GamesServiceStub },
+        { provide: PlayerBansService, useClass: PlayerBansServiceStub },
+        { provide: MapVoteService, useClass: MapVoteServiceStub },
       ],
       controllers: [ProfileController],
     }).compile();
@@ -28,9 +46,10 @@ describe('Profile Controller', () => {
   });
 
   describe('#getProfile()', () => {
-    it('should return the logged-in user\'s profile', () => {
-      const user: Player = { id: 'FAKE_ID', name: 'FAKE_USER_NAME', steamId: 'FAKE_STEAM_ID', hasAcceptedRules: false };
-      expect(controller.getProfile(user)).toEqual(user);
+    it('should return the logged-in user\'s profile', async () => {
+      const profile = { id: 'FAKE_ID', name: 'FAKE_USER_NAME', steamId: 'FAKE_STEAM_ID', hasAcceptedRules: false, activeGameId: null, bans: [],
+        mapVote: 'cp_badlands' };
+      expect(await controller.getProfile(profile)).toEqual(profile as any);
     });
   });
 
