@@ -3,18 +3,27 @@ import { Auth } from '@/auth/decorators/auth.decorator';
 import { User } from '@/auth/decorators/user.decorator';
 import { Player } from '@/players/models/player';
 import { PlayersService } from '@/players/services/players.service';
+import { GamesService } from '@/games/services/games.service';
+import { PlayerBansService } from '@/players/services/player-bans.service';
+import { MapVoteService } from '@/queue/services/map-vote.service';
 
 @Controller('profile')
 export class ProfileController {
 
   constructor(
     private playersService: PlayersService,
+    private gamesService: GamesService,
+    private playerBansService: PlayerBansService,
+    private mapVoteService: MapVoteService,
   ) { }
 
   @Auth()
   @Get()
-  getProfile(@User() user: Player) {
-    return user;
+  async getProfile(@User() user: Player) {
+    const activeGameId = (await this.gamesService.getPlayerActiveGame(user.id))?.id ?? null;
+    const bans = await this.playerBansService.getPlayerActiveBans(user.id);
+    const mapVote = this.mapVoteService.playerVote(user.id);
+    return { ...user, activeGameId, bans, mapVote };
   }
 
   @Auth()

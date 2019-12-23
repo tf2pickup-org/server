@@ -25,7 +25,10 @@ import { QueueController } from './controllers/queue.controller';
   exports: [
     QueueService,
     QueueConfigService,
+    MapVoteService,
   ],
-  controllers: [QueueController],
+  controllers: [
+    QueueController,
+  ],
 })
 export class QueueModule { }
