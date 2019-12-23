@@ -8,10 +8,11 @@ import { ConfigModule } from '@/config/config.module';
 import { GameServersModule } from '@/game-servers/game-servers.module';
 import { standardSchemaOptions } from '@/utils/standard-schema-options';
 import { GamesController } from './controllers/games.controller';
+import { removeGameAssignedSkills } from '@/utils/tojson-transform';
 
 @Module({
   imports: [
-    TypegooseModule.forFeature([ standardSchemaOptions(Game) ]),
+    TypegooseModule.forFeature([ standardSchemaOptions(Game, removeGameAssignedSkills) ]),
     ConfigModule,
     GameServersModule,
     forwardRef(() => PlayersModule),
