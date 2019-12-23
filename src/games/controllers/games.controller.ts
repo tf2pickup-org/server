@@ -1,6 +1,7 @@
 import { Controller, Get, Query, ParseIntPipe, BadRequestException, Param, NotFoundException } from '@nestjs/common';
 import { GamesService } from '../services/games.service';
 import { ObjectIdValidationPipe } from '@/shared/pipes/object-id-validation.pipe';
+import { Auth } from '@/auth/decorators/auth.decorator';
 
 @Controller('games')
 export class GamesController {
@@ -40,6 +41,17 @@ export class GamesController {
     const game = await this.gamesService.getById(gameId);
     if (game) {
       return game;
+    } else {
+      throw new NotFoundException();
+    }
+  }
+
+  @Get(':id/skills')
+  @Auth('admin', 'super-user')
+  async getGameSkills(@Param('id', ObjectIdValidationPipe) gameId: string) {
+    const game = await this.gamesService.getById(gameId);
+    if (game) {
+      return game.assignedSkills;
     } else {
       throw new NotFoundException();
     }

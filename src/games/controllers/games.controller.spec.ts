@@ -5,8 +5,8 @@ import { Game } from '../models/game';
 
 class GamesServiceStub {
   games: Game[] = [
-    { number: 1, map: 'cp_fake_rc1', state: 'ended' },
-    { number: 2, map: 'cp_fake_rc2', state: 'launching' },
+    { number: 1, map: 'cp_fake_rc1', state: 'ended', assignedSkills: new Map([['FAKE_PLAYER_ID', 1]]) },
+    { number: 2, map: 'cp_fake_rc2', state: 'launching', assignedSkills: new Map([['FAKE_PLAYER_ID', 5]]) },
   ];
   getGames(sort: any, limit: number, skip: number) { return new Promise(resolve => resolve(this.games)); }
   getGameCount() { return new Promise(resolve => resolve(2)); }
@@ -54,6 +54,15 @@ describe('Games Controller', () => {
       const ret = await controller.getGame('FAKE_ID');
       expect(spy).toHaveBeenCalledWith('FAKE_ID');
       expect(ret).toEqual(gamesService.games[0] as any);
+    });
+  });
+
+  describe('#getGameSkills()', () => {
+    it('should return given game assigned skills', async () => {
+      const spy = spyOn(gamesService, 'getById').and.callThrough();
+      const ret = await controller.getGameSkills('FAKE_ID');
+      expect(spy).toHaveBeenCalledWith('FAKE_ID');
+      expect(ret).toEqual(gamesService.games[0].assignedSkills);
     });
   });
 });
