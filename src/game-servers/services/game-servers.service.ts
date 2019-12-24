@@ -97,7 +97,7 @@ export class GameServersService implements OnModuleInit {
   private async checkAllServers() {
     const allGameServers = await this.getAllGameServers();
     for (const server of allGameServers) {
-      const isOnline = await isServerOnline(server.address, server.port);
+      const isOnline = await isServerOnline(server.address, parseInt(server.port, 10));
       server.isOnline = isOnline;
       // todo verify rcon password
       await server.save();

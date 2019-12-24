@@ -90,6 +90,7 @@ export class QueueService implements OnModuleInit {
   reset() {
     this.resetSlots();
     this.logger.log('queue reset');
+    this._slotsChange.next(this.slots);
     setImmediate(() => this.maybeUpdateState());
   }
 

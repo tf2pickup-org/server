@@ -55,4 +55,12 @@ export class ConfigService {
     return this.config.REQUIRE_ETF2L_ACCOUNT;
   }
 
+  get logRelayAddress() {
+    return this.config.LOG_RELAY_ADDRESS;
+  }
+
+  get logRelayPort() {
+    return this.config.LOG_RELAY_PORT;
+  }
+
 }

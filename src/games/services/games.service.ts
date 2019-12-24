@@ -10,6 +10,8 @@ import { QueueConfigService } from '@/queue/services/queue-config.service';
 import { GameServersService } from '@/game-servers/services/game-servers.service';
 import { GameServer } from '@/game-servers/models/game-server';
 import { ConfigService } from '@/config/config.service';
+import { Subject } from 'rxjs';
+import { ServerConfiguratorService } from './server-configurator.service';
 
 interface GameSortOptions {
   launchedAt: 1 | -1;
@@ -23,6 +25,16 @@ interface GetPlayerGameCountOptions {
 export class GamesService {
 
   private logger = new Logger(GamesService.name);
+  private _gameCreated = new Subject<Game>(); // todo pass only game id
+  private _gameUpdated = new Subject<Game>();
+
+  get gameCreated() {
+    return this._gameCreated.asObservable();
+  }
+
+  get gameUpdated() {
+    return this._gameUpdated.asObservable();
+  }
 
   constructor(
     @InjectModel(Game) private gameModel: ReturnModelType<typeof Game>,
@@ -31,6 +43,7 @@ export class GamesService {
     private queueConfigService: QueueConfigService,
     private gameServersService: GameServersService,
     private configService: ConfigService,
+    private serverConfiguratorService: ServerConfiguratorService,
   ) { }
 
   async getGameCount(): Promise<number> {
@@ -108,6 +121,7 @@ export class GamesService {
       assignedSkills,
     });
 
+    this._gameCreated.next(game);
     return game;
   }
 
@@ -125,12 +139,53 @@ export class GamesService {
     if (server) {
       await this.assignGameServer(game, server);
       await this.resolveMumbleUrl(game, server);
+      const { connectString } =
+          await this.serverConfiguratorService.configureServer(server, game);
+      await this.updateConnectString(game, connectString);
+      //
+      // todo: error handling
+      //
     } else {
       this.logger.warn(`no free servers for game #${game.number}`);
 
       // fixme
       setTimeout(() => this.launch(game.id), 10 * 1000); // try again in 10 seconds
     }
+  }
+
+  async reinitialize(gameId: string) {
+    const game = await this.getById(gameId);
+    this.logger.log(`reinitialize game #${game.number}`);
+    this.updateConnectString(game, null);
+
+    let server: GameServer;
+    if (game.gameServer) {
+      server = await this.gameServersService.getById(game.gameServer.toString());
+    } else {
+      server = await this.gameServersService.findFreeGameServer();
+    }
+
+    await this.serverConfiguratorService.cleanupServer(server);
+    const { connectString } =
+      await this.serverConfiguratorService.configureServer(server, game);
+    this.updateConnectString(game, connectString);
+  }
+
+  async forceEnd(gameId: string) {
+    const game = await this.getById(gameId);
+    this.logger.log(`force end game #${game.number}`);
+    game.state = 'interrupted';
+    game.error = 'ended by admin';
+    game.save();
+
+    const server = await this.gameServersService.getById(game.gameServer.toString());
+    if (server) {
+      await this.serverConfiguratorService.cleanupServer(server);
+      await this.gameServersService.releaseServer(server.id);
+    }
+
+    this._gameUpdated.next(game);
+    return game;
   }
 
   private async queueSlotToPlayerSlot(queueSlot: QueueSlot): Promise<PlayerSlot> {
@@ -163,6 +218,7 @@ export class GamesService {
     await this.gameServersService.takeServer(server.id);
     game.gameServer = server;
     await game.save();
+    this._gameUpdated.next(game);
   }
 
   private async resolveMumbleUrl(game: DocumentType<Game>, server: GameServer) {
@@ -170,6 +226,13 @@ export class GamesService {
       `mumble://${this.configService.mumbleServerUrl}/${this.configService.mumbleChannelName}/${server.mumbleChannelName}`;
     game.mumbleUrl = mumbleUrl;
     await game.save();
+    this._gameUpdated.next(game);
+  }
+
+  private async updateConnectString(game: DocumentType<Game>, connectString: string) {
+    game.connectString = connectString;
+    await game.save();
+    this._gameUpdated.next(game);
   }
 
 }

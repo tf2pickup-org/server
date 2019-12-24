@@ -9,13 +9,20 @@ import { PlayerSkill } from '@/players/models/player-skill';
 import { QueueSlot } from '@/queue/queue-slot';
 import { GameServersService } from '@/game-servers/services/game-servers.service';
 import { ConfigService } from '@/config/config.service';
+import { ServerConfiguratorService } from './server-configurator.service';
+
+const game: any = {
+  number: 1,
+  state: 'launching',
+  save: () => null,
+};
 
 const gameModel = {
   estimatedDocumentCount: async () => new Promise(resolve => resolve(44)),
-  find: async (args?: any) => new Promise(resolve => resolve(null)),
-  findById: async (id: string) => new Promise(resolve => resolve(null)),
-  findOne: async (args: any) => new Promise(resolve => resolve(null)),
-  create: async (obj: any) => new Promise(resolve => resolve(null)),
+  find: async (args?: any) => new Promise(resolve => resolve(game)),
+  findById: async (id: string) => new Promise(resolve => resolve(game)),
+  findOne: async (args: any) => new Promise(resolve => resolve(game)),
+  create: async (obj: any) => new Promise(resolve => resolve(obj)),
   countDocuments: async (obj: any) => new Promise(resolve => resolve(0)),
 };
 
@@ -80,10 +87,15 @@ class ConfigServiceStub {
   mumbleChannelName = 'FAKE_MUMBLE_CHANNEL';
 }
 
+class ServerConfiguratorServiceStub {
+  configureServer(server: any, _game: any) { return new Promise(resolve => resolve({ connectString: 'FAKE_CONNECT_STRING' })); }
+}
+
 describe('GamesService', () => {
   let service: GamesService;
   let queueConfigService: QueueConfigServiceStub;
   let gameServersService: GameServersServiceStub;
+  let serverConfiguratorService: ServerConfiguratorServiceStub;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -95,12 +107,14 @@ describe('GamesService', () => {
         { provide: QueueConfigService, useClass: QueueConfigServiceStub },
         { provide: GameServersService, useClass: GameServersServiceStub },
         { provide: ConfigService, useClass: ConfigServiceStub },
+        { provide: ServerConfiguratorService, useClass: ServerConfiguratorServiceStub },
       ],
     }).compile();
 
     service = module.get<GamesService>(GamesService);
     queueConfigService = module.get(QueueConfigService);
     gameServersService = module.get(GameServersService);
+    serverConfiguratorService = module.get(ServerConfiguratorService);
   });
 
   it('should be defined', () => {
@@ -198,7 +212,7 @@ describe('GamesService', () => {
       const spy = spyOn(gameModel, 'create').and.callThrough();
       await service.create(slots, 'cp_fake');
       expect(spy).toHaveBeenCalledWith({
-        number: 1,
+        number: 2,
         map: 'cp_fake',
         teams: {
           0: 'RED',
@@ -224,17 +238,29 @@ describe('GamesService', () => {
     });
 
     it('should take the first free server', async () => {
-      const game: any = {
-        state: 'launching',
-        save: () => null,
-      };
-      spyOn(gameModel, 'findById').and.returnValue(new  Promise(resolve => resolve(game)));
       const findFreeGameServerSpy = spyOn(gameServersService, 'findFreeGameServer').and.callThrough();
       const takeServerSpy = spyOn(gameServersService, 'takeServer').and.callThrough();
       await service.launch('FAKE_GAME_ID');
       expect(findFreeGameServerSpy).toHaveBeenCalled();
       expect(takeServerSpy).toHaveBeenCalled();
-      expect(game.mumbleUrl).toEqual('mumble://FAKE_MUMBLE_URL/FAKE_MUMBLE_CHANNEL/FAKE_MUMBLE_GAME_CHANNEL');
+    });
+
+    it('should configure the server', async () => {
+      const spy = spyOn(serverConfiguratorService, 'configureServer').and.callThrough();
+      await service.launch('FAKE_GAME_ID');
+      expect(spy).toHaveBeenCalledWith(gameServersService.gameServer, game);
+    });
+
+    it('should return the fully configured game', async () => {
+      const tmpGame = { ...game };
+      spyOn(gameModel, 'findById').and.returnValue(new Promise(resolve => resolve(tmpGame)));
+      await service.launch('FAKE_GAME_ID');
+      expect(tmpGame).toEqual({
+        ...game,
+        gameServer: gameServersService.gameServer,
+        mumbleUrl: 'mumble://FAKE_MUMBLE_URL/FAKE_MUMBLE_CHANNEL/FAKE_MUMBLE_GAME_CHANNEL',
+        connectString: 'FAKE_CONNECT_STRING',
+      });
     });
   });
 });
