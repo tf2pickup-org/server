@@ -7,7 +7,7 @@ class GameServersServiceStub {
   gameServer: GameServer = {
     name: 'FAKE_NAME',
     address: 'FAKE_ADDRESS',
-    port: 27015,
+    port: '27015',
     rconPassword: 'FAKE_RCON_PASSWORD',
   };
 

@@ -140,7 +140,7 @@ export class GamesService {
       await this.assignGameServer(game, server);
       await this.resolveMumbleUrl(game, server);
       const { connectString } =
-          await this.serverConfiguratorService.configureServer(server, game, this.queueConfigService.queueConfig.execConfigs);
+          await this.serverConfiguratorService.configureServer(server, game);
       await this.updateConnectString(game, connectString);
       //
       // todo: error handling
@@ -167,7 +167,7 @@ export class GamesService {
 
     await this.serverConfiguratorService.cleanupServer(server);
     const { connectString } =
-      await this.serverConfiguratorService.configureServer(server, game, this.queueConfigService.queueConfig.execConfigs);
+      await this.serverConfiguratorService.configureServer(server, game);
     this.updateConnectString(game, connectString);
   }
 

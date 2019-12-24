@@ -5,6 +5,7 @@ import { Rcon } from 'rcon-client';
 import { ConfigService } from '@/config/config.service';
 import { generate } from 'generate-password';
 import { PlayersService } from '@/players/services/players.service';
+import { QueueConfigService } from '@/queue/services/queue-config.service';
 
 @Injectable()
 export class ServerConfiguratorService {
@@ -14,9 +15,10 @@ export class ServerConfiguratorService {
   constructor(
     private configService: ConfigService,
     @Inject(forwardRef(() => PlayersService)) private playersService: PlayersService,
+    private queueConfigService: QueueConfigService,
   ) { }
 
-  async configureServer(server: GameServer, game: Game, execConfigs: string[]) {
+  async configureServer(server: GameServer, game: Game) {
     this.logger.log(`configuring server ${server.name}...`);
     this.logger.debug(`[${server.name}] using rcon password ${server.rconPassword}`);
 
@@ -38,7 +40,7 @@ export class ServerConfiguratorService {
       this.logger.debug(`[${server.name}] changing map to ${game.map}...`);
       await rcon.send(`changelevel ${game.map}`);
 
-      for (const execConfig of execConfigs) {
+      for (const execConfig of this.queueConfigService.queueConfig.execConfigs) {
         this.logger.debug(`[${server.name}] executing ${execConfig}...`);
         await rcon.send(`exec ${execConfig}`);
       }
