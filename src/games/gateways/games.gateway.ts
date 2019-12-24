@@ -11,6 +11,7 @@ export class GamesGateway implements OnGatewayInit {
 
   afterInit(socket: Socket) {
     this.gamesService.gameCreated.subscribe(game => socket.emit('game created', game));
+    this.gamesService.gameUpdated.subscribe(game => socket.emit('game updated', game));
   }
 
 }
