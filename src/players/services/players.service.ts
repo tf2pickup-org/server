@@ -70,7 +70,7 @@ export class PlayersService {
       etf2lProfileId: etf2lProfile?.id,
     });
 
-    this.logger.log(`created new player (name: ${player.name})`);
+    this.logger.log(`created new player (name: ${player?.name})`);
     this.discordNotificationsService.notifyNewPlayer(player);
     return player;
   }

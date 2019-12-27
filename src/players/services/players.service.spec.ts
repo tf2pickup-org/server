@@ -6,6 +6,7 @@ import { getModelToken } from 'nestjs-typegoose';
 import { SteamProfile } from '../models/steam-profile';
 import { GamesService } from '@/games/services/games.service';
 import { OnlinePlayersService } from './online-players.service';
+import { DiscordNotificationsService } from '@/discord/services/discord-notifications.service';
 
 class ConfigServiceStub {
   superUser = null;
@@ -45,12 +46,17 @@ class OnlinePlayersServiceStub {
   getSocketsForPlayer(playerId: string) { return []; }
 }
 
+class DiscordNotificationsServiceStub {
+  notifyNewPlayer(player: any) { return null; }
+}
+
 describe('PlayersService', () => {
   let service: PlayersService;
   let configService: ConfigServiceStub;
   let etf2lProfileService: Etf2lProfileServiceStub;
   let gamesService: GamesServiceStub;
   let onlinePlayersService: OnlinePlayersServiceStub;
+  let discordNotificationsService: DiscordNotificationsServiceStub;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -61,6 +67,7 @@ describe('PlayersService', () => {
         { provide: getModelToken('Player'), useValue: playerModel },
         { provide: GamesService, useClass: GamesServiceStub },
         { provide: OnlinePlayersService, useClass: OnlinePlayersServiceStub },
+        { provide: DiscordNotificationsService, useClass: DiscordNotificationsServiceStub },
       ],
     }).compile();
 
@@ -69,6 +76,7 @@ describe('PlayersService', () => {
     etf2lProfileService = module.get(Etf2lProfileService);
     gamesService = module.get(GamesService);
     onlinePlayersService = module.get(OnlinePlayersService);
+    discordNotificationsService = module.get(DiscordNotificationsService);
   });
 
   it('should be defined', () => {
@@ -146,6 +154,12 @@ describe('PlayersService', () => {
         role: 'super-user',
         etf2lProfileId: 12345,
       });
+    });
+
+    it('should notify on discord', async () => {
+      const spy = spyOn(discordNotificationsService, 'notifyNewPlayer');
+      await service.createPlayer(steamProfile);
+      expect(spy).toHaveBeenCalled();
     });
   });
 
