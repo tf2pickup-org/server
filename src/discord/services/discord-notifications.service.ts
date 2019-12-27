@@ -4,6 +4,7 @@ import { ConfigService } from '@/config/config.service';
 import { PlayerBan } from '@/players/models/player-ban';
 import { PlayersService } from '@/players/services/players.service';
 import { Player } from '@/players/models/player';
+import moment = require('moment');
 
 @Injectable()
 export class DiscordNotificationsService implements OnModuleInit {
@@ -48,13 +49,15 @@ export class DiscordNotificationsService implements OnModuleInit {
         const admin = await this.playersService.getById(ban.admin.toString());
         const player = await this.playersService.getById(ban.player.toString());
 
+        const endText = moment(ban.end).fromNow();
+
         const embed = new RichEmbed()
           .setColor('#dc3545')
           .setTitle('Ban added')
           .addField('Admin', admin.name)
           .addField('Player', player.name)
           .addField('Reason', ban.reason)
-          .addField('Ends', ban.end)
+          .addField('Ends', endText)
           .setTimestamp();
 
         channel.send(embed);
