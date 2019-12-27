@@ -25,6 +25,7 @@ const gameModel = {
   findOne: async (args: any) => new Promise(resolve => resolve(game)),
   create: async (obj: any) => new Promise(resolve => resolve(obj)),
   countDocuments: async (obj: any) => new Promise(resolve => resolve(0)),
+  aggregate: async (params: any) => new Promise(resolve => resolve(null)),
 };
 
 class PlayersServiceStub {
@@ -267,6 +268,22 @@ describe('GamesService', () => {
         mumbleUrl: 'mumble://FAKE_MUMBLE_URL/FAKE_MUMBLE_CHANNEL/FAKE_MUMBLE_GAME_CHANNEL',
         connectString: 'FAKE_CONNECT_STRING',
       });
+    });
+  });
+
+  describe('#getMostActivePlayers()', () => {
+    it('should aggregate', async () => {
+      const spy = spyOn(gameModel, 'aggregate').and.callThrough();
+      await service.getMostActivePlayers();
+      expect(spy).toHaveBeenCalledWith(jasmine.any(Array));
+    });
+  });
+
+  describe('#getMostActiveMedics()', () => {
+    it('should aggregate', async () => {
+      const spy = spyOn(gameModel, 'aggregate').and.callThrough();
+      await service.getMostActiveMedics();
+      expect(spy).toHaveBeenCalledWith(jasmine.any(Array));
     });
   });
 });
