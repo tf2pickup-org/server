@@ -10,6 +10,7 @@ import { QueueSlot } from '@/queue/queue-slot';
 import { GameServersService } from '@/game-servers/services/game-servers.service';
 import { ConfigService } from '@/config/config.service';
 import { ServerConfiguratorService } from './server-configurator.service';
+import { GameEventListenerService } from '@/game-servers/services/game-event-listener.service';
 
 const game: any = {
   number: 1,
@@ -91,6 +92,10 @@ class ServerConfiguratorServiceStub {
   configureServer(server: any, _game: any) { return new Promise(resolve => resolve({ connectString: 'FAKE_CONNECT_STRING' })); }
 }
 
+class GameEventListenerServiceStub {
+
+}
+
 describe('GamesService', () => {
   let service: GamesService;
   let queueConfigService: QueueConfigServiceStub;
@@ -108,6 +113,7 @@ describe('GamesService', () => {
         { provide: GameServersService, useClass: GameServersServiceStub },
         { provide: ConfigService, useClass: ConfigServiceStub },
         { provide: ServerConfiguratorService, useClass: ServerConfiguratorServiceStub },
+        { provide: GameEventListenerService, useClass: GameEventListenerServiceStub },
       ],
     }).compile();
 

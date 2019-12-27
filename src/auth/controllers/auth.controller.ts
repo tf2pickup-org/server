@@ -40,8 +40,12 @@ export class AuthController {
   @Post()
   async refreshToken(@Query('refresh_token') oldRefreshToken: string) {
     if (oldRefreshToken !== undefined) {
-      const { refreshToken, authToken } = await this.authService.refreshTokens(oldRefreshToken);
-      return { refreshToken, authToken };
+      try {
+        const { refreshToken, authToken } = await this.authService.refreshTokens(oldRefreshToken);
+        return { refreshToken, authToken };
+      } catch (error) {
+        throw new BadRequestException(error.message);
+      }
     } else {
       throw new BadRequestException('no valid operation specified');
     }
