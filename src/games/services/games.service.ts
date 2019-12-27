@@ -237,6 +237,29 @@ export class GamesService implements OnModuleInit {
     return game;
   }
 
+  async getMostActivePlayers() {
+    return this.gameModel.aggregate([
+      { $match: { state: 'ended' } },
+      { $unwind: '$players' },
+      { $group: { _id: '$players', count: { $sum: 1 } } },
+      { $sort: { count: -1 } },
+      { $limit: 10 },
+      { $project: { player: '$_id', count: 1, _id: 0 } },
+    ]);
+  }
+
+  async getMostActiveMedics() {
+    return this.gameModel.aggregate([
+      { $match: { state: 'ended' } },
+      { $unwind: '$slots' },
+      { $match: { 'slots.gameClass': 'medic' } },
+      { $group: { _id: '$slots.playerId', count: { $sum: 1 } } },
+      { $sort: { count: -1 } },
+      { $limit: 10 },
+      { $project: { player: '$_id', count: 1, _id: 0 } },
+    ]);
+  }
+
   private async queueSlotToPlayerSlot(queueSlot: QueueSlot): Promise<PlayerSlot> {
     const { playerId, gameClass } = queueSlot;
     const player = await this.playersService.getById(playerId);
