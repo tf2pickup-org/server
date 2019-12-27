@@ -11,6 +11,7 @@ import { QueueModule } from './queue/queue.module';
 import { GamesModule } from './games/games.module';
 import { GameServersModule } from './game-servers/game-servers.module';
 import { SharedModule } from './shared/shared.module';
+import { DiscordModule } from './discord/discord.module';
 
 function createMongodbUri(host: string, port: string, db: string) {
   return `mongodb://${host}:${port}/${db}`;
@@ -35,6 +36,7 @@ function createMongodbUri(host: string, port: string, db: string) {
     GamesModule,
     QueueModule,
     SharedModule,
+    DiscordModule,
   ],
   controllers: [ AppController ],
   providers: [ AppService ],

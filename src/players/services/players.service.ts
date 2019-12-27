@@ -9,6 +9,7 @@ import { GamesService } from '@/games/services/games.service';
 import { PlayerStats } from '../models/player-stats';
 import { Etf2lProfile } from '../models/etf2l-profile';
 import { OnlinePlayersService } from './online-players.service';
+import { DiscordNotificationsService } from '@/discord/services/discord-notifications.service';
 
 @Injectable()
 export class PlayersService {
@@ -21,6 +22,7 @@ export class PlayersService {
     @InjectModel(Player) private playerModel: ReturnModelType<typeof Player>,
     @Inject(forwardRef(() => GamesService)) private gamesService: GamesService,
     private onlinePlayersService: OnlinePlayersService,
+    @Inject(forwardRef(() => DiscordNotificationsService)) private discordNotificationsService: DiscordNotificationsService,
   ) { }
 
   async getAll(): Promise<Array<DocumentType<Player>>> {
@@ -68,7 +70,8 @@ export class PlayersService {
       etf2lProfileId: etf2lProfile?.id,
     });
 
-    this.logger.log(`created new player (name: ${player?.name})`);
+    this.logger.log(`created new player (name: ${player.name})`);
+    this.discordNotificationsService.notifyNewPlayer(player);
     return player;
   }
 

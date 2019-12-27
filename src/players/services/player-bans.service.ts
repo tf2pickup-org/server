@@ -4,6 +4,7 @@ import { PlayerBan } from '../models/player-ban';
 import { ReturnModelType, DocumentType } from '@typegoose/typegoose';
 import { Subject, merge } from 'rxjs';
 import { OnlinePlayersService } from './online-players.service';
+import { DiscordNotificationsService } from '@/discord/services/discord-notifications.service';
 
 @Injectable()
 export class PlayerBansService implements OnModuleInit {
@@ -23,6 +24,7 @@ export class PlayerBansService implements OnModuleInit {
   constructor(
     @InjectModel(PlayerBan) private playerBanModel: ReturnModelType<typeof PlayerBan>,
     private onlinePlayersService: OnlinePlayersService,
+    private discordNotificationsService: DiscordNotificationsService,
   ) { }
 
   onModuleInit() {
@@ -59,6 +61,7 @@ export class PlayerBansService implements OnModuleInit {
     const playerId = addedBan.player.toString();
     this._banAdded.next(playerId);
     this.logger.log(`ban added for player ${playerId} (reason: ${playerBan.reason})`);
+    this.discordNotificationsService.notifyBan(addedBan);
     return addedBan;
   }
 
