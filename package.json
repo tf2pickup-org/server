@@ -40,7 +40,7 @@
     "rimraf": "3.0.0",
     "rxjs": "6.5.3",
     "socketio-jwt-auth": "0.1.0",
-    "srcds-log-receiver": "^1.0.0"
+    "srcds-log-receiver": "1.0.0"
   },
   "devDependencies": {
     "@nestjs/cli": "6.12.9",
