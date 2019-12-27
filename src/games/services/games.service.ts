@@ -1,4 +1,4 @@
-import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
+import { Injectable, Logger, Inject, forwardRef, OnModuleInit } from '@nestjs/common';
 import { InjectModel } from 'nestjs-typegoose';
 import { ReturnModelType, DocumentType } from '@typegoose/typegoose';
 import { Game } from '../models/game';
@@ -12,6 +12,7 @@ import { GameServer } from '@/game-servers/models/game-server';
 import { ConfigService } from '@/config/config.service';
 import { Subject } from 'rxjs';
 import { ServerConfiguratorService } from './server-configurator.service';
+import { GameEventListenerService } from '@/game-servers/services/game-event-listener.service';
 
 interface GameSortOptions {
   launchedAt: 1 | -1;
@@ -22,7 +23,7 @@ interface GetPlayerGameCountOptions {
 }
 
 @Injectable()
-export class GamesService {
+export class GamesService implements OnModuleInit {
 
   private logger = new Logger(GamesService.name);
   private _gameCreated = new Subject<Game>(); // todo pass only game id
@@ -44,7 +45,48 @@ export class GamesService {
     private gameServersService: GameServersService,
     private configService: ConfigService,
     private serverConfiguratorService: ServerConfiguratorService,
+    private gameEventListenerService: GameEventListenerService,
   ) { }
+
+  onModuleInit() {
+    this.gameEventListenerService.matchStarted.subscribe(async gameServer => {
+      const game = await this.findByAssignedGameServer(gameServer);
+      if (game) {
+        game.state = 'started';
+        await game.save();
+        this._gameUpdated.next(game);
+      }
+    });
+
+    this.gameEventListenerService.matchEnded.subscribe(async gameServer => {
+      const game = await this.findByAssignedGameServer(gameServer);
+      if (game) {
+        game.state = 'ended';
+        game.connectString = null;
+        await game.save();
+        this._gameUpdated.next(game);
+
+        setTimeout(async () => {
+          try {
+            const _gameServer = await this.gameServersService.getById(gameServer);
+            await this.serverConfiguratorService.cleanupServer(_gameServer);
+            await this.gameServersService.releaseServer(gameServer);
+          } catch (error) {
+            this.logger.error(error);
+          }
+        }, 60 * 1000); // 1 minute
+      }
+    });
+
+    this.gameEventListenerService.logsUploaded.subscribe(async ({ gameServer, logsUrl }) => {
+      const game = await this.findByAssignedGameServer(gameServer);
+      if (game) {
+        game.logsUrl = logsUrl;
+        await game.save();
+        this._gameUpdated.next(game);
+      }
+    });
+  }
 
   async getGameCount(): Promise<number> {
     return await this.gameModel.estimatedDocumentCount();
@@ -52,6 +94,13 @@ export class GamesService {
 
   async getById(gameId: string): Promise<DocumentType<Game>> {
     return await this.gameModel.findById(gameId);
+  }
+
+  async findByAssignedGameServer(gameServerId: string): Promise<DocumentType<Game>> {
+    return (await this.gameModel
+      .find({ gameServer: gameServerId })
+      .sort({ launchedAt: -1 })
+      .limit(1))?.[0];
   }
 
   async getGames(sort: GameSortOptions = { launchedAt: -1 }, limit: number, skip: number) {
