@@ -13,6 +13,7 @@ import { standardSchemaOptions } from '@/utils/standard-schema-options';
 import { GamesModule } from '@/games/games.module';
 import { OnlinePlayersService } from './services/online-players.service';
 import { PlayersGateway } from './gateways/players.gateway';
+import { HallOfFameController } from './controllers/hall-of-fame.controller';
 
 @Module({
   imports: [
@@ -42,6 +43,7 @@ import { PlayersGateway } from './gateways/players.gateway';
   ],
   controllers: [
     PlayersController,
+    HallOfFameController,
   ],
 })
 export class PlayersModule { }
