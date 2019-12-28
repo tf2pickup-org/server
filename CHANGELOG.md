@@ -1,3 +1,9 @@
+# [1.0.3](https://github.com/tf2pickup-pl/server/compare/1.0.2...1.0.3) (2019-12-28)
+
+### Fixes
+* queue ready up behavior
+* find server by log event source
+
 # [1.0.2](https://github.com/tf2pickup-pl/server/compare/1.0.1...1.0.2) (2019-12-28)
 
 ### Fixes
