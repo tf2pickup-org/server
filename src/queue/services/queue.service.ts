@@ -187,11 +187,16 @@ export class QueueService implements OnModuleInit {
       return;
     }
 
-    const slots = this.slots.filter(s => playerIds.includes(s.playerId));
-    slots.forEach(slot => this._playerLeave.next(slot.playerId));
-    slots.forEach(slot => this.clearSlot(slot));
-    slots.forEach(slot => this.logger.log(`slot ${slot.id} (gameClass=${slot.gameClass}) free (player was kicked)`));
-    this._slotsChange.next(slots);
+    const updatedSlots: QueueSlot[] = [];
+    playerIds.forEach(playerId => {
+      const slot = this.findSlotByPlayerId(playerId);
+      this.clearSlot(slot);
+      this._playerLeave.next(playerId);
+      this.logger.log(`slot ${slot.id} (gameClass=${slot.gameClass}) free (player was kicked)`);
+      updatedSlots.push(slot);
+    });
+
+    this._slotsChange.next(updatedSlots);
     setImmediate(() => this.maybeUpdateState());
   }
 
@@ -240,6 +245,7 @@ export class QueueService implements OnModuleInit {
     const defaultSlot: Partial<QueueSlot> = {
       playerId: null,
       ready: false,
+      friend: null,
     };
 
     let lastId = 0;
