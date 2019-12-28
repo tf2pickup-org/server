@@ -259,6 +259,8 @@ export class QueueService implements OnModuleInit {
 
   private clearSlot(slot: QueueSlot) {
     slot.playerId = null;
+    slot.friend = null;
+    slot.ready = false;
   }
 
   private maybeUpdateState() {
@@ -286,6 +288,7 @@ export class QueueService implements OnModuleInit {
 
   private onStateChange(oldState: QueueState, newState: QueueState) {
     if (oldState === 'waiting' && newState === 'ready') {
+      this.logger.debug(`ready up timeout: ${this.queueConfigService.queueConfig.readyUpTimeout / 1000} seconds`);
       this.timer = setTimeout(() => this.readyUpTimeout(), this.queueConfigService.queueConfig.readyUpTimeout);
     } else if (oldState === 'ready' && newState === 'launching') {
       clearTimeout(this.timer);
@@ -302,6 +305,8 @@ export class QueueService implements OnModuleInit {
     const nextTimeout =
       this.queueConfigService.queueConfig.queueReadyTimeout - this.queueConfigService.queueConfig.readyUpTimeout;
 
+    this.logger.debug(`queue ready up timeout: ${nextTimeout / 1000} seconds`);
+
     if (nextTimeout > 0) {
       setTimeout(() => this.unreadyQueue(), nextTimeout);
     } else {
@@ -310,13 +315,15 @@ export class QueueService implements OnModuleInit {
   }
 
   private kickUnreadyPlayers() {
+    this.logger.log('kicking unreadied players');
     const slots = this.slots.filter(s => !s.ready);
     this.kick(...slots.map(s => s.playerId));
   }
 
   private unreadyQueue() {
-    const slots = this.slots.filter(s => s.ready);
+    const slots = this.slots.filter(s => !!s.playerId);
     slots.forEach(s => s.ready = false);
+    this._slotsChange.next(slots);
     this._stateChange.next('waiting');
   }
 
