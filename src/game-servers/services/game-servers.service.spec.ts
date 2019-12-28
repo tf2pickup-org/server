@@ -62,7 +62,7 @@ describe('GameServersService', () => {
     it('should query model', async () => {
       const spy = spyOn(gameServerModel, 'findOne').and.callThrough();
       await service.findFreeGameServer();
-      expect(spy).toHaveBeenCalledWith({ isFree: true });
+      expect(spy).toHaveBeenCalledWith({ isOnline: true, isFree: true });
     });
   });
 

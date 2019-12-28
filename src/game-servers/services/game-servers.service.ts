@@ -55,7 +55,7 @@ export class GameServersService implements OnModuleInit {
   }
 
   async findFreeGameServer(): Promise<DocumentType<GameServer>> {
-    const gameServer = this.gameServerModel.findOne({ isFree: true });
+    const gameServer = this.gameServerModel.findOne({ isOnline: true, isFree: true });
     return gameServer;
   }
 
