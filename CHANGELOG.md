@@ -1,3 +1,8 @@
+# [1.0.4](https://github.com/tf2pickup-pl/server/compare/1.0.3...1.0.4) (2019-12-28)
+
+### Fixes
+* queue ready up hotfix
+
 # [1.0.3](https://github.com/tf2pickup-pl/server/compare/1.0.2...1.0.3) (2019-12-28)
 
 ### Fixes
