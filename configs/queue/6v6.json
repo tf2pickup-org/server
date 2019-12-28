@@ -18,7 +18,7 @@
       "count": 1
     }
   ],
-  "readyUptimeout": 40000,
+  "readyUpTimeout": 40000,
   "queueReadyTimeout": 60000,
   "maps": [
     "cp_process_final",
