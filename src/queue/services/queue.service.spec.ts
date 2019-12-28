@@ -155,6 +155,15 @@ describe('QueueService', () => {
       expect(slots.find(s => s.playerId === 'FAKE_ID').friend).toEqual('FAKE_FRIEND_ID');
     });
 
+    it('should emit playerJoin', async done => {
+      service.playerJoin.subscribe(playerId => {
+        expect(playerId).toEqual('FAKE_ID');
+        done();
+      });
+
+      await service.join(0, 'FAKE_ID');
+    });
+
   });
 
   describe('#leave()', () => {
