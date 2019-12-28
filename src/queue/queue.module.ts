@@ -8,12 +8,15 @@ import { MapVoteService } from './services/map-vote.service';
 import { GameLauncherService } from './services/game-launcher.service';
 import { QueueGateway } from './gateways/queue.gateway';
 import { QueueController } from './controllers/queue.controller';
+import { QueueNotificationsService } from './services/queue-notifications.service';
+import { DiscordModule } from '@/discord/discord.module';
 
 @Module({
   imports: [
     ConfigModule,
     forwardRef(() => PlayersModule),
     forwardRef(() => GamesModule),
+    DiscordModule,
   ],
   providers: [
     QueueService,
@@ -21,6 +24,7 @@ import { QueueController } from './controllers/queue.controller';
     MapVoteService,
     GameLauncherService,
     QueueGateway,
+    QueueNotificationsService,
   ],
   exports: [
     QueueService,

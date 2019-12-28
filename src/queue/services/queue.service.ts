@@ -22,6 +22,7 @@ export class QueueService implements OnModuleInit {
   private timer: NodeJS.Timer;
 
   // events
+  private _playerJoin = new Subject<string>();
   private _playerLeave = new Subject<string>();
   private _slotsChange = new Subject<QueueSlot[]>();
 
@@ -43,6 +44,10 @@ export class QueueService implements OnModuleInit {
 
   get stateChange(): Observable<QueueState> {
     return this._stateChange.asObservable();
+  }
+
+  get playerJoin(): Observable<string> {
+    return this._playerJoin.asObservable();
   }
 
   get playerLeave(): Observable<string> {
@@ -147,6 +152,12 @@ export class QueueService implements OnModuleInit {
     }
 
     this.logger.log(`player ${player.name} joined the queue (slotId=${targetSlot.id}, gameClass=${targetSlot.gameClass})`);
+
+    // is player joining instead of only changing slots?
+    if (oldSlots.length === 0) {
+      this._playerJoin.next(playerId);
+    }
+
     const slots = [ targetSlot, ...oldSlots ];
     this._slotsChange.next(slots);
     setImmediate(() => this.maybeUpdateState());

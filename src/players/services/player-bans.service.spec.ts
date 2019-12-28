@@ -4,6 +4,7 @@ import { getModelToken } from 'nestjs-typegoose';
 import { PlayerBan } from '../models/player-ban';
 import { Types } from 'mongoose';
 import { OnlinePlayersService } from './online-players.service';
+import { DiscordNotificationsService } from '@/discord/services/discord-notifications.service';
 
 const playerBanModel = {
   find: (obj: any) => ({ sort: () => null }),
@@ -15,8 +16,13 @@ class OnlinePlayersServiceStub {
 
 }
 
+class DiscordNotificationsServiceStub {
+  notifyBan(player: any) { return null; }
+}
+
 describe('PlayerBansService', () => {
   let service: PlayerBansService;
+  let discordNotificationsService: DiscordNotificationsServiceStub;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -24,10 +30,12 @@ describe('PlayerBansService', () => {
         PlayerBansService,
         { provide: getModelToken('PlayerBan'), useValue: playerBanModel },
         { provide: OnlinePlayersService, useClass: OnlinePlayersServiceStub },
+        { provide: DiscordNotificationsService, useClass: DiscordNotificationsServiceStub },
       ],
     }).compile();
 
     service = module.get<PlayerBansService>(PlayerBansService);
+    discordNotificationsService = module.get(DiscordNotificationsService);
   });
 
   it('should be defined', () => {
@@ -92,6 +100,12 @@ describe('PlayerBansService', () => {
       });
 
       await service.addPlayerBan(ban);
+    });
+
+    it('should notify on discord', async () => {
+      const spy = spyOn(discordNotificationsService, 'notifyBan');
+      await service.addPlayerBan(ban);
+      expect(spy).toHaveBeenCalled();
     });
   });
 

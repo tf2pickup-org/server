@@ -63,4 +63,16 @@ export class ConfigService {
     return this.config.LOG_RELAY_PORT;
   }
 
+  get discordBotToken() {
+    return this.config.DISCORD_BOT_TOKEN;
+  }
+
+  get discordQueueNotificationsChannelId() {
+    return this.config.DISCORD_QUEUE_NOTIFICATIONS_CHANNEL_ID;
+  }
+
+  get discordAdminNotificationsChannelId() {
+    return this.config.DISCORD_ADMIN_NOTIFICATIONS_CHANNEL_ID;
+  }
+
 }

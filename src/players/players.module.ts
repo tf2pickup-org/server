@@ -14,6 +14,7 @@ import { GamesModule } from '@/games/games.module';
 import { OnlinePlayersService } from './services/online-players.service';
 import { PlayersGateway } from './gateways/players.gateway';
 import { HallOfFameController } from './controllers/hall-of-fame.controller';
+import { DiscordModule } from '@/discord/discord.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { HallOfFameController } from './controllers/hall-of-fame.controller';
 
     ConfigModule,
     forwardRef(() => GamesModule),
+    forwardRef(() => DiscordModule),
   ],
   providers: [
     PlayersService,
