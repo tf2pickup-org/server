@@ -50,6 +50,7 @@ class PlayerSkillServiceStub {
   };
   getPlayerSkill(playerId: string) { return new Promise(resolve => resolve(this.skill)); }
   setPlayerSkill(playerId: string, skill: any) { return new Promise(resolve => resolve(this.skill)); }
+  getAll() { return new Promise(resolve => resolve([ this.skill ])); }
 }
 
 class PlayerBansServiceStub {
@@ -177,6 +178,15 @@ describe('Players Controller', () => {
       const ret = await controller.getPlayerStats('FAKE_ID');
       expect(spy).toHaveBeenCalledWith('FAKE_ID');
       expect(ret).toEqual(playersService.stats);
+    });
+  });
+
+  describe('#getAllPlayerSkills()',  () => {
+    it('should return all players\' skills', async () => {
+      const spy = spyOn(playerSkillService, 'getAll').and.callThrough();
+      const ret = await controller.getAllPlayerSkills();
+      expect(spy).toHaveBeenCalled();
+      expect(ret).toEqual([ playerSkillService.skill ] as any);
     });
   });
 

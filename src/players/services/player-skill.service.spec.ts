@@ -12,6 +12,7 @@ const skill = {
 };
 
 const playerSkillModel = {
+  find: (criteria: any) => new Promise(resolve => resolve([])),
   findOne: (criteria: any) => skill,
 };
 
@@ -31,6 +32,14 @@ describe('PlayerSkillService', () => {
 
   it('should be defined', () => {
     expect(service).toBeDefined();
+  });
+
+  describe('#getAll()', () => {
+    it('should retrieve all players skills', async () => {
+      const spy = spyOn(playerSkillModel, 'find').and.callThrough();
+      await service.getAll();
+      expect(spy).toHaveBeenCalledWith({ });
+    });
   });
 
   describe('#getPlayerSkill()', () => {
