@@ -13,6 +13,7 @@ import { ConfigService } from '@/config/config.service';
 import { Subject } from 'rxjs';
 import { ServerConfiguratorService } from './server-configurator.service';
 import { GameEventListenerService } from '@/game-servers/services/game-event-listener.service';
+import { extractFriends } from '../utils/extract-friends';
 
 interface GameSortOptions {
   launchedAt: 1 | -1;
@@ -155,7 +156,8 @@ export class GamesService implements OnModuleInit {
 
     const players: PlayerSlot[] = await Promise.all(queueSlots.map(slot => this.queueSlotToPlayerSlot(slot)));
     const assignedSkills = players.reduce((prev, curr) => { prev[curr.playerId] = curr.skill; return prev; }, { });
-    const slots = pickTeams(players, this.queueConfigService.queueConfig.classes.map(cls => cls.name));
+    const friends = extractFriends(queueSlots);
+    const slots = pickTeams(players, this.queueConfigService.queueConfig.classes.map(cls => cls.name), { friends });
     const gameNo = await this.getNextGameNumber();
 
     const game = await this.gameModel.create({
