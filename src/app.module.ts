@@ -13,8 +13,16 @@ import { GameServersModule } from './game-servers/game-servers.module';
 import { SharedModule } from './shared/shared.module';
 import { DiscordModule } from './discord/discord.module';
 
-function createMongodbUri(host: string, port: string, db: string) {
-  return `mongodb://${host}:${port}/${db}`;
+function createMongodbUri(host: string, port: string, db: string, username: string, password: string) {
+  let credentials = '';
+  if (username) {
+    if (password) {
+      credentials = `${username}:${password}@`;
+    } else {
+      credentials = `${username}@`;
+    }
+  }
+  return `mongodb://${credentials}${host}:${port}/${db}`;
 }
 
 @Module({
@@ -23,7 +31,8 @@ function createMongodbUri(host: string, port: string, db: string) {
       imports: [ ConfigModule ],
       inject: [ ConfigService ],
       useFactory: async (configService: ConfigService) => ({
-        uri: createMongodbUri(configService.get('MONGODB_HOST'), configService.get('MONGODB_POST'), configService.get('MONGODB_DB')),
+        uri: createMongodbUri(configService.get('MONGODB_HOST'), configService.get('MONGODB_POST'), configService.get('MONGODB_DB'),
+          configService.get('MONGODB_USERNAME'), configService.get('MONGODB_PASSWORD')),
         useNewUrlParser: true,
         useUnifiedTopology: true,
       }),
