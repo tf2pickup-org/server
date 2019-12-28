@@ -86,7 +86,7 @@ export class GameServersService implements OnModuleInit {
   async getGameServerByEventSource(eventSource: { address: string; port: number; }): Promise<DocumentType<GameServer>> {
     return await this.gameServerModel.findOne({
       resolvedIpAddresses: eventSource.address,
-      port: eventSource.port,
+      port: `${eventSource.port}`,
     });
   }
 
