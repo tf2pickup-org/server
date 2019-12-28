@@ -73,6 +73,12 @@ export class PlayersController {
     return await this.playersService.getPlayerStats(playerId);
   }
 
+  @Get('/all/skill')
+  @Auth('admin', 'super-user')
+  async getAllPlayerSkills() {
+    return await this.playerSkillService.getAll();
+  }
+
   @Get(':id/skill')
   @Auth('admin', 'super-user')
   async getPlayerSkill(@Param('id', ObjectIdValidationPipe) playerId: string) {

@@ -10,6 +10,10 @@ export class PlayerSkillService {
     @InjectModel(PlayerSkill) private playerSkillModel: ReturnModelType<typeof PlayerSkill>,
   ) { }
 
+  async getAll(): Promise<Array<DocumentType<PlayerSkill>>> {
+    return await this.playerSkillModel.find({ });
+  }
+
   async getPlayerSkill(playerId: string): Promise<DocumentType<PlayerSkill>> {
     const skill = await this.playerSkillModel.findOne({ player: playerId });
     return skill;

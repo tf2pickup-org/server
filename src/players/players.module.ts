@@ -22,7 +22,7 @@ import { DiscordModule } from '@/discord/discord.module';
     TypegooseModule.forFeature([
       standardSchemaOptions(Player),
       standardSchemaOptions(PlayerBan),
-      PlayerSkill,
+      standardSchemaOptions(PlayerSkill),
     ]),
 
     ConfigModule,
