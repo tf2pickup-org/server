@@ -1,4 +1,4 @@
-import { Injectable, OnModuleInit } from '@nestjs/common';
+import { Injectable, OnModuleInit, Logger } from '@nestjs/common';
 import { ConfigService } from '@/config/config.service';
 import { LogReceiver, LogMessage } from 'srcds-log-receiver';
 import { GameServersService } from './game-servers.service';
@@ -13,6 +13,7 @@ export interface GameEventSource {
 @Injectable()
 export class GameEventListenerService {
 
+  private logger = new Logger(GameEventListenerService.name);
   private logReceiver: LogReceiver;
   private _matchStarted = new Subject<string>();
   private _matchEnded = new Subject<string>();
@@ -39,6 +40,8 @@ export class GameEventListenerService {
       port: parseInt(this.configService.logRelayPort, 10),
     });
 
+    this.logger.log(`listening for incoming logs at ${this.logReceiver.opts.address}:${this.logReceiver.opts.port}`);
+
     this.logReceiver.on('data', (msg: LogMessage) => {
       if (msg.isValid) {
         this.testForGameEvent(msg.message, msg.receivedFrom);
@@ -62,6 +65,8 @@ export class GameEventListenerService {
     const server = await this.gameServersService.getGameServerByEventSource(source);
     if (server) {
       this._matchStarted.next(server.id);
+    } else {
+      this.logger.warn(`unknown log source: ${source.address}:${source.port}`);
     }
   }
 
@@ -69,6 +74,8 @@ export class GameEventListenerService {
     const server = await this.gameServersService.getGameServerByEventSource(source);
     if (server) {
       this._matchEnded.next(server.id);
+    } else {
+      this.logger.warn(`unknown log source: ${source.address}:${source.port}`);
     }
   }
 
@@ -76,6 +83,8 @@ export class GameEventListenerService {
     const server = await this.gameServersService.getGameServerByEventSource(source);
     if (server) {
       this._logsUploaded.next({ gameServer: server.id, logsUrl });
+    } else {
+      this.logger.warn(`unknown log source: ${source.address}:${source.port}`);
     }
   }
 
