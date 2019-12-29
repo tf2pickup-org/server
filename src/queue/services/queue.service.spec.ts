@@ -93,6 +93,7 @@ describe('QueueService', () => {
     expect(service.state).toEqual('waiting');
     expect(service.slots.length).toBe(12);
     expect(service.slots.every(s => s.playerId === null)).toBe(true);
+    expect(service.slots.every(s => s.friend === null)).toBe(true);
     expect(service.slots.every(s => s.ready === false)).toBe(true);
     expect(service.playerCount).toEqual(0);
     expect(service.readyPlayerCount).toEqual(0);
@@ -191,6 +192,7 @@ describe('QueueService', () => {
       const slot = service.getSlotById(0);
       expect(slot.playerId).toBe(null);
       expect(slot.ready).toBe(false);
+      expect(slot.friend).toBe(null);
       expect(service.playerCount).toBe(0);
     });
 
