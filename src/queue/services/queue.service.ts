@@ -64,20 +64,20 @@ export class QueueService implements OnModuleInit {
     private playerBansService: PlayerBansService,
     @Inject(forwardRef(() => GamesService)) private gamesService: GamesService,
     private onlinePlayersService: OnlinePlayersService,
-  ) {
-    this.stateChange.pipe(
-      distinctUntilChanged(),
-      pairwise(),
-    ).subscribe(([oldState, newState]) => this.onStateChange(oldState, newState));
-
-    this.resetSlots();
-  }
+  ) { }
 
   onModuleInit() {
+    this.resetSlots();
+
     merge(
       this.playerBansService.banAdded,
       this.onlinePlayersService.playerLeft,
     ).subscribe(playerId => this.kick(playerId));
+
+    this.stateChange.pipe(
+      distinctUntilChanged(),
+      pairwise(),
+    ).subscribe(([oldState, newState]) => this.onStateChange(oldState, newState));
   }
 
   getSlotById(id: number): QueueSlot {
@@ -147,7 +147,7 @@ export class QueueService implements OnModuleInit {
     if (targetSlot.gameClass === 'medic') {
       targetSlot.friend = oldFriend;
     }
-    if (this.state === 'ready') {
+    if (this.state === 'ready' || this.playerCount === this.requiredPlayerCount) {
       targetSlot.ready = true;
     }
 
@@ -188,13 +188,16 @@ export class QueueService implements OnModuleInit {
     }
 
     const updatedSlots: QueueSlot[] = [];
-    playerIds.forEach(playerId => {
+
+    for (const playerId of playerIds) {
       const slot = this.findSlotByPlayerId(playerId);
-      this.clearSlot(slot);
-      this._playerLeave.next(playerId);
-      this.logger.log(`slot ${slot.id} (gameClass=${slot.gameClass}) free (player was kicked)`);
-      updatedSlots.push(slot);
-    });
+      if (slot) {
+        this.clearSlot(slot);
+        this._playerLeave.next(playerId);
+        this.logger.log(`slot ${slot.id} (gameClass=${slot.gameClass}) free (player was kicked)`);
+        updatedSlots.push(slot);
+      }
+    }
 
     this._slotsChange.next(updatedSlots);
     setImmediate(() => this.maybeUpdateState());
@@ -294,9 +297,10 @@ export class QueueService implements OnModuleInit {
 
   private onStateChange(oldState: QueueState, newState: QueueState) {
     if (oldState === 'waiting' && newState === 'ready') {
-      this.logger.debug(`ready up timeout: ${this.queueConfigService.queueConfig.readyUpTimeout / 1000} seconds`);
       this.timer = setTimeout(() => this.readyUpTimeout(), this.queueConfigService.queueConfig.readyUpTimeout);
     } else if (oldState === 'ready' && newState === 'launching') {
+      clearTimeout(this.timer);
+    } else if (oldState === 'ready' && newState === 'waiting') {
       clearTimeout(this.timer);
     }
 
@@ -311,17 +315,15 @@ export class QueueService implements OnModuleInit {
     const nextTimeout =
       this.queueConfigService.queueConfig.queueReadyTimeout - this.queueConfigService.queueConfig.readyUpTimeout;
 
-    this.logger.debug(`queue ready up timeout: ${nextTimeout / 1000} seconds`);
-
     if (nextTimeout > 0) {
-      setTimeout(() => this.unreadyQueue(), nextTimeout);
+      this.timer = setTimeout(() => this.unreadyQueue(), nextTimeout);
     } else {
       this.unreadyQueue();
     }
   }
 
   private kickUnreadyPlayers() {
-    this.logger.log('kicking unreadied players');
+    this.logger.log('kicking players that are not ready');
     const slots = this.slots.filter(s => !s.ready);
     this.kick(...slots.map(s => s.playerId));
   }
