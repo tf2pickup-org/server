@@ -147,7 +147,7 @@ export class QueueService implements OnModuleInit {
     if (targetSlot.gameClass === 'medic') {
       targetSlot.friend = oldFriend;
     }
-    if (this.state === 'ready') {
+    if (this.state === 'ready' || this.playerCount === this.requiredPlayerCount) {
       targetSlot.ready = true;
     }
 
@@ -297,7 +297,6 @@ export class QueueService implements OnModuleInit {
 
   private onStateChange(oldState: QueueState, newState: QueueState) {
     if (oldState === 'waiting' && newState === 'ready') {
-      this.logger.debug(`ready up timeout: ${this.queueConfigService.queueConfig.readyUpTimeout / 1000} seconds`);
       this.timer = setTimeout(() => this.readyUpTimeout(), this.queueConfigService.queueConfig.readyUpTimeout);
     } else if (oldState === 'ready' && newState === 'launching') {
       clearTimeout(this.timer);

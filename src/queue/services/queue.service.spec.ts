@@ -165,6 +165,15 @@ describe('QueueService', () => {
       await service.join(0, 'FAKE_ID');
     });
 
+    it('should ready up immediately when joining as 12th player', async () => {
+      for (let i = 0; i < 11; ++i) {
+        await service.join(i, `FAKE_ID_${i}`);
+      }
+
+      const slots = await service.join(11, 'FAKE_ID');
+      expect(slots[0].ready).toEqual(true);
+    });
+
   });
 
   describe('#leave()', () => {
