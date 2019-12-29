@@ -44,7 +44,7 @@ describe('Etf2lProfileService', () => {
     it('should query the ETF2L API', async () => {
       const spy = spyOn(httpService, 'get').and.returnValue(of(response));
       const res = await service.fetchPlayerInfo('FAKE_STEAM_ID');
-      expect(spy).toHaveBeenCalledWith('http://api.etf2l.org/player/FAKE_STEAM_ID');
+      expect(spy).toHaveBeenCalledWith('http://api.etf2l.org/player/FAKE_STEAM_ID.json');
       expect(res).toEqual(etf2lProfile);
     });
 
