@@ -1,0 +1,138 @@
+import { ServerConfiguratorService } from './services/server-configurator.service';
+import { DocumentType } from '@typegoose/typegoose';
+import { Game } from './models/game';
+import { Subject } from 'rxjs';
+import { GameServersService } from '@/game-servers/services/game-servers.service';
+import { GameServer } from '@/game-servers/models/game-server';
+import { Logger } from '@nestjs/common';
+import { GamesService } from './services/games.service';
+import { ConfigService } from '@/config/config.service';
+import { PlayersService } from '@/players/services/players.service';
+
+export class GameRunner {
+
+  game: DocumentType<Game>;
+  gameServer: GameServer;
+  private logger = new Logger(`game ${this.gameId}`);
+  private _gameInitialized = new Subject<void>();
+  private _gameFinished = new Subject<void>();
+  private _gameUpdated = new Subject<void>();
+
+  get gameInitialized() {
+    return this._gameInitialized.asObservable();
+  }
+
+  /**
+   * Note: this is different than the 'ended' state of game. A finished game means the game can no longer
+   * receive any updates. The gameserver has been cleaned up, so no logs will be captured by this game runner
+   * instance.
+   *
+   * @readonly
+   * @memberof GameRunner
+   */
+  get gameFinished() {
+    return this._gameFinished.asObservable();
+  }
+
+  get gameUpdated() {
+    return this._gameUpdated.asObservable();
+  }
+
+  constructor(
+    private gameId: string,
+    private gamesService: GamesService,
+    private gameServersService: GameServersService,
+    private configService: ConfigService,
+    private serverConfiguratorService: ServerConfiguratorService,
+    private playersService: PlayersService,
+  ) { }
+
+  async initialize() {
+    this.game = await this.gamesService.getById(this.gameId);
+    this.logger.setContext(`game #${this.game.number}`);
+
+    if (this.game.state === 'ended' || this.game.state === 'interrupted') {
+      this.logger.warn('launching a game that has already been ended');
+    }
+
+    if (this.game.gameServer) {
+      this.gameServer = await this.gameServersService.getById(this.game?.gameServer?.toString());
+      this.logger.setContext(`${this.gameServer.name}/#${this.game.number}`);
+      this._gameInitialized.next();
+      this.logger.log('game resurrected');
+    } else {
+      const server = await this.gameServersService.findFreeGameServer();
+      if (server) {
+        this.gameServer = server;
+        this.logger.setContext(`${this.gameServer.name}/#${this.game.number}`);
+        await this.assignGameServer(server);
+        await this.resolveMumbleUrl(server);
+        this._gameUpdated.next();
+        this._gameInitialized.next();
+        this.logger.log('game initialized');
+        //
+        // todo: error handling
+        //
+      } else {
+        this.logger.warn(`no free servers available`);
+        //
+        // todo: handle
+        //
+      }
+    }
+  }
+
+  async launch() {
+    const { connectString } = await this.serverConfiguratorService.configureServer(this.gameServer, this.game);
+    await this.updateConnectString(connectString);
+  }
+
+  async onPlayerConnected(steamId: string) {
+    const player = await this.playersService.findBySteamId(steamId);
+    this.logger.log(`${player.name} connected`);
+  }
+
+  async onPlayerDisconnected(steamId: string) {
+    const player = await this.playersService.findBySteamId(steamId);
+    this.logger.log(`${player.name} disconnected`);
+  }
+
+  async onMatchStarted() {
+    this.game.state = 'started';
+    await this.game.save();
+    this._gameUpdated.next();
+  }
+
+  async onMatchEnded() {
+    this.game.state = 'ended';
+    await this.game.save();
+    this._gameUpdated.next();
+  }
+
+  async onLogsUploaded(logsUrl: string) {
+    this.game.logsUrl = logsUrl;
+    await this.game.save();
+    this._gameUpdated.next();
+  }
+
+  private async assignGameServer(server: DocumentType<GameServer>) {
+    this.logger.log(`using server ${server.name}`);
+    await this.gameServersService.takeServer(server.id);
+    this.game.gameServer = server;
+    await this.game.save();
+  }
+
+  private async resolveMumbleUrl(server: GameServer) {
+    const mumbleUrl =
+      `mumble://${this.configService.mumbleServerUrl}/${this.configService.mumbleChannelName}/${server.mumbleChannelName}`;
+    this.game.mumbleUrl = mumbleUrl;
+    await this.game.save();
+  }
+
+  private async updateConnectString(connectString: string) {
+    this.game.connectString = connectString;
+    await this.game.save();
+    this._gameUpdated.next();
+  }
+
+}
