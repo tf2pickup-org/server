@@ -1,3 +1,11 @@
+# [1.1.0](https://github.com/tf2pickup-pl/server/compare/1.0.4...1.1.0) (2019-12-29)
+
+### Features
+* get all players' skills ([f1548ea](https://github.com/tf2pickup-pl/server/commit/f1548ea1b8b4d23eab4c68af57fec8c735b8e436))
+
+### Fixes
+* queue fixes ([58506f1](https://github.com/tf2pickup-pl/server/commit/58506f1e6463814ae0576d1b3020c3110615ce23))
+
 # [1.0.4](https://github.com/tf2pickup-pl/server/compare/1.0.3...1.0.4) (2019-12-28)
 
 ### Fixes
