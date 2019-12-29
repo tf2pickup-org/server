@@ -13,11 +13,9 @@ import { GameEventListenerService } from './services/game-event-listener.service
   ],
   providers: [
     GameServersService,
-    GameEventListenerService,
   ],
   exports: [
     GameServersService,
-    GameEventListenerService,
   ],
   controllers: [
     GameServersController,

@@ -10,7 +10,7 @@ import { QueueSlot } from '@/queue/queue-slot';
 import { GameServersService } from '@/game-servers/services/game-servers.service';
 import { Environment } from '@/environment/environment';
 import { ServerConfiguratorService } from './server-configurator.service';
-import { GameEventListenerService } from '@/game-servers/services/game-event-listener.service';
+import { GameEventListenerService } from '@/games/services/game-event-listener.service';
 
 const game: any = {
   number: 1,
