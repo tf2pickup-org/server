@@ -1,40 +1,74 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@/config/config.service';
 import { LogReceiver, LogMessage } from 'srcds-log-receiver';
-import { Subject } from 'rxjs';
 import { GameRunnerManagerService } from './game-runner-manager.service';
 import * as SteamID from 'steamid';
+import { GameRunner } from '../game-runner';
 
-export interface GameEventSource {
-  address: string;
-  port: number;
+interface GameEvent {
+  /* name of the game event */
+  name: string;
+
+  /* the event is triggered if a log line matches this regex */
+  regex: RegExp;
+
+  /* handle the event being triggered */
+  handle: (gameRunner: GameRunner, matches: RegExpMatchArray) => void;
 }
 
+const gameEvents: GameEvent[] = [
+  {
+    name: 'match started',
+    regex: /^[\d\/\s-:]+World triggered \"Round_Start\"$/,
+    handle: gameRunner => gameRunner.onMatchStarted(),
+  },
+  {
+    name: 'match ended',
+    regex: /^[\d\/\s-:]+World triggered \"Game_Over\" reason \".*\"$/,
+    handle: gameRunner => gameRunner.onMatchEnded(),
+  },
+  {
+    name: 'logs uploaded',
+    regex: /^[\d\/\s-:]+\[TFTrue\].+\shttp:\/\/logs\.tf\/(\d+)\..*$/,
+    handle: (gameRunner, matches) => {
+      const logsUrl = `http://logs.tf/${matches[1]}`;
+      gameRunner.onLogsUploaded(logsUrl);
+    },
+  },
+  {
+    name: 'player connected',
+    regex: /^(\d{2}\/\d{2}\/\d{4})\s-\s(\d{2}:\d{2}:\d{2}):\s\"(.+)\<(\d+)\>\<(\[.[^\]]+\])\>\<\>"\sconnected,\saddress\s\"(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d{1,5})"$/,
+    handle: (gameRunner, matches) => {
+      const steamId = new SteamID(matches[5]);
+      if (steamId.isValid()) {
+        gameRunner.onPlayerConnected(steamId.getSteamID64());
+      }
+    },
+  },
+  {
+    name: 'player disconnected',
+    regex: /^(\d{2}\/\d{2}\/\d{4})\s-\s(\d{2}:\d{2}:\d{2}):\s\"(.+)\<(\d+)\>\<(\[.[^\]]+\])\>\<(.[^\>]+)\>\"\sdisconnected\s\(reason\s\"(.[^\"]+)\"\)$/,
+    handle: (gameRunner, matches) => {
+      const steamId = new SteamID(matches[5]);
+      if (steamId.isValid()) {
+        gameRunner.onPlayerDisconnected(steamId.getSteamID64());
+      }
+    },
+  },
+];
+
 @Injectable()
-export class GameEventListenerService {
+export class GameEventListenerService implements OnModuleInit {
 
   private logger = new Logger(GameEventListenerService.name);
   private logReceiver: LogReceiver;
-  private _matchStarted = new Subject<string>();
-  private _matchEnded = new Subject<string>();
-  private _logsUploaded = new Subject<{ gameServer: string, logsUrl: string }>();
-
-  get matchStarted() {
-    return this._matchStarted.asObservable();
-  }
-
-  get matchEnded() {
-    return this._matchEnded.asObservable();
-  }
-
-  get logsUploaded() {
-    return this._logsUploaded.asObservable();
-  }
 
   constructor(
     private configService: ConfigService,
     private gameRunnerManagerService: GameRunnerManagerService,
-  ) {
+  ) { }
+
+  onModuleInit() {
     this.logReceiver = new LogReceiver({
       address: this.configService.logRelayAddress,
       port: parseInt(this.configService.logRelayPort, 10),
@@ -45,58 +79,20 @@ export class GameEventListenerService {
     this.logReceiver.on('data', (msg: LogMessage) => {
       if (msg.isValid) {
         this.logger.debug(msg.message);
-        this.testForGameEvent(msg.message, msg.receivedFrom);
+        this.testForGameEvent(msg.message, `${msg.receivedFrom.address}:${msg.receivedFrom.port}`);
       }
     });
   }
 
-  private testForGameEvent(message: string, source: GameEventSource) {
-    if (message.match(/^[\d\/\s-:]+World triggered \"Round_Start\"$/)) {
-      this.onMatchStarted(source);
-    } else if (message.match(/^[\d\/\s-:]+World triggered \"Game_Over\" reason \".*\"$/)) {
-      this.onMatchEnded(source);
-    } else if (message.match(/^[\d\/\s-:]+\[TFTrue\].+\shttp:\/\/logs\.tf\/(\d+)\..*$/)) {
-      const matches = message.match(/^[\d\/\s-:]+\[TFTrue\].+\shttp:\/\/logs\.tf\/(\d+)\..*$/);
-      const logsUrl = `http://logs.tf/${matches[1]}`;
-      this.onLogsUploaded(source, logsUrl);
-    } else if (message.match(/^\w?\s?(\d{2}\/\d{2}\/\d{4})\s-\s(\d{2}:\d{2}:\d{2}):\s\"(.[^\<]+)\<(\d+)\>\<\[(.[^\]]+)\]\>\<\>"\sconnected,\saddress\s\"(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d{1,5})"$/)) {
-      const matches = message.match(/^\w?\s?(\d{2}\/\d{2}\/\d{4})\s-\s(\d{2}:\d{2}:\d{2}):\s\"(.[^\<]+)\<(\d+)\>\<\[(.[^\]]+)\]\>\<\>"\sconnected,\saddress\s\"(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d{1,5})"$/);
-      const steamId = new SteamID(`[${matches[5]}]`);
-      if (steamId.isValid()) {
-        this.onPlayerConnected(source, steamId.getSteamID64());
-      }
-    } else if (message.match(/^(\d{2}\/\d{2}\/\d{4})\s-\s(\d{2}:\d{2}:\d{2}):\s\"(.[^\<]+)\<(\d+)\>\<(\[.[^\]]+\])\>\<(.[^\>]+)\>\"\sdisconnected\s\(reason\s\"(.[^\"]+)\"\)$/)) {
-      const matches = message.match(/^(\d{2}\/\d{2}\/\d{4})\s-\s(\d{2}:\d{2}:\d{2}):\s\"(.[^\<]+)\<(\d+)\>\<(\[.[^\]]+\])\>\<(.[^\>]+)\>\"\sdisconnected\s\(reason\s\"(.[^\"]+)\"\)$/);
-      const steamId = new SteamID(matches[5]);
-      if (steamId.isValid()) {
-        this.onPlayerDisconnected(source, steamId.getSteamID64());
+  private testForGameEvent(message: string, eventSource: string) {
+    for (const gameEvent of gameEvents) {
+      const matches = message.match(gameEvent.regex);
+      if (matches) {
+        this.logger.debug(gameEvent.name);
+        const gameRunner = this.gameRunnerManagerService.findGameRunnerByEventSource(eventSource);
+        gameEvent.handle(gameRunner, matches);
       }
     }
-  }
-
-  private onPlayerConnected(source: GameEventSource, steamId: string) {
-    const gameRunner = this.gameRunnerManagerService.findGameRunnerByEventSource(`${source.address}:${source.port}`);
-    gameRunner.onPlayerConnected(steamId);
-  }
-
-  private onPlayerDisconnected(source: GameEventSource, steamId: string) {
-    const gameRunner = this.gameRunnerManagerService.findGameRunnerByEventSource(`${source.address}:${source.port}`);
-    gameRunner.onPlayerDisconnected(steamId);
-  }
-
-  private async onMatchStarted(source: GameEventSource) {
-    const gameRunner = this.gameRunnerManagerService.findGameRunnerByEventSource(`${source.address}:${source.port}`);
-    gameRunner.onMatchStarted();
-  }
-
-  private async onMatchEnded(source: GameEventSource) {
-    const gameRunner = this.gameRunnerManagerService.findGameRunnerByEventSource(`${source.address}:${source.port}`);
-    gameRunner.onMatchEnded();
-  }
-
-  private async onLogsUploaded(source: GameEventSource, logsUrl: string) {
-    const gameRunner = this.gameRunnerManagerService.findGameRunnerByEventSource(`${source.address}:${source.port}`);
-    gameRunner.onLogsUploaded(logsUrl);
   }
 
 }

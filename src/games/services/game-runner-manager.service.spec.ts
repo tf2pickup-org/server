@@ -4,9 +4,7 @@ import { GameRunnerFactoryService } from './game-runner-factory.service';
 import { Subject } from 'rxjs';
 
 class GameRunnerStub {
-  constructor(
-    public gameId: string,
-  ) { }
+  constructor(public gameId: string) { }
   gameInitialized = new Subject<void>();
   gameFinished = new Subject<void>();
   gameServer = null;

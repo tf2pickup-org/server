@@ -160,39 +160,23 @@ export class GamesService implements OnModuleInit {
     await gameRunner.launch();
   }
 
+  // fixme rename
   async reinitialize(gameId: string) {
-    // const game = await this.getById(gameId);
-    // this.logger.log(`reinitialize game #${game.number}`);
-    // this.updateConnectString(game, null);
+    const gameRunner = this.gameRunnerManagerService.findGameRunnerByGameId(gameId);
+    if (!gameRunner) {
+      throw new Error('no such game');
+    }
 
-    // let server: GameServer;
-    // if (game.gameServer) {
-    //   server = await this.gameServersService.getById(game.gameServer.toString());
-    // } else {
-    //   server = await this.gameServersService.findFreeGameServer();
-    // }
-
-    // await this.serverConfiguratorService.cleanupServer(server);
-    // const { connectString } =
-    //   await this.serverConfiguratorService.configureServer(server, game);
-    // this.updateConnectString(game, connectString);
+    await gameRunner.reconfigure();
   }
 
   async forceEnd(gameId: string) {
-    // const game = await this.getById(gameId);
-    // this.logger.log(`force end game #${game.number}`);
-    // game.state = 'interrupted';
-    // game.error = 'ended by admin';
-    // game.save();
+    const gameRunner = this.gameRunnerManagerService.findGameRunnerByGameId(gameId);
+    if (!gameRunner) {
+      throw new Error('no such game');
+    }
 
-    // const server = await this.gameServersService.getById(game.gameServer.toString());
-    // if (server) {
-    //   await this.serverConfiguratorService.cleanupServer(server);
-    //   await this.gameServersService.releaseServer(server.id);
-    // }
-
-    // this._gameUpdated.next(game);
-    // return game;
+    await gameRunner.forceEnd();
   }
 
   async getMostActivePlayers() {

@@ -50,4 +50,8 @@ export class GameRunnerManagerService {
     return this.runnersByEventSource.get(eventSource);
   }
 
+  findGameRunnerByGameId(gameId: string) {
+    return this.runners.find(runner => runner.gameId === gameId);
+  }
+
 }

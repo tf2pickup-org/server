@@ -11,12 +11,13 @@ import { PlayersService } from '@/players/services/players.service';
 
 export class GameRunner {
 
-  game: DocumentType<Game>;
-  gameServer: GameServer;
   private logger = new Logger(`game ${this.gameId}`);
   private _gameInitialized = new Subject<void>();
   private _gameFinished = new Subject<void>();
   private _gameUpdated = new Subject<void>();
+
+  game: DocumentType<Game>;
+  gameServer: DocumentType<GameServer>;
 
   get gameInitialized() {
     return this._gameInitialized.asObservable();
@@ -39,7 +40,7 @@ export class GameRunner {
   }
 
   constructor(
-    private gameId: string,
+    public gameId: string,
     private gamesService: GamesService,
     private gameServersService: GameServersService,
     private configService: ConfigService,
@@ -83,18 +84,37 @@ export class GameRunner {
   }
 
   async launch() {
+    this.logger.verbose('launch');
     const { connectString } = await this.serverConfiguratorService.configureServer(this.gameServer, this.game);
     await this.updateConnectString(connectString);
   }
 
+  async reconfigure() {
+    this.logger.verbose('reconfigure');
+    await this.updateConnectString(null);
+    const { connectString } = await this.serverConfiguratorService.configureServer(this.gameServer, this.game);
+    await this.updateConnectString(connectString);
+  }
+
+  async forceEnd() {
+    this.logger.verbose('force end');
+    this.game.state = 'interrupted';
+    this.game.error = 'ended by admin';
+    this.game.save();
+    this._gameUpdated.next();
+
+    await this.serverConfiguratorService.cleanupServer(this.gameServer);
+    await this.gameServersService.releaseServer(this.gameServer.id);
+  }
+
   async onPlayerConnected(steamId: string) {
     const player = await this.playersService.findBySteamId(steamId);
-    this.logger.log(`${player.name} connected`);
+    this.logger.verbose(`${player.name} connected`);
   }
 
   async onPlayerDisconnected(steamId: string) {
     const player = await this.playersService.findBySteamId(steamId);
-    this.logger.log(`${player.name} disconnected`);
+    this.logger.verbose(`${player.name} disconnected`);
   }
 
   async onMatchStarted() {
