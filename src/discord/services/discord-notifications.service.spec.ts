@@ -2,13 +2,13 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { DiscordNotificationsService } from './discord-notifications.service';
 import { Environment } from '@/environment/environment';
 import { PlayersService } from '@/players/services/players.service';
+import { ConfigService } from '@nestjs/config';
 
-class EnvironmentStub {
+class EnvironmentStub { }
+class PlayersServiceStub { }
 
-}
-
-class PlayersServiceStub {
-
+class ConfigServiceStub {
+  get(key: string) { return null; }
 }
 
 describe('DiscordNotificationsService', () => {
@@ -20,6 +20,7 @@ describe('DiscordNotificationsService', () => {
         DiscordNotificationsService,
         { provide: Environment, useClass: EnvironmentStub },
         { provide: PlayersService, useClass: PlayersServiceStub },
+        { provide: ConfigService, useClass: ConfigServiceStub },
       ],
     }).compile();
 

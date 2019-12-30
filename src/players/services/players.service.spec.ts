@@ -7,10 +7,10 @@ import { SteamProfile } from '../models/steam-profile';
 import { GamesService } from '@/games/services/games.service';
 import { OnlinePlayersService } from './online-players.service';
 import { DiscordNotificationsService } from '@/discord/services/discord-notifications.service';
+import { ConfigService } from '@nestjs/config';
 
 class EnvironmentStub {
   superUser = null;
-  requireEtf2lAccount = false;
 }
 
 class Etf2lProfileServiceStub {
@@ -50,6 +50,10 @@ class DiscordNotificationsServiceStub {
   notifyNewPlayer(player: any) { return null; }
 }
 
+class ConfigServiceStub {
+  get(key: string) { return true; }
+}
+
 describe('PlayersService', () => {
   let service: PlayersService;
   let environment: EnvironmentStub;
@@ -68,6 +72,7 @@ describe('PlayersService', () => {
         { provide: GamesService, useClass: GamesServiceStub },
         { provide: OnlinePlayersService, useClass: OnlinePlayersServiceStub },
         { provide: DiscordNotificationsService, useClass: DiscordNotificationsServiceStub },
+        { provide: ConfigService, useClass: ConfigServiceStub },
       ],
     }).compile();
 
@@ -108,7 +113,6 @@ describe('PlayersService', () => {
     };
 
     it('should deny creating profiles without ETF2L profile', async () => {
-      environment.requireEtf2lAccount = true;
       const spy = spyOn(etf2lProfileService, 'fetchPlayerInfo').and.throwError('no ETF2L profile');
       await expectAsync(service.createPlayer(steamProfile)).toBeRejected();
       expect(spy).toHaveBeenCalledWith('FAKE_STEAM_ID');
