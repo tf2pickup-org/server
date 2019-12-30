@@ -1,3 +1,9 @@
+# [1.1.1](https://github.com/tf2pickup-pl/server/compare/1.1.0...1.1.1) (2019-12-30)
+
+### Fixes
+* profile creation ([64346a1](https://github.com/tf2pickup-pl/server/commit/64346a1a376963077d0580c2247b7b79836ded17))
+* handle uninitialized skill  ([640e9e2](https://github.com/tf2pickup-pl/server/commit/640e9e2b8a6b13c1ba27c5e4eca94d1767ad6cfc))
+
 # [1.1.0](https://github.com/tf2pickup-pl/server/compare/1.0.4...1.1.0) (2019-12-29)
 
 ### Features
