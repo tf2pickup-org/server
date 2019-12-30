@@ -8,6 +8,7 @@ import { PlayerStats } from '../models/player-stats';
 import { PlayerSkillService } from '../services/player-skill.service';
 import { PlayerSkill } from '../models/player-skill';
 import { PlayerBansService } from '../services/player-bans.service';
+import { NotFoundException } from '@nestjs/common';
 
 class PlayersServiceStub {
   player: Player = {
@@ -196,6 +197,11 @@ describe('Players Controller', () => {
       const ret = await controller.getPlayerSkill('FAKE_ID');
       expect(spy).toHaveBeenCalledWith('FAKE_ID');
       expect(ret).toEqual(playerSkillService.skill.skill);
+    });
+
+    it('should return 404', async () => {
+      spyOn(playerSkillService, 'getPlayerSkill').and.returnValue(null);
+      expectAsync(controller.getPlayerSkill('FAKE_ID')).toBeRejectedWith(new NotFoundException());
     });
   });
 

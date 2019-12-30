@@ -1,13 +1,15 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject, forwardRef } from '@nestjs/common';
 import { InjectModel } from 'nestjs-typegoose';
 import { PlayerSkill } from '../models/player-skill';
 import { ReturnModelType, DocumentType } from '@typegoose/typegoose';
+import { PlayersService } from './players.service';
 
 @Injectable()
 export class PlayerSkillService {
 
   constructor(
     @InjectModel(PlayerSkill) private playerSkillModel: ReturnModelType<typeof PlayerSkill>,
+    @Inject(forwardRef(() => PlayersService)) private playersService: PlayersService,
   ) { }
 
   async getAll(): Promise<Array<DocumentType<PlayerSkill>>> {
@@ -15,18 +17,24 @@ export class PlayerSkillService {
   }
 
   async getPlayerSkill(playerId: string): Promise<DocumentType<PlayerSkill>> {
-    const skill = await this.playerSkillModel.findOne({ player: playerId });
-    return skill;
+    return await this.playerSkillModel.findOne({ player: playerId });
   }
 
   async setPlayerSkill(playerId: string, newSkill: { [gameClass: string]: number }): Promise<DocumentType<PlayerSkill>> {
     const skill = await this.playerSkillModel.findOne({ player: playerId });
     if (skill) {
       skill.skill = new Map(Object.entries(newSkill));
-      skill.save();
-      return skill;
+      return await skill.save();
     } else {
-      return null;
+      const player = await this.playersService.getById(playerId);
+      if (!player) {
+        throw new Error('no such player');
+      }
+
+      return await this.playerSkillModel.create({
+        player,
+        skill: new Map(Object.entries(newSkill)),
+      });
     }
   }
 
