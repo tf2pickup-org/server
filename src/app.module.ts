@@ -13,16 +13,16 @@ import { SharedModule } from './shared/shared.module';
 import { DiscordModule } from './discord/discord.module';
 import { EnvironmentModule } from './environment/environment.module';
 
-function createMongodbUri(host: string, port: string, db: string, username: string, password: string) {
+function createMongodbUri(environment: Environment) {
   let credentials = '';
-  if (username) {
-    if (password) {
-      credentials = `${username}:${password}@`;
+  if (environment.mongoDbUsername) {
+    if (environment.mongoDbPassword) {
+      credentials = `${environment.mongoDbUsername}:${environment.mongoDbPassword}@`;
     } else {
-      credentials = `${username}@`;
+      credentials = `${environment.mongoDbUsername}@`;
     }
   }
-  return `mongodb://${credentials}${host}:${port}/${db}`;
+  return `mongodb://${credentials}${environment.mongoDbHost}:${environment.mongoDbPort}/${environment.mongoDbName}`;
 }
 
 @Module({
@@ -31,8 +31,7 @@ function createMongodbUri(host: string, port: string, db: string, username: stri
       imports: [ EnvironmentModule ],
       inject: [ Environment ],
       useFactory: async (environment: Environment) => ({
-        uri: createMongodbUri(environment.get('MONGODB_HOST'), environment.get('MONGODB_POST'), environment.get('MONGODB_DB'),
-          environment.get('MONGODB_USERNAME'), environment.get('MONGODB_PASSWORD')),
+        uri: createMongodbUri(environment),
         useNewUrlParser: true,
         useUnifiedTopology: true,
       }),

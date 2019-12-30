@@ -23,6 +23,26 @@ export class Environment {
     return this.config.CLIENT_URL;
   }
 
+  get mongoDbHost() {
+    return this.config.MONGODB_HOST;
+  }
+
+  get mongoDbPort() {
+    return this.config.MONGODB_PORT;
+  }
+
+  get mongoDbName() {
+    return this.config.MONGODB_DB;
+  }
+
+  get mongoDbUsername() {
+    return this.config.MONGODB_USERNAME;
+  }
+
+  get mongoDbPassword() {
+    return this.config.MONGODB_PASSWORD;
+  }
+
   get steamApiKey() {
     return this.config.STEAM_API_KEY;
   }
