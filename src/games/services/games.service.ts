@@ -11,7 +11,6 @@ import { GameServersService } from '@/game-servers/services/game-servers.service
 import { GameServer } from '@/game-servers/models/game-server';
 import { Environment } from '@/environment/environment';
 import { Subject } from 'rxjs';
-import { ServerConfiguratorService } from './server-configurator.service';
 import { extractFriends } from '../utils/extract-friends';
 import { GameRunnerManagerService } from './game-runner-manager.service';
 import { takeUntil } from 'rxjs/operators';
@@ -44,14 +43,11 @@ export class GamesService implements OnModuleInit {
     @Inject(forwardRef(() => PlayersService)) private playersService: PlayersService,
     private playerSkillService: PlayerSkillService,
     private queueConfigService: QueueConfigService,
-    private gameServersService: GameServersService,
-    private environment: Environment,
-    private serverConfiguratorService: ServerConfiguratorService,
-    private gameEventListenerService: GameEventListenerService,
+    @Inject(forwardRef(() => GameRunnerManagerService)) private gameRunnerManagerService: GameRunnerManagerService,
   ) { }
 
   async onModuleInit() {
-    const runningGames = await this.gameModel.find({ state: /launching|started/ });
+    const runningGames = await this.getRunningGames();
     runningGames.forEach(async game => {
       const gameRunner = this.gameRunnerManagerService.createGameRunner(game.id);
       await gameRunner.initialize();
@@ -68,6 +64,10 @@ export class GamesService implements OnModuleInit {
 
   async getById(gameId: string): Promise<DocumentType<Game>> {
     return await this.gameModel.findById(gameId);
+  }
+
+  async getRunningGames(): Promise<Array<DocumentType<Game>>> {
+    return await this.gameModel.find({ state: /launching|started/ });
   }
 
   async findByAssignedGameServer(gameServerId: string): Promise<DocumentType<Game>> {

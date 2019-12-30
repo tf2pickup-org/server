@@ -4,22 +4,17 @@ import { GamesService } from './games.service';
 import { GameServersService } from '@/game-servers/services/game-servers.service';
 import { ConfigService } from '@/config/config.service';
 import { ServerConfiguratorService } from './server-configurator.service';
+import { PlayersService } from '@/players/services/players.service';
 
-class GamesServiceStub {
+class GamesServiceStub { }
 
-}
+class GameServersServiceStub { }
 
-class GameServersServiceStub {
+class ConfigServiceStub { }
 
-}
+class ServerConfiguratorServiceStub { }
 
-class ConfigServiceStub {
-
-}
-
-class ServerConfiguratorServiceStub {
-
-}
+class PlayersServiceStub { }
 
 describe('GameRunnerFactoryService', () => {
   let service: GameRunnerFactoryService;
@@ -32,6 +27,7 @@ describe('GameRunnerFactoryService', () => {
         { provide: GameServersService, useClass: GameServersServiceStub },
         { provide: ConfigService, useClass: ConfigServiceStub },
         { provide: ServerConfiguratorService, useClass: ServerConfiguratorServiceStub },
+        { provide: PlayersService, useClass: PlayersServiceStub },
       ],
     }).compile();
 

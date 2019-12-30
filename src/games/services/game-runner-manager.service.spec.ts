@@ -8,6 +8,7 @@ class GameRunnerStub {
   gameInitialized = new Subject<void>();
   gameFinished = new Subject<void>();
   gameServer = null;
+  game = null;
 }
 
 class GameRunnerFactoryServiceStub {
@@ -40,6 +41,7 @@ describe('GameRunnerManagerService', () => {
       const ret = service.createGameRunner('FAKE_ID');
       expect(spy).toHaveBeenCalledWith('FAKE_ID');
       expect(service.runners.includes(ret)).toBe(true);
+      expect(service.findGameRunnerByGameId('FAKE_ID') === ret).toBe(true);
     });
 
     it('should register and unregister the game runner', () => {
@@ -47,6 +49,9 @@ describe('GameRunnerManagerService', () => {
       ret.gameServer = {
         port: '1234',
         resolvedIpAddresses: [ '127.0.0.1', '192.168.1.1' ],
+      };
+      ret.game = {
+        number: 0,
       };
       ret.gameInitialized.next();
 
