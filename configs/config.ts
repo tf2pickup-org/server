@@ -5,6 +5,20 @@ export default () => ({
    */
   requireEtf2lAccount: true,
 
+  queue: {
+    /**
+     * Time players have to ready up before they are kicked out of the queue.
+     * Default: 40 * 1000  (40 seconds).
+     */
+    readyUpTimeout: 40 * 1000,
+
+    /**
+     * Time the queue stays in ready-up state before going back to the 'waiting' state, unless all 12 players ready up.
+     * Default: 60 * 1000 (1 minute).
+     */
+    readyStateTimeout: 60 * 1000,
+  },
+
   discordNotifications: {
     /**
      * Announcements prompting players to join the pickup queue will be sent when there are at least
