@@ -12,6 +12,9 @@ import { GameServersModule } from './game-servers/game-servers.module';
 import { SharedModule } from './shared/shared.module';
 import { DiscordModule } from './discord/discord.module';
 import { EnvironmentModule } from './environment/environment.module';
+import { ConfigModule } from '@nestjs/config';
+import config from '../configs/config';
+import validationSchema from './environment-validation-schema';
 
 function createMongodbUri(environment: Environment) {
   let credentials = '';
@@ -27,6 +30,15 @@ function createMongodbUri(environment: Environment) {
 
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      load: [
+        config,
+      ],
+      validationSchema,
+      validationOptions: {
+        allowUnknown: false,
+      },
+    }),
     TypegooseModule.forRootAsync({
       imports: [ EnvironmentModule ],
       inject: [ Environment ],

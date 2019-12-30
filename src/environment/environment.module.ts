@@ -1,13 +1,14 @@
 import { Module, Global } from '@nestjs/common';
 import { Environment } from './environment';
+import { ConfigModule } from '@nestjs/config';
 
 @Global()
 @Module({
+  imports: [
+    ConfigModule,
+  ],
   providers: [
-    {
-      provide: Environment,
-      useValue: new Environment(`${process.env.NODE_ENV || 'development'}.env`),
-    },
+    Environment,
   ],
   exports: [
     Environment,

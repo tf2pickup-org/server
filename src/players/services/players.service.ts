@@ -10,12 +10,13 @@ import { PlayerStats } from '../models/player-stats';
 import { Etf2lProfile } from '../models/etf2l-profile';
 import { OnlinePlayersService } from './online-players.service';
 import { DiscordNotificationsService } from '@/discord/services/discord-notifications.service';
-import { config } from '@configs/config';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class PlayersService {
 
   private logger = new Logger(PlayersService.name);
+  private requireEtf2lAccount = this.configService.get<boolean>('requireEtf2lAccount');
 
   constructor(
     private environment: Environment,
@@ -24,6 +25,7 @@ export class PlayersService {
     @Inject(forwardRef(() => GamesService)) private gamesService: GamesService,
     private onlinePlayersService: OnlinePlayersService,
     @Inject(forwardRef(() => DiscordNotificationsService)) private discordNotificationsService: DiscordNotificationsService,
+    private configService: ConfigService,
   ) { }
 
   async getAll(): Promise<Array<DocumentType<Player>>> {
@@ -53,7 +55,7 @@ export class PlayersService {
     } catch (error) {
       switch (error.message) {
         case 'no etf2l profile':
-          if (config.requireEtf2lAccount) {
+          if (this.requireEtf2lAccount) {
             throw error;
           }
           break;

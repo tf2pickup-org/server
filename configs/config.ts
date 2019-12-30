@@ -1,4 +1,4 @@
-export const config = {
+export default () => ({
 
   /**
    * Specifies whether users without an ETF2L account are allowed or not.
@@ -38,4 +38,4 @@ export const config = {
      */
     notifyNewPlayers: true,
   },
-};
+});

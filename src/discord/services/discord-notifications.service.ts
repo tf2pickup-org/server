@@ -5,7 +5,7 @@ import { PlayerBan } from '@/players/models/player-ban';
 import { PlayersService } from '@/players/services/players.service';
 import { Player } from '@/players/models/player';
 import moment = require('moment');
-import { config } from '@configs/config';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class DiscordNotificationsService implements OnModuleInit {
@@ -13,10 +13,13 @@ export class DiscordNotificationsService implements OnModuleInit {
   private client = new Client();
   private enabled = false;
   private logger = new Logger(DiscordNotificationsService.name);
+  private notifyBans = this.configService.get<boolean>('discordNotifications.notifyBans');
+  private notifyNewPlayers = this.configService.get<boolean>('discordNotifications.notifyNewPlayers');
 
   constructor(
     private environment: Environment,
     @Inject(forwardRef(() => PlayersService)) private playersService: PlayersService,
+    private configService: ConfigService,
   ) { }
 
   onModuleInit() {
@@ -35,7 +38,8 @@ export class DiscordNotificationsService implements OnModuleInit {
     if (this.enabled && this.environment.discordQueueNotificationsChannelId) {
       const channel = this.client.channels.get(this.environment.discordQueueNotificationsChannelId) as TextChannel;
       if (channel) {
-        channel.send(`${config.discordNotifications.promptJoinQueueMentionRole} ${currentPlayerCount}/${targetPlayerCount} in the queue.
+        const mentionRole = this.configService.get<string>('discordNotifications.promptJoinQueueMentionRole');
+        channel.send(`${mentionRole} ${currentPlayerCount}/${targetPlayerCount} in the queue.
         Go to ${this.environment.clientUrl} and don't miss the next game!`);
       } else {
         this.logger.warn(`channel id ${this.environment.discordQueueNotificationsChannelId} not found`);
@@ -44,7 +48,7 @@ export class DiscordNotificationsService implements OnModuleInit {
   }
 
   async notifyBan(ban: PlayerBan) {
-    if (this.enabled && config.discordNotifications.notifyBans && this.environment.discordAdminNotificationsChannelId) {
+    if (this.enabled && this.notifyBans && this.environment.discordAdminNotificationsChannelId) {
       const channel = this.client.channels.get(this.environment.discordAdminNotificationsChannelId) as TextChannel;
       if (channel) {
         const admin = await this.playersService.getById(ban.admin.toString());
@@ -69,7 +73,7 @@ export class DiscordNotificationsService implements OnModuleInit {
   }
 
   notifyNewPlayer(player: Player) {
-    if (this.enabled && config.discordNotifications.notifyNewPlayers && this.environment.discordAdminNotificationsChannelId) {
+    if (this.enabled && this.notifyNewPlayers && this.environment.discordAdminNotificationsChannelId) {
       const channel = this.client.channels.get(this.environment.discordAdminNotificationsChannelId) as TextChannel;
       if (channel) {
         const embed = new RichEmbed()
