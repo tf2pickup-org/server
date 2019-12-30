@@ -5,6 +5,7 @@ import { PlayerBan } from '@/players/models/player-ban';
 import { PlayersService } from '@/players/services/players.service';
 import { Player } from '@/players/models/player';
 import moment = require('moment');
+import { config } from '@configs/config';
 
 @Injectable()
 export class DiscordNotificationsService implements OnModuleInit {
@@ -34,7 +35,7 @@ export class DiscordNotificationsService implements OnModuleInit {
     if (this.enabled && this.environment.discordQueueNotificationsChannelId) {
       const channel = this.client.channels.get(this.environment.discordQueueNotificationsChannelId) as TextChannel;
       if (channel) {
-        channel.send(`<@&610855230992678922> ${currentPlayerCount}/${targetPlayerCount} in the queue.
+        channel.send(`${config.discordNotifications.promptJoinQueueMentionRole} ${currentPlayerCount}/${targetPlayerCount} in the queue.
         Go to ${this.environment.clientUrl} and don't miss the next game!`);
       } else {
         this.logger.warn(`channel id ${this.environment.discordQueueNotificationsChannelId} not found`);
@@ -43,7 +44,7 @@ export class DiscordNotificationsService implements OnModuleInit {
   }
 
   async notifyBan(ban: PlayerBan) {
-    if (this.enabled && this.environment.discordAdminNotificationsChannelId) {
+    if (this.enabled && config.discordNotifications.notifyBans && this.environment.discordAdminNotificationsChannelId) {
       const channel = this.client.channels.get(this.environment.discordAdminNotificationsChannelId) as TextChannel;
       if (channel) {
         const admin = await this.playersService.getById(ban.admin.toString());
@@ -68,7 +69,7 @@ export class DiscordNotificationsService implements OnModuleInit {
   }
 
   notifyNewPlayer(player: Player) {
-    if (this.enabled && this.environment.discordAdminNotificationsChannelId) {
+    if (this.enabled && config.discordNotifications.notifyNewPlayers && this.environment.discordAdminNotificationsChannelId) {
       const channel = this.client.channels.get(this.environment.discordAdminNotificationsChannelId) as TextChannel;
       if (channel) {
         const embed = new RichEmbed()

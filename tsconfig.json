@@ -15,6 +15,7 @@
     "types": ["jasmine"],
     "paths": {
       "@/*": [ "src/*" ],
+      "@configs/*": [ "configs/*" ],
     }
   },
   "exclude": [

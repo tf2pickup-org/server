@@ -10,6 +10,7 @@ import { PlayerStats } from '../models/player-stats';
 import { Etf2lProfile } from '../models/etf2l-profile';
 import { OnlinePlayersService } from './online-players.service';
 import { DiscordNotificationsService } from '@/discord/services/discord-notifications.service';
+import { config } from '@configs/config';
 
 @Injectable()
 export class PlayersService {
@@ -52,7 +53,7 @@ export class PlayersService {
     } catch (error) {
       switch (error.message) {
         case 'no etf2l profile':
-          if (this.environment.requireEtf2lAccount === 'true') {
+          if (config.requireEtf2lAccount) {
             throw error;
           }
           break;

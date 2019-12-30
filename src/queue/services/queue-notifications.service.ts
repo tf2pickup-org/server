@@ -1,11 +1,12 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { QueueService } from './queue.service';
 import { DiscordNotificationsService } from '@/discord/services/discord-notifications.service';
+import { config } from '@configs/config';
 
 @Injectable()
 export class QueueNotificationsService implements OnModuleInit {
 
-  private readonly messageDelay = 5 * 60 * 1000; // 5 minutes
+  private readonly announcementDelay = config.discordNotifications.promptAnnouncementDelay;
   private playerThreshold: number;
   private timer: NodeJS.Timer;
 
@@ -15,7 +16,7 @@ export class QueueNotificationsService implements OnModuleInit {
   ) { }
 
   onModuleInit() {
-    this.playerThreshold = this.queueService.requiredPlayerCount * 0.5;
+    this.playerThreshold = this.queueService.requiredPlayerCount * config.discordNotifications.promptPlayerThresholdRatio;
     this.queueService.playerJoin.subscribe(() => this.triggerNotifier());
   }
 
@@ -24,7 +25,7 @@ export class QueueNotificationsService implements OnModuleInit {
       clearTimeout(this.timer);
     }
 
-    this.timer = setTimeout(() => this.maybeNotify(), this.messageDelay);
+    this.timer = setTimeout(() => this.maybeNotify(), this.announcementDelay);
   }
 
   private maybeNotify() {
