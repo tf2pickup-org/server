@@ -2,8 +2,7 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TypegooseModule } from 'nestjs-typegoose';
-import { ConfigModule } from './config/config.module';
-import { ConfigService } from './config/config.service';
+import { Environment } from './environment/environment';
 import { AuthModule } from './auth/auth.module';
 import { PlayersModule } from './players/players.module';
 import { ProfileModule } from './profile/profile.module';
@@ -12,6 +11,7 @@ import { GamesModule } from './games/games.module';
 import { GameServersModule } from './game-servers/game-servers.module';
 import { SharedModule } from './shared/shared.module';
 import { DiscordModule } from './discord/discord.module';
+import { EnvironmentModule } from './environment/environment.module';
 
 function createMongodbUri(host: string, port: string, db: string, username: string, password: string) {
   let credentials = '';
@@ -28,16 +28,17 @@ function createMongodbUri(host: string, port: string, db: string, username: stri
 @Module({
   imports: [
     TypegooseModule.forRootAsync({
-      imports: [ ConfigModule ],
-      inject: [ ConfigService ],
-      useFactory: async (configService: ConfigService) => ({
-        uri: createMongodbUri(configService.get('MONGODB_HOST'), configService.get('MONGODB_POST'), configService.get('MONGODB_DB'),
-          configService.get('MONGODB_USERNAME'), configService.get('MONGODB_PASSWORD')),
+      imports: [ EnvironmentModule ],
+      inject: [ Environment ],
+      useFactory: async (environment: Environment) => ({
+        uri: createMongodbUri(environment.get('MONGODB_HOST'), environment.get('MONGODB_POST'), environment.get('MONGODB_DB'),
+          environment.get('MONGODB_USERNAME'), environment.get('MONGODB_PASSWORD')),
         useNewUrlParser: true,
         useUnifiedTopology: true,
       }),
     }),
-    ConfigModule,
+
+    EnvironmentModule,
     AuthModule,
     PlayersModule,
     ProfileModule,
@@ -47,7 +48,11 @@ function createMongodbUri(host: string, port: string, db: string, username: stri
     SharedModule,
     DiscordModule,
   ],
-  controllers: [ AppController ],
-  providers: [ AppService ],
+  controllers: [
+    AppController,
+  ],
+  providers: [
+    AppService,
+  ],
 })
 export class AppModule { }

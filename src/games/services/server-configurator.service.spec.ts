@@ -1,10 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ServerConfiguratorService } from './server-configurator.service';
-import { ConfigService } from '@/config/config.service';
+import { Environment } from '@/environment/environment';
 import { PlayersService } from '@/players/services/players.service';
 import { QueueConfigService } from '@/queue/services/queue-config.service';
 
-class ConfigServiceStub {
+class EnvironmentStub {
 
 }
 
@@ -23,7 +23,7 @@ describe('ServerConfiguratorService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         ServerConfiguratorService,
-        { provide: ConfigService, useClass: ConfigServiceStub },
+        { provide: Environment, useClass: EnvironmentStub },
         { provide: PlayersService, useClass: PlayersServiceStub },
         { provide: QueueConfigService, useClass: QueueConfigServiceStub },
       ],

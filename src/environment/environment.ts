@@ -3,7 +3,7 @@ import { parse } from 'dotenv';
 import { readFileSync } from 'fs';
 
 @Injectable()
-export class ConfigService {
+export class Environment {
 
   private readonly config: Record<string, string>;
 

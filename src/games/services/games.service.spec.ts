@@ -8,7 +8,7 @@ import { Player } from '@/players/models/player';
 import { PlayerSkill } from '@/players/models/player-skill';
 import { QueueSlot } from '@/queue/queue-slot';
 import { GameServersService } from '@/game-servers/services/game-servers.service';
-import { ConfigService } from '@/config/config.service';
+import { Environment } from '@/environment/environment';
 import { ServerConfiguratorService } from './server-configurator.service';
 import { GameEventListenerService } from '@/game-servers/services/game-event-listener.service';
 
@@ -84,7 +84,7 @@ class GameServersServiceStub {
   takeServer(serverId: string) { return null; }
 }
 
-class ConfigServiceStub {
+class EnvironmentStub {
   mumbleServerUrl = 'FAKE_MUMBLE_URL';
   mumbleChannelName = 'FAKE_MUMBLE_CHANNEL';
 }
@@ -112,7 +112,7 @@ describe('GamesService', () => {
         { provide: PlayerSkillService, useClass: PlayerSkillServiceStub },
         { provide: QueueConfigService, useClass: QueueConfigServiceStub },
         { provide: GameServersService, useClass: GameServersServiceStub },
-        { provide: ConfigService, useClass: ConfigServiceStub },
+        { provide: Environment, useClass: EnvironmentStub },
         { provide: ServerConfiguratorService, useClass: ServerConfiguratorServiceStub },
         { provide: GameEventListenerService, useClass: GameEventListenerServiceStub },
       ],

@@ -1,6 +1,5 @@
 import { Module, HttpModule, forwardRef } from '@nestjs/common';
 import { PlayersService } from './services/players.service';
-import { ConfigModule } from 'src/config/config.module';
 import { Etf2lProfileService } from './services/etf2l-profile.service';
 import { TypegooseModule } from 'nestjs-typegoose';
 import { Player } from './models/player';
@@ -25,7 +24,6 @@ import { DiscordModule } from '@/discord/discord.module';
       standardSchemaOptions(PlayerSkill),
     ]),
 
-    ConfigModule,
     forwardRef(() => GamesModule),
     forwardRef(() => DiscordModule),
   ],

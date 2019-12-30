@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { KeyObject, generateKeyPairSync, createPrivateKey, createPublicKey } from 'crypto';
 import { existsSync, writeFileSync, readFileSync } from 'fs';
-import { ConfigService } from 'src/config/config.service';
+import { Environment } from '@/environment/environment';
 import { generate } from 'generate-password';
 
 interface KeyPair {
@@ -20,7 +20,7 @@ export class KeyStoreService {
   private secrets = new Map<KeyName, string>();
 
   constructor(
-    private configService: ConfigService,
+    private environment: Environment,
   ) {
     this.initialize();
   }
@@ -47,7 +47,7 @@ export class KeyStoreService {
   }
 
   private initialize() {
-    if (!existsSync(this.configService.keyStoreFile)) {
+    if (!existsSync(this.environment.keyStoreFile)) {
       const authKeys = generateKeyPairSync('ec', {
         namedCurve: 'secp521r1',
       });
@@ -67,7 +67,7 @@ export class KeyStoreService {
           privateKey: privateKey.export({
             format: 'pem',
             type: 'pkcs8',
-            passphrase: this.configService.keyStorePassphare,
+            passphrase: this.environment.keyStorePassphare,
             cipher: 'aes-256-cbc',
           }) as string,
           publicKey: publicKey.export({
@@ -77,16 +77,16 @@ export class KeyStoreService {
         };
       }
 
-      writeFileSync(this.configService.keyStoreFile, JSON.stringify(data), 'utf-8');
+      writeFileSync(this.environment.keyStoreFile, JSON.stringify(data), 'utf-8');
       this.logger.log('keystore initialized');
     } else {
-      const data = JSON.parse(readFileSync(this.configService.keyStoreFile, 'utf-8'));
+      const data = JSON.parse(readFileSync(this.environment.keyStoreFile, 'utf-8'));
       Object.keys(data).forEach(key => {
         const keyPair = data[key];
         const privateKey = createPrivateKey({
           key: keyPair.privateKey,
           format: 'pem',
-          passphrase: this.configService.keyStorePassphare,
+          passphrase: this.environment.keyStorePassphare,
         });
 
         const publicKey = createPublicKey({

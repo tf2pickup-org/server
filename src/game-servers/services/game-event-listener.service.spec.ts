@@ -1,9 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { GameEventListenerService } from './game-event-listener.service';
-import { ConfigService } from '@/config/config.service';
+import { Environment } from '@/environment/environment';
 import { GameServersService } from './game-servers.service';
 
-class ConfigServiceStub {
+class EnvironmentStub {
   logRelayAddress = '0.0.0.0';
   logRelayPort = '1234';
 }
@@ -19,7 +19,7 @@ describe('GameEventListenerService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         GameEventListenerService,
-        { provide: ConfigService, useClass: ConfigServiceStub },
+        { provide: Environment, useClass: EnvironmentStub },
         { provide: GameServersService, useClass: GameServersServiceStub },
       ],
     }).compile();

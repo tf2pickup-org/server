@@ -9,7 +9,7 @@ import { PlayerSkillService } from '@/players/services/player-skill.service';
 import { QueueConfigService } from '@/queue/services/queue-config.service';
 import { GameServersService } from '@/game-servers/services/game-servers.service';
 import { GameServer } from '@/game-servers/models/game-server';
-import { ConfigService } from '@/config/config.service';
+import { Environment } from '@/environment/environment';
 import { Subject } from 'rxjs';
 import { ServerConfiguratorService } from './server-configurator.service';
 import { GameEventListenerService } from '@/game-servers/services/game-event-listener.service';
@@ -44,7 +44,7 @@ export class GamesService implements OnModuleInit {
     private playerSkillService: PlayerSkillService,
     private queueConfigService: QueueConfigService,
     private gameServersService: GameServersService,
-    private configService: ConfigService,
+    private environment: Environment,
     private serverConfiguratorService: ServerConfiguratorService,
     private gameEventListenerService: GameEventListenerService,
   ) { }
@@ -297,7 +297,7 @@ export class GamesService implements OnModuleInit {
 
   private async resolveMumbleUrl(game: DocumentType<Game>, server: GameServer) {
     const mumbleUrl =
-      `mumble://${this.configService.mumbleServerUrl}/${this.configService.mumbleChannelName}/${server.mumbleChannelName}`;
+      `mumble://${this.environment.mumbleServerUrl}/${this.environment.mumbleChannelName}/${server.mumbleChannelName}`;
     game.mumbleUrl = mumbleUrl;
     await game.save();
     this._gameUpdated.next(game);

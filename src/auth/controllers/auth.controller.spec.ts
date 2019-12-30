@@ -1,10 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AuthController } from './auth.controller';
-import { ConfigService } from '@/config/config.service';
+import { Environment } from '@/environment/environment';
 import { HttpAdapterHost } from '@nestjs/core';
 import { AuthService } from '../services/auth.service';
 
-class ConfigServiceStub {
+class EnvironmentStub {
   clientUrl = '';
 }
 
@@ -34,7 +34,7 @@ describe('Auth Controller', () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [AuthController],
       providers: [
-        { provide: ConfigService, useClass: ConfigServiceStub },
+        { provide: Environment, useClass: EnvironmentStub },
         { provide: HttpAdapterHost, useClass: HttpAdapterHostStub },
         { provide: AuthService, useClass: AuthServiceStub },
       ],

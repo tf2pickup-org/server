@@ -1,5 +1,5 @@
 import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
-import { ConfigService } from '@/config/config.service';
+import { Environment } from '@/environment/environment';
 import { Player } from '../models/player';
 import { DocumentType, ReturnModelType } from '@typegoose/typegoose';
 import { SteamProfile } from '../models/steam-profile';
@@ -17,7 +17,7 @@ export class PlayersService {
   private logger = new Logger(PlayersService.name);
 
   constructor(
-    private configService: ConfigService,
+    private environment: Environment,
     private etf2lProfileService: Etf2lProfileService,
     @InjectModel(Player) private playerModel: ReturnModelType<typeof Player>,
     @Inject(forwardRef(() => GamesService)) private gamesService: GamesService,
@@ -52,7 +52,7 @@ export class PlayersService {
     } catch (error) {
       switch (error.message) {
         case 'no etf2l profile':
-          if (this.configService.requireEtf2lAccount === 'true') {
+          if (this.environment.requireEtf2lAccount === 'true') {
             throw error;
           }
           break;
@@ -66,7 +66,7 @@ export class PlayersService {
       steamId: steamProfile.id,
       name,
       avatarUrl: steamProfile.photos[0].value,
-      role: this.configService.superUser === steamProfile.id ? 'super-user' : null,
+      role: this.environment.superUser === steamProfile.id ? 'super-user' : null,
       etf2lProfileId: etf2lProfile?.id,
     });
 

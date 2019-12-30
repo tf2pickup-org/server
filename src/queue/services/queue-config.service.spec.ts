@@ -1,8 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { QueueConfigService } from './queue-config.service';
-import { ConfigService } from '@/config/config.service';
+import { Environment } from '@/environment/environment';
 
-class ConfigServiceStub {
+class EnvironmentStub {
   queueConfig = '6v6';
 }
 
@@ -13,7 +13,7 @@ describe('QueueConfigService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         QueueConfigService,
-        { provide: ConfigService, useClass: ConfigServiceStub },
+        { provide: Environment, useClass: EnvironmentStub },
       ],
     }).compile();
 

@@ -2,7 +2,7 @@ import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
 import { GameServer } from '@/game-servers/models/game-server';
 import { Game } from '../models/game';
 import { Rcon } from 'rcon-client';
-import { ConfigService } from '@/config/config.service';
+import { Environment } from '@/environment/environment';
 import { generate } from 'generate-password';
 import { PlayersService } from '@/players/services/players.service';
 import { QueueConfigService } from '@/queue/services/queue-config.service';
@@ -13,7 +13,7 @@ export class ServerConfiguratorService {
   private logger = new Logger(ServerConfiguratorService.name);
 
   constructor(
-    private configService: ConfigService,
+    private environment: Environment,
     @Inject(forwardRef(() => PlayersService)) private playersService: PlayersService,
     private queueConfigService: QueueConfigService,
   ) { }
@@ -31,7 +31,7 @@ export class ServerConfiguratorService {
       });
       await rcon.connect();
 
-      const logAddress = `${this.configService.logRelayAddress}:${this.configService.logRelayPort}`;
+      const logAddress = `${this.environment.logRelayAddress}:${this.environment.logRelayPort}`;
       this.logger.debug(`[${server.name}] adding log address ${logAddress}...`);
       await rcon.send(`logaddress_add ${logAddress}`);
 
@@ -87,7 +87,7 @@ export class ServerConfiguratorService {
       });
       await rcon.connect();
 
-      const logAddress = `${this.configService.logRelayAddress}:${this.configService.logRelayPort}`;
+      const logAddress = `${this.environment.logRelayAddress}:${this.environment.logRelayPort}`;
       this.logger.debug(`[${server.name}] removing log address ${logAddress}...`);
       await rcon.send(`logaddress_del ${logAddress}`);
       await rcon.send('sm_game_player_delall');
