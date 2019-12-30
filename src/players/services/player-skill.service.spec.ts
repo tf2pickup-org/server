@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { PlayerSkillService } from './player-skill.service';
 import { getModelToken } from 'nestjs-typegoose';
+import { PlayersService } from './players.service';
 
 const skill = {
   player: 'FAKE_ID',
@@ -16,6 +17,10 @@ const playerSkillModel = {
   findOne: (criteria: any) => skill,
 };
 
+class PlayersServiceStub {
+  getById(id: string) { return null; }
+}
+
 describe('PlayerSkillService', () => {
   let service: PlayerSkillService;
 
@@ -24,6 +29,7 @@ describe('PlayerSkillService', () => {
       providers: [
         PlayerSkillService,
         { provide: getModelToken('PlayerSkill'), useValue: playerSkillModel },
+        { provide: PlayersService, useClass: PlayersServiceStub },
       ],
     }).compile();
 
@@ -54,11 +60,16 @@ describe('PlayerSkillService', () => {
   describe('#setPlayerSkill()', () => {
     it('should set player skill', async () => {
       const spyFindOne = spyOn(playerSkillModel, 'findOne').and.callThrough();
-      const spySave = spyOn(skill, 'save');
+      const spySave = spyOn(skill, 'save').and.returnValue(skill);
       const ret = await service.setPlayerSkill('FAKE_ID', { scout: 2 });
       expect(spyFindOne).toHaveBeenCalledWith({ player: 'FAKE_ID' });
       expect(spySave).toHaveBeenCalled();
       expect(ret.skill).toEqual(new Map([['scout', 2]]));
+    });
+
+    it('should fail if there is no such player', async () => {
+      spyOn(playerSkillModel, 'findOne').and.returnValue(null);
+      expectAsync(service.setPlayerSkill('FAKE_ID', { scout: 1 })).toBeRejectedWithError('no such player');
     });
   });
 });

@@ -82,7 +82,12 @@ export class PlayersController {
   @Get(':id/skill')
   @Auth('admin', 'super-user')
   async getPlayerSkill(@Param('id', ObjectIdValidationPipe) playerId: string) {
-    return (await this.playerSkillService.getPlayerSkill(playerId)).skill;
+    const skill = await this.playerSkillService.getPlayerSkill(playerId);
+    if (skill) {
+      return skill.skill;
+    } else {
+      throw new NotFoundException();
+    }
   }
 
   @Put(':id/skill')
