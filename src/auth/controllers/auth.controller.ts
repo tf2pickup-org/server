@@ -20,7 +20,7 @@ export class AuthController {
     // would screw up some request params, resulting in OpenID throwing an error.
     // https://github.com/liamcurry/passport-steam/issues/57
     this.adapterHost.httpAdapter.get('/auth/steam/return', (req, res, next) => {
-      return authenticate('steam', (error, user) => {
+      return authenticate('steam', async (error, user) => {
         if (error) {
           this.logger.warn(`Steam login error for ${user}: ${error}`);
           return res.redirect(`${this.environment.clientUrl}/auth-error?error=${error.message}`);
@@ -30,8 +30,8 @@ export class AuthController {
           return res.sendStatus(401);
         }
 
-        const refreshToken = this.authService.generateJwtToken('refresh', user.id);
-        const authToken = this.authService.generateJwtToken('auth', user.id);
+        const refreshToken = await this.authService.generateJwtToken('refresh', user.id);
+        const authToken = await this.authService.generateJwtToken('auth', user.id);
         return res.redirect(`${this.environment.clientUrl}?refresh_token=${refreshToken}&auth_token=${authToken}`);
       })(req, res, next);
     });
@@ -53,8 +53,8 @@ export class AuthController {
 
   @Get('wstoken')
   @Auth()
-  refreshWsToken(@User() user) {
-    const wsToken = this.authService.generateJwtToken('ws', user.id);
+  async refreshWsToken(@User() user) {
+    const wsToken = await this.authService.generateJwtToken('ws', user.id);
     return { wsToken };
   }
 
