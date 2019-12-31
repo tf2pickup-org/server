@@ -1,9 +1,9 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import { ConfigService } from '@/config/config.service';
 import { LogReceiver, LogMessage } from 'srcds-log-receiver';
 import { GameRunnerManagerService } from './game-runner-manager.service';
 import * as SteamID from 'steamid';
 import { GameRunner } from '../game-runner';
+import { Environment } from '@/environment/environment';
 
 interface GameEvent {
   /* name of the game event */
@@ -37,6 +37,7 @@ const gameEvents: GameEvent[] = [
   },
   {
     name: 'player connected',
+    // https://regex101.com/r/uyPW8m/4
     regex: /^(\d{2}\/\d{2}\/\d{4})\s-\s(\d{2}:\d{2}:\d{2}):\s\"(.+)\<(\d+)\>\<(\[.[^\]]+\])\>\<\>"\sconnected,\saddress\s\"(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d{1,5})"$/,
     handle: (gameRunner, matches) => {
       const steamId = new SteamID(matches[5]);
@@ -47,6 +48,7 @@ const gameEvents: GameEvent[] = [
   },
   {
     name: 'player disconnected',
+    // https://regex101.com/r/x4AMTG/1
     regex: /^(\d{2}\/\d{2}\/\d{4})\s-\s(\d{2}:\d{2}:\d{2}):\s\"(.+)\<(\d+)\>\<(\[.[^\]]+\])\>\<(.[^\>]+)\>\"\sdisconnected\s\(reason\s\"(.[^\"]+)\"\)$/,
     handle: (gameRunner, matches) => {
       const steamId = new SteamID(matches[5]);
@@ -64,14 +66,14 @@ export class GameEventListenerService implements OnModuleInit {
   private logReceiver: LogReceiver;
 
   constructor(
-    private configService: ConfigService,
+    private environment: Environment,
     private gameRunnerManagerService: GameRunnerManagerService,
   ) { }
 
   onModuleInit() {
     this.logReceiver = new LogReceiver({
-      address: this.configService.logRelayAddress,
-      port: parseInt(this.configService.logRelayPort, 10),
+      address: this.environment.logRelayAddress,
+      port: parseInt(this.environment.logRelayPort, 10),
     });
 
     this.logger.log(`listening for incoming logs at ${this.logReceiver.opts.address}:${this.logReceiver.opts.port}`);

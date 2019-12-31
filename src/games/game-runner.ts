@@ -6,8 +6,8 @@ import { GameServersService } from '@/game-servers/services/game-servers.service
 import { GameServer } from '@/game-servers/models/game-server';
 import { Logger } from '@nestjs/common';
 import { GamesService } from './services/games.service';
-import { ConfigService } from '@/config/config.service';
 import { PlayersService } from '@/players/services/players.service';
+import { Environment } from '@/environment/environment';
 
 export class GameRunner {
 
@@ -43,7 +43,7 @@ export class GameRunner {
     public gameId: string,
     private gamesService: GamesService,
     private gameServersService: GameServersService,
-    private configService: ConfigService,
+    private environment: Environment,
     private serverConfiguratorService: ServerConfiguratorService,
     private playersService: PlayersService,
   ) { }
@@ -144,7 +144,7 @@ export class GameRunner {
 
   private async resolveMumbleUrl(server: GameServer) {
     const mumbleUrl =
-      `mumble://${this.configService.mumbleServerUrl}/${this.configService.mumbleChannelName}/${server.mumbleChannelName}`;
+      `mumble://${this.environment.mumbleServerUrl}/${this.environment.mumbleChannelName}/${server.mumbleChannelName}`;
     this.game.mumbleUrl = mumbleUrl;
     await this.game.save();
   }

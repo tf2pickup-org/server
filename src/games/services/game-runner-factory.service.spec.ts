@@ -2,15 +2,15 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { GameRunnerFactoryService } from './game-runner-factory.service';
 import { GamesService } from './games.service';
 import { GameServersService } from '@/game-servers/services/game-servers.service';
-import { ConfigService } from '@/config/config.service';
 import { ServerConfiguratorService } from './server-configurator.service';
 import { PlayersService } from '@/players/services/players.service';
+import { Environment } from '@/environment/environment';
 
 class GamesServiceStub { }
 
 class GameServersServiceStub { }
 
-class ConfigServiceStub { }
+class EnvironmentStub { }
 
 class ServerConfiguratorServiceStub { }
 
@@ -25,7 +25,7 @@ describe('GameRunnerFactoryService', () => {
         GameRunnerFactoryService,
         { provide: GamesService, useClass: GamesServiceStub },
         { provide: GameServersService, useClass: GameServersServiceStub },
-        { provide: ConfigService, useClass: ConfigServiceStub },
+        { provide: Environment, useClass: EnvironmentStub },
         { provide: ServerConfiguratorService, useClass: ServerConfiguratorServiceStub },
         { provide: PlayersService, useClass: PlayersServiceStub },
       ],

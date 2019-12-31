@@ -7,9 +7,6 @@ import { PlayerSlot, pickTeams } from '../utils/pick-teams';
 import { PlayersService } from '@/players/services/players.service';
 import { PlayerSkillService } from '@/players/services/player-skill.service';
 import { QueueConfigService } from '@/queue/services/queue-config.service';
-import { GameServersService } from '@/game-servers/services/game-servers.service';
-import { GameServer } from '@/game-servers/models/game-server';
-import { Environment } from '@/environment/environment';
 import { Subject } from 'rxjs';
 import { extractFriends } from '../utils/extract-friends';
 import { GameRunnerManagerService } from './game-runner-manager.service';
@@ -226,27 +223,4 @@ export class GamesService implements OnModuleInit {
       return 1;
     }
   }
-
-  private async assignGameServer(game: DocumentType<Game>, server: DocumentType<GameServer>) {
-    this.logger.log(`using server ${server.name} for game #${game.number}`);
-    await this.gameServersService.takeServer(server.id);
-    game.gameServer = server;
-    await game.save();
-    this._gameUpdated.next(game);
-  }
-
-  private async resolveMumbleUrl(game: DocumentType<Game>, server: GameServer) {
-    const mumbleUrl =
-      `mumble://${this.environment.mumbleServerUrl}/${this.environment.mumbleChannelName}/${server.mumbleChannelName}`;
-    game.mumbleUrl = mumbleUrl;
-    await game.save();
-    this._gameUpdated.next(game);
-  }
-
-  private async updateConnectString(game: DocumentType<Game>, connectString: string) {
-    game.connectString = connectString;
-    await game.save();
-    this._gameUpdated.next(game);
-  }
-
 }
