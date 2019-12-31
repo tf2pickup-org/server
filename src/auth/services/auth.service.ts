@@ -1,4 +1,4 @@
-import { Injectable, ImATeapotException, Logger, OnModuleInit } from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { sign, verify } from 'jsonwebtoken';
 import { InjectModel } from 'nestjs-typegoose';
 import { RefreshToken } from '../models/refresh-token';
@@ -24,7 +24,7 @@ export class AuthService implements OnModuleInit {
     this.removeOldRefreshTokens();
   }
 
-  generateJwtToken(purpose: 'auth' | 'refresh' | 'ws', userId: string): string {
+  async generateJwtToken(purpose: 'auth' | 'refresh' | 'ws', userId: string): Promise<string> {
     switch (purpose) {
       case 'auth': {
         const key = this.keyStoreService.getKey('auth', 'sign');
@@ -34,7 +34,7 @@ export class AuthService implements OnModuleInit {
       case 'refresh': {
         const key = this.keyStoreService.getKey('refresh', 'sign');
         const token = sign({ id: userId }, key, this.refreshTokenOptions);
-        this.refreshTokenModel.create({ value: token });
+        await this.refreshTokenModel.create({ value: token });
         return token;
       }
 
@@ -51,7 +51,7 @@ export class AuthService implements OnModuleInit {
   async refreshTokens(oldRefreshToken: string): Promise<{ refreshToken: string, authToken: string }> {
     const result = await this.refreshTokenModel.findOne({ value: oldRefreshToken });
     if (!result) {
-      throw new Error('token invalid');
+      throw new Error('invalid token');
     }
 
     const key = this.keyStoreService.getKey('refresh', 'verify');
@@ -59,8 +59,8 @@ export class AuthService implements OnModuleInit {
     await result.remove();
 
     const userId = decoded.id;
-    const refreshToken = this.generateJwtToken('refresh', userId);
-    const authToken = this.generateJwtToken('auth', userId);
+    const refreshToken = await this.generateJwtToken('refresh', userId);
+    const authToken = await this.generateJwtToken('auth', userId);
     return { refreshToken, authToken };
   }
 
@@ -76,7 +76,7 @@ export class AuthService implements OnModuleInit {
         $lt: oneWeekAgo,
       },
     });
-    this.logger.verbose(`removed ${n} refresh tokens`);
+    this.logger.verbose(`removed ${n} refresh token(s)`);
   }
 
 }

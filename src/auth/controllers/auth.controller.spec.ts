@@ -65,9 +65,9 @@ describe('Auth Controller', () => {
   });
 
   describe('#refreshWsToken()', () => {
-    it('should generate ws token', () => {
+    it('should generate ws token', async () => {
       const spy = spyOn(authService, 'generateJwtToken').and.returnValue('FAKE_WS_TOKEN');
-      const result = controller.refreshWsToken({ id: 'FAKE_USER_ID' });
+      const result = await controller.refreshWsToken({ id: 'FAKE_USER_ID' });
       expect(spy).toHaveBeenCalledWith('ws', 'FAKE_USER_ID');
       expect(result).toEqual({ wsToken: 'FAKE_WS_TOKEN' });
     });
