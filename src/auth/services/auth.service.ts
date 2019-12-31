@@ -1,13 +1,15 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, ImATeapotException, Logger, OnModuleInit } from '@nestjs/common';
 import { sign, verify } from 'jsonwebtoken';
 import { InjectModel } from 'nestjs-typegoose';
 import { RefreshToken } from '../models/refresh-token';
 import { ReturnModelType } from '@typegoose/typegoose';
 import { KeyStoreService } from './key-store.service';
+import { Cron } from '@nestjs/schedule';
 
 @Injectable()
-export class AuthService {
+export class AuthService implements OnModuleInit {
 
+  private logger = new Logger(AuthService.name);
   private readonly commonTokenOptions = { algorithm: 'ES512' };
   private readonly authTokenOptions = { ...this.commonTokenOptions, expiresIn: '15m' };
   private readonly refreshTokenOptions = { ...this.commonTokenOptions, expiresIn: '7d' };
@@ -17,6 +19,10 @@ export class AuthService {
     private keyStoreService: KeyStoreService,
     @InjectModel(RefreshToken) private refreshTokenModel: ReturnModelType<typeof RefreshToken>,
   ) { }
+
+  onModuleInit() {
+    this.removeOldRefreshTokens();
+  }
 
   generateJwtToken(purpose: 'auth' | 'refresh' | 'ws', userId: string): string {
     switch (purpose) {
@@ -43,13 +49,12 @@ export class AuthService {
   }
 
   async refreshTokens(oldRefreshToken: string): Promise<{ refreshToken: string, authToken: string }> {
-    const key = this.keyStoreService.getKey('refresh', 'verify');
-
     const result = await this.refreshTokenModel.findOne({ value: oldRefreshToken });
     if (!result) {
       throw new Error('token invalid');
     }
 
+    const key = this.keyStoreService.getKey('refresh', 'verify');
     const decoded = verify(oldRefreshToken, key, { algorithms: ['ES512'] }) as { id: string; iat: number; exp: number };
     await result.remove();
 
@@ -57,6 +62,21 @@ export class AuthService {
     const refreshToken = this.generateJwtToken('refresh', userId);
     const authToken = this.generateJwtToken('auth', userId);
     return { refreshToken, authToken };
+  }
+
+  @Cron('0 0 4 * * *') // 4 am everyday
+  async removeOldRefreshTokens() {
+    // refresh tokens are leased for one week
+    const oneWeekAgo = new Date();
+    oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+
+    this.logger.verbose(`removing refresh tokens that are older than ${oneWeekAgo.toString()}`);
+    const { n } = await this.refreshTokenModel.deleteMany({
+      createdAt: {
+        $lt: oneWeekAgo,
+      },
+    });
+    this.logger.verbose(`removed ${n} refresh tokens`);
   }
 
 }

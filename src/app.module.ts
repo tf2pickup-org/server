@@ -15,6 +15,7 @@ import { EnvironmentModule } from './environment/environment.module';
 import { ConfigModule } from '@nestjs/config';
 import config from '../configs/config';
 import validationSchema from './environment-validation-schema';
+import { ScheduleModule } from '@nestjs/schedule';
 
 function createMongodbUri(environment: Environment) {
   let credentials = '';
@@ -48,6 +49,7 @@ function createMongodbUri(environment: Environment) {
         useUnifiedTopology: true,
       }),
     }),
+    ScheduleModule.forRoot(),
 
     EnvironmentModule,
     AuthModule,
