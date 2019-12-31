@@ -62,6 +62,11 @@ describe('Auth Controller', () => {
     it('should reject if the old refresh token is not present', async () => {
       await expectAsync(controller.refreshToken(undefined)).toBeRejectedWithError();
     });
+
+    it('should be rejected if the token is invalid', async () => {
+      spyOn(authService, 'refreshTokens').and.throwError('invalid token');
+      await expectAsync(controller.refreshToken('OLD_REFRESH_TOKEN')).toBeRejectedWithError();
+    });
   });
 
   describe('#refreshWsToken()', () => {
