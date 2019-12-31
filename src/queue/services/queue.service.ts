@@ -7,6 +7,7 @@ import { BehaviorSubject, Observable, Subject, merge } from 'rxjs';
 import { pairwise, distinctUntilChanged } from 'rxjs/operators';
 import { GamesService } from '@/games/services/games.service';
 import { OnlinePlayersService } from '@/players/services/online-players.service';
+import { ConfigService } from '@nestjs/config';
 
 // waiting: waiting for players
 // ready: players are expected to ready up
@@ -20,6 +21,8 @@ export class QueueService implements OnModuleInit {
   private logger = new Logger(QueueService.name);
   private _stateChange = new BehaviorSubject<QueueState>('waiting');
   private timer: NodeJS.Timer;
+  private readyUpTimeout = this.configService.get<number>('queue.readyUpTimeout');
+  private readyStateTimeout = this.configService.get<number>('queue.readyStateTimeout');
 
   // events
   private _playerJoin = new Subject<string>();
@@ -64,6 +67,7 @@ export class QueueService implements OnModuleInit {
     private playerBansService: PlayerBansService,
     @Inject(forwardRef(() => GamesService)) private gamesService: GamesService,
     private onlinePlayersService: OnlinePlayersService,
+    private configService: ConfigService,
   ) { }
 
   onModuleInit() {
@@ -297,7 +301,7 @@ export class QueueService implements OnModuleInit {
 
   private onStateChange(oldState: QueueState, newState: QueueState) {
     if (oldState === 'waiting' && newState === 'ready') {
-      this.timer = setTimeout(() => this.readyUpTimeout(), this.queueConfigService.queueConfig.readyUpTimeout);
+      this.timer = setTimeout(() => this.onReadyUpTimeout(), this.readyUpTimeout);
     } else if (oldState === 'ready' && newState === 'launching') {
       clearTimeout(this.timer);
     } else if (oldState === 'ready' && newState === 'waiting') {
@@ -307,13 +311,12 @@ export class QueueService implements OnModuleInit {
     this.logger.log(`queue state change (${oldState} => ${newState})`);
   }
 
-  private readyUpTimeout() {
+  private onReadyUpTimeout() {
     if (this.readyPlayerCount < this.requiredPlayerCount) {
       this.kickUnreadyPlayers();
     }
 
-    const nextTimeout =
-      this.queueConfigService.queueConfig.queueReadyTimeout - this.queueConfigService.queueConfig.readyUpTimeout;
+    const nextTimeout = this.readyStateTimeout - this.readyUpTimeout;
 
     if (nextTimeout > 0) {
       this.timer = setTimeout(() => this.unreadyQueue(), nextTimeout);

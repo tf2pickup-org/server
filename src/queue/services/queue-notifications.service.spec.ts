@@ -3,6 +3,7 @@ import { QueueNotificationsService } from './queue-notifications.service';
 import { QueueService } from './queue.service';
 import { DiscordNotificationsService } from '@/discord/services/discord-notifications.service';
 import { Subject } from 'rxjs';
+import { ConfigService } from '@nestjs/config';
 
 class QueueServiceStub {
   playerCount = 6;
@@ -12,6 +13,18 @@ class QueueServiceStub {
 
 class DiscordNotificationsServiceStub {
   public notifyQueue(currentPlayerCount: number, targetPlayerCount: number) { return null; }
+}
+
+class ConfigServiceStub {
+  get(key: string) {
+    switch (key) {
+      case 'discordNotifications.promptAnnouncementDelay':
+        return 5 * 60 * 1000;
+
+      case 'discordNotifications.promptPlayerThresholdRatio':
+        return 0.5;
+    }
+  }
 }
 
 describe('QueueNotificationsService', () => {
@@ -25,6 +38,7 @@ describe('QueueNotificationsService', () => {
         QueueNotificationsService,
         { provide: QueueService, useClass: QueueServiceStub },
         { provide: DiscordNotificationsService, useClass: DiscordNotificationsServiceStub },
+        { provide: ConfigService, useClass: ConfigServiceStub },
       ],
     }).compile();
 

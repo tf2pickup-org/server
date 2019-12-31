@@ -7,6 +7,7 @@ import { PlayerBansService } from '@/players/services/player-bans.service';
 import { GamesService } from '@/games/services/games.service';
 import { OnlinePlayersService } from '@/players/services/online-players.service';
 import { Subject } from 'rxjs';
+import { ConfigService } from '@nestjs/config';
 
 class PlayersServiceStub {
 
@@ -55,6 +56,18 @@ class OnlinePlayersServiceStub {
   playerLeft = new Subject<string>();
 }
 
+class ConfigServiceStub {
+  get(key: string) {
+    switch (key) {
+      case 'queue.readyUpTimeout':
+        return 40000;
+
+      case 'queue.readyStateTimeout':
+        return 60000;
+    }
+  }
+}
+
 describe('QueueService', () => {
   let service: QueueService;
   let playersService: PlayersServiceStub;
@@ -72,6 +85,7 @@ describe('QueueService', () => {
         { provide: PlayerBansService, useClass: PlayerBansServiceStub },
         { provide: GamesService, useClass: GamesServiceStub },
         { provide: OnlinePlayersService, useClass: OnlinePlayersServiceStub },
+        { provide: ConfigService, useClass: ConfigServiceStub },
       ],
     }).compile();
 

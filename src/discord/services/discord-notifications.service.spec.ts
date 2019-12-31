@@ -1,14 +1,14 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { DiscordNotificationsService } from './discord-notifications.service';
-import { ConfigService } from '@/config/config.service';
+import { Environment } from '@/environment/environment';
 import { PlayersService } from '@/players/services/players.service';
+import { ConfigService } from '@nestjs/config';
+
+class EnvironmentStub { }
+class PlayersServiceStub { }
 
 class ConfigServiceStub {
-
-}
-
-class PlayersServiceStub {
-
+  get(key: string) { return null; }
 }
 
 describe('DiscordNotificationsService', () => {
@@ -18,8 +18,9 @@ describe('DiscordNotificationsService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         DiscordNotificationsService,
-        { provide: ConfigService, useClass: ConfigServiceStub },
+        { provide: Environment, useClass: EnvironmentStub },
         { provide: PlayersService, useClass: PlayersServiceStub },
+        { provide: ConfigService, useClass: ConfigServiceStub },
       ],
     }).compile();
 

@@ -1,7 +1,7 @@
 import { Controller, Get, Post, Query, BadRequestException, Logger } from '@nestjs/common';
 import { HttpAdapterHost } from '@nestjs/core';
 import { authenticate } from 'passport';
-import { ConfigService } from '@/config/config.service';
+import { Environment } from '@/environment/environment';
 import { AuthService } from '../services/auth.service';
 import { User } from '../decorators/user.decorator';
 import { Auth } from '../decorators/auth.decorator';
@@ -12,7 +12,7 @@ export class AuthController {
   private logger = new Logger(AuthController.name);
 
   constructor(
-    private configService: ConfigService,
+    private environment: Environment,
     private adapterHost: HttpAdapterHost,
     private authService: AuthService,
   ) {
@@ -23,7 +23,7 @@ export class AuthController {
       return authenticate('steam', (error, user) => {
         if (error) {
           this.logger.warn(`Steam login error for ${user}: ${error}`);
-          return res.redirect(`${this.configService.clientUrl}/auth-error?error=${error.message}`);
+          return res.redirect(`${this.environment.clientUrl}/auth-error?error=${error.message}`);
         }
 
         if (!user) {
@@ -32,7 +32,7 @@ export class AuthController {
 
         const refreshToken = this.authService.generateJwtToken('refresh', user.id);
         const authToken = this.authService.generateJwtToken('auth', user.id);
-        return res.redirect(`${this.configService.clientUrl}?refresh_token=${refreshToken}&auth_token=${authToken}`);
+        return res.redirect(`${this.environment.clientUrl}?refresh_token=${refreshToken}&auth_token=${authToken}`);
       })(req, res, next);
     });
   }

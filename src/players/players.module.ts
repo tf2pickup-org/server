@@ -1,6 +1,5 @@
 import { Module, HttpModule, forwardRef } from '@nestjs/common';
 import { PlayersService } from './services/players.service';
-import { ConfigModule } from 'src/config/config.module';
 import { Etf2lProfileService } from './services/etf2l-profile.service';
 import { TypegooseModule } from 'nestjs-typegoose';
 import { Player } from './models/player';
@@ -15,9 +14,12 @@ import { OnlinePlayersService } from './services/online-players.service';
 import { PlayersGateway } from './gateways/players.gateway';
 import { HallOfFameController } from './controllers/hall-of-fame.controller';
 import { DiscordModule } from '@/discord/discord.module';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
+    ConfigModule,
+
     HttpModule,
     TypegooseModule.forFeature([
       standardSchemaOptions(Player),
@@ -25,7 +27,6 @@ import { DiscordModule } from '@/discord/discord.module';
       standardSchemaOptions(PlayerSkill),
     ]),
 
-    ConfigModule,
     forwardRef(() => GamesModule),
     forwardRef(() => DiscordModule),
   ],

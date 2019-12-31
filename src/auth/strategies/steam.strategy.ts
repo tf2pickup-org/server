@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import steam = require('passport-steam');
 import { PlayersService } from '@/players/services/players.service';
-import { ConfigService } from 'src/config/config.service';
+import { Environment } from '@/environment/environment';
 import { SteamProfile } from 'src/players/models/steam-profile';
 import { PassportStrategy } from '@nestjs/passport';
 
@@ -9,13 +9,13 @@ import { PassportStrategy } from '@nestjs/passport';
 export class SteamStrategy extends PassportStrategy(steam.Strategy) {
 
   constructor(
-    configService: ConfigService,
+    environment: Environment,
     private playerService: PlayersService,
   ) {
     super({
-      returnURL: `${configService.apiUrl}/auth/steam/return`,
-      realm: configService.apiUrl,
-      apiKey: configService.steamApiKey,
+      returnURL: `${environment.apiUrl}/auth/steam/return`,
+      realm: environment.apiUrl,
+      apiKey: environment.steamApiKey,
     });
 
     // go to AuthController for the steam return route

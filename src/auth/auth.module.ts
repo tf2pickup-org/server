@@ -3,7 +3,6 @@ import { AuthService } from './services/auth.service';
 import { PlayersModule } from 'src/players/players.module';
 import { PassportModule } from '@nestjs/passport';
 import { SteamStrategy } from './strategies/steam.strategy';
-import { ConfigModule } from 'src/config/config.module';
 import { AuthController } from './controllers/auth.controller';
 import { authenticate } from 'passport';
 import { TypegooseModule } from 'nestjs-typegoose';
@@ -22,7 +21,6 @@ const passportModule = PassportModule.register({
     passportModule,
     TypegooseModule.forFeature([ RefreshToken ]),
 
-    ConfigModule,
     PlayersModule,
   ],
   providers: [

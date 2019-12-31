@@ -1,5 +1,5 @@
 import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
-import { ConfigService } from '@/config/config.service';
+import { Environment } from '@/environment/environment';
 import { Player } from '../models/player';
 import { DocumentType, ReturnModelType } from '@typegoose/typegoose';
 import { SteamProfile } from '../models/steam-profile';
@@ -10,19 +10,22 @@ import { PlayerStats } from '../models/player-stats';
 import { Etf2lProfile } from '../models/etf2l-profile';
 import { OnlinePlayersService } from './online-players.service';
 import { DiscordNotificationsService } from '@/discord/services/discord-notifications.service';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class PlayersService {
 
   private logger = new Logger(PlayersService.name);
+  private requireEtf2lAccount = this.configService.get<boolean>('requireEtf2lAccount');
 
   constructor(
-    private configService: ConfigService,
+    private environment: Environment,
     private etf2lProfileService: Etf2lProfileService,
     @InjectModel(Player) private playerModel: ReturnModelType<typeof Player>,
     @Inject(forwardRef(() => GamesService)) private gamesService: GamesService,
     private onlinePlayersService: OnlinePlayersService,
     @Inject(forwardRef(() => DiscordNotificationsService)) private discordNotificationsService: DiscordNotificationsService,
+    private configService: ConfigService,
   ) { }
 
   async getAll(): Promise<Array<DocumentType<Player>>> {
@@ -52,7 +55,7 @@ export class PlayersService {
     } catch (error) {
       switch (error.message) {
         case 'no etf2l profile':
-          if (this.configService.requireEtf2lAccount === 'true') {
+          if (this.requireEtf2lAccount) {
             throw error;
           }
           break;
@@ -66,7 +69,7 @@ export class PlayersService {
       steamId: steamProfile.id,
       name,
       avatarUrl: steamProfile.photos[0].value,
-      role: this.configService.superUser === steamProfile.id ? 'super-user' : null,
+      role: this.environment.superUser === steamProfile.id ? 'super-user' : null,
       etf2lProfileId: etf2lProfile?.id,
     });
 

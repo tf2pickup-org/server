@@ -4,7 +4,6 @@ import { TypegooseModule } from 'nestjs-typegoose';
 import { Game } from './models/game';
 import { PlayersModule } from '@/players/players.module';
 import { QueueModule } from '@/queue/queue.module';
-import { ConfigModule } from '@/config/config.module';
 import { GameServersModule } from '@/game-servers/game-servers.module';
 import { standardSchemaOptions } from '@/utils/standard-schema-options';
 import { GamesController } from './controllers/games.controller';
@@ -15,7 +14,6 @@ import { ServerConfiguratorService } from './services/server-configurator.servic
 @Module({
   imports: [
     TypegooseModule.forFeature([ standardSchemaOptions(Game, removeGameAssignedSkills) ]),
-    ConfigModule,
     GameServersModule,
     forwardRef(() => PlayersModule),
     QueueModule,

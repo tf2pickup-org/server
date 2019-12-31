@@ -1,5 +1,5 @@
 import { Injectable, OnModuleInit, Logger } from '@nestjs/common';
-import { ConfigService } from '@/config/config.service';
+import { Environment } from '@/environment/environment';
 import { LogReceiver, LogMessage } from 'srcds-log-receiver';
 import { GameServersService } from './game-servers.service';
 import { Subject } from 'rxjs';
@@ -32,12 +32,12 @@ export class GameEventListenerService {
   }
 
   constructor(
-    private configService: ConfigService,
+    private environment: Environment,
     private gameServersService: GameServersService,
   ) {
     this.logReceiver = new LogReceiver({
-      address: this.configService.logRelayAddress,
-      port: parseInt(this.configService.logRelayPort, 10),
+      address: this.environment.logRelayAddress,
+      port: parseInt(this.environment.logRelayPort, 10),
     });
 
     this.logger.log(`listening for incoming logs at ${this.logReceiver.opts.address}:${this.logReceiver.opts.port}`);

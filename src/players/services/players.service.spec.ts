@@ -1,16 +1,16 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { PlayersService } from './players.service';
-import { ConfigService } from '@/config/config.service';
+import { Environment } from '@/environment/environment';
 import { Etf2lProfileService } from './etf2l-profile.service';
 import { getModelToken } from 'nestjs-typegoose';
 import { SteamProfile } from '../models/steam-profile';
 import { GamesService } from '@/games/services/games.service';
 import { OnlinePlayersService } from './online-players.service';
 import { DiscordNotificationsService } from '@/discord/services/discord-notifications.service';
+import { ConfigService } from '@nestjs/config';
 
-class ConfigServiceStub {
+class EnvironmentStub {
   superUser = null;
-  requireEtf2lAccount = false;
 }
 
 class Etf2lProfileServiceStub {
@@ -50,9 +50,13 @@ class DiscordNotificationsServiceStub {
   notifyNewPlayer(player: any) { return null; }
 }
 
+class ConfigServiceStub {
+  get(key: string) { return true; }
+}
+
 describe('PlayersService', () => {
   let service: PlayersService;
-  let configService: ConfigServiceStub;
+  let environment: EnvironmentStub;
   let etf2lProfileService: Etf2lProfileServiceStub;
   let gamesService: GamesServiceStub;
   let onlinePlayersService: OnlinePlayersServiceStub;
@@ -62,17 +66,18 @@ describe('PlayersService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         PlayersService,
-        { provide: ConfigService, useClass: ConfigServiceStub },
+        { provide: Environment, useClass: EnvironmentStub },
         { provide: Etf2lProfileService, useClass: Etf2lProfileServiceStub },
         { provide: getModelToken('Player'), useValue: playerModel },
         { provide: GamesService, useClass: GamesServiceStub },
         { provide: OnlinePlayersService, useClass: OnlinePlayersServiceStub },
         { provide: DiscordNotificationsService, useClass: DiscordNotificationsServiceStub },
+        { provide: ConfigService, useClass: ConfigServiceStub },
       ],
     }).compile();
 
     service = module.get<PlayersService>(PlayersService);
-    configService = module.get(ConfigService);
+    environment = module.get(Environment);
     etf2lProfileService = module.get(Etf2lProfileService);
     gamesService = module.get(GamesService);
     onlinePlayersService = module.get(OnlinePlayersService);
@@ -108,7 +113,6 @@ describe('PlayersService', () => {
     };
 
     it('should deny creating profiles without ETF2L profile', async () => {
-      configService.requireEtf2lAccount = true;
       const spy = spyOn(etf2lProfileService, 'fetchPlayerInfo').and.throwError('no ETF2L profile');
       await expectAsync(service.createPlayer(steamProfile)).toBeRejected();
       expect(spy).toHaveBeenCalledWith('FAKE_STEAM_ID');
@@ -143,7 +147,7 @@ describe('PlayersService', () => {
     });
 
     it('should assign the super-user role', async () => {
-      configService.superUser = 'FAKE_STEAM_ID';
+      environment.superUser = 'FAKE_STEAM_ID';
       const spy = spyOn(playerModel, 'create');
       await service.createPlayer(steamProfile);
 
