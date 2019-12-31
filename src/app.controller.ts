@@ -1,14 +1,20 @@
 import { Controller, Get } from '@nestjs/common';
-import { AppService } from './app.service';
+import { version } from 'package.json';
+import { Environment } from './environment/environment';
 
 @Controller()
 export class AppController {
+
   constructor(
-    private readonly appService: AppService,
+    private environment: Environment,
   ) { }
 
   @Get()
-  getHello(): string {
-    return this.appService.getHello();
+  index() {
+    return {
+      version,
+      clientUrl: this.environment.clientUrl,
+      loginUrl: `${this.environment.apiUrl}/auth/steam`,
+    };
   }
 }
