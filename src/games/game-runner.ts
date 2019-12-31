@@ -11,13 +11,13 @@ import { Environment } from '@/environment/environment';
 
 export class GameRunner {
 
+  game: DocumentType<Game>;
+  gameServer: DocumentType<GameServer>;
+
   private logger = new Logger(`game ${this.gameId}`);
   private _gameInitialized = new Subject<void>();
   private _gameFinished = new Subject<void>();
   private _gameUpdated = new Subject<void>();
-
-  game: DocumentType<Game>;
-  gameServer: DocumentType<GameServer>;
 
   get gameInitialized() {
     return this._gameInitialized.asObservable();
@@ -40,7 +40,7 @@ export class GameRunner {
   }
 
   constructor(
-    public gameId: string,
+    public readonly gameId: string,
     private gamesService: GamesService,
     private gameServersService: GameServersService,
     private environment: Environment,
@@ -57,34 +57,24 @@ export class GameRunner {
     }
 
     if (this.game.gameServer) {
-      this.gameServer = await this.gameServersService.getById(this.game?.gameServer?.toString());
+      this.gameServer = await this.gameServersService.getById(this.game.gameServer.toString());
+    }
+
+    if (this.gameServer) {
       this.logger.setContext(`${this.gameServer.name}/#${this.game.number}`);
       this._gameInitialized.next();
       this.logger.log('game resurrected');
     } else {
-      const server = await this.gameServersService.findFreeGameServer();
-      if (server) {
-        this.gameServer = server;
-        this.logger.setContext(`${this.gameServer.name}/#${this.game.number}`);
-        await this.assignGameServer(server);
-        await this.resolveMumbleUrl(server);
-        this._gameUpdated.next();
-        this._gameInitialized.next();
-        this.logger.log('game initialized');
-        //
-        // todo: error handling
-        //
-      } else {
-        this.logger.warn(`no free servers available`);
-        //
-        // todo: handle
-        //
-      }
+      await this.assignFreeServer();
     }
   }
 
   async launch() {
     this.logger.verbose('launch');
+    if (!this.game || !this.gameServer) {
+      throw new Error('not initialized');
+    }
+
     const { connectString } = await this.serverConfiguratorService.configureServer(this.gameServer, this.game);
     await this.updateConnectString(connectString);
   }
@@ -135,18 +125,30 @@ export class GameRunner {
     this._gameUpdated.next();
   }
 
-  private async assignGameServer(server: DocumentType<GameServer>) {
-    this.logger.log(`using server ${server.name}`);
-    await this.gameServersService.takeServer(server.id);
-    this.game.gameServer = server;
-    await this.game.save();
-  }
+  private async assignFreeServer() {
+    const server = await this.gameServersService.findFreeGameServer();
+    if (server) {
+      this.logger.setContext(`${server.name}/#${this.game.number}`);
+      this.logger.verbose(`using server ${server.name}`);
 
-  private async resolveMumbleUrl(server: GameServer) {
-    const mumbleUrl =
-      `mumble://${this.environment.mumbleServerUrl}/${this.environment.mumbleChannelName}/${server.mumbleChannelName}`;
-    this.game.mumbleUrl = mumbleUrl;
-    await this.game.save();
+      await this.gameServersService.takeServer(server.id);
+      this.gameServer = server;
+      this.game.gameServer = server;
+
+      const mumbleUrl = `mumble://${this.environment.mumbleServerUrl}/${this.environment.mumbleChannelName}/${server.mumbleChannelName}`;
+      this.logger.verbose(`mumble url=${mumbleUrl}`);
+      this.game.mumbleUrl = mumbleUrl;
+
+      await this.game.save();
+      this._gameUpdated.next();
+      this._gameInitialized.next();
+      this.logger.verbose('initialized');
+    } else {
+      this.logger.warn(`no free servers available`);
+      //
+      // todo: handle
+      //
+    }
   }
 
   private async updateConnectString(connectString: string) {
