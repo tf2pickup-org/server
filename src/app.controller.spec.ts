@@ -1,6 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import { Environment } from './environment/environment';
+
+class EnvironmentStub {
+  clientUrl = 'FAKE_CLIENT_URL';
+  apiUrl = 'FAKE_API_URL';
+}
 
 describe('AppController', () => {
   let appController: AppController;
@@ -8,15 +13,21 @@ describe('AppController', () => {
   beforeEach(async () => {
     const app: TestingModule = await Test.createTestingModule({
       controllers: [AppController],
-      providers: [AppService],
+      providers: [
+        { provide: Environment, useClass: EnvironmentStub },
+      ],
     }).compile();
 
     appController = app.get<AppController>(AppController);
   });
 
-  describe('root', () => {
-    it('should return "Hello World!"', () => {
-      expect(appController.getHello()).toBe('Hello World!');
+  describe('#index()', () => {
+    it('should return api index', () => {
+      expect(appController.index()).toEqual({
+        version: jasmine.any(String),
+        clientUrl: 'FAKE_CLIENT_URL',
+        loginUrl: 'FAKE_API_URL/auth/steam',
+      });
     });
   });
 });
