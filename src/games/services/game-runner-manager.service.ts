@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { GameRunnerFactoryService } from './game-runner-factory.service';
 import { GameRunner } from '../game-runner';
+import { first, takeUntil } from 'rxjs/operators';
 
 @Injectable()
 export class GameRunnerManagerService {
@@ -17,7 +18,9 @@ export class GameRunnerManagerService {
     const gameRunner = this.gameRunnerFactoryService.createGameRunner(gameId);
     this.runners.push(gameRunner);
 
-    gameRunner.gameInitialized.subscribe(() => {
+    gameRunner.gameInitialized.pipe(
+      takeUntil(gameRunner.gameFinished),
+    ).subscribe(() => {
       const gameServer = gameRunner.gameServer;
       gameServer.resolvedIpAddresses.forEach(address => {
         const eventSource = `${address}:${gameServer.port}`;
@@ -31,7 +34,9 @@ export class GameRunnerManagerService {
       });
     });
 
-    gameRunner.gameFinished.subscribe(() => {
+    gameRunner.gameFinished.pipe(
+      first(),
+    ).subscribe(() => {
       // unregister the game runner once it's done running the game
       this.runnersByEventSource.forEach((aGameRunner, eventSource) => {
         if (aGameRunner === gameRunner) {
