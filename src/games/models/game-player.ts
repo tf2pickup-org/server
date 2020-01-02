@@ -1,15 +1,19 @@
 import { prop } from '@typegoose/typegoose';
+import { PlayerConnectionStatus } from './player-connection-status';
 
 export class GamePlayer {
   @prop({ required: true })
-  public playerId!: string;
+  playerId!: string;
 
   @prop({ required: true })
-  public teamId!: string;
+  teamId!: string;
 
   @prop({ required: true })
-  public gameClass: string;
+  gameClass: string;
 
   @prop({ default: 'active' })
-  public status: 'active' | 'waiting for substitute' | 'replaced';
+  status: 'active' | 'waiting for substitute' | 'replaced';
+
+  @prop({ default: 'offline' })
+  connectionStatus: PlayerConnectionStatus;
 }
