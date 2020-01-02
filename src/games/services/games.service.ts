@@ -7,13 +7,10 @@ import { PlayerSlot, pickTeams } from '../utils/pick-teams';
 import { PlayersService } from '@/players/services/players.service';
 import { PlayerSkillService } from '@/players/services/player-skill.service';
 import { QueueConfigService } from '@/queue/services/queue-config.service';
-import { GameServersService } from '@/game-servers/services/game-servers.service';
-import { GameServer } from '@/game-servers/models/game-server';
-import { Environment } from '@/environment/environment';
 import { Subject } from 'rxjs';
-import { ServerConfiguratorService } from './server-configurator.service';
-import { GameEventListenerService } from '@/game-servers/services/game-event-listener.service';
 import { extractFriends } from '../utils/extract-friends';
+import { GameRunnerManagerService } from './game-runner-manager.service';
+import { takeUntil } from 'rxjs/operators';
 
 interface GameSortOptions {
   launchedAt: 1 | -1;
@@ -43,49 +40,18 @@ export class GamesService implements OnModuleInit {
     @Inject(forwardRef(() => PlayersService)) private playersService: PlayersService,
     private playerSkillService: PlayerSkillService,
     private queueConfigService: QueueConfigService,
-    private gameServersService: GameServersService,
-    private environment: Environment,
-    private serverConfiguratorService: ServerConfiguratorService,
-    private gameEventListenerService: GameEventListenerService,
+    @Inject(forwardRef(() => GameRunnerManagerService)) private gameRunnerManagerService: GameRunnerManagerService,
   ) { }
 
-  onModuleInit() {
-    this.gameEventListenerService.matchStarted.subscribe(async gameServer => {
-      const game = await this.findByAssignedGameServer(gameServer);
-      if (game) {
-        game.state = 'started';
-        await game.save();
-        this._gameUpdated.next(game);
-      }
-    });
+  async onModuleInit() {
+    const runningGames = await this.getRunningGames();
+    runningGames.forEach(async game => {
+      const gameRunner = this.gameRunnerManagerService.createGameRunner(game.id);
+      await gameRunner.initialize();
 
-    this.gameEventListenerService.matchEnded.subscribe(async gameServer => {
-      const game = await this.findByAssignedGameServer(gameServer);
-      if (game) {
-        game.state = 'ended';
-        game.connectString = null;
-        await game.save();
-        this._gameUpdated.next(game);
-
-        setTimeout(async () => {
-          try {
-            const _gameServer = await this.gameServersService.getById(gameServer);
-            await this.serverConfiguratorService.cleanupServer(_gameServer);
-            await this.gameServersService.releaseServer(gameServer);
-          } catch (error) {
-            this.logger.error(error);
-          }
-        }, 60 * 1000); // 1 minute
-      }
-    });
-
-    this.gameEventListenerService.logsUploaded.subscribe(async ({ gameServer, logsUrl }) => {
-      const game = await this.findByAssignedGameServer(gameServer);
-      if (game) {
-        game.logsUrl = logsUrl;
-        await game.save();
-        this._gameUpdated.next(game);
-      }
+      gameRunner.gameUpdated.pipe(
+        takeUntil(gameRunner.gameFinished),
+      ).subscribe(() => this._gameUpdated.next(gameRunner.game));
     });
   }
 
@@ -95,6 +61,10 @@ export class GamesService implements OnModuleInit {
 
   async getById(gameId: string): Promise<DocumentType<Game>> {
     return await this.gameModel.findById(gameId);
+  }
+
+  async getRunningGames(): Promise<Array<DocumentType<Game>>> {
+    return await this.gameModel.find({ state: /launching|started/ });
   }
 
   async findByAssignedGameServer(gameServerId: string): Promise<DocumentType<Game>> {
@@ -177,66 +147,33 @@ export class GamesService implements OnModuleInit {
   }
 
   async launch(gameId: string) {
-    const game = await this.getById(gameId);
-    if (!game) {
+    const gameRunner = this.gameRunnerManagerService.createGameRunner(gameId);
+    await gameRunner.initialize();
+
+    gameRunner.gameUpdated.pipe(
+      takeUntil(gameRunner.gameFinished),
+    ).subscribe(() => this._gameUpdated.next(gameRunner.game));
+
+    await gameRunner.launch();
+  }
+
+  // fixme rename
+  async reinitialize(gameId: string) {
+    const gameRunner = this.gameRunnerManagerService.findGameRunnerByGameId(gameId);
+    if (!gameRunner) {
       throw new Error('no such game');
     }
 
-    if (game.state !== 'launching') {
-      throw new Error('game already launched');
-    }
-
-    const server = await this.gameServersService.findFreeGameServer();
-    if (server) {
-      await this.assignGameServer(game, server);
-      await this.resolveMumbleUrl(game, server);
-      const { connectString } =
-          await this.serverConfiguratorService.configureServer(server, game);
-      await this.updateConnectString(game, connectString);
-      //
-      // todo: error handling
-      //
-    } else {
-      this.logger.warn(`no free servers for game #${game.number}`);
-
-      // fixme
-      setTimeout(() => this.launch(game.id), 10 * 1000); // try again in 10 seconds
-    }
-  }
-
-  async reinitialize(gameId: string) {
-    const game = await this.getById(gameId);
-    this.logger.log(`reinitialize game #${game.number}`);
-    this.updateConnectString(game, null);
-
-    let server: GameServer;
-    if (game.gameServer) {
-      server = await this.gameServersService.getById(game.gameServer.toString());
-    } else {
-      server = await this.gameServersService.findFreeGameServer();
-    }
-
-    await this.serverConfiguratorService.cleanupServer(server);
-    const { connectString } =
-      await this.serverConfiguratorService.configureServer(server, game);
-    this.updateConnectString(game, connectString);
+    await gameRunner.reconfigure();
   }
 
   async forceEnd(gameId: string) {
-    const game = await this.getById(gameId);
-    this.logger.log(`force end game #${game.number}`);
-    game.state = 'interrupted';
-    game.error = 'ended by admin';
-    game.save();
-
-    const server = await this.gameServersService.getById(game.gameServer.toString());
-    if (server) {
-      await this.serverConfiguratorService.cleanupServer(server);
-      await this.gameServersService.releaseServer(server.id);
+    const gameRunner = this.gameRunnerManagerService.findGameRunnerByGameId(gameId);
+    if (!gameRunner) {
+      throw new Error('no such game');
     }
 
-    this._gameUpdated.next(game);
-    return game;
+    await gameRunner.forceEnd();
   }
 
   async getMostActivePlayers() {
@@ -286,27 +223,4 @@ export class GamesService implements OnModuleInit {
       return 1;
     }
   }
-
-  private async assignGameServer(game: DocumentType<Game>, server: DocumentType<GameServer>) {
-    this.logger.log(`using server ${server.name} for game #${game.number}`);
-    await this.gameServersService.takeServer(server.id);
-    game.gameServer = server;
-    await game.save();
-    this._gameUpdated.next(game);
-  }
-
-  private async resolveMumbleUrl(game: DocumentType<Game>, server: GameServer) {
-    const mumbleUrl =
-      `mumble://${this.environment.mumbleServerUrl}/${this.environment.mumbleChannelName}/${server.mumbleChannelName}`;
-    game.mumbleUrl = mumbleUrl;
-    await game.save();
-    this._gameUpdated.next(game);
-  }
-
-  private async updateConnectString(game: DocumentType<Game>, connectString: string) {
-    game.connectString = connectString;
-    await game.save();
-    this._gameUpdated.next(game);
-  }
-
 }

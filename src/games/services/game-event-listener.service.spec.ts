@@ -1,14 +1,14 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { GameEventListenerService } from './game-event-listener.service';
 import { Environment } from '@/environment/environment';
-import { GameServersService } from './game-servers.service';
+import { GameRunnerManagerService } from './game-runner-manager.service';
 
 class EnvironmentStub {
   logRelayAddress = '0.0.0.0';
   logRelayPort = '1234';
 }
 
-class GameServersServiceStub {
+class GameRunnerManagerServiceStub {
 
 }
 
@@ -20,7 +20,7 @@ describe('GameEventListenerService', () => {
       providers: [
         GameEventListenerService,
         { provide: Environment, useClass: EnvironmentStub },
-        { provide: GameServersService, useClass: GameServersServiceStub },
+        { provide: GameRunnerManagerService, useClass: GameRunnerManagerServiceStub },
       ],
     }).compile();
 

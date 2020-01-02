@@ -3,11 +3,10 @@ import { GameServersService } from './game-servers.service';
 import { TypegooseModule, getModelToken } from 'nestjs-typegoose';
 import { GameServer } from '../models/game-server';
 import { DocumentType, ReturnModelType } from '@typegoose/typegoose';
-import { MongoMemoryServer } from 'mongodb-memory-server';
 import { ObjectId } from 'mongodb';
+import { typegooseTestingModule } from '@/utils/testing-typegoose-module';
 
 describe('GameServersService', () => {
-  const mongod = new MongoMemoryServer();
   let service: GameServersService;
   let gameServerModel: ReturnModelType<typeof GameServer>;
   let testGameServer: DocumentType<GameServer>;
@@ -15,13 +14,7 @@ describe('GameServersService', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [
-        TypegooseModule.forRootAsync({
-          useFactory: async () => ({
-            uri: await mongod.getConnectionString(),
-            useNewUrlParser: true,
-            useUnifiedTopology: true,
-          }),
-        }),
+        typegooseTestingModule(),
         TypegooseModule.forFeature([GameServer]),
       ],
       providers: [
