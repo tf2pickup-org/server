@@ -65,5 +65,14 @@ describe('GameRunnerManagerService', () => {
       expect(service.findGameRunnerByEventSource('127.0.0.1:1234')).toBeFalsy();
       expect(service.findGameRunnerByEventSource('192.168.1.1:1234')).toBeFalsy();
     });
+
+    it('should remove subscriptions once the game is finished', () => {
+      const ret = service.createGameRunner('FAKE_ID') as unknown as  GameRunnerStub;
+      expect(ret.gameFinished.observers.length > 0).toBeTrue();
+
+      ret.gameFinished.next();
+      expect(ret.gameInitialized.observers.length).toBe(0);
+      expect(ret.gameFinished.observers.length).toBe(0);
+    });
   });
 });
