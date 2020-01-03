@@ -6,6 +6,10 @@ const makeGame = () => ({
   map: 'cp_badlands',
   state: 'launching',
   save: () => null,
+  slots: [
+    { playerId: 'FAKE_PLAYER_ID_1', connectionStatus: 'offline' },
+    { playerId: 'FAKE_PLAYER_ID_2', connectionStatus: 'joining' },
+  ]
 });
 
 const makeGameServer = () => ({
@@ -38,7 +42,9 @@ class ServerConfiguratorServiceStub {
   cleanupServer(gameServer: any) { return null; }
 }
 
-class PlayersServiceStub { }
+class PlayersServiceStub {
+  findBySteamId(steamId: string) { return { id: 'FAKE_PLAYER_ID_1' }; }
+}
 
 describe('GameRunner', () => {
   let gameRunner: GameRunner;
@@ -181,6 +187,24 @@ describe('GameRunner', () => {
       expect(gameRunner.game.error).toEqual('ended by admin');
       expect(spy1).toHaveBeenCalledWith('FAKE_GAME_SERVER_ID');
       expect(spy2).toHaveBeenCalled();
+    });
+  });
+
+  describe('#onPlayerJoining()', () => {
+    it('should update player connection status and emit event', async done => {
+      gameRunner.gameUpdated.subscribe(done);
+      gameRunner.game = makeGame() as any;
+      await gameRunner.onPlayerJoining('some steam id');
+      expect(gameRunner.game.slots.find(s => s.playerId === 'FAKE_PLAYER_ID_1').connectionStatus).toEqual('joining');
+    });
+  });
+
+  describe('#onPlayerConnected()', () => {
+    it('should update player connection status and emit event', async done => {
+      gameRunner.gameUpdated.subscribe(done);
+      gameRunner.game = makeGame() as any;
+      await gameRunner.onPlayerConnected('some steam id');
+      expect(gameRunner.game.slots.find(s => s.playerId === 'FAKE_PLAYER_ID_1').connectionStatus).toEqual('connected');
     });
   });
 

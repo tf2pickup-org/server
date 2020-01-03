@@ -42,6 +42,17 @@ const gameEvents: GameEvent[] = [
     handle: (gameRunner, matches) => {
       const steamId = new SteamID(matches[5]);
       if (steamId.isValid()) {
+        gameRunner.onPlayerJoining(steamId.getSteamID64());
+      }
+    },
+  },
+  {
+    name: 'player joined team',
+    // https://regex101.com/r/yzX9zG/1
+    regex: /^(\d{2}\/\d{2}\/\d{4})\s-\s(\d{2}:\d{2}:\d{2}):\s\"(.+)\<(\d+)\>\<(\[.[^\]]+\])\>\<(.+)\>"\sjoined\steam\s\"(.+)\"/,
+    handle: (gameRunner, matches) => {
+      const steamId = new SteamID(matches[5]);
+      if (steamId.isValid()) {
         gameRunner.onPlayerConnected(steamId.getSteamID64());
       }
     },

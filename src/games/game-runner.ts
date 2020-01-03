@@ -8,6 +8,7 @@ import { Logger } from '@nestjs/common';
 import { GamesService } from './services/games.service';
 import { PlayersService } from '@/players/services/players.service';
 import { Environment } from '@/environment/environment';
+import { PlayerConnectionStatus } from './models/player-connection-status';
 
 export class GameRunner {
 
@@ -97,14 +98,22 @@ export class GameRunner {
     await this.gameServersService.releaseServer(this.gameServer.id);
   }
 
+  async onPlayerJoining(steamId: string) {
+    const player = await this.playersService.findBySteamId(steamId);
+    this.logger.verbose(`${player.name} is joining the server`);
+    await this.setPlayerConnectionStatus(player.id, 'joining');
+  }
+
   async onPlayerConnected(steamId: string) {
     const player = await this.playersService.findBySteamId(steamId);
     this.logger.verbose(`${player.name} connected`);
+    await this.setPlayerConnectionStatus(player.id, 'connected');
   }
 
   async onPlayerDisconnected(steamId: string) {
     const player = await this.playersService.findBySteamId(steamId);
     this.logger.verbose(`${player.name} disconnected`);
+    await this.setPlayerConnectionStatus(player.id, 'offline');
   }
 
   async onMatchStarted() {
@@ -155,6 +164,17 @@ export class GameRunner {
     this.game.connectString = connectString;
     await this.game.save();
     this._gameUpdated.next();
+  }
+
+  private async setPlayerConnectionStatus(playerId: string, connectionStatus: PlayerConnectionStatus) {
+    const slot = this.game.slots.find(s => s.playerId === playerId);
+    if (slot) {
+      slot.connectionStatus = connectionStatus;
+      await this.game.save();
+      this._gameUpdated.next();
+    } else {
+      this.logger.warn(`player ${playerId} does not belong in this game`);
+    }
   }
 
 }
