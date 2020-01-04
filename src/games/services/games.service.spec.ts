@@ -9,7 +9,7 @@ import { PlayerSkill } from '@/players/models/player-skill';
 import { typegooseTestingModule } from '@/utils/testing-typegoose-module';
 import { Game } from '../models/game';
 import { GameRunnerManagerService } from './game-runner-manager.service';
-import { ReturnModelType } from '@typegoose/typegoose';
+import { ReturnModelType, DocumentType } from '@typegoose/typegoose';
 import { Subject } from 'rxjs';
 import { ObjectId } from 'mongodb';
 import { QueueSlot } from '@/queue/queue-slot';
@@ -263,6 +263,69 @@ describe('GamesService', () => {
     it('should throw an error if the given game doesn\'t exist', async () => {
       spyOn(gameRunnerManagerService, 'findGameRunnerByGameId').and.returnValue(null);
       await expectAsync(service.forceEnd('FAKE_GAME_ID')).toBeRejectedWithError('no such game');
+    });
+  });
+
+  describe('#substitutePlayer()', () => {
+    it('should throw an error if the given game doesn\'t exist', async () => {
+      await expectAsync(service.substitutePlayer('FAKE_GAME_ID', 'FAKE_PLAYER_ID')).toBeRejectedWithError('no such game');
+    });
+
+    describe('with game', () => {
+      let game: DocumentType<Game>;
+      let playerA: ObjectId;
+      let playerB: ObjectId;
+
+      beforeEach(async () => {
+        playerA = new ObjectId();
+        playerB = new ObjectId();
+
+        game = await gameModel.create({
+          number: 1,
+          players: [ playerA, playerB ],
+          slots: [
+            {
+              playerId: playerA,
+              teamId: '0',
+              gameClass: 'soldier',
+            },
+            {
+              playerId: playerB,
+              teamId: '1',
+              gameClass: 'soldier',
+            },
+          ],
+          map: 'cp_badlands',
+        });
+      });
+
+      it('should throw an error if the given player does not exist', async () => {
+        await expectAsync(service.substitutePlayer(game.id.toString(), new ObjectId().toString())).toBeRejectedWithError('no such player');
+      });
+
+      it('should throw an error if the given player has already been replaced', async () => {
+        const slot = game.slots.find(s => s.playerId === playerA.toString());
+        slot.status = 'replaced';
+        await game.save();
+
+        await expectAsync(service.substitutePlayer(game.id.toString(), playerA.toString())).toBeRejectedWithError('this player has already been replaced');
+      });
+
+      it('should update the player status', async () => {
+        await service.substitutePlayer(game.id.toString(), playerA.toString());
+
+        const tGame = await gameModel.findById(game.id);
+        const tSlot = tGame.slots.find(s => s.playerId === playerA.toString());
+        expect(tSlot.status).toEqual('waiting for substitute');
+      });
+
+      it('should emit an event', async done => {
+        service.gameUpdated.subscribe(tGame => {
+          expect(tGame.number).toEqual(game.number);
+          done();
+        });
+        await service.substitutePlayer(game.id.toString(), playerA.toString());
+      });
     });
   });
 });

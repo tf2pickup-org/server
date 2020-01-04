@@ -199,6 +199,30 @@ export class GamesService implements OnModuleInit {
     ]);
   }
 
+  async substitutePlayer(gameId: string, playerId: string) {
+    const game = await this.getById(gameId);
+    if (!game) {
+      throw new Error('no such game');
+    }
+
+    const slot = game.slots.find(s => s.playerId === playerId);
+    if (!slot) {
+      throw new Error('no such player');
+    }
+
+    if (slot.status === 'replaced') {
+      throw new Error('this player has already been replaced');
+    }
+
+    if (slot.status === 'waiting for substitute') {
+      return;
+    }
+
+    slot.status = 'waiting for substitute';
+    await game.save();
+    this._gameUpdated.next(game);
+  }
+
   private async queueSlotToPlayerSlot(queueSlot: QueueSlot): Promise<PlayerSlot> {
     const { playerId, gameClass } = queueSlot;
     const player = await this.playersService.getById(playerId);
