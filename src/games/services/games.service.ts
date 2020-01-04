@@ -11,6 +11,8 @@ import { Subject } from 'rxjs';
 import { extractFriends } from '../utils/extract-friends';
 import { GameRunnerManagerService } from './game-runner-manager.service';
 import { takeUntil } from 'rxjs/operators';
+import { GamePlayer } from '../models/game-player';
+import { PlayerBansService } from '@/players/services/player-bans.service';
 
 interface GameSortOptions {
   launchedAt: 1 | -1;
@@ -41,6 +43,7 @@ export class GamesService implements OnModuleInit {
     private playerSkillService: PlayerSkillService,
     private queueConfigService: QueueConfigService,
     @Inject(forwardRef(() => GameRunnerManagerService)) private gameRunnerManagerService: GameRunnerManagerService,
+    private playerBansService: PlayerBansService,
   ) { }
 
   async onModuleInit() {
@@ -200,15 +203,7 @@ export class GamesService implements OnModuleInit {
   }
 
   async substitutePlayer(gameId: string, playerId: string) {
-    const game = await this.getById(gameId);
-    if (!game) {
-      throw new Error('no such game');
-    }
-
-    const slot = game.slots.find(s => s.playerId === playerId);
-    if (!slot) {
-      throw new Error('no such player');
-    }
+    const { game, slot } = await this.findPlayerSlot(gameId, playerId);
 
     if (slot.status === 'replaced') {
       throw new Error('this player has already been replaced');
@@ -218,7 +213,72 @@ export class GamesService implements OnModuleInit {
       return;
     }
 
+    const player = await this.playersService.getById(playerId);
+    this.logger.verbose(`player ${player.name} taking part in game #${game.number} is marked as 'waiting for substitute'`);
+
     slot.status = 'waiting for substitute';
+    await game.save();
+    this._gameUpdated.next(game);
+  }
+
+  async cancelSubstitutionRequest(gameId: string, playerId: string) {
+    const { game, slot } = await this.findPlayerSlot(gameId, playerId);
+
+    if (slot.status === 'replaced') {
+      throw new Error('this player has already been replaced');
+    }
+
+    if (slot.status === 'active') {
+      return;
+    }
+
+    const player = await this.playersService.getById(playerId);
+    this.logger.verbose(`player ${player.name} taking part in game #${game.number} is marked as 'active'`);
+
+    slot.status = 'active';
+    await game.save();
+    this._gameUpdated.next(game);
+  }
+
+  async replacePlayer(gameId: string, replaceeId: string, replacementId: string) {
+    if ((await this.playerBansService.getPlayerActiveBans(replacementId)).length > 0) {
+      throw new Error('player is banned');
+    }
+
+    const { game, slot } = await this.findPlayerSlot(gameId, replaceeId);
+
+    if (slot.status === 'active') {
+      throw new Error('the replacee is marked as active');
+    }
+
+    if (slot.status === 'replaced') {
+      throw new Error('this player has already been replaced');
+    }
+
+    const replacement = await this.playersService.getById(replacementId);
+
+    if (replaceeId === replacementId) {
+      slot.status = 'active';
+      await game.save();
+      this._gameUpdated.next(game);
+      return;
+    }
+
+    // create new slot of the replacement player
+    const replacementSlot: GamePlayer = {
+      playerId: replacementId,
+      teamId: slot.teamId,
+      gameClass: slot.gameClass,
+      status: 'active',
+      connectionStatus: 'offline',
+    };
+
+    game.slots.push(replacementSlot);
+    game.players.push(replacement);
+
+    // update replacee
+    slot.status = 'replaced';
+
     await game.save();
     this._gameUpdated.next(game);
   }
@@ -246,5 +306,19 @@ export class GamesService implements OnModuleInit {
     } else {
       return 1;
     }
+  }
+
+  private async findPlayerSlot(gameId: string, playerId: string) {
+    const game = await this.getById(gameId);
+    if (!game) {
+      throw new Error('no such game');
+    }
+
+    const slot = game.slots.find(s => s.playerId === playerId);
+    if (!slot) {
+      throw new Error('no such player');
+    }
+
+    return { game, slot };
   }
 }
