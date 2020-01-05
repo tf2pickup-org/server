@@ -62,13 +62,33 @@ export class GamesController {
   @HttpCode(200)
   async takeAdminAction(@Param('id', ObjectIdValidationPipe) gameId: string,
                         @Query('reinitialize_server') reinitializeServer: any,
-                        @Query('force_end') forceEnd: any) {
+                        @Query('force_end') forceEnd: any,
+                        @Query('substitute_player') substitutePlayerId: string,
+                        @Query('substitute_player_cancel') cancelSubstitutePlayerId: string,
+                        @Query('replace_player') replacePlayerId: string,
+                        @Query('replacement_player') replacementPlayerId: string) {
     if (reinitializeServer !== undefined) {
       await this.gamesService.reinitialize(gameId);
     }
 
     if (forceEnd !== undefined) {
       await this.gamesService.forceEnd(gameId);
+    }
+
+    if (substitutePlayerId !== undefined) {
+      await this.gamesService.substitutePlayer(gameId, substitutePlayerId);
+    }
+
+    if (cancelSubstitutePlayerId !== undefined) {
+      await this.gamesService.cancelSubstitutionRequest(gameId, cancelSubstitutePlayerId);
+    }
+
+    if (replacePlayerId !== undefined) {
+      if (replacementPlayerId !== undefined) {
+        await this.gamesService.replacePlayer(gameId, replacePlayerId, replacementPlayerId);
+      } else {
+        throw new BadRequestException('replacement player must be specified');
+      }
     }
   }
 
