@@ -119,5 +119,35 @@ describe('pickTeams', () => {
       expect(gamePlayers.find(p => p.playerId === '10').teamId)
         .toEqual(gamePlayers.find(p => p.playerId === '6').teamId);
     });
+
+    it('should pick teams for 12 slots with friend pairs', () => {
+      const players: PlayerSlot[] = [
+        { playerId: '0', gameClass: 'scout', skill: 1 },
+        { playerId: '1', gameClass: 'scout', skill: 1 },
+        { playerId: '2', gameClass: 'scout', skill: 1 },
+        { playerId: '3', gameClass: 'scout', skill: 1 },
+        { playerId: '4', gameClass: 'soldier', skill: 1 },
+        { playerId: '5', gameClass: 'soldier', skill: 1 },
+        { playerId: '6', gameClass: 'soldier', skill: 5 },
+        { playerId: '7', gameClass: 'soldier', skill: 1 },
+        { playerId: '8', gameClass: 'demoman', skill: 1 },
+        { playerId: '9', gameClass: 'demoman', skill: 1 },
+        { playerId: '10', gameClass: 'medic', skill: 3 },
+        { playerId: '11', gameClass: 'medic', skill: 1 },
+      ];
+      const gameClasses = ['scout', 'soldier', 'demoman', 'medic'];
+      const overrides: TeamOverrides = {
+        friends: [
+          [ '10', '6' ],
+          [ '11', '0' ],
+        ],
+      };
+      const gamePlayers = pickTeams(players, gameClasses, overrides);
+
+      expect(gamePlayers.find(p => p.playerId === '10').teamId)
+        .toEqual(gamePlayers.find(p => p.playerId === '6').teamId);
+      expect(gamePlayers.find(p => p.playerId === '11').teamId)
+        .toEqual(gamePlayers.find(p => p.playerId === '0').teamId);
+    });
   });
 });

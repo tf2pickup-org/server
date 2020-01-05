@@ -17,14 +17,9 @@ interface InterimTeamSetup {
 
 function filterTeamOverrides(teamSetups: InterimTeamSetup[], overrides: TeamOverrides): InterimTeamSetup[] {
   return teamSetups.filter(setup => {
-    let hasAllFriends = false;
-    overrides.friends.forEach(friends => {
-      if (friends.every(f => !!setup[0].find(s => s.playerId === f))) {
-        hasAllFriends = true;
-      }
+    return overrides.friends.every(friendPair => {
+      return (friendPair.every(f => !!setup[0].find(s => s.playerId === f)) || friendPair.every(f => !!setup[1].find(s => s.playerId === f)));
     });
-
-    return hasAllFriends;
   });
 }
 
