@@ -6,6 +6,11 @@
     {
       "depTypeList": ["devDependencies"],
       "automerge": true
+    },
+    {
+      "updateTypes": ["minor", "patch", "pin", "digest"],
+      "automerge": true
     }
-  ]
+  ],
+  "labels": ["renovate"]
 }
