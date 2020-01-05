@@ -1,3 +1,8 @@
+# [1.1.2](https://github.com/tf2pickup-pl/server/compare/1.1.1...1.1.2) (2020-01-05)
+
+### Fixes
+* one medic's friend pick was not taken into account ([b850c9d](https://github.com/tf2pickup-pl/server/commit/b850c9d3cb6320b415a408a25a09168007e1f680))
+
 # [1.1.1](https://github.com/tf2pickup-pl/server/compare/1.1.0...1.1.1) (2019-12-30)
 
 ### Fixes
