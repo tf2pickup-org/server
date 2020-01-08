@@ -32,13 +32,11 @@ function createMongodbUri(environment: Environment) {
 @Module({
   imports: [
     ConfigModule.forRoot({
+      isGlobal: true,
       load: [
         config,
       ],
       validationSchema,
-      validationOptions: {
-        allowUnknown: false,
-      },
     }),
     TypegooseModule.forRootAsync({
       imports: [ EnvironmentModule ],
