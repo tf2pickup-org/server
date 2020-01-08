@@ -170,6 +170,7 @@ describe('PlayersService', () => {
   describe('#updatePlayer()', () => {
     const player = {
       name: 'OLD_NAME',
+      role: null,
       save: () => null,
     };
 
@@ -177,9 +178,10 @@ describe('PlayersService', () => {
       const spy = spyOn(service, 'getById').and.returnValue(new Promise(resolve => resolve(player as any)));
       const spy2 = spyOn(player, 'save');
 
-      await service.updatePlayer('FAKE_ID', { name: 'NEW_NAME' });
+      await service.updatePlayer('FAKE_ID', { name: 'NEW_NAME', role: 'admin' });
       expect(spy).toHaveBeenCalledWith('FAKE_ID');
       expect(player.name).toEqual('NEW_NAME');
+      expect(player.role).toEqual('admin');
       expect(spy2).toHaveBeenCalled();
     });
 

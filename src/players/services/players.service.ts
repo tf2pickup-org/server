@@ -85,6 +85,10 @@ export class PlayersService {
         player.name = update.name;
       }
 
+      if (update.role) {
+        player.role = update.role;
+      }
+
       await player.save();
       this.onlinePlayersService.getSocketsForPlayer(playerId).forEach(socket => socket.emit('profile update', { name: player.name }));
 
