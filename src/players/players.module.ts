@@ -14,12 +14,9 @@ import { OnlinePlayersService } from './services/online-players.service';
 import { PlayersGateway } from './gateways/players.gateway';
 import { HallOfFameController } from './controllers/hall-of-fame.controller';
 import { DiscordModule } from '@/discord/discord.module';
-import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
-    ConfigModule,
-
     HttpModule,
     TypegooseModule.forFeature([
       standardSchemaOptions(Player),
