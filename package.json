@@ -14,7 +14,7 @@
     "test:ci": "nyc --reporter=lcov npm run test"
   },
   "dependencies": {
-    "@hapi/joi": "17.0.0",
+    "@hapi/joi": "17.0.2",
     "@nestjs/common": "6.10.14",
     "@nestjs/config": "0.0.9",
     "@nestjs/core": "6.10.14",
