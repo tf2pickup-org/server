@@ -281,6 +281,7 @@ export class GamesService implements OnModuleInit {
 
     await game.save();
     this._gameUpdated.next(game);
+    return game;
   }
 
   private async queueSlotToPlayerSlot(queueSlot: QueueSlot): Promise<PlayerSlot> {

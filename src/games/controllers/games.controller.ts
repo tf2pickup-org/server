@@ -64,9 +64,7 @@ export class GamesController {
                         @Query('reinitialize_server') reinitializeServer: any,
                         @Query('force_end') forceEnd: any,
                         @Query('substitute_player') substitutePlayerId: string,
-                        @Query('substitute_player_cancel') cancelSubstitutePlayerId: string,
-                        @Query('replace_player') replacePlayerId: string,
-                        @Query('replacement_player') replacementPlayerId: string) {
+                        @Query('substitute_player_cancel') cancelSubstitutePlayerId: string) {
     if (reinitializeServer !== undefined) {
       await this.gamesService.reinitialize(gameId);
     }
@@ -81,14 +79,6 @@ export class GamesController {
 
     if (cancelSubstitutePlayerId !== undefined) {
       await this.gamesService.cancelSubstitutionRequest(gameId, cancelSubstitutePlayerId);
-    }
-
-    if (replacePlayerId !== undefined) {
-      if (replacementPlayerId !== undefined) {
-        await this.gamesService.replacePlayer(gameId, replacePlayerId, replacementPlayerId);
-      } else {
-        throw new BadRequestException('replacement player must be specified');
-      }
     }
   }
 

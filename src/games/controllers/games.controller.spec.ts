@@ -11,6 +11,10 @@ class GamesServiceStub {
   getGames(sort: any, limit: number, skip: number) { return new Promise(resolve => resolve(this.games)); }
   getGameCount() { return new Promise(resolve => resolve(2)); }
   getById(id: string) { return new Promise(resolve => resolve(this.games[0])); }
+  reinitialize(gameId: string) { return new Promise(resolve => resolve()); }
+  forceEnd(gameId: string) { return new Promise(resolve => resolve()); }
+  substitutePlayer(gameId: string, playerId: string) { return new Promise(resolve => resolve()); }
+  cancelSubstitutionRequest(gameId: string, playerId: string) { return new Promise(resolve => resolve()); }
 }
 
 describe('Games Controller', () => {
@@ -63,6 +67,32 @@ describe('Games Controller', () => {
       const ret = await controller.getGameSkills('FAKE_ID');
       expect(spy).toHaveBeenCalledWith('FAKE_ID');
       expect(ret).toEqual(gamesService.games[0].assignedSkills);
+    });
+  });
+
+  describe('#takeAdminAction()', () => {
+    it('should reinitialize server', async () => {
+      const spy = spyOn(gamesService, 'reinitialize').and.callThrough();
+      await controller.takeAdminAction('FAKE_GAME_ID', '', undefined, undefined, undefined);
+      expect(spy).toHaveBeenCalledWith('FAKE_GAME_ID');
+    });
+
+    it('should force end the game', async () => {
+      const spy = spyOn(gamesService, 'forceEnd').and.callThrough();
+      await controller.takeAdminAction('FAKE_GAME_ID', undefined, '', undefined, undefined);
+      expect(spy).toHaveBeenCalledWith('FAKE_GAME_ID');
+    });
+
+    it('should substitute player', async () => {
+      const spy = spyOn(gamesService, 'substitutePlayer').and.callThrough();
+      await controller.takeAdminAction('FAKE_GAME_ID', undefined, undefined, 'FAKE_PLAYER_ID', undefined);
+      expect(spy).toHaveBeenCalledWith('FAKE_GAME_ID', 'FAKE_PLAYER_ID');
+    });
+
+    it('should cancel substitution request', async () => {
+      const spy = spyOn(gamesService, 'cancelSubstitutionRequest').and.callThrough();
+      await controller.takeAdminAction('FAKE_GAME_ID', undefined, undefined, undefined, 'FAKE_PLAYER_ID');
+      expect(spy).toHaveBeenCalledWith('FAKE_GAME_ID', 'FAKE_PLAYER_ID');
     });
   });
 });

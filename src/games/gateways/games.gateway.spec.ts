@@ -11,6 +11,7 @@ const game = {
 class GamesServiceStub {
   gameCreated = new Subject<any>();
   gameUpdated = new Subject<any>();
+  replacePlayer(gameId: string, replaceeId: string, replacementId: string) { return new Promise(resolve => resolve(game)); }
 }
 
 describe('GamesGateway', () => {
@@ -31,6 +32,15 @@ describe('GamesGateway', () => {
 
   it('should be defined', () => {
     expect(gateway).toBeDefined();
+  });
+
+  describe('#replacePlayer()', () => {
+    it('should replace the id', async () => {
+      const spy = spyOn(gamesService, 'replacePlayer').and.callThrough();
+      const ret = await gateway.replacePlayer({ request: { user: { id: 'FAKE_REPLACEMENT_ID' } } }, { gameId: 'FAKE_GAME_ID', replaceeId: 'FAKE_REPLACEE_ID' });
+      expect(spy).toHaveBeenCalledWith('FAKE_GAME_ID', 'FAKE_REPLACEE_ID', 'FAKE_REPLACEMENT_ID');
+      expect(ret).toEqual(game as any);
+    });
   });
 
   describe('#afterInit()', () => {
