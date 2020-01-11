@@ -255,14 +255,18 @@ export class GamesService implements OnModuleInit {
       throw new Error('this player has already been replaced');
     }
 
-    const replacement = await this.playersService.getById(replacementId);
-
     if (replaceeId === replacementId) {
       slot.status = 'active';
       await game.save();
       this._gameUpdated.next(game);
       return;
     }
+
+    if (await this.getPlayerActiveGame(replacementId)) {
+      throw new Error('player is involved in a currently running game');
+    }
+
+    const replacement = await this.playersService.getById(replacementId);
 
     // create new slot of the replacement player
     const replacementSlot: GamePlayer = {

@@ -437,6 +437,17 @@ describe('GamesService', () => {
       gameId = game.id;
     });
 
+    it('should replace the player', async () => {
+      await service.replacePlayer(gameId, replacee, replacement);
+      const game = await gameModel.findById(gameId);
+      const replaceeSlot = game.slots.find(s => s.playerId === replacee);
+      expect(replaceeSlot.status).toBe('replaced');
+      const replacementSlot = game.slots.find(s => s.playerId === replacement);
+      expect(replacementSlot).toBeDefined();
+      expect(replacementSlot.status).toBe('active');
+      expect(game.players.includes(replacement as any)).toBe(true);
+    });
+
     it('should reject if the given player is banned', async () => {
       const end = new Date();
       end.setHours(end.getHours() + 1);
@@ -460,20 +471,22 @@ describe('GamesService', () => {
       expect(slot.status).toBe('active');
     });
 
-    it('should replace the player', async () => {
-      await service.replacePlayer(gameId, replacee, replacement);
-      const game = await gameModel.findById(gameId);
-      const replaceeSlot = game.slots.find(s => s.playerId === replacee);
-      expect(replaceeSlot.status).toBe('replaced');
-      const replacementSlot = game.slots.find(s => s.playerId === replacement);
-      expect(replacementSlot).toBeDefined();
-      expect(replacementSlot.status).toBe('active');
-      expect(game.players.includes(replacement as any)).toBe(true);
-    });
-
     it('should reject if the given player has already been replaced', async () => {
       await service.replacePlayer(gameId, replacee, replacement);
       expectAsync(service.replacePlayer(gameId, replacee, replacement)).toBeRejectedWithError('this player has already been replaced');
+    });
+
+    it('should reject if the given player is involved in another game', async () => {
+      const playerId = new ObjectId().toString();
+      await gameModel.create({
+        number: 2,
+        map: 'cp_badlands',
+        state: 'launching',
+        players: [ playerId ],
+        slots: [ { playerId, teamId: 'RED', gameClass: 'medic', satus: 'active' } ],
+      });
+
+      expectAsync(service.replacePlayer(gameId, replacee, playerId)).toBeRejectedWithError('player is involved in a currently running game');
     });
   });
 });
