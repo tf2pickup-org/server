@@ -334,6 +334,13 @@ describe('GamesService', () => {
         });
         await service.substitutePlayer(game.id.toString(), playerA.toString());
       });
+
+      it('should reject if the game is no longer active', async () => {
+        game.state = 'ended';
+        await game.save();
+
+        expectAsync(service.substitutePlayer(game.id.toString(), playerA.toString())).toBeRejectedWithError('the game has already ended');
+      });
     });
   });
 
@@ -398,6 +405,13 @@ describe('GamesService', () => {
           done();
         });
         await service.cancelSubstitutionRequest(game.id.toString(), playerA.toString());
+      });
+
+      it('should reject if the game is no longer active', async () => {
+        game.state = 'ended';
+        await game.save();
+
+        expectAsync(service.cancelSubstitutionRequest(game.id.toString(), playerA.toString())).toBeRejectedWithError('the game has already ended');
       });
     });
   });

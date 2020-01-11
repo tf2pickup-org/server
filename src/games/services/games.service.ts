@@ -205,6 +205,10 @@ export class GamesService implements OnModuleInit {
   async substitutePlayer(gameId: string, playerId: string) {
     const { game, slot } = await this.findPlayerSlot(gameId, playerId);
 
+    if (!/launching|started/.test(game.state)) {
+      throw new Error('the game has already ended');
+    }
+
     if (slot.status === 'replaced') {
       throw new Error('this player has already been replaced');
     }
@@ -223,6 +227,10 @@ export class GamesService implements OnModuleInit {
 
   async cancelSubstitutionRequest(gameId: string, playerId: string) {
     const { game, slot } = await this.findPlayerSlot(gameId, playerId);
+
+    if (!/launching|started/.test(game.state)) {
+      throw new Error('the game has already ended');
+    }
 
     if (slot.status === 'replaced') {
       throw new Error('this player has already been replaced');
