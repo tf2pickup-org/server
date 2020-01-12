@@ -72,6 +72,25 @@ export class DiscordNotificationsService implements OnModuleInit {
     }
   }
 
+  async notifyBanRevoked(ban: PlayerBan) {
+    if (this.enabled && this.notifyBans && this.environment.discordAdminNotificationsChannelId) {
+      const channel = this.client.channels.get(this.environment.discordAdminNotificationsChannelId) as TextChannel;
+      if (channel) {
+        const player = await this.playersService.getById(ban.player.toString());
+
+        const embed = new RichEmbed()
+          .setColor('#9838dc')
+          .setTitle('Ban revoked')
+          .addField('Player', player.name)
+          .setTimestamp();
+
+        channel.send(embed);
+      } else {
+        this.logger.warn(`channel id ${this.environment.discordAdminNotificationsChannelId} not found`);
+      }
+    }
+  }
+
   notifyNewPlayer(player: Player) {
     if (this.enabled && this.notifyNewPlayers && this.environment.discordAdminNotificationsChannelId) {
       const channel = this.client.channels.get(this.environment.discordAdminNotificationsChannelId) as TextChannel;
