@@ -35,21 +35,22 @@ export class DiscordNotificationsService implements OnModuleInit {
   }
 
   notifyQueue(currentPlayerCount: number, targetPlayerCount: number) {
-    if (this.enabled && this.environment.discordQueueNotificationsChannelId) {
-      const channel = this.client.channels.get(this.environment.discordQueueNotificationsChannelId) as TextChannel;
+    if (this.enabled && this.environment.discordQueueNotificationsChannel) {
+      const channel = this.findChannel(this.environment.discordQueueNotificationsChannel);
       if (channel) {
         const mentionRole = this.configService.get<string>('discordNotifications.promptJoinQueueMentionRole');
         channel.send(`${mentionRole} ${currentPlayerCount}/${targetPlayerCount} in the queue.
         Go to ${this.environment.clientUrl} and don't miss the next game!`);
       } else {
-        this.logger.warn(`channel id ${this.environment.discordQueueNotificationsChannelId} not found`);
+        this.logger.warn(`channel ${this.environment.discordQueueNotificationsChannel} not found`);
       }
     }
   }
 
-  async notifyBan(ban: PlayerBan) {
-    if (this.enabled && this.notifyBans && this.environment.discordAdminNotificationsChannelId) {
-      const channel = this.client.channels.get(this.environment.discordAdminNotificationsChannelId) as TextChannel;
+  async notifyBanAdded(ban: PlayerBan) {
+    if (this.enabled && this.notifyBans && this.environment.discordAdminNotificationsChannel) {
+      const channel = this.findChannel(this.environment.discordAdminNotificationsChannel);
+
       if (channel) {
         const admin = await this.playersService.getById(ban.admin.toString());
         const player = await this.playersService.getById(ban.player.toString());
@@ -67,14 +68,33 @@ export class DiscordNotificationsService implements OnModuleInit {
 
         channel.send(embed);
       } else {
-        this.logger.warn(`channel id ${this.environment.discordAdminNotificationsChannelId} not found`);
+        this.logger.warn(`channel ${this.environment.discordAdminNotificationsChannel} not found`);
+      }
+    }
+  }
+
+  async notifyBanRevoked(ban: PlayerBan) {
+    if (this.enabled && this.notifyBans && this.environment.discordAdminNotificationsChannel) {
+      const channel = this.findChannel(this.environment.discordAdminNotificationsChannel);
+      if (channel) {
+        const player = await this.playersService.getById(ban.player.toString());
+
+        const embed = new RichEmbed()
+          .setColor('#9838dc')
+          .setTitle('Ban revoked')
+          .addField('Player', player.name)
+          .setTimestamp();
+
+        channel.send(embed);
+      } else {
+        this.logger.warn(`channel ${this.environment.discordAdminNotificationsChannel} not found`);
       }
     }
   }
 
   notifyNewPlayer(player: Player) {
-    if (this.enabled && this.notifyNewPlayers && this.environment.discordAdminNotificationsChannelId) {
-      const channel = this.client.channels.get(this.environment.discordAdminNotificationsChannelId) as TextChannel;
+    if (this.enabled && this.notifyNewPlayers && this.environment.discordAdminNotificationsChannel) {
+      const channel = this.findChannel(this.environment.discordAdminNotificationsChannel);
       if (channel) {
         const embed = new RichEmbed()
           .setColor('#33dc7f')
@@ -85,9 +105,15 @@ export class DiscordNotificationsService implements OnModuleInit {
 
         channel.send(embed);
       } else {
-        this.logger.warn(`channel id ${this.environment.discordAdminNotificationsChannelId} not found`);
+        this.logger.warn(`channel ${this.environment.discordAdminNotificationsChannel} not found`);
       }
     }
+  }
+
+  private findChannel(name: string) {
+    return this.client.channels
+    .filter(c => c instanceof TextChannel)
+    .find(c => (c as TextChannel).name === name) as TextChannel;
   }
 
 }

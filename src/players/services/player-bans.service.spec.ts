@@ -17,7 +17,8 @@ class OnlinePlayersServiceStub {
 }
 
 class DiscordNotificationsServiceStub {
-  notifyBan(player: any) { return null; }
+  notifyBanAdded(ban: any) { return null; }
+  notifyBanRevoked(ban: any) { return null; }
 }
 
 describe('PlayerBansService', () => {
@@ -103,9 +104,9 @@ describe('PlayerBansService', () => {
     });
 
     it('should notify on discord', async () => {
-      const spy = spyOn(discordNotificationsService, 'notifyBan');
+      const spy = spyOn(discordNotificationsService, 'notifyBanAdded');
       await service.addPlayerBan(ban);
-      expect(spy).toHaveBeenCalled();
+      expect(spy).toHaveBeenCalledWith(ban);
     });
   });
 
@@ -143,6 +144,13 @@ describe('PlayerBansService', () => {
 
       spyOn(playerBanModel, 'findById').and.returnValue(new Promise(resolve => resolve(ban)));
       await service.revokeBan('FAKE_BAN_ID');
+    });
+
+    it('should send discord notification', async () => {
+      const spy = spyOn(discordNotificationsService, 'notifyBanRevoked');
+      spyOn(playerBanModel, 'findById').and.returnValue(new Promise(resolve => resolve(ban)));
+      await service.revokeBan('FAKE_BAN_ID');
+      expect(spy).toHaveBeenCalledWith(ban);
     });
   });
 });
