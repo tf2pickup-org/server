@@ -61,7 +61,7 @@ export class PlayerBansService implements OnModuleInit {
     const playerId = addedBan.player.toString();
     this._banAdded.next(playerId);
     this.logger.log(`ban added for player ${playerId} (reason: ${playerBan.reason})`);
-    this.discordNotificationsService.notifyBan(addedBan);
+    this.discordNotificationsService.notifyBanAdded(addedBan);
     return addedBan;
   }
 

@@ -47,7 +47,7 @@ export class DiscordNotificationsService implements OnModuleInit {
     }
   }
 
-  async notifyBan(ban: PlayerBan) {
+  async notifyBanAdded(ban: PlayerBan) {
     if (this.enabled && this.notifyBans && this.environment.discordAdminNotificationsChannelId) {
       const channel = this.client.channels.get(this.environment.discordAdminNotificationsChannelId) as TextChannel;
       if (channel) {

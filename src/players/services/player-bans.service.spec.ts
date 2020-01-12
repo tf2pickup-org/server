@@ -17,7 +17,7 @@ class OnlinePlayersServiceStub {
 }
 
 class DiscordNotificationsServiceStub {
-  notifyBan(ban: any) { return null; }
+  notifyBanAdded(ban: any) { return null; }
   notifyBanRevoked(ban: any) { return null; }
 }
 
@@ -104,7 +104,7 @@ describe('PlayerBansService', () => {
     });
 
     it('should notify on discord', async () => {
-      const spy = spyOn(discordNotificationsService, 'notifyBan');
+      const spy = spyOn(discordNotificationsService, 'notifyBanAdded');
       await service.addPlayerBan(ban);
       expect(spy).toHaveBeenCalledWith(ban);
     });
