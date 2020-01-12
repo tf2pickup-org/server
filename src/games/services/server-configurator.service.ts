@@ -6,6 +6,8 @@ import { generate } from 'generate-password';
 import { PlayersService } from '@/players/services/players.service';
 import { QueueConfigService } from '@/queue/services/queue-config.service';
 import { RconFactoryService } from './rcon-factory.service';
+import { logAddressAdd, changelevel, execConfig, setPassword, addGamePlayer, logAddressDel, delAllGamePlayers,
+  kickAll } from '../utils/rcon-commands';
 
 @Injectable()
 export class ServerConfiguratorService {
@@ -28,32 +30,27 @@ export class ServerConfiguratorService {
 
       const logAddress = `${this.environment.logRelayAddress}:${this.environment.logRelayPort}`;
       this.logger.debug(`[${server.name}] adding log address ${logAddress}...`);
-      await rcon.send(`logaddress_add ${logAddress}`);
+      await rcon.send(logAddressAdd(logAddress));
 
       this.logger.debug(`[${server.name}] kicking all players...`);
-      await rcon.send(`kickall`);
+      await rcon.send(kickAll());
       this.logger.debug(`[${server.name}] changing map to ${game.map}...`);
-      await rcon.send(`changelevel ${game.map}`);
+      await rcon.send(changelevel(game.map));
 
-      for (const execConfig of this.queueConfigService.queueConfig.execConfigs) {
-        this.logger.debug(`[${server.name}] executing ${execConfig}...`);
-        await rcon.send(`exec ${execConfig}`);
+      for (const configName of this.queueConfigService.queueConfig.execConfigs) {
+        this.logger.debug(`[${server.name}] executing ${configName}...`);
+        await rcon.send(execConfig(configName));
       }
 
       const password = generate({ length: 10, numbers: true, uppercase: true });
       this.logger.debug(`[${server.name}] settings password to ${password}...`);
-      await rcon.send(`sv_password ${password}`);
+      await rcon.send(setPassword(password));
 
       for (const slot of game.slots) {
         const player = await this.playersService.getById(slot.playerId);
         const team = parseInt(slot.teamId, 10) + 2;
 
-        const cmd = [
-          `sm_game_player_add ${player.steamId}`,
-          `-name "${player.name}"`,
-          `-team ${team}`,
-          `-class ${slot.gameClass}`,
-        ].join(' ');
+        const cmd = addGamePlayer(player.steamId, player.name, team, slot.gameClass);
         this.logger.debug(`[${server.name}] ${cmd}`);
         await rcon.send(cmd);
       }
@@ -78,8 +75,8 @@ export class ServerConfiguratorService {
 
       const logAddress = `${this.environment.logRelayAddress}:${this.environment.logRelayPort}`;
       this.logger.debug(`[${server.name}] removing log address ${logAddress}...`);
-      await rcon.send(`logaddress_del ${logAddress}`);
-      await rcon.send('sm_game_player_delall');
+      await rcon.send(logAddressDel(logAddress));
+      await rcon.send(delAllGamePlayers());
       await rcon.end();
       this.logger.log(`[${server.name}] server cleaned up`);
     } catch (error) {
