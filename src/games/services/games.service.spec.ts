@@ -64,6 +64,7 @@ class GameRunnerStub {
   launch() { return null; }
   reconfigure() { return null; }
   forceEnd() { return null; }
+  replacePlayer(a: string, b: any) { return null; }
 }
 
 class GameRunnerManagerServiceStub {
@@ -452,6 +453,10 @@ describe('GamesService', () => {
     });
 
     it('should replace the player', async () => {
+      const gameRunner = { replacePlayer: (a: any, b: any) => null };
+      const findGameRunnerSpy = spyOn(gameRunnerManagerService, 'findGameRunnerByGameId').and.returnValue(gameRunner as any);
+      const replacePlayerSpy = spyOn(gameRunner, 'replacePlayer');
+
       await service.replacePlayer(gameId, replacee, replacement);
       const game = await gameModel.findById(gameId);
       const replaceeSlot = game.slots.find(s => s.playerId === replacee);
@@ -460,6 +465,9 @@ describe('GamesService', () => {
       expect(replacementSlot).toBeDefined();
       expect(replacementSlot.status).toBe('active');
       expect(game.players.includes(replacement as any)).toBe(true);
+
+      expect(findGameRunnerSpy).toHaveBeenCalledWith(gameId);
+      expect(replacePlayerSpy).toHaveBeenCalledWith(replacee, jasmine.objectContaining({ playerId: replacement }));
     });
 
     it('should reject if the given player is banned', async () => {

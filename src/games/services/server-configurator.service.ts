@@ -1,11 +1,11 @@
 import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
 import { GameServer } from '@/game-servers/models/game-server';
 import { Game } from '../models/game';
-import { Rcon } from 'rcon-client';
 import { Environment } from '@/environment/environment';
 import { generate } from 'generate-password';
 import { PlayersService } from '@/players/services/players.service';
 import { QueueConfigService } from '@/queue/services/queue-config.service';
+import { RconFactoryService } from './rcon-factory.service';
 
 @Injectable()
 export class ServerConfiguratorService {
@@ -16,6 +16,7 @@ export class ServerConfiguratorService {
     private environment: Environment,
     @Inject(forwardRef(() => PlayersService)) private playersService: PlayersService,
     private queueConfigService: QueueConfigService,
+    private rconFactoryService: RconFactoryService,
   ) { }
 
   async configureServer(server: GameServer, game: Game) {
@@ -23,13 +24,7 @@ export class ServerConfiguratorService {
     this.logger.debug(`[${server.name}] using rcon password ${server.rconPassword}`);
 
     try {
-      const rcon = new Rcon({
-        host: server.address,
-        port: parseInt(server.port, 10),
-        password: server.rconPassword,
-        timeout: 30000,
-      });
-      await rcon.connect();
+      const rcon = await this.rconFactoryService.createRcon(server);
 
       const logAddress = `${this.environment.logRelayAddress}:${this.environment.logRelayPort}`;
       this.logger.debug(`[${server.name}] adding log address ${logAddress}...`);
@@ -79,13 +74,7 @@ export class ServerConfiguratorService {
 
   async cleanupServer(server: GameServer) {
     try {
-      const rcon = new Rcon({
-        host: server.address,
-        port: parseInt(server.port, 10),
-        password: server.rconPassword,
-        timeout: 30000,
-      });
-      await rcon.connect();
+      const rcon = await this.rconFactoryService.createRcon(server);
 
       const logAddress = `${this.environment.logRelayAddress}:${this.environment.logRelayPort}`;
       this.logger.debug(`[${server.name}] removing log address ${logAddress}...`);

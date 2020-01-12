@@ -267,6 +267,7 @@ export class GamesService implements OnModuleInit {
       slot.status = 'active';
       await game.save();
       this._gameUpdated.next(game);
+      this.logger.verbose(`player has taken his own slot`);
       return;
     }
 
@@ -293,6 +294,11 @@ export class GamesService implements OnModuleInit {
 
     await game.save();
     this._gameUpdated.next(game);
+    this.logger.verbose(`player ${replacement.name} took the sub slot in game game #${game.number}`);
+    setImmediate(() => {
+      const runner = this.gameRunnerManagerService.findGameRunnerByGameId(game.id);
+      runner.replacePlayer(replaceeId, replacementSlot);
+    });
     return game;
   }
 

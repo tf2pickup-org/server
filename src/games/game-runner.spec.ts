@@ -1,4 +1,5 @@
 import { GameRunner } from './game-runner';
+import { GameServer } from '@/game-servers/models/game-server';
 
 const makeGame = () => ({
   id: 'FAKE_GAME_ID',
@@ -9,7 +10,7 @@ const makeGame = () => ({
   slots: [
     { playerId: 'FAKE_PLAYER_ID_1', connectionStatus: 'offline' },
     { playerId: 'FAKE_PLAYER_ID_2', connectionStatus: 'joining' },
-  ]
+  ],
 });
 
 const makeGameServer = () => ({
@@ -44,6 +45,16 @@ class ServerConfiguratorServiceStub {
 
 class PlayersServiceStub {
   findBySteamId(steamId: string) { return { id: 'FAKE_PLAYER_ID_1' }; }
+  getById(id: string) { return { id: 'FAKE_PLAYER_ID', steamId: 'FAKE_STEAM_ID', name: 'FAKE_PLAYER_NAME' }; }
+}
+
+class RconStub {
+  send(cmd: string) { return null; }
+  end() { return null; }
+}
+
+class RconFactoryServiceStub {
+  createRcon(gameServer: GameServer) { return new Promise(resolve => resolve(new RconStub())); }
 }
 
 describe('GameRunner', () => {
@@ -53,6 +64,7 @@ describe('GameRunner', () => {
   let environment: EnvironmentStub;
   let serverConfiguratorService: ServerConfiguratorServiceStub;
   let playersService: PlayersServiceStub;
+  let rconFactoryService: RconFactoryServiceStub;
 
   beforeEach(() => {
     gamesService = new GamesServiceStub();
@@ -60,6 +72,7 @@ describe('GameRunner', () => {
     environment = new EnvironmentStub();
     serverConfiguratorService = new ServerConfiguratorServiceStub();
     playersService = new PlayersServiceStub();
+    rconFactoryService = new RconFactoryServiceStub();
 
     gameRunner = new GameRunner(
       'FAKE_GAME_ID',
@@ -68,6 +81,7 @@ describe('GameRunner', () => {
       environment as any,
       serverConfiguratorService as any,
       playersService as any,
+      rconFactoryService as any,
     );
   });
 
@@ -187,6 +201,23 @@ describe('GameRunner', () => {
       expect(gameRunner.game.error).toEqual('ended by admin');
       expect(spy1).toHaveBeenCalledWith('FAKE_GAME_SERVER_ID');
       expect(spy2).toHaveBeenCalled();
+    });
+  });
+
+  describe('#replacePlayer()', () => {
+    it('should update the player slot', async () => {
+      const rcon = new RconStub();
+      const createSpy = spyOn(rconFactoryService, 'createRcon').and.returnValue(rcon as any);
+      const sendSpy = spyOn(rcon, 'send');
+      const endSpy = spyOn(rcon, 'end');
+
+      gameRunner.game = makeGame() as any;
+      await gameRunner.replacePlayer('FAKE_REPLACEE_ID', { playerId: 'FAKE_PLAYER_ID', gameClass: 'scout', teamId: '1' } as any);
+
+      expect(createSpy).toHaveBeenCalled();
+      expect(sendSpy).toHaveBeenCalledWith('sm_game_player_add FAKE_STEAM_ID -name "FAKE_PLAYER_NAME" -team 3 -class scout');
+      expect(sendSpy).toHaveBeenCalledWith('sm_game_player_del FAKE_STEAM_ID');
+      expect(endSpy).toHaveBeenCalled();
     });
   });
 

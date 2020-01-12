@@ -5,6 +5,7 @@ import { GameServersService } from '@/game-servers/services/game-servers.service
 import { ServerConfiguratorService } from './server-configurator.service';
 import { PlayersService } from '@/players/services/players.service';
 import { Environment } from '@/environment/environment';
+import { RconFactoryService } from './rcon-factory.service';
 
 class GamesServiceStub { }
 
@@ -15,6 +16,8 @@ class EnvironmentStub { }
 class ServerConfiguratorServiceStub { }
 
 class PlayersServiceStub { }
+
+class RconFactoryServiceStub { }
 
 describe('GameRunnerFactoryService', () => {
   let service: GameRunnerFactoryService;
@@ -28,6 +31,7 @@ describe('GameRunnerFactoryService', () => {
         { provide: Environment, useClass: EnvironmentStub },
         { provide: ServerConfiguratorService, useClass: ServerConfiguratorServiceStub },
         { provide: PlayersService, useClass: PlayersServiceStub },
+        { provide: RconFactoryService, useClass: RconFactoryServiceStub },
       ],
     }).compile();
 

@@ -9,6 +9,8 @@ import { GamesService } from './services/games.service';
 import { PlayersService } from '@/players/services/players.service';
 import { Environment } from '@/environment/environment';
 import { PlayerConnectionStatus } from './models/player-connection-status';
+import { GamePlayer } from './models/game-player';
+import { RconFactoryService } from './services/rcon-factory.service';
 
 export class GameRunner {
 
@@ -47,6 +49,7 @@ export class GameRunner {
     private environment: Environment,
     private serverConfiguratorService: ServerConfiguratorService,
     private playersService: PlayersService,
+    private rconFactoryService: RconFactoryService,
   ) { }
 
   async initialize() {
@@ -96,6 +99,29 @@ export class GameRunner {
 
     await this.serverConfiguratorService.cleanupServer(this.gameServer);
     await this.gameServersService.releaseServer(this.gameServer.id);
+  }
+
+  async replacePlayer(replaceeId: string, replacementSlot: GamePlayer) {
+    await this.refreshGame();
+    const player = await this.playersService.getById(replacementSlot.playerId);
+    const team = parseInt(replacementSlot.teamId, 10) + 2;
+
+    const rcon = await this.rconFactoryService.createRcon(this.gameServer);
+
+    const cmd = [
+      `sm_game_player_add ${player.steamId}`,
+      `-name "${player.name}"`,
+      `-team ${team}`,
+      `-class ${replacementSlot.gameClass}`,
+    ].join(' ');
+    this.logger.debug(cmd);
+    await rcon.send(cmd);
+
+    const replacee = await this.playersService.getById(replaceeId);
+    const cmd2 = `sm_game_player_del ${replacee?.steamId}`;
+    this.logger.debug(cmd2);
+    await rcon.send(cmd2);
+    await rcon.end();
   }
 
   async onPlayerJoining(steamId: string) {
@@ -175,6 +201,10 @@ export class GameRunner {
     } else {
       this.logger.warn(`player ${playerId} does not belong in this game`);
     }
+  }
+
+  private async refreshGame() {
+    this.game = await this.gamesService.getById(this.game.id);
   }
 
 }

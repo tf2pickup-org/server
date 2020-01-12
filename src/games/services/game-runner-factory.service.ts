@@ -5,6 +5,7 @@ import { GameServersService } from '@/game-servers/services/game-servers.service
 import { GamesService } from './games.service';
 import { PlayersService } from '@/players/services/players.service';
 import { Environment } from '@/environment/environment';
+import { RconFactoryService } from './rcon-factory.service';
 
 @Injectable()
 export class GameRunnerFactoryService {
@@ -15,6 +16,7 @@ export class GameRunnerFactoryService {
     private environment: Environment,
     private serverConfiguratorService: ServerConfiguratorService,
     @Inject(forwardRef(() => PlayersService)) private playersService: PlayersService,
+    private rconFactoryService: RconFactoryService,
   ) { }
 
   createGameRunner(gameId: string): GameRunner {
@@ -25,6 +27,7 @@ export class GameRunnerFactoryService {
       this.environment,
       this.serverConfiguratorService,
       this.playersService,
+      this.rconFactoryService,
     );
   }
 

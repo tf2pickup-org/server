@@ -13,6 +13,7 @@ import { ServerConfiguratorService } from './services/server-configurator.servic
 import { GameRunnerFactoryService } from './services/game-runner-factory.service';
 import { GameRunnerManagerService } from './services/game-runner-manager.service';
 import { GameEventListenerService } from './services/game-event-listener.service';
+import { RconFactoryService } from './services/rcon-factory.service';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { GameEventListenerService } from './services/game-event-listener.service
     GameEventListenerService,
     GameRunnerFactoryService,
     GameRunnerManagerService,
+    RconFactoryService,
   ],
   exports: [
     GamesService,
