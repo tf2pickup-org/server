@@ -76,12 +76,12 @@ export class Environment {
     return this.configService.get<string>('DISCORD_BOT_TOKEN');
   }
 
-  get discordQueueNotificationsChannelId() {
-    return this.configService.get<string>('DISCORD_QUEUE_NOTIFICATIONS_CHANNEL_ID');
+  get discordQueueNotificationsChannel() {
+    return this.configService.get<string>('DISCORD_QUEUE_NOTIFICATIONS_CHANNEL');
   }
 
-  get discordAdminNotificationsChannelId() {
-    return this.configService.get<string>('DISCORD_ADMIN_NOTIFICATIONS_CHANNEL_ID');
+  get discordAdminNotificationsChannel() {
+    return this.configService.get<string>('DISCORD_ADMIN_NOTIFICATIONS_CHANNEL');
   }
 
 }

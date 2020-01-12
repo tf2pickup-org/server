@@ -19,6 +19,9 @@ export default () => ({
     readyStateTimeout: 60 * 1000,
   },
 
+  /**
+   * To have all the discord integration enabled, the DISCORD_BOT_TOKEN env constant must be set.
+   */
   discordNotifications: {
     /**
      * Announcements prompting players to join the pickup queue will be sent when there are at least
