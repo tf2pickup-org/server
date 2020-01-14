@@ -165,6 +165,15 @@ export class GamesService {
     ]);
   }
 
+  async getGamesWithSubstitutionRequests(): Promise<Game[]> {
+    return this.gameModel
+      .find({
+        'state': /launching|started/,
+        'slots.status': 'waiting for substitute',
+      });
+  }
+
+  // todo move to a separate service
   async substitutePlayer(gameId: string, playerId: string) {
     const { game, slot } = await this.findPlayerSlot(gameId, playerId);
 
@@ -188,6 +197,7 @@ export class GamesService {
     this._gameUpdated.next(game);
   }
 
+  // todo move to a separate service
   async cancelSubstitutionRequest(gameId: string, playerId: string) {
     const { game, slot } = await this.findPlayerSlot(gameId, playerId);
 
@@ -211,6 +221,7 @@ export class GamesService {
     this._gameUpdated.next(game);
   }
 
+  // todo move to a separate service
   async replacePlayer(gameId: string, replaceeId: string, replacementId: string) {
     if ((await this.playerBansService.getPlayerActiveBans(replacementId)).length > 0) {
       throw new Error('player is banned');

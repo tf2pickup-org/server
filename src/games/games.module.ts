@@ -15,6 +15,7 @@ import { RconFactoryService } from './services/rcon-factory.service';
 import { GameLauncherService } from './services/game-launcher.service';
 import { GameRuntimeService } from './services/game-runtime.service';
 import { GameEventHandlerService } from './services/game-event-handler.service';
+import { GamesWithSubstitutionRequestsController } from './controllers/games-with-substitution-requests.controller';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { GameEventHandlerService } from './services/game-event-handler.service';
   ],
   controllers: [
     GamesController,
+    GamesWithSubstitutionRequestsController,
   ],
 })
 export class GamesModule { }

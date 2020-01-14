@@ -180,7 +180,7 @@ describe('GamesService', () => {
 
     it('should create a game', async () => {
       const game = await service.create(slots, 'cp_fake');
-      expect(game.toObject()).toEqual({
+      expect(game.toObject()).toEqual(jasmine.objectContaining({
         number: 1,
         map: 'cp_fake',
         teams: new Map([ [ '0', 'RED' ], [ '1', 'BLU' ] ]),
@@ -189,9 +189,7 @@ describe('GamesService', () => {
         assignedSkills: jasmine.any(Object),
         state: 'launching',
         launchedAt: jasmine.any(Date),
-        _id: jasmine.any(ObjectId),
-        __v: 0,
-      });
+      }));
     });
   });
 
@@ -200,6 +198,38 @@ describe('GamesService', () => {
       const spy = spyOn(gameLauncherService, 'launch');
       await service.launch('FAKE_GAME_ID');
       expect(spy).toHaveBeenCalledWith('FAKE_GAME_ID');
+    });
+  });
+
+  describe('#getGamesWithSubstitutionRequests()', () => {
+    it('should return games with substitution requests', async () => {
+      const player1 = new ObjectId().toString();
+      const player2 = new ObjectId().toString();
+      const game = await gameModel.create({
+        number: 1,
+        players: [ player1, player2 ],
+        slots: [
+          {
+            playerId: player1,
+            teamId: 1,
+            gameClass: 'scout',
+            status: 'waiting for substitute',
+          },
+          {
+            playerId: player2,
+            teamId: 2,
+            gameClass: 'scout',
+            status: 'active',
+          },
+        ],
+        map: 'cp_badlands',
+        state: 'launching',
+      });
+
+      const ret = await service.getGamesWithSubstitutionRequests();
+      expect(ret).toEqual([
+        jasmine.objectContaining({ id: game.id }),
+      ]);
     });
   });
 
