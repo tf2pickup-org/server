@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { GamesController } from './games.controller';
 import { GamesService } from '../services/games.service';
 import { Game } from '../models/game';
+import { GameRuntimeService } from '../services/game-runtime.service';
 
 class GamesServiceStub {
   games: Game[] = [
@@ -11,26 +12,32 @@ class GamesServiceStub {
   getGames(sort: any, limit: number, skip: number) { return new Promise(resolve => resolve(this.games)); }
   getGameCount() { return new Promise(resolve => resolve(2)); }
   getById(id: string) { return new Promise(resolve => resolve(this.games[0])); }
-  reinitialize(gameId: string) { return new Promise(resolve => resolve()); }
-  forceEnd(gameId: string) { return new Promise(resolve => resolve()); }
   substitutePlayer(gameId: string, playerId: string) { return new Promise(resolve => resolve()); }
   cancelSubstitutionRequest(gameId: string, playerId: string) { return new Promise(resolve => resolve()); }
+}
+
+class GameRuntimeServiceStub {
+  reconfigure(gameId: string) { return new Promise(resolve => resolve()); }
+  forceEnd(gameId: string) { return new Promise(resolve => resolve()); }
 }
 
 describe('Games Controller', () => {
   let controller: GamesController;
   let gamesService: GamesServiceStub;
+  let gameRuntimeService: GameRuntimeServiceStub;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         { provide: GamesService, useClass: GamesServiceStub },
+        { provide: GameRuntimeService, useClass: GameRuntimeServiceStub },
       ],
       controllers: [GamesController],
     }).compile();
 
     controller = module.get<GamesController>(GamesController);
     gamesService = module.get(GamesService);
+    gameRuntimeService = module.get(GameRuntimeService);
   });
 
   it('should be defined', () => {
@@ -72,13 +79,13 @@ describe('Games Controller', () => {
 
   describe('#takeAdminAction()', () => {
     it('should reinitialize server', async () => {
-      const spy = spyOn(gamesService, 'reinitialize').and.callThrough();
+      const spy = spyOn(gameRuntimeService, 'reconfigure').and.callThrough();
       await controller.takeAdminAction('FAKE_GAME_ID', '', undefined, undefined, undefined);
       expect(spy).toHaveBeenCalledWith('FAKE_GAME_ID');
     });
 
     it('should force end the game', async () => {
-      const spy = spyOn(gamesService, 'forceEnd').and.callThrough();
+      const spy = spyOn(gameRuntimeService, 'forceEnd').and.callThrough();
       await controller.takeAdminAction('FAKE_GAME_ID', undefined, '', undefined, undefined);
       expect(spy).toHaveBeenCalledWith('FAKE_GAME_ID');
     });

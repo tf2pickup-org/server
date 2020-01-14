@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { GameLauncherService } from './game-launcher.service';
-import { QueueService } from './queue.service';
+import { AutoGameLauncherService } from './auto-game-launcher.service';
 import { Subject } from 'rxjs';
+import { QueueService } from './queue.service';
 import { MapVoteService } from './map-vote.service';
 import { GamesService } from '@/games/services/games.service';
 
@@ -20,27 +20,27 @@ class GamesServiceStub {
   launch(gameId: string) { return new Promise(resolve => resolve()); }
 }
 
-describe('GameLauncherService', () => {
-  let service: GameLauncherService;
+describe('AutoGameLauncherService', () => {
+  let service: AutoGameLauncherService;
   let queueService: QueueServiceStub;
   let gamesService: GamesServiceStub;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        GameLauncherService,
+        AutoGameLauncherService,
         { provide: QueueService, useClass: QueueServiceStub },
         { provide: MapVoteService, useClass: MapVoteServiceStub },
         { provide: GamesService, useClass: GamesServiceStub },
       ],
     }).compile();
 
-    service = module.get<GameLauncherService>(GameLauncherService);
+    service = module.get<AutoGameLauncherService>(AutoGameLauncherService);
     queueService = module.get(QueueService);
     gamesService = module.get(GamesService);
-
-    service.onModuleInit();
   });
+
+  beforeEach(() => service.onModuleInit());
 
   it('should be defined', () => {
     expect(service).toBeDefined();

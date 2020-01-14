@@ -2,6 +2,9 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { GamesGateway } from './games.gateway';
 import { GamesService } from '../services/games.service';
 import { Subject } from 'rxjs';
+import { GameLauncherService } from '../services/game-launcher.service';
+import { GameRuntimeService } from '../services/game-runtime.service';
+import { GameEventHandlerService } from '../services/game-event-handler.service';
 
 const game = {
   id: 'FAKE_GAME_ID',
@@ -14,20 +17,41 @@ class GamesServiceStub {
   replacePlayer(gameId: string, replaceeId: string, replacementId: string) { return new Promise(resolve => resolve(game)); }
 }
 
+class GameLauncherServiceStub {
+  gameUpdated = new Subject<any>();
+}
+
+class GameRuntimeServiceStub {
+  gameUpdated = new Subject<any>();
+}
+
+class GameEventHandlerServiceStub {
+  gameUpdated = new Subject<any>();
+}
+
 describe('GamesGateway', () => {
   let gateway: GamesGateway;
   let gamesService: GamesServiceStub;
+  let gameLauncherService: GameLauncherServiceStub;
+  let gameRuntimeService: GameRuntimeServiceStub;
+  let gameEventHandlerService: GameEventHandlerServiceStub;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         GamesGateway,
         { provide: GamesService, useClass: GamesServiceStub },
+        { provide: GameLauncherService, useClass: GameLauncherServiceStub },
+        { provide: GameRuntimeService, useClass: GameRuntimeServiceStub },
+        { provide: GameEventHandlerService, useClass: GameEventHandlerServiceStub },
       ],
     }).compile();
 
     gateway = module.get<GamesGateway>(GamesGateway);
     gamesService = module.get(GamesService);
+    gameLauncherService = module.get(GameLauncherService);
+    gameRuntimeService = module.get(GameRuntimeService);
+    gameEventHandlerService = module.get(GameEventHandlerService);
   });
 
   it('should be defined', () => {
@@ -57,6 +81,15 @@ describe('GamesGateway', () => {
       expect(spy).toHaveBeenCalledWith('game created', game);
 
       gamesService.gameUpdated.next(game);
+      expect(spy).toHaveBeenCalledWith('game updated', game);
+
+      gameLauncherService.gameUpdated.next(game);
+      expect(spy).toHaveBeenCalledWith('game updated', game);
+
+      gameRuntimeService.gameUpdated.next(game);
+      expect(spy).toHaveBeenCalledWith('game updated', game);
+
+      gameEventHandlerService.gameUpdated.next(game);
       expect(spy).toHaveBeenCalledWith('game updated', game);
     });
   });

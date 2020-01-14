@@ -10,10 +10,11 @@ import { GamesController } from './controllers/games.controller';
 import { removeGameAssignedSkills } from '@/utils/tojson-transform';
 import { GamesGateway } from './gateways/games.gateway';
 import { ServerConfiguratorService } from './services/server-configurator.service';
-import { GameRunnerFactoryService } from './services/game-runner-factory.service';
-import { GameRunnerManagerService } from './services/game-runner-manager.service';
 import { GameEventListenerService } from './services/game-event-listener.service';
 import { RconFactoryService } from './services/rcon-factory.service';
+import { GameLauncherService } from './services/game-launcher.service';
+import { GameRuntimeService } from './services/game-runtime.service';
+import { GameEventHandlerService } from './services/game-event-handler.service';
 
 @Module({
   imports: [
@@ -27,9 +28,10 @@ import { RconFactoryService } from './services/rcon-factory.service';
     GamesGateway,
     ServerConfiguratorService,
     GameEventListenerService,
-    GameRunnerFactoryService,
-    GameRunnerManagerService,
     RconFactoryService,
+    GameLauncherService,
+    GameRuntimeService,
+    GameEventHandlerService,
   ],
   exports: [
     GamesService,

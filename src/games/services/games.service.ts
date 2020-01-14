@@ -1,4 +1,4 @@
-import { Injectable, Logger, Inject, forwardRef, OnModuleInit } from '@nestjs/common';
+import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
 import { InjectModel } from 'nestjs-typegoose';
 import { ReturnModelType, DocumentType } from '@typegoose/typegoose';
 import { Game } from '../models/game';
@@ -9,10 +9,10 @@ import { PlayerSkillService } from '@/players/services/player-skill.service';
 import { QueueConfigService } from '@/queue/services/queue-config.service';
 import { Subject } from 'rxjs';
 import { extractFriends } from '../utils/extract-friends';
-import { GameRunnerManagerService } from './game-runner-manager.service';
-import { takeUntil } from 'rxjs/operators';
 import { GamePlayer } from '../models/game-player';
 import { PlayerBansService } from '@/players/services/player-bans.service';
+import { GameLauncherService } from './game-launcher.service';
+import { GameRuntimeService } from './game-runtime.service';
 
 interface GameSortOptions {
   launchedAt: 1 | -1;
@@ -23,7 +23,7 @@ interface GetPlayerGameCountOptions {
 }
 
 @Injectable()
-export class GamesService implements OnModuleInit {
+export class GamesService {
 
   private logger = new Logger(GamesService.name);
   private _gameCreated = new Subject<Game>(); // todo pass only game id
@@ -42,21 +42,10 @@ export class GamesService implements OnModuleInit {
     @Inject(forwardRef(() => PlayersService)) private playersService: PlayersService,
     private playerSkillService: PlayerSkillService,
     private queueConfigService: QueueConfigService,
-    @Inject(forwardRef(() => GameRunnerManagerService)) private gameRunnerManagerService: GameRunnerManagerService,
     private playerBansService: PlayerBansService,
+    @Inject(forwardRef(() => GameLauncherService)) private gameLauncherService: GameLauncherService,
+    @Inject(forwardRef(() => GameRuntimeService)) private gameRuntimeService: GameRuntimeService,
   ) { }
-
-  async onModuleInit() {
-    const runningGames = await this.getRunningGames();
-    runningGames.forEach(async game => {
-      const gameRunner = this.gameRunnerManagerService.createGameRunner(game.id);
-      await gameRunner.initialize();
-
-      gameRunner.gameUpdated.pipe(
-        takeUntil(gameRunner.gameFinished),
-      ).subscribe(() => this._gameUpdated.next(gameRunner.game));
-    });
-  }
 
   async getGameCount(): Promise<number> {
     return await this.gameModel.estimatedDocumentCount();
@@ -150,33 +139,7 @@ export class GamesService implements OnModuleInit {
   }
 
   async launch(gameId: string) {
-    const gameRunner = this.gameRunnerManagerService.createGameRunner(gameId);
-    await gameRunner.initialize();
-
-    gameRunner.gameUpdated.pipe(
-      takeUntil(gameRunner.gameFinished),
-    ).subscribe(() => this._gameUpdated.next(gameRunner.game));
-
-    await gameRunner.launch();
-  }
-
-  // fixme rename
-  async reinitialize(gameId: string) {
-    const gameRunner = this.gameRunnerManagerService.findGameRunnerByGameId(gameId);
-    if (!gameRunner) {
-      throw new Error('no such game');
-    }
-
-    await gameRunner.reconfigure();
-  }
-
-  async forceEnd(gameId: string) {
-    const gameRunner = this.gameRunnerManagerService.findGameRunnerByGameId(gameId);
-    if (!gameRunner) {
-      throw new Error('no such game');
-    }
-
-    await gameRunner.forceEnd();
+    await this.gameLauncherService.launch(gameId);
   }
 
   async getMostActivePlayers() {
@@ -295,10 +258,7 @@ export class GamesService implements OnModuleInit {
     await game.save();
     this._gameUpdated.next(game);
     this.logger.verbose(`player ${replacement.name} took the sub slot in game game #${game.number}`);
-    setImmediate(() => {
-      const runner = this.gameRunnerManagerService.findGameRunnerByGameId(game.id);
-      runner.replacePlayer(replaceeId, replacementSlot);
-    });
+    setImmediate(() => this.gameRuntimeService.replacePlayer(game.id, replaceeId, replacementSlot));
     return game;
   }
 
