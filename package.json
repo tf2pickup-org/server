@@ -18,7 +18,7 @@
     "@nestjs/common": "6.10.14",
     "@nestjs/config": "0.0.9",
     "@nestjs/core": "6.10.14",
-    "@nestjs/mongoose": "6.1.2",
+    "@nestjs/mongoose": "6.2.1",
     "@nestjs/passport": "6.1.1",
     "@nestjs/platform-express": "6.10.14",
     "@nestjs/platform-socket.io": "6.10.14",
