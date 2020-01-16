@@ -6,18 +6,12 @@ import { RconFactoryService } from './rcon-factory.service';
 import { PlayersService } from '@/players/services/players.service';
 import { addGamePlayer, delGamePlayer } from '../utils/rcon-commands';
 import { GamePlayer } from '../models/game-player';
-import { Subject } from 'rxjs';
-import { Game } from '../models/game';
+import { GamesGateway } from '../gateways/games.gateway';
 
 @Injectable()
 export class GameRuntimeService {
 
   private logger = new Logger(GameRuntimeService.name);
-  private _gameUpdated = new Subject<Game>();
-
-  get gameUpdated() {
-    return this._gameUpdated.asObservable();
-  }
 
   constructor(
     @Inject(forwardRef(() => GamesService)) private gamesService: GamesService,
@@ -25,6 +19,7 @@ export class GameRuntimeService {
     private serverConfiguratorService: ServerConfiguratorService,
     private rconFactoryService: RconFactoryService,
     @Inject(forwardRef(() => PlayersService)) private playersService: PlayersService,
+    @Inject(forwardRef(() => GamesGateway)) private gamesGateway: GamesGateway,
   ) { }
 
   async reconfigure(gameId: string) {
@@ -39,14 +34,14 @@ export class GameRuntimeService {
 
     game.connectString = null;
     await game.save();
-    this._gameUpdated.next(game);
+    this.gamesGateway.emitGameUpdated(game);
 
     const gameServer = await this.gameServersService.getById(game.gameServer.toString());
     const { connectString } = await this.serverConfiguratorService.configureServer(gameServer, game);
 
     game.connectString = connectString;
     await game.save();
-    this._gameUpdated.next(game);
+    this.gamesGateway.emitGameUpdated(game);
     return game;
   }
 
@@ -59,7 +54,7 @@ export class GameRuntimeService {
     game.state = 'interrupted';
     game.error = 'ended by admin';
     await game.save();
-    this._gameUpdated.next(game);
+    this.gamesGateway.emitGameUpdated(game);
 
     if (game.gameServer) {
       await this.cleanupServer(game.gameServer.toString());

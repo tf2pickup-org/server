@@ -1,9 +1,10 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
 import { GamesService } from './games.service';
 import { PlayersService } from '@/players/services/players.service';
 import { PlayerBansService } from '@/players/services/player-bans.service';
 import { GamePlayer } from '../models/game-player';
 import { GameRuntimeService } from './game-runtime.service';
+import { GamesGateway } from '../gateways/games.gateway';
 
 /**
  * A service that handles player substitution logic.
@@ -17,10 +18,11 @@ export class PlayerSubstitutionService {
   private logger = new Logger(PlayerSubstitutionService.name);
 
   constructor(
-    private gamesService: GamesService,
-    private playersService: PlayersService,
+    @Inject(forwardRef(() => GamesService)) private gamesService: GamesService,
+    @Inject(forwardRef(() => PlayersService)) private playersService: PlayersService,
     private playerBansService: PlayerBansService,
-    private gameRuntimeService: GameRuntimeService,
+    @Inject(forwardRef(() => GameRuntimeService)) private gameRuntimeService: GameRuntimeService,
+    @Inject(forwardRef(() => GamesGateway)) private gamesGateway: GamesGateway,
   ) { }
 
   async substitutePlayer(gameId: string, playerId: string) {
@@ -43,7 +45,7 @@ export class PlayerSubstitutionService {
 
     slot.status = 'waiting for substitute';
     await game.save();
-    // this._gameUpdated.next(game);
+    this.gamesGateway.emitGameUpdated(game);
     return game;
   }
 
@@ -67,7 +69,7 @@ export class PlayerSubstitutionService {
 
     slot.status = 'active';
     await game.save();
-    // this._gameUpdated.next(game);
+    this.gamesGateway.emitGameUpdated(game);
     return game;
   }
 
@@ -89,7 +91,7 @@ export class PlayerSubstitutionService {
     if (replaceeId === replacementId) {
       slot.status = 'active';
       await game.save();
-      // this._gameUpdated.next(game);
+      this.gamesGateway.emitGameUpdated(game);
       this.logger.verbose(`player has taken his own slot`);
       return game;
     }
@@ -116,7 +118,7 @@ export class PlayerSubstitutionService {
     slot.status = 'replaced';
 
     await game.save();
-    // this._gameUpdated.next(game);
+    this.gamesGateway.emitGameUpdated(game);
     this.logger.verbose(`player ${replacement.name} took the sub slot in game game #${game.number}`);
     setImmediate(() => this.gameRuntimeService.replacePlayer(game.id, replaceeId, replacementSlot));
     return game;

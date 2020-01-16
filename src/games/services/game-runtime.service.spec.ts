@@ -5,6 +5,7 @@ import { GameServersService } from '@/game-servers/services/game-servers.service
 import { ServerConfiguratorService } from './server-configurator.service';
 import { RconFactoryService } from './rcon-factory.service';
 import { PlayersService } from '@/players/services/players.service';
+import { GamesGateway } from '../gateways/games.gateway';
 
 const mockGame = {
   id: 'FAKE_GAME_ID',
@@ -36,6 +37,10 @@ class ServerConfiguratorServiceStub {
 class RconFactoryServiceStub { }
 class PlayersServiceStub { }
 
+class GamesGatewayStub {
+  emitGameUpdated(game: any) { return null; }
+}
+
 describe('GameRuntimeService', () => {
   let service: GameRuntimeService;
   let gamesService: GamesServiceStub;
@@ -51,6 +56,7 @@ describe('GameRuntimeService', () => {
         { provide: ServerConfiguratorService, useClass: ServerConfiguratorServiceStub },
         { provide: RconFactoryService, useClass: RconFactoryServiceStub },
         { provide: PlayersService, useClass: PlayersServiceStub },
+        { provide: GamesGateway, useClass: GamesGatewayStub },
       ],
     }).compile();
 

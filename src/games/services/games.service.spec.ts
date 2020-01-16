@@ -12,6 +12,7 @@ import { ObjectId } from 'mongodb';
 import { QueueSlot } from '@/queue/queue-slot';
 import { GameLauncherService } from './game-launcher.service';
 import { QueueConfigService } from '@/queue/services/queue-config.service';
+import { GamesGateway } from '../gateways/games.gateway';
 
 class PlayersServiceStub {
   player: Player = {
@@ -51,12 +52,13 @@ class QueueConfigServiceStub {
   };
 }
 
-class PlayerBansServiceStub {
-  getPlayerActiveBans(playerId: string) { return []; }
-}
-
 class GameLauncherServiceStub {
   launch(gameId: string) { return null; }
+}
+
+class GamesGatewayStub {
+  emitGameCreated(game: any) { return null; }
+  emitGameUpdated(game: any) { return null; }
 }
 
 describe('GamesService', () => {
@@ -76,6 +78,7 @@ describe('GamesService', () => {
         { provide: PlayerSkillService, useClass: PlayerSkillServiceStub },
         { provide: QueueConfigService, useClass: QueueConfigServiceStub },
         { provide: GameLauncherService, useClass: GameLauncherServiceStub },
+        { provide: GamesGateway, useClass: GamesGatewayStub },
       ],
     }).compile();
 

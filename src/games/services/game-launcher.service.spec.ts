@@ -4,6 +4,7 @@ import { GamesService } from './games.service';
 import { GameServersService } from '@/game-servers/services/game-servers.service';
 import { ServerConfiguratorService } from './server-configurator.service';
 import { Environment } from '@/environment/environment';
+import { GamesGateway } from '../gateways/games.gateway';
 
 const mockGame = {
   id: 'FAKE_GAME_ID',
@@ -25,7 +26,7 @@ const mockGameServer = {
 
 class GameServersServiceStub {
   findFreeGameServer() { return new Promise(resolve => resolve(mockGameServer)); }
-  takeServer(gameServerId: string) { }
+  takeServer(gameServerId: string) { return null; }
 }
 
 class ServerConfiguratorServiceStub {
@@ -35,6 +36,10 @@ class ServerConfiguratorServiceStub {
 class EnvironmentStub {
   mumbleServerUrl = 'FAKE_MUMBLE_SERVER_URL';
   mumbleChannelName = 'FAKE_MUMBLE_CHANNEL_NAME';
+}
+
+class GamesGatewayStub {
+  emitGameUpdated(game: any) { return null; }
 }
 
 describe('GameLauncherService', () => {
@@ -51,6 +56,7 @@ describe('GameLauncherService', () => {
         { provide: GameServersService, useClass: GameServersServiceStub },
         { provide: ServerConfiguratorService, useClass: ServerConfiguratorServiceStub },
         { provide: Environment, useClass: EnvironmentStub },
+        { provide: GamesGateway, useClass: GamesGatewayStub },
       ],
     }).compile();
 

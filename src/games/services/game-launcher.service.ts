@@ -3,8 +3,7 @@ import { GamesService } from './games.service';
 import { GameServersService } from '@/game-servers/services/game-servers.service';
 import { ServerConfiguratorService } from './server-configurator.service';
 import { Environment } from '@/environment/environment';
-import { Subject } from 'rxjs';
-import { Game } from '../models/game';
+import { GamesGateway } from '../gateways/games.gateway';
 
 /**
  * This service is responsible for launching a single game.
@@ -16,17 +15,13 @@ import { Game } from '../models/game';
 export class GameLauncherService {
 
   private logger = new Logger(GameLauncherService.name);
-  private _gameUpdated = new Subject<Game>();
-
-  get gameUpdated() {
-    return this._gameUpdated.asObservable();
-  }
 
   constructor(
     @Inject(forwardRef(() => GamesService)) private gamesService: GamesService,
     private gameServersService: GameServersService,
     private serverConfiguratorService: ServerConfiguratorService,
     private environment: Environment,
+    private gamesGateway: GamesGateway,
   ) { }
 
   /**
@@ -53,20 +48,20 @@ export class GameLauncherService {
       await this.gameServersService.takeServer(server.id);
       game.gameServer = server;
       await game.save();
-      this._gameUpdated.next(game);
+      this.gamesGateway.emitGameUpdated(game);
 
       // step 2: set mumble url
       const mumbleUrl = `mumble://${this.environment.mumbleServerUrl}/${this.environment.mumbleChannelName}/${server.mumbleChannelName}`;
       this.logger.verbose(`game #${game.number} mumble url: ${mumbleUrl}`);
       game.mumbleUrl = mumbleUrl;
       await game.save();
-      this._gameUpdated.next(game);
+      this.gamesGateway.emitGameUpdated(game);
 
       // step 3: configure server
       const { connectString } = await this.serverConfiguratorService.configureServer(server, game);
       game.connectString = connectString;
       await game.save();
-      this._gameUpdated.next(game);
+      this.gamesGateway.emitGameUpdated(game);
 
       this.logger.verbose(`game #${game.number} initialized`);
       return game;

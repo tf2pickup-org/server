@@ -4,6 +4,7 @@ import { GamesService } from './games.service';
 import { PlayersService } from '@/players/services/players.service';
 import { PlayerBansService } from '@/players/services/player-bans.service';
 import { GameRuntimeService } from './game-runtime.service';
+import { GamesGateway } from '../gateways/games.gateway';
 
 const mockGame = {
   id: 'FAKE_GAME_ID',
@@ -64,12 +65,17 @@ class GameRuntimeServiceStub {
   replacePlayer(gameId: string, replaceeId: string, replacementSlot: any) { return null; }
 }
 
+class GamesGatewayStub {
+  emitGameUpdated(game: any) { return null; }
+}
+
 describe('PlayerSubstitutionService', () => {
   let service: PlayerSubstitutionService;
   let gamesService: GamesServiceStub;
   let playersService: PlayersServiceStub;
   let playerBansService: PlayerBansServiceStub;
   let gameRuntimeService: GameRuntimeServiceStub;
+  let gamesGateway: GamesGatewayStub;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -79,6 +85,7 @@ describe('PlayerSubstitutionService', () => {
         { provide: PlayersService, useClass: PlayersServiceStub },
         { provide: PlayerBansService, useClass: PlayerBansServiceStub },
         { provide: GameRuntimeService, useClass: GameRuntimeServiceStub },
+        { provide: GamesGateway, useClass: GamesGatewayStub },
       ],
     }).compile();
 
@@ -87,6 +94,7 @@ describe('PlayerSubstitutionService', () => {
     playersService = module.get(PlayersService);
     playerBansService = module.get(PlayerBansService);
     gameRuntimeService = module.get(GameRuntimeService);
+    gamesGateway = module.get(GamesGateway);
   });
 
   it('should be defined', () => {
@@ -117,13 +125,11 @@ describe('PlayerSubstitutionService', () => {
       expect(spy).toHaveBeenCalled();
     });
 
-    // it('should emit an event', async done => {
-    //   service.gameUpdated.subscribe(tGame => {
-    //     expect(tGame.number).toEqual(game.number);
-    //     done();
-    //   });
-    //   await service.substitutePlayer(game.id.toString(), playerA.toString());
-    // });
+    it('should emit the  event', async () => {
+      const spy = spyOn(gamesGateway, 'emitGameUpdated');
+      const game = await service.substitutePlayer('FAKE_GAME_ID', 'FAKE_PLAYER_1');
+      expect(spy).toHaveBeenCalledWith(game);
+    });
 
     it('should reject if the game is no longer active', async () => {
       const game = { ...mockGame, state: 'ended' };
@@ -160,13 +166,11 @@ describe('PlayerSubstitutionService', () => {
       expect(spy).toHaveBeenCalled();
     });
 
-    // it('should emit an event', async done => {
-    //   service.gameUpdated.subscribe(tGame => {
-    //     expect(tGame.number).toEqual(game.number);
-    //     done();
-    //   });
-    //   await service.cancelSubstitutionRequest(game.id.toString(), playerA.toString());
-    // });
+    it('should emit the event', async () => {
+      const spy = spyOn(gamesGateway, 'emitGameUpdated');
+      const game = await service.cancelSubstitutionRequest('FAKE_GAME_ID', 'FAKE_PLAYER_1');
+      expect(spy).toHaveBeenCalledWith(game);
+    });
 
     it('should reject if the game is no longer active', async () => {
       gamesService.game.state = 'ended';
@@ -191,6 +195,12 @@ describe('PlayerSubstitutionService', () => {
       expect(replacementSlot.status).toBe('active');
       expect(game.players.find((p: any) => p.id === 'FAKE_PLAYER_3')).toBeDefined();
       expect(spy).toHaveBeenCalled();
+    });
+
+    it('should emit the event', async () => {
+      const spy = spyOn(gamesGateway, 'emitGameUpdated');
+      const game = await service.replacePlayer('FAKE_GAME_ID', 'FAKE_PLAYER_1', 'FAKE_PLAYER_3');
+      expect(spy).toHaveBeenCalledWith(game);
     });
 
     it('should replace the player in-game', async done => {

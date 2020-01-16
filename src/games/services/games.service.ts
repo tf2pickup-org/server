@@ -7,9 +7,9 @@ import { PlayerSlot, pickTeams } from '../utils/pick-teams';
 import { PlayersService } from '@/players/services/players.service';
 import { PlayerSkillService } from '@/players/services/player-skill.service';
 import { QueueConfigService } from '@/queue/services/queue-config.service';
-import { Subject } from 'rxjs';
 import { extractFriends } from '../utils/extract-friends';
 import { GameLauncherService } from './game-launcher.service';
+import { GamesGateway } from '../gateways/games.gateway';
 
 interface GameSortOptions {
   launchedAt: 1 | -1;
@@ -23,16 +23,6 @@ interface GetPlayerGameCountOptions {
 export class GamesService {
 
   private logger = new Logger(GamesService.name);
-  private _gameCreated = new Subject<Game>(); // todo pass only game id
-  private _gameUpdated = new Subject<Game>();
-
-  get gameCreated() {
-    return this._gameCreated.asObservable();
-  }
-
-  get gameUpdated() {
-    return this._gameUpdated.asObservable();
-  }
 
   constructor(
     @InjectModel(Game) private gameModel: ReturnModelType<typeof Game>,
@@ -40,6 +30,7 @@ export class GamesService {
     private playerSkillService: PlayerSkillService,
     private queueConfigService: QueueConfigService,
     @Inject(forwardRef(() => GameLauncherService)) private gameLauncherService: GameLauncherService,
+    @Inject(forwardRef(() => GamesGateway)) private gamesGateway: GamesGateway,
   ) { }
 
   async getGameCount(): Promise<number> {
@@ -130,7 +121,7 @@ export class GamesService {
     });
 
     this.logger.debug(`game #${game.number} created`);
-    this._gameCreated.next(game);
+    this.gamesGateway.emitGameCreated(game);
     return game;
   }
 

@@ -1,22 +1,17 @@
 import { WebSocketGateway, OnGatewayInit, SubscribeMessage } from '@nestjs/websockets';
 import { Socket } from 'socket.io';
-import { GamesService } from '../services/games.service';
 import { WsAuthorized } from '@/auth/decorators/ws-authorized.decorator';
-import { GameLauncherService } from '../services/game-launcher.service';
-import { GameRuntimeService } from '../services/game-runtime.service';
-import { merge } from 'rxjs';
-import { GameEventHandlerService } from '../services/game-event-handler.service';
 import { PlayerSubstitutionService } from '../services/player-substitution.service';
+import { Game } from '../models/game';
+import { Inject, forwardRef } from '@nestjs/common';
 
 @WebSocketGateway()
 export class GamesGateway implements OnGatewayInit {
 
+  private socket: Socket;
+
   constructor(
-    private gamesService: GamesService,
-    private gameLauncherService: GameLauncherService,
-    private gameRuntimeService: GameRuntimeService,
-    private gameEventHandlerService: GameEventHandlerService,
-    private playerSubstitutionService: PlayerSubstitutionService,
+    @Inject(forwardRef(() => PlayerSubstitutionService)) private playerSubstitutionService: PlayerSubstitutionService,
   ) { }
 
   @WsAuthorized()
@@ -25,15 +20,16 @@ export class GamesGateway implements OnGatewayInit {
     return await this.playerSubstitutionService.replacePlayer(payload.gameId, payload.replaceeId, client.request.user.id);
   }
 
-  afterInit(socket: Socket) {
-    this.gamesService.gameCreated.subscribe(game => socket.emit('game created', game));
+  emitGameCreated(game: Game) {
+    this.socket.emit('game created', game);
+  }
 
-    merge(
-      this.gamesService.gameUpdated,
-      this.gameLauncherService.gameUpdated,
-      this.gameRuntimeService.gameUpdated,
-      this.gameEventHandlerService.gameUpdated,
-    ).subscribe(game => socket.emit('game updated', game));
+  emitGameUpdated(game: Game) {
+    this.socket.emit('game updated', game);
+  }
+
+  afterInit(socket: Socket) {
+    this.socket = socket;
   }
 
 }

@@ -4,6 +4,7 @@ import { GamesService } from './games.service';
 import { PlayersService } from '@/players/services/players.service';
 import { ConfigService } from '@nestjs/config';
 import { GameRuntimeService } from './game-runtime.service';
+import { GamesGateway } from '../gateways/games.gateway';
 
 const mockGame = {
   id: 'FAKE_GAME_ID',
@@ -33,10 +34,15 @@ class GameRuntimeServiceStub {
   cleanupServer(gameId: string) { return null; }
 }
 
+class GamesGatewayStub {
+  emitGameUpdated(game: any) { return null; }
+}
+
 describe('GameEventHandlerService', () => {
   let service: GameEventHandlerService;
   let gamesService: GamesServiceStub;
   let gameRuntimeService: GameRuntimeServiceStub;
+  let gamesGateway: GamesGatewayStub;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -46,12 +52,14 @@ describe('GameEventHandlerService', () => {
         { provide: PlayersService, useClass: PlayersServiceStub },
         { provide: ConfigService, useClass: ConfigServiceStub },
         { provide: GameRuntimeService, useClass: GameRuntimeServiceStub },
+        { provide: GamesGateway, useClass: GamesGatewayStub },
       ],
     }).compile();
 
     service = module.get<GameEventHandlerService>(GameEventHandlerService);
     gamesService = module.get(GamesService);
     gameRuntimeService = module.get(GameRuntimeService);
+    gamesGateway = module.get(GamesGateway);
   });
 
   it('should be defined', () => {

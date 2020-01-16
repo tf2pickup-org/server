@@ -4,25 +4,20 @@ import { PlayersService } from '@/players/services/players.service';
 import { PlayerConnectionStatus } from '../models/player-connection-status';
 import { ConfigService } from '@nestjs/config';
 import { GameRuntimeService } from './game-runtime.service';
-import { Subject } from 'rxjs';
-import { Game } from '../models/game';
+import { GamesGateway } from '../gateways/games.gateway';
 
 @Injectable()
 export class GameEventHandlerService {
 
   private logger = new Logger(GameEventHandlerService.name);
   private serverCleanupDelay = this.configService.get<number>('serverCleanupDelay');
-  private _gameUpdated = new Subject<Game>();
-
-  get gameUpdated() {
-    return this._gameUpdated.asObservable();
-  }
 
   constructor(
     private gamesService: GamesService,
     private playersService: PlayersService,
     private configService: ConfigService,
     private gameRuntimeService: GameRuntimeService,
+    private gamesGateway: GamesGateway,
   ) { }
 
   async onMatchStarted(gameId: string) {
@@ -81,7 +76,7 @@ export class GameEventHandlerService {
       if (slot) {
         slot.connectionStatus = connectionStatus;
         await game.save();
-        this._gameUpdated.next(game);
+        this.gamesGateway.emitGameUpdated(game);
       } else {
         this.logger.warn(`player ${player.name} does not belong in this game`);
       }
