@@ -5,6 +5,7 @@ import { Subject } from 'rxjs';
 import { GameLauncherService } from '../services/game-launcher.service';
 import { GameRuntimeService } from '../services/game-runtime.service';
 import { GameEventHandlerService } from '../services/game-event-handler.service';
+import { PlayerSubstitutionService } from '../services/player-substitution.service';
 
 const game = {
   id: 'FAKE_GAME_ID',
@@ -14,7 +15,6 @@ const game = {
 class GamesServiceStub {
   gameCreated = new Subject<any>();
   gameUpdated = new Subject<any>();
-  replacePlayer(gameId: string, replaceeId: string, replacementId: string) { return new Promise(resolve => resolve(game)); }
 }
 
 class GameLauncherServiceStub {
@@ -29,12 +29,17 @@ class GameEventHandlerServiceStub {
   gameUpdated = new Subject<any>();
 }
 
+class PlayerSubstitutionServiceStub {
+  replacePlayer(gameId: string, replaceeId: string, replacementId: string) { return new Promise(resolve => resolve(game)); }
+}
+
 describe('GamesGateway', () => {
   let gateway: GamesGateway;
   let gamesService: GamesServiceStub;
   let gameLauncherService: GameLauncherServiceStub;
   let gameRuntimeService: GameRuntimeServiceStub;
   let gameEventHandlerService: GameEventHandlerServiceStub;
+  let playerSubstitutionService: PlayerSubstitutionServiceStub;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -44,6 +49,7 @@ describe('GamesGateway', () => {
         { provide: GameLauncherService, useClass: GameLauncherServiceStub },
         { provide: GameRuntimeService, useClass: GameRuntimeServiceStub },
         { provide: GameEventHandlerService, useClass: GameEventHandlerServiceStub },
+        { provide: PlayerSubstitutionService, useClass: PlayerSubstitutionServiceStub },
       ],
     }).compile();
 
@@ -52,6 +58,7 @@ describe('GamesGateway', () => {
     gameLauncherService = module.get(GameLauncherService);
     gameRuntimeService = module.get(GameRuntimeService);
     gameEventHandlerService = module.get(GameEventHandlerService);
+    playerSubstitutionService = module.get(PlayerSubstitutionService);
   });
 
   it('should be defined', () => {
@@ -60,7 +67,7 @@ describe('GamesGateway', () => {
 
   describe('#replacePlayer()', () => {
     it('should replace the id', async () => {
-      const spy = spyOn(gamesService, 'replacePlayer').and.callThrough();
+      const spy = spyOn(playerSubstitutionService, 'replacePlayer').and.callThrough();
       const ret = await gateway.replacePlayer({ request: { user: { id: 'FAKE_REPLACEMENT_ID' } } }, { gameId: 'FAKE_GAME_ID', replaceeId: 'FAKE_REPLACEE_ID' });
       expect(spy).toHaveBeenCalledWith('FAKE_GAME_ID', 'FAKE_REPLACEE_ID', 'FAKE_REPLACEMENT_ID');
       expect(ret).toEqual(game as any);

@@ -3,6 +3,7 @@ import { GamesService } from '../services/games.service';
 import { ObjectIdValidationPipe } from '@/shared/pipes/object-id-validation.pipe';
 import { Auth } from '@/auth/decorators/auth.decorator';
 import { GameRuntimeService } from '../services/game-runtime.service';
+import { PlayerSubstitutionService } from '../services/player-substitution.service';
 
 @Controller('games')
 export class GamesController {
@@ -10,6 +11,7 @@ export class GamesController {
   constructor(
     private gamesService: GamesService,
     private gameRuntimeService: GameRuntimeService,
+    private playerSubstitutionService: PlayerSubstitutionService,
   ) { }
 
   @Get()
@@ -76,11 +78,11 @@ export class GamesController {
     }
 
     if (substitutePlayerId !== undefined) {
-      await this.gamesService.substitutePlayer(gameId, substitutePlayerId);
+      await this.playerSubstitutionService.substitutePlayer(gameId, substitutePlayerId);
     }
 
     if (cancelSubstitutePlayerId !== undefined) {
-      await this.gamesService.cancelSubstitutionRequest(gameId, cancelSubstitutePlayerId);
+      await this.playerSubstitutionService.cancelSubstitutionRequest(gameId, cancelSubstitutePlayerId);
     }
   }
 

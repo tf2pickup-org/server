@@ -16,6 +16,7 @@ import { GameLauncherService } from './services/game-launcher.service';
 import { GameRuntimeService } from './services/game-runtime.service';
 import { GameEventHandlerService } from './services/game-event-handler.service';
 import { GamesWithSubstitutionRequestsController } from './controllers/games-with-substitution-requests.controller';
+import { PlayerSubstitutionService } from './services/player-substitution.service';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { GamesWithSubstitutionRequestsController } from './controllers/games-wit
     GameLauncherService,
     GameRuntimeService,
     GameEventHandlerService,
+    PlayerSubstitutionService,
   ],
   exports: [
     GamesService,

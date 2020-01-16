@@ -6,6 +6,7 @@ import { GameLauncherService } from '../services/game-launcher.service';
 import { GameRuntimeService } from '../services/game-runtime.service';
 import { merge } from 'rxjs';
 import { GameEventHandlerService } from '../services/game-event-handler.service';
+import { PlayerSubstitutionService } from '../services/player-substitution.service';
 
 @WebSocketGateway()
 export class GamesGateway implements OnGatewayInit {
@@ -15,12 +16,13 @@ export class GamesGateway implements OnGatewayInit {
     private gameLauncherService: GameLauncherService,
     private gameRuntimeService: GameRuntimeService,
     private gameEventHandlerService: GameEventHandlerService,
+    private playerSubstitutionService: PlayerSubstitutionService,
   ) { }
 
   @WsAuthorized()
   @SubscribeMessage('replace player')
   async replacePlayer(client: any, payload: { gameId: string, replaceeId: string }) {
-    return await this.gamesService.replacePlayer(payload.gameId, payload.replaceeId, client.request.user.id);
+    return await this.playerSubstitutionService.replacePlayer(payload.gameId, payload.replaceeId, client.request.user.id);
   }
 
   afterInit(socket: Socket) {
