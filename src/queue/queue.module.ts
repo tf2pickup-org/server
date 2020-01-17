@@ -9,6 +9,7 @@ import { QueueController } from './controllers/queue.controller';
 import { QueueNotificationsService } from './services/queue-notifications.service';
 import { DiscordModule } from '@/discord/discord.module';
 import { AutoGameLauncherService } from './services/auto-game-launcher.service';
+import { QueueAnnouncementsService } from './services/queue-announcements.service';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { AutoGameLauncherService } from './services/auto-game-launcher.service';
     QueueGateway,
     QueueNotificationsService,
     AutoGameLauncherService,
+    QueueAnnouncementsService,
   ],
   exports: [
     QueueService,

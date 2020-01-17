@@ -152,7 +152,7 @@ export class GamesService {
     ]);
   }
 
-  async getGamesWithSubstitutionRequests(): Promise<Game[]> {
+  async getGamesWithSubstitutionRequests(): Promise<Array<DocumentType<Game>>> {
     return this.gameModel
       .find({
         'state': /launching|started/,

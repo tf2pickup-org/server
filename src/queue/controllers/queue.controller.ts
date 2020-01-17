@@ -2,6 +2,7 @@ import { Controller, Get } from '@nestjs/common';
 import { QueueConfigService } from '../services/queue-config.service';
 import { QueueService } from '../services/queue.service';
 import { MapVoteService } from '../services/map-vote.service';
+import { QueueAnnouncementsService } from '../services/queue-announcements.service';
 
 @Controller('queue')
 export class QueueController {
@@ -10,15 +11,17 @@ export class QueueController {
     private queueConfigService: QueueConfigService,
     private queueService: QueueService,
     private mapVoteService: MapVoteService,
+    private queueAnnouncementsService: QueueAnnouncementsService,
   ) { }
 
   @Get()
-  getQueue() {
+  async getQueue() {
     return {
       config: this.queueConfigService.queueConfig,
       slots: this.queueService.slots,
       state: this.queueService.state,
       mapVoteResults: this.mapVoteService.results,
+      substituteRequests: await this.queueAnnouncementsService.substituteRequests(),
     };
   }
 
@@ -40,6 +43,11 @@ export class QueueController {
   @Get('map_vote_results')
   getMapVoteResults() {
     return this.mapVoteService.results;
+  }
+
+  @Get('announcements')
+  async getSubstituteRequests() {
+    return this.queueAnnouncementsService.substituteRequests();
   }
 
 }
