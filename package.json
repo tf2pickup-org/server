@@ -35,7 +35,7 @@
     "jsonwebtoken": "8.5.1",
     "lodash": "4.17.15",
     "moment": "2.24.0",
-    "mongoose": "5.8.7",
+    "mongoose": "5.8.9",
     "nestjs-typegoose": "7.0.0",
     "passport": "0.4.1",
     "passport-jwt": "4.0.0",
