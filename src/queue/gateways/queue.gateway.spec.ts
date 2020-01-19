@@ -30,10 +30,15 @@ class MapVoteServiceStub {
   voteForMap(playerId: string, map: string) { return null; }
 }
 
+class SocketStub {
+  emit(event: string, ...args: any[]) { return null; }
+}
+
 describe('QueueGateway', () => {
   let gateway: QueueGateway;
   let queueService: QueueServiceStub;
   let mapVoteService: MapVoteServiceStub;
+  let socket: SocketStub;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -47,6 +52,9 @@ describe('QueueGateway', () => {
     gateway = module.get<QueueGateway>(QueueGateway);
     queueService = module.get(QueueService);
     mapVoteService = module.get(MapVoteService);
+
+    socket = new SocketStub();
+    gateway.afterInit(socket as any);
   });
 
   it('should be defined', () => {
@@ -98,33 +106,28 @@ describe('QueueGateway', () => {
     });
   });
 
-  describe('#afterInit()', () => {
-    const socket = { emit: (...args: any[]) => null };
-
-    it('should subscribe to slot change event', () => {
-      const spy = spyOn(socket, 'emit').and.callThrough();
-      gateway.afterInit(socket as any);
-
-      const slot = { id: 0, playerId: 'FAKE_ID', ready: true };
-      queueService.slotsChange.next([ slot ]);
-      expect(spy).toHaveBeenCalledWith('queue slots update', [ slot ]);
+  describe('#emitSlotsUpdate()', () => {
+    it('should emit the event', () => {
+      const spy = spyOn(socket, 'emit');
+      const slot = { id: 0, playerId: 'FAKE_ID', ready: true, gameClass: 'soldier', friend: null };
+      gateway.emitSlotsUpdate([slot]);
+      expect(spy).toHaveBeenCalledWith('queue slots update', [slot]);
     });
+  });
 
-    it('should subsribe to state change event', () => {
-      const spy = spyOn(socket, 'emit').and.callThrough();
-      gateway.afterInit(socket as any);
-
-      queueService.stateChange.next('waiting');
-      expect(spy).toHaveBeenCalledWith('queue state update', 'waiting');
+  describe('#emitStateUpdate()', () => {
+    it('should emit the event', () => {
+      const spy = spyOn(socket, 'emit');
+      gateway.emitStateUpdate('launching');
+      expect(spy).toHaveBeenCalledWith('queue state update', 'launching');
     });
+  });
 
-    it('should subscribe to map results change event', () => {
-      const spy = spyOn(socket, 'emit').and.callThrough();
-      gateway.afterInit(socket as any);
-
-      const results = [ { map: 'cp_fake_rc1', voteCount: 2 } ];
-      mapVoteService.resultsChange.next(results);
-      expect(spy).toHaveBeenCalledWith('map vote results update', results);
+  describe('#emitVoteResultsUpdate()', () => {
+    it('should emit the event', () => {
+      const spy = spyOn(socket, 'emit');
+      gateway.emitVoteResultsUpdate([]);
+      expect(spy).toHaveBeenCalledWith('map vote results update', jasmine.any(Array));
     });
   });
 });

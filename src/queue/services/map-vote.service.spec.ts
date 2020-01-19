@@ -3,6 +3,7 @@ import { MapVoteService } from './map-vote.service';
 import { QueueConfigService } from './queue-config.service';
 import { QueueService } from './queue.service';
 import { Subject } from 'rxjs';
+import { QueueGateway } from '../gateways/queue.gateway';
 
 class QueueConfigServiceStub {
   queueConfig = {
@@ -15,10 +16,15 @@ class QueueServiceStub {
   playerLeave = new Subject<string>();
 }
 
+class QueueGatewayStub {
+  emitVoteResultsUpdate(results: any[]) { return null; }
+}
+
 describe('MapVoteService', () => {
   let service: MapVoteService;
   let queueConfigService: QueueConfigServiceStub;
   let queueService: QueueServiceStub;
+  let queueGateway: QueueGatewayStub;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -26,12 +32,14 @@ describe('MapVoteService', () => {
         MapVoteService,
         { provide: QueueConfigService, useClass: QueueConfigServiceStub },
         { provide: QueueService, useClass: QueueServiceStub },
+        { provide: QueueGateway, useClass: QueueGatewayStub },
       ],
     }).compile();
 
     service = module.get<MapVoteService>(MapVoteService);
     queueConfigService = module.get(QueueConfigService);
     queueService = module.get(QueueService);
+    queueGateway = module.get(QueueGateway);
 
     service.onModuleInit();
   });
@@ -75,6 +83,12 @@ describe('MapVoteService', () => {
       queueService.playerLeave.next('FAKE_PLAYER_ID');
       expect(service.voteCountForMap('cp_badlands')).toEqual(0);
     });
+
+    it('should emit the event over ws', () => {
+      const spy = spyOn(queueGateway, 'emitVoteResultsUpdate');
+      service.voteForMap('FAKE_ID', 'cp_badlands');
+      expect(spy).toHaveBeenCalled();
+    });
   });
 
   describe('#getWinner()', () => {
@@ -96,11 +110,13 @@ describe('MapVoteService', () => {
     it('should eventually reset the vote', done => {
       service.voteForMap('FAKE_ID_1', 'cp_badlands');
       service.voteForMap('FAKE_ID_2', 'cp_process_final');
+      const spy = spyOn(queueGateway, 'emitVoteResultsUpdate');
 
       const map = service.getWinner();
       setImmediate(() => {
         expect(service.results.every(r => r.voteCount === 0)).toBe(true);
         expect(service.mapOptions.every(m => m !== map));
+        expect(spy).toHaveBeenCalled();
         done();
       });
     });

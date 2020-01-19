@@ -8,11 +8,8 @@ import { pairwise, distinctUntilChanged } from 'rxjs/operators';
 import { GamesService } from '@/games/services/games.service';
 import { OnlinePlayersService } from '@/players/services/online-players.service';
 import { ConfigService } from '@nestjs/config';
-
-// waiting: waiting for players
-// ready: players are expected to ready up
-// launching: the game is being launched
-type QueueState = 'waiting' | 'ready' | 'launching';
+import { QueueState } from '../queue-state';
+import { QueueGateway } from '../gateways/queue.gateway';
 
 @Injectable()
 export class QueueService implements OnModuleInit {
@@ -68,6 +65,7 @@ export class QueueService implements OnModuleInit {
     @Inject(forwardRef(() => GamesService)) private gamesService: GamesService,
     private onlinePlayersService: OnlinePlayersService,
     private configService: ConfigService,
+    @Inject(forwardRef(() => QueueGateway)) private queueGateway: QueueGateway,
   ) { }
 
   onModuleInit() {
@@ -82,6 +80,9 @@ export class QueueService implements OnModuleInit {
       distinctUntilChanged(),
       pairwise(),
     ).subscribe(([oldState, newState]) => this.onStateChange(oldState, newState));
+
+    this.slotsChange.subscribe(slots => this.queueGateway.emitSlotsUpdate(slots));
+    this.stateChange.subscribe(state => this.queueGateway.emitStateUpdate(state));
   }
 
   getSlotById(id: number): QueueSlot {
