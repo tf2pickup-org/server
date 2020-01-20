@@ -5,6 +5,7 @@ import { PlayerBansService } from '@/players/services/player-bans.service';
 import { GamePlayer } from '../models/game-player';
 import { GameRuntimeService } from './game-runtime.service';
 import { GamesGateway } from '../gateways/games.gateway';
+import { DiscordNotificationsService } from '@/discord/services/discord-notifications.service';
 
 /**
  * A service that handles player substitution logic.
@@ -23,6 +24,7 @@ export class PlayerSubstitutionService {
     private playerBansService: PlayerBansService,
     @Inject(forwardRef(() => GameRuntimeService)) private gameRuntimeService: GameRuntimeService,
     @Inject(forwardRef(() => GamesGateway)) private gamesGateway: GamesGateway,
+    private discordNotificationsService: DiscordNotificationsService,
   ) { }
 
   async substitutePlayer(gameId: string, playerId: string) {
@@ -46,6 +48,12 @@ export class PlayerSubstitutionService {
     slot.status = 'waiting for substitute';
     await game.save();
     this.gamesGateway.emitGameUpdated(game);
+    this.discordNotificationsService.notifySubstituteIsNeeded({
+      gameId: game.id,
+      gameNumber: game.number,
+      gameClass: slot.gameClass,
+      team: game.teams.get(slot.teamId),
+    });
     return game;
   }
 

@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { GamesService } from '@/games/services/games.service';
+import { SubstituteRequest } from '../substitute-request';
 
 @Injectable()
 export class QueueAnnouncementsService {
@@ -8,7 +9,7 @@ export class QueueAnnouncementsService {
     private gamesService: GamesService,
   ) { }
 
-  async substituteRequests() {
+  async substituteRequests(): Promise<SubstituteRequest[]> {
     const games = await this.gamesService.getGamesWithSubstitutionRequests();
     return games.flatMap(game => {
       return game.slots.flatMap(slot => {

@@ -17,6 +17,7 @@ import { GameRuntimeService } from './services/game-runtime.service';
 import { GameEventHandlerService } from './services/game-event-handler.service';
 import { GamesWithSubstitutionRequestsController } from './controllers/games-with-substitution-requests.controller';
 import { PlayerSubstitutionService } from './services/player-substitution.service';
+import { DiscordModule } from '@/discord/discord.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { PlayerSubstitutionService } from './services/player-substitution.servic
     GameServersModule,
     forwardRef(() => PlayersModule),
     QueueModule,
+    DiscordModule,
   ],
   providers: [
     GamesService,

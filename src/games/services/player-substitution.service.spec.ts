@@ -5,6 +5,9 @@ import { PlayersService } from '@/players/services/players.service';
 import { PlayerBansService } from '@/players/services/player-bans.service';
 import { GameRuntimeService } from './game-runtime.service';
 import { GamesGateway } from '../gateways/games.gateway';
+import { SubstituteRequest } from '@/queue/substitute-request';
+import { DiscordNotificationsService } from '@/discord/services/discord-notifications.service';
+import { cloneDeep } from 'lodash';
 
 const mockGame = {
   id: 'FAKE_GAME_ID',
@@ -26,10 +29,12 @@ const mockGame = {
   ],
   map: 'cp_badlands',
   state: 'launching',
+  teams: new Map([['0', 'RED'], ['1', 'BLU']]),
+  save: () => null,
 };
 
 class GamesServiceStub {
-  game = { ...JSON.parse(JSON.stringify(mockGame)), save: () => null };
+  game = cloneDeep(mockGame);
   getById(id: string) {
     return new Promise(resolve => {
       if (id === 'FAKE_GAME_ID') {
@@ -69,6 +74,10 @@ class GamesGatewayStub {
   emitGameUpdated(game: any) { return null; }
 }
 
+class DiscordNotificationsServiceStub {
+  notifySubstituteIsNeeded(substituteRequest: SubstituteRequest) { return null; }
+}
+
 describe('PlayerSubstitutionService', () => {
   let service: PlayerSubstitutionService;
   let gamesService: GamesServiceStub;
@@ -76,6 +85,7 @@ describe('PlayerSubstitutionService', () => {
   let playerBansService: PlayerBansServiceStub;
   let gameRuntimeService: GameRuntimeServiceStub;
   let gamesGateway: GamesGatewayStub;
+  let discordNotificationsService: DiscordNotificationsServiceStub;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -86,6 +96,7 @@ describe('PlayerSubstitutionService', () => {
         { provide: PlayerBansService, useClass: PlayerBansServiceStub },
         { provide: GameRuntimeService, useClass: GameRuntimeServiceStub },
         { provide: GamesGateway, useClass: GamesGatewayStub },
+        { provide: DiscordNotificationsService, useClass: DiscordNotificationsServiceStub },
       ],
     }).compile();
 
@@ -95,6 +106,7 @@ describe('PlayerSubstitutionService', () => {
     playerBansService = module.get(PlayerBansService);
     gameRuntimeService = module.get(GameRuntimeService);
     gamesGateway = module.get(GamesGateway);
+    discordNotificationsService = module.get(DiscordNotificationsService);
   });
 
   it('should be defined', () => {
@@ -119,7 +131,7 @@ describe('PlayerSubstitutionService', () => {
     it('should update the player status', async () => {
       const spy = spyOn(gamesService.game, 'save');
       const game = await service.substitutePlayer('FAKE_GAME_ID', 'FAKE_PLAYER_1');
-      expect(game).toEqual(gamesService.game);
+      expect(game).toEqual(gamesService.game as any);
       const tSlot = game.slots.find(s => s.playerId === 'FAKE_PLAYER_1');
       expect(tSlot.status).toEqual('waiting for substitute');
       expect(spy).toHaveBeenCalled();
@@ -136,6 +148,17 @@ describe('PlayerSubstitutionService', () => {
       spyOn(gamesService, 'getById').and.returnValue(game as any);
 
       expectAsync(service.substitutePlayer('FAKE_GAME_ID', 'FAKE_PLAYER_1')).toBeRejectedWithError('the game has already ended');
+    });
+
+    it('should notify on discord', async () => {
+      const spy = spyOn(discordNotificationsService, 'notifySubstituteIsNeeded');
+      await service.substitutePlayer('FAKE_GAME_ID', 'FAKE_PLAYER_1');
+      expect(spy).toHaveBeenCalledWith({
+        gameId: 'FAKE_GAME_ID',
+        gameNumber: 1,
+        gameClass: 'soldier',
+        team: 'RED',
+      });
     });
   });
 
@@ -161,7 +184,7 @@ describe('PlayerSubstitutionService', () => {
     it('should update the player status', async () => {
       const spy = spyOn(gamesService.game, 'save');
       const game = await service.cancelSubstitutionRequest('FAKE_GAME_ID', 'FAKE_PLAYER_1');
-      expect(game).toEqual(gamesService.game);
+      expect(game).toEqual(gamesService.game as any);
       expect(game.slots[0].status).toEqual('active');
       expect(spy).toHaveBeenCalled();
     });
@@ -187,7 +210,7 @@ describe('PlayerSubstitutionService', () => {
       const spy = spyOn(gamesService.game, 'save');
       // replace player 1 with player 3
       const game = await service.replacePlayer('FAKE_GAME_ID', 'FAKE_PLAYER_1', 'FAKE_PLAYER_3');
-      expect(game).toEqual(gamesService.game);
+      expect(game).toEqual(gamesService.game as any);
       const replaceeSlot = game.slots.find(s => s.playerId === 'FAKE_PLAYER_1');
       expect(replaceeSlot.status).toBe('replaced');
       const replacementSlot = game.slots.find(s => s.playerId === 'FAKE_PLAYER_3');
@@ -232,7 +255,7 @@ describe('PlayerSubstitutionService', () => {
     it('should mark the slot back as active if a player is subbing himself', async () => {
       const spy = spyOn(gamesService.game, 'save');
       const game = await service.replacePlayer('FAKE_GAME_ID', 'FAKE_PLAYER_1', 'FAKE_PLAYER_1');
-      expect(game).toEqual(gamesService.game);
+      expect(game).toEqual(gamesService.game as any);
       const slot = game.slots.find(s => s.playerId === 'FAKE_PLAYER_1');
       expect(slot.status).toBe('active');
       expect(game.slots.length).toBe(2);

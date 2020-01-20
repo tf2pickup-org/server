@@ -60,5 +60,11 @@ export default () => ({
      * Default: true
      */
     notifyNewPlayers: true,
+
+    /**
+     * Enables the substitute request announcements.
+     * Default: true
+     */
+    notifySubstituteRequests: true,
   },
 });
