@@ -27,7 +27,7 @@ export class DiscordNotificationsService implements OnModuleInit {
   onModuleInit() {
     if (this.environment.discordBotToken) {
       this.client.on('ready', () => {
-        this.logger.log(`Logged in as ${this.client.user.tag}`);
+        this.logger.log(`logged in as ${this.client.user.tag}`);
         this.enabled = true;
       });
 

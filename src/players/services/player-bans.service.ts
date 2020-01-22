@@ -60,7 +60,7 @@ export class PlayerBansService implements OnModuleInit {
     const addedBan = await this.playerBanModel.create(playerBan);
     const playerId = addedBan.player.toString();
     this._banAdded.next(playerId);
-    this.logger.log(`ban added for player ${playerId} (reason: ${playerBan.reason})`);
+    this.logger.verbose(`ban added for player ${playerId} (reason: ${playerBan.reason})`);
     this.discordNotificationsService.notifyBanAdded(addedBan);
     return addedBan;
   }
@@ -72,7 +72,7 @@ export class PlayerBansService implements OnModuleInit {
 
     const playerId = ban.player.toString();
     this._banRevoked.next(playerId);
-    this.logger.log(`ban revoked for player ${playerId}`);
+    this.logger.verbose(`ban revoked for player ${playerId}`);
     this.discordNotificationsService.notifyBanRevoked(ban);
     return ban;
   }
