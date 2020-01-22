@@ -8,6 +8,9 @@ import { GamesService } from '@/games/services/games.service';
 import { OnlinePlayersService } from '@/players/services/online-players.service';
 import { Subject } from 'rxjs';
 import { ConfigService } from '@nestjs/config';
+import { QueueGateway } from '../gateways/queue.gateway';
+import { QueueSlot } from '../queue-slot';
+import { QueueState } from '../queue-state';
 
 class PlayersServiceStub {
 
@@ -68,6 +71,11 @@ class ConfigServiceStub {
   }
 }
 
+class QueueGatewayStub {
+  emitSlotsUpdate(slots: QueueSlot[]) { return null; }
+  emitStateUpdate(state: QueueState) { return null; }
+}
+
 describe('QueueService', () => {
   let service: QueueService;
   let playersService: PlayersServiceStub;
@@ -75,6 +83,7 @@ describe('QueueService', () => {
   let playerBansService: PlayerBansServiceStub;
   let gamesService: GamesServiceStub;
   let onlinePlayersService: OnlinePlayersServiceStub;
+  let queueGateway: QueueGatewayStub;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -86,6 +95,7 @@ describe('QueueService', () => {
         { provide: GamesService, useClass: GamesServiceStub },
         { provide: OnlinePlayersService, useClass: OnlinePlayersServiceStub },
         { provide: ConfigService, useClass: ConfigServiceStub },
+        { provide: QueueGateway, useClass: QueueGatewayStub },
       ],
     }).compile();
 
@@ -95,6 +105,7 @@ describe('QueueService', () => {
     playerBansService = module.get(PlayerBansService);
     gamesService = module.get(GamesService);
     onlinePlayersService = module.get(OnlinePlayersService);
+    queueGateway = module.get(QueueGateway);
   });
 
   beforeEach(() => service.onModuleInit());

@@ -1,17 +1,35 @@
-import { WebSocketGateway, OnGatewayInit } from '@nestjs/websockets';
+import { WebSocketGateway, OnGatewayInit, SubscribeMessage } from '@nestjs/websockets';
 import { Socket } from 'socket.io';
-import { GamesService } from '../services/games.service';
+import { WsAuthorized } from '@/auth/decorators/ws-authorized.decorator';
+import { PlayerSubstitutionService } from '../services/player-substitution.service';
+import { Game } from '../models/game';
+import { Inject, forwardRef } from '@nestjs/common';
 
 @WebSocketGateway()
 export class GamesGateway implements OnGatewayInit {
 
+  private socket: Socket;
+
   constructor(
-    private gamesService: GamesService,
+    @Inject(forwardRef(() => PlayerSubstitutionService)) private playerSubstitutionService: PlayerSubstitutionService,
   ) { }
 
+  @WsAuthorized()
+  @SubscribeMessage('replace player')
+  async replacePlayer(client: any, payload: { gameId: string, replaceeId: string }) {
+    return await this.playerSubstitutionService.replacePlayer(payload.gameId, payload.replaceeId, client.request.user.id);
+  }
+
+  emitGameCreated(game: Game) {
+    this.socket.emit('game created', game);
+  }
+
+  emitGameUpdated(game: Game) {
+    this.socket.emit('game updated', game);
+  }
+
   afterInit(socket: Socket) {
-    this.gamesService.gameCreated.subscribe(game => socket.emit('game created', game));
-    this.gamesService.gameUpdated.subscribe(game => socket.emit('game updated', game));
+    this.socket = socket;
   }
 
 }

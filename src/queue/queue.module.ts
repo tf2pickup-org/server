@@ -4,11 +4,12 @@ import { QueueConfigService } from './services/queue-config.service';
 import { PlayersModule } from '@/players/players.module';
 import { GamesModule } from '@/games/games.module';
 import { MapVoteService } from './services/map-vote.service';
-import { GameLauncherService } from './services/game-launcher.service';
 import { QueueGateway } from './gateways/queue.gateway';
 import { QueueController } from './controllers/queue.controller';
 import { QueueNotificationsService } from './services/queue-notifications.service';
 import { DiscordModule } from '@/discord/discord.module';
+import { AutoGameLauncherService } from './services/auto-game-launcher.service';
+import { QueueAnnouncementsService } from './services/queue-announcements.service';
 
 @Module({
   imports: [
@@ -20,14 +21,16 @@ import { DiscordModule } from '@/discord/discord.module';
     QueueService,
     QueueConfigService,
     MapVoteService,
-    GameLauncherService,
     QueueGateway,
     QueueNotificationsService,
+    AutoGameLauncherService,
+    QueueAnnouncementsService,
   ],
   exports: [
     QueueService,
     QueueConfigService,
     MapVoteService,
+    QueueGateway,
   ],
   controllers: [
     QueueController,

@@ -2,12 +2,16 @@ import { Controller, Get, Query, ParseIntPipe, BadRequestException, Param, NotFo
 import { GamesService } from '../services/games.service';
 import { ObjectIdValidationPipe } from '@/shared/pipes/object-id-validation.pipe';
 import { Auth } from '@/auth/decorators/auth.decorator';
+import { GameRuntimeService } from '../services/game-runtime.service';
+import { PlayerSubstitutionService } from '../services/player-substitution.service';
 
 @Controller('games')
 export class GamesController {
 
   constructor(
     private gamesService: GamesService,
+    private gameRuntimeService: GameRuntimeService,
+    private playerSubstitutionService: PlayerSubstitutionService,
   ) { }
 
   @Get()
@@ -62,13 +66,23 @@ export class GamesController {
   @HttpCode(200)
   async takeAdminAction(@Param('id', ObjectIdValidationPipe) gameId: string,
                         @Query('reinitialize_server') reinitializeServer: any,
-                        @Query('force_end') forceEnd: any) {
+                        @Query('force_end') forceEnd: any,
+                        @Query('substitute_player') substitutePlayerId: string,
+                        @Query('substitute_player_cancel') cancelSubstitutePlayerId: string) {
     if (reinitializeServer !== undefined) {
-      await this.gamesService.reinitialize(gameId);
+      await this.gameRuntimeService.reconfigure(gameId);
     }
 
     if (forceEnd !== undefined) {
-      await this.gamesService.forceEnd(gameId);
+      await this.gameRuntimeService.forceEnd(gameId);
+    }
+
+    if (substitutePlayerId !== undefined) {
+      await this.playerSubstitutionService.substitutePlayer(gameId, substitutePlayerId);
+    }
+
+    if (cancelSubstitutePlayerId !== undefined) {
+      await this.playerSubstitutionService.cancelSubstitutionRequest(gameId, cancelSubstitutePlayerId);
     }
   }
 

@@ -3,6 +3,7 @@ import { QueueController } from './queue.controller';
 import { QueueConfigService } from '../services/queue-config.service';
 import { QueueService } from '../services/queue.service';
 import { MapVoteService } from '../services/map-vote.service';
+import { QueueAnnouncementsService } from '../services/queue-announcements.service';
 
 class QueueConfigServiceStub {
   queueConfig = { some_param: 'some_value' };
@@ -17,11 +18,25 @@ class MapVoteServiceStub {
   results = [ 'some', 'results' ];
 }
 
+class QueueAnnouncementsServiceStub {
+  subRequests = [
+    {
+      gameId: '5e1fb93d9cacb6d6e08bc6bf',
+      gameNumber: 514,
+      gameClass: 'soldier',
+      team: 'BLU',
+    },
+  ];
+
+  substituteRequests() { return this.subRequests; }
+}
+
 describe('Queue Controller', () => {
   let controller: QueueController;
   let queueConfigService: QueueConfigServiceStub;
   let queueService: QueueServiceStub;
   let mapVoteService: MapVoteServiceStub;
+  let queueAnnouncementsService: QueueAnnouncementsServiceStub;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -29,6 +44,7 @@ describe('Queue Controller', () => {
         { provide: QueueConfigService, useClass: QueueConfigServiceStub },
         { provide: QueueService, useClass: QueueServiceStub },
         { provide: MapVoteService, useClass: MapVoteServiceStub },
+        { provide: QueueAnnouncementsService, useClass: QueueAnnouncementsServiceStub },
       ],
       controllers: [QueueController],
     }).compile();
@@ -37,6 +53,7 @@ describe('Queue Controller', () => {
     queueConfigService = module.get(QueueConfigService);
     queueService = module.get(QueueService);
     mapVoteService = module.get(MapVoteService);
+    queueAnnouncementsService = module.get(QueueAnnouncementsService);
   });
 
   it('should be defined', () => {
@@ -44,13 +61,14 @@ describe('Queue Controller', () => {
   });
 
   describe('#getQueue()', () => {
-    it('should return current queue data', () => {
-      const ret = controller.getQueue();
+    it('should return current queue data', async () => {
+      const ret = await controller.getQueue();
       expect(ret).toEqual({
         config: queueConfigService.queueConfig,
         slots: queueService.slots,
         state: queueService.state,
         mapVoteResults: mapVoteService.results,
+        substituteRequests: queueAnnouncementsService.subRequests,
       } as any);
     });
   });
@@ -76,6 +94,12 @@ describe('Queue Controller', () => {
   describe('#getMapVoteResults()', () => {
     it('should return map vote results', () => {
       expect(controller.getMapVoteResults()).toEqual(mapVoteService.results as any);
+    });
+  });
+
+  describe('#getSubstituteRequests()', () => {
+    it('should return substitute requests', async () => {
+      expect(await controller.getSubstituteRequests()).toEqual(queueAnnouncementsService.subRequests);
     });
   });
 });

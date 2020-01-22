@@ -6,6 +6,7 @@ import { PlayersService } from '@/players/services/players.service';
 import { Player } from '@/players/models/player';
 import moment = require('moment');
 import { ConfigService } from '@nestjs/config';
+import { SubstituteRequest } from '@/queue/substitute-request';
 
 @Injectable()
 export class DiscordNotificationsService implements OnModuleInit {
@@ -15,6 +16,7 @@ export class DiscordNotificationsService implements OnModuleInit {
   private logger = new Logger(DiscordNotificationsService.name);
   private notifyBans = this.configService.get<boolean>('discordNotifications.notifyBans');
   private notifyNewPlayers = this.configService.get<boolean>('discordNotifications.notifyNewPlayers');
+  private notifySubstituteRequests = this.configService.get<boolean>('discordNotifications.notifySubstituteRequests');
 
   constructor(
     private environment: Environment,
@@ -114,6 +116,26 @@ export class DiscordNotificationsService implements OnModuleInit {
     return this.client.channels
     .filter(c => c instanceof TextChannel)
     .find(c => (c as TextChannel).name === name) as TextChannel;
+  }
+
+  notifySubstituteIsNeeded(substituteRequest: SubstituteRequest) {
+    if (this.enabled && this.notifySubstituteRequests && this.environment.discordQueueNotificationsChannel) {
+      const channel = this.findChannel(this.environment.discordQueueNotificationsChannel);
+      if (channel) {
+        const embed = new RichEmbed()
+          .setColor('#ff557f')
+          .setTitle('A subsitute is needed')
+          .addField('Game no.', `#${substituteRequest.gameNumber}`)
+          .addField('Class', substituteRequest.gameClass)
+          .addField('Team', substituteRequest.team)
+          .setURL(`${this.environment.clientUrl}/game/${substituteRequest.gameId}`)
+          .setThumbnail('https://tf2pickup.pl/assets/android-icon-192x192.png');
+
+        channel.send(embed);
+      } else {
+        this.logger.warn(`channel ${this.environment.discordQueueNotificationsChannel} not found`);
+      }
+    }
   }
 
 }

@@ -1,16 +1,18 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { GameEventListenerService } from './game-event-listener.service';
 import { Environment } from '@/environment/environment';
-import { GameRunnerManagerService } from './game-runner-manager.service';
+import { GameEventHandlerService } from './game-event-handler.service';
+import { GameServersService } from '@/game-servers/services/game-servers.service';
+import { GamesService } from './games.service';
 
 class EnvironmentStub {
   logRelayAddress = '0.0.0.0';
   logRelayPort = '1234';
 }
 
-class GameRunnerManagerServiceStub {
-
-}
+class GameEventHandlerServiceStub { }
+class GameServersServiceStub { }
+class GamesServiceStub { }
 
 describe('GameEventListenerService', () => {
   let service: GameEventListenerService;
@@ -20,7 +22,9 @@ describe('GameEventListenerService', () => {
       providers: [
         GameEventListenerService,
         { provide: Environment, useClass: EnvironmentStub },
-        { provide: GameRunnerManagerService, useClass: GameRunnerManagerServiceStub },
+        { provide: GameEventHandlerService, useClass: GameEventHandlerServiceStub },
+        { provide: GameServersService, useClass: GameServersServiceStub },
+        { provide: GamesService, useClass: GamesServiceStub },
       ],
     }).compile();
 

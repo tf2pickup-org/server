@@ -1,4 +1,4 @@
-import { Injectable, Logger, Inject, forwardRef, OnModuleInit } from '@nestjs/common';
+import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
 import { InjectModel } from 'nestjs-typegoose';
 import { ReturnModelType, DocumentType } from '@typegoose/typegoose';
 import { Game } from '../models/game';
@@ -7,10 +7,9 @@ import { PlayerSlot, pickTeams } from '../utils/pick-teams';
 import { PlayersService } from '@/players/services/players.service';
 import { PlayerSkillService } from '@/players/services/player-skill.service';
 import { QueueConfigService } from '@/queue/services/queue-config.service';
-import { Subject } from 'rxjs';
 import { extractFriends } from '../utils/extract-friends';
-import { GameRunnerManagerService } from './game-runner-manager.service';
-import { takeUntil } from 'rxjs/operators';
+import { GameLauncherService } from './game-launcher.service';
+import { GamesGateway } from '../gateways/games.gateway';
 
 interface GameSortOptions {
   launchedAt: 1 | -1;
@@ -21,39 +20,18 @@ interface GetPlayerGameCountOptions {
 }
 
 @Injectable()
-export class GamesService implements OnModuleInit {
+export class GamesService {
 
   private logger = new Logger(GamesService.name);
-  private _gameCreated = new Subject<Game>(); // todo pass only game id
-  private _gameUpdated = new Subject<Game>();
-
-  get gameCreated() {
-    return this._gameCreated.asObservable();
-  }
-
-  get gameUpdated() {
-    return this._gameUpdated.asObservable();
-  }
 
   constructor(
     @InjectModel(Game) private gameModel: ReturnModelType<typeof Game>,
     @Inject(forwardRef(() => PlayersService)) private playersService: PlayersService,
     private playerSkillService: PlayerSkillService,
     private queueConfigService: QueueConfigService,
-    @Inject(forwardRef(() => GameRunnerManagerService)) private gameRunnerManagerService: GameRunnerManagerService,
+    @Inject(forwardRef(() => GameLauncherService)) private gameLauncherService: GameLauncherService,
+    @Inject(forwardRef(() => GamesGateway)) private gamesGateway: GamesGateway,
   ) { }
-
-  async onModuleInit() {
-    const runningGames = await this.getRunningGames();
-    runningGames.forEach(async game => {
-      const gameRunner = this.gameRunnerManagerService.createGameRunner(game.id);
-      await gameRunner.initialize();
-
-      gameRunner.gameUpdated.pipe(
-        takeUntil(gameRunner.gameFinished),
-      ).subscribe(() => this._gameUpdated.next(gameRunner.game));
-    });
-  }
 
   async getGameCount(): Promise<number> {
     return await this.gameModel.estimatedDocumentCount();
@@ -142,38 +120,13 @@ export class GamesService implements OnModuleInit {
       assignedSkills,
     });
 
-    this._gameCreated.next(game);
+    this.logger.debug(`game #${game.number} created`);
+    this.gamesGateway.emitGameCreated(game);
     return game;
   }
 
   async launch(gameId: string) {
-    const gameRunner = this.gameRunnerManagerService.createGameRunner(gameId);
-    await gameRunner.initialize();
-
-    gameRunner.gameUpdated.pipe(
-      takeUntil(gameRunner.gameFinished),
-    ).subscribe(() => this._gameUpdated.next(gameRunner.game));
-
-    await gameRunner.launch();
-  }
-
-  // fixme rename
-  async reinitialize(gameId: string) {
-    const gameRunner = this.gameRunnerManagerService.findGameRunnerByGameId(gameId);
-    if (!gameRunner) {
-      throw new Error('no such game');
-    }
-
-    await gameRunner.reconfigure();
-  }
-
-  async forceEnd(gameId: string) {
-    const gameRunner = this.gameRunnerManagerService.findGameRunnerByGameId(gameId);
-    if (!gameRunner) {
-      throw new Error('no such game');
-    }
-
-    await gameRunner.forceEnd();
+    await this.gameLauncherService.launch(gameId);
   }
 
   async getMostActivePlayers() {
@@ -197,6 +150,14 @@ export class GamesService implements OnModuleInit {
       { $limit: 10 },
       { $project: { player: '$_id', count: 1, _id: 0 } },
     ]);
+  }
+
+  async getGamesWithSubstitutionRequests(): Promise<Array<DocumentType<Game>>> {
+    return this.gameModel
+      .find({
+        'state': /launching|started/,
+        'slots.status': 'waiting for substitute',
+      });
   }
 
   private async queueSlotToPlayerSlot(queueSlot: QueueSlot): Promise<PlayerSlot> {
@@ -223,4 +184,5 @@ export class GamesService implements OnModuleInit {
       return 1;
     }
   }
+
 }

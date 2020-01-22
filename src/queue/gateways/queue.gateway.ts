@@ -4,13 +4,22 @@ import { WsAuthorized } from '@/auth/decorators/ws-authorized.decorator';
 import { Socket } from 'socket.io';
 import { Tf2Map } from '../tf2-map';
 import { MapVoteService } from '../services/map-vote.service';
+import { QueueSlot } from '../queue-slot';
+import { QueueState } from '../queue-state';
+import { Inject, forwardRef } from '@nestjs/common';
+import { MapVoteResult } from '../map-vote-result';
+import { SubstituteRequest } from '../substitute-request';
+import { QueueAnnouncementsService } from '../services/queue-announcements.service';
 
 @WebSocketGateway()
 export class QueueGateway implements OnGatewayInit {
 
+  private socket: Socket;
+
   constructor(
-    private queueService: QueueService,
-    private mapVoteService: MapVoteService,
+    @Inject(forwardRef(() => QueueService)) private queueService: QueueService,
+    @Inject(forwardRef(() => MapVoteService)) private mapVoteService: MapVoteService,
+    private queueAnnouncementsService: QueueAnnouncementsService,
   ) { }
 
   @WsAuthorized()
@@ -44,10 +53,25 @@ export class QueueGateway implements OnGatewayInit {
     return payload.map;
   }
 
+  emitSlotsUpdate(slots: QueueSlot[]) {
+    this.socket.emit('queue slots update', slots);
+  }
+
+  emitStateUpdate(state: QueueState) {
+    this.socket.emit('queue state update', state);
+  }
+
+  emitVoteResultsUpdate(mapVoteResults: MapVoteResult[]) {
+    this.socket.emit('map vote results update', mapVoteResults);
+  }
+
+  async updateSubstituteRequests() {
+    const requests = await this.queueAnnouncementsService.substituteRequests();
+    this.socket.emit('substitute requests update', requests);
+  }
+
   afterInit(socket: Socket) {
-    this.queueService.slotsChange.subscribe(slots => socket.emit('queue slots update', slots));
-    this.queueService.stateChange.subscribe(state => socket.emit('queue state update', state));
-    this.mapVoteService.resultsChange.subscribe(results => socket.emit('map vote results update', results));
+    this.socket = socket;
   }
 
 }

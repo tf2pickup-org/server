@@ -1,11 +1,17 @@
-import { Injectable, OnModuleInit } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { QueueService } from './queue.service';
-import { filter } from 'rxjs/operators';
-import { GamesService } from '@/games/services/games.service';
 import { MapVoteService } from './map-vote.service';
+import { GamesService } from '@/games/services/games.service';
+import { filter } from 'rxjs/operators';
 
+/**
+ * Automatically launches a game once the queue is ready to play it.
+ *
+ * @export
+ * @class AutoGameLauncherService
+ */
 @Injectable()
-export class GameLauncherService implements OnModuleInit {
+export class AutoGameLauncherService {
 
   constructor(
     private queueService: QueueService,

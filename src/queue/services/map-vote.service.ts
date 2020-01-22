@@ -1,18 +1,15 @@
-import { Injectable, OnModuleInit } from '@nestjs/common';
+import { Injectable, OnModuleInit, Inject, forwardRef } from '@nestjs/common';
 import { Tf2Map } from '../tf2-map';
 import { QueueConfigService } from './queue-config.service';
 import { QueueService } from './queue.service';
 import { maxBy, shuffle } from 'lodash';
 import { BehaviorSubject, Observable } from 'rxjs';
+import { MapVoteResult } from '../map-vote-result';
+import { QueueGateway } from '../gateways/queue.gateway';
 
 interface MapVote {
   playerId: string;
   map: Tf2Map;
-}
-
-export interface MapVoteResult {
-  map: Tf2Map;
-  voteCount: number;
 }
 
 @Injectable()
@@ -26,23 +23,21 @@ export class MapVoteService implements OnModuleInit {
     return this._results.value;
   }
 
-  get resultsChange(): Observable<MapVoteResult[]> {
-    return this._results.asObservable();
-  }
-
   private lastPlayedMap: string;
   private readonly mapVoteOptionCount = 3;
   private votes: MapVote[];
 
   constructor(
     private queueConfigService: QueueConfigService,
-    private queueService: QueueService,
+    @Inject(forwardRef(() => QueueService)) private queueService: QueueService,
+    @Inject(forwardRef(() => QueueGateway)) private queueGateway: QueueGateway,
   ) {
     this.reset();
   }
 
   onModuleInit() {
     this.queueService.playerLeave.subscribe(playerId => this.resetPlayerVote(playerId));
+    this._results.subscribe(results => this.queueGateway.emitVoteResultsUpdate(results));
   }
 
   voteCountForMap(map: Tf2Map): number {

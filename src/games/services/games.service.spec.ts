@@ -3,16 +3,16 @@ import { GamesService } from './games.service';
 import { TypegooseModule, getModelToken } from 'nestjs-typegoose';
 import { PlayersService } from '@/players/services/players.service';
 import { PlayerSkillService } from '@/players/services/player-skill.service';
-import { QueueConfigService } from '@/queue/services/queue-config.service';
 import { Player } from '@/players/models/player';
 import { PlayerSkill } from '@/players/models/player-skill';
 import { typegooseTestingModule } from '@/utils/testing-typegoose-module';
 import { Game } from '../models/game';
-import { GameRunnerManagerService } from './game-runner-manager.service';
 import { ReturnModelType } from '@typegoose/typegoose';
-import { Subject } from 'rxjs';
 import { ObjectId } from 'mongodb';
 import { QueueSlot } from '@/queue/queue-slot';
+import { GameLauncherService } from './game-launcher.service';
+import { QueueConfigService } from '@/queue/services/queue-config.service';
+import { GamesGateway } from '../gateways/games.gateway';
 
 class PlayersServiceStub {
   player: Player = {
@@ -52,28 +52,19 @@ class QueueConfigServiceStub {
   };
 }
 
-class GameRunnerStub {
-  constructor(public gameId: string) { }
-  gameInitialized = new Subject<void>();
-  gameFinished = new Subject<void>();
-  gameUpdated = new Subject<void>();
-  gameServer = null;
-  game = null;
-  initialize() { return null; }
-  launch() { return null; }
-  reconfigure() { return null; }
-  forceEnd() { return null; }
+class GameLauncherServiceStub {
+  launch(gameId: string) { return null; }
 }
 
-class GameRunnerManagerServiceStub {
-  createGameRunner(gameId: string) { return new GameRunnerStub(gameId); }
-  findGameRunnerByGameId(gameId: string) { return new GameRunnerStub(gameId); }
+class GamesGatewayStub {
+  emitGameCreated(game: any) { return null; }
+  emitGameUpdated(game: any) { return null; }
 }
 
 describe('GamesService', () => {
   let service: GamesService;
   let gameModel: ReturnModelType<typeof Game>;
-  let gameRunnerManagerService: GameRunnerManagerServiceStub;
+  let gameLauncherService: GameLauncherServiceStub;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -86,30 +77,21 @@ describe('GamesService', () => {
         { provide: PlayersService, useClass: PlayersServiceStub },
         { provide: PlayerSkillService, useClass: PlayerSkillServiceStub },
         { provide: QueueConfigService, useClass: QueueConfigServiceStub },
-        { provide: GameRunnerManagerService, useClass: GameRunnerManagerServiceStub },
+        { provide: GameLauncherService, useClass: GameLauncherServiceStub },
+        { provide: GamesGateway, useClass: GamesGatewayStub },
       ],
     }).compile();
 
     service = module.get<GamesService>(GamesService);
     gameModel = module.get(getModelToken('Game'));
-    gameRunnerManagerService = module.get(GameRunnerManagerService);
-
-    await gameModel.deleteMany({ });
+    gameLauncherService = module.get(GameLauncherService);
   });
 
+  beforeEach(async () => await gameModel.deleteMany({ }));
   afterEach(async () => await gameModel.deleteMany({ }));
 
   it('should be defined', () => {
     expect(service).toBeDefined();
-  });
-
-  describe('#onModuleInit()', () => {
-    it('should resurrect game runners', async () => {
-      const game = await gameModel.create({ number: 1, map: 'cp_badlands', state: 'launching' });
-      const spy = spyOn(gameRunnerManagerService, 'createGameRunner').and.callThrough();
-      await service.onModuleInit();
-      expect(spy).toHaveBeenCalledWith(game.id);
-    });
   });
 
   describe('#getGameCount()', () => {
@@ -189,7 +171,7 @@ describe('GamesService', () => {
 
     it('should create a game', async () => {
       const game = await service.create(slots, 'cp_fake');
-      expect(game.toObject()).toEqual({
+      expect(game.toObject()).toEqual(jasmine.objectContaining({
         number: 1,
         map: 'cp_fake',
         teams: new Map([ [ '0', 'RED' ], [ '1', 'BLU' ] ]),
@@ -198,71 +180,47 @@ describe('GamesService', () => {
         assignedSkills: jasmine.any(Object),
         state: 'launching',
         launchedAt: jasmine.any(Date),
-        _id: jasmine.any(ObjectId),
-        __v: 0,
-      });
+      }));
     });
   });
 
   describe('#launch()', () => {
-    it('should create the gameRunner', async () => {
-      const spy = spyOn(gameRunnerManagerService, 'createGameRunner').and.callThrough();
+    it('should launch the game', async () => {
+      const spy = spyOn(gameLauncherService, 'launch');
       await service.launch('FAKE_GAME_ID');
       expect(spy).toHaveBeenCalledWith('FAKE_GAME_ID');
     });
+  });
 
-    it('should initialize and launch the created game', async () => {
-      const gameRunner = new GameRunnerStub('FAKE_GAME_ID');
-      spyOn(gameRunnerManagerService, 'createGameRunner').and.returnValue(gameRunner);
-      const spyInitialize = spyOn(gameRunner, 'initialize').and.callThrough();
-      const spyLaunch = spyOn(gameRunner, 'launch').and.callThrough();
-      await service.launch('FAKE_GAME_ID');
-      expect(spyInitialize).toHaveBeenCalled();
-      expect(spyLaunch).toHaveBeenCalled();
-    });
-
-    it('should forward the gameUpdated event', async done => {
-      const gameRunner = new GameRunnerStub('FAKE_GAME_ID');
-      spyOn(gameRunnerManagerService, 'createGameRunner').and.returnValue(gameRunner);
-      await service.launch('FAKE_GAME_ID');
-
-      service.gameUpdated.subscribe(game => {
-        expect(game).toEqual(gameRunner.game);
-        done();
+  describe('#getGamesWithSubstitutionRequests()', () => {
+    it('should return games with substitution requests', async () => {
+      const player1 = new ObjectId().toString();
+      const player2 = new ObjectId().toString();
+      const game = await gameModel.create({
+        number: 1,
+        players: [ player1, player2 ],
+        slots: [
+          {
+            playerId: player1,
+            teamId: 1,
+            gameClass: 'scout',
+            status: 'waiting for substitute',
+          },
+          {
+            playerId: player2,
+            teamId: 2,
+            gameClass: 'scout',
+            status: 'active',
+          },
+        ],
+        map: 'cp_badlands',
+        state: 'launching',
       });
-      gameRunner.gameUpdated.next();
-    });
-  });
 
-  describe('#reinitialize()', () => {
-    it('should call gameRunner.reinitialize()', async () => {
-      const gameRunner = new GameRunnerStub('FAKE_GAME_ID');
-      const findSpy = spyOn(gameRunnerManagerService, 'findGameRunnerByGameId').and.returnValue(gameRunner);
-      const reconfigureSpy = spyOn(gameRunner, 'reconfigure').and.callThrough();
-      await service.reinitialize('FAKE_GAME_ID');
-      expect(findSpy).toHaveBeenCalledWith('FAKE_GAME_ID');
-      expect(reconfigureSpy).toHaveBeenCalled();
-    });
-
-    it('should throw an error if the given game doesn\'t exist', async () => {
-      spyOn(gameRunnerManagerService, 'findGameRunnerByGameId').and.returnValue(null);
-      await expectAsync(service.reinitialize('FAKE_GAME_ID')).toBeRejectedWithError('no such game');
-    });
-  });
-
-  describe('#forceEnd()', () => {
-    it('should call gameRunner.forceEnd()', async () => {
-      const gameRunner = new GameRunnerStub('FAKE_GAME_ID');
-      const findSpy = spyOn(gameRunnerManagerService, 'findGameRunnerByGameId').and.returnValue(gameRunner);
-      const forceEndSpy = spyOn(gameRunner, 'forceEnd').and.callThrough();
-      await service.forceEnd('FAKE_GAME_ID');
-      expect(findSpy).toHaveBeenCalledWith('FAKE_GAME_ID');
-      expect(forceEndSpy).toHaveBeenCalled();
-    });
-
-    it('should throw an error if the given game doesn\'t exist', async () => {
-      spyOn(gameRunnerManagerService, 'findGameRunnerByGameId').and.returnValue(null);
-      await expectAsync(service.forceEnd('FAKE_GAME_ID')).toBeRejectedWithError('no such game');
+      const ret = await service.getGamesWithSubstitutionRequests();
+      expect(ret).toEqual([
+        jasmine.objectContaining({ id: game.id }),
+      ]);
     });
   });
 });
