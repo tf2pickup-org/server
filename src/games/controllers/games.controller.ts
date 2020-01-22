@@ -15,7 +15,11 @@ export class GamesController {
   ) { }
 
   @Get()
-  async getGames(@Query('limit', ParseIntPipe) limit: number = 10, @Query('offset', ParseIntPipe) offset: number = 0, @Query('sort') sort: string = '-launched_at') {
+  async getGames(
+    @Query('limit', ParseIntPipe) limit: number = 10,
+    @Query('offset', ParseIntPipe) offset: number = 0,
+    @Query('sort') sort: string = '-launched_at',
+  ) {
     let sortParam: { launchedAt: 1 | -1 };
     switch (sort) {
       case '-launched_at':
@@ -64,11 +68,13 @@ export class GamesController {
   @Post(':id')
   @Auth('admin', 'super-user')
   @HttpCode(200)
-  async takeAdminAction(@Param('id', ObjectIdValidationPipe) gameId: string,
-                        @Query('reinitialize_server') reinitializeServer: any,
-                        @Query('force_end') forceEnd: any,
-                        @Query('substitute_player') substitutePlayerId: string,
-                        @Query('substitute_player_cancel') cancelSubstitutePlayerId: string) {
+  async takeAdminAction(
+    @Param('id', ObjectIdValidationPipe) gameId: string,
+    @Query('reinitialize_server') reinitializeServer: any,
+    @Query('force_end') forceEnd: any,
+    @Query('substitute_player') substitutePlayerId: string,
+    @Query('substitute_player_cancel') cancelSubstitutePlayerId: string,
+  ) {
     if (reinitializeServer !== undefined) {
       await this.gameRuntimeService.reconfigure(gameId);
     }
