@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject, forwardRef } from '@nestjs/common';
 import { GamesService } from '@/games/services/games.service';
 import { SubstituteRequest } from '../substitute-request';
 
@@ -6,7 +6,7 @@ import { SubstituteRequest } from '../substitute-request';
 export class QueueAnnouncementsService {
 
   constructor(
-    private gamesService: GamesService,
+    @Inject(forwardRef(() => GamesService)) private gamesService: GamesService,
   ) { }
 
   async substituteRequests(): Promise<SubstituteRequest[]> {

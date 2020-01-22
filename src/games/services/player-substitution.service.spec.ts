@@ -8,6 +8,7 @@ import { GamesGateway } from '../gateways/games.gateway';
 import { SubstituteRequest } from '@/queue/substitute-request';
 import { DiscordNotificationsService } from '@/discord/services/discord-notifications.service';
 import { cloneDeep } from 'lodash';
+import { QueueGateway } from '@/queue/gateways/queue.gateway';
 
 const mockGame = {
   id: 'FAKE_GAME_ID',
@@ -78,6 +79,10 @@ class DiscordNotificationsServiceStub {
   notifySubstituteIsNeeded(substituteRequest: SubstituteRequest) { return null; }
 }
 
+class QueueGatewayStub {
+  updateSubstituteRequests() { return null; }
+}
+
 describe('PlayerSubstitutionService', () => {
   let service: PlayerSubstitutionService;
   let gamesService: GamesServiceStub;
@@ -86,6 +91,7 @@ describe('PlayerSubstitutionService', () => {
   let gameRuntimeService: GameRuntimeServiceStub;
   let gamesGateway: GamesGatewayStub;
   let discordNotificationsService: DiscordNotificationsServiceStub;
+  let queueGateway: QueueGatewayStub;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -97,6 +103,7 @@ describe('PlayerSubstitutionService', () => {
         { provide: GameRuntimeService, useClass: GameRuntimeServiceStub },
         { provide: GamesGateway, useClass: GamesGatewayStub },
         { provide: DiscordNotificationsService, useClass: DiscordNotificationsServiceStub },
+        { provide: QueueGateway, useClass: QueueGatewayStub },
       ],
     }).compile();
 
@@ -107,6 +114,7 @@ describe('PlayerSubstitutionService', () => {
     gameRuntimeService = module.get(GameRuntimeService);
     gamesGateway = module.get(GamesGateway);
     discordNotificationsService = module.get(DiscordNotificationsService);
+    queueGateway = module.get(QueueGateway);
   });
 
   it('should be defined', () => {
@@ -160,6 +168,12 @@ describe('PlayerSubstitutionService', () => {
         team: 'RED',
       });
     });
+
+    it('should call gateway', async () => {
+      const spy = spyOn(queueGateway, 'updateSubstituteRequests');
+      await service.substitutePlayer('FAKE_GAME_ID', 'FAKE_PLAYER_1');
+      expect(spy).toHaveBeenCalled();
+    });
   });
 
   describe('#cancelSubstitutionRequest()', () => {
@@ -198,6 +212,12 @@ describe('PlayerSubstitutionService', () => {
     it('should reject if the game is no longer active', async () => {
       gamesService.game.state = 'ended';
       expectAsync(service.cancelSubstitutionRequest('FAKE_GAME_ID', 'FAKE_PLAYER_1')).toBeRejectedWithError('the game has already ended');
+    });
+
+    it('should call gateway', async () => {
+      const spy = spyOn(queueGateway, 'updateSubstituteRequests');
+      const game = await service.cancelSubstitutionRequest('FAKE_GAME_ID', 'FAKE_PLAYER_1');
+      expect(spy).toHaveBeenCalled();
     });
   });
 
@@ -272,6 +292,12 @@ describe('PlayerSubstitutionService', () => {
       spyOn(gamesService, 'getPlayerActiveGame').and.returnValue({ id: 'FAKE_GAME_ID' } as any);
       expectAsync(service.replacePlayer('FAKE_GAME_ID', 'FAKE_PLAYER_2', 'FAKE_PLAYER_3'))
         .toBeRejectedWithError('player is involved in a currently running game');
+    });
+
+    it('should call gateway', async () => {
+      const spy = spyOn(queueGateway, 'updateSubstituteRequests');
+      await service.replacePlayer('FAKE_GAME_ID', 'FAKE_PLAYER_1', 'FAKE_PLAYER_3');
+      expect(spy).toHaveBeenCalled();
     });
   });
 });

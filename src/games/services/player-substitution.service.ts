@@ -6,6 +6,7 @@ import { GamePlayer } from '../models/game-player';
 import { GameRuntimeService } from './game-runtime.service';
 import { GamesGateway } from '../gateways/games.gateway';
 import { DiscordNotificationsService } from '@/discord/services/discord-notifications.service';
+import { QueueGateway } from '@/queue/gateways/queue.gateway';
 
 /**
  * A service that handles player substitution logic.
@@ -25,6 +26,7 @@ export class PlayerSubstitutionService {
     @Inject(forwardRef(() => GameRuntimeService)) private gameRuntimeService: GameRuntimeService,
     @Inject(forwardRef(() => GamesGateway)) private gamesGateway: GamesGateway,
     private discordNotificationsService: DiscordNotificationsService,
+    private queueGateway: QueueGateway,
   ) { }
 
   async substitutePlayer(gameId: string, playerId: string) {
@@ -48,6 +50,7 @@ export class PlayerSubstitutionService {
     slot.status = 'waiting for substitute';
     await game.save();
     this.gamesGateway.emitGameUpdated(game);
+    this.queueGateway.updateSubstituteRequests();
     this.discordNotificationsService.notifySubstituteIsNeeded({
       gameId: game.id,
       gameNumber: game.number,
@@ -78,6 +81,7 @@ export class PlayerSubstitutionService {
     slot.status = 'active';
     await game.save();
     this.gamesGateway.emitGameUpdated(game);
+    this.queueGateway.updateSubstituteRequests();
     return game;
   }
 
@@ -100,6 +104,7 @@ export class PlayerSubstitutionService {
       slot.status = 'active';
       await game.save();
       this.gamesGateway.emitGameUpdated(game);
+      this.queueGateway.updateSubstituteRequests();
       this.logger.verbose(`player has taken his own slot`);
       return game;
     }
@@ -127,6 +132,7 @@ export class PlayerSubstitutionService {
 
     await game.save();
     this.gamesGateway.emitGameUpdated(game);
+    this.queueGateway.updateSubstituteRequests();
     this.logger.verbose(`player ${replacement.name} took the sub slot in game game #${game.number}`);
     setImmediate(() => this.gameRuntimeService.replacePlayer(game.id, replaceeId, replacementSlot));
     return game;

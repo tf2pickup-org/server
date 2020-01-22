@@ -59,7 +59,7 @@ export class QueueService implements OnModuleInit {
   }
 
   constructor(
-    private playersService: PlayersService,
+    @Inject(forwardRef(() => PlayersService)) private playersService: PlayersService,
     private queueConfigService: QueueConfigService,
     private playerBansService: PlayerBansService,
     @Inject(forwardRef(() => GamesService)) private gamesService: GamesService,

@@ -30,6 +30,7 @@ import { QueueAnnouncementsService } from './services/queue-announcements.servic
     QueueService,
     QueueConfigService,
     MapVoteService,
+    QueueGateway,
   ],
   controllers: [
     QueueController,

@@ -8,6 +8,8 @@ import { QueueSlot } from '../queue-slot';
 import { QueueState } from '../queue-state';
 import { Inject, forwardRef } from '@nestjs/common';
 import { MapVoteResult } from '../map-vote-result';
+import { SubstituteRequest } from '../substitute-request';
+import { QueueAnnouncementsService } from '../services/queue-announcements.service';
 
 @WebSocketGateway()
 export class QueueGateway implements OnGatewayInit {
@@ -17,6 +19,7 @@ export class QueueGateway implements OnGatewayInit {
   constructor(
     @Inject(forwardRef(() => QueueService)) private queueService: QueueService,
     @Inject(forwardRef(() => MapVoteService)) private mapVoteService: MapVoteService,
+    private queueAnnouncementsService: QueueAnnouncementsService,
   ) { }
 
   @WsAuthorized()
@@ -60,6 +63,11 @@ export class QueueGateway implements OnGatewayInit {
 
   emitVoteResultsUpdate(mapVoteResults: MapVoteResult[]) {
     this.socket.emit('map vote results update', mapVoteResults);
+  }
+
+  async updateSubstituteRequests() {
+    const requests = await this.queueAnnouncementsService.substituteRequests();
+    this.socket.emit('substitute requests update', requests);
   }
 
   afterInit(socket: Socket) {
