@@ -7,9 +7,8 @@ import { PlayersService } from '@/players/services/players.service';
 import { QueueConfigService } from '@/queue/services/queue-config.service';
 import { RconFactoryService } from './rcon-factory.service';
 import { logAddressAdd, changelevel, execConfig, setPassword, addGamePlayer, logAddressDel, delAllGamePlayers,
-  kickAll,
-  enablePlayerWhitelist,
-  disablePlayerWhitelist} from '../utils/rcon-commands';
+  kickAll, enablePlayerWhitelist, disablePlayerWhitelist } from '../utils/rcon-commands';
+import { deburr } from 'lodash';
 
 @Injectable()
 export class ServerConfiguratorService {
