@@ -7,9 +7,8 @@ import { PlayersService } from '@/players/services/players.service';
 import { QueueConfigService } from '@/queue/services/queue-config.service';
 import { RconFactoryService } from './rcon-factory.service';
 import { logAddressAdd, changelevel, execConfig, setPassword, addGamePlayer, logAddressDel, delAllGamePlayers,
-  kickAll,
-  enablePlayerWhitelist,
-  disablePlayerWhitelist} from '../utils/rcon-commands';
+  kickAll, enablePlayerWhitelist, disablePlayerWhitelist } from '../utils/rcon-commands';
+import { deburr } from 'lodash';
 
 @Injectable()
 export class ServerConfiguratorService {
@@ -52,7 +51,8 @@ export class ServerConfiguratorService {
         const player = await this.playersService.getById(slot.playerId);
         const team = parseInt(slot.teamId, 10) + 2;
 
-        const cmd = addGamePlayer(player.steamId, player.name, team, slot.gameClass);
+        const playerName = deburr(player.name);
+        const cmd = addGamePlayer(player.steamId, playerName, team, slot.gameClass);
         this.logger.debug(`[${server.name}] ${cmd}`);
         await rcon.send(cmd);
       }
