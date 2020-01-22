@@ -1,15 +1,16 @@
-import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from 'nestjs-typegoose';
 import { GameServer } from '../models/game-server';
 import { ReturnModelType, DocumentType } from '@typegoose/typegoose';
 import { resolve as resolveCb } from 'dns';
 import { promisify } from 'util';
 import { isServerOnline } from '../utils/is-server-online';
+import { Cron } from '@nestjs/schedule';
 
 const resolve = promisify(resolveCb);
 
 @Injectable()
-export class GameServersService implements OnModuleInit {
+export class GameServersService {
 
   private readonly logger = new Logger(GameServersService.name);
 
@@ -90,15 +91,14 @@ export class GameServersService implements OnModuleInit {
     });
   }
 
-  onModuleInit() {
-    setInterval(() => this.checkAllServers(), 30 * 1000);
-  }
-
-  private async checkAllServers() {
+  @Cron('0 * * * * *') // every minute
+  async checkAllServers() {
+    this.logger.debug('checking all servers...');
     const allGameServers = await this.getAllGameServers();
     for (const server of allGameServers) {
       const isOnline = await isServerOnline(server.address, parseInt(server.port, 10));
       server.isOnline = isOnline;
+      this.logger.debug(`server ${server.name} is ${isOnline ? 'online' : 'offline'}`);
       // todo verify rcon password
       await server.save();
     }
