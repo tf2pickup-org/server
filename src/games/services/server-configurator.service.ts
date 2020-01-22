@@ -7,7 +7,9 @@ import { PlayersService } from '@/players/services/players.service';
 import { QueueConfigService } from '@/queue/services/queue-config.service';
 import { RconFactoryService } from './rcon-factory.service';
 import { logAddressAdd, changelevel, execConfig, setPassword, addGamePlayer, logAddressDel, delAllGamePlayers,
-  kickAll } from '../utils/rcon-commands';
+  kickAll,
+  enablePlayerWhitelist,
+  disablePlayerWhitelist} from '../utils/rcon-commands';
 
 @Injectable()
 export class ServerConfiguratorService {
@@ -55,6 +57,7 @@ export class ServerConfiguratorService {
         await rcon.send(cmd);
       }
 
+      await rcon.send(enablePlayerWhitelist());
       await rcon.end();
       this.logger.debug(`[${server.name}] server ready.`);
 
@@ -77,6 +80,7 @@ export class ServerConfiguratorService {
       this.logger.debug(`[${server.name}] removing log address ${logAddress}...`);
       await rcon.send(logAddressDel(logAddress));
       await rcon.send(delAllGamePlayers());
+      await rcon.send(disablePlayerWhitelist());
       await rcon.end();
       this.logger.log(`[${server.name}] server cleaned up`);
     } catch (error) {

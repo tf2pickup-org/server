@@ -19,6 +19,14 @@ export function delGamePlayer(steamId: string) {
   return `sm_game_player_del ${steamId}`;
 }
 
+export function enablePlayerWhitelist() {
+  return 'sm_game_player_whitelist 1';
+}
+
+export function disablePlayerWhitelist() {
+  return 'sm_game_player_whitelist 0';
+}
+
 export function execConfig(config: string) {
   return `exec ${config}`;
 }
