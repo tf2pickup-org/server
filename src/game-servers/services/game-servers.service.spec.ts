@@ -5,6 +5,7 @@ import { GameServer } from '../models/game-server';
 import { DocumentType, ReturnModelType } from '@typegoose/typegoose';
 import { ObjectId } from 'mongodb';
 import { typegooseTestingModule } from '@/utils/testing-typegoose-module';
+import * as isServerOnline from '../utils/is-server-online';
 
 describe('GameServersService', () => {
   let service: GameServersService;
@@ -112,6 +113,18 @@ describe('GameServersService', () => {
     it('should return the correct server', async () => {
       const server = await service.getGameServerByEventSource({ address: '127.0.0.1', port: 27015 });
       expect(server.toJSON()).toEqual(testGameServer.toJSON());
+    });
+  });
+
+  describe('#checkAllServers()', () => {
+    it('should check whether every server is online', async () => {
+      const spy = spyOn(isServerOnline, 'isServerOnline').and.returnValue(new Promise(resolve => resolve(true)));
+      await service.checkAllServers();
+      expect(spy).toHaveBeenCalledTimes(1);
+      expect(spy).toHaveBeenCalledWith('localhost', 27015);
+
+      const gameServer = await gameServerModel.findById(testGameServer.id);
+      expect(gameServer.isOnline).toBe(true);
     });
   });
 });
