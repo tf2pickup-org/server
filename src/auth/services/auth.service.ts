@@ -10,10 +10,6 @@ import { Cron } from '@nestjs/schedule';
 export class AuthService implements OnModuleInit {
 
   private logger = new Logger(AuthService.name);
-  private readonly commonTokenOptions = { algorithm: 'ES512' };
-  private readonly authTokenOptions = { ...this.commonTokenOptions, expiresIn: '15m' };
-  private readonly refreshTokenOptions = { ...this.commonTokenOptions, expiresIn: '7d' };
-  private readonly wsTokenOptions = { algorithm: 'HS256', expiresIn: '10m' };
 
   constructor(
     private keyStoreService: KeyStoreService,
@@ -28,19 +24,19 @@ export class AuthService implements OnModuleInit {
     switch (purpose) {
       case 'auth': {
         const key = this.keyStoreService.getKey('auth', 'sign');
-        return sign({ id: userId }, key, this.authTokenOptions);
+        return sign({ id: userId }, key, { algorithm: 'ES512', expiresIn: '15m' });
       }
 
       case 'refresh': {
         const key = this.keyStoreService.getKey('refresh', 'sign');
-        const token = sign({ id: userId }, key, this.refreshTokenOptions);
+        const token = sign({ id: userId }, key, { algorithm: 'ES512', expiresIn: '7d' });
         await this.refreshTokenModel.create({ value: token });
         return token;
       }
 
       case 'ws': {
         const key = this.keyStoreService.getKey('ws', 'sign');
-        return sign({ id: userId }, key, this.wsTokenOptions);
+        return sign({ id: userId }, key, { algorithm: 'HS256', expiresIn: '10m' });
       }
 
       default:
