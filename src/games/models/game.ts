@@ -44,4 +44,7 @@ export class Game {
 
   @prop({ ref: 'GameServer' })
   gameServer?: Ref<GameServer>;
+
+  @mapProp({ of: Number })
+  score?: Map<string, number>;
 }
