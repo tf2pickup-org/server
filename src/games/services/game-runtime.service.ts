@@ -32,6 +32,8 @@ export class GameRuntimeService {
       throw new Error('this game has no server assigned');
     }
 
+    this.logger.verbose(`game #${game.number} is being reconfigured`);
+
     game.connectString = null;
     await game.save();
     this.gamesGateway.emitGameUpdated(game);
@@ -50,6 +52,8 @@ export class GameRuntimeService {
     if (!game) {
       throw new Error('no such game');
     }
+
+    this.logger.verbose(`game #${game.number} force ended`);
 
     game.state = 'interrupted';
     game.error = 'ended by admin';

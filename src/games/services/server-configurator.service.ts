@@ -23,7 +23,7 @@ export class ServerConfiguratorService {
   ) { }
 
   async configureServer(server: GameServer, game: Game) {
-    this.logger.log(`configuring server ${server.name}...`);
+    this.logger.verbose(`configuring server ${server.name}...`);
     this.logger.debug(`[${server.name}] using rcon password ${server.rconPassword}`);
 
     try {
@@ -62,7 +62,7 @@ export class ServerConfiguratorService {
       this.logger.debug(`[${server.name}] server ready.`);
 
       const connectString = `connect ${server.address}:${server.port}; password ${password}`;
-      this.logger.log(`[${server.name}] ${connectString}`);
+      this.logger.verbose(`[${server.name}] ${connectString}`);
 
       return {
         connectString,
@@ -82,7 +82,7 @@ export class ServerConfiguratorService {
       await rcon.send(delAllGamePlayers());
       await rcon.send(disablePlayerWhitelist());
       await rcon.end();
-      this.logger.log(`[${server.name}] server cleaned up`);
+      this.logger.verbose(`[${server.name}] server cleaned up`);
     } catch (error) {
       throw new Error(`could not cleanup server ${server.name} (${error.message})`);
     }

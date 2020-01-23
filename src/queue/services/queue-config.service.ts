@@ -16,7 +16,7 @@ export class QueueConfigService {
     private environment: Environment,
   ) {
     const configFileName = join('configs', 'queue', `${this.environment.queueConfig}.json`);
-    this.logger.log(`Using ${configFileName} for queue config`);
+    this.logger.verbose(`using ${configFileName} for queue config`);
     const data = readFileSync(configFileName, 'utf-8');
     this.queueConfig = JSON.parse(data) as QueueConfig;
     this.validateQueueConfig(this.queueConfig);

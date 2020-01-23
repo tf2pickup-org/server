@@ -91,7 +91,7 @@ export class GameEventListenerService implements OnModuleInit {
       port: parseInt(this.environment.logRelayPort, 10),
     });
 
-    this.logger.log(`listening for incoming logs at ${this.logReceiver.opts.address}:${this.logReceiver.opts.port}`);
+    this.logger.verbose(`listening for incoming logs at ${this.logReceiver.opts.address}:${this.logReceiver.opts.port}`);
 
     this.logReceiver.on('data', (msg: LogMessage) => {
       if (msg.isValid) {

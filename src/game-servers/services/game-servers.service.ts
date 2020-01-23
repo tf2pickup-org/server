@@ -28,7 +28,7 @@ export class GameServersService {
 
   async addGameServer(gameServer: Partial<GameServer>): Promise<DocumentType<GameServer>> {
     const resolvedIpAddresses = await resolve(gameServer.address);
-    this.logger.log(`resolved addresses for ${gameServer.address}: ${resolvedIpAddresses}`);
+    this.logger.verbose(`resolved addresses for ${gameServer.address}: ${resolvedIpAddresses}`);
     gameServer.resolvedIpAddresses = resolvedIpAddresses;
 
     if (!gameServer.mumbleChannelName) {
@@ -65,7 +65,7 @@ export class GameServersService {
     if (gameServer) {
       gameServer.isFree = false;
       await gameServer.save();
-      this.logger.log(`game server ${gameServerId} (${gameServer.name}) marked as taken`);
+      this.logger.verbose(`game server ${gameServerId} (${gameServer.name}) marked as taken`);
       return gameServer;
     } else {
       throw new Error('no such game server');
@@ -77,7 +77,7 @@ export class GameServersService {
     if (gameServer) {
       gameServer.isFree = true;
       await gameServer.save();
-      this.logger.log(`game server ${gameServerId} (${gameServer.name}) marked as free`);
+      this.logger.verbose(`game server ${gameServerId} (${gameServer.name}) marked as free`);
       return gameServer;
     } else {
       throw new Error('no such game server');

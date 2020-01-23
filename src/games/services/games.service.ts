@@ -125,6 +125,10 @@ export class GamesService {
     return game;
   }
 
+  /**
+   * @deprecated Use GameLauncherService.launch()
+   * @param gameId The game to be launched.
+   */
   async launch(gameId: string) {
     await this.gameLauncherService.launch(gameId);
   }
