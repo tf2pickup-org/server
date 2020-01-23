@@ -76,6 +76,16 @@ export class GameEventListenerService implements OnModuleInit {
         }
       },
     },
+    {
+      name: 'score reported',
+      // https://regex101.com/r/RAUdTe/1
+      regex: /^[\d\/\s-:]+Team \"(.[^"]+)\" final score \"(\d)\" with \"(\d)\" players$/,
+      handle: (gameId, matches) => {
+        const teamName = matches[1];
+        const score = matches[2];
+        this.gameEventHandlerService.onScoreReported(gameId, teamName, score);
+      },
+    },
   ];
 
   constructor(
@@ -109,6 +119,7 @@ export class GameEventListenerService implements OnModuleInit {
         const game = await this.gamesService.findByAssignedGameServer(gameServer.id);
         this.logger.debug(`#${game.number}/${gameServer.name}: ${gameEvent.name}`);
         gameEvent.handle(game.id, matches);
+        break;
       }
     }
   }

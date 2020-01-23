@@ -66,6 +66,10 @@ export class GameEventHandlerService {
     await this.setPlayerConnectionStatus(gameId, steamId, 'offline');
   }
 
+  async onScoreReported(gameId: string, teamName: string, score: string) {
+
+  }
+
   private async setPlayerConnectionStatus(gameId: string, steamId: string, connectionStatus: PlayerConnectionStatus) {
     const player = await this.playersService.findBySteamId(steamId);
     if (!player) {
