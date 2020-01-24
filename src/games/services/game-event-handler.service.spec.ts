@@ -73,6 +73,12 @@ describe('GameEventHandlerService', () => {
       await service.onMatchStarted('FAKE_GAME_ID');
       expect(game.state).toEqual('started');
     });
+
+    it('should emit an event over ws', async () => {
+      const spy = spyOn(gamesGateway, 'emitGameUpdated');
+      await service.onMatchStarted('FAKE_GAME_ID');
+      expect(spy).toHaveBeenCalledWith(jasmine.objectContaining({ id: 'FAKE_GAME_ID' }));
+    });
   });
 
   describe('#onMatchEnded()', () => {
@@ -91,6 +97,12 @@ describe('GameEventHandlerService', () => {
       expect(spy).toHaveBeenCalledWith('FAKE_GAME_SERVER_ID');
       jasmine.clock().uninstall();
     });
+
+    it('should emit an event over ws', async () => {
+      const spy = spyOn(gamesGateway, 'emitGameUpdated');
+      await service.onMatchEnded('FAKE_GAME_ID');
+      expect(spy).toHaveBeenCalledWith(jasmine.objectContaining({ id: 'FAKE_GAME_ID' }));
+    });
   });
 
   describe('#onLogsUploaded()', () => {
@@ -99,6 +111,12 @@ describe('GameEventHandlerService', () => {
       spyOn(gamesService, 'getById').and.returnValue(game as any);
       await service.onLogsUploaded('FAKE_GAME_ID', 'FAKE_LOGS_URL');
       expect(game.logsUrl).toEqual('FAKE_LOGS_URL');
+    });
+
+    it('should emit an event over ws', async () => {
+      const spy = spyOn(gamesGateway, 'emitGameUpdated');
+      await service.onLogsUploaded('FAKE_GAME_ID', 'FAKE_LOGS_URL');
+      expect(spy).toHaveBeenCalledWith(jasmine.objectContaining({ id: 'FAKE_GAME_ID' }));
     });
   });
 });
