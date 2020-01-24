@@ -25,6 +25,7 @@ export class GameEventHandlerService {
     if (game) {
       game.state = 'started';
       await game.save();
+      this.gamesGateway.emitGameUpdated(game);
     } else {
       this.logger.warn(`no such game: ${gameId}`);
     }
@@ -35,6 +36,7 @@ export class GameEventHandlerService {
     if (game) {
       game.state = 'ended';
       await game.save();
+      this.gamesGateway.emitGameUpdated(game);
       setTimeout(() => this.gameRuntimeService.cleanupServer(game.gameServer.toString()), this.serverCleanupDelay);
     } else {
       this.logger.warn(`no such game: ${gameId}`);
@@ -46,6 +48,7 @@ export class GameEventHandlerService {
     if (game) {
       game.logsUrl = logsUrl;
       await game.save();
+      this.gamesGateway.emitGameUpdated(game);
     } else {
       this.logger.warn(`no such game: ${gameId}`);
     }
