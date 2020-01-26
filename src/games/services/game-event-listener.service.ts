@@ -81,8 +81,7 @@ export class GameEventListenerService implements OnModuleInit {
       // https://regex101.com/r/RAUdTe/1
       regex: /^[\d\/\s-:]+Team \"(.[^"]+)\" final score \"(\d)\" with \"(\d)\" players$/,
       handle: (gameId, matches) => {
-        const teamName = matches[1];
-        const score = matches[2];
+        const [, teamName, score] = matches;
         this.gameEventHandlerService.onScoreReported(gameId, teamName, score);
       },
     },
