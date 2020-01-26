@@ -4,7 +4,7 @@ import { Environment } from '@/environment/environment';
 import { PlayersService } from '@/players/services/players.service';
 import { QueueConfigService } from '@/queue/services/queue-config.service';
 import { RconFactoryService } from './rcon-factory.service';
-import { logAddressAdd, kickAll, changelevel, execConfig, addGamePlayer, enablePlayerWhitelist } from '../utils/rcon-commands';
+import { logAddressAdd, kickAll, changelevel, execConfig, addGamePlayer, enablePlayerWhitelist, tvPort, tvPassword } from '../utils/rcon-commands';
 
 class EnvironmentStub {
   logRelayAddress = 'FAKE_RELAY_ADDRESS';
@@ -100,6 +100,8 @@ describe('ServerConfiguratorService', () => {
       expect(spy).toHaveBeenCalledWith(addGamePlayer('PLAYER_1_STEAMID', 'PLAYER_1_NAME', 2, 'soldier'));
       expect(spy).toHaveBeenCalledWith(addGamePlayer('PLAYER_2_STEAMID', 'PLAYER_2_NAME', 3, 'soldier'));
       expect(spy).toHaveBeenCalledWith(enablePlayerWhitelist());
+      expect(spy).toHaveBeenCalledWith(tvPort());
+      expect(spy).toHaveBeenCalledWith(tvPassword());
     });
 
     it('should close the rcon connection', async () => {
