@@ -58,8 +58,9 @@ export class GameLauncherService {
       this.gamesGateway.emitGameUpdated(game);
 
       // step 3: configure server
-      const { connectString } = await this.serverConfiguratorService.configureServer(server, game);
+      const { connectString, stvConnectString } = await this.serverConfiguratorService.configureServer(server, game);
       game.connectString = connectString;
+      game.stvConnectString = stvConnectString;
       await game.save();
       this.gamesGateway.emitGameUpdated(game);
 

@@ -30,7 +30,10 @@ class GameServersServiceStub {
 }
 
 class ServerConfiguratorServiceStub {
-  configureServer(server: any, game: any) { return new Promise(resolve => resolve({ connectString: 'FAKE_CONNECT_STRING' })); }
+  configureServer(server: any, game: any) { return new Promise(resolve => resolve({
+    connectString: 'FAKE_CONNECT_STRING',
+    stvConnectString: 'FAKE_STV_CONNECT_STRING',
+  })); }
 }
 
 class EnvironmentStub {
@@ -94,6 +97,7 @@ describe('GameLauncherService', () => {
       const ret = await service.launch('FAKE_GAME_ID');
       expect(spy).toHaveBeenCalledWith(jasmine.objectContaining({ id: mockGameServer.id }), jasmine.objectContaining({ id: mockGame.id }));
       expect(ret.connectString).toEqual('FAKE_CONNECT_STRING');
+      expect(ret.stvConnectString).toEqual('FAKE_STV_CONNECT_STRING');
     });
 
     it('should setup a valid mumble url', async () => {
