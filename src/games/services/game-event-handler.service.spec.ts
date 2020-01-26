@@ -225,4 +225,22 @@ describe('GameEventHandlerService', () => {
       expect(spy).toHaveBeenCalledWith(jasmine.objectContaining({ id: gamesService.mockGame.id }));
     });
   });
+
+  describe('#onScoreReported()', () => {
+    it('should update the game\'s score', async () => {
+      await service.onScoreReported(gamesService.mockGame.id, 'Red', '2');
+      let game = await gameModel.findOne();
+      expect(game.score?.get('1')).toEqual(2);
+
+      await service.onScoreReported(gamesService.mockGame.id, 'Blue', '5');
+      game = await gameModel.findOne();
+      expect(game.score?.get('2')).toEqual(5);
+    });
+
+    it('should emit an event over ws', async () => {
+      const spy = spyOn(gamesGateway, 'emitGameUpdated');
+      await service.onScoreReported(gamesService.mockGame.id, 'Red', '2');
+      expect(spy).toHaveBeenCalledWith(jasmine.objectContaining({ id: gamesService.mockGame.id }));
+    });
+  });
 });
