@@ -5,6 +5,7 @@ import { PlayerConnectionStatus } from '../models/player-connection-status';
 import { ConfigService } from '@nestjs/config';
 import { GameRuntimeService } from './game-runtime.service';
 import { GamesGateway } from '../gateways/games.gateway';
+import { QueueGateway } from '@/queue/gateways/queue.gateway';
 
 @Injectable()
 export class GameEventHandlerService {
@@ -18,6 +19,7 @@ export class GameEventHandlerService {
     private configService: ConfigService,
     private gameRuntimeService: GameRuntimeService,
     private gamesGateway: GamesGateway,
+    private queueGateway: QueueGateway,
   ) { }
 
   async onMatchStarted(gameId: string) {
@@ -35,8 +37,15 @@ export class GameEventHandlerService {
     const game = await this.gamesService.getById(gameId);
     if (game) {
       game.state = 'ended';
+      game.slots.forEach(slot => {
+        if (slot.status === 'waiting for substitute') {
+          slot.status = 'active';
+        }
+      });
+
       await game.save();
       this.gamesGateway.emitGameUpdated(game);
+      this.queueGateway.updateSubstituteRequests();
       setTimeout(() => this.gameRuntimeService.cleanupServer(game.gameServer.toString()), this.serverCleanupDelay);
     } else {
       this.logger.warn(`no such game: ${gameId}`);
