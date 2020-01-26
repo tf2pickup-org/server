@@ -21,7 +21,6 @@ interface GameEvent {
 export class GameEventListenerService implements OnModuleInit {
 
   private logger = new Logger(GameEventListenerService.name);
-  private logReceiver: LogReceiver;
 
   // events
   readonly gameEvents: GameEvent[] = [
@@ -88,18 +87,13 @@ export class GameEventListenerService implements OnModuleInit {
   ];
 
   constructor(
-    private environment: Environment,
     private gameEventHandlerService: GameEventHandlerService,
     private gameSeversService: GameServersService,
     private gamesService: GamesService,
+    private logReceiver: LogReceiver,
   ) { }
 
   onModuleInit() {
-    this.logReceiver = new LogReceiver({
-      address: this.environment.logRelayAddress,
-      port: parseInt(this.environment.logRelayPort, 10),
-    });
-
     this.logger.verbose(`listening for incoming logs at ${this.logReceiver.opts.address}:${this.logReceiver.opts.port}`);
 
     this.logReceiver.on('data', (msg: LogMessage) => {

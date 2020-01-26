@@ -18,6 +18,17 @@ import { GameEventHandlerService } from './services/game-event-handler.service';
 import { GamesWithSubstitutionRequestsController } from './controllers/games-with-substitution-requests.controller';
 import { PlayerSubstitutionService } from './services/player-substitution.service';
 import { DiscordModule } from '@/discord/discord.module';
+import { LogReceiver } from 'srcds-log-receiver';
+import { Environment } from '@/environment/environment';
+
+const logReceiverProvider = {
+  provide: LogReceiver,
+  useFactory: (environment: Environment) => new LogReceiver({
+    address: environment.logRelayAddress,
+    port: parseInt(environment.logRelayPort, 10),
+  }),
+  inject: [ Environment ],
+};
 
 @Module({
   imports: [
@@ -37,6 +48,7 @@ import { DiscordModule } from '@/discord/discord.module';
     GameRuntimeService,
     GameEventHandlerService,
     PlayerSubstitutionService,
+    logReceiverProvider,
   ],
   exports: [
     GamesService,
