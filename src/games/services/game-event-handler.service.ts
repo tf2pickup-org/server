@@ -66,6 +66,24 @@ export class GameEventHandlerService {
     await this.setPlayerConnectionStatus(gameId, steamId, 'offline');
   }
 
+  async onScoreReported(gameId: string, teamName: string, score: string) {
+    const game = await this.gamesService.getById(gameId);
+    if (game) {
+      const fixedTeamName = teamName.toUpperCase().substring(0, 3); // converts Red to RED and Blue to BLU
+      for (const [teamId, name] of game.teams) {
+        if (name === fixedTeamName) {
+          game.score = game.score || new Map();
+          game.score.set(teamId, parseInt(score, 10));
+          await game.save();
+          this.gamesGateway.emitGameUpdated(game);
+          break;
+        }
+      }
+    } else {
+      this.logger.warn(`no such game: ${gameId}`);
+    }
+  }
+
   private async setPlayerConnectionStatus(gameId: string, steamId: string, connectionStatus: PlayerConnectionStatus) {
     const player = await this.playersService.findBySteamId(steamId);
     if (!player) {
