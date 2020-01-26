@@ -139,6 +139,15 @@ describe('GameEventHandlerService', () => {
   });
 
   describe('#onMatchEnded()', () => {
+    let gameServerId: ObjectId;
+
+    beforeEach(async () => {
+      gameServerId = new ObjectId();
+      const game = await gameModel.findOne();
+      game.gameServer = gameServerId;
+      await game.save();
+    });
+
     it('should update state', async () => {
       await service.onMatchEnded(gamesService.mockGame.id);
       const game = await gameModel.findOne();
@@ -146,11 +155,6 @@ describe('GameEventHandlerService', () => {
     });
 
     it('should eventually cleanup the server', async () => {
-      const gameServerId = new ObjectId();
-      const game = await gameModel.findOne();
-      game.gameServer = gameServerId;
-      await game.save();
-
       jasmine.clock().install();
       const spy = spyOn(gameRuntimeService, 'cleanupServer');
       await service.onMatchEnded(gamesService.mockGame.id);
