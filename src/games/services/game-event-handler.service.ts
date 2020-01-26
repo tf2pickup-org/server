@@ -74,6 +74,8 @@ export class GameEventHandlerService {
         if (name === fixedTeamName) {
           game.score = game.score || new Map();
           game.score.set(teamId, parseInt(score, 10));
+          await game.save();
+          this.gamesGateway.emitGameUpdated(game);
           break;
         }
       }
