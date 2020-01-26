@@ -11,6 +11,7 @@ import { Game } from '../models/game';
 import { ReturnModelType, DocumentType } from '@typegoose/typegoose';
 import { ObjectId } from 'mongodb';
 import { Player } from '@/players/models/player';
+import { QueueGateway } from '@/queue/gateways/queue.gateway';
 
 class PlayersServiceStub {
   playerIds: ObjectId[] = [];
@@ -77,6 +78,10 @@ class GamesGatewayStub {
   emitGameUpdated(game: any) { return null; }
 }
 
+class QueueGatewayStub {
+  updateSubstituteRequests() { }
+}
+
 describe('GameEventHandlerService', () => {
   let service: GameEventHandlerService;
   let playersService: PlayersServiceStub;
@@ -85,6 +90,7 @@ describe('GameEventHandlerService', () => {
   let gamesGateway: GamesGatewayStub;
   let gameModel: ReturnModelType<typeof Game>;
   let playerModel: ReturnModelType<typeof Player>;
+  let queueGateway: QueueGatewayStub;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -99,6 +105,7 @@ describe('GameEventHandlerService', () => {
         { provide: ConfigService, useClass: ConfigServiceStub },
         { provide: GameRuntimeService, useClass: GameRuntimeServiceStub },
         { provide: GamesGateway, useClass: GamesGatewayStub },
+        { provide: QueueGateway, useClass: QueueGatewayStub },
       ],
     }).compile();
 
@@ -109,12 +116,14 @@ describe('GameEventHandlerService', () => {
     gamesGateway = module.get(GamesGateway);
     gameModel = module.get(getModelToken('Game'));
     playerModel = module.get(getModelToken('Player'));
+    queueGateway = module.get(QueueGateway);
   });
 
   beforeEach(async () => {
     await playersService.initialize();
     await gamesService.initialize();
   });
+
   afterEach(async () => {
     await gameModel.deleteMany({ });
     await playerModel.deleteMany({ });
@@ -167,6 +176,26 @@ describe('GameEventHandlerService', () => {
       const spy = spyOn(gamesGateway, 'emitGameUpdated');
       await service.onMatchEnded(gamesService.mockGame.id);
       expect(spy).toHaveBeenCalledWith(jasmine.objectContaining({ id: gamesService.mockGame.id }));
+    });
+
+    describe('with player awaiting a substitute', () => {
+      beforeEach(async () => {
+        const game = await gameModel.findOne();
+        game.slots[0].status = 'waiting for substitute';
+        await game.save();
+      });
+
+      it('should set his status back to active', async () => {
+        await service.onMatchEnded(gamesService.mockGame.id);
+        const game = await gameModel.findOne();
+        expect(game.slots.every(s => s.status === 'active')).toBe(true);
+      });
+
+      it('should emit subsitute requests change event over ws', async () => {
+        const spy = spyOn(queueGateway, 'updateSubstituteRequests');
+        await service.onMatchEnded(gamesService.mockGame.id);
+        expect(spy).toHaveBeenCalled();
+      });
     });
   });
 
