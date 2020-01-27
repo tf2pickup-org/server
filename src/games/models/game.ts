@@ -47,4 +47,7 @@ export class Game {
 
   @mapProp({ of: Number })
   score?: Map<string, number>;
+
+  @prop()
+  stvConnectString?: string;
 }

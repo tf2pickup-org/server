@@ -7,8 +7,9 @@ import { PlayersService } from '@/players/services/players.service';
 import { QueueConfigService } from '@/queue/services/queue-config.service';
 import { RconFactoryService } from './rcon-factory.service';
 import { logAddressAdd, changelevel, execConfig, setPassword, addGamePlayer, logAddressDel, delAllGamePlayers,
-  kickAll, enablePlayerWhitelist, disablePlayerWhitelist } from '../utils/rcon-commands';
+  kickAll, enablePlayerWhitelist, disablePlayerWhitelist, tvPort, tvPassword } from '../utils/rcon-commands';
 import { deburr } from 'lodash';
+import { extractConVarValue } from '../utils/extract-con-var-value';
 
 @Injectable()
 export class ServerConfiguratorService {
@@ -58,14 +59,25 @@ export class ServerConfiguratorService {
       }
 
       await rcon.send(enablePlayerWhitelist());
+
+      const tvPortValue = extractConVarValue(await rcon.send(tvPort()));
+      const tvPasswordValue = extractConVarValue(await rcon.send(tvPassword()));
+
       await rcon.end();
       this.logger.debug(`[${server.name}] server ready.`);
 
       const connectString = `connect ${server.address}:${server.port}; password ${password}`;
       this.logger.verbose(`[${server.name}] ${connectString}`);
 
+      let stvConnectString = `connect ${server.address}:${tvPortValue}`;
+      if (tvPasswordValue?.length > 0) {
+        stvConnectString += `; password ${tvPasswordValue}`;
+      }
+      this.logger.verbose(`[${server.name} stv] ${stvConnectString}`);
+
       return {
         connectString,
+        stvConnectString,
       };
     } catch (error) {
       throw new Error(`could not configure server ${server.name} (${error.message})`);
