@@ -13,4 +13,5 @@ export type Tf2Map =
   | 'koth_product_rcx'
   | 'ctf_ballin_sky'
   | 'cp_reckoner_rc2'
+  | 'cp_reckoner_rc5'
   ;
