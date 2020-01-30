@@ -1,3 +1,8 @@
+# [1.1.3](https://github.com/tf2pickup-pl/server/compare/1.1.2...1.1.3) (2020-01-30)
+
+### Fixes
+* update cp_reckoner to version rc5 ([7570727](https://github.com/tf2pickup-pl/server/commit/75707276ecd7238a59a8946ae776bb5646809641))
+
 # [1.1.2](https://github.com/tf2pickup-pl/server/compare/1.1.1...1.1.2) (2020-01-05)
 
 ### Fixes
