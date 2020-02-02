@@ -94,7 +94,15 @@ export class GamesService {
   }
 
   async getPlayerActiveGame(playerId: string): Promise<DocumentType<Game>> {
-    return await this.gameModel.findOne({ state: /launching|started/, players: playerId });
+    return await this.gameModel.findOne({
+      state: /launching|started/,
+      slots: {
+        $elemMatch: {
+          status: /active|waiting for substitute/,
+          playerId,
+        },
+      },
+    });
   }
 
   async create(queueSlots: QueueSlot[], map: string): Promise<DocumentType<Game>> {
