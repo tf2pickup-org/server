@@ -167,7 +167,7 @@ export class GamesService {
   async getGamesWithSubstitutionRequests(): Promise<Array<DocumentType<Game>>> {
     return this.gameModel
       .find({
-        'state': /launching|started/,
+        'state': { $in: ['launching', 'started'] },
         'slots.status': 'waiting for substitute',
       });
   }
