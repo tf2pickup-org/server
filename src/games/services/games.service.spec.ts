@@ -138,11 +138,91 @@ describe('GamesService', () => {
   });
 
   describe('#getPlayerActiveGame()', () => {
-    it('should return an active game for the given player', async () => {
+    it('should return a game if the player is active', async () => {
       const playerId = new ObjectId();
-      const game = await gameModel.create({ number: 1, map: 'cp_badlands', state: 'started', players: [ playerId ] });
+      const game = await gameModel.create({
+        number: 1,
+        map: 'cp_badlands',
+        state: 'started',
+        players: [ playerId ],
+        slots: {
+          playerId,
+          status: 'active',
+          gameClass: 'soldier',
+          teamId: 1,
+        },
+      });
       const ret = await service.getPlayerActiveGame(playerId.toString());
+      expect(ret).toBeTruthy();
       expect(ret.toJSON()).toEqual(game.toJSON());
+    });
+
+    it('should return a game if the player is waiting for a substitute', async () => {
+      const playerId = new ObjectId();
+      const game = await gameModel.create({
+        number: 1,
+        map: 'cp_badlands',
+        state: 'started',
+        players: [ playerId ],
+        slots: [
+          {
+            playerId,
+            status: 'waiting for substitute',
+            gameClass: 'soldier',
+            teamId: 1,
+          },
+        ],
+      });
+      const ret = await service.getPlayerActiveGame(playerId.toString());
+      expect(ret).toBeTruthy();
+      expect(ret.toJSON()).toEqual(game.toJSON());
+    });
+
+    it('should not return a game if the player has been replaced', async () => {
+      const playerId = new ObjectId();
+      const playerId2 = new ObjectId();
+      await  gameModel.create({
+        number: 1,
+        map: 'cp_badlands',
+        state: 'started',
+        players: [ playerId ],
+        slots: [
+          {
+            playerId,
+            status: 'replaced',
+            gameClass: 'soldier',
+            teamId: 1,
+          },
+          {
+            playerId: playerId2,
+            status: 'active',
+            gameClass: 'soldier',
+            teamId: 1,
+          },
+        ],
+      });
+
+      const ret = await service.getPlayerActiveGame(playerId.toString());
+      expect(ret).toBeNull();
+    });
+
+    it('should not return a game if a game is no longer active', async () => {
+      const playerId = new ObjectId();
+      const game = await  gameModel.create({
+        number: 1,
+        map: 'cp_badlands',
+        state: 'ended',
+        players: [ playerId ],
+        slots: {
+          playerId,
+          status: 'active',
+          gameClass: 'soldier',
+          teamId: 1,
+        },
+      });
+
+      const ret = await service.getPlayerActiveGame(playerId.toString());
+      expect(ret).toBeNull();
     });
   });
 
