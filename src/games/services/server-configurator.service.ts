@@ -10,6 +10,7 @@ import { logAddressAdd, changelevel, execConfig, setPassword, addGamePlayer, log
   kickAll, enablePlayerWhitelist, disablePlayerWhitelist, tvPort, tvPassword } from '../utils/rcon-commands';
 import { deburr } from 'lodash';
 import { extractConVarValue } from '../utils/extract-con-var-value';
+import { Rcon } from 'rcon-client/lib';
 
 @Injectable()
 export class ServerConfiguratorService {
@@ -27,8 +28,9 @@ export class ServerConfiguratorService {
     this.logger.verbose(`configuring server ${server.name}...`);
     this.logger.debug(`[${server.name}] using rcon password ${server.rconPassword}`);
 
+    let rcon: Rcon;
     try {
-      const rcon = await this.rconFactoryService.createRcon(server);
+      rcon = await this.rconFactoryService.createRcon(server);
 
       const logAddress = `${this.environment.logRelayAddress}:${this.environment.logRelayPort}`;
       this.logger.debug(`[${server.name}] adding log address ${logAddress}...`);
@@ -63,7 +65,6 @@ export class ServerConfiguratorService {
       const tvPortValue = extractConVarValue(await rcon.send(tvPort()));
       const tvPasswordValue = extractConVarValue(await rcon.send(tvPassword()));
 
-      await rcon.end();
       this.logger.debug(`[${server.name}] server ready.`);
 
       const connectString = `connect ${server.address}:${server.port}; password ${password}`;
@@ -81,22 +82,26 @@ export class ServerConfiguratorService {
       };
     } catch (error) {
       throw new Error(`could not configure server ${server.name} (${error.message})`);
+    } finally {
+      await rcon?.end();
     }
   }
 
   async cleanupServer(server: GameServer) {
+    let rcon: Rcon;
     try {
-      const rcon = await this.rconFactoryService.createRcon(server);
+      rcon = await this.rconFactoryService.createRcon(server);
 
       const logAddress = `${this.environment.logRelayAddress}:${this.environment.logRelayPort}`;
       this.logger.debug(`[${server.name}] removing log address ${logAddress}...`);
       await rcon.send(logAddressDel(logAddress));
       await rcon.send(delAllGamePlayers());
       await rcon.send(disablePlayerWhitelist());
-      await rcon.end();
       this.logger.verbose(`[${server.name}] server cleaned up`);
     } catch (error) {
       throw new Error(`could not cleanup server ${server.name} (${error.message})`);
+    } finally {
+      await rcon?.end();
     }
   }
 

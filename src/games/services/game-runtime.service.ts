@@ -7,6 +7,7 @@ import { PlayersService } from '@/players/services/players.service';
 import { addGamePlayer, delGamePlayer } from '../utils/rcon-commands';
 import { GamePlayer } from '../models/game-player';
 import { GamesGateway } from '../gateways/games.gateway';
+import { Rcon } from 'rcon-client/lib';
 
 @Injectable()
 export class GameRuntimeService {
@@ -39,11 +40,15 @@ export class GameRuntimeService {
     this.gamesGateway.emitGameUpdated(game);
 
     const gameServer = await this.gameServersService.getById(game.gameServer.toString());
-    const { connectString } = await this.serverConfiguratorService.configureServer(gameServer, game);
+    try {
+      const { connectString } = await this.serverConfiguratorService.configureServer(gameServer, game);
+      game.connectString = connectString;
+      await game.save();
+      this.gamesGateway.emitGameUpdated(game);
+    } catch (e) {
+      this.logger.error(e.message);
+    }
 
-    game.connectString = connectString;
-    await game.save();
-    this.gamesGateway.emitGameUpdated(game);
     return game;
   }
 
@@ -78,25 +83,37 @@ export class GameRuntimeService {
     }
 
     const gameServer = await this.gameServersService.getById(game.gameServer.toString());
-    const rcon = await this.rconFactoryService.createRcon(gameServer);
+    let rcon: Rcon;
 
-    const player = await this.playersService.getById(replacementSlot.playerId);
-    const team = parseInt(replacementSlot.teamId, 10) + 2;
+    try {
+      rcon = await this.rconFactoryService.createRcon(gameServer);
+      const player = await this.playersService.getById(replacementSlot.playerId);
+      const team = parseInt(replacementSlot.teamId, 10) + 2;
 
-    const cmd = addGamePlayer(player.steamId, player.name, team, replacementSlot.gameClass);
-    this.logger.debug(cmd);
-    await rcon.send(cmd);
+      const cmd = addGamePlayer(player.steamId, player.name, team, replacementSlot.gameClass);
+      this.logger.debug(cmd);
+      await rcon.send(cmd);
 
-    const replacee = await this.playersService.getById(replaceeId);
-    const cmd2 = delGamePlayer(replacee?.steamId);
-    this.logger.debug(cmd2);
-    await rcon.send(cmd2);
-    await rcon.end();
+      const replacee = await this.playersService.getById(replaceeId);
+      const cmd2 = delGamePlayer(replacee?.steamId);
+      this.logger.debug(cmd2);
+      await rcon.send(cmd2);
+    } catch (e) {
+      this.logger.error(`Error replacing the player on the game server: ${e.message}`);
+    } finally {
+      await rcon?.end();
+    }
   }
 
   async cleanupServer(serverId: string) {
     const gameServer = await this.gameServersService.getById(serverId);
-    await this.serverConfiguratorService.cleanupServer(gameServer);
+
+    try {
+      await this.serverConfiguratorService.cleanupServer(gameServer);
+    } catch (e) {
+      this.logger.error(e.message);
+    }
+
     await this.gameServersService.releaseServer(serverId);
   }
 
