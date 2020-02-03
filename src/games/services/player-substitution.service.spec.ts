@@ -59,8 +59,12 @@ class PlayersServiceStub {
 
   getById(id: string) {
     return new Promise(resolve => {
-      const player = { ...this.players.get(id) };
-      resolve(player);
+      const player = this.players.get(id);
+      if (player) {
+        resolve({ ...player });
+      } else {
+        resolve(null);
+      }
     });
   }
 }
@@ -300,6 +304,10 @@ describe('PlayerSubstitutionService', () => {
       const spy = spyOn(queueGateway, 'updateSubstituteRequests');
       await service.replacePlayer('FAKE_GAME_ID', 'FAKE_PLAYER_1', 'FAKE_PLAYER_3');
       expect(spy).toHaveBeenCalled();
+    });
+
+    it('should reject if the replacement player does not exist', async () => {
+      await expectAsync(service.replacePlayer('FAKE_GAME_ID', 'FAKE_PLAYER_1', 'some nonexistent player id')).toBeRejectedWithError('no such player');
     });
   });
 
