@@ -180,6 +180,12 @@ describe('PlayerSubstitutionService', () => {
       await service.substitutePlayer('FAKE_GAME_ID', 'FAKE_PLAYER_1');
       expect(spy).toHaveBeenCalled();
     });
+
+    it('should do nothing if the player is already marked', async () => {
+      const game1 = await service.substitutePlayer('FAKE_GAME_ID', 'FAKE_PLAYER_1');
+      const game2 = await service.substitutePlayer('FAKE_GAME_ID', 'FAKE_PLAYER_1');
+      expect(game1).toEqual(game2);
+    });
   });
 
   describe('#cancelSubstitutionRequest()', () => {
@@ -224,6 +230,12 @@ describe('PlayerSubstitutionService', () => {
       const spy = spyOn(queueGateway, 'updateSubstituteRequests');
       const game = await service.cancelSubstitutionRequest('FAKE_GAME_ID', 'FAKE_PLAYER_1');
       expect(spy).toHaveBeenCalled();
+    });
+
+    it('should do nothing if the player is already marked', async () => {
+      const game1 = await service.cancelSubstitutionRequest('FAKE_GAME_ID', 'FAKE_PLAYER_1');
+      const game2 = await service.cancelSubstitutionRequest('FAKE_GAME_ID', 'FAKE_PLAYER_1');
+      expect(game1).toEqual(game2);
     });
   });
 
@@ -308,6 +320,12 @@ describe('PlayerSubstitutionService', () => {
 
     it('should reject if the replacement player does not exist', async () => {
       await expectAsync(service.replacePlayer('FAKE_GAME_ID', 'FAKE_PLAYER_1', 'some nonexistent player id')).toBeRejectedWithError('no such player');
+    });
+
+    it('should reject if the replacement player is involved in an active game', async () => {
+      spyOn(gamesService, 'getPlayerActiveGame').and.returnValue(new Promise(resolve => resolve(mockGame)));
+      await expectAsync(service.replacePlayer('FAKE_GAME_ID', 'FAKE_PLAYER_1', 'FAKE_PLAYER_3'))
+        .toBeRejectedWithError('player is involved in a currently running game');
     });
   });
 
