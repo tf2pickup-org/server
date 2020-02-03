@@ -10,6 +10,8 @@ import { DiscordNotificationsService } from '@/discord/services/discord-notifica
 import { cloneDeep } from 'lodash';
 import { QueueGateway } from '@/queue/gateways/queue.gateway';
 
+// fixme: use TestingMongooseModule here
+
 const mockGame = {
   id: 'FAKE_GAME_ID',
   number: 1,
@@ -50,9 +52,9 @@ class GamesServiceStub {
 
 class PlayersServiceStub {
   players = new Map<string, any>([
-    [ 'FAKE_PLAYER_1', { id: 'FAKE_PLAYER_1' } ],
-    [ 'FAKE_PLAYER_2', { id: 'FAKE_PLAYER_2' } ],
-    [ 'FAKE_PLAYER_3', { id: 'FAKE_PLAYER_3' } ],
+    [ 'FAKE_PLAYER_1', { id: 'FAKE_PLAYER_1', name: 'PLAYER_1' } ],
+    [ 'FAKE_PLAYER_2', { id: 'FAKE_PLAYER_2', name: 'PLAYER_2' } ],
+    [ 'FAKE_PLAYER_3', { id: 'FAKE_PLAYER_3', name: 'PLAYER_3' } ],
   ]);
 
   getById(id: string) {
@@ -234,9 +236,9 @@ describe('PlayerSubstitutionService', () => {
       const replaceeSlot = game.slots.find(s => s.playerId === 'FAKE_PLAYER_1');
       expect(replaceeSlot.status).toBe('replaced');
       const replacementSlot = game.slots.find(s => s.playerId === 'FAKE_PLAYER_3');
-      expect(replacementSlot).toBeDefined();
+      expect(replacementSlot).toBeTruthy();
       expect(replacementSlot.status).toBe('active');
-      expect(game.players.find((p: any) => p.id === 'FAKE_PLAYER_3')).toBeDefined();
+      expect(game.players.find((p: any) => p.id === 'FAKE_PLAYER_3')).toBeTruthy();
       expect(spy).toHaveBeenCalled();
     });
 
@@ -299,5 +301,21 @@ describe('PlayerSubstitutionService', () => {
       await service.replacePlayer('FAKE_GAME_ID', 'FAKE_PLAYER_1', 'FAKE_PLAYER_3');
       expect(spy).toHaveBeenCalled();
     });
+  });
+
+  it('should replace the player if replacement is replacing a game he was previously subbed out of', async () => {
+    await service.substitutePlayer('FAKE_GAME_ID', 'FAKE_PLAYER_1');
+    await service.replacePlayer('FAKE_GAME_ID', 'FAKE_PLAYER_1', 'FAKE_PLAYER_3');
+    await service.substitutePlayer('FAKE_GAME_ID', 'FAKE_PLAYER_3');
+    const game = await service.replacePlayer('FAKE_GAME_ID', 'FAKE_PLAYER_3', 'FAKE_PLAYER_1');
+    expect(game).toBeTruthy();
+
+    const player1Slot = game.slots.find(s => s.playerId === 'FAKE_PLAYER_1');
+    expect(player1Slot).toBeTruthy();
+    expect(player1Slot.status).toBe('active');
+
+    const player3Slot = game.slots.find(s => s.playerId === 'FAKE_PLAYER_3');
+    expect(player3Slot).toBeTruthy();
+    expect(player3Slot.status).toBe('replaced');
   });
 });
