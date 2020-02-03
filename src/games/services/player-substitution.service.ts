@@ -127,6 +127,7 @@ export class PlayerSubstitutionService {
         playerId: replacementId,
         teamId: slot.teamId,
         gameClass: slot.gameClass,
+        status: 'active',
       };
 
       game.slots.push(replacementSlot);
