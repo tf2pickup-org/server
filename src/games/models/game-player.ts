@@ -9,11 +9,11 @@ export class GamePlayer {
   teamId!: string;
 
   @prop({ required: true })
-  gameClass: string;
+  gameClass!: string;
 
   @prop({ default: 'active' })
-  status: 'active' | 'waiting for substitute' | 'replaced';
+  status?: 'active' | 'waiting for substitute' | 'replaced';
 
   @prop({ default: 'offline' })
-  connectionStatus: PlayerConnectionStatus;
+  connectionStatus?: PlayerConnectionStatus;
 }

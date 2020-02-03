@@ -109,23 +109,30 @@ export class PlayerSubstitutionService {
       return game;
     }
 
-    if (await this.gamesService.getPlayerActiveGame(replacementId)) {
+    if (!!await this.gamesService.getPlayerActiveGame(replacementId)) {
       throw new Error('player is involved in a currently running game');
     }
 
     const replacement = await this.playersService.getById(replacementId);
+    if (!replacement) {
+      throw new Error('no such player');
+    }
 
-    // create new slot of the replacement player
-    const replacementSlot: GamePlayer = {
-      playerId: replacementId,
-      teamId: slot.teamId,
-      gameClass: slot.gameClass,
-      status: 'active',
-      connectionStatus: 'offline',
-    };
+    let replacementSlot: GamePlayer = game.slots.find(s => s.playerId === replacementId);
+    if (replacementSlot) {
+      replacementSlot.status = 'active';
+    } else {
+      // create new slot of the replacement player
+      replacementSlot = {
+        playerId: replacementId,
+        teamId: slot.teamId,
+        gameClass: slot.gameClass,
+        status: 'active',
+      };
 
-    game.slots.push(replacementSlot);
-    game.players.push(replacement);
+      game.slots.push(replacementSlot);
+      game.players.push(replacement);
+    }
 
     // update replacee
     slot.status = 'replaced';
