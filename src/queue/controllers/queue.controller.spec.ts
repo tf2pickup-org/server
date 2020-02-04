@@ -4,6 +4,7 @@ import { QueueConfigService } from '../services/queue-config.service';
 import { QueueService } from '../services/queue.service';
 import { MapVoteService } from '../services/map-vote.service';
 import { QueueAnnouncementsService } from '../services/queue-announcements.service';
+import { FriendsService } from '../services/friends.service';
 
 class QueueConfigServiceStub {
   queueConfig = { some_param: 'some_value' };
@@ -31,12 +32,17 @@ class QueueAnnouncementsServiceStub {
   substituteRequests() { return this.subRequests; }
 }
 
+class FriendsServiceStub {
+  friendships = [{ sourcePlayerId: 'FAKE_MEDIC', targetPlayerId: 'FAKE_DM_CLASS' }];
+}
+
 describe('Queue Controller', () => {
   let controller: QueueController;
   let queueConfigService: QueueConfigServiceStub;
   let queueService: QueueServiceStub;
   let mapVoteService: MapVoteServiceStub;
   let queueAnnouncementsService: QueueAnnouncementsServiceStub;
+  let friendsService: FriendsServiceStub;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -45,6 +51,7 @@ describe('Queue Controller', () => {
         { provide: QueueService, useClass: QueueServiceStub },
         { provide: MapVoteService, useClass: MapVoteServiceStub },
         { provide: QueueAnnouncementsService, useClass: QueueAnnouncementsServiceStub },
+        { provide: FriendsService, useClass: FriendsServiceStub },
       ],
       controllers: [QueueController],
     }).compile();
@@ -54,6 +61,7 @@ describe('Queue Controller', () => {
     queueService = module.get(QueueService);
     mapVoteService = module.get(MapVoteService);
     queueAnnouncementsService = module.get(QueueAnnouncementsService);
+    friendsService = module.get(FriendsService);
   });
 
   it('should be defined', () => {
@@ -69,6 +77,7 @@ describe('Queue Controller', () => {
         state: queueService.state,
         mapVoteResults: mapVoteService.results,
         substituteRequests: queueAnnouncementsService.subRequests,
+        friendships: friendsService.friendships,
       } as any);
     });
   });
@@ -100,6 +109,12 @@ describe('Queue Controller', () => {
   describe('#getSubstituteRequests()', () => {
     it('should return substitute requests', async () => {
       expect(await controller.getSubstituteRequests()).toEqual(queueAnnouncementsService.subRequests);
+    });
+  });
+
+  describe('#getFriendships()', () => {
+    it('should return the frienships', () => {
+      expect(controller.getFriendships()).toEqual(friendsService.friendships);
     });
   });
 });

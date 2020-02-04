@@ -3,6 +3,7 @@ import { QueueConfigService } from '../services/queue-config.service';
 import { QueueService } from '../services/queue.service';
 import { MapVoteService } from '../services/map-vote.service';
 import { QueueAnnouncementsService } from '../services/queue-announcements.service';
+import { FriendsService } from '../services/friends.service';
 
 @Controller('queue')
 export class QueueController {
@@ -12,6 +13,7 @@ export class QueueController {
     private queueService: QueueService,
     private mapVoteService: MapVoteService,
     private queueAnnouncementsService: QueueAnnouncementsService,
+    private friendsService: FriendsService,
   ) { }
 
   @Get()
@@ -22,6 +24,7 @@ export class QueueController {
       state: this.queueService.state,
       mapVoteResults: this.mapVoteService.results,
       substituteRequests: await this.queueAnnouncementsService.substituteRequests(),
+      friendships: this.friendsService.friendships,
     };
   }
 
@@ -48,6 +51,11 @@ export class QueueController {
   @Get('announcements')
   async getSubstituteRequests() {
     return this.queueAnnouncementsService.substituteRequests();
+  }
+
+  @Get('friendships')
+  getFriendships() {
+    return this.friendsService.friendships;
   }
 
 }
