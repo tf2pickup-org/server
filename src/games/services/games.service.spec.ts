@@ -303,4 +303,34 @@ describe('GamesService', () => {
       ]);
     });
   });
+
+  describe('#getOrphanedGames()', () => {
+    beforeEach(async () => {
+      const player = new ObjectId().toString();
+      await gameModel.create({
+        number: 1,
+        players: [ player ],
+        slots: [],
+        map: 'cp_badlands',
+        state: 'launching',
+      });
+
+      const gameServer = new ObjectId().toString();
+      await gameModel.create({
+        number: 2,
+        players: [ player ],
+        slots: [],
+        map: 'cp_badlands',
+        state: 'launching',
+        gameServer,
+      });
+    });
+
+    it('should return games that do not have the gameServer property set', async () => {
+      const ret = await service.getOrphanedGames();
+      expect(ret).toBeTruthy();
+      expect(ret.length).toBe(1);
+      expect(ret[0].number).toBe(1);
+    });
+  });
 });
