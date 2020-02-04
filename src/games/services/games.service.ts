@@ -172,6 +172,14 @@ export class GamesService {
       });
   }
 
+  async getOrphanedGames(): Promise<Array<DocumentType<Game>>> {
+    return this.gameModel
+      .find({
+        state: 'launching',
+        gameServer: { $exists: false },
+      });
+  }
+
   private async queueSlotToPlayerSlot(queueSlot: QueueSlot): Promise<PlayerSlot> {
     const { playerId, gameClass } = queueSlot;
     const player = await this.playersService.getById(playerId);

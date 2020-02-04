@@ -16,6 +16,7 @@ const mockGame = {
 
 class GamesServiceStub {
   getById() { return new Promise(resolve => resolve(mockGame)); }
+  getOrphanedGames() { return new Promise(resolve => resolve([ mockGame ])); }
 }
 
 const mockGameServer = {
@@ -103,6 +104,14 @@ describe('GameLauncherService', () => {
     it('should setup a valid mumble url', async () => {
       const ret = await service.launch('FAKE_GAME_ID');
       expect(ret.mumbleUrl).toEqual('mumble://FAKE_MUMBLE_SERVER_URL/FAKE_MUMBLE_CHANNEL_NAME/FAKE_SERVER_MUMBLE_CHANNEL_NAME');
+    });
+  });
+
+  describe('#launchOrphanedGames()', () => {
+    it('should launch orphaned games', async () => {
+      const spy = spyOn(service, 'launch');
+      await service.launchOrphanedGames();
+      expect(spy).toHaveBeenCalledWith('FAKE_GAME_ID');
     });
   });
 });
