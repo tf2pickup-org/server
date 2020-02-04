@@ -118,7 +118,6 @@ describe('QueueService', () => {
     expect(service.state).toEqual('waiting');
     expect(service.slots.length).toBe(12);
     expect(service.slots.every(s => s.playerId === null)).toBe(true);
-    expect(service.slots.every(s => s.friend === null)).toBe(true);
     expect(service.slots.every(s => s.ready === false)).toBe(true);
     expect(service.playerCount).toEqual(0);
     expect(service.readyPlayerCount).toEqual(0);
@@ -170,17 +169,6 @@ describe('QueueService', () => {
       expect(oldSlots[0].playerId).toBeNull();
     });
 
-    it('should remember friend when changing slots', async () => {
-      const medicSlots = service.slots.filter(s => s.gameClass === 'medic');
-      expect(medicSlots.length).toBe(2);
-
-      let slots = await service.join(medicSlots[0].id, 'FAKE_ID');
-      slots[0].friend = 'FAKE_FRIEND_ID';
-
-      slots = await service.join(medicSlots[1].id, 'FAKE_ID');
-      expect(slots.find(s => s.playerId === 'FAKE_ID').friend).toEqual('FAKE_FRIEND_ID');
-    });
-
     it('should emit playerJoin', async done => {
       service.playerJoin.subscribe(playerId => {
         expect(playerId).toEqual('FAKE_ID');
@@ -226,7 +214,6 @@ describe('QueueService', () => {
       const slot = service.getSlotById(0);
       expect(slot.playerId).toBe(null);
       expect(slot.ready).toBe(false);
-      expect(slot.friend).toBe(null);
       expect(service.playerCount).toBe(0);
     });
 
@@ -242,42 +229,6 @@ describe('QueueService', () => {
     it('should fail if the queue is not in ready up state', async () => {
       await service.join(0, 'FAKE_PLAYER_ID');
       expect(() => service.readyUp('FAKE_PLAYER_ID')).toThrowError('queue not ready');
-    });
-  });
-
-  describe('#markFriend()', () => {
-    let medicSlot: number;
-    let soldierSlot: number;
-
-    beforeEach(() => {
-      medicSlot = service.slots.find(s => s.gameClass === 'medic').id;
-      soldierSlot = service.slots.find(s => s.gameClass === 'soldier').id;
-    });
-
-    it('should deny if the given friend is not in the queue', async () => {
-      await service.join(medicSlot, 'FAKE_MEDIC_ID');
-      expectAsync(service.markFriend('FAKE_MEDIC_ID', 'FAKE_SOLDIER_ID')).toBeRejected();
-    });
-
-    it('should deny classes other than medic', async () => {
-      await service.join(medicSlot, 'FAKE_MEDIC_ID');
-      await service.join(soldierSlot, 'FAKE_SOLDIER_ID');
-      expectAsync(service.markFriend('FAKE_SOLDIER_ID', 'FAKE_MEDIC_ID')).toBeRejected();
-    });
-
-    it('should deny marking the other medic', async () => {
-      const otherMedicSlot = service.slots.find(s => s.gameClass === 'medic' && s.id !== medicSlot).id;
-      await service.join(medicSlot, 'FAKE_MEDIC_ID');
-      await service.join(otherMedicSlot, 'FAKE_SOLDIER_ID');
-      expectAsync(service.markFriend('FAKE_MEDIC_ID', 'FAKE_SOLDIER_ID')).toBeRejected();
-    });
-
-    it('should save friends id', async () => {
-      await service.join(medicSlot, 'FAKE_MEDIC_ID');
-      await service.join(soldierSlot, 'FAKE_SOLDIER_ID');
-
-      const slot = await service.markFriend('FAKE_MEDIC_ID', 'FAKE_SOLDIER_ID');
-      expect(slot.friend).toEqual('FAKE_SOLDIER_ID');
     });
   });
 });

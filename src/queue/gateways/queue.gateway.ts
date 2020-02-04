@@ -8,8 +8,8 @@ import { QueueSlot } from '../queue-slot';
 import { QueueState } from '../queue-state';
 import { Inject, forwardRef } from '@nestjs/common';
 import { MapVoteResult } from '../map-vote-result';
-import { SubstituteRequest } from '../substitute-request';
 import { QueueAnnouncementsService } from '../services/queue-announcements.service';
+import { FriendsService, Friendship } from '../services/friends.service';
 
 @WebSocketGateway()
 export class QueueGateway implements OnGatewayInit {
@@ -20,6 +20,7 @@ export class QueueGateway implements OnGatewayInit {
     @Inject(forwardRef(() => QueueService)) private queueService: QueueService,
     @Inject(forwardRef(() => MapVoteService)) private mapVoteService: MapVoteService,
     private queueAnnouncementsService: QueueAnnouncementsService,
+    @Inject(forwardRef(() => FriendsService)) private friendsService: FriendsService,
   ) { }
 
   @WsAuthorized()
@@ -42,8 +43,8 @@ export class QueueGateway implements OnGatewayInit {
 
   @WsAuthorized()
   @SubscribeMessage('mark friend')
-  async markFriend(client: any, paylod: { friendPlayerId: string }) {
-    return await this.queueService.markFriend(client.request.user.id, paylod.friendPlayerId);
+  markFriend(client: any, payload: { friendPlayerId: string }) {
+    return this.friendsService.markFriend(client.request.user.id, payload.friendPlayerId);
   }
 
   @WsAuthorized()
@@ -63,6 +64,10 @@ export class QueueGateway implements OnGatewayInit {
 
   emitVoteResultsUpdate(mapVoteResults: MapVoteResult[]) {
     this.socket.emit('map vote results update', mapVoteResults);
+  }
+
+  emitFriendshipsUpdate(friendships: Friendship[]) {
+    this.socket.emit('friendships update', friendships);
   }
 
   async updateSubstituteRequests() {

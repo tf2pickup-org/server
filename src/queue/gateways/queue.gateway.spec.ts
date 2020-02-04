@@ -4,6 +4,7 @@ import { QueueService } from '../services/queue.service';
 import { Subject } from 'rxjs';
 import { MapVoteService } from '../services/map-vote.service';
 import { QueueAnnouncementsService } from '../services/queue-announcements.service';
+import { FriendsService } from '../services/friends.service';
 
 class QueueServiceStub {
   slotsChange = new Subject<any>();
@@ -19,10 +20,6 @@ class QueueServiceStub {
 
   readyUp(playerId: string) {
     return { id: 0, playerId, ready: true };
-  }
-
-  markFriend(playerId: string, friendId: string) {
-    return new Promise(resolve => resolve({ id: 0, player: playerId, friend: friendId }));
   }
 }
 
@@ -40,12 +37,17 @@ class QueueAnnouncementsServiceStub {
   substituteRequests() { return new Promise(resolve => resolve(this.requests)); }
 }
 
+class FriendsServiceStub {
+  markFriend(player1: string, player2: string) { return null; }
+}
+
 describe('QueueGateway', () => {
   let gateway: QueueGateway;
   let queueService: QueueServiceStub;
   let mapVoteService: MapVoteServiceStub;
   let socket: SocketStub;
   let queueAnnouncementsService: QueueAnnouncementsServiceStub;
+  let friendsService: FriendsServiceStub;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -54,6 +56,7 @@ describe('QueueGateway', () => {
         { provide: QueueService, useClass: QueueServiceStub },
         { provide: MapVoteService, useClass: MapVoteServiceStub },
         { provide: QueueAnnouncementsService, useClass: QueueAnnouncementsServiceStub },
+        { provide: FriendsService, useClass: FriendsServiceStub },
       ],
     }).compile();
 
@@ -61,6 +64,7 @@ describe('QueueGateway', () => {
     queueService = module.get(QueueService);
     mapVoteService = module.get(MapVoteService);
     queueAnnouncementsService = module.get(QueueAnnouncementsService);
+    friendsService = module.get(FriendsService);
 
     socket = new SocketStub();
     gateway.afterInit(socket as any);
@@ -98,11 +102,10 @@ describe('QueueGateway', () => {
   });
 
   describe('#markFriend()', () => {
-    it('should mark friend', async () => {
-      const spy = spyOn(queueService, 'markFriend').and.callThrough();
-      const ret = await gateway.markFriend({ request: { user: { id: 'FAKE_ID' } } }, { friendPlayerId: 'FAKE_FRIEND_ID' });
+    it('should mark friend', () => {
+      const spy = spyOn(friendsService, 'markFriend').and.callThrough();
+      gateway.markFriend({ request: { user: { id: 'FAKE_ID' } } }, { friendPlayerId: 'FAKE_FRIEND_ID' });
       expect(spy).toHaveBeenCalledWith('FAKE_ID', 'FAKE_FRIEND_ID');
-      expect(ret).toEqual({ id: 0, player: 'FAKE_ID', friend: 'FAKE_FRIEND_ID' } as any);
     });
   });
 

@@ -7,7 +7,6 @@ import { PlayerSlot, pickTeams } from '../utils/pick-teams';
 import { PlayersService } from '@/players/services/players.service';
 import { PlayerSkillService } from '@/players/services/player-skill.service';
 import { QueueConfigService } from '@/queue/services/queue-config.service';
-import { extractFriends } from '../utils/extract-friends';
 import { GameLauncherService } from './game-launcher.service';
 import { GamesGateway } from '../gateways/games.gateway';
 
@@ -105,14 +104,13 @@ export class GamesService {
     });
   }
 
-  async create(queueSlots: QueueSlot[], map: string): Promise<DocumentType<Game>> {
+  async create(queueSlots: QueueSlot[], map: string, friends: string[][] = []): Promise<DocumentType<Game>> {
     if (!queueSlots.every(slot => !!slot.playerId)) {
       throw new Error('queue not full');
     }
 
     const players: PlayerSlot[] = await Promise.all(queueSlots.map(slot => this.queueSlotToPlayerSlot(slot)));
     const assignedSkills = players.reduce((prev, curr) => { prev[curr.playerId] = curr.skill; return prev; }, { });
-    const friends = extractFriends(queueSlots);
     const slots = pickTeams(players, this.queueConfigService.queueConfig.classes.map(cls => cls.name), { friends });
     const gameNo = await this.getNextGameNumber();
 
