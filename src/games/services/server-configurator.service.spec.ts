@@ -4,7 +4,8 @@ import { Environment } from '@/environment/environment';
 import { PlayersService } from '@/players/services/players.service';
 import { QueueConfigService } from '@/queue/services/queue-config.service';
 import { RconFactoryService } from './rcon-factory.service';
-import { logAddressAdd, kickAll, changelevel, execConfig, addGamePlayer, enablePlayerWhitelist, tvPort, tvPassword } from '../utils/rcon-commands';
+import { logAddressAdd, kickAll, changelevel, execConfig, addGamePlayer, enablePlayerWhitelist, tvPort, tvPassword,
+  logAddressDel, delAllGamePlayers, disablePlayerWhitelist } from '../utils/rcon-commands';
 
 class EnvironmentStub {
   logRelayAddress = 'FAKE_RELAY_ADDRESS';
@@ -116,6 +117,46 @@ describe('ServerConfiguratorService', () => {
 
       await service.configureServer(gameServer as any, game as any);
       expect(spy).toHaveBeenCalledWith(addGamePlayer('PLAYER_1_STEAMID', 'maly', 2, 'soldier'));
+    });
+
+    it('should close the rcon connection even though an RCON command failed', async () => {
+      spyOn(rcon, 'send').and.throwError('some random RCON error');
+      const spy = spyOn(rcon, 'end');
+
+      await expectAsync(service.configureServer(gameServer as any, game as any)).toBeRejected();
+      expect(spy).toHaveBeenCalled();
+    });
+  });
+
+  describe('#cleanupServer()', () => {
+    let rcon: RconStub;
+
+    beforeEach(() => {
+      rcon = new RconStub();
+      spyOn(rconFactoryService, 'createRcon').and.returnValue(rcon);
+    });
+
+    it('should execute correct rcon commands', async () => {
+      const spy = spyOn(rcon, 'send');
+      await service.cleanupServer(gameServer as any);
+
+      expect(spy).toHaveBeenCalledWith(logAddressDel('FAKE_RELAY_ADDRESS:1234'));
+      expect(spy).toHaveBeenCalledWith(delAllGamePlayers());
+      expect(spy).toHaveBeenCalledWith(disablePlayerWhitelist());
+    });
+
+    it('should close the rcon connection', async () => {
+      const spy = spyOn(rcon, 'end');
+      await service.cleanupServer(gameServer as any);
+      expect(spy).toHaveBeenCalled();
+    });
+
+    it('should close the rcon connection even though an RCON command failed', async () => {
+      spyOn(rcon, 'send').and.throwError('some random RCON error');
+      const spy = spyOn(rcon, 'end');
+
+      await expectAsync(service.cleanupServer(gameServer as any)).toBeRejected();
+      expect(spy).toHaveBeenCalled();
     });
   });
 });

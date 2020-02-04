@@ -34,8 +34,18 @@ class ServerConfiguratorServiceStub {
   cleanupServer(server: any) { return null; }
 }
 
-class RconFactoryServiceStub { }
-class PlayersServiceStub { }
+class RconStub {
+  send(cmd: string) { return new Promise(resolve => resolve()); }
+  end() { return new Promise(resolve => resolve()); }
+}
+
+class RconFactoryServiceStub {
+  createRcon(gameServer: any) { return new Promise(resolve => resolve(new RconStub())); }
+}
+
+class PlayersServiceStub {
+  getById(id: string) { return new Promise(resolve => resolve({ steamId: 'FAKE_STEAM_ID', name: 'A_PLAYER' })); }
+}
 
 class GamesGatewayStub {
   emitGameUpdated(game: any) { return null; }
@@ -46,6 +56,7 @@ describe('GameRuntimeService', () => {
   let gamesService: GamesServiceStub;
   let gameServersService: GameServersServiceStub;
   let serverConfiguratorService: ServerConfiguratorServiceStub;
+  let rconFactoryService: RconFactoryServiceStub;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -57,6 +68,7 @@ describe('GameRuntimeService', () => {
         { provide: RconFactoryService, useClass: RconFactoryServiceStub },
         { provide: PlayersService, useClass: PlayersServiceStub },
         { provide: GamesGateway, useClass: GamesGatewayStub },
+        { provide: RconFactoryService, useClass: RconFactoryServiceStub },
       ],
     }).compile();
 
@@ -64,6 +76,7 @@ describe('GameRuntimeService', () => {
     gamesService = module.get(GamesService);
     gameServersService = module.get(GameServersService);
     serverConfiguratorService = module.get(ServerConfiguratorService);
+    rconFactoryService = module.get(RconFactoryService);
   });
 
   it('should be defined', () => {
@@ -88,6 +101,11 @@ describe('GameRuntimeService', () => {
       spyOn(gamesService, 'getById').and.returnValue(retGame as any);
       await expectAsync(service.reconfigure('FAKE_GAME_ID')).toBeRejectedWithError('this game has no server assigned');
     });
+
+    it('should handle RCON errors', async () => {
+      spyOn(serverConfiguratorService, 'configureServer').and.throwError('something something');
+      await expectAsync(service.reconfigure('FAKE_GAME_ID')).not.toBeRejected();
+    });
   });
 
   describe('#forceEnd()', () => {
@@ -109,6 +127,11 @@ describe('GameRuntimeService', () => {
       spyOn(gamesService, 'getById').and.returnValue(null);
       await expectAsync(service.forceEnd('FAKE_GAME_ID')).toBeRejectedWithError('no such game');
     });
+
+    it('should handle RCON erors', async () => {
+      spyOn(serverConfiguratorService, 'cleanupServer').and.throwError('la la la');
+      await expectAsync(service.forceEnd('FAKE_GAME_ID')).not.toBeRejected();
+    });
   });
 
   describe('#replacePlayer()', () => {
@@ -117,6 +140,20 @@ describe('GameRuntimeService', () => {
     it('should throw an error if the given game does not exist', async () => {
       spyOn(gamesService, 'getById').and.returnValue(null);
       await expectAsync(service.replacePlayer('FAKE_GAME_ID', 'FAKE_REPLACEE_ID', null)).toBeRejectedWithError('no such game');
+    });
+
+    it('should throw an error if the game has no game server assigned', async () => {
+      spyOn(gamesService, 'getById').and.returnValue(new Promise(resolve => resolve({ ...mockGame, gameServer: null })));
+      await expectAsync(service.replacePlayer('FAKE_GAME_ID', 'FAKE_REPLACEE_ID', null)).toBeRejectedWithError('this game has no server assigned');
+    });
+
+    it('should close the RCON connection', async () => {
+      const rcon = new RconStub();
+      spyOn(rconFactoryService, 'createRcon').and.returnValue(new Promise(resolve => resolve(rcon)));
+      const spy = spyOn(rcon, 'end');
+
+      await service.replacePlayer('FAKE_GAME_ID', 'FAKE_REPLACEE_ID', { playerId: 'FAKE_PLAYER_ID', teamId: '0', gameClass: 'soldier' });
+      expect(spy).toHaveBeenCalled();
     });
   });
 });
