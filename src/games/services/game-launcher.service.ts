@@ -4,6 +4,7 @@ import { GameServersService } from '@/game-servers/services/game-servers.service
 import { ServerConfiguratorService } from './server-configurator.service';
 import { Environment } from '@/environment/environment';
 import { GamesGateway } from '../gateways/games.gateway';
+import { Cron } from '@nestjs/schedule';
 
 /**
  * This service is responsible for launching a single game.
@@ -68,9 +69,17 @@ export class GameLauncherService {
       return game;
     } else {
       this.logger.warn(`no free servers available at this time`);
-      //
-      // todo: handle
-      //
+      // the game will be launched once there are game servers available
+    }
+  }
+
+  @Cron('30 * * * * *') // every minute
+  async launchOrphanedGames() {
+    this.logger.debug('launching orphaned games...');
+    const orphanedGames = await this.gamesService.getOrphanedGames();
+    for (const game of orphanedGames) {
+      this.logger.verbose(`launching game #${game.number}...`);
+      this.launch(game.id);
     }
   }
 
