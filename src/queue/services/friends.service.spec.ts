@@ -3,6 +3,7 @@ import { FriendsService } from './friends.service';
 import { Subject } from 'rxjs';
 import { QueueSlot } from '../queue-slot';
 import { QueueService } from './queue.service';
+import { QueueGateway } from '../gateways/queue.gateway';
 
 class QueueServiceStub {
   slotsChange = new Subject<QueueSlot[]>();
@@ -14,20 +15,27 @@ class QueueServiceStub {
   findSlotByPlayerId(playerId: string) { return this.slots.find(s => s.playerId === playerId); }
 }
 
+class QueueGatewayStub {
+  emitFriendshipsUpdate(friendships: any) { return null; }
+}
+
 describe('FriendsService', () => {
   let service: FriendsService;
   let queueService: QueueServiceStub;
+  let queueGateway: QueueGatewayStub;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         FriendsService,
         { provide: QueueService, useClass: QueueServiceStub },
+        { provide: QueueGateway, useClass: QueueGatewayStub },
       ],
     }).compile();
 
     service = module.get<FriendsService>(FriendsService);
     queueService = module.get(QueueService);
+    queueGateway = module.get(QueueGateway);
   });
 
   beforeEach(() => service.onModuleInit());
@@ -72,6 +80,12 @@ describe('FriendsService', () => {
       service.markFriend('FAKE_MEDIC', 'FAKE_DM_CLASS');
       const friendships = service.markFriend('FAKE_MEDIC', 'ANOTHER_PLAYER');
       expect(friendships).toEqual([{ sourcePlayerId: 'FAKE_MEDIC', targetPlayerId: 'ANOTHER_PLAYER' }]);
+    });
+
+    it('should emit an event over the gateway', () => {
+      const spy = spyOn(queueGateway, 'emitFriendshipsUpdate');
+      service.markFriend('FAKE_MEDIC', 'FAKE_DM_CLASS');
+      expect(spy).toHaveBeenCalledWith([{ sourcePlayerId: 'FAKE_MEDIC', targetPlayerId: 'FAKE_DM_CLASS' }]);
     });
   });
 

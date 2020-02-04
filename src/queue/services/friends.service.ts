@@ -1,4 +1,4 @@
-import { Injectable, OnModuleInit } from '@nestjs/common';
+import { Injectable, OnModuleInit, Inject, forwardRef } from '@nestjs/common';
 import { QueueService } from './queue.service';
 import { QueueSlot } from '../queue-slot';
 import { QueueGateway } from '../gateways/queue.gateway';
@@ -15,6 +15,7 @@ export class FriendsService implements OnModuleInit {
 
   constructor(
     private queueService: QueueService,
+    @Inject(forwardRef(() => QueueGateway)) private queueGateway: QueueGateway,
   ) { }
 
   onModuleInit() {
@@ -45,11 +46,13 @@ export class FriendsService implements OnModuleInit {
       { sourcePlayerId, targetPlayerId },
     ];
 
+    this.queueGateway.emitFriendshipsUpdate(this.friendships);
     return this.friendships;
   }
 
   private cleanupFriendships(slots: QueueSlot[]) {
     this.friendships = this.friendships.filter(f => this.queueService.findSlotByPlayerId(f.sourcePlayerId)?.gameClass === 'medic');
+    this.queueGateway.emitFriendshipsUpdate(this.friendships);
   }
 
 }
