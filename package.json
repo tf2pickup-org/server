@@ -42,7 +42,7 @@
     "passport-steam": "1.0.12",
     "rcon-client": "4.2.0",
     "reflect-metadata": "0.1.13",
-    "rimraf": "3.0.1",
+    "rimraf": "3.0.2",
     "rxjs": "6.5.4",
     "socketio-jwt-auth": "0.1.0",
     "srcds-log-receiver": "1.0.0",
