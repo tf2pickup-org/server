@@ -45,7 +45,7 @@ describe('PlayerBansService', () => {
 
   describe('#getById()', () => {
     it('should query model', async () => {
-      const spy = spyOn(playerBanModel, 'findById');
+      const spy = jest.spyOn(playerBanModel, 'findById');
       await service.getById('FAKE_BAN_ID');
       expect(spy).toHaveBeenCalledWith('FAKE_BAN_ID');
     });
@@ -53,7 +53,7 @@ describe('PlayerBansService', () => {
 
   describe('#getPlayerBans()', () => {
     it('should query model', async () => {
-      const spy = spyOn(playerBanModel, 'find').and.callThrough();
+      const spy = jest.spyOn(playerBanModel, 'find');
       await service.getPlayerBans('FAKE_PLAYER_ID');
       expect(spy).toHaveBeenCalledWith({ player: 'FAKE_PLAYER_ID' });
     });
@@ -61,7 +61,7 @@ describe('PlayerBansService', () => {
 
   describe('#getPlayerActiveBans()', () => {
     it('should query model', async () => {
-      const spy = spyOn(playerBanModel, 'find');
+      const spy = jest.spyOn(playerBanModel, 'find');
       await service.getPlayerActiveBans('FAKE_PLAYER_ID');
       expect(spy).toHaveBeenCalledWith({
         player: 'FAKE_PLAYER_ID',
@@ -89,7 +89,7 @@ describe('PlayerBansService', () => {
     });
 
     it('should create ban via model', async () => {
-      const spy = spyOn(playerBanModel, 'create').and.callThrough();
+      const spy = jest.spyOn(playerBanModel, 'create');
       await service.addPlayerBan(ban);
       expect(spy).toHaveBeenCalledWith(ban);
     });
@@ -104,7 +104,7 @@ describe('PlayerBansService', () => {
     });
 
     it('should notify on discord', async () => {
-      const spy = spyOn(discordNotificationsService, 'notifyBanAdded');
+      const spy = jest.spyOn(discordNotificationsService, 'notifyBanAdded');
       await service.addPlayerBan(ban);
       expect(spy).toHaveBeenCalledWith(ban);
     });
@@ -128,8 +128,8 @@ describe('PlayerBansService', () => {
     });
 
     it('should revoke the ban', async () => {
-      const spy = spyOn(playerBanModel, 'findById').and.returnValue(new Promise(resolve => resolve(ban)));
-      const saveSpy = spyOn(ban, 'save').and.callThrough();
+      const spy = jest.spyOn(playerBanModel, 'findById').mockResolvedValue(ban);
+      const saveSpy = jest.spyOn(ban, 'save');
 
       await service.revokeBan('FAKE_BAN_ID');
       expect(spy).toHaveBeenCalledWith('FAKE_BAN_ID');
@@ -142,12 +142,12 @@ describe('PlayerBansService', () => {
         done();
       });
 
-      spyOn(playerBanModel, 'findById').and.returnValue(new Promise(resolve => resolve(ban)));
+      jest.spyOn(playerBanModel, 'findById').mockResolvedValue(ban);
       await service.revokeBan('FAKE_BAN_ID');
     });
 
     it('should send discord notification', async () => {
-      const spy = spyOn(discordNotificationsService, 'notifyBanRevoked');
+      const spy = jest.spyOn(discordNotificationsService, 'notifyBanRevoked');
       spyOn(playerBanModel, 'findById').and.returnValue(new Promise(resolve => resolve(ban)));
       await service.revokeBan('FAKE_BAN_ID');
       expect(spy).toHaveBeenCalledWith(ban);

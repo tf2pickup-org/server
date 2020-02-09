@@ -36,8 +36,8 @@ describe('AuthGateway', () => {
     beforeEach(() => gateway.server = { use: (middleware: any) => null } as any);
 
     it('should register middleware', () => {
-      const spy = spyOn(gateway.server, 'use').and.callThrough();
-      const spy2 = spyOn(keyStoreService, 'getKey').and.callThrough();
+      const spy = jest.spyOn(gateway.server, 'use');
+      const spy2 = jest.spyOn(keyStoreService, 'getKey');
       gateway.onModuleInit();
       expect(spy).toHaveBeenCalled();
       expect(spy2).toHaveBeenCalledWith('ws', 'verify');

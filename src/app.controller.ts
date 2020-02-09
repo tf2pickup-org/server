@@ -1,5 +1,5 @@
 import { Controller, Get } from '@nestjs/common';
-import { version } from 'package.json';
+import { version } from '../package.json';
 import { Environment } from './environment/environment';
 
 @Controller()

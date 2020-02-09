@@ -88,16 +88,16 @@ describe('GameEventListenerService', () => {
 
   describe('should handle game events', () => {
     it('match started', done => {
-      const spy = spyOn(gameEventHandlerService, 'onMatchStarted');
+      const spy = jest.spyOn(gameEventHandlerService, 'onMatchStarted');
       logReceiver.mockEvent('01/26/2020 - 20:40:20: World triggered "Round_Start"');
       setTimeout(() => {
         expect(spy).toHaveBeenCalledWith('FAKE_GAME_ID');
         done();
-      }, 0);
+      });
     });
 
     it('match ended', done => {
-      const spy = spyOn(gameEventHandlerService, 'onMatchEnded');
+      const spy = jest.spyOn(gameEventHandlerService, 'onMatchEnded');
       logReceiver.mockEvent('01/26/2020 - 20:38:49: World triggered "Game_Over" reason "Reached Time Limit"');
       setTimeout(() => {
         expect(spy).toHaveBeenCalledWith('FAKE_GAME_ID');
@@ -106,7 +106,7 @@ describe('GameEventListenerService', () => {
     });
 
     it('logs uploaded', done => {
-      const spy = spyOn(gameEventHandlerService, 'onLogsUploaded');
+      const spy = jest.spyOn(gameEventHandlerService, 'onLogsUploaded');
       logReceiver.mockEvent('01/26/2020 - 20:38:52: [TFTrue] The log is available here: http://logs.tf/2458457. Type !log to view it.');
       setTimeout(() => {
         expect(spy).toHaveBeenCalledWith('FAKE_GAME_ID', 'http://logs.tf/2458457');
@@ -115,7 +115,7 @@ describe('GameEventListenerService', () => {
     });
 
     it('player connected', done => {
-      const spy = spyOn(gameEventHandlerService, 'onPlayerJoining');
+      const spy = jest.spyOn(gameEventHandlerService, 'onPlayerJoining');
       logReceiver.mockEvent('01/26/2020 - 20:03:44: "mały #tf2pickup.pl<366><[U:1:114143419]><>" connected, address "83.29.150.132:27005"');
       setTimeout(() => {
         expect(spy).toHaveBeenCalledWith('FAKE_GAME_ID', '76561198074409147');
@@ -124,7 +124,7 @@ describe('GameEventListenerService', () => {
     });
 
     it('player joined team', done => {
-      const spy = spyOn(gameEventHandlerService, 'onPlayerConnected');
+      const spy = jest.spyOn(gameEventHandlerService, 'onPlayerConnected');
       logReceiver.mockEvent('01/26/2020 - 20:03:51: "maly<366><[U:1:114143419]><Unassigned>" joined team "Blue"');
       setTimeout(() => {
         expect(spy).toHaveBeenCalledWith('FAKE_GAME_ID', '76561198074409147');
@@ -133,7 +133,7 @@ describe('GameEventListenerService', () => {
     });
 
     it('player disconnected', done => {
-      const spy = spyOn(gameEventHandlerService, 'onPlayerDisconnected');
+      const spy = jest.spyOn(gameEventHandlerService, 'onPlayerDisconnected');
       logReceiver.mockEvent('01/26/2020 - 20:38:43: "maly<366><[U:1:114143419]><Blue>" disconnected (reason "Disconnect by user.")');
       setTimeout(() => {
         expect(spy).toHaveBeenCalledWith('FAKE_GAME_ID', '76561198074409147');
@@ -142,7 +142,7 @@ describe('GameEventListenerService', () => {
     });
 
     it('score reported', done => {
-      const spy = spyOn(gameEventHandlerService, 'onScoreReported');
+      const spy = jest.spyOn(gameEventHandlerService, 'onScoreReported');
       logReceiver.mockEvent('01/26/2020 - 20:38:49: Team "Blue" final score "2" with "3" players');
       setTimeout(() => {
         expect(spy).toHaveBeenCalledWith('FAKE_GAME_ID', 'Blue', '2');
@@ -152,7 +152,7 @@ describe('GameEventListenerService', () => {
   });
 
   it('should discard invalid messages', done => {
-    const spy = spyOn(gameEventHandlerService, 'onMatchStarted');
+    const spy = jest.spyOn(gameEventHandlerService, 'onMatchStarted');
     logReceiver.emit('data', {
       isValid: false,
       receivedFrom: {

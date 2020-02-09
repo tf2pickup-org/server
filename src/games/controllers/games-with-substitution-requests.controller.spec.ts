@@ -34,7 +34,7 @@ describe('GamesWithSubstitutionRequests Controller', () => {
 
   describe('#getGamesWithSubstitutionRequests()', () => {
     it('should relay on the service', async () => {
-      const spy = spyOn(gamesService, 'getGamesWithSubstitutionRequests').and.callThrough();
+      const spy = jest.spyOn(gamesService, 'getGamesWithSubstitutionRequests');
       const ret = await controller.getGamesWithSubstitutionRequests();
       expect(spy).toHaveBeenCalled();
       expect(ret).toEqual([ game ] as any);

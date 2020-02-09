@@ -27,6 +27,8 @@ class ConfigServiceStub {
   }
 }
 
+jest.useFakeTimers();
+
 describe('QueueNotificationsService', () => {
   let service: QueueNotificationsService;
   let queueService: QueueServiceStub;
@@ -54,26 +56,23 @@ describe('QueueNotificationsService', () => {
   });
 
   describe('when a player joins the queue', () => {
-    beforeAll(() => jasmine.clock().install());
-    afterAll(() => jasmine.clock().uninstall());
-
     it('should notify after 5 minutes', () => {
       const spy = spyOn(discordNotificationsService, 'notifyQueue');
       queueService.playerJoin.next('FAKE_ID');
       expect(spy).not.toHaveBeenCalled();
-      jasmine.clock().tick(5 * 60 * 1000 + 1);
+      jest.advanceTimersByTime(5 * 60 * 1000 + 1);
       expect(spy).toHaveBeenCalledWith(6, 12);
     });
 
     it('should notify only once if there are two consecutive player_join events', () => {
       const spy = spyOn(discordNotificationsService, 'notifyQueue');
       queueService.playerJoin.next('FAKE_ID');
-      jasmine.clock().tick(4 * 60 * 1000);
+      jest.advanceTimersByTime(4 * 60 * 1000);
       expect(spy).not.toHaveBeenCalled();
       queueService.playerJoin.next('FAKE_ID');
-      jasmine.clock().tick(4 * 60 * 1000);
+      jest.advanceTimersByTime(4 * 60 * 1000);
       expect(spy).not.toHaveBeenCalled();
-      jasmine.clock().tick(60 * 1000);
+      jest.advanceTimersByTime(60 * 1000);
       expect(spy).toHaveBeenCalledTimes(1);
     });
 
@@ -81,7 +80,7 @@ describe('QueueNotificationsService', () => {
       queueService.playerCount = 5;
       const spy = spyOn(discordNotificationsService, 'notifyQueue');
       queueService.playerJoin.next('FAKE_ID');
-      jasmine.clock().tick(5 * 60 * 1000);
+      jest.runAllTicks();
       expect(spy).not.toHaveBeenCalled();
     });
 
@@ -89,7 +88,7 @@ describe('QueueNotificationsService', () => {
       queueService.playerCount = 12;
       const spy = spyOn(discordNotificationsService, 'notifyQueue');
       queueService.playerJoin.next('FAKE_ID');
-      jasmine.clock().tick(5 * 60 * 1000);
+      jest.runAllTicks();
       expect(spy).not.toHaveBeenCalled();
     });
 
@@ -97,9 +96,9 @@ describe('QueueNotificationsService', () => {
       queueService.playerCount = 6;
       const spy = spyOn(discordNotificationsService, 'notifyQueue');
       queueService.playerJoin.next('FAKE_ID');
-      jasmine.clock().tick(4 * 60 * 1000);
+      jest.runAllTicks();
       queueService.playerCount = 5;
-      jasmine.clock().tick(5 * 60 * 1000);
+      jest.runAllTicks();
       expect(spy).not.toHaveBeenCalled();
     });
   });

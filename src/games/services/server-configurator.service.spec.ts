@@ -85,11 +85,11 @@ describe('ServerConfiguratorService', () => {
 
     beforeEach(() => {
       rcon = new RconStub();
-      spyOn(rconFactoryService, 'createRcon').and.returnValue(rcon);
+      jest.spyOn(rconFactoryService, 'createRcon').mockResolvedValue(rcon as never);
     });
 
     it('should execute correct rcon commands', async () => {
-      const spy = spyOn(rcon, 'send');
+      const spy = jest.spyOn(rcon, 'send');
 
       await service.configureServer(gameServer as any, game as any);
 
@@ -106,14 +106,14 @@ describe('ServerConfiguratorService', () => {
     });
 
     it('should close the rcon connection', async () => {
-      const spy = spyOn(rcon, 'end');
+      const spy = jest.spyOn(rcon, 'end');
       await service.configureServer(gameServer as any, game as any);
       expect(spy).toHaveBeenCalled();
     });
 
     it('should deburr player nicknames', async () => {
       playersService.players.get('PLAYER_1').name = 'mały';
-      const spy = spyOn(rcon, 'send');
+      const spy = jest.spyOn(rcon, 'send');
 
       await service.configureServer(gameServer as any, game as any);
       expect(spy).toHaveBeenCalledWith(addGamePlayer('PLAYER_1_STEAMID', 'maly', 2, 'soldier'));
@@ -121,9 +121,9 @@ describe('ServerConfiguratorService', () => {
 
     it('should close the rcon connection even though an RCON command failed', async () => {
       spyOn(rcon, 'send').and.throwError('some random RCON error');
-      const spy = spyOn(rcon, 'end');
+      const spy = jest.spyOn(rcon, 'end');
 
-      await expectAsync(service.configureServer(gameServer as any, game as any)).toBeRejected();
+      await expect(service.configureServer(gameServer as any, game as any)).rejects.toThrowError();
       expect(spy).toHaveBeenCalled();
     });
   });
@@ -133,11 +133,11 @@ describe('ServerConfiguratorService', () => {
 
     beforeEach(() => {
       rcon = new RconStub();
-      spyOn(rconFactoryService, 'createRcon').and.returnValue(rcon);
+      jest.spyOn(rconFactoryService, 'createRcon').mockResolvedValue(rcon as never);
     });
 
     it('should execute correct rcon commands', async () => {
-      const spy = spyOn(rcon, 'send');
+      const spy = jest.spyOn(rcon, 'send');
       await service.cleanupServer(gameServer as any);
 
       expect(spy).toHaveBeenCalledWith(logAddressDel('FAKE_RELAY_ADDRESS:1234'));
@@ -146,16 +146,16 @@ describe('ServerConfiguratorService', () => {
     });
 
     it('should close the rcon connection', async () => {
-      const spy = spyOn(rcon, 'end');
+      const spy = jest.spyOn(rcon, 'end');
       await service.cleanupServer(gameServer as any);
       expect(spy).toHaveBeenCalled();
     });
 
     it('should close the rcon connection even though an RCON command failed', async () => {
-      spyOn(rcon, 'send').and.throwError('some random RCON error');
+      jest.spyOn(rcon, 'send').mockRejectedValue('some random RCON error');
       const spy = spyOn(rcon, 'end');
 
-      await expectAsync(service.cleanupServer(gameServer as any)).toBeRejected();
+      await expect(service.cleanupServer(gameServer as any)).rejects.toThrowError();
       expect(spy).toHaveBeenCalled();
     });
   });

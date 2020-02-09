@@ -53,8 +53,8 @@ describe('Games Controller', () => {
 
   describe('#getGames()', () => {
     it('should return games', async () => {
-      const spy1 = spyOn(gamesService, 'getGames').and.callThrough();
-      const spy2 = spyOn(gamesService, 'getGameCount').and.callThrough();
+      const spy1 = jest.spyOn(gamesService, 'getGames');
+      const spy2 = jest.spyOn(gamesService, 'getGameCount');
 
       const ret = await controller.getGames(44, 52, 'launched_at');
       expect(spy1).toHaveBeenCalledWith({ launchedAt: 1 }, 44, 52);
@@ -68,7 +68,7 @@ describe('Games Controller', () => {
 
   describe('#getGame()', () => {
     it('should return the given game', async () => {
-      const spy = spyOn(gamesService, 'getById').and.callThrough();
+      const spy = jest.spyOn(gamesService, 'getById');
       const ret = await controller.getGame('FAKE_ID');
       expect(spy).toHaveBeenCalledWith('FAKE_ID');
       expect(ret).toEqual(gamesService.games[0] as any);
@@ -77,7 +77,7 @@ describe('Games Controller', () => {
 
   describe('#getGameSkills()', () => {
     it('should return given game assigned skills', async () => {
-      const spy = spyOn(gamesService, 'getById').and.callThrough();
+      const spy = jest.spyOn(gamesService, 'getById');
       const ret = await controller.getGameSkills('FAKE_ID');
       expect(spy).toHaveBeenCalledWith('FAKE_ID');
       expect(ret).toEqual(gamesService.games[0].assignedSkills);
@@ -86,25 +86,25 @@ describe('Games Controller', () => {
 
   describe('#takeAdminAction()', () => {
     it('should reinitialize server', async () => {
-      const spy = spyOn(gameRuntimeService, 'reconfigure').and.callThrough();
+      const spy = jest.spyOn(gameRuntimeService, 'reconfigure');
       await controller.takeAdminAction('FAKE_GAME_ID', '', undefined, undefined, undefined);
       expect(spy).toHaveBeenCalledWith('FAKE_GAME_ID');
     });
 
     it('should force end the game', async () => {
-      const spy = spyOn(gameRuntimeService, 'forceEnd').and.callThrough();
+      const spy = jest.spyOn(gameRuntimeService, 'forceEnd');
       await controller.takeAdminAction('FAKE_GAME_ID', undefined, '', undefined, undefined);
       expect(spy).toHaveBeenCalledWith('FAKE_GAME_ID');
     });
 
     it('should substitute player', async () => {
-      const spy = spyOn(playerSubstitutionService, 'substitutePlayer').and.callThrough();
+      const spy = jest.spyOn(playerSubstitutionService, 'substitutePlayer');
       await controller.takeAdminAction('FAKE_GAME_ID', undefined, undefined, 'FAKE_PLAYER_ID', undefined);
       expect(spy).toHaveBeenCalledWith('FAKE_GAME_ID', 'FAKE_PLAYER_ID');
     });
 
     it('should cancel substitution request', async () => {
-      const spy = spyOn(playerSubstitutionService, 'cancelSubstitutionRequest').and.callThrough();
+      const spy = jest.spyOn(playerSubstitutionService, 'cancelSubstitutionRequest');
       await controller.takeAdminAction('FAKE_GAME_ID', undefined, undefined, undefined, 'FAKE_PLAYER_ID');
       expect(spy).toHaveBeenCalledWith('FAKE_GAME_ID', 'FAKE_PLAYER_ID');
     });

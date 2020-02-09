@@ -76,6 +76,8 @@ class QueueGatewayStub {
   emitStateUpdate(state: QueueState) { return null; }
 }
 
+jest.useFakeTimers();
+
 describe('QueueService', () => {
   let service: QueueService;
   let playersService: PlayersServiceStub;
@@ -109,6 +111,7 @@ describe('QueueService', () => {
   });
 
   beforeEach(() => service.onModuleInit());
+  afterEach(() => jest.runAllTimers());
 
   it('should be defined', () => {
     expect(service).toBeDefined();
@@ -126,31 +129,31 @@ describe('QueueService', () => {
   describe('#join()', () => {
     it('should fail if the given player doesn\'t exist', async () => {
       spyOn(playersService, 'getById').and.returnValue(new Promise(resolve => resolve(null)));
-      await expectAsync(service.join(0, 'FAKE_PLAYER_ID')).toBeRejectedWithError('no such player');
+      await expect(service.join(0, 'FAKE_PLAYER_ID')).rejects.toThrowError('no such player');
     });
 
     it('should fail if the joining player hasn\'t accepted rules', async () => {
       spyOn(playersService, 'getById').and.returnValue(new Promise(resolve => resolve({ ...playersService.player, hasAcceptedRules: false })));
-      await expectAsync(service.join(0, 'FAKE_ID')).toBeRejectedWithError('player has not accepted rules');
+      await expect(service.join(0, 'FAKE_ID')).rejects.toThrowError('player has not accepted rules');
     });
 
     it('should fail if the player is banned', async () => {
       spyOn(playerBansService, 'getPlayerActiveBans').and.returnValue(new Promise(resolve => resolve([{}])));
-      await expectAsync(service.join(0, 'FAKE_ID')).toBeRejectedWithError('player is banned');
+      await expect(service.join(0, 'FAKE_ID')).rejects.toThrowError('player is banned');
     });
 
     it('should fail if the player is currently playing a game', async () => {
       spyOn(gamesService, 'getPlayerActiveGame').and.returnValue(new Promise(resolve => resolve({ number: 1, state: 'started' })));
-      await expectAsync(service.join(0, 'FAKE_ID')).toBeRejectedWithError('player involved in a currently active game');
+      await expect(service.join(0, 'FAKE_ID')).rejects.toThrowError('player involved in a currently active game');
     });
 
     it('should fail when trying to join an ivalid slot', async () => {
-      await expectAsync(service.join(1234567, 'FAKE_ID')).toBeRejectedWithError('no such slot');
+      await expect(service.join(1234567, 'FAKE_ID')).rejects.toThrowError('no such slot');
     });
 
     it('should fail when trying to take a slot that was already occupied', async () => {
       await service.join(0, 'FAKE_PLAYER_ID');
-      await expectAsync(service.join(0, 'FAKE_PLAYER_ID')).toBeRejectedWithError('slot occupied');
+      await expect(service.join(0, 'FAKE_PLAYER_ID_2')).rejects.toThrowError('slot occupied');
     });
 
     it('should store add the player to the given slot', async () => {
@@ -185,6 +188,8 @@ describe('QueueService', () => {
 
       const slots = await service.join(11, 'FAKE_ID');
       expect(slots[0].ready).toEqual(true);
+
+      jest.runAllTimers();
     });
 
   });

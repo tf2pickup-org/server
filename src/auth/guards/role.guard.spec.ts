@@ -22,31 +22,31 @@ describe('RoleGuard', () => {
   });
 
   it('should allow when there are no roles required', () => {
-    spyOn(reflector, 'get').and.returnValue([]);
+    jest.spyOn(reflector, 'get').mockImplementation(() => []);
     expect(guard.canActivate(context as any)).toBe(true);
   });
 
   it('should allow when the user has the required role', () => {
-    spyOn(reflector, 'get').and.returnValue(['super-user']);
-    spyOn(context, 'switchToHttp').and.returnValue({
+    jest.spyOn(reflector, 'get').mockImplementation(() => ['super-user']);
+    jest.spyOn(context, 'switchToHttp').mockImplementation(() => ({
       getRequest: () => ({
         user: {
           role: 'super-user',
         },
       }),
-    });
+    }));
     expect(guard.canActivate(context as any)).toBe(true);
   });
 
   it('should dany when the user does not have the required role', () => {
-    spyOn(reflector, 'get').and.returnValue(['super-user']);
-    spyOn(context, 'switchToHttp').and.returnValue({
+    jest.spyOn(reflector, 'get').mockImplementation(() => ['super-user']);
+    jest.spyOn(context, 'switchToHttp').mockImplementation(() => ({
       getRequest: () => ({
         user: {
           role: 'admin',
         },
       }),
-    });
+    }));
     expect(() => guard.canActivate(context as any)).toThrow(/*new UnauthorizedException()*/);
   });
 });

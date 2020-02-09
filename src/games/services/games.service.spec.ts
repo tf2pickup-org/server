@@ -13,6 +13,7 @@ import { QueueSlot } from '@/queue/queue-slot';
 import { GameLauncherService } from './game-launcher.service';
 import { QueueConfigService } from '@/queue/services/queue-config.service';
 import { GamesGateway } from '../gateways/games.gateway';
+import { cloneDeep } from 'lodash';
 
 class PlayersServiceStub {
   player: Player = {
@@ -96,7 +97,7 @@ describe('GamesService', () => {
 
   describe('#getGameCount()', () => {
     it('should return document count', async () => {
-      const spy = spyOn(gameModel, 'estimatedDocumentCount').and.callThrough();
+      const spy = jest.spyOn(gameModel, 'estimatedDocumentCount');
       const ret = await service.getGameCount();
       expect(spy).toHaveBeenCalled();
       expect(ret).toEqual(0);
@@ -245,8 +246,10 @@ describe('GamesService', () => {
     beforeEach(async () => gameModel.deleteMany({ }));
 
     it('should fail if the queue is not full', async () => {
-      slots[3].ready = false;
-      expectAsync(service.create(slots, 'cp_fake')).toBeRejectedWithError('queue not full');
+      const tSlots = cloneDeep(slots);
+      tSlots[3].ready = false;
+      tSlots[3].playerId = null;
+      await expect(service.create(tSlots, 'cp_fake')).rejects.toThrow('queue not full');
     });
 
     it('should create a game', async () => {
@@ -266,7 +269,7 @@ describe('GamesService', () => {
 
   describe('#launch()', () => {
     it('should launch the game', async () => {
-      const spy = spyOn(gameLauncherService, 'launch');
+      const spy = jest.spyOn(gameLauncherService, 'launch');
       await service.launch('FAKE_GAME_ID');
       expect(spy).toHaveBeenCalledWith('FAKE_GAME_ID');
     });

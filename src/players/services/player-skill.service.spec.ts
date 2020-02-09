@@ -42,7 +42,7 @@ describe('PlayerSkillService', () => {
 
   describe('#getAll()', () => {
     it('should retrieve all players skills', async () => {
-      const spy = spyOn(playerSkillModel, 'find').and.callThrough();
+      const spy = jest.spyOn(playerSkillModel, 'find');
       await service.getAll();
       expect(spy).toHaveBeenCalledWith({ });
     });
@@ -50,7 +50,7 @@ describe('PlayerSkillService', () => {
 
   describe('#getPlayerSkill()', () => {
     it('should retrieve player skill', async () => {
-      const spy = spyOn(playerSkillModel, 'findOne').and.callThrough();
+      const spy = jest.spyOn(playerSkillModel, 'findOne');
       const ret = await service.getPlayerSkill('FAKE_ID');
       expect(spy).toHaveBeenCalledWith({ player: 'FAKE_ID' });
       expect(ret).toEqual(skill as any);
@@ -59,8 +59,8 @@ describe('PlayerSkillService', () => {
 
   describe('#setPlayerSkill()', () => {
     it('should set player skill', async () => {
-      const spyFindOne = spyOn(playerSkillModel, 'findOne').and.callThrough();
-      const spySave = spyOn(skill, 'save').and.returnValue(skill);
+      const spyFindOne = jest.spyOn(playerSkillModel, 'findOne');
+      const spySave = jest.spyOn(skill, 'save').mockResolvedValue(skill);
       const ret = await service.setPlayerSkill('FAKE_ID', { scout: 2 });
       expect(spyFindOne).toHaveBeenCalledWith({ player: 'FAKE_ID' });
       expect(spySave).toHaveBeenCalled();
@@ -68,8 +68,8 @@ describe('PlayerSkillService', () => {
     });
 
     it('should fail if there is no such player', async () => {
-      spyOn(playerSkillModel, 'findOne').and.returnValue(null);
-      expectAsync(service.setPlayerSkill('FAKE_ID', { scout: 1 })).toBeRejectedWithError('no such player');
+      jest.spyOn(playerSkillModel, 'findOne').mockResolvedValue(null as never);
+      await expect(service.setPlayerSkill('FAKE_ID', { scout: 1 })).rejects.toThrowError('no such player');
     });
   });
 });

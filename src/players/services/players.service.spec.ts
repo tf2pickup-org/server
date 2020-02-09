@@ -55,7 +55,7 @@ class ConfigServiceStub {
   get(key: string) { return true; }
 }
 
-describe('PlayersService', () => {
+fdescribe('PlayersService', () => {
   let service: PlayersService;
   let environment: EnvironmentStub;
   let etf2lProfileService: Etf2lProfileServiceStub;
@@ -91,7 +91,7 @@ describe('PlayersService', () => {
 
   describe('#getById()', () => {
     it('should query playerModel', () => {
-      const spy = spyOn(playerModel, 'findById');
+      const spy = jest.spyOn(playerModel, 'findById');
       service.getById('FAKE_ID');
       expect(spy).toHaveBeenCalledWith('FAKE_ID');
     });
@@ -99,7 +99,7 @@ describe('PlayersService', () => {
 
   describe('#findBySteamId()', () => {
     it('should query playerModel', () => {
-      const spy = spyOn(playerModel, 'findOne');
+      const spy = jest.spyOn(playerModel, 'findOne');
       service.findBySteamId('FAKE_STEAM_ID');
       expect(spy).toHaveBeenCalledWith({ steamId: 'FAKE_STEAM_ID' });
     });
@@ -114,8 +114,8 @@ describe('PlayersService', () => {
     };
 
     it('should deny creating profiles without ETF2L profile', async () => {
-      const spy = spyOn(etf2lProfileService, 'fetchPlayerInfo').and.throwError('no ETF2L profile');
-      await expectAsync(service.createPlayer(steamProfile)).toBeRejected();
+      const spy = jest.spyOn(etf2lProfileService, 'fetchPlayerInfo').mockRejectedValue('no etf2l profile');
+      await expect(service.createPlayer(steamProfile)).rejects.toThrowError('no etf2l profile');
       expect(spy).toHaveBeenCalledWith('FAKE_STEAM_ID');
     });
 
@@ -141,16 +141,16 @@ describe('PlayersService', () => {
 
       const banEnd = new Date();
       banEnd.setHours(banEnd.getHours() + 1);
-      const spy = spyOn(etf2lProfileService, 'fetchPlayerInfo').and.returnValue(blacklistedProfile);
-      await expectAsync(service.createPlayer(steamProfile)).toBeRejectedWithError('this account is banned on ETF2L');
+      const spy = jest.spyOn(etf2lProfileService, 'fetchPlayerInfo').mockResolvedValue(blacklistedProfile);
+      await expect(service.createPlayer(steamProfile)).rejects.toThrowError('this account is banned on ETF2L');
       expect(spy).toHaveBeenCalledWith('FAKE_STEAM_ID');
     });
 
     it('should eventually create new player', async () => {
       const banEnd = new Date();
       banEnd.setHours(banEnd.getHours() - 1);
-      spyOn(etf2lProfileService, 'fetchPlayerInfo').and
-        .returnValue({ id: 12345, name: 'FAKE_ETF2L_NAME', bans: [ { end: banEnd.getTime() / 1000 } ] });
+      jest.spyOn(etf2lProfileService, 'fetchPlayerInfo')
+        .mockResolvedValue({ id: 12345, name: 'FAKE_ETF2L_NAME', bans: [ { end: banEnd.getTime() / 1000 } ] });
 
       const player = { id: 'FAKE_STEAM_ID', name: 'FAKE_NAME' };
       const spy = spyOn(playerModel, 'create').and.returnValue(player);
@@ -169,7 +169,7 @@ describe('PlayersService', () => {
 
     it('should assign the super-user role', async () => {
       environment.superUser = 'FAKE_STEAM_ID';
-      const spy = spyOn(playerModel, 'create');
+      const spy = jest.spyOn(playerModel, 'create');
       await service.createPlayer(steamProfile);
 
       expect(spy).toHaveBeenCalledWith({
@@ -182,7 +182,7 @@ describe('PlayersService', () => {
     });
 
     it('should notify on discord', async () => {
-      const spy = spyOn(discordNotificationsService, 'notifyNewPlayer');
+      const spy = jest.spyOn(discordNotificationsService, 'notifyNewPlayer');
       await service.createPlayer(steamProfile);
       expect(spy).toHaveBeenCalled();
     });
@@ -196,8 +196,8 @@ describe('PlayersService', () => {
     };
 
     it('should update player name', async () => {
-      const spy = spyOn(service, 'getById').and.returnValue(new Promise(resolve => resolve(player as any)));
-      const spy2 = spyOn(player, 'save');
+      const spy = jest.spyOn(service, 'getById').mockResolvedValue(player as any);
+      const spy2 = jest.spyOn(player, 'save');
 
       await service.updatePlayer('FAKE_ID', { name: 'NEW_NAME' });
       expect(spy).toHaveBeenCalledWith('FAKE_ID');
@@ -206,7 +206,7 @@ describe('PlayersService', () => {
     });
 
     it('should demote player', async () => {
-      const spy = spyOn(service, 'getById').and.returnValue(new Promise(resolve => resolve(player as any)));
+      const spy = jest.spyOn(service, 'getById').mockResolvedValue(player as any);
 
       await service.updatePlayer('FAKE_ID', { role: 'admin' });
       expect(player.role).toEqual('admin');
@@ -216,7 +216,7 @@ describe('PlayersService', () => {
     });
 
     it('should emit updated player over websocket', async () => {
-      spyOn(service, 'getById').and.returnValue(new Promise(resolve => resolve(player as any)));
+      jest.spyOn(service, 'getById').mockResolvedValue(player as any);
 
       const socket = { emit: (...args: any[]) => null };
       const spy = spyOn(onlinePlayersService, 'getSocketsForPlayer').and.returnValue([ socket ] as any);
@@ -228,7 +228,7 @@ describe('PlayersService', () => {
     });
 
     it('should return null if the given player does not exist', async () => {
-      spyOn(service, 'getById').and.returnValue(new Promise(resolve => resolve(null)));
+      jest.spyOn(service, 'getById').mockResolvedValue(null);
       expect(await service.updatePlayer('FAKE_ID', { })).toBeNull();
     });
   });
@@ -239,8 +239,8 @@ describe('PlayersService', () => {
         hasAcceptedRules: false,
         save: () => null,
       };
-      const spy = spyOn(service, 'getById').and.returnValue(new Promise(resolve => resolve(player as any)));
-      const spy2 = spyOn(player, 'save');
+      const spy = jest.spyOn(service, 'getById').mockResolvedValue(player as any);
+      const spy2 = jest.spyOn(player, 'save');
 
       await service.acceptTerms('FAKE_ID');
       expect(spy).toHaveBeenCalledWith('FAKE_ID');
@@ -249,15 +249,15 @@ describe('PlayersService', () => {
     });
 
     it('should fail if the given user doesn\'t exist', async () => {
-      spyOn(service, 'getById').and.returnValue(new Promise(resolve => resolve(null)));
-      await expectAsync(service.acceptTerms('FAKE_ID')).toBeRejectedWithError('no such player');
+      jest.spyOn(service, 'getById').mockResolvedValue(null);
+      await expect(service.acceptTerms('FAKE_ID')).rejects.toThrowError('no such player');
     });
   });
 
   describe('#getPlayerStats()', () => {
     it('should return the stats', async () => {
-      const spy1 = spyOn(gamesService, 'getPlayerGameCount').and.callThrough();
-      const spy2 = spyOn(gamesService, 'getPlayerPlayedClassCount').and.callThrough();
+      const spy1 = jest.spyOn(gamesService, 'getPlayerGameCount');
+      const spy2 = jest.spyOn(gamesService, 'getPlayerPlayedClassCount');
       const ret = await service.getPlayerStats('FAKE_ID');
       expect(spy1).toHaveBeenCalledWith('FAKE_ID', { endedOnly: true });
       expect(spy2).toHaveBeenCalledWith('FAKE_ID');

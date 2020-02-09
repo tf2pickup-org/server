@@ -65,8 +65,8 @@ describe('GameServersService', () => {
     });
 
     it('should fail gracefully', async () => {
-      spyOn(gameServerModel, 'deleteOne').and.returnValue(new Promise(resolve => resolve({ ok: false })) as any);
-      await expectAsync(service.removeGameServer(testGameServer.id)).toBeRejectedWithError('unable to remove game server');
+      jest.spyOn(gameServerModel, 'deleteOne').mockImplementation(() => new Promise(resolve => resolve({ ok: false })) as any);
+      await expect(service.removeGameServer(testGameServer.id)).rejects.toThrowError('unable to remove game server');
     });
   });
 
@@ -98,7 +98,7 @@ describe('GameServersService', () => {
     });
 
     it('should fail gracefully', async () => {
-      await expectAsync(service.takeServer(new ObjectId().toString())).toBeRejectedWithError('no such game server');
+      await expect(service.takeServer(new ObjectId().toString())).rejects.toThrowError('no such game server');
     });
   });
 
@@ -118,7 +118,7 @@ describe('GameServersService', () => {
 
   describe('#checkAllServers()', () => {
     it('should check whether every server is online', async () => {
-      const spy = spyOn(isServerOnline, 'isServerOnline').and.returnValue(new Promise(resolve => resolve(true)));
+      const spy = jest.spyOn(isServerOnline, 'isServerOnline').mockImplementation(() => new Promise(resolve => resolve(true)));
       await service.checkAllServers();
       expect(spy).toHaveBeenCalledTimes(1);
       expect(spy).toHaveBeenCalledWith('localhost', 27015);

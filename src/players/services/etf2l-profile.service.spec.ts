@@ -42,20 +42,20 @@ describe('Etf2lProfileService', () => {
     };
 
     it('should query the ETF2L API', async () => {
-      const spy = spyOn(httpService, 'get').and.returnValue(of(response));
+      const spy = jest.spyOn(httpService, 'get').mockReturnValue(of(response));
       const res = await service.fetchPlayerInfo('FAKE_STEAM_ID');
       expect(spy).toHaveBeenCalledWith('http://api.etf2l.org/player/FAKE_STEAM_ID.json');
       expect(res).toEqual(etf2lProfile as any);
     });
 
     it('should handle 404', async () => {
-      spyOn(httpService, 'get').and.returnValue(of({ status: 404 }));
-      await expectAsync(service.fetchPlayerInfo('')).toBeRejectedWithError('no etf2l profile');
+      jest.spyOn(httpService, 'get').mockReturnValue(of({ status: 404 }));
+      await expect(service.fetchPlayerInfo('')).rejects.toThrowError('no etf2l profile');
     });
 
     it('should forward any other error', async () => {
-      spyOn(httpService, 'get').and.returnValue(of({ status: 403, statusText: 'HAHAHA no.' }));
-      await expectAsync(service.fetchPlayerInfo('')).toBeRejectedWithError('403: HAHAHA no.');
+      jest.spyOn(httpService, 'get').mockReturnValue(of({ status: 403, statusText: 'HAHAHA no.' }));
+      await expect(service.fetchPlayerInfo('')).rejects.toThrowError('403: HAHAHA no.');
     });
   });
 });

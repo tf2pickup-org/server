@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { GameServersController } from './game-servers.controller';
 import { GameServersService } from '../services/game-servers.service';
 import { GameServer } from '../models/game-server';
+import { NotFoundException } from '@nestjs/common';
 
 class GameServersServiceStub {
   gameServer: GameServer = {
@@ -39,7 +40,7 @@ describe('GameServers Controller', () => {
 
   describe('#getAllGameServers()', () => {
     it('should call service', async () => {
-      const spy = spyOn(gameServersService, 'getAllGameServers').and.callThrough();
+      const spy = jest.spyOn(gameServersService, 'getAllGameServers');
       const ret = await controller.getAllGameServers();
       expect(spy).toHaveBeenCalled();
       expect(ret).toEqual([ gameServersService.gameServer ] as any[]);
@@ -48,21 +49,21 @@ describe('GameServers Controller', () => {
 
   describe('#getGameServer()', () => {
     it('should return the game server', async () => {
-      const spy = spyOn(gameServersService, 'getById').and.callThrough();
+      const spy = jest.spyOn(gameServersService, 'getById');
       const ret = await controller.getGameServer('FAKE_ID');
       expect(spy).toHaveBeenCalledWith('FAKE_ID');
       expect(ret).toEqual(gameServersService.gameServer as any);
     });
 
     it('should return 404', async () => {
-      spyOn(gameServersService, 'getById').and.returnValue(new Promise(resolve => resolve(null)));
-      await expectAsync(controller.getGameServer('FAKE_ID')).toBeRejectedWithError();
+      jest.spyOn(gameServersService, 'getById').mockImplementation(() => new Promise(resolve => resolve(null)));
+      await expect(controller.getGameServer('FAKE_ID')).rejects.toThrow(NotFoundException);
     });
   });
 
   describe('#addGameServer()', () => {
     it('should add the game server', async () => {
-      const spy = spyOn(gameServersService, 'addGameServer').and.callThrough();
+      const spy = jest.spyOn(gameServersService, 'addGameServer');
       const ret = await controller.addGameServer(gameServersService.gameServer);
       expect(spy).toHaveBeenCalledWith(gameServersService.gameServer);
       expect(ret).toEqual(gameServersService.gameServer as any);
