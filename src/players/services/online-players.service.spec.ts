@@ -8,8 +8,6 @@ class PlayersGatewayStub {
   playerDisconnected = new Subject<any>();
 }
 
-jest.useFakeTimers();
-
 describe('OnlinePlayersService', () => {
   let service: OnlinePlayersService;
   let playersGateway: PlayersGatewayStub;
@@ -25,6 +23,9 @@ describe('OnlinePlayersService', () => {
     service = module.get<OnlinePlayersService>(OnlinePlayersService);
     playersGateway = module.get(PlayersGateway);
   });
+
+  beforeEach(() => jest.useFakeTimers());
+  afterEach(() => jest.useRealTimers());
 
   beforeEach(() => service.onModuleInit());
 

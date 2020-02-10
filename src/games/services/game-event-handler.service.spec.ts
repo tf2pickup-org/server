@@ -58,7 +58,7 @@ class GamesServiceStub {
     });
   }
 
-  getById(id: string) { return this.gameModel.findById(id); }
+  async getById(id: string) { return await this.gameModel.findById(id); }
 }
 
 class ConfigServiceStub {

@@ -57,7 +57,7 @@ describe('QueueNotificationsService', () => {
 
   describe('when a player joins the queue', () => {
     it('should notify after 5 minutes', () => {
-      const spy = spyOn(discordNotificationsService, 'notifyQueue');
+      const spy = jest.spyOn(discordNotificationsService, 'notifyQueue');
       queueService.playerJoin.next('FAKE_ID');
       expect(spy).not.toHaveBeenCalled();
       jest.advanceTimersByTime(5 * 60 * 1000 + 1);
@@ -65,7 +65,7 @@ describe('QueueNotificationsService', () => {
     });
 
     it('should notify only once if there are two consecutive player_join events', () => {
-      const spy = spyOn(discordNotificationsService, 'notifyQueue');
+      const spy = jest.spyOn(discordNotificationsService, 'notifyQueue');
       queueService.playerJoin.next('FAKE_ID');
       jest.advanceTimersByTime(4 * 60 * 1000);
       expect(spy).not.toHaveBeenCalled();

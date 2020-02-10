@@ -1,7 +1,12 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { PlayerSkillService } from './player-skill.service';
-import { getModelToken } from 'nestjs-typegoose';
+import { getModelToken, TypegooseModule } from 'nestjs-typegoose';
 import { PlayersService } from './players.service';
+import { MongoMemoryServer } from 'mongodb-memory-server';
+import { typegooseTestingModule } from '@/utils/testing-typegoose-module';
+import { PlayerSkill } from '../models/player-skill';
+import { ReturnModelType, DocumentType } from '@typegoose/typegoose';
+import { ObjectId } from 'mongodb';
 
 const skill = {
   player: 'FAKE_ID',
@@ -12,28 +17,40 @@ const skill = {
   save: () => null,
 };
 
-const playerSkillModel = {
-  find: (criteria: any) => new Promise(resolve => resolve([])),
-  findOne: (criteria: any) => skill,
-};
-
 class PlayersServiceStub {
   getById(id: string) { return null; }
 }
 
 describe('PlayerSkillService', () => {
   let service: PlayerSkillService;
+  let mongod: MongoMemoryServer;
+  let playerSkillModel: ReturnModelType<typeof PlayerSkill>;
+  let playerSkill: DocumentType<PlayerSkill>;
+
+  beforeAll(() => mongod = new MongoMemoryServer());
+  afterAll(async () => await mongod.stop());
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
+      imports: [
+        typegooseTestingModule(mongod),
+        TypegooseModule.forFeature([ PlayerSkill ]),
+      ],
       providers: [
         PlayerSkillService,
-        { provide: getModelToken('PlayerSkill'), useValue: playerSkillModel },
         { provide: PlayersService, useClass: PlayersServiceStub },
       ],
     }).compile();
 
     service = module.get<PlayerSkillService>(PlayerSkillService);
+    playerSkillModel = module.get(getModelToken('PlayerSkill'));
+  });
+
+  beforeEach(async () => {
+    playerSkill = await playerSkillModel.create({
+      player: new ObjectId().toString(),
+      skill: new Map([['soldier', 4]]),
+    });
   });
 
   it('should be defined', () => {
@@ -42,18 +59,15 @@ describe('PlayerSkillService', () => {
 
   describe('#getAll()', () => {
     it('should retrieve all players skills', async () => {
-      const spy = jest.spyOn(playerSkillModel, 'find');
-      await service.getAll();
-      expect(spy).toHaveBeenCalledWith({ });
+      const ret = await service.getAll();
+      expect(ret.map(r => r.toJSON())).toEqual([ playerSkill ]);
     });
   });
 
   describe('#getPlayerSkill()', () => {
     it('should retrieve player skill', async () => {
-      const spy = jest.spyOn(playerSkillModel, 'findOne');
       const ret = await service.getPlayerSkill('FAKE_ID');
-      expect(spy).toHaveBeenCalledWith({ player: 'FAKE_ID' });
-      expect(ret).toEqual(skill as any);
+      expect(ret).toEqual(playerSkill);
     });
   });
 
