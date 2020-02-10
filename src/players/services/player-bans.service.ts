@@ -39,15 +39,15 @@ export class PlayerBansService implements OnModuleInit {
     });
   }
 
-  async getById(banId: string): Promise<PlayerBan> {
+  async getById(banId: string): Promise<DocumentType<PlayerBan>> {
     return await this.playerBanModel.findById(banId);
   }
 
-  async getPlayerBans(playerId: string): Promise<PlayerBan[]> {
+  async getPlayerBans(playerId: string): Promise<Array<DocumentType<PlayerBan>>> {
     return await this.playerBanModel.find({ player: playerId }).sort({ start: -1 });
   }
 
-  async getPlayerActiveBans(playerId: string): Promise<PlayerBan[]> {
+  async getPlayerActiveBans(playerId: string): Promise<Array<DocumentType<PlayerBan>>> {
     return await this.playerBanModel.find({
       player: playerId,
       end: {
