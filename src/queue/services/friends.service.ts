@@ -27,24 +27,34 @@ export class FriendsService implements OnModuleInit {
       throw new Error('cannot make friends at this stage');
     }
 
-    const sourcePlayerSlot = this.queueService.findSlotByPlayerId(sourcePlayerId);
-    const targetPlayerSlot = this.queueService.findSlotByPlayerId(targetPlayerId);
-    if (!sourcePlayerSlot || !targetPlayerSlot) {
-      throw new Error('player not in the queue');
-    }
+    if (targetPlayerId === null) { // only removing frienship
+      this.friendships = [
+        ...this.friendships.filter(f => f.sourcePlayerId !== sourcePlayerId),
+      ];
+    } else {
+      const sourcePlayerSlot = this.queueService.findSlotByPlayerId(sourcePlayerId);
+      const targetPlayerSlot = this.queueService.findSlotByPlayerId(targetPlayerId);
+      if (!sourcePlayerSlot || !targetPlayerSlot) {
+        throw new Error('player not in the queue');
+      }
 
-    if (sourcePlayerSlot.gameClass !== 'medic') {
-      throw new Error('only medics can make friends');
-    }
+      if (sourcePlayerSlot.gameClass !== 'medic') {
+        throw new Error('only medics can make friends');
+      }
 
-    if (targetPlayerSlot.gameClass === 'medic') {
-      throw new Error('cannot make the other medic as a friend');
-    }
+      if (targetPlayerSlot.gameClass === 'medic') {
+        throw new Error('cannot make the other medic as a friend');
+      }
 
-    this.friendships = [
-      ...this.friendships.filter(f => f.sourcePlayerId !== sourcePlayerId),
-      { sourcePlayerId, targetPlayerId },
-    ];
+      if (targetPlayerId !== null && !!this.friendships.find(f => f.targetPlayerId === targetPlayerId)) {
+        throw new Error('this player is already marked as a friend by another player');
+      }
+
+      this.friendships = [
+        ...this.friendships.filter(f => f.sourcePlayerId !== sourcePlayerId),
+        { sourcePlayerId, targetPlayerId },
+      ];
+    }
 
     this.queueGateway.emitFriendshipsUpdate(this.friendships);
     return this.friendships;

@@ -11,6 +11,7 @@ class QueueServiceStub {
   slots: QueueSlot[] = [
     { id: 0, playerId: 'FAKE_MEDIC', gameClass: 'medic', ready: false },
     { id: 1, playerId: 'FAKE_DM_CLASS', gameClass: 'soldier', ready: false },
+    { id: 2, playerId: 'FAKE_2ND_MEDIC', gameClass: 'medic', ready: false },
   ];
   findSlotByPlayerId(playerId: string) { return this.slots.find(s => s.playerId === playerId); }
 }
@@ -70,9 +71,20 @@ describe('FriendsService', () => {
       expect(() => service.markFriend('FAKE_MEDIC', 'FAKE_DM_CLASS')).toThrowError('cannot make the other medic as a friend');
     });
 
+    it('should fail if the target player is already marked as a friend', () => {
+      service.markFriend('FAKE_2ND_MEDIC', 'FAKE_DM_CLASS');
+      expect(() => service.markFriend('FAKE_MEDIC', 'FAKE_DM_CLASS')).toThrowError('this player is already marked as a friend by another player');
+    });
+
     it('should mark friends', () => {
       const friendships = service.markFriend('FAKE_MEDIC', 'FAKE_DM_CLASS');
       expect(friendships).toEqual([{ sourcePlayerId: 'FAKE_MEDIC', targetPlayerId: 'FAKE_DM_CLASS' }]);
+    });
+
+    it('should unmark friends', () => {
+      service.markFriend('FAKE_MEDIC', 'FAKE_DM_CLASS');
+      const friendships = service.markFriend('FAKE_MEDIC', null);
+      expect(friendships).toEqual([]);
     });
 
     it('should remove previous frienship', () => {
