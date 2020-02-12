@@ -10,6 +10,7 @@ import { QueueNotificationsService } from './services/queue-notifications.servic
 import { DiscordModule } from '@/discord/discord.module';
 import { AutoGameLauncherService } from './services/auto-game-launcher.service';
 import { QueueAnnouncementsService } from './services/queue-announcements.service';
+import { FriendsService } from './services/friends.service';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { QueueAnnouncementsService } from './services/queue-announcements.servic
     QueueNotificationsService,
     AutoGameLauncherService,
     QueueAnnouncementsService,
+    FriendsService,
   ],
   exports: [
     QueueService,

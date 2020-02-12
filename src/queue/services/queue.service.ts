@@ -145,13 +145,10 @@ export class QueueService implements OnModuleInit {
 
     // remove player from any slot(s) he could be occupying
     const oldSlots = this.slots.filter(s => s.playerId === playerId);
-    const oldFriend = oldSlots.find(s => !!s.friend)?.friend;
     oldSlots.forEach(s => this.clearSlot(s));
 
     targetSlot.playerId = playerId;
-    if (targetSlot.gameClass === 'medic') {
-      targetSlot.friend = oldFriend;
-    }
+
     if (this.state === 'ready' || this.playerCount === this.requiredPlayerCount) {
       targetSlot.ready = true;
     }
@@ -225,35 +222,10 @@ export class QueueService implements OnModuleInit {
     }
   }
 
-  async markFriend(playerId: string, friendId: string): Promise<QueueSlot> {
-    if (this.state === 'launching') {
-      throw new Error('unable to make friends now');
-    }
-
-    const slot = this.findSlotByPlayerId(playerId);
-    if (!slot) {
-      throw new Error('player is not in the queue');
-    }
-
-    if (slot.gameClass !== 'medic') { // todo make this configurable
-      throw new Error('only medics are allowed to mark other players as friends');
-    }
-
-    const friendSlot = this.findSlotByPlayerId(friendId);
-    if (friendSlot?.gameClass === 'medic') {
-      throw new Error('cannot mark this player as a friend');
-    }
-
-    slot.friend = friendId;
-    this._slotsChange.next([ slot ]);
-    return slot;
-  }
-
   private resetSlots() {
     const defaultSlot: Partial<QueueSlot> = {
       playerId: null,
       ready: false,
-      friend: null,
     };
 
     let lastId = 0;
@@ -273,7 +245,6 @@ export class QueueService implements OnModuleInit {
 
   private clearSlot(slot: QueueSlot) {
     slot.playerId = null;
-    slot.friend = null;
     slot.ready = false;
   }
 
