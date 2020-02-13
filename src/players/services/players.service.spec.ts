@@ -8,6 +8,7 @@ import { GamesService } from '@/games/services/games.service';
 import { OnlinePlayersService } from './online-players.service';
 import { DiscordNotificationsService } from '@/discord/services/discord-notifications.service';
 import { ConfigService } from '@nestjs/config';
+import { Etf2lProfile } from '../models/etf2l-profile';
 
 class EnvironmentStub {
   superUser = null;
@@ -119,9 +120,28 @@ describe('PlayersService', () => {
     });
 
     it('should deny creating profiles for players with ETF2L bans', async () => {
+      // http://api.etf2l.org/player/129205
+      const blacklistedProfile: Partial<Etf2lProfile> = {
+        bans: [
+          {
+              end: 4294967295,
+              reason: 'Blacklisted',
+              start: 0,
+          },
+        ],
+        classes: [
+            'Scout',
+            'Soldier',
+            'Sniper',
+        ],
+        country: 'Russia',
+        id: 129205,
+        name: 'Tixx',
+      };
+
       const banEnd = new Date();
       banEnd.setHours(banEnd.getHours() + 1);
-      const spy = spyOn(etf2lProfileService, 'fetchPlayerInfo').and.returnValue({ bans: [ { end: banEnd.getTime(), reason: '', start: 0 } ] });
+      const spy = spyOn(etf2lProfileService, 'fetchPlayerInfo').and.returnValue(blacklistedProfile);
       await expectAsync(service.createPlayer(steamProfile)).toBeRejectedWithError('this account is banned on ETF2L');
       expect(spy).toHaveBeenCalledWith('FAKE_STEAM_ID');
     });
@@ -129,7 +149,8 @@ describe('PlayersService', () => {
     it('should eventually create new player', async () => {
       const banEnd = new Date();
       banEnd.setHours(banEnd.getHours() - 1);
-      spyOn(etf2lProfileService, 'fetchPlayerInfo').and.returnValue({ id: 12345, name: 'FAKE_ETF2L_NAME', bans: [ { end: banEnd.getTime() } ] });
+      spyOn(etf2lProfileService, 'fetchPlayerInfo').and
+        .returnValue({ id: 12345, name: 'FAKE_ETF2L_NAME', bans: [ { end: banEnd.getTime() / 1000 } ] });
 
       const player = { id: 'FAKE_STEAM_ID', name: 'FAKE_NAME' };
       const spy = spyOn(playerModel, 'create').and.returnValue(player);

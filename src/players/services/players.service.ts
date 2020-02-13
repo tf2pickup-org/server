@@ -47,7 +47,7 @@ export class PlayersService {
     try {
       etf2lProfile = await this.etf2lProfileService.fetchPlayerInfo(steamProfile.id);
 
-      if (etf2lProfile.bans && etf2lProfile.bans.filter(ban => ban.end > Date.now()).length > 0) {
+      if (etf2lProfile.bans?.filter(ban => ban.end > Date.now() / 1000).length > 0) {
         throw new Error('this account is banned on ETF2L');
       }
 

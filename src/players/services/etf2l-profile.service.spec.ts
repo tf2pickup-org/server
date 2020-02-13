@@ -29,7 +29,7 @@ describe('Etf2lProfileService', () => {
   });
 
   describe('#fetchPlayerInfo()', () => {
-    const etf2lProfile: Etf2lProfile = {
+    const etf2lProfile: Partial<Etf2lProfile> = {
       id: 12345,
       name: 'FAKE_ETF2L_NAME',
       country: 'SOME_COUNTRY',
@@ -45,7 +45,7 @@ describe('Etf2lProfileService', () => {
       const spy = spyOn(httpService, 'get').and.returnValue(of(response));
       const res = await service.fetchPlayerInfo('FAKE_STEAM_ID');
       expect(spy).toHaveBeenCalledWith('http://api.etf2l.org/player/FAKE_STEAM_ID.json');
-      expect(res).toEqual(etf2lProfile);
+      expect(res).toEqual(etf2lProfile as any);
     });
 
     it('should handle 404', async () => {
