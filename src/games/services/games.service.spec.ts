@@ -14,6 +14,7 @@ import { GameLauncherService } from './game-launcher.service';
 import { QueueConfigService } from '@/queue/services/queue-config.service';
 import { GamesGateway } from '../gateways/games.gateway';
 import { cloneDeep } from 'lodash';
+import { MongoMemoryServer } from 'mongodb-memory-server';
 
 class PlayersServiceStub {
   player: Player = {
@@ -64,13 +65,17 @@ class GamesGatewayStub {
 
 describe('GamesService', () => {
   let service: GamesService;
+  let mongod: MongoMemoryServer;
   let gameModel: ReturnModelType<typeof Game>;
   let gameLauncherService: GameLauncherServiceStub;
+
+  beforeAll(() => mongod = new MongoMemoryServer());
+  afterAll(async () => await mongod.stop());
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [
-        typegooseTestingModule(),
+        typegooseTestingModule(mongod),
         TypegooseModule.forFeature([Game]),
       ],
       providers: [

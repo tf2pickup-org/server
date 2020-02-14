@@ -2,13 +2,16 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { PlayersService } from './players.service';
 import { Environment } from '@/environment/environment';
 import { Etf2lProfileService } from './etf2l-profile.service';
-import { getModelToken } from 'nestjs-typegoose';
+import { getModelToken, TypegooseModule } from 'nestjs-typegoose';
 import { SteamProfile } from '../models/steam-profile';
 import { GamesService } from '@/games/services/games.service';
 import { OnlinePlayersService } from './online-players.service';
 import { DiscordNotificationsService } from '@/discord/services/discord-notifications.service';
 import { ConfigService } from '@nestjs/config';
 import { Etf2lProfile } from '../models/etf2l-profile';
+import { ReturnModelType, DocumentType } from '@typegoose/typegoose';
+import { Player } from '../models/player';
+import { typegooseTestingModule } from '@/utils/testing-typegoose-module';
 
 class EnvironmentStub {
   superUser = null;
@@ -37,12 +40,6 @@ class GamesServiceStub {
   getPlayerPlayedClassCount(playerId: string) { return this.classCount; }
 }
 
-const playerModel = {
-  findById: (id: string) => null,
-  findOne: (obj: any) => null,
-  create: (object: any) => null,
-};
-
 class OnlinePlayersServiceStub {
   getSocketsForPlayer(playerId: string) { return []; }
 }
@@ -55,8 +52,10 @@ class ConfigServiceStub {
   get(key: string) { return true; }
 }
 
-fdescribe('PlayersService', () => {
+describe('PlayersService', () => {
   let service: PlayersService;
+  let playerModel: ReturnModelType<typeof Player>;
+  let mockPlayer: DocumentType<Player>;
   let environment: EnvironmentStub;
   let etf2lProfileService: Etf2lProfileServiceStub;
   let gamesService: GamesServiceStub;
@@ -65,11 +64,14 @@ fdescribe('PlayersService', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
+      imports: [
+        typegooseTestingModule(),
+        TypegooseModule.forFeature([Player]),
+      ],
       providers: [
         PlayersService,
         { provide: Environment, useClass: EnvironmentStub },
         { provide: Etf2lProfileService, useClass: Etf2lProfileServiceStub },
-        { provide: getModelToken('Player'), useValue: playerModel },
         { provide: GamesService, useClass: GamesServiceStub },
         { provide: OnlinePlayersService, useClass: OnlinePlayersServiceStub },
         { provide: DiscordNotificationsService, useClass: DiscordNotificationsServiceStub },
@@ -78,6 +80,7 @@ fdescribe('PlayersService', () => {
     }).compile();
 
     service = module.get<PlayersService>(PlayersService);
+    playerModel = module.get(getModelToken('Player'));
     environment = module.get(Environment);
     etf2lProfileService = module.get(Etf2lProfileService);
     gamesService = module.get(GamesService);
@@ -85,23 +88,30 @@ fdescribe('PlayersService', () => {
     discordNotificationsService = module.get(DiscordNotificationsService);
   });
 
+  beforeEach(async () => {
+    mockPlayer = await playerModel.create({
+      name: 'FAKE_PLAYER_NAME',
+      steamId: 'FAKE_STEAM_ID',
+    });
+  });
+
+  afterEach(async () => await playerModel.deleteMany({ }));
+
   it('should be defined', () => {
     expect(service).toBeDefined();
   });
 
   describe('#getById()', () => {
-    it('should query playerModel', () => {
-      const spy = jest.spyOn(playerModel, 'findById');
-      service.getById('FAKE_ID');
-      expect(spy).toHaveBeenCalledWith('FAKE_ID');
+    it('should retrieve the player from the database', async () => {
+      const player = await service.getById(mockPlayer.id);
+      expect(player.toObject()).toEqual(mockPlayer.toObject());
     });
   });
 
   describe('#findBySteamId()', () => {
-    it('should query playerModel', () => {
-      const spy = jest.spyOn(playerModel, 'findOne');
-      service.findBySteamId('FAKE_STEAM_ID');
-      expect(spy).toHaveBeenCalledWith({ steamId: 'FAKE_STEAM_ID' });
+    it('should query playerModel', async () => {
+      const player = await service.findBySteamId('FAKE_STEAM_ID');
+      expect(player.toObject()).toEqual(mockPlayer.toObject());
     });
   });
 
@@ -113,7 +123,7 @@ fdescribe('PlayersService', () => {
       photos: [{ value: 'FAKE_AVATAR_URL' }],
     };
 
-    it('should deny creating profiles without ETF2L profile', async () => {
+    it('should deny creating profiles without an ETF2L profile', async () => {
       const spy = jest.spyOn(etf2lProfileService, 'fetchPlayerInfo').mockRejectedValue('no etf2l profile');
       await expect(service.createPlayer(steamProfile)).rejects.toThrowError('no etf2l profile');
       expect(spy).toHaveBeenCalledWith('FAKE_STEAM_ID');
