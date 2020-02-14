@@ -85,7 +85,7 @@ export class PlayersService {
         player.name = update.name;
       }
 
-      if (update.role) {
+      if (update.role !== undefined) {
         player.role = update.role;
       }
 

@@ -195,15 +195,24 @@ describe('PlayersService', () => {
       save: () => null,
     };
 
-    it('should update and save', async () => {
+    it('should update player name', async () => {
       const spy = spyOn(service, 'getById').and.returnValue(new Promise(resolve => resolve(player as any)));
       const spy2 = spyOn(player, 'save');
 
-      await service.updatePlayer('FAKE_ID', { name: 'NEW_NAME', role: 'admin' });
+      await service.updatePlayer('FAKE_ID', { name: 'NEW_NAME' });
       expect(spy).toHaveBeenCalledWith('FAKE_ID');
       expect(player.name).toEqual('NEW_NAME');
-      expect(player.role).toEqual('admin');
       expect(spy2).toHaveBeenCalled();
+    });
+
+    it('should demote player', async () => {
+      const spy = spyOn(service, 'getById').and.returnValue(new Promise(resolve => resolve(player as any)));
+
+      await service.updatePlayer('FAKE_ID', { role: 'admin' });
+      expect(player.role).toEqual('admin');
+
+      await service.updatePlayer('FAKE_ID', { role: null });
+      expect(player.role).toBe(null);
     });
 
     it('should emit updated player over websocket', async () => {
