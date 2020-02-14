@@ -1,3 +1,20 @@
+# [2.0.0](https://github.com/tf2pickup-pl/server/compare/1.1.2...2.0.0) (2020-02-14)
+
+### Features
+* Player substitutes ([69ec724](https://github.com/tf2pickup-pl/server/commit/69ec724c1ed163226cc2f6998180abcdcbbf5d41))
+* Refined friends sytem ([fa8ad5b](https://github.com/tf2pickup-pl/server/commit/fa8ad5b994a7d2b3ef3f2b33160e42da184303fd))
+* Player connection status ([f6f613a](https://github.com/tf2pickup-pl/server/commit/f6f613a3e79d8adc5f57f8e7b40c17dd92cba71d))
+* Remove expired refresh tokens ([b534922](https://github.com/tf2pickup-pl/server/commit/b534922f214efe0d598fee9806e1b9330a3d2f28))
+* Update player role via the  API ([b286a1b](https://github.com/tf2pickup-pl/server/commit/b286a1bdc192a6fbe25be9c54486fc0ee5f61513))
+* Discord notifiation upon ban revoke ([dcbdf1c](https://github.com/tf2pickup-pl/server/commit/dcbdf1c7c2477c81187b8f41b3889fcf9716dd56))
+* Deburr player names before setting them up on the game server ([8ca2e4d](https://github.com/tf2pickup-pl/server/commit/8ca2e4dd80bbeddd88034423ae1f1446d8124974))
+* Match score reporting ([1d891b2](https://github.com/tf2pickup-pl/server/commit/1d891b22308d25773afd0425c65d31d5a9284a9c))
+* Provide STV connect string ([8de4a34](https://github.com/tf2pickup-pl/server/commit/8de4a347eaf278f93316df4a3cf467004a30f74c))
+* Launch orphaned games ([434d702](https://github.com/tf2pickup-pl/server/commit/434d702672e036ecd13547452737453909c7d7ea))
+
+### Fixes
+* Deny registering profiles with active ETF2L bans ([be79d20](https://github.com/tf2pickup-pl/server/commit/be79d207a3ff1d6ce723fca5f204d9d7fa85323b))
+
 # [1.1.2](https://github.com/tf2pickup-pl/server/compare/1.1.1...1.1.2) (2020-01-05)
 
 ### Fixes
