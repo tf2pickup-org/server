@@ -1,3 +1,8 @@
+# [2.0.1](https://github.com/tf2pickup-pl/server/compare/2.0.0...2.0.1) (2020-02-14)
+
+### Fixes
+* Handle demoting players ([2b2d01d](https://github.com/tf2pickup-pl/server/commit/2b2d01dc57c4a8a8c8c9e245f0fd19acf353b3a6))
+
 # [2.0.0](https://github.com/tf2pickup-pl/server/compare/1.1.2...2.0.0) (2020-02-14)
 
 ### Features
