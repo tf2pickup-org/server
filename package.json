@@ -11,7 +11,7 @@
     "prod": "node dist/main",
     "lint": "tslint -p tsconfig.json -c tslint.json",
     "test": "jest",
-    "test:ci": "nyc --reporter=lcov npm run test"
+    "test:ci": "jest --ci"
   },
   "dependencies": {
     "@hapi/joi": "17.1.0",
