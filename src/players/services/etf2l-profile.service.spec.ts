@@ -4,8 +4,20 @@ import { HttpService } from '@nestjs/common';
 import { Etf2lProfile } from '../models/etf2l-profile';
 import { of } from 'rxjs';
 
+const mockEtf2lProfile: Etf2lProfile = {
+  id: 12345,
+  name: 'FAKE_ETF2L_NAME',
+  country: 'SOME_COUNTRY',
+  classes: [ 'FAKE_CLASS_1', 'FAKE_CLASS_2' ],
+};
+
 class HttpServiceStub {
-  get(url: string) { return null; }
+  get(url: string) {
+    return of({
+      status: 200,
+      data: { player: mockEtf2lProfile },
+    });
+  }
 }
 
 describe('Etf2lProfileService', () => {
@@ -28,33 +40,21 @@ describe('Etf2lProfileService', () => {
     expect(service).toBeDefined();
   });
 
-  describe('#fetchPlayerInfo()', () => {
-    const etf2lProfile: Partial<Etf2lProfile> = {
-      id: 12345,
-      name: 'FAKE_ETF2L_NAME',
-      country: 'SOME_COUNTRY',
-      classes: [ 'FAKE_CLASS_1', 'FAKE_CLASS_2' ],
-    };
-
-    const response = {
-      status: 200,
-      data: { player: etf2lProfile },
-    };
-
+  describe('#ffetchPlayerInfo()', () => {
     it('should query the ETF2L API', async () => {
-      const spy = jest.spyOn(httpService, 'get').mockReturnValue(of(response));
+      const spy = jest.spyOn(httpService, 'get');
       const res = await service.fetchPlayerInfo('FAKE_STEAM_ID');
       expect(spy).toHaveBeenCalledWith('http://api.etf2l.org/player/FAKE_STEAM_ID.json');
-      expect(res).toEqual(etf2lProfile as any);
+      expect(res).toEqual(mockEtf2lProfile);
     });
 
     it('should handle 404', async () => {
-      jest.spyOn(httpService, 'get').mockReturnValue(of({ status: 404 }));
+      jest.spyOn(httpService, 'get').mockReturnValue(of({ status: 404 } as any));
       await expect(service.fetchPlayerInfo('')).rejects.toThrowError('no etf2l profile');
     });
 
     it('should forward any other error', async () => {
-      jest.spyOn(httpService, 'get').mockReturnValue(of({ status: 403, statusText: 'HAHAHA no.' }));
+      jest.spyOn(httpService, 'get').mockReturnValue(of({ status: 403, statusText: 'HAHAHA no.' } as any));
       await expect(service.fetchPlayerInfo('')).rejects.toThrowError('403: HAHAHA no.');
     });
   });
