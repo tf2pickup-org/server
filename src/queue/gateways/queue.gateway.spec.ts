@@ -103,7 +103,7 @@ describe('QueueGateway', () => {
 
   describe('#markFriend()', () => {
     it('should mark friend', async () => {
-      const spy = jest.spyOn(queueService, 'markFriend');
+      const spy = jest.spyOn(friendsService, 'markFriend');
       const ret = await gateway.markFriend({ request: { user: { id: 'FAKE_ID' } } }, { friendPlayerId: 'FAKE_FRIEND_ID' });
       expect(spy).toHaveBeenCalledWith('FAKE_ID', 'FAKE_FRIEND_ID');
     });
