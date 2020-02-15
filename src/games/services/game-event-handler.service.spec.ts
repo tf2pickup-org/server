@@ -12,6 +12,7 @@ import { ReturnModelType, DocumentType } from '@typegoose/typegoose';
 import { ObjectId } from 'mongodb';
 import { Player } from '@/players/models/player';
 import { QueueGateway } from '@/queue/gateways/queue.gateway';
+import { MongoMemoryServer } from 'mongodb-memory-server';
 
 class PlayersServiceStub {
   playerIds: ObjectId[] = [];
@@ -65,7 +66,7 @@ class ConfigServiceStub {
   get(key: string) {
     switch (key) {
       case 'serverCleanupDelay':
-        return 1000;
+        return 0;
     }
   }
 }
@@ -79,13 +80,12 @@ class GamesGatewayStub {
 }
 
 class QueueGatewayStub {
-  updateSubstituteRequests() { }
+  updateSubstituteRequests() { return null; }
 }
-
-jest.useFakeTimers();
 
 describe('GameEventHandlerService', () => {
   let service: GameEventHandlerService;
+  let mongod: MongoMemoryServer;
   let playersService: PlayersServiceStub;
   let gamesService: GamesServiceStub;
   let gameRuntimeService: GameRuntimeServiceStub;
@@ -94,16 +94,19 @@ describe('GameEventHandlerService', () => {
   let playerModel: ReturnModelType<typeof Player>;
   let queueGateway: QueueGatewayStub;
 
+  beforeAll(() => mongod = new MongoMemoryServer());
+  afterAll(async () => await mongod.stop());
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [
-        typegooseTestingModule(),
+        typegooseTestingModule(mongod),
         TypegooseModule.forFeature([Game, Player]),
       ],
       providers: [
         GameEventHandlerService,
-        { provide: GamesService, useClass: GamesServiceStub },
         { provide: PlayersService, useClass: PlayersServiceStub },
+        { provide: GamesService, useClass: GamesServiceStub },
         { provide: ConfigService, useClass: ConfigServiceStub },
         { provide: GameRuntimeService, useClass: GameRuntimeServiceStub },
         { provide: GamesGateway, useClass: GamesGatewayStub },
@@ -165,11 +168,13 @@ describe('GameEventHandlerService', () => {
       expect(game.state).toEqual('ended');
     });
 
-    it('should eventually cleanup the server', async () => {
+    it('should eventually cleanup the server', async done => {
       const spy = jest.spyOn(gameRuntimeService, 'cleanupServer');
       await service.onMatchEnded(gamesService.mockGame.id);
-      jest.runAllTimers();
-      expect(spy).toHaveBeenCalledWith(gameServerId.toString());
+      setTimeout(() => {
+        expect(spy).toHaveBeenCalledWith(gameServerId.toString());
+        done();
+      }, 0);
     });
 
     it('should emit an event over ws', async () => {
