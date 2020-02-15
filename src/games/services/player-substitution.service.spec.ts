@@ -9,6 +9,7 @@ import { SubstituteRequest } from '@/queue/substitute-request';
 import { DiscordNotificationsService } from '@/discord/services/discord-notifications.service';
 import { cloneDeep } from 'lodash';
 import { QueueGateway } from '@/queue/gateways/queue.gateway';
+import { QueueService } from '@/queue/services/queue.service';
 
 // fixme: use TestingMongooseModule here
 
@@ -89,6 +90,10 @@ class QueueGatewayStub {
   updateSubstituteRequests() { return null; }
 }
 
+class QueueServiceStub {
+  kick(...playerIds: string[]) { return null; }
+}
+
 describe('PlayerSubstitutionService', () => {
   let service: PlayerSubstitutionService;
   let gamesService: GamesServiceStub;
@@ -98,6 +103,7 @@ describe('PlayerSubstitutionService', () => {
   let gamesGateway: GamesGatewayStub;
   let discordNotificationsService: DiscordNotificationsServiceStub;
   let queueGateway: QueueGatewayStub;
+  let queueService: QueueServiceStub;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -110,6 +116,7 @@ describe('PlayerSubstitutionService', () => {
         { provide: GamesGateway, useClass: GamesGatewayStub },
         { provide: DiscordNotificationsService, useClass: DiscordNotificationsServiceStub },
         { provide: QueueGateway, useClass: QueueGatewayStub },
+        { provide: QueueService, useClass: QueueServiceStub },
       ],
     }).compile();
 
@@ -121,6 +128,7 @@ describe('PlayerSubstitutionService', () => {
     gamesGateway = module.get(GamesGateway);
     discordNotificationsService = module.get(DiscordNotificationsService);
     queueGateway = module.get(QueueGateway);
+    queueService = module.get(QueueService);
   });
 
   it('should be defined', () => {
@@ -325,6 +333,12 @@ describe('PlayerSubstitutionService', () => {
       jest.spyOn(gamesService, 'getPlayerActiveGame').mockResolvedValue(mockGame);
       await expect(service.replacePlayer('FAKE_GAME_ID', 'FAKE_PLAYER_1', 'FAKE_PLAYER_3')).rejects
         .toThrowError('player is involved in a currently running game');
+    });
+
+    it('should kick the replacement player from the queue', async () => {
+      const spy = jest.spyOn(queueService, 'kick');
+      await service.replacePlayer('FAKE_GAME_ID', 'FAKE_PLAYER_1', 'FAKE_PLAYER_3');
+      expect(spy).toHaveBeenCalledWith('FAKE_PLAYER_3');
     });
   });
 

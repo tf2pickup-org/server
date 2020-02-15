@@ -7,6 +7,7 @@ import { GameRuntimeService } from './game-runtime.service';
 import { GamesGateway } from '../gateways/games.gateway';
 import { DiscordNotificationsService } from '@/discord/services/discord-notifications.service';
 import { QueueGateway } from '@/queue/gateways/queue.gateway';
+import { QueueService } from '@/queue/services/queue.service';
 
 /**
  * A service that handles player substitution logic.
@@ -27,6 +28,7 @@ export class PlayerSubstitutionService {
     @Inject(forwardRef(() => GamesGateway)) private gamesGateway: GamesGateway,
     private discordNotificationsService: DiscordNotificationsService,
     private queueGateway: QueueGateway,
+    private queueSevice: QueueService,
   ) { }
 
   async substitutePlayer(gameId: string, playerId: string) {
@@ -141,6 +143,7 @@ export class PlayerSubstitutionService {
     this.gamesGateway.emitGameUpdated(game);
     this.queueGateway.updateSubstituteRequests();
     this.logger.verbose(`player ${replacement.name} took the sub slot in game game #${game.number}`);
+    this.queueSevice.kick(replacementId);
     setImmediate(() => this.gameRuntimeService.replacePlayer(game.id, replaceeId, replacementSlot));
     return game;
   }
