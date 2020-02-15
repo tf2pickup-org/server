@@ -73,7 +73,7 @@ describe('MapVoteService', () => {
     });
 
     it('should deny voting if the player is not in the queue', () => {
-      spyOn(queueService, 'isInQueue').and.returnValue(false);
+      jest.spyOn(queueService, 'isInQueue').mockReturnValue(false);
       expect(() => service.voteForMap('FAKE_ID', 'cp_badlands')).toThrowError();
     });
 
@@ -85,7 +85,7 @@ describe('MapVoteService', () => {
     });
 
     it('should emit the event over ws', () => {
-      const spy = spyOn(queueGateway, 'emitVoteResultsUpdate');
+      const spy = jest.spyOn(queueGateway, 'emitVoteResultsUpdate');
       service.voteForMap('FAKE_ID', 'cp_badlands');
       expect(spy).toHaveBeenCalled();
     });
@@ -110,7 +110,7 @@ describe('MapVoteService', () => {
     it('should eventually reset the vote', done => {
       service.voteForMap('FAKE_ID_1', 'cp_badlands');
       service.voteForMap('FAKE_ID_2', 'cp_process_final');
-      const spy = spyOn(queueGateway, 'emitVoteResultsUpdate');
+      const spy = jest.spyOn(queueGateway, 'emitVoteResultsUpdate');
 
       const map = service.getWinner();
       setImmediate(() => {

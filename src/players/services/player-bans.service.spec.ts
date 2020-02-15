@@ -1,19 +1,18 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { PlayerBansService } from './player-bans.service';
-import { getModelToken } from 'nestjs-typegoose';
+import { getModelToken, TypegooseModule } from 'nestjs-typegoose';
 import { PlayerBan } from '../models/player-ban';
 import { Types } from 'mongoose';
 import { OnlinePlayersService } from './online-players.service';
 import { DiscordNotificationsService } from '@/discord/services/discord-notifications.service';
-
-const playerBanModel = {
-  find: (obj: any) => ({ sort: () => null }),
-  findById: (id: string) => null,
-  create: (obj: any) => obj,
-};
+import { ObjectId } from 'mongodb';
+import { typegooseTestingModule } from '@/utils/testing-typegoose-module';
+import { ReturnModelType, DocumentType } from '@typegoose/typegoose';
+import { MongoMemoryServer } from 'mongodb-memory-server';
+import { floor } from 'lodash';
 
 class OnlinePlayersServiceStub {
-
+  getSocketsForPlayer(playerId: string) { return []; }
 }
 
 class DiscordNotificationsServiceStub {
@@ -23,13 +22,23 @@ class DiscordNotificationsServiceStub {
 
 describe('PlayerBansService', () => {
   let service: PlayerBansService;
+  let mongod: MongoMemoryServer;
   let discordNotificationsService: DiscordNotificationsServiceStub;
+  let playerBanModel: ReturnModelType<typeof PlayerBan>;
+  let playerBan: DocumentType<PlayerBan>;
+  let onlinePlayersService: OnlinePlayersServiceStub;
+
+  beforeAll(() => mongod = new MongoMemoryServer());
+  afterAll(async () => mongod.stop());
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
+      imports: [
+        typegooseTestingModule(mongod),
+        TypegooseModule.forFeature([ PlayerBan ]),
+      ],
       providers: [
         PlayerBansService,
-        { provide: getModelToken('PlayerBan'), useValue: playerBanModel },
         { provide: OnlinePlayersService, useClass: OnlinePlayersServiceStub },
         { provide: DiscordNotificationsService, useClass: DiscordNotificationsServiceStub },
       ],
@@ -37,6 +46,23 @@ describe('PlayerBansService', () => {
 
     service = module.get<PlayerBansService>(PlayerBansService);
     discordNotificationsService = module.get(DiscordNotificationsService);
+    playerBanModel = module.get(getModelToken('PlayerBan'));
+    onlinePlayersService = module.get(OnlinePlayersService);
+  });
+
+  beforeEach(() => service.onModuleInit());
+
+  beforeEach(async () => {
+    const end = new Date();
+    end.setHours(end.getHours() + 1);
+
+    playerBan = await playerBanModel.create({
+      player: new ObjectId(),
+      admin: new ObjectId(),
+      start: new Date(),
+      end,
+      reason: 'TESTING PLAYER BANS',
+    });
   });
 
   it('should be defined', () => {
@@ -45,43 +71,35 @@ describe('PlayerBansService', () => {
 
   describe('#getById()', () => {
     it('should query model', async () => {
-      const spy = spyOn(playerBanModel, 'findById');
-      await service.getById('FAKE_BAN_ID');
-      expect(spy).toHaveBeenCalledWith('FAKE_BAN_ID');
+      const ret = await service.getById(playerBan.id);
+      expect(ret.toJSON()).toEqual(playerBan.toJSON());
     });
   });
 
   describe('#getPlayerBans()', () => {
     it('should query model', async () => {
-      const spy = spyOn(playerBanModel, 'find').and.callThrough();
-      await service.getPlayerBans('FAKE_PLAYER_ID');
-      expect(spy).toHaveBeenCalledWith({ player: 'FAKE_PLAYER_ID' });
+      const ret = await service.getPlayerBans(playerBan.player.toString());
+      expect(ret.map(r => r.toJSON())).toEqual([ playerBan.toJSON() ]);
     });
   });
 
   describe('#getPlayerActiveBans()', () => {
     it('should query model', async () => {
-      const spy = spyOn(playerBanModel, 'find');
-      await service.getPlayerActiveBans('FAKE_PLAYER_ID');
-      expect(spy).toHaveBeenCalledWith({
-        player: 'FAKE_PLAYER_ID',
-        end: {
-          $gte: jasmine.any(Date),
-        },
-      });
+      const ret = await service.getPlayerActiveBans(playerBan.player.toString());
+      expect(ret.map(r => r.toJSON())).toEqual([ playerBan.toJSON() ]);
     });
   });
 
   describe('#addPlayerBan()', () => {
-    let ban: Partial<PlayerBan>;
+    let mockBan: Partial<PlayerBan>;
 
     beforeEach(() => {
       const end = new Date();
       end.setHours(end.getHours() + 1);
 
-      ban = {
-        player: new Types.ObjectId(),
-        admin: new Types.ObjectId(),
+      mockBan = {
+        player: new ObjectId(),
+        admin: new ObjectId(),
         start: new Date(),
         end,
         reason: 'just testing',
@@ -89,67 +107,69 @@ describe('PlayerBansService', () => {
     });
 
     it('should create ban via model', async () => {
-      const spy = spyOn(playerBanModel, 'create').and.callThrough();
-      await service.addPlayerBan(ban);
-      expect(spy).toHaveBeenCalledWith(ban);
+      const ret = await service.addPlayerBan(mockBan);
+      expect(ret.toObject()).toMatchObject(mockBan);
     });
 
     it('should emit the event', async done => {
       service.banAdded.subscribe(playerId => {
-        expect(playerId).toEqual(ban.player.toString());
+        expect(playerId).toEqual(mockBan.player.toString());
         done();
       });
 
-      await service.addPlayerBan(ban);
+      await service.addPlayerBan(mockBan);
     });
 
     it('should notify on discord', async () => {
-      const spy = spyOn(discordNotificationsService, 'notifyBanAdded');
-      await service.addPlayerBan(ban);
-      expect(spy).toHaveBeenCalledWith(ban);
+      const spy = jest.spyOn(discordNotificationsService, 'notifyBanAdded');
+      const ret = await service.addPlayerBan(mockBan);
+      expect(spy).toHaveBeenCalledWith(ret);
+    });
+
+    // figure a way to flush observables
+    it.skip('should emit profile update event on player\'s socket', async done => {
+      const socket = { emit: (...args: any[]) => done() };
+      jest.spyOn(onlinePlayersService, 'getSocketsForPlayer').mockReturnValue([ socket ]);
+      const spy = jest.spyOn(socket, 'emit');
+
+      await service.addPlayerBan(mockBan);
+      expect(spy).toHaveBeenCalledWith('profile update', { bans: [ mockBan ] });
     });
   });
 
   describe('#revokeBan()', () => {
-    let ban: any;
+    let mockBan: DocumentType<PlayerBan>;
 
-    beforeEach(() =>  {
+    beforeEach(async () =>  {
       const end = new Date();
       end.setHours(end.getHours() + 1);
 
-      ban = {
-        player: new Types.ObjectId(),
-        admin: new Types.ObjectId(),
+      mockBan = await playerBanModel.create({
+        player: new ObjectId(),
+        admin: new ObjectId(),
         start: new Date(),
         end,
         reason: 'just testing',
-        save: () => new Promise(resolve => resolve(null)),
-      };
+      });
     });
 
     it('should revoke the ban', async () => {
-      const spy = spyOn(playerBanModel, 'findById').and.returnValue(new Promise(resolve => resolve(ban)));
-      const saveSpy = spyOn(ban, 'save').and.callThrough();
-
-      await service.revokeBan('FAKE_BAN_ID');
-      expect(spy).toHaveBeenCalledWith('FAKE_BAN_ID');
-      expect(saveSpy).toHaveBeenCalled();
+      const ban = await service.revokeBan(mockBan.id);
+      expect(floor(ban.end.getTime() / 1000)).toEqual(floor(new Date().getTime() / 1000));
     });
 
     it('should emit the event', async done => {
       service.banRevoked.subscribe(playerId => {
-        expect(playerId).toEqual(ban.player.toString());
+        expect(playerId).toEqual(mockBan.player.toString());
         done();
       });
 
-      spyOn(playerBanModel, 'findById').and.returnValue(new Promise(resolve => resolve(ban)));
-      await service.revokeBan('FAKE_BAN_ID');
+      await service.revokeBan(mockBan.id);
     });
 
     it('should send discord notification', async () => {
-      const spy = spyOn(discordNotificationsService, 'notifyBanRevoked');
-      spyOn(playerBanModel, 'findById').and.returnValue(new Promise(resolve => resolve(ban)));
-      await service.revokeBan('FAKE_BAN_ID');
+      const spy = jest.spyOn(discordNotificationsService, 'notifyBanRevoked');
+      const ban = await service.revokeBan(mockBan.id);
       expect(spy).toHaveBeenCalledWith(ban);
     });
   });

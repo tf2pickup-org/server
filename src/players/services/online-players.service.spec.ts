@@ -24,6 +24,9 @@ describe('OnlinePlayersService', () => {
     playersGateway = module.get(PlayersGateway);
   });
 
+  beforeEach(() => jest.useFakeTimers());
+  afterEach(() => jest.useRealTimers());
+
   beforeEach(() => service.onModuleInit());
 
   it('should be defined', () => {
@@ -31,7 +34,6 @@ describe('OnlinePlayersService', () => {
   });
 
   it('should handle player connections and disconnections properly', done => {
-    jasmine.clock().install();
     expect(service.getSocketsForPlayer('FAKE_ID')).toEqual([]);
 
     const socket = { id: 'asdjklhuger', request: { user: { logged_in: true, id: 'FAKE_ID' } } };
@@ -44,11 +46,11 @@ describe('OnlinePlayersService', () => {
     playersGateway.playerDisconnected.next(socket);
     expect(service.getSocketsForPlayer('FAKE_ID')).toEqual([]);
 
-    service.playerLeft.subscribe(() => {
-      jasmine.clock().uninstall();
+    service.playerLeft.subscribe(playerId => {
+      expect(playerId).toEqual('FAKE_ID');
       done();
     });
 
-    jasmine.clock().tick(10 * 1000 + 1);
+    jest.runAllTimers();
   });
 });

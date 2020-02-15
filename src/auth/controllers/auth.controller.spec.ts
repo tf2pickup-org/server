@@ -3,6 +3,7 @@ import { AuthController } from './auth.controller';
 import { Environment } from '@/environment/environment';
 import { HttpAdapterHost } from '@nestjs/core';
 import { AuthService } from '../services/auth.service';
+import { BadRequestException } from '@nestjs/common/exceptions/bad-request.exception';
 
 class EnvironmentStub {
   clientUrl = '';
@@ -50,7 +51,7 @@ describe('Auth Controller', () => {
 
   describe('#refreshToken()', () => {
     it('should refresh both tokens and return them', async () => {
-      const spy = spyOn(authService, 'refreshTokens').and.callThrough();
+      const spy = jest.spyOn(authService, 'refreshTokens');
       const result = await controller.refreshToken('OLD_REFRESH_TOKEN');
       expect(spy).toHaveBeenCalledWith('OLD_REFRESH_TOKEN');
       expect(result).toEqual({
@@ -60,18 +61,18 @@ describe('Auth Controller', () => {
     });
 
     it('should reject if the old refresh token is not present', async () => {
-      await expectAsync(controller.refreshToken(undefined)).toBeRejectedWithError();
+      await expect(controller.refreshToken(undefined)).rejects.toThrow(BadRequestException);
     });
 
     it('should be rejected if the token is invalid', async () => {
       spyOn(authService, 'refreshTokens').and.throwError('invalid token');
-      await expectAsync(controller.refreshToken('OLD_REFRESH_TOKEN')).toBeRejectedWithError();
+      await expect(controller.refreshToken('OLD_REFRESH_TOKEN')).rejects.toThrow(BadRequestException)
     });
   });
 
   describe('#refreshWsToken()', () => {
     it('should generate ws token', async () => {
-      const spy = spyOn(authService, 'generateJwtToken').and.returnValue('FAKE_WS_TOKEN');
+      const spy = jest.spyOn(authService, 'generateJwtToken').mockImplementation(() => 'FAKE_WS_TOKEN');
       const result = await controller.refreshWsToken({ id: 'FAKE_USER_ID' });
       expect(spy).toHaveBeenCalledWith('ws', 'FAKE_USER_ID');
       expect(result).toEqual({ wsToken: 'FAKE_WS_TOKEN' });

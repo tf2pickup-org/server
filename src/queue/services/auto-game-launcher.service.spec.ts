@@ -55,9 +55,9 @@ describe('AutoGameLauncherService', () => {
   });
 
   it('should launch the game and reset the queue', async done => {
-    const resetSpy = spyOn(queueService, 'reset');
-    const createSpy = spyOn(gamesService, 'create').and.callThrough();
-    const launchSpy = spyOn(gamesService, 'launch').and.callThrough();
+    const resetSpy = jest.spyOn(queueService, 'reset');
+    const createSpy = jest.spyOn(gamesService, 'create');
+    const launchSpy = jest.spyOn(gamesService, 'launch');
     queueService.stateChange.next('launching');
 
     setImmediate(() => {

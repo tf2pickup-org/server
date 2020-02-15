@@ -29,8 +29,8 @@ describe('HallOfFame Controller', () => {
 
   describe('#getHallOfFame()', () => {
     it('should query games service', async () => {
-      const spy1 = spyOn(gamesService, 'getMostActivePlayers');
-      const spy2 = spyOn(gamesService, 'getMostActiveMedics');
+      const spy1 = jest.spyOn(gamesService, 'getMostActivePlayers');
+      const spy2 = jest.spyOn(gamesService, 'getMostActiveMedics');
       await controller.getHallOfFame();
       expect(spy1).toHaveBeenCalled();
       expect(spy2).toHaveBeenCalled();

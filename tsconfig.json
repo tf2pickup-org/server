@@ -13,13 +13,13 @@
     "baseUrl": "./",
     "incremental": true,
     "resolveJsonModule": true,
-    "types": ["jasmine"],
+    "types": ["jest"],
     "paths": {
-      "@/*": [ "src/*" ],
+      "@/*": [ "src/*" ]
     }
   },
   "exclude": [
     "node_modules",
-    "dist",
+    "dist"
   ]
 }

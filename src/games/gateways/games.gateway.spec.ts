@@ -33,7 +33,7 @@ describe('GamesGateway', () => {
 
   describe('#replacePlayer()', () => {
     it('should replace the player', async () => {
-      const spy = spyOn(playerSubstitutionService, 'replacePlayer').and.callThrough();
+      const spy = jest.spyOn(playerSubstitutionService, 'replacePlayer');
       const ret = await gateway.replacePlayer({ request: { user: { id: 'FAKE_REPLACEMENT_ID' } } }, { gameId: 'FAKE_GAME_ID', replaceeId: 'FAKE_REPLACEE_ID' });
       expect(spy).toHaveBeenCalledWith('FAKE_GAME_ID', 'FAKE_REPLACEE_ID', 'FAKE_REPLACEMENT_ID');
       expect(ret).toEqual(game as any);

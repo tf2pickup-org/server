@@ -129,21 +129,21 @@ describe('PlayerSubstitutionService', () => {
 
   describe('#substitutePlayer()', () => {
     it('should throw an error if the given game doesn\'t exist', async () => {
-      await expectAsync(service.substitutePlayer('wahtever', 'FAKE_PLAYER_1')).toBeRejectedWithError('no such game');
+      await expect(service.substitutePlayer('wahtever', 'FAKE_PLAYER_1')).rejects.toThrowError('no such game');
     });
 
     it('should throw an error if the given player does not exist', async () => {
-      spyOn(playersService, 'getById').and.returnValue(null);
-      await expectAsync(service.substitutePlayer('FAKE_GAME_ID', 'FAKE_PLAYER_4')).toBeRejectedWithError('no such player');
+      jest.spyOn(playersService, 'getById').mockResolvedValue(null);
+      await expect(service.substitutePlayer('FAKE_GAME_ID', 'FAKE_PLAYER_4')).rejects.toThrowError('no such player');
     });
 
     it('should throw an error if the given player has already been replaced', async () => {
       gamesService.game.slots[0].status = 'replaced';
-      await expectAsync(service.substitutePlayer('FAKE_GAME_ID', 'FAKE_PLAYER_1')).toBeRejectedWithError('this player has already been replaced');
+      await expect(service.substitutePlayer('FAKE_GAME_ID', 'FAKE_PLAYER_1')).rejects.toThrowError('this player has already been replaced');
     });
 
     it('should update the player status', async () => {
-      const spy = spyOn(gamesService.game, 'save');
+      const spy = jest.spyOn(gamesService.game, 'save');
       const game = await service.substitutePlayer('FAKE_GAME_ID', 'FAKE_PLAYER_1');
       expect(game).toEqual(gamesService.game as any);
       const tSlot = game.slots.find(s => s.playerId === 'FAKE_PLAYER_1');
@@ -152,20 +152,20 @@ describe('PlayerSubstitutionService', () => {
     });
 
     it('should emit the  event', async () => {
-      const spy = spyOn(gamesGateway, 'emitGameUpdated');
+      const spy = jest.spyOn(gamesGateway, 'emitGameUpdated');
       const game = await service.substitutePlayer('FAKE_GAME_ID', 'FAKE_PLAYER_1');
       expect(spy).toHaveBeenCalledWith(game);
     });
 
     it('should reject if the game is no longer active', async () => {
       const game = { ...mockGame, state: 'ended' };
-      spyOn(gamesService, 'getById').and.returnValue(game as any);
+      jest.spyOn(gamesService, 'getById').mockResolvedValue(game);
 
-      expectAsync(service.substitutePlayer('FAKE_GAME_ID', 'FAKE_PLAYER_1')).toBeRejectedWithError('the game has already ended');
+      await expect(service.substitutePlayer('FAKE_GAME_ID', 'FAKE_PLAYER_1')).rejects.toThrowError('the game has already ended');
     });
 
     it('should notify on discord', async () => {
-      const spy = spyOn(discordNotificationsService, 'notifySubstituteIsNeeded');
+      const spy = jest.spyOn(discordNotificationsService, 'notifySubstituteIsNeeded');
       await service.substitutePlayer('FAKE_GAME_ID', 'FAKE_PLAYER_1');
       expect(spy).toHaveBeenCalledWith({
         gameId: 'FAKE_GAME_ID',
@@ -176,7 +176,7 @@ describe('PlayerSubstitutionService', () => {
     });
 
     it('should call gateway', async () => {
-      const spy = spyOn(queueGateway, 'updateSubstituteRequests');
+      const spy = jest.spyOn(queueGateway, 'updateSubstituteRequests');
       await service.substitutePlayer('FAKE_GAME_ID', 'FAKE_PLAYER_1');
       expect(spy).toHaveBeenCalled();
     });
@@ -194,21 +194,21 @@ describe('PlayerSubstitutionService', () => {
     });
 
     it('should throw an error if the given game does not exist', async () => {
-      await expectAsync(service.cancelSubstitutionRequest('asdf34qfwdsaf', 'FAKE_PLAYER_1')).toBeRejectedWithError('no such game');
+      await expect(service.cancelSubstitutionRequest('asdf34qfwdsaf', 'FAKE_PLAYER_1')).rejects.toThrowError('no such game');
     });
 
     it('should throw an error if the given player does not exist', async () => {
-      spyOn(playersService, 'getById').and.returnValue(null);
-      await expectAsync(service.cancelSubstitutionRequest('FAKE_GAME_ID', 'FAKE_PLAYER_4')).toBeRejectedWithError('no such player');
+      jest.spyOn(playersService, 'getById').mockResolvedValue(null);
+      await expect(service.cancelSubstitutionRequest('FAKE_GAME_ID', 'FAKE_PLAYER_4')).rejects.toThrowError('no such player');
     });
 
     it('should throw an error if the given player has already been replaced', async () => {
       gamesService.game.slots[0].status = 'replaced';
-      await expectAsync(service.cancelSubstitutionRequest('FAKE_GAME_ID', 'FAKE_PLAYER_1')).toBeRejectedWithError('this player has already been replaced');
+      await expect(service.cancelSubstitutionRequest('FAKE_GAME_ID', 'FAKE_PLAYER_1')).rejects.toThrowError('this player has already been replaced');
     });
 
     it('should update the player status', async () => {
-      const spy = spyOn(gamesService.game, 'save');
+      const spy = jest.spyOn(gamesService.game, 'save');
       const game = await service.cancelSubstitutionRequest('FAKE_GAME_ID', 'FAKE_PLAYER_1');
       expect(game).toEqual(gamesService.game as any);
       expect(game.slots[0].status).toEqual('active');
@@ -216,19 +216,19 @@ describe('PlayerSubstitutionService', () => {
     });
 
     it('should emit the event', async () => {
-      const spy = spyOn(gamesGateway, 'emitGameUpdated');
+      const spy = jest.spyOn(gamesGateway, 'emitGameUpdated');
       const game = await service.cancelSubstitutionRequest('FAKE_GAME_ID', 'FAKE_PLAYER_1');
       expect(spy).toHaveBeenCalledWith(game);
     });
 
     it('should reject if the game is no longer active', async () => {
       gamesService.game.state = 'ended';
-      expectAsync(service.cancelSubstitutionRequest('FAKE_GAME_ID', 'FAKE_PLAYER_1')).toBeRejectedWithError('the game has already ended');
+      await expect(service.cancelSubstitutionRequest('FAKE_GAME_ID', 'FAKE_PLAYER_1')).rejects.toThrowError('the game has already ended');
     });
 
     it('should call gateway', async () => {
-      const spy = spyOn(queueGateway, 'updateSubstituteRequests');
-      const game = await service.cancelSubstitutionRequest('FAKE_GAME_ID', 'FAKE_PLAYER_1');
+      const spy = jest.spyOn(queueGateway, 'updateSubstituteRequests');
+      await service.cancelSubstitutionRequest('FAKE_GAME_ID', 'FAKE_PLAYER_1');
       expect(spy).toHaveBeenCalled();
     });
 
@@ -245,7 +245,7 @@ describe('PlayerSubstitutionService', () => {
     });
 
     it('should replace the player', async () => {
-      const spy = spyOn(gamesService.game, 'save');
+      const spy = jest.spyOn(gamesService.game, 'save');
       // replace player 1 with player 3
       const game = await service.replacePlayer('FAKE_GAME_ID', 'FAKE_PLAYER_1', 'FAKE_PLAYER_3');
       expect(game).toEqual(gamesService.game as any);
@@ -259,13 +259,13 @@ describe('PlayerSubstitutionService', () => {
     });
 
     it('should emit the event', async () => {
-      const spy = spyOn(gamesGateway, 'emitGameUpdated');
+      const spy = jest.spyOn(gamesGateway, 'emitGameUpdated');
       const game = await service.replacePlayer('FAKE_GAME_ID', 'FAKE_PLAYER_1', 'FAKE_PLAYER_3');
       expect(spy).toHaveBeenCalledWith(game);
     });
 
     it('should replace the player in-game', async done => {
-      const spy = spyOn(gameRuntimeService, 'replacePlayer');
+      const spy = jest.spyOn(gameRuntimeService, 'replacePlayer');
       await service.replacePlayer('FAKE_GAME_ID', 'FAKE_PLAYER_1', 'FAKE_PLAYER_3');
       setTimeout(() => {
         expect(spy).toHaveBeenCalledWith('FAKE_GAME_ID', 'FAKE_PLAYER_1', jasmine.objectContaining({ playerId: 'FAKE_PLAYER_3' }));
@@ -276,22 +276,20 @@ describe('PlayerSubstitutionService', () => {
     it('should reject if the given player is banned', async () => {
       const end = new Date();
       end.setHours(end.getHours() + 1);
-      const spy = spyOn(playerBansService, 'getPlayerActiveBans').and.returnValue([
+      const spy = jest.spyOn(playerBansService, 'getPlayerActiveBans').mockResolvedValue([
         { player: 'FAKE_PLAYER_ID', admin: 'FAKE_ADMIN_ID', start: new Date(), end },
-      ]);
+      ] as never);
 
-      await expectAsync(service.replacePlayer('FAKE_GAME_ID', 'FAKE_PLAYER_1', 'FAKE_PLAYER_3'))
-        .toBeRejectedWithError('player is banned');
+      await expect(service.replacePlayer('FAKE_GAME_ID', 'FAKE_PLAYER_1', 'FAKE_PLAYER_3')).rejects.toThrowError('player is banned');
       expect(spy).toHaveBeenCalledWith('FAKE_PLAYER_3');
     });
 
     it('should reject if replacee is marked as active', async () => {
-      await expectAsync(service.replacePlayer('FAKE_GAME_ID', 'FAKE_PLAYER_2', 'FAKE_PLAYER_3'))
-        .toBeRejectedWithError('the replacee is marked as active');
+      await expect(service.replacePlayer('FAKE_GAME_ID', 'FAKE_PLAYER_2', 'FAKE_PLAYER_3')).rejects.toThrowError('the replacee is marked as active');
     });
 
     it('should mark the slot back as active if a player is subbing himself', async () => {
-      const spy = spyOn(gamesService.game, 'save');
+      const spy = jest.spyOn(gamesService.game, 'save');
       const game = await service.replacePlayer('FAKE_GAME_ID', 'FAKE_PLAYER_1', 'FAKE_PLAYER_1');
       expect(game).toEqual(gamesService.game as any);
       const slot = game.slots.find(s => s.playerId === 'FAKE_PLAYER_1');
@@ -302,30 +300,31 @@ describe('PlayerSubstitutionService', () => {
 
     it('should reject if the given player has already been replaced', async () => {
       await service.replacePlayer('FAKE_GAME_ID', 'FAKE_PLAYER_1', 'FAKE_PLAYER_3');
-      expectAsync(service.replacePlayer('FAKE_GAME_ID', 'FAKE_PLAYER_1', 'FAKE_PLAYER_3'))
-        .toBeRejectedWithError('this player has already been replaced');
+      await expect(service.replacePlayer('FAKE_GAME_ID', 'FAKE_PLAYER_1', 'FAKE_PLAYER_3')).rejects
+        .toThrowError('this player has already been replaced');
     });
 
     it('should reject if the given player is involved in another game', async () => {
-      spyOn(gamesService, 'getPlayerActiveGame').and.returnValue({ id: 'FAKE_GAME_ID' } as any);
-      expectAsync(service.replacePlayer('FAKE_GAME_ID', 'FAKE_PLAYER_2', 'FAKE_PLAYER_3'))
-        .toBeRejectedWithError('player is involved in a currently running game');
+      jest.spyOn(gamesService, 'getPlayerActiveGame').mockResolvedValue({ id: 'FAKE_GAME_ID_2' });
+      await expect(service.replacePlayer('FAKE_GAME_ID', 'FAKE_PLAYER_1', 'FAKE_PLAYER_3')).rejects
+        .toThrowError('player is involved in a currently running game');
     });
 
     it('should call gateway', async () => {
-      const spy = spyOn(queueGateway, 'updateSubstituteRequests');
+      const spy = jest.spyOn(queueGateway, 'updateSubstituteRequests');
       await service.replacePlayer('FAKE_GAME_ID', 'FAKE_PLAYER_1', 'FAKE_PLAYER_3');
       expect(spy).toHaveBeenCalled();
     });
 
     it('should reject if the replacement player does not exist', async () => {
-      await expectAsync(service.replacePlayer('FAKE_GAME_ID', 'FAKE_PLAYER_1', 'some nonexistent player id')).toBeRejectedWithError('no such player');
+      await expect(service.replacePlayer('FAKE_GAME_ID', 'FAKE_PLAYER_1', 'some nonexistent player id')).rejects
+        .toThrowError('no such player');
     });
 
     it('should reject if the replacement player is involved in an active game', async () => {
-      spyOn(gamesService, 'getPlayerActiveGame').and.returnValue(new Promise(resolve => resolve(mockGame)));
-      await expectAsync(service.replacePlayer('FAKE_GAME_ID', 'FAKE_PLAYER_1', 'FAKE_PLAYER_3'))
-        .toBeRejectedWithError('player is involved in a currently running game');
+      jest.spyOn(gamesService, 'getPlayerActiveGame').mockResolvedValue(mockGame);
+      await expect(service.replacePlayer('FAKE_GAME_ID', 'FAKE_PLAYER_1', 'FAKE_PLAYER_3')).rejects
+        .toThrowError('player is involved in a currently running game');
     });
   });
 

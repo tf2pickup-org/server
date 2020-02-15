@@ -77,24 +77,24 @@ describe('GameLauncherService', () => {
   describe('#launch()', () => {
     it('should throw an error if the given game does not exist', async () => {
       spyOn(gamesService, 'getById').and.returnValue(null);
-      await expectAsync(service.launch('FAKE_GAME_ID')).toBeRejectedWithError('no such game');
+      await expect(service.launch('FAKE_GAME_ID')).rejects.toThrowError('no such game');
     });
 
     it('should find a free server', async () => {
-      const spy = spyOn(gameServersService, 'findFreeGameServer').and.callThrough();
+      const spy = jest.spyOn(gameServersService, 'findFreeGameServer');
       await service.launch('FAKE_GAME_ID');
       expect(spy).toHaveBeenCalled();
     });
 
     it('should take the game server', async () => {
-      const spy = spyOn(gameServersService, 'takeServer');
+      const spy = jest.spyOn(gameServersService, 'takeServer');
       const ret = await service.launch('FAKE_GAME_ID');
       expect(spy).toHaveBeenCalledWith('FAKE_GAME_SERVER_ID');
       expect(ret.gameServer).toEqual(mockGameServer as any);
     });
 
     it('should configure the game server', async () => {
-      const spy = spyOn(serverConfiguratorService, 'configureServer').and.callThrough();
+      const spy = jest.spyOn(serverConfiguratorService, 'configureServer');
       const ret = await service.launch('FAKE_GAME_ID');
       expect(spy).toHaveBeenCalledWith(jasmine.objectContaining({ id: mockGameServer.id }), jasmine.objectContaining({ id: mockGame.id }));
       expect(ret.connectString).toEqual('FAKE_CONNECT_STRING');
@@ -109,7 +109,7 @@ describe('GameLauncherService', () => {
 
   describe('#launchOrphanedGames()', () => {
     it('should launch orphaned games', async () => {
-      const spy = spyOn(service, 'launch');
+      const spy = jest.spyOn(service, 'launch');
       await service.launchOrphanedGames();
       expect(spy).toHaveBeenCalledWith('FAKE_GAME_ID');
     });

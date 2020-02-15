@@ -76,7 +76,7 @@ describe('QueueGateway', () => {
 
   describe('#joinQueue()', () => {
     it('should join the queue', async () => {
-      const spy = spyOn(queueService, 'join').and.callThrough();
+      const spy = jest.spyOn(queueService, 'join');
       const ret = await gateway.joinQueue({ request: { user: { id: 'FAKE_ID' } } }, { slotId: 5 });
       expect(spy).toHaveBeenCalledWith(5, 'FAKE_ID');
       expect(ret).toEqual([ { id: 5, playerId: 'FAKE_ID' } ] as any);
@@ -85,7 +85,7 @@ describe('QueueGateway', () => {
 
   describe('#leaveQueue()', () => {
     it('should leave the queue', () => {
-      const spy = spyOn(queueService, 'leave').and.callThrough();
+      const spy = jest.spyOn(queueService, 'leave');
       const ret = gateway.leaveQueue({ request: { user: { id: 'FAKE_ID' } } });
       expect(spy).toHaveBeenCalledWith('FAKE_ID');
       expect(ret).toEqual({ id: 0, playerId: 'FAKE_ID' } as any);
@@ -94,7 +94,7 @@ describe('QueueGateway', () => {
 
   describe('#playerReady()', () => {
     it('should ready up the player', () => {
-      const spy = spyOn(queueService, 'readyUp').and.callThrough();
+      const spy = jest.spyOn(queueService, 'readyUp');
       const ret = gateway.playerReady({ request: { user: { id: 'FAKE_ID' } } });
       expect(spy).toHaveBeenCalledWith('FAKE_ID');
       expect(ret).toEqual({ id: 0, playerId: 'FAKE_ID', ready: true } as any);
@@ -102,16 +102,16 @@ describe('QueueGateway', () => {
   });
 
   describe('#markFriend()', () => {
-    it('should mark friend', () => {
-      const spy = spyOn(friendsService, 'markFriend').and.callThrough();
-      gateway.markFriend({ request: { user: { id: 'FAKE_ID' } } }, { friendPlayerId: 'FAKE_FRIEND_ID' });
+    it('should mark friend', async () => {
+      const spy = jest.spyOn(friendsService, 'markFriend');
+      const ret = await gateway.markFriend({ request: { user: { id: 'FAKE_ID' } } }, { friendPlayerId: 'FAKE_FRIEND_ID' });
       expect(spy).toHaveBeenCalledWith('FAKE_ID', 'FAKE_FRIEND_ID');
     });
   });
 
   describe('#voteForMap()', () => {
     it('should vote for the map', () => {
-      const spy = spyOn(mapVoteService, 'voteForMap').and.callThrough();
+      const spy = jest.spyOn(mapVoteService, 'voteForMap');
       const ret = gateway.voteForMap({ request: { user: { id: 'FAKE_ID' } } }, { map: 'cp_badlands' });
       expect(spy).toHaveBeenCalledWith('FAKE_ID', 'cp_badlands');
       expect(ret).toEqual('cp_badlands');
@@ -120,7 +120,7 @@ describe('QueueGateway', () => {
 
   describe('#emitSlotsUpdate()', () => {
     it('should emit the event', () => {
-      const spy = spyOn(socket, 'emit');
+      const spy = jest.spyOn(socket, 'emit');
       const slot = { id: 0, playerId: 'FAKE_ID', ready: true, gameClass: 'soldier', friend: null };
       gateway.emitSlotsUpdate([slot]);
       expect(spy).toHaveBeenCalledWith('queue slots update', [slot]);
@@ -129,7 +129,7 @@ describe('QueueGateway', () => {
 
   describe('#emitStateUpdate()', () => {
     it('should emit the event', () => {
-      const spy = spyOn(socket, 'emit');
+      const spy = jest.spyOn(socket, 'emit');
       gateway.emitStateUpdate('launching');
       expect(spy).toHaveBeenCalledWith('queue state update', 'launching');
     });
@@ -137,7 +137,7 @@ describe('QueueGateway', () => {
 
   describe('#emitVoteResultsUpdate()', () => {
     it('should emit the event', () => {
-      const spy = spyOn(socket, 'emit');
+      const spy = jest.spyOn(socket, 'emit');
       gateway.emitVoteResultsUpdate([]);
       expect(spy).toHaveBeenCalledWith('map vote results update', jasmine.any(Array));
     });
@@ -145,7 +145,7 @@ describe('QueueGateway', () => {
 
   describe('#updateSubstituteRequests()', () => {
     it('should emit requests over the ws', async () => {
-      const spy = spyOn(socket, 'emit');
+      const spy = jest.spyOn(socket, 'emit');
       await gateway.updateSubstituteRequests();
       expect(spy).toHaveBeenCalledWith('substitute requests update', queueAnnouncementsService.requests);
     });

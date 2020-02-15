@@ -85,26 +85,26 @@ describe('GameRuntimeService', () => {
 
   describe('#reconfigure()', () => {
     it('should configure the server again', async () => {
-      const spy = spyOn(serverConfiguratorService, 'configureServer').and.callThrough();
+      const spy = jest.spyOn(serverConfiguratorService, 'configureServer');
       const ret = await service.reconfigure('FAKE_GAME_ID');
       expect(spy).toHaveBeenCalledWith(jasmine.objectContaining({ id: mockGameServer.id }), jasmine.objectContaining({ id: mockGame.id }));
       expect(ret.connectString).toEqual('FAKE_CONNECT_STRING');
     });
 
     it('should throw an error if the given game does not exist', async () => {
-      spyOn(gamesService, 'getById').and.returnValue(null);
-      await expectAsync(service.reconfigure('FAKE_GAME_ID')).toBeRejectedWithError('no such game');
+      jest.spyOn(gamesService, 'getById').mockResolvedValue(null);
+      await expect(service.reconfigure('FAKE_GAME_ID')).rejects.toThrowError('no such game');
     });
 
     it('should throw an error if the game has no game server assigned', async () => {
       const retGame = { ...mockGame, gameServer: null };
-      spyOn(gamesService, 'getById').and.returnValue(retGame as any);
-      await expectAsync(service.reconfigure('FAKE_GAME_ID')).toBeRejectedWithError('this game has no server assigned');
+      jest.spyOn(gamesService, 'getById').mockResolvedValue(retGame);
+      await expect(service.reconfigure('FAKE_GAME_ID')).rejects.toThrowError('this game has no server assigned');
     });
 
     it('should handle RCON errors', async () => {
-      spyOn(serverConfiguratorService, 'configureServer').and.throwError('something something');
-      await expectAsync(service.reconfigure('FAKE_GAME_ID')).not.toBeRejected();
+      jest.spyOn(serverConfiguratorService, 'configureServer').mockRejectedValue('something something');;
+      await expect(service.reconfigure('FAKE_GAME_ID')).resolves.toBeTruthy();
     });
   });
 
@@ -116,40 +116,40 @@ describe('GameRuntimeService', () => {
     });
 
     it('should clean up the game server', async () => {
-      const cleanupSpy = spyOn(serverConfiguratorService, 'cleanupServer');
-      const releaseSpy = spyOn(gameServersService, 'releaseServer');
+      const cleanupSpy = jest.spyOn(serverConfiguratorService, 'cleanupServer');
+      const releaseSpy = jest.spyOn(gameServersService, 'releaseServer');
       await service.forceEnd('FAKE_GAME_ID');
       expect(cleanupSpy).toHaveBeenCalledWith(mockGameServer);
       expect(releaseSpy).toHaveBeenCalledWith('FAKE_GAME_SERVER_ID');
     });
 
     it('should throw an error if the given game does not exist', async () => {
-      spyOn(gamesService, 'getById').and.returnValue(null);
-      await expectAsync(service.forceEnd('FAKE_GAME_ID')).toBeRejectedWithError('no such game');
+      jest.spyOn(gamesService, 'getById').mockResolvedValue(null);
+      await expect(service.forceEnd('FAKE_GAME_ID')).rejects.toThrowError('no such game');
     });
 
     it('should handle RCON erors', async () => {
-      spyOn(serverConfiguratorService, 'cleanupServer').and.throwError('la la la');
-      await expectAsync(service.forceEnd('FAKE_GAME_ID')).not.toBeRejected();
+      jest.spyOn(serverConfiguratorService, 'cleanupServer').mockRejectedValue('error');
+      await expect(service.forceEnd('FAKE_GAME_ID')).resolves.toBeTruthy();
     });
   });
 
   describe('#replacePlayer()', () => {
-    it('should execute the correct commands');
+    it.todo('should execute the correct commands');
 
     it('should throw an error if the given game does not exist', async () => {
-      spyOn(gamesService, 'getById').and.returnValue(null);
-      await expectAsync(service.replacePlayer('FAKE_GAME_ID', 'FAKE_REPLACEE_ID', null)).toBeRejectedWithError('no such game');
+      jest.spyOn(gamesService, 'getById').mockResolvedValue(null);
+      await expect(service.replacePlayer('FAKE_GAME_ID', 'FAKE_REPLACEE_ID', null)).rejects.toThrowError('no such game');
     });
 
     it('should throw an error if the game has no game server assigned', async () => {
-      spyOn(gamesService, 'getById').and.returnValue(new Promise(resolve => resolve({ ...mockGame, gameServer: null })));
-      await expectAsync(service.replacePlayer('FAKE_GAME_ID', 'FAKE_REPLACEE_ID', null)).toBeRejectedWithError('this game has no server assigned');
+      jest.spyOn(gamesService, 'getById').mockResolvedValue({ ...mockGame, gameServer: null });
+      await expect(service.replacePlayer('FAKE_GAME_ID', 'FAKE_REPLACEE_ID', null)).rejects.toThrowError('this game has no server assigned');
     });
 
     it('should close the RCON connection', async () => {
       const rcon = new RconStub();
-      spyOn(rconFactoryService, 'createRcon').and.returnValue(new Promise(resolve => resolve(rcon)));
+      jest.spyOn(rconFactoryService, 'createRcon').mockResolvedValue(rcon);
       const spy = spyOn(rcon, 'end');
 
       await service.replacePlayer('FAKE_GAME_ID', 'FAKE_REPLACEE_ID', { playerId: 'FAKE_PLAYER_ID', teamId: '0', gameClass: 'soldier' });

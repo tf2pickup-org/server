@@ -67,7 +67,7 @@ describe('AuthService', () => {
   describe('#generateJwtToken()', () => {
     describe('auth', () => {
       it('should retrieve the signing auth key from the key store', async () => {
-        const spy = spyOn(keyStoreService, 'getKey').and.callThrough();
+        const spy = jest.spyOn(keyStoreService, 'getKey');
         await service.generateJwtToken('auth', 'FAKE_USER_ID');
         expect(spy).toHaveBeenCalledWith('auth', 'sign');
       });
@@ -101,7 +101,7 @@ describe('AuthService', () => {
 
     describe('ws', () => {
       it('should retrieve the ws secret from the key store', async () => {
-        const spy = spyOn(keyStoreService, 'getKey').and.callThrough();
+        const spy = jest.spyOn(keyStoreService, 'getKey');
         await service.generateJwtToken('ws', 'FAKE_USER_ID');
         expect(spy).toHaveBeenCalledWith('ws', jasmine.any(String));
       });
@@ -116,7 +116,7 @@ describe('AuthService', () => {
 
   describe('#refreshTokens()', () => {
     it('should throw an error if the refresh token is not in the database', async () => {
-      await expectAsync(service.refreshTokens('some fake token')).toBeRejectedWithError('invalid token');
+      await expect(service.refreshTokens('some fake token')).rejects.toThrowError('invalid token');
     });
 
     it('should throw an error if the refresh token has expired', async () => {
@@ -128,7 +128,7 @@ describe('AuthService', () => {
       const token = sign({ id: 'FAKE_USER_ID', iat: Math.floor(oneWeekAgo.getDate() / 1000) - 60 }, key, { algorithm: 'ES512', expiresIn: '7d' });
       await refreshTokenModel.create({ value: token });
 
-      await expectAsync(service.refreshTokens(token)).toBeRejectedWithError('jwt expired');
+      await expect(service.refreshTokens(token)).rejects.toThrowError('jwt expired');
     });
 
     it('should throw an error unless the refresh token matches', async () => {
@@ -136,7 +136,7 @@ describe('AuthService', () => {
       const token = sign({ id: 'FAKE_USER_ID' }, key.privateKey.export({ format: 'pem', type: 'pkcs8' }), { algorithm: 'ES512', expiresIn: '7d' });
       await refreshTokenModel.create({ value: token });
 
-      await expectAsync(service.refreshTokens(token)).toBeRejectedWithError('invalid signature');
+      await expect(service.refreshTokens(token)).rejects.toThrowError('invalid signature');
     });
 
     it('should generate auth and refresh tokens', async () => {

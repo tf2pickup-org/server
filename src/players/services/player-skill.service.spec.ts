@@ -1,21 +1,12 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { PlayerSkillService } from './player-skill.service';
-import { getModelToken } from 'nestjs-typegoose';
+import { getModelToken, TypegooseModule } from 'nestjs-typegoose';
 import { PlayersService } from './players.service';
-
-const skill = {
-  player: 'FAKE_ID',
-  skill: {
-    scout: 3,
-    medic: 2,
-  },
-  save: () => null,
-};
-
-const playerSkillModel = {
-  find: (criteria: any) => new Promise(resolve => resolve([])),
-  findOne: (criteria: any) => skill,
-};
+import { MongoMemoryServer } from 'mongodb-memory-server';
+import { typegooseTestingModule } from '@/utils/testing-typegoose-module';
+import { PlayerSkill } from '../models/player-skill';
+import { ReturnModelType, DocumentType } from '@typegoose/typegoose';
+import { ObjectId } from 'mongodb';
 
 class PlayersServiceStub {
   getById(id: string) { return null; }
@@ -23,18 +14,41 @@ class PlayersServiceStub {
 
 describe('PlayerSkillService', () => {
   let service: PlayerSkillService;
+  let mongod: MongoMemoryServer;
+  let playerSkillModel: ReturnModelType<typeof PlayerSkill>;
+  let mockPlayerId: string;
+  let mockPlayerSkill: DocumentType<PlayerSkill>;
+
+  beforeAll(() => mongod = new MongoMemoryServer());
+  afterAll(async () => await mongod.stop());
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
+      imports: [
+        typegooseTestingModule(mongod),
+        TypegooseModule.forFeature([ PlayerSkill ]),
+      ],
       providers: [
         PlayerSkillService,
-        { provide: getModelToken('PlayerSkill'), useValue: playerSkillModel },
         { provide: PlayersService, useClass: PlayersServiceStub },
       ],
     }).compile();
 
     service = module.get<PlayerSkillService>(PlayerSkillService);
+    playerSkillModel = module.get(getModelToken('PlayerSkill'));
   });
+
+  beforeEach(async () => {
+    mockPlayerId = new ObjectId().toString();
+    mockPlayerSkill = await playerSkillModel.create({
+      player: mockPlayerId,
+      skill: {
+        soldier: 4,
+      },
+    });
+  });
+
+  afterEach(async () => await playerSkillModel.deleteMany({ }));
 
   it('should be defined', () => {
     expect(service).toBeDefined();
@@ -42,34 +56,28 @@ describe('PlayerSkillService', () => {
 
   describe('#getAll()', () => {
     it('should retrieve all players skills', async () => {
-      const spy = spyOn(playerSkillModel, 'find').and.callThrough();
-      await service.getAll();
-      expect(spy).toHaveBeenCalledWith({ });
+      const ret = await service.getAll();
+      expect(ret.length).toBe(1);
     });
   });
 
   describe('#getPlayerSkill()', () => {
     it('should retrieve player skill', async () => {
-      const spy = spyOn(playerSkillModel, 'findOne').and.callThrough();
-      const ret = await service.getPlayerSkill('FAKE_ID');
-      expect(spy).toHaveBeenCalledWith({ player: 'FAKE_ID' });
-      expect(ret).toEqual(skill as any);
+      const ret = await service.getPlayerSkill(mockPlayerId);
+      expect(ret.toObject()).toEqual(mockPlayerSkill.toObject());
     });
   });
 
   describe('#setPlayerSkill()', () => {
     it('should set player skill', async () => {
-      const spyFindOne = spyOn(playerSkillModel, 'findOne').and.callThrough();
-      const spySave = spyOn(skill, 'save').and.returnValue(skill);
-      const ret = await service.setPlayerSkill('FAKE_ID', { scout: 2 });
-      expect(spyFindOne).toHaveBeenCalledWith({ player: 'FAKE_ID' });
-      expect(spySave).toHaveBeenCalled();
-      expect(ret.skill).toEqual(new Map([['scout', 2]]));
+      const ret = await service.setPlayerSkill(mockPlayerId, { soldier: 2 });
+      expect(ret.toObject()).toMatchObject({
+        skill: new Map([['soldier', 2]]),
+      });
     });
 
     it('should fail if there is no such player', async () => {
-      spyOn(playerSkillModel, 'findOne').and.returnValue(null);
-      expectAsync(service.setPlayerSkill('FAKE_ID', { scout: 1 })).toBeRejectedWithError('no such player');
+      await expect(service.setPlayerSkill(new ObjectId().toString(), { scout: 1 })).rejects.toThrowError('no such player');
     });
   });
 });

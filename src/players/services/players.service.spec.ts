@@ -2,26 +2,35 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { PlayersService } from './players.service';
 import { Environment } from '@/environment/environment';
 import { Etf2lProfileService } from './etf2l-profile.service';
-import { getModelToken } from 'nestjs-typegoose';
+import { getModelToken, TypegooseModule } from 'nestjs-typegoose';
 import { SteamProfile } from '../models/steam-profile';
 import { GamesService } from '@/games/services/games.service';
 import { OnlinePlayersService } from './online-players.service';
 import { DiscordNotificationsService } from '@/discord/services/discord-notifications.service';
 import { ConfigService } from '@nestjs/config';
 import { Etf2lProfile } from '../models/etf2l-profile';
+import { ReturnModelType, DocumentType } from '@typegoose/typegoose';
+import { Player } from '../models/player';
+import { typegooseTestingModule } from '@/utils/testing-typegoose-module';
+import { MongoMemoryServer } from 'mongodb-memory-server';
 
 class EnvironmentStub {
   superUser = null;
 }
 
 class Etf2lProfileServiceStub {
-  fetchPlayerInfo(steamId: string): any {
-    return {
-      id: 12345,
-      name: 'FAKE_ETF2L_NAME',
-      country: 'SOME_COUNTRY',
-      classes: [],
-    };
+  fetchPlayerInfo(steamId: string): Promise<Etf2lProfile> {
+    return Promise.resolve({
+      // http://api.etf2l.org/player/112758
+      bans: null,
+      classes: [
+        'Soldier',
+        'Medic',
+      ],
+      country: 'Poland',
+      id: 112758,
+      name: 'maly',
+    });
   }
 }
 
@@ -37,12 +46,6 @@ class GamesServiceStub {
   getPlayerPlayedClassCount(playerId: string) { return this.classCount; }
 }
 
-const playerModel = {
-  findById: (id: string) => null,
-  findOne: (obj: any) => null,
-  create: (object: any) => null,
-};
-
 class OnlinePlayersServiceStub {
   getSocketsForPlayer(playerId: string) { return []; }
 }
@@ -57,19 +60,28 @@ class ConfigServiceStub {
 
 describe('PlayersService', () => {
   let service: PlayersService;
+  let mongod: MongoMemoryServer;
+  let playerModel: ReturnModelType<typeof Player>;
+  let mockPlayer: DocumentType<Player>;
   let environment: EnvironmentStub;
   let etf2lProfileService: Etf2lProfileServiceStub;
   let gamesService: GamesServiceStub;
   let onlinePlayersService: OnlinePlayersServiceStub;
   let discordNotificationsService: DiscordNotificationsServiceStub;
 
+  beforeAll(() => mongod = new MongoMemoryServer());
+  afterAll(async () => await mongod.stop());
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
+      imports: [
+        typegooseTestingModule(mongod),
+        TypegooseModule.forFeature([Player]),
+      ],
       providers: [
         PlayersService,
         { provide: Environment, useClass: EnvironmentStub },
         { provide: Etf2lProfileService, useClass: Etf2lProfileServiceStub },
-        { provide: getModelToken('Player'), useValue: playerModel },
         { provide: GamesService, useClass: GamesServiceStub },
         { provide: OnlinePlayersService, useClass: OnlinePlayersServiceStub },
         { provide: DiscordNotificationsService, useClass: DiscordNotificationsServiceStub },
@@ -78,6 +90,7 @@ describe('PlayersService', () => {
     }).compile();
 
     service = module.get<PlayersService>(PlayersService);
+    playerModel = module.get(getModelToken('Player'));
     environment = module.get(Environment);
     etf2lProfileService = module.get(Etf2lProfileService);
     gamesService = module.get(GamesService);
@@ -85,43 +98,54 @@ describe('PlayersService', () => {
     discordNotificationsService = module.get(DiscordNotificationsService);
   });
 
+  beforeEach(async () => {
+    mockPlayer = await playerModel.create({
+      name: 'FAKE_PLAYER_NAME',
+      steamId: 'FAKE_STEAM_ID',
+    });
+  });
+
+  afterEach(async () => await playerModel.deleteMany({ }));
+
   it('should be defined', () => {
     expect(service).toBeDefined();
   });
 
   describe('#getById()', () => {
-    it('should query playerModel', () => {
-      const spy = spyOn(playerModel, 'findById');
-      service.getById('FAKE_ID');
-      expect(spy).toHaveBeenCalledWith('FAKE_ID');
+    it('should retrieve the player from the database', async () => {
+      const player = await service.getById(mockPlayer.id);
+      expect(player.toObject()).toEqual(mockPlayer.toObject());
     });
   });
 
   describe('#findBySteamId()', () => {
-    it('should query playerModel', () => {
-      const spy = spyOn(playerModel, 'findOne');
-      service.findBySteamId('FAKE_STEAM_ID');
-      expect(spy).toHaveBeenCalledWith({ steamId: 'FAKE_STEAM_ID' });
+    it('should query playerModel', async () => {
+      const player = await service.findBySteamId('FAKE_STEAM_ID');
+      expect(player.toObject()).toEqual(mockPlayer.toObject());
     });
   });
 
   describe('#createPlayer()', () => {
-    const steamProfile: SteamProfile = {
+    const mockSteamProfile: SteamProfile = {
       provider: 'steam',
-      id: 'FAKE_STEAM_ID',
+      id: 'FAKE_STEAM_ID_2',
       displayName: 'FAKE_DISPLAY_NAME',
       photos: [{ value: 'FAKE_AVATAR_URL' }],
     };
 
-    it('should deny creating profiles without ETF2L profile', async () => {
-      const spy = spyOn(etf2lProfileService, 'fetchPlayerInfo').and.throwError('no ETF2L profile');
-      await expectAsync(service.createPlayer(steamProfile)).toBeRejected();
-      expect(spy).toHaveBeenCalledWith('FAKE_STEAM_ID');
+    describe('when an ETFL2 profile doesn\'t exist', () => {
+      beforeEach(() => {
+        jest.spyOn(etf2lProfileService, 'fetchPlayerInfo').mockRejectedValue(new Error('no etf2l profile'));
+      });
+
+      it('should deny creating tf2pickup.pl profile', async () => {
+        await expect(service.createPlayer(mockSteamProfile)).rejects.toThrowError('no etf2l profile');
+      });
     });
 
-    it('should deny creating profiles for players with ETF2L bans', async () => {
+    describe('when the user has ETFL2 ban', () => {
       // http://api.etf2l.org/player/129205
-      const blacklistedProfile: Partial<Etf2lProfile> = {
+      const blacklistedProfile: Etf2lProfile = {
         bans: [
           {
               end: 4294967295,
@@ -139,128 +163,83 @@ describe('PlayersService', () => {
         name: 'Tixx',
       };
 
-      const banEnd = new Date();
-      banEnd.setHours(banEnd.getHours() + 1);
-      const spy = spyOn(etf2lProfileService, 'fetchPlayerInfo').and.returnValue(blacklistedProfile);
-      await expectAsync(service.createPlayer(steamProfile)).toBeRejectedWithError('this account is banned on ETF2L');
-      expect(spy).toHaveBeenCalledWith('FAKE_STEAM_ID');
+      beforeEach(() => {
+        jest.spyOn(etf2lProfileService, 'fetchPlayerInfo').mockResolvedValue(blacklistedProfile);
+      });
+
+      it('should deny creating tf2pickup.pl profile', async () => {
+        await expect(service.createPlayer(mockSteamProfile)).rejects.toThrowError('this account is banned on ETF2L');
+      });
     });
 
-    it('should eventually create new player', async () => {
-      const banEnd = new Date();
-      banEnd.setHours(banEnd.getHours() - 1);
-      spyOn(etf2lProfileService, 'fetchPlayerInfo').and
-        .returnValue({ id: 12345, name: 'FAKE_ETF2L_NAME', bans: [ { end: banEnd.getTime() / 1000 } ] });
-
-      const player = { id: 'FAKE_STEAM_ID', name: 'FAKE_NAME' };
-      const spy = spyOn(playerModel, 'create').and.returnValue(player);
-
-      const ret = await service.createPlayer(steamProfile);
-
-      expect(spy).toHaveBeenCalledWith({
-        steamId: 'FAKE_STEAM_ID',
-        name: 'FAKE_ETF2L_NAME',
+    it('should create new player', async () => {
+      const ret = await service.createPlayer(mockSteamProfile);
+      expect(ret.toObject()).toMatchObject({
+        steamId: 'FAKE_STEAM_ID_2',
+        name: 'maly',
         avatarUrl: 'FAKE_AVATAR_URL',
         role: null,
-        etf2lProfileId: 12345,
+        etf2lProfileId: 112758,
       });
-      expect(ret as any).toEqual(player);
     });
 
     it('should assign the super-user role', async () => {
-      environment.superUser = 'FAKE_STEAM_ID';
-      const spy = spyOn(playerModel, 'create');
-      await service.createPlayer(steamProfile);
-
-      expect(spy).toHaveBeenCalledWith({
-        steamId: 'FAKE_STEAM_ID',
-        name: 'FAKE_ETF2L_NAME',
-        avatarUrl: 'FAKE_AVATAR_URL',
-        role: 'super-user',
-        etf2lProfileId: 12345,
-      });
+      environment.superUser = 'FAKE_STEAM_ID_2';
+      const ret = await service.createPlayer(mockSteamProfile);
+      expect(ret.role).toEqual('super-user');
     });
 
     it('should notify on discord', async () => {
-      const spy = spyOn(discordNotificationsService, 'notifyNewPlayer');
-      await service.createPlayer(steamProfile);
-      expect(spy).toHaveBeenCalled();
+      const spy = jest.spyOn(discordNotificationsService, 'notifyNewPlayer');
+      const player = await service.createPlayer(mockSteamProfile);
+      expect(spy).toHaveBeenCalledWith(player);
     });
   });
 
   describe('#updatePlayer()', () => {
-    const player = {
-      name: 'OLD_NAME',
-      role: null,
-      save: () => null,
-    };
-
     it('should update player name', async () => {
-      const spy = spyOn(service, 'getById').and.returnValue(new Promise(resolve => resolve(player as any)));
-      const spy2 = spyOn(player, 'save');
-
-      await service.updatePlayer('FAKE_ID', { name: 'NEW_NAME' });
-      expect(spy).toHaveBeenCalledWith('FAKE_ID');
-      expect(player.name).toEqual('NEW_NAME');
-      expect(spy2).toHaveBeenCalled();
+      const ret = await service.updatePlayer(mockPlayer.id, { name: 'NEW_NAME' });
+      expect(ret.name).toEqual('NEW_NAME');
     });
 
-    it('should demote player', async () => {
-      const spy = spyOn(service, 'getById').and.returnValue(new Promise(resolve => resolve(player as any)));
+    it('should update player role', async () => {
+      const ret1 = await service.updatePlayer(mockPlayer.id, { role: 'admin' });
+      expect(ret1.role).toEqual('admin');
 
-      await service.updatePlayer('FAKE_ID', { role: 'admin' });
-      expect(player.role).toEqual('admin');
-
-      await service.updatePlayer('FAKE_ID', { role: null });
-      expect(player.role).toBe(null);
+      const ret2 = await service.updatePlayer(mockPlayer.id, { role: null });
+      expect(ret2.role).toBe(null);
     });
 
     it('should emit updated player over websocket', async () => {
-      spyOn(service, 'getById').and.returnValue(new Promise(resolve => resolve(player as any)));
-
       const socket = { emit: (...args: any[]) => null };
-      const spy = spyOn(onlinePlayersService, 'getSocketsForPlayer').and.returnValue([ socket ] as any);
-      const spy2 = spyOn(socket, 'emit').and.callThrough();
+      jest.spyOn(onlinePlayersService, 'getSocketsForPlayer').mockReturnValue([ socket ] as any);
+      const spy = jest.spyOn(socket, 'emit');
 
-      await service.updatePlayer('FAKE_ID', { name: 'NEW_NAME' });
-      expect(spy).toHaveBeenCalledWith('FAKE_ID');
-      expect(spy2).toHaveBeenCalledWith('profile update', { name: 'NEW_NAME' });
+      await service.updatePlayer(mockPlayer.id, { name: 'NEW_NAME' });
+      expect(spy).toHaveBeenCalledWith('profile update', { name: 'NEW_NAME' });
     });
 
     it('should return null if the given player does not exist', async () => {
-      spyOn(service, 'getById').and.returnValue(new Promise(resolve => resolve(null)));
+      jest.spyOn(service, 'getById').mockResolvedValue(null);
       expect(await service.updatePlayer('FAKE_ID', { })).toBeNull();
     });
   });
 
   describe('#acceptTerms', () => {
     it('should accept the terms', async () => {
-      const player = {
-        hasAcceptedRules: false,
-        save: () => null,
-      };
-      const spy = spyOn(service, 'getById').and.returnValue(new Promise(resolve => resolve(player as any)));
-      const spy2 = spyOn(player, 'save');
-
-      await service.acceptTerms('FAKE_ID');
-      expect(spy).toHaveBeenCalledWith('FAKE_ID');
-      expect(player.hasAcceptedRules).toBe(true);
-      expect(spy2).toHaveBeenCalled();
+      const ret = await service.acceptTerms(mockPlayer.id);
+      expect(ret.hasAcceptedRules).toBe(true);
     });
 
     it('should fail if the given user doesn\'t exist', async () => {
-      spyOn(service, 'getById').and.returnValue(new Promise(resolve => resolve(null)));
-      await expectAsync(service.acceptTerms('FAKE_ID')).toBeRejectedWithError('no such player');
+      jest.spyOn(service, 'getById').mockResolvedValue(null);
+      await expect(service.acceptTerms('FAKE_ID')).rejects.toThrowError('no such player');
     });
   });
 
   describe('#getPlayerStats()', () => {
     it('should return the stats', async () => {
-      const spy1 = spyOn(gamesService, 'getPlayerGameCount').and.callThrough();
-      const spy2 = spyOn(gamesService, 'getPlayerPlayedClassCount').and.callThrough();
       const ret = await service.getPlayerStats('FAKE_ID');
-      expect(spy1).toHaveBeenCalledWith('FAKE_ID', { endedOnly: true });
-      expect(spy2).toHaveBeenCalledWith('FAKE_ID');
       expect(ret).toEqual({
         player: 'FAKE_ID',
         gamesPlayed: 220,

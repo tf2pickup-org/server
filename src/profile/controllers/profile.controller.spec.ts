@@ -5,6 +5,7 @@ import { PlayersService } from '@/players/services/players.service';
 import { GamesService } from '@/games/services/games.service';
 import { PlayerBansService } from '@/players/services/player-bans.service';
 import { MapVoteService } from '@/queue/services/map-vote.service';
+import { BadRequestException } from '@nestjs/common';
 
 class PlayersServiceStub {
   acceptTerms(playerId: string) { return null; }
@@ -55,13 +56,13 @@ describe('Profile Controller', () => {
 
   describe('#acceptTerms', () => {
     it('should call players service', async () => {
-      const spy = spyOn(playersService, 'acceptTerms');
+      const spy = jest.spyOn(playersService, 'acceptTerms');
       await controller.acceptTerms({ id: 'FAKE_ID' } as Player, '');
       expect(spy).toHaveBeenCalledWith('FAKE_ID');
     });
 
     it('should reject invalid requests', async () => {
-      await expectAsync(controller.acceptTerms({ id: 'FAKE_ID' } as Player, undefined)).toBeRejected();
+      await expect(controller.acceptTerms({ id: 'FAKE_ID' } as Player, undefined)).rejects.toThrow(BadRequestException);
     });
   });
 });
