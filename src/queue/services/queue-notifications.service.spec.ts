@@ -27,8 +27,6 @@ class ConfigServiceStub {
   }
 }
 
-jest.useFakeTimers();
-
 describe('QueueNotificationsService', () => {
   let service: QueueNotificationsService;
   let queueService: QueueServiceStub;
@@ -50,6 +48,9 @@ describe('QueueNotificationsService', () => {
 
     service.onModuleInit();
   });
+
+  beforeEach(() => jest.useFakeTimers());
+  afterEach(() => jest.useRealTimers());
 
   it('should be defined', () => {
     expect(service).toBeDefined();
