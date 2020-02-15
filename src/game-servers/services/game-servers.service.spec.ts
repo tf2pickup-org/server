@@ -6,16 +6,21 @@ import { DocumentType, ReturnModelType } from '@typegoose/typegoose';
 import { ObjectId } from 'mongodb';
 import { typegooseTestingModule } from '@/utils/testing-typegoose-module';
 import * as isServerOnline from '../utils/is-server-online';
+import { MongoMemoryServer } from 'mongodb-memory-server';
 
 describe('GameServersService', () => {
   let service: GameServersService;
+  let mongod: MongoMemoryServer;
   let gameServerModel: ReturnModelType<typeof GameServer>;
   let testGameServer: DocumentType<GameServer>;
+
+  beforeAll(() => mongod = new MongoMemoryServer());
+  afterAll(async () => await mongod.stop());
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [
-        typegooseTestingModule(),
+        typegooseTestingModule(mongod),
         TypegooseModule.forFeature([GameServer]),
       ],
       providers: [
@@ -65,7 +70,7 @@ describe('GameServersService', () => {
     });
 
     it('should fail gracefully', async () => {
-      jest.spyOn(gameServerModel, 'deleteOne').mockImplementation(() => new Promise(resolve => resolve({ ok: false })) as any);
+      jest.spyOn(gameServerModel, 'deleteOne').mockResolvedValue({ ok: 0 });
       await expect(service.removeGameServer(testGameServer.id)).rejects.toThrowError('unable to remove game server');
     });
   });
@@ -118,7 +123,7 @@ describe('GameServersService', () => {
 
   describe('#checkAllServers()', () => {
     it('should check whether every server is online', async () => {
-      const spy = jest.spyOn(isServerOnline, 'isServerOnline').mockImplementation(() => new Promise(resolve => resolve(true)));
+      const spy = jest.spyOn(isServerOnline, 'isServerOnline').mockResolvedValue(true);
       await service.checkAllServers();
       expect(spy).toHaveBeenCalledTimes(1);
       expect(spy).toHaveBeenCalledWith('localhost', 27015);
