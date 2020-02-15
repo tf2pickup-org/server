@@ -8,15 +8,6 @@ import { PlayerSkill } from '../models/player-skill';
 import { ReturnModelType, DocumentType } from '@typegoose/typegoose';
 import { ObjectId } from 'mongodb';
 
-const skill = {
-  player: 'FAKE_ID',
-  skill: {
-    scout: 3,
-    medic: 2,
-  },
-  save: () => null,
-};
-
 class PlayersServiceStub {
   getById(id: string) { return null; }
 }
@@ -25,7 +16,8 @@ describe('PlayerSkillService', () => {
   let service: PlayerSkillService;
   let mongod: MongoMemoryServer;
   let playerSkillModel: ReturnModelType<typeof PlayerSkill>;
-  let playerSkill: DocumentType<PlayerSkill>;
+  let mockPlayerId: string;
+  let mockPlayerSkill: DocumentType<PlayerSkill>;
 
   beforeAll(() => mongod = new MongoMemoryServer());
   afterAll(async () => await mongod.stop());
@@ -47,11 +39,16 @@ describe('PlayerSkillService', () => {
   });
 
   beforeEach(async () => {
-    playerSkill = await playerSkillModel.create({
-      player: new ObjectId().toString(),
-      skill: new Map([['soldier', 4]]),
+    mockPlayerId = new ObjectId().toString();
+    mockPlayerSkill = await playerSkillModel.create({
+      player: mockPlayerId,
+      skill: {
+        soldier: 4,
+      },
     });
   });
+
+  afterEach(async () => await playerSkillModel.deleteMany({ }));
 
   it('should be defined', () => {
     expect(service).toBeDefined();
@@ -60,30 +57,27 @@ describe('PlayerSkillService', () => {
   describe('#getAll()', () => {
     it('should retrieve all players skills', async () => {
       const ret = await service.getAll();
-      expect(ret.map(r => r.toJSON())).toEqual([ playerSkill ]);
+      expect(ret.length).toBe(1);
     });
   });
 
   describe('#getPlayerSkill()', () => {
     it('should retrieve player skill', async () => {
-      const ret = await service.getPlayerSkill('FAKE_ID');
-      expect(ret).toEqual(playerSkill);
+      const ret = await service.getPlayerSkill(mockPlayerId);
+      expect(ret.toObject()).toEqual(mockPlayerSkill.toObject());
     });
   });
 
   describe('#setPlayerSkill()', () => {
     it('should set player skill', async () => {
-      const spyFindOne = jest.spyOn(playerSkillModel, 'findOne');
-      const spySave = jest.spyOn(skill, 'save').mockResolvedValue(skill);
-      const ret = await service.setPlayerSkill('FAKE_ID', { scout: 2 });
-      expect(spyFindOne).toHaveBeenCalledWith({ player: 'FAKE_ID' });
-      expect(spySave).toHaveBeenCalled();
-      expect(ret.skill).toEqual(new Map([['scout', 2]]));
+      const ret = await service.setPlayerSkill(mockPlayerId, { soldier: 2 });
+      expect(ret.toObject()).toMatchObject({
+        skill: new Map([['soldier', 2]]),
+      });
     });
 
     it('should fail if there is no such player', async () => {
-      jest.spyOn(playerSkillModel, 'findOne').mockResolvedValue(null as never);
-      await expect(service.setPlayerSkill('FAKE_ID', { scout: 1 })).rejects.toThrowError('no such player');
+      await expect(service.setPlayerSkill(new ObjectId().toString(), { scout: 1 })).rejects.toThrowError('no such player');
     });
   });
 });
