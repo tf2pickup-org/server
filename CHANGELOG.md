@@ -1,3 +1,8 @@
+# [2.0.2](https://github.com/tf2pickup-pl/server/compare/2.0.1...2.0.2) (2020-02-16)
+
+### Fixes
+* Kick the replacement player from the queue ([77e858e](https://github.com/tf2pickup-pl/server/commit/77e858e93c4e1ce01b6aa0ce0497652b63f5e2e9))
+
 # [2.0.1](https://github.com/tf2pickup-pl/server/compare/2.0.0...2.0.1) (2020-02-14)
 
 ### Fixes
