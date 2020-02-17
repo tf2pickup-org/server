@@ -34,6 +34,7 @@ const mockGame = {
   map: 'cp_badlands',
   state: 'launching',
   teams: new Map([['0', 'RED'], ['1', 'BLU']]),
+  gameServer: 'FAKE_GAME_SERVER_ID',
   save: () => null,
 };
 
@@ -76,6 +77,7 @@ class PlayerBansServiceStub {
 
 class GameRuntimeServiceStub {
   replacePlayer(gameId: string, replaceeId: string, replacementSlot: any) { return null; }
+  sayChat(gameServerId: string, message: string) { return null; }
 }
 
 class GamesGatewayStub {
@@ -339,6 +341,12 @@ describe('PlayerSubstitutionService', () => {
       const spy = jest.spyOn(queueService, 'kick');
       await service.replacePlayer('FAKE_GAME_ID', 'FAKE_PLAYER_1', 'FAKE_PLAYER_3');
       expect(spy).toHaveBeenCalledWith('FAKE_PLAYER_3');
+    });
+
+    it('should announce the replacement in the game', async () => {
+      const spy = jest.spyOn(gameRuntimeService, 'sayChat');
+      await service.replacePlayer('FAKE_GAME_ID', 'FAKE_PLAYER_1', 'FAKE_PLAYER_3');
+      expect(spy).toHaveBeenCalledWith('FAKE_GAME_SERVER_ID', 'PLAYER_3 is replacing PLAYER_1 on soldier.');
     });
   });
 
