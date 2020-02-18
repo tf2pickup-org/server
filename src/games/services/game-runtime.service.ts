@@ -4,7 +4,7 @@ import { ServerConfiguratorService } from './server-configurator.service';
 import { GameServersService } from '@/game-servers/services/game-servers.service';
 import { RconFactoryService } from './rcon-factory.service';
 import { PlayersService } from '@/players/services/players.service';
-import { addGamePlayer, delGamePlayer, smSay } from '../utils/rcon-commands';
+import { addGamePlayer, delGamePlayer, say } from '../utils/rcon-commands';
 import { GamePlayer } from '../models/game-player';
 import { GamesGateway } from '../gateways/games.gateway';
 import { Rcon } from 'rcon-client/lib';
@@ -126,7 +126,7 @@ export class GameRuntimeService {
     let rcon: Rcon;
     try {
       rcon = await this.rconFactoryService.createRcon(gameServer);
-      await rcon.send(smSay(message));
+      await rcon.send(say(message));
     } catch (e) {
       this.logger.error(e.message);
     } finally {

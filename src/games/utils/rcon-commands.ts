@@ -55,6 +55,6 @@ export function tvPassword(password?: string) {
   return `tv_password ${password || ''}`;
 }
 
-export function smSay(message: string) {
-  return `sm_say ${message}`;
+export function say(message: string) {
+  return `say ${message}`;
 }

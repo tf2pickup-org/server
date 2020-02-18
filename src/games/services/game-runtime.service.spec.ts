@@ -6,7 +6,7 @@ import { ServerConfiguratorService } from './server-configurator.service';
 import { RconFactoryService } from './rcon-factory.service';
 import { PlayersService } from '@/players/services/players.service';
 import { GamesGateway } from '../gateways/games.gateway';
-import { smSay } from '../utils/rcon-commands';
+import { say } from '../utils/rcon-commands';
 
 const mockGame = {
   id: 'FAKE_GAME_ID',
@@ -104,7 +104,7 @@ describe('GameRuntimeService', () => {
     });
 
     it('should handle RCON errors', async () => {
-      jest.spyOn(serverConfiguratorService, 'configureServer').mockRejectedValue('something something');;
+      jest.spyOn(serverConfiguratorService, 'configureServer').mockRejectedValue('something something');
       await expect(service.reconfigure('FAKE_GAME_ID')).resolves.toBeTruthy();
     });
   });
@@ -183,7 +183,7 @@ describe('GameRuntimeService', () => {
       expect(spy).toHaveBeenCalled();
     });
   });
-  
+
   describe('#sayChat()', () => {
     let rcon: RconStub;
 
@@ -205,7 +205,7 @@ describe('GameRuntimeService', () => {
     it('should execute the correct commands', async () => {
       const spy = spyOn(rcon, 'send');
       await service.sayChat('FAKE_GAME_SERVER_ID', 'some message');
-      expect(spy).toHaveBeenCalledWith(smSay('some message'));
+      expect(spy).toHaveBeenCalledWith(say('some message'));
     });
 
     describe('when an rcon error occurs', () => {
