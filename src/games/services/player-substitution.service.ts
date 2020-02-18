@@ -142,8 +142,17 @@ export class PlayerSubstitutionService {
     await game.save();
     this.gamesGateway.emitGameUpdated(game);
     this.queueGateway.updateSubstituteRequests();
-    this.logger.verbose(`player ${replacement.name} took the sub slot in game game #${game.number}`);
     this.queueSevice.kick(replacementId);
+
+    const replacee = await this.playersService.getById(replaceeId);
+
+    this.gameRuntimeService.sayChat(
+      game.gameServer.toString(),
+      `${replacement.name} is replacing ${replacee.name} on ${replacementSlot.gameClass}.`,
+    );
+
+    this.logger.verbose(`player ${replacement.name} is replacing ${replacee.name} on ${replacementSlot.gameClass} in game #${game.number}`);
+
     setImmediate(() => this.gameRuntimeService.replacePlayer(game.id, replaceeId, replacementSlot));
     return game;
   }

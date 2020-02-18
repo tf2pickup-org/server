@@ -54,3 +54,7 @@ export function tvPort(port?: string) {
 export function tvPassword(password?: string) {
   return `tv_password ${password || ''}`;
 }
+
+export function say(message: string) {
+  return `say ${message}`;
+}
