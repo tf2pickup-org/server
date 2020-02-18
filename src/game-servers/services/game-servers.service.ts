@@ -65,7 +65,7 @@ export class GameServersService {
     if (gameServer) {
       gameServer.isFree = false;
       await gameServer.save();
-      this.logger.verbose(`game server ${gameServerId} (${gameServer.name}) marked as taken`);
+      this.logger.debug(`game server ${gameServerId} (${gameServer.name}) marked as taken`);
       return gameServer;
     } else {
       throw new Error('no such game server');
@@ -77,7 +77,7 @@ export class GameServersService {
     if (gameServer) {
       gameServer.isFree = true;
       await gameServer.save();
-      this.logger.verbose(`game server ${gameServerId} (${gameServer.name}) marked as free`);
+      this.logger.debug(`game server ${gameServerId} (${gameServer.name}) marked as free`);
       return gameServer;
     } else {
       throw new Error('no such game server');

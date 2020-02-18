@@ -47,7 +47,7 @@ export class PlayerSubstitutionService {
     }
 
     const player = await this.playersService.getById(playerId);
-    this.logger.verbose(`player ${player.name} taking part in game #${game.number} is marked as 'waiting for substitute'`);
+    this.logger.debug(`player ${player.name} taking part in game #${game.number} is marked as 'waiting for substitute'`);
 
     slot.status = 'waiting for substitute';
     await game.save();
