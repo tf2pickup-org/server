@@ -99,7 +99,7 @@ export class QueueService implements OnModuleInit {
 
   reset() {
     this.resetSlots();
-    this.logger.verbose('queue reset');
+    this.logger.debug('queue reset');
     this._slotsChange.next(this.slots);
     setImmediate(() => this.maybeUpdateState());
   }
@@ -153,7 +153,7 @@ export class QueueService implements OnModuleInit {
       targetSlot.ready = true;
     }
 
-    this.logger.verbose(`player ${player.name} joined the queue (slotId=${targetSlot.id}, gameClass=${targetSlot.gameClass})`);
+    this.logger.debug(`player ${player.name} joined the queue (slotId=${targetSlot.id}, gameClass=${targetSlot.gameClass})`);
 
     // is player joining instead of only changing slots?
     if (oldSlots.length === 0) {
@@ -174,7 +174,7 @@ export class QueueService implements OnModuleInit {
       }
 
       this.clearSlot(slot);
-      this.logger.verbose(`slot ${slot.id} (gameClass=${slot.gameClass}) free`);
+      this.logger.debug(`slot ${slot.id} (gameClass=${slot.gameClass}) free`);
       this._playerLeave.next(playerId);
       this._slotsChange.next([ slot ]);
       setImmediate(() => this.maybeUpdateState());
@@ -196,7 +196,7 @@ export class QueueService implements OnModuleInit {
       if (slot) {
         this.clearSlot(slot);
         this._playerLeave.next(playerId);
-        this.logger.verbose(`slot ${slot.id} (gameClass=${slot.gameClass}) free (player was kicked)`);
+        this.logger.debug(`slot ${slot.id} (gameClass=${slot.gameClass}) free (player was kicked)`);
         updatedSlots.push(slot);
       }
     }
@@ -213,7 +213,7 @@ export class QueueService implements OnModuleInit {
     const slot = this.findSlotByPlayerId(playerId);
     if (slot) {
       slot.ready = true;
-      this.logger.verbose(`slot ${slot.id} ready (${this.readyPlayerCount}/${this.requiredPlayerCount})`);
+      this.logger.debug(`slot ${slot.id} ready (${this.readyPlayerCount}/${this.requiredPlayerCount})`);
       this._slotsChange.next([ slot ]);
       setImmediate(() => this.maybeUpdateState());
       return slot;
@@ -280,7 +280,7 @@ export class QueueService implements OnModuleInit {
       clearTimeout(this.timer);
     }
 
-    this.logger.verbose(`queue state change (${oldState} => ${newState})`);
+    this.logger.debug(`queue state change (${oldState} => ${newState})`);
   }
 
   private onReadyUpTimeout() {
@@ -298,7 +298,7 @@ export class QueueService implements OnModuleInit {
   }
 
   private kickUnreadyPlayers() {
-    this.logger.verbose('kicking players that are not ready');
+    this.logger.debug('kicking players that are not ready');
     const slots = this.slots.filter(s => !s.ready);
     this.kick(...slots.map(s => s.playerId));
   }
