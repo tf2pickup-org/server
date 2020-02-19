@@ -2,14 +2,12 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { PlayerBansService } from './player-bans.service';
 import { getModelToken, TypegooseModule } from 'nestjs-typegoose';
 import { PlayerBan } from '../models/player-ban';
-import { Types } from 'mongoose';
 import { OnlinePlayersService } from './online-players.service';
 import { DiscordNotificationsService } from '@/discord/services/discord-notifications.service';
 import { ObjectId } from 'mongodb';
 import { typegooseTestingModule } from '@/utils/testing-typegoose-module';
 import { ReturnModelType, DocumentType } from '@typegoose/typegoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import { floor } from 'lodash';
 
 class OnlinePlayersServiceStub {
   getSocketsForPlayer(playerId: string) { return []; }
@@ -155,7 +153,7 @@ describe('PlayerBansService', () => {
 
     it('should revoke the ban', async () => {
       const ban = await service.revokeBan(mockBan.id);
-      expect(floor(ban.end.getTime() / 1000)).toEqual(floor(new Date().getTime() / 1000));
+      expect(ban.end.getTime()).toBeLessThanOrEqual(new Date().getTime());
     });
 
     it('should emit the event', async done => {
