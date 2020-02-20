@@ -1,7 +1,4 @@
-tf2pickup.pl server
-===================
-[![Build Status](https://api.travis-ci.com/tf2pickup-pl/server.svg?branch=master)](https://travis-ci.com/tf2pickup-pl/server)
-[![Code coverage](https://codecov.io/gh/tf2pickup-pl/server/branch/master/graph/badge.svg)](https://codecov.io/gh/tf2pickup-pl/server)
+# tf2pickup.pl server [![Build Status](https://api.travis-ci.com/tf2pickup-pl/server.svg?branch=master)](https://travis-ci.com/tf2pickup-pl/server) [![Code coverage](https://codecov.io/gh/tf2pickup-pl/server/branch/master/graph/badge.svg)](https://codecov.io/gh/tf2pickup-pl/server) [![MIT license](https://img.shields.io/github/license/tf2pickup-pl/server)](https://github.com/tf2pickup-pl/server/blob/master/LICENSE) [![Wekan](https://img.shields.io/badge/project-wekan-%2300aecc)](https://w.supra.tf/b/xYYTewYR5RcvfHBZ8/tf2pickup-pl)
 
 ## Prerequisites
 
@@ -13,8 +10,41 @@ tf2pickup.pl server
 
 ## Setup
 
-_to be done_
+* clone the repository or download a zipped release of your choice
+* copy `sample.env` to `.env` and adjust your environment values
+* review configuration in `configs/config.ts`
+* install dependencies
+    ```bash
+    npm i
+    ```
+* build the project
+    ```bash
+    npm run build
+    ```
+
+## Running
+
+To launch the server application itself, you have a couple options:
+
+* launch the process in the shell manually
+    ```bash
+    node dist/src/main.js
+    ```
+    Note that you will probably want to run the process in a separate shell, i.e. tmux.
+
+* use process manager, i.e. `pm2`
+    ```bash
+    npm i -g pm2
+    pm2 start dist/src/main.js
+    ```
+    
+The server process listens for incoming connections on port 3000.
 
 ## Project development
 
 Take a look at [our wekan](https://w.supra.tf/b/xYYTewYR5RcvfHBZ8/tf2pickup-pl).
+
+## Contact
+
+* mały#0226
+* http://steamcommunity.com/id/nieduzy/
