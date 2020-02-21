@@ -38,9 +38,6 @@ export class AuthService implements OnModuleInit {
         const key = this.keyStoreService.getKey('ws', 'sign');
         return sign({ id: userId }, key, { algorithm: 'HS256', expiresIn: '10m' });
       }
-
-      default:
-        throw new Error('unknown purpose');
     }
   }
 
