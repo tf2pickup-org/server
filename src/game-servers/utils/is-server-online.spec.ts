@@ -1,0 +1,23 @@
+import { isServerOnline } from './is-server-online';
+
+describe('isServerOnline()', () => {
+  beforeEach(() => {
+    require('gamedig').__resetResult();
+  });
+
+  describe('when the queried server is online', () => {
+    it('should resolve', async () => {
+      await expect(isServerOnline('FAKE_ADDRESS', 27015)).resolves.toBe(true);
+    });
+  });
+
+  describe('when the queried server if offline', () => {
+    beforeEach(() => {
+      require('gamedig').__setResult(null);
+    });
+
+    it('should reject', async () => {
+      await expect(isServerOnline('FAKE_ADDRESS', 27015)).resolves.toBe(false);
+    });
+  });
+});

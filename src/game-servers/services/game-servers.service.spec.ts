@@ -196,7 +196,7 @@ describe('GameServersService', () => {
 
   describe('#checkAllServers()', () => {
     it('should check whether every server is online', async () => {
-      const spy = jest.spyOn(isServerOnline, 'isServerOnline').mockResolvedValue(true);
+      const spy = jest.spyOn(isServerOnline, 'isServerOnline');
       await service.checkAllServers();
       expect(spy).toHaveBeenCalledTimes(1);
       expect(spy).toHaveBeenCalledWith('localhost', 27015);
