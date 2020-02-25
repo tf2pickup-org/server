@@ -150,6 +150,20 @@ describe('GameEventHandlerService', () => {
       await service.onMatchStarted(gamesService.mockGame.id);
       expect(spy).toHaveBeenCalledWith(jasmine.objectContaining({ id: gamesService.mockGame.id }));
     });
+
+    describe('when the game has ended', () => {
+      beforeEach(async () => {
+        const game = await gameModel.findOne();
+        game.state = 'ended';
+        await game.save();
+      });
+
+      it('should not change the state', async () => {
+        await service.onMatchStarted(gamesService.mockGame.id);
+        const game = await gameModel.findOne();
+        expect(game.state).toEqual('ended');
+      });
+    });
   });
 
   describe('#onMatchEnded()', () => {
