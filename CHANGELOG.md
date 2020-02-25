@@ -1,3 +1,14 @@
+# [2.1.0](https://github.com/tf2pickup-pl/server/compare/2.0.2...2.1.0) (2020-02-26)
+
+### Features
+* Announce player substitutes in-game ([8f1c154](https://github.com/tf2pickup-pl/server/commit/8f1c15417b67fe8b0e0e8892f382eff1aa11fb3d))
+
+### Fixes
+* Downgrade cp_reckoner to version rc2 ([d175651](https://github.com/tf2pickup-pl/server/commit/d175651c6f8d70c326284ad94d24a272b83189ee))
+* Cleanup verbose logs ([b27d977](https://github.com/tf2pickup-pl/server/commit/b27d9778e18edf02a3d97104fe1bafb0b77fef3f))
+* Fix PlayerBansService test ([a47359f](https://github.com/tf2pickup-pl/server/commit/a47359f4da5f40f3cdda0e6dfa54e9614e87cea9))
+* Don't restart ended matches ([9256168](https://github.com/tf2pickup-pl/server/commit/92561685d701bc5aae55ed7f7418049b72e0b683))
+
 # [2.0.2](https://github.com/tf2pickup-pl/server/compare/2.0.1...2.0.2) (2020-02-16)
 
 ### Fixes
