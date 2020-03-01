@@ -14,6 +14,7 @@ import { OnlinePlayersService } from './services/online-players.service';
 import { PlayersGateway } from './gateways/players.gateway';
 import { HallOfFameController } from './controllers/hall-of-fame.controller';
 import { DiscordModule } from '@/discord/discord.module';
+import { SteamApiService } from './services/steam-api.service';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { DiscordModule } from '@/discord/discord.module';
     PlayerSkillService,
     OnlinePlayersService,
     PlayersGateway,
+    SteamApiService,
   ],
   exports: [
     PlayersService,
