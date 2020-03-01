@@ -8,6 +8,8 @@ import { typegooseTestingModule } from '@/utils/testing-typegoose-module';
 import * as isServerOnline from '../utils/is-server-online';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 
+jest.mock('dns');
+
 describe('GameServersService', () => {
   let service: GameServersService;
   let mongod: MongoMemoryServer;
@@ -63,6 +65,67 @@ describe('GameServersService', () => {
     });
   });
 
+  describe('#addGameServer()', () => {
+    describe('when there are no mumble channels taken', () => {
+      let gameServer: DocumentType<GameServer>;
+
+      beforeEach(async () => {
+        gameServer = await service.addGameServer({
+          name: 'test game server',
+          address: 'fake_game_server_address',
+          port: '27017',
+          rconPassword: 'test rcon password',
+        });
+      });
+
+      it('should assign mumble channel name', () => {
+        expect(gameServer.mumbleChannelName).toEqual('1');
+      });
+    });
+
+    describe('when first mumble channel is taken', () => {
+      let gameServer: DocumentType<GameServer>;
+
+      beforeEach(async () => {
+        testGameServer.mumbleChannelName = '1';
+        await testGameServer.save();
+
+        gameServer = await service.addGameServer({
+          name: 'test game server',
+          address: 'fake_game_server_address',
+          port: '27017',
+          rconPassword: 'test rcon password',
+        });
+      });
+
+      it('should assign the next mumble channel', async () => {
+        expect(gameServer.mumbleChannelName).toEqual('2');
+      });
+    });
+
+    describe('when added', () => {
+      let gameServer: DocumentType<GameServer>;
+
+      beforeEach(async () => {
+        gameServer = await service.addGameServer({
+          name: 'test game server',
+          address: 'fake_game_server_address',
+          port: '27017',
+          rconPassword: 'test rcon password',
+          mumbleChannelName: 'some mumble channel',
+        });
+      });
+
+      it('should resolve ip addresses', () => {
+        expect(gameServer.toObject().resolvedIpAddresses).toEqual(['1.2.3.4']);
+      });
+
+      it('should save the mumble channel', () => {
+        expect(gameServer.mumbleChannelName).toEqual('some mumble channel');
+      });
+    });
+  });
+
   describe('#removeGameServer()', () => {
     it('should delete the given game server', async () => {
       await service.removeGameServer(testGameServer.id);
@@ -112,6 +175,16 @@ describe('GameServersService', () => {
       await service.releaseServer(testGameServer.id);
       expect((await service.getById(testGameServer.id)).isFree).toBe(true);
     });
+
+    describe('when the game server does not exist', () => {
+      let id: string;
+
+      beforeEach(() => id = new ObjectId().toString());
+
+      it('should throw an error', async () => {
+        await expect(service.releaseServer(id)).rejects.toThrowError('no such game server');
+      });
+    });
   });
 
   describe('#getGameServerByEventSource()', () => {
@@ -123,7 +196,7 @@ describe('GameServersService', () => {
 
   describe('#checkAllServers()', () => {
     it('should check whether every server is online', async () => {
-      const spy = jest.spyOn(isServerOnline, 'isServerOnline').mockResolvedValue(true);
+      const spy = jest.spyOn(isServerOnline, 'isServerOnline');
       await service.checkAllServers();
       expect(spy).toHaveBeenCalledTimes(1);
       expect(spy).toHaveBeenCalledWith('localhost', 27015);
