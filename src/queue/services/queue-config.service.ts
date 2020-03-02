@@ -84,6 +84,9 @@ export class QueueConfigService {
             type: 'string',
           },
         },
+        whitelistId: {
+          type: 'string',
+        },
       },
       additionalItems: false,
     };
