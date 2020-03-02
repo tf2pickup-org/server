@@ -55,5 +55,15 @@ describe('SteamApiService', () => {
         expect(res).toBe(7143);
       });
     });
+
+    describe('with response code 500', () => {
+      beforeEach(() => {
+        jest.spyOn(httpService, 'get').mockReturnValue(of({ status: 500 } as any));
+      });
+
+      it('should throw an error', async () => {
+        await expect(service.getTf2InGameHours('FAKE_STEAM_ID')).rejects.toThrowError('cannot verify in-game hours for TF2');
+      });
+    });
   });
 });

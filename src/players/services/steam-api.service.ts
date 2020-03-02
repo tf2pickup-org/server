@@ -1,7 +1,8 @@
 import { Injectable, HttpService } from '@nestjs/common';
 import { Environment } from '@/environment/environment';
-import { map } from 'rxjs/operators';
+import { map, switchMap } from 'rxjs/operators';
 import { floor } from 'lodash';
+import { of, throwError } from 'rxjs';
 
 interface UserStatsForGameResponse {
   playerstats: {
@@ -27,10 +28,17 @@ export class SteamApiService {
 
   async getTf2InGameHours(steamId64: string): Promise<number> {
     return this.httpService.get<UserStatsForGameResponse>(`${this.userStatsForGameEndpoint}/?appid=${this.tf2AppId}&key=${this.environment.steamApiKey}&steamid=${steamId64}&format=json`).pipe(
-      map(response => response.data.playerstats.stats
-        .filter(s => /\.accum\.iPlayTime$/.test(s.name))
-        .reduce((sum, curr) => sum + curr.value, 0)
-      ),
+      switchMap(response => {
+        if (response.status === 200) {
+          return of(
+            response.data.playerstats.stats
+              .filter(s => /\.accum\.iPlayTime$/.test(s.name))
+              .reduce((sum, curr) => sum + curr.value, 0)
+          );
+        } else {
+          return throwError(new Error('cannot verify in-game hours for TF2'));
+        }
+      }),
       map(seconds => floor(seconds / 60 / 60)),
     ).toPromise();
   }
