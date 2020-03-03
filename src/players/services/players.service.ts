@@ -11,12 +11,14 @@ import { Etf2lProfile } from '../models/etf2l-profile';
 import { OnlinePlayersService } from './online-players.service';
 import { DiscordNotificationsService } from '@/discord/services/discord-notifications.service';
 import { ConfigService } from '@nestjs/config';
+import { SteamApiService } from './steam-api.service';
 
 @Injectable()
 export class PlayersService {
 
   private logger = new Logger(PlayersService.name);
   private requireEtf2lAccount = this.configService.get<boolean>('requireEtf2lAccount');
+  private minimumTf2InGameHours = this.configService.get<number>('minimumTf2InGameHours');
 
   constructor(
     private environment: Environment,
@@ -26,6 +28,7 @@ export class PlayersService {
     private onlinePlayersService: OnlinePlayersService,
     @Inject(forwardRef(() => DiscordNotificationsService)) private discordNotificationsService: DiscordNotificationsService,
     private configService: ConfigService,
+    private steamApiService: SteamApiService,
   ) { }
 
   async getAll(): Promise<Array<DocumentType<Player>>> {
@@ -41,6 +44,11 @@ export class PlayersService {
   }
 
   async createPlayer(steamProfile: SteamProfile): Promise<DocumentType<Player>> {
+    const hoursInTf2 = await this.steamApiService.getTf2InGameHours(steamProfile.id);
+    if (hoursInTf2 < this.minimumTf2InGameHours) {
+      throw new Error('not enough tf2 hours');
+    }
+
     let etf2lProfile: Etf2lProfile;
     let name = steamProfile.displayName;
 

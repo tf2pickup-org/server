@@ -13,6 +13,7 @@ import { ReturnModelType, DocumentType } from '@typegoose/typegoose';
 import { Player } from '../models/player';
 import { typegooseTestingModule } from '@/utils/testing-typegoose-module';
 import { MongoMemoryServer } from 'mongodb-memory-server';
+import { SteamApiService } from './steam-api.service';
 
 class EnvironmentStub {
   superUser = null;
@@ -55,7 +56,18 @@ class DiscordNotificationsServiceStub {
 }
 
 class ConfigServiceStub {
-  get(key: string) { return true; }
+  get(key: string) {
+    switch (key) {
+      case 'minimumTf2InGameHours':
+        return 500;
+      case 'requireEtf2lAccount':
+        return true;
+    }
+  }
+}
+
+class SteamApiServiceStub {
+  getTf2InGameHours(steamId64: string) { return Promise.resolve(800); }
 }
 
 describe('PlayersService', () => {
@@ -68,6 +80,7 @@ describe('PlayersService', () => {
   let gamesService: GamesServiceStub;
   let onlinePlayersService: OnlinePlayersServiceStub;
   let discordNotificationsService: DiscordNotificationsServiceStub;
+  let steamApiService: SteamApiServiceStub;
 
   beforeAll(() => mongod = new MongoMemoryServer());
   afterAll(async () => await mongod.stop());
@@ -86,6 +99,7 @@ describe('PlayersService', () => {
         { provide: OnlinePlayersService, useClass: OnlinePlayersServiceStub },
         { provide: DiscordNotificationsService, useClass: DiscordNotificationsServiceStub },
         { provide: ConfigService, useClass: ConfigServiceStub },
+        { provide: SteamApiService, useClass: SteamApiServiceStub },
       ],
     }).compile();
 
@@ -96,6 +110,7 @@ describe('PlayersService', () => {
     gamesService = module.get(GamesService);
     onlinePlayersService = module.get(OnlinePlayersService);
     discordNotificationsService = module.get(DiscordNotificationsService);
+    steamApiService = module.get(SteamApiService);
   });
 
   beforeEach(async () => {
@@ -148,15 +163,15 @@ describe('PlayersService', () => {
       const blacklistedProfile: Etf2lProfile = {
         bans: [
           {
-              end: 4294967295,
-              reason: 'Blacklisted',
-              start: 0,
+            end: 4294967295,
+            reason: 'Blacklisted',
+            start: 0,
           },
         ],
         classes: [
-            'Scout',
-            'Soldier',
-            'Sniper',
+          'Scout',
+          'Soldier',
+          'Sniper',
         ],
         country: 'Russia',
         id: 129205,
@@ -193,6 +208,26 @@ describe('PlayersService', () => {
       const spy = jest.spyOn(discordNotificationsService, 'notifyNewPlayer');
       const player = await service.createPlayer(mockSteamProfile);
       expect(spy).toHaveBeenCalledWith(player);
+    });
+
+    describe('when TF2 in-game hours requirements are not met', () => {
+      beforeEach(() => {
+        jest.spyOn(steamApiService, 'getTf2InGameHours').mockResolvedValue(400);
+      });
+
+      it('should deny', async () => {
+        await expect(service.createPlayer(mockSteamProfile)).rejects.toThrowError('not enough tf2 hours');
+      });
+    });
+
+    describe('when TF2 in-game hours could not be fetched', () => {
+      beforeEach(() => {
+        jest.spyOn(steamApiService, 'getTf2InGameHours').mockRejectedValue(new Error('cannot verify in-game hours for TF2'));
+      });
+
+      it('should deny', async () => {
+        await expect(service.createPlayer(mockSteamProfile)).rejects.toThrowError('cannot verify in-game hours for TF2');
+      });
     });
   });
 
