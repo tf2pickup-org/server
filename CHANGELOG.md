@@ -1,3 +1,8 @@
+# [2.2.0](https://github.com/tf2pickup-pl/server/compare/2.1.0...2.2.0) (2020-03-03)
+
+### Features
+* Whitelist support ([0b1280c](https://github.com/tf2pickup-pl/server/commit/0b1280cb92e9f92d66393f8db19f53a40f664914))
+
 # [2.1.0](https://github.com/tf2pickup-pl/server/compare/2.0.2...2.1.0) (2020-02-26)
 
 ### Features
