@@ -14,4 +14,7 @@ export interface QueueConfig {
   /* What configs to execute */
   // fixme make this per-map instead of per-gamemode
   execConfigs: string[];
+
+  /* Whitelist ID (http://whitelist.tf/) */
+  whitelistId: string;
 }

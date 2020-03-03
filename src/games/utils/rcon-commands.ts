@@ -47,6 +47,10 @@ export function setPassword(password: string) {
   return `sv_password ${password}`;
 }
 
+export function tftrueWhitelistId(whitelistId: string) {
+  return `tftrue_whitelist_id ${whitelistId}`;
+}
+
 export function tvPort(port?: string) {
   return `tv_port ${port || ''}`;
 }

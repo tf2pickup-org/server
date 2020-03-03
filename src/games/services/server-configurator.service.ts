@@ -7,7 +7,7 @@ import { PlayersService } from '@/players/services/players.service';
 import { QueueConfigService } from '@/queue/services/queue-config.service';
 import { RconFactoryService } from './rcon-factory.service';
 import { logAddressAdd, changelevel, execConfig, setPassword, addGamePlayer, logAddressDel, delAllGamePlayers,
-  kickAll, enablePlayerWhitelist, disablePlayerWhitelist, tvPort, tvPassword } from '../utils/rcon-commands';
+  kickAll, enablePlayerWhitelist, disablePlayerWhitelist, tvPort, tvPassword, tftrueWhitelistId } from '../utils/rcon-commands';
 import { deburr } from 'lodash';
 import { extractConVarValue } from '../utils/extract-con-var-value';
 import { Rcon } from 'rcon-client/lib';
@@ -44,6 +44,11 @@ export class ServerConfiguratorService {
       for (const configName of this.queueConfigService.queueConfig.execConfigs) {
         this.logger.debug(`[${server.name}] executing ${configName}...`);
         await rcon.send(execConfig(configName));
+      }
+
+      if (this.queueConfigService.queueConfig.whitelistId) {
+        this.logger.debug(`[${server.name}] setting whitelist ${this.queueConfigService.queueConfig.whitelistId}...`);
+        await rcon.send(tftrueWhitelistId(this.queueConfigService.queueConfig.whitelistId));
       }
 
       const password = generate({ length: 10, numbers: true, uppercase: true });

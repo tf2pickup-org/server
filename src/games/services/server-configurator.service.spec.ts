@@ -5,7 +5,8 @@ import { PlayersService } from '@/players/services/players.service';
 import { QueueConfigService } from '@/queue/services/queue-config.service';
 import { RconFactoryService } from './rcon-factory.service';
 import { logAddressAdd, kickAll, changelevel, execConfig, addGamePlayer, enablePlayerWhitelist, tvPort, tvPassword,
-  logAddressDel, delAllGamePlayers, disablePlayerWhitelist } from '../utils/rcon-commands';
+  logAddressDel, delAllGamePlayers, disablePlayerWhitelist, tftrueWhitelistId } from '../utils/rcon-commands';
+import { QueueConfig } from '@/queue/queue-config';
 
 class EnvironmentStub {
   logRelayAddress = 'FAKE_RELAY_ADDRESS';
@@ -23,7 +24,7 @@ class PlayersServiceStub {
 class QueueConfigServiceStub {
   queueConfig = {
     execConfigs: [ 'etf2l_6v6_5cp' ],
-  };
+  } as Partial<QueueConfig>;
 }
 
 class RconStub {
@@ -59,6 +60,7 @@ describe('ServerConfiguratorService', () => {
   let service: ServerConfiguratorService;
   let rconFactoryService: RconFactoryServiceStub;
   let playersService: PlayersServiceStub;
+  let queueConfigService: QueueConfigServiceStub;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -74,6 +76,7 @@ describe('ServerConfiguratorService', () => {
     service = module.get<ServerConfiguratorService>(ServerConfiguratorService);
     rconFactoryService = module.get(RconFactoryService);
     playersService = module.get(PlayersService);
+    queueConfigService = module.get(QueueConfigService);
   });
 
   it('should be defined', () => {
@@ -103,6 +106,18 @@ describe('ServerConfiguratorService', () => {
       expect(spy).toHaveBeenCalledWith(enablePlayerWhitelist());
       expect(spy).toHaveBeenCalledWith(tvPort());
       expect(spy).toHaveBeenCalledWith(tvPassword());
+    });
+
+    describe('when the whitelistId is set', () => {
+      beforeEach(() => {
+        queueConfigService.queueConfig.whitelistId = 'FAKE_WHITELIST_ID';
+      });
+
+      it('should set the whitelist', async () => {
+        const spy = jest.spyOn(rcon, 'send');
+        await service.configureServer(gameServer as any, game as any);
+        expect(spy).toHaveBeenCalledWith(tftrueWhitelistId('FAKE_WHITELIST_ID'));
+      });
     });
 
     it('should close the rcon connection', async () => {
