@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { SteamApiService } from './steam-api.service';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { readFileSync } from 'fs';
 import { resolve } from 'path';
 import { HttpService } from '@nestjs/common';
@@ -58,7 +58,7 @@ describe('SteamApiService', () => {
 
     describe('with response code 500', () => {
       beforeEach(() => {
-        jest.spyOn(httpService, 'get').mockReturnValue(of({ status: 500 } as any));
+        jest.spyOn(httpService, 'get').mockReturnValue(throwError({ status: 500 } as any));
       });
 
       it('should throw an error', async () => {
