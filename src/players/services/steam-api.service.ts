@@ -1,6 +1,6 @@
 import { Injectable, HttpService } from '@nestjs/common';
 import { Environment } from '@/environment/environment';
-import { map, switchMap } from 'rxjs/operators';
+import { map, switchMap, catchError } from 'rxjs/operators';
 import { floor } from 'lodash';
 import { of, throwError } from 'rxjs';
 
@@ -40,6 +40,7 @@ export class SteamApiService {
         }
       }),
       map(seconds => floor(seconds / 60 / 60)),
+      catchError(() => throwError(new Error('cannot verify in-game hours for TF2'))),
     ).toPromise();
   }
 
