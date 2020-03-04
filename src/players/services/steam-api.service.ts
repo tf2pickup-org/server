@@ -29,15 +29,11 @@ export class SteamApiService {
   async getTf2InGameHours(steamId64: string): Promise<number> {
     return this.httpService.get<UserStatsForGameResponse>(`${this.userStatsForGameEndpoint}/?appid=${this.tf2AppId}&key=${this.environment.steamApiKey}&steamid=${steamId64}&format=json`).pipe(
       switchMap(response => {
-        if (response.status === 200) {
-          return of(
-            response.data.playerstats.stats
-              .filter(s => /\.accum\.iPlayTime$/.test(s.name))
-              .reduce((sum, curr) => sum + curr.value, 0)
-          );
-        } else {
-          return throwError(new Error('cannot verify in-game hours for TF2'));
-        }
+        return of(
+          response.data.playerstats.stats
+            .filter(s => /\.accum\.iPlayTime$/.test(s.name))
+            .reduce((sum, curr) => sum + curr.value, 0)
+        );
       }),
       map(seconds => floor(seconds / 60 / 60)),
       catchError(() => throwError(new Error('cannot verify in-game hours for TF2'))),
