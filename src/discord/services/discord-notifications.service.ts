@@ -1,5 +1,5 @@
 import { Injectable, OnModuleInit, Logger, Inject, forwardRef } from '@nestjs/common';
-import { Client, TextChannel, RichEmbed } from 'discord.js';
+import { Client, TextChannel, MessageEmbed } from 'discord.js';
 import { Environment } from '@/environment/environment';
 import { PlayerBan } from '@/players/models/player-ban';
 import { PlayersService } from '@/players/services/players.service';
@@ -32,7 +32,7 @@ export class DiscordNotificationsService implements OnModuleInit {
       });
 
       this.client.login(this.environment.discordBotToken)
-        .catch(error => this.logger.error(error));
+        .catch(error => this.logger.error(error.toString()));
     }
   }
 
@@ -59,7 +59,7 @@ export class DiscordNotificationsService implements OnModuleInit {
 
         const endText = moment(ban.end).fromNow();
 
-        const embed = new RichEmbed()
+        const embed = new MessageEmbed()
           .setColor('#dc3545')
           .setTitle('Ban added')
           .addField('Admin', admin.name)
@@ -81,7 +81,7 @@ export class DiscordNotificationsService implements OnModuleInit {
       if (channel) {
         const player = await this.playersService.getById(ban.player.toString());
 
-        const embed = new RichEmbed()
+        const embed = new MessageEmbed()
           .setColor('#9838dc')
           .setTitle('Ban revoked')
           .addField('Player', player.name)
@@ -98,7 +98,7 @@ export class DiscordNotificationsService implements OnModuleInit {
     if (this.enabled && this.notifyNewPlayers && this.environment.discordAdminNotificationsChannel) {
       const channel = this.findChannel(this.environment.discordAdminNotificationsChannel);
       if (channel) {
-        const embed = new RichEmbed()
+        const embed = new MessageEmbed()
           .setColor('#33dc7f')
           .setTitle('New player')
           .addField('Name', player.name)
@@ -113,16 +113,16 @@ export class DiscordNotificationsService implements OnModuleInit {
   }
 
   private findChannel(name: string) {
-    return this.client.channels
-    .filter(c => c instanceof TextChannel)
-    .find(c => (c as TextChannel).name === name) as TextChannel;
+    return this.client.channels.cache
+      .filter(c => c instanceof TextChannel)
+      .find(c => (c as TextChannel).name === name) as TextChannel;
   }
 
   notifySubstituteIsNeeded(substituteRequest: SubstituteRequest) {
     if (this.enabled && this.notifySubstituteRequests && this.environment.discordQueueNotificationsChannel) {
       const channel = this.findChannel(this.environment.discordQueueNotificationsChannel);
       if (channel) {
-        const embed = new RichEmbed()
+        const embed = new MessageEmbed()
           .setColor('#ff557f')
           .setTitle('A subsitute is needed')
           .addField('Game no.', `#${substituteRequest.gameNumber}`)
