@@ -1,3 +1,8 @@
+# [2.3.0](https://github.com/tf2pickup-pl/server/compare/2.2.0...2.3.0) (2020-03-04)
+
+### Features
+* Verify TF2 in-game hours ([18a57a3](https://github.com/tf2pickup-pl/server/commit/18a57a36aa9a3aa74b5073e080f37fbfc34cb316))
+
 # [2.2.0](https://github.com/tf2pickup-pl/server/compare/2.1.0...2.2.0) (2020-03-03)
 
 ### Features
