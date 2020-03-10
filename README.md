@@ -1,4 +1,4 @@
-# tf2pickup.pl server [![Build Status](https://api.travis-ci.com/tf2pickup-pl/server.svg?branch=master)](https://travis-ci.com/tf2pickup-pl/server) [![Code coverage](https://codecov.io/gh/tf2pickup-pl/server/branch/master/graph/badge.svg)](https://codecov.io/gh/tf2pickup-pl/server) [![MIT license](https://img.shields.io/github/license/tf2pickup-pl/server)](https://github.com/tf2pickup-pl/server/blob/master/LICENSE) [![ZenHub](https://img.shields.io/badge/project-ZenHub-5e60ba.svg)](https://app.zenhub.com/workspaces/tf2pickuppl-5e5f84c8ae570de02377ca32/board)
+# tf2pickup.pl server [![Build Status](https://api.travis-ci.com/tf2pickup-pl/server.svg?branch=master)](https://travis-ci.com/tf2pickup-pl/server) [![Code coverage](https://codecov.io/gh/tf2pickup-pl/server/branch/master/graph/badge.svg)](https://codecov.io/gh/tf2pickup-pl/server) [![MIT license](https://img.shields.io/github/license/tf2pickup-pl/server)](https://github.com/tf2pickup-pl/server/blob/master/LICENSE) [![Wekan](https://img.shields.io/badge/project-wekan-%2300aecc.svg)](https://w.supra.tf/b/xYYTewYR5RcvfHBZ8/tf2pickup-pl)
 
 ## Prerequisites
 
