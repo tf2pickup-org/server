@@ -22,7 +22,7 @@
     "@nestjs/passport": "6.2.0",
     "@nestjs/platform-express": "6.11.11",
     "@nestjs/platform-socket.io": "6.11.11",
-    "@nestjs/schedule": "0.2.1",
+    "@nestjs/schedule": "0.3.0",
     "@nestjs/websockets": "6.11.11",
     "@typegoose/typegoose": "6.4.0",
     "class-transformer": "0.2.3",
