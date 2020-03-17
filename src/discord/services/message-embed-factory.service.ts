@@ -30,7 +30,7 @@ export class MessageEmbedFactoryService {
       .setTimestamp();
   }
 
-  async fromBanRevoked(playerBan: PlayerBan) {
+  async fromPlayerBanRevoked(playerBan: PlayerBan) {
     const player = await this.playersService.getById(playerBan.player.toString());
 
     return new MessageEmbed()

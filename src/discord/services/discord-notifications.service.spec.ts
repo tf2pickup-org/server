@@ -1,16 +1,13 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { DiscordNotificationsService } from './discord-notifications.service';
 import { Environment } from '@/environment/environment';
-import { PlayersService } from '@/players/services/players.service';
 import { ConfigService } from '@nestjs/config';
-import { Client, Channel, Collection, TextChannel } from 'discord.js';
+import { Client, TextChannel } from 'discord.js';
 
 class EnvironmentStub {
   discordBotToken = 'FAKE_DISCORD_BOT_TOKEN';
   discordQueueNotificationsChannel = 'queue';
 }
-
-class PlayersServiceStub { }
 
 class ConfigServiceStub {
   get(key: string) {
@@ -29,7 +26,6 @@ jest.mock('discord.js');
 describe('DiscordNotificationsService', () => {
   let service: DiscordNotificationsService;
   let client: Client;
-  let queueChannel: TextChannel;
 
   beforeEach(() => {
     (Client as any as jest.MockedClass<typeof Client>).mockClear();
@@ -40,7 +36,6 @@ describe('DiscordNotificationsService', () => {
       providers: [
         DiscordNotificationsService,
         { provide: Environment, useClass: EnvironmentStub },
-        { provide: PlayersService, useClass: PlayersServiceStub },
         { provide: ConfigService, useClass: ConfigServiceStub },
       ],
     }).compile();

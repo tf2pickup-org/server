@@ -1,12 +1,16 @@
-import { Injectable, OnModuleInit, Logger, Inject, forwardRef } from '@nestjs/common';
-import { Client, TextChannel, MessageEmbed } from 'discord.js';
+import { Injectable, OnModuleInit, Logger } from '@nestjs/common';
+import { Client, TextChannel, MessageEmbed, Message } from 'discord.js';
 import { Environment } from '@/environment/environment';
-import { PlayerBan } from '@/players/models/player-ban';
-import { PlayersService } from '@/players/services/players.service';
-import { Player } from '@/players/models/player';
-import moment = require('moment');
 import { ConfigService } from '@nestjs/config';
 import { SubstituteRequest } from '@/queue/substitute-request';
+import { MessageEmbedFactoryService } from './message-embed-factory.service';
+import { PlayerBan } from '@/players/models/player-ban';
+import { Player } from '@/players/models/player';
+
+export enum TargetChannel {
+  Admins,
+  Queue,
+}
 
 @Injectable()
 export class DiscordNotificationsService implements OnModuleInit {
@@ -14,14 +18,11 @@ export class DiscordNotificationsService implements OnModuleInit {
   private client = new Client();
   private enabled = false;
   private logger = new Logger(DiscordNotificationsService.name);
-  private notifyBans = this.configService.get<boolean>('discordNotifications.notifyBans');
-  private notifyNewPlayers = this.configService.get<boolean>('discordNotifications.notifyNewPlayers');
-  private notifySubstituteRequests = this.configService.get<boolean>('discordNotifications.notifySubstituteRequests');
 
   constructor(
     private environment: Environment,
-    @Inject(forwardRef(() => PlayersService)) private playersService: PlayersService,
     private configService: ConfigService,
+    private messageEmbedFactoryService: MessageEmbedFactoryService,
   ) { }
 
   onModuleInit() {
@@ -49,93 +50,55 @@ export class DiscordNotificationsService implements OnModuleInit {
     }
   }
 
-  async notifyBanAdded(ban: PlayerBan) {
-    if (this.enabled && this.notifyBans && this.environment.discordAdminNotificationsChannel) {
-      const channel = this.findChannel(this.environment.discordAdminNotificationsChannel);
+  async sendNotification(targetChannel: TargetChannel, notification: MessageEmbed): Promise<Message> {
+    if (!this.enabled) {
+      return null;
+    }
 
-      if (channel) {
-        const admin = await this.playersService.getById(ban.admin.toString());
-        const player = await this.playersService.getById(ban.player.toString());
+    let channelName: string;
+    switch (targetChannel) {
+      case TargetChannel.Admins:
+        channelName = this.environment.discordAdminNotificationsChannel;
+        break;
 
-        const endText = moment(ban.end).fromNow();
+      case TargetChannel.Queue:
+        channelName = this.environment.discordQueueNotificationsChannel;
+        break;
+    }
 
-        const embed = new MessageEmbed()
-          .setColor('#dc3545')
-          .setTitle('Ban added')
-          .addField('Admin', admin.name)
-          .addField('Player', player.name)
-          .addField('Reason', ban.reason)
-          .addField('Ends', endText)
-          .setTimestamp();
+    if (!channelName) {
+      return null;
+    }
 
-        channel.send(embed);
-      } else {
-        this.logger.warn(`channel ${this.environment.discordAdminNotificationsChannel} not found`);
-      }
+    const channel = this.findChannel(channelName);
+    if (channel) {
+      return channel.send(notification);
+    } else {
+      this.logger.warn(`channel ${channelName} not found`);
+      return null;
     }
   }
 
-  async notifyBanRevoked(ban: PlayerBan) {
-    if (this.enabled && this.notifyBans && this.environment.discordAdminNotificationsChannel) {
-      const channel = this.findChannel(this.environment.discordAdminNotificationsChannel);
-      if (channel) {
-        const player = await this.playersService.getById(ban.player.toString());
-
-        const embed = new MessageEmbed()
-          .setColor('#9838dc')
-          .setTitle('Ban revoked')
-          .addField('Player', player.name)
-          .setTimestamp();
-
-        channel.send(embed);
-      } else {
-        this.logger.warn(`channel ${this.environment.discordAdminNotificationsChannel} not found`);
-      }
-    }
+  async notifySubstituteRequest(substituteRequest: SubstituteRequest) {
+    return this.sendNotification(TargetChannel.Queue, await this.messageEmbedFactoryService.fromSubstituteRequest(substituteRequest));
   }
 
-  notifyNewPlayer(player: Player) {
-    if (this.enabled && this.notifyNewPlayers && this.environment.discordAdminNotificationsChannel) {
-      const channel = this.findChannel(this.environment.discordAdminNotificationsChannel);
-      if (channel) {
-        const embed = new MessageEmbed()
-          .setColor('#33dc7f')
-          .setTitle('New player')
-          .addField('Name', player.name)
-          .addField('Profile URL', `${this.environment.clientUrl}/player/${player.id}`)
-          .setTimestamp();
+  async notifyPlayerBanAdded(playerBan: PlayerBan) {
+    return this.sendNotification(TargetChannel.Admins, await this.messageEmbedFactoryService.fromPlayerBanAdded(playerBan));
+  }
 
-        channel.send(embed);
-      } else {
-        this.logger.warn(`channel ${this.environment.discordAdminNotificationsChannel} not found`);
-      }
-    }
+  async notifyPlayerBanRevoked(playerBan: PlayerBan) {
+    return this.sendNotification(TargetChannel.Admins, await this.messageEmbedFactoryService.fromPlayerBanRevoked(playerBan));
+  }
+
+  async notifyNewPlayer(player: Player) {
+    return this.sendNotification(TargetChannel.Admins, await this.messageEmbedFactoryService.fromNewPlayer(player));
   }
 
   private findChannel(name: string) {
     return this.client.channels.cache
       .filter(c => c instanceof TextChannel)
       .find(c => (c as TextChannel).name === name) as TextChannel;
-  }
-
-  notifySubstituteIsNeeded(substituteRequest: SubstituteRequest) {
-    if (this.enabled && this.notifySubstituteRequests && this.environment.discordQueueNotificationsChannel) {
-      const channel = this.findChannel(this.environment.discordQueueNotificationsChannel);
-      if (channel) {
-        const embed = new MessageEmbed()
-          .setColor('#ff557f')
-          .setTitle('A subsitute is needed')
-          .addField('Game no.', `#${substituteRequest.gameNumber}`)
-          .addField('Class', substituteRequest.gameClass)
-          .addField('Team', substituteRequest.team)
-          .setURL(`${this.environment.clientUrl}/game/${substituteRequest.gameId}`)
-          .setThumbnail('https://tf2pickup.pl/assets/android-icon-192x192.png');
-
-        channel.send(embed);
-      } else {
-        this.logger.warn(`channel ${this.environment.discordQueueNotificationsChannel} not found`);
-      }
-    }
   }
 
 }

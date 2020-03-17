@@ -58,9 +58,9 @@ describe('MessageEmbedFactoryService', () => {
     });
   });
 
-  describe('fromBanRevoked()', () => {
+  describe('fromPlayerBanRevoked()', () => {
     it('should render the MessageEmbed', async () => {
-      const ret = await service.fromBanRevoked({
+      const ret = await service.fromPlayerBanRevoked({
         player: 'FAKE_PLAYER_ID',
         reason: 'FAKE_REASON',
       } as any);
