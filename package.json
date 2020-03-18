@@ -26,7 +26,7 @@
     "@nestjs/websockets": "7.0.3",
     "@typegoose/typegoose": "6.4.0",
     "class-transformer": "0.2.3",
-    "class-validator": "0.11.0",
+    "class-validator": "0.11.1",
     "discord.js": "12.0.2",
     "gamedig": "2.0.20",
     "generate-password": "1.5.1",
