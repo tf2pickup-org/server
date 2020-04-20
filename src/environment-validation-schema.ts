@@ -16,7 +16,7 @@ export default object({
   KEY_STORE_PASSPHARE: string().required(),
   SUPER_USER: string().required(),
   QUEUE_CONFIG: string()
-    .valid('test', '6v6')
+    .valid('test', '6v6', '9v9')
     .default('6v6'),
   MUMBLE_SERVER_URL: string().required(),
   MUMBLE_CHANNEL_NAME: string().required(),
