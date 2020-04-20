@@ -27,14 +27,14 @@ function filterTeamOverrides(teamSetups: InterimTeamSetup[], overrides: TeamOver
  * From the given pool of players make two teams that make the smallest average skill difference.
  */
 export function pickTeams(players: PlayerSlot[], gameClasses: string[], overrides?: TeamOverrides): GamePlayer[] {
-  const allPossibilities: Array<{
+  const allPossibilities: {
     gameClass: string,
-    allClassCombinations: Array<{ [teamId: number]: PlayerSlot[] }>,
-  }> = [];
+    allClassCombinations: { [teamId: number]: PlayerSlot[] }[],
+  }[] = [];
 
   for (const gameClass of gameClasses) {
     const ofGameClass = players.filter(p => p.gameClass === gameClass);
-    const allClassCombinations: Array<{ [teamId: number]: PlayerSlot[] }> = [];
+    const allClassCombinations: { [teamId: number]: PlayerSlot[] }[] = [];
 
     if (ofGameClass.length === 2) {
       allClassCombinations.push({
