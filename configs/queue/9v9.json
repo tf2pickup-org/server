@@ -39,20 +39,51 @@
     }
   ],
   "maps": [
-    "koth_product_rcx",
-    "koth_warmtic_b6",
-    "koth_coalplant_b8",
-    "pl_prowater_b6",
-    "cp_gullywash_final1",
-    "pl_upward",
-    "pl_borneo",
-    "pl_swiftwater_final1",
-    "pl_vigil_rc6",
-    "cp_propaganda_b16",
-    "pl_barnblitz_pro6"
+    {
+      "name": "koth_product_rcx",
+      "configName": "koth"
+    },
+    {
+      "name": "koth_warmtic_b6",
+      "configName": "koth"
+    },
+    {
+      "name": "koth_coalplant_b8",
+      "configName": "koth"
+    },
+    {
+      "name": "pl_prowater_b6",
+      "configName": "stopwatch"
+    },
+    {
+      "name": "cp_gullywash_final1",
+      "configName": "5cp"
+    },
+    {
+      "name": "pl_upward",
+      "configName": "stopwatch"
+    },
+    {
+      "name": "pl_borneo",
+      "configName": "stopwatch"
+    },
+    {
+      "name": "pl_swiftwater_final1",
+      "configName": "stopwatch"
+    },
+    {
+      "name": "pl_vigil_rc6",
+      "configName": "stopwatch"
+    },
+    {
+      "name": "pl_barnblitz_pro6",
+      "configName": "stopwatch"
+    }
   ],
-  "execConfigs": [
-    "etf2l_9v9_5cp"
-  ],
+  "configs": {
+    "koth": "etf2l_9v9_koth",
+    "stopwatch": "etf2l_9v9_stopwatch",
+    "5cp": "etf2l_9v9_5cp"
+  },
   "whitelistId": "10712"
 }

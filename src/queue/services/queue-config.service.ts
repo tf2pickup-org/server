@@ -1,8 +1,5 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, Inject } from '@nestjs/common';
 import { QueueConfig } from '../queue-config';
-import { Environment } from '@/environment/environment';
-import { join } from 'path';
-import { readFileSync } from 'fs';
 import { Validator, Schema } from 'jsonschema';
 
 @Injectable()
@@ -13,12 +10,9 @@ export class QueueConfigService {
   private readonly logger = new Logger(QueueConfigService.name);
 
   constructor(
-    private environment: Environment,
+    @Inject('QUEUE_CONFIG_JSON') queueConfigJson: string,
   ) {
-    const configFileName = join('configs', 'queue', `${this.environment.queueConfig}.json`);
-    this.logger.verbose(`using ${configFileName} for queue config`);
-    const data = readFileSync(configFileName, 'utf-8');
-    this.queueConfig = JSON.parse(data) as QueueConfig;
+    this.queueConfig = JSON.parse(queueConfigJson) as QueueConfig;
     this.validateQueueConfig(this.queueConfig);
   }
 
@@ -58,25 +52,42 @@ export class QueueConfigService {
     };
     validator.addSchema(gameClassSchema);
 
+    const mapPoolItemSchema: Schema = {
+      id: '/mapPoolItem',
+      type: 'object',
+      properties: {
+        name: {
+          type: 'string',
+        },
+        configName: {
+          type: 'string',
+        },
+      },
+    };
+    validator.addSchema(mapPoolItemSchema);
+
     const queueConfigSchema: Schema = {
       id: '/queueConfig',
       type: 'object',
       properties: {
         teamCount: {
-          $ref: '/teamCount',
+          $ref: teamCountSchema.id,
         },
         classes: {
           type: 'array',
           items: {
-            $ref: '/gameClass',
+            $ref: gameClassSchema.id,
           },
         },
         maps: {
           type: 'array',
           items:  {
-            type: 'string',
+            $ref: mapPoolItemSchema.id,
           },
           minItems: 0,
+        },
+        configs: {
+          type: 'object',
         },
         execConfigs: {
           type: 'array',

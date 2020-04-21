@@ -19,16 +19,38 @@
     }
   ],
   "maps": [
-    "cp_process_final",
-    "cp_snakewater_final1",
-    "cp_sunshine",
-    "cp_granary_pro_rc8",
-    "cp_gullywash_final1",
-    "cp_reckoner_rc2",
-    "cp_prolands_rc2t"
+    {
+      "name": "cp_process_final",
+      "configName": "5cp"
+    },
+    {
+      "name": "cp_snakewater_final1",
+      "configName": "5cp"
+    },
+    {
+      "name": "cp_sunshine",
+      "configName": "5cp"
+    },
+    {
+      "name": "cp_granary_pro_rc8",
+      "configName": "5cp"
+    },
+    {
+      "name": "cp_gullywash_final1",
+      "configName": "5cp"
+    },
+    {
+      "name": "cp_reckoner_rc2",
+      "configName": "5cp"
+    },
+    {
+      "name": "cp_prolands_rc2t",
+      "configName": "5cp"
+    }
   ],
-  "execConfigs": [
-    "etf2l_6v6_5cp"
-  ],
+  "configs": {
+    "5cp": "etf2l_6v6_5cp",
+    "koth": "etf2l_6v6_koth"
+  },
   "whitelistId": "10585"
 }

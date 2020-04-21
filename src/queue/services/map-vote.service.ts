@@ -77,8 +77,11 @@ export class MapVoteService implements OnModuleInit {
   }
 
   private reset() {
-    this.mapOptions = shuffle(this.queueConfigService.queueConfig.maps.filter(m => m !== this.lastPlayedMap))
-      .slice(0, this.mapVoteOptionCount);
+    this.mapOptions = shuffle(
+        this.queueConfigService.queueConfig.maps
+          .filter(m => m.name !== this.lastPlayedMap)
+          .map(m => m.name)
+    ).slice(0, this.mapVoteOptionCount);
     this.votes = [];
     this._results.next(this.getResults());
   }

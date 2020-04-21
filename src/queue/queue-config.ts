@@ -1,4 +1,5 @@
 import { GameClass } from './game-class';
+import { MapPoolItem } from './map-pool-item';
 
 export interface QueueConfig {
   /* This is always 2 */
@@ -8,11 +9,13 @@ export interface QueueConfig {
   classes: GameClass[];
 
   /* Map pool */
-  maps: string[];
+  maps: MapPoolItem[];
 
-  /* What configs to execute */
-  // fixme make this per-map instead of per-gamemode
-  execConfigs: string[];
+  /* Configs */
+  configs: { [configName: string]: string };
+
+  /* List of configs to execute */
+  execConfigs?: string[];
 
   /* Whitelist ID (http://whitelist.tf/) */
   whitelistId: string;
