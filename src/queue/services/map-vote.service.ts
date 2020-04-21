@@ -1,15 +1,14 @@
 import { Injectable, OnModuleInit, Inject, forwardRef } from '@nestjs/common';
-import { Tf2Map } from '../tf2-map';
 import { QueueConfigService } from './queue-config.service';
 import { QueueService } from './queue.service';
 import { maxBy, shuffle } from 'lodash';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject } from 'rxjs';
 import { MapVoteResult } from '../map-vote-result';
 import { QueueGateway } from '../gateways/queue.gateway';
 
 interface MapVote {
   playerId: string;
-  map: Tf2Map;
+  map: string;
 }
 
 @Injectable()
@@ -17,7 +16,7 @@ export class MapVoteService implements OnModuleInit {
 
   private _results = new BehaviorSubject<MapVoteResult[]>([]);
 
-  public mapOptions: Tf2Map[];
+  public mapOptions: string[];
 
   get results(): MapVoteResult[] {
     return this._results.value;
@@ -40,11 +39,11 @@ export class MapVoteService implements OnModuleInit {
     this._results.subscribe(results => this.queueGateway.emitVoteResultsUpdate(results));
   }
 
-  voteCountForMap(map: Tf2Map): number {
+  voteCountForMap(map: string): number {
     return this.votes.filter(v => v.map === map).length;
   }
 
-  voteForMap(playerId: string, map: Tf2Map) {
+  voteForMap(playerId: string, map: string) {
     if (!this.mapOptions.includes(map)) {
       throw new Error('this map is not an option in the vote');
     }
@@ -61,7 +60,7 @@ export class MapVoteService implements OnModuleInit {
     this._results.next(this.getResults());
   }
 
-  playerVote(playerId: string): Tf2Map {
+  playerVote(playerId: string): string {
     return this.votes.find(v => v.playerId === playerId)?.map;
   }
 

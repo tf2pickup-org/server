@@ -2,7 +2,6 @@ import { SubscribeMessage, WebSocketGateway, OnGatewayInit } from '@nestjs/webso
 import { QueueService } from '../services/queue.service';
 import { WsAuthorized } from '@/auth/decorators/ws-authorized.decorator';
 import { Socket } from 'socket.io';
-import { Tf2Map } from '../tf2-map';
 import { MapVoteService } from '../services/map-vote.service';
 import { QueueSlot } from '../queue-slot';
 import { QueueState } from '../queue-state';
@@ -49,7 +48,7 @@ export class QueueGateway implements OnGatewayInit {
 
   @WsAuthorized()
   @SubscribeMessage('vote for map')
-  voteForMap(client: any, payload: { map: Tf2Map }) {
+  voteForMap(client: any, payload: { map: string }) {
     this.mapVoteService.voteForMap(client.request.user.id, payload.map);
     return payload.map;
   }

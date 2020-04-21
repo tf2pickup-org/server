@@ -1,5 +1,4 @@
 import { GameClass } from './game-class';
-import { Tf2Map } from './tf2-map';
 
 export interface QueueConfig {
   /* This is always 2 */
@@ -9,7 +8,7 @@ export interface QueueConfig {
   classes: GameClass[];
 
   /* Map pool */
-  maps: Tf2Map[];
+  maps: string[];
 
   /* What configs to execute */
   // fixme make this per-map instead of per-gamemode
