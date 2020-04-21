@@ -41,9 +41,16 @@ export class ServerConfiguratorService {
       this.logger.debug(`[${server.name}] changing map to ${game.map}...`);
       await rcon.send(changelevel(game.map));
 
-      for (const configName of this.queueConfigService.queueConfig.execConfigs) {
-        this.logger.debug(`[${server.name}] executing ${configName}...`);
-        await rcon.send(execConfig(configName));
+      const configName = this.queueConfigService.queueConfig.maps.find(m => m.name === game.map)?.configName;
+      const config = this.queueConfigService.queueConfig.configs[configName];
+      if (config) {
+        this.logger.debug(`[${server.name}] executing ${config}...`);
+        await rcon.send(execConfig(config));
+      }
+
+      for (const c of this.queueConfigService.queueConfig.execConfigs) {
+        this.logger.debug(`[${server.name}] executing ${c}...`);
+        await rcon.send(execConfig(c));
       }
 
       if (this.queueConfigService.queueConfig.whitelistId) {
