@@ -44,8 +44,16 @@
       "configName": "5cp"
     },
     {
-      "name": "cp_prolands_rc2t",
+      "name": "koth_clearcut_b14",
+      "configName": "koth"
+    },
+    {
+      "name": "cp_villa_b12",
       "configName": "5cp"
+    },
+    {
+      "name": "koth_bagel_fall_b7",
+      "configName": "koth"
     }
   ],
   "configs": {
