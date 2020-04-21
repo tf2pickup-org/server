@@ -23,7 +23,13 @@ class PlayersServiceStub {
 
 class QueueConfigServiceStub {
   queueConfig = {
-    execConfigs: [ 'etf2l_6v6_5cp' ],
+    maps: [
+      { name: 'cp_badlands', configName: '5cp' },
+    ],
+    configs: {
+      '5cp': 'etf2l_6v6_5cp',
+    },
+    execConfigs: [ 'test' ],
   } as Partial<QueueConfig>;
 }
 
@@ -100,6 +106,7 @@ describe('ServerConfiguratorService', () => {
       expect(spy).toHaveBeenCalledWith(kickAll());
       expect(spy).toHaveBeenCalledWith(changelevel('cp_badlands'));
       expect(spy).toHaveBeenCalledWith(execConfig('etf2l_6v6_5cp'));
+      expect(spy).toHaveBeenCalledWith(execConfig('test'));
       expect(spy).toHaveBeenCalledWith(jasmine.stringMatching(/^sv_password\s.+$/));
       expect(spy).toHaveBeenCalledWith(addGamePlayer('PLAYER_1_STEAMID', 'PLAYER_1_NAME', 2, 'soldier'));
       expect(spy).toHaveBeenCalledWith(addGamePlayer('PLAYER_2_STEAMID', 'PLAYER_2_NAME', 3, 'soldier'));

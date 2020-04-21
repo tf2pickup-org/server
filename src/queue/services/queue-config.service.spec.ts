@@ -1,26 +1,46 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { QueueConfigService } from './queue-config.service';
-import { Environment } from '@/environment/environment';
-
-class EnvironmentStub {
-  queueConfig = '6v6';
-}
 
 describe('QueueConfigService', () => {
-  let service: QueueConfigService;
-
-  beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        QueueConfigService,
-        { provide: Environment, useClass: EnvironmentStub },
+  describe('with a valid config', () => {
+    const config = `{
+      "teamCount": 2,
+      "classes": [
+        {
+          "name": "soldier",
+          "count": 1
+        }
       ],
-    }).compile();
+      "maps": [
+        {
+          "name": "cp_process_final",
+          "configName": "5cp"
+        },
+        {
+          "name": "cp_gullywash_final1",
+          "configName": "5cp"
+        }
+      ],
+      "configs": {
+        "5cp": "etf2l_6v6_5cp"
+      }
+    }`;
 
-    service = module.get<QueueConfigService>(QueueConfigService);
-  });
+    let service: QueueConfigService;
 
-  it('should be defined', () => {
-    expect(service).toBeDefined();
+    beforeEach(async () => {
+      const module: TestingModule = await Test.createTestingModule({
+        providers: [
+          QueueConfigService,
+          { provide: 'QUEUE_CONFIG_JSON', useValue: config },
+        ],
+      }).compile();
+
+      service = module.get<QueueConfigService>(QueueConfigService);
+    });
+
+    it('should be defined', () => {
+      expect(service).toBeDefined();
+    });
   });
 });

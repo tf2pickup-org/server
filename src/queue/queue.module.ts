@@ -11,6 +11,10 @@ import { DiscordModule } from '@/discord/discord.module';
 import { AutoGameLauncherService } from './services/auto-game-launcher.service';
 import { QueueAnnouncementsService } from './services/queue-announcements.service';
 import { FriendsService } from './services/friends.service';
+import { Environment } from '@/environment/environment';
+import { join } from 'path';
+import { readFile } from 'fs';
+import { promisify } from 'util';
 
 @Module({
   imports: [
@@ -27,6 +31,14 @@ import { FriendsService } from './services/friends.service';
     AutoGameLauncherService,
     QueueAnnouncementsService,
     FriendsService,
+    {
+      provide: 'QUEUE_CONFIG_JSON',
+      useFactory: async (environment: Environment) => {
+        const configFileName = join('configs', 'queue', `${environment.queueConfig}.json`);
+        return promisify(readFile)(configFileName, 'utf-8');
+      },
+      inject: [ Environment ],
+    },
   ],
   exports: [
     QueueService,
