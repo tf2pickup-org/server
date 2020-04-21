@@ -1,0 +1,58 @@
+{
+  "teamCount": 2,
+  "classes": [
+    {
+      "name": "scout",
+      "count": 1
+    },
+    {
+      "name": "soldier",
+      "count": 1
+    },
+    {
+      "name": "pyro",
+      "count": 1
+    },
+    {
+      "name": "demoman",
+      "count": 1
+    },
+    {
+      "name": "heavy",
+      "count": 1
+    },
+    {
+      "name": "engineer",
+      "count": 1
+    },
+    {
+      "name": "medic",
+      "count": 1
+    },
+    {
+      "name": "sniper",
+      "count": 1
+    },
+    {
+      "name": "spy",
+      "count": 1
+    }
+  ],
+  "maps": [
+    "koth_product_rcx",
+    "koth_warmtic_b6",
+    "koth_coalplant_b8",
+    "pl_prowater_b6",
+    "cp_gullywash_final1",
+    "pl_upward",
+    "pl_borneo",
+    "pl_swiftwater_final1",
+    "pl_vigil_rc6",
+    "cp_propaganda_b16",
+    "pl_barnblitz_pro6"
+  ],
+  "execConfigs": [
+    "etf2l_9v9_5cp"
+  ],
+  "whitelistId": "10712"
+}
