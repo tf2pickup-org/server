@@ -1,3 +1,14 @@
+# [2.4.0](https://github.com/tf2pickup-pl/server/compare/2.3.0...2.4.0) (2020-04-22)
+
+### Features
+* Serve documents ([4ca1286](https://github.com/tf2pickup-pl/server/commit/4ca12861ee8f84e354d4b6fddac00b0c6d58df31))
+* 9v9 gamemode support ([91e73d3](https://github.com/tf2pickup-pl/server/commit/91e73d349f27bd7b8cf48ce33d9096588e057277))
+* Per-map game config ([5186325](https://github.com/tf2pickup-pl/server/commit/518632589f18a7dd5b8abec78db70fce5d51a461))
+* Add ETF2L season 36 preseason cup maps ([4acc1f3](https://github.com/tf2pickup-pl/server/commit/4acc1f38bcac18220cccf5ad3689b8f859bcffc4))
+
+### Fixes
+* Handle Steam API error code 500 ([e5a2f8e](https://github.com/tf2pickup-pl/server/commit/e5a2f8ece482ecd2e1a9b9a6d69da097ff233d3b))
+
 # [2.3.0](https://github.com/tf2pickup-pl/server/compare/2.2.0...2.3.0) (2020-03-04)
 
 ### Features
