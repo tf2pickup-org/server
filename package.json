@@ -24,7 +24,7 @@
     "@nestjs/platform-socket.io": "7.0.8",
     "@nestjs/schedule": "0.3.1",
     "@nestjs/websockets": "7.0.8",
-    "@typegoose/typegoose": "6.4.0",
+    "@typegoose/typegoose": "6.5.0",
     "class-transformer": "0.2.3",
     "class-validator": "0.12.1",
     "discord.js": "12.2.0",
