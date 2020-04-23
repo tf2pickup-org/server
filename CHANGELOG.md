@@ -1,3 +1,8 @@
+# [2.4.1](https://github.com/tf2pickup-pl/server/compare/2.4.0...2.4.1) (2020-04-23)
+
+### Fixes
+* Handle missing execConfigs option ([836bcfd](https://github.com/tf2pickup-pl/server/commit/836bcfdb8998d1e4a8750d6b385b2fc40c42e38d))
+
 # [2.4.0](https://github.com/tf2pickup-pl/server/compare/2.3.0...2.4.0) (2020-04-22)
 
 ### Features
