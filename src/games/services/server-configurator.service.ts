@@ -48,9 +48,11 @@ export class ServerConfiguratorService {
         await rcon.send(execConfig(config));
       }
 
-      for (const c of this.queueConfigService.queueConfig.execConfigs) {
-        this.logger.debug(`[${server.name}] executing ${c}...`);
-        await rcon.send(execConfig(c));
+      if (this.queueConfigService.queueConfig.execConfigs) {
+        for (const c of this.queueConfigService.queueConfig.execConfigs) {
+          this.logger.debug(`[${server.name}] executing ${c}...`);
+          await rcon.send(execConfig(c));
+        }
       }
 
       if (this.queueConfigService.queueConfig.whitelistId) {
