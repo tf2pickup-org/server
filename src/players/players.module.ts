@@ -15,6 +15,7 @@ import { PlayersGateway } from './gateways/players.gateway';
 import { HallOfFameController } from './controllers/hall-of-fame.controller';
 import { DiscordModule } from '@/discord/discord.module';
 import { SteamApiService } from './services/steam-api.service';
+import { QueueModule } from '@/queue/queue.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { SteamApiService } from './services/steam-api.service';
 
     forwardRef(() => GamesModule),
     forwardRef(() => DiscordModule),
+    forwardRef(() => QueueModule),
   ],
   providers: [
     PlayersService,
