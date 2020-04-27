@@ -19,7 +19,7 @@ export class AuthController {
     // The steam return route has to be defined like that. Any nestjs route decorators
     // would screw up some request params, resulting in OpenID throwing an error.
     // https://github.com/liamcurry/passport-steam/issues/57
-    this.adapterHost.httpAdapter.get('/auth/steam/return', (req, res, next) => {
+    this.adapterHost.httpAdapter?.get('/auth/steam/return', (req, res, next) => {
       return authenticate('steam', async (error, user) => {
         if (error) {
           this.logger.warn(`Steam login error for ${user}: ${error}`);

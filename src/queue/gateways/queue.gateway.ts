@@ -58,11 +58,11 @@ export class QueueGateway implements OnGatewayInit {
   }
 
   emitStateUpdate(state: QueueState) {
-    this.socket.emit('queue state update', state);
+    this.socket?.emit('queue state update', state);
   }
 
   emitVoteResultsUpdate(mapVoteResults: MapVoteResult[]) {
-    this.socket.emit('map vote results update', mapVoteResults);
+    this.socket?.emit('map vote results update', mapVoteResults);
   }
 
   emitFriendshipsUpdate(friendships: Friendship[]) {

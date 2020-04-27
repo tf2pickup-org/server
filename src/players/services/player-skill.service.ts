@@ -3,16 +3,22 @@ import { InjectModel } from 'nestjs-typegoose';
 import { PlayerSkill } from '../models/player-skill';
 import { ReturnModelType, DocumentType } from '@typegoose/typegoose';
 import { PlayersService } from './players.service';
+import { Console, Command, createSpinner } from 'nestjs-console';
+import { writeFileSync } from 'fs';
+import { QueueConfigService } from '@/queue/services/queue-config.service';
+import moment = require('moment');
 
 @Injectable()
+@Console()
 export class PlayerSkillService {
 
   constructor(
     @InjectModel(PlayerSkill) private playerSkillModel: ReturnModelType<typeof PlayerSkill>,
     @Inject(forwardRef(() => PlayersService)) private playersService: PlayersService,
+    private queueConfigService: QueueConfigService,
   ) { }
 
-  async getAll(): Promise<Array<DocumentType<PlayerSkill>>> {
+  async getAll(): Promise<DocumentType<PlayerSkill>[]> {
     return await this.playerSkillModel.find({ });
   }
 
@@ -36,6 +42,32 @@ export class PlayerSkillService {
         skill: new Map(Object.entries(newSkill)),
       });
     }
+  }
+
+  @Command({
+    command: 'export-skills',
+    description: 'Export skills of all players',
+  })
+  async exportPlayerSkills() {
+    const spinner = createSpinner();
+    spinner.start('Exporting player skills');
+
+    // nick,etf2l_userid,scout,soldier,pyro,demoman,heavyweapons,engineer,medic,sniper,spy
+    const gameClasses = this.queueConfigService.queueConfig.classes.map(c => c.name);
+    const players = await this.playersService.getAll();
+    const rows = [
+      [ 'name', 'etf2lProfileId', ...gameClasses ].join(','),
+      ...(await Promise.all(players.map(async p => {
+        const skill = await this.getPlayerSkill(p.id);
+        return skill ? [ p.name, p.etf2lProfileId, ...gameClasses.map(gc => skill.skill.get(gc)) ] : null;
+      })))
+      .filter(entry => !!entry)
+      .map(row => row.join(',')),
+    ];
+
+    const fileName = `player-skills-${moment().format('YYYYMMDDHHmmss')}.csv`;
+    writeFileSync(fileName, rows.join('\n'));
+    spinner.succeed(`${fileName} saved.`);
   }
 
 }

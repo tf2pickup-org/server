@@ -7,9 +7,20 @@ import { typegooseTestingModule } from '@/utils/testing-typegoose-module';
 import { PlayerSkill } from '../models/player-skill';
 import { ReturnModelType, DocumentType } from '@typegoose/typegoose';
 import { ObjectId } from 'mongodb';
+import { QueueConfigService } from '@/queue/services/queue-config.service';
+import * as fs from 'fs';
 
 class PlayersServiceStub {
   getById(id: string) { return null; }
+  getAll() { return Promise.resolve([]); }
+}
+
+class QueueConfigServiceStub {
+  queueConfig = {
+    classes: [
+      { name: 'soldier' },
+    ],
+  };
 }
 
 describe('PlayerSkillService', () => {
@@ -18,6 +29,7 @@ describe('PlayerSkillService', () => {
   let playerSkillModel: ReturnModelType<typeof PlayerSkill>;
   let mockPlayerId: string;
   let mockPlayerSkill: DocumentType<PlayerSkill>;
+  let playersService: PlayersServiceStub;
 
   beforeAll(() => mongod = new MongoMemoryServer());
   afterAll(async () => await mongod.stop());
@@ -31,11 +43,13 @@ describe('PlayerSkillService', () => {
       providers: [
         PlayerSkillService,
         { provide: PlayersService, useClass: PlayersServiceStub },
+        { provide: QueueConfigService, useClass: QueueConfigServiceStub },
       ],
     }).compile();
 
     service = module.get<PlayerSkillService>(PlayerSkillService);
     playerSkillModel = module.get(getModelToken('PlayerSkill'));
+    playersService = module.get(PlayersService);
   });
 
   beforeEach(async () => {
@@ -78,6 +92,25 @@ describe('PlayerSkillService', () => {
 
     it('should fail if there is no such player', async () => {
       await expect(service.setPlayerSkill(new ObjectId().toString(), { scout: 1 })).rejects.toThrowError('no such player');
+    });
+  });
+
+  describe('#exportPlayerSkills()', () => {
+    describe('with players in the database', () => {
+      beforeEach(() => {
+        jest.spyOn(playersService, 'getAll').mockResolvedValue([
+          { id: mockPlayerId, name: 'FAKE_PLAYER_NAME', etf2lProfileId: 12345 },
+        ]);
+      });
+
+      it('should save all players\' skill to a csv file', async () => {
+        const spy = jest.spyOn(fs, 'writeFileSync').mockImplementation();
+        await service.exportPlayerSkills();
+        expect(spy).toHaveBeenCalledWith(
+          expect.stringMatching(/^player-skills-.+\.csv$/),
+          'name,etf2lProfileId,soldier\nFAKE_PLAYER_NAME,12345,4',
+        );
+      });
     });
   });
 });

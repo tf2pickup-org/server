@@ -17,7 +17,7 @@ export class AuthGateway implements OnModuleInit {
   ) { }
 
   onModuleInit() {
-    this.server.use(authenticate({
+    this.server?.use(authenticate({
       secret: this.keyStoreService.getKey('ws', 'verify') as string,
       succeedWithoutToken: true,
     }, async (payload, done) => {
