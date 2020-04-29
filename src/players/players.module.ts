@@ -16,6 +16,7 @@ import { HallOfFameController } from './controllers/hall-of-fame.controller';
 import { DiscordModule } from '@/discord/discord.module';
 import { SteamApiService } from './services/steam-api.service';
 import { QueueModule } from '@/queue/queue.module';
+import { FuturePlayerSkillService } from './services/future-player-skill.service';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { QueueModule } from '@/queue/queue.module';
     OnlinePlayersService,
     PlayersGateway,
     SteamApiService,
+    FuturePlayerSkillService,
   ],
   exports: [
     PlayersService,
