@@ -17,6 +17,7 @@ import { DiscordModule } from '@/discord/discord.module';
 import { SteamApiService } from './services/steam-api.service';
 import { QueueModule } from '@/queue/queue.module';
 import { FuturePlayerSkillService } from './services/future-player-skill.service';
+import { FuturePlayerSkill } from './models/future-player-skill';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { FuturePlayerSkillService } from './services/future-player-skill.service
       standardSchemaOptions(Player),
       standardSchemaOptions(PlayerBan),
       standardSchemaOptions(PlayerSkill),
+      standardSchemaOptions(FuturePlayerSkill),
     ]),
 
     forwardRef(() => GamesModule),
