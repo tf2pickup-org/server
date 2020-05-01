@@ -45,8 +45,12 @@ export class PlayersService {
     return await this.playerModel.findById(id);
   }
 
-  async findBySteamId(steamId: string): Promise<DocumentType<Player>> {
+  async findBySteamId(steamId: string) {
     return await this.playerModel.findOne({ steamId });
+  }
+
+  async findByEtf2lProfileId(etf2lProfileId: number) {
+    return await this.playerModel.findOne({ etf2lProfileId });
   }
 
   async createPlayer(steamProfile: SteamProfile): Promise<DocumentType<Player>> {

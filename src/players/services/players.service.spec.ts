@@ -117,6 +117,7 @@ describe('PlayersService', () => {
     mockPlayer = await playerModel.create({
       name: 'FAKE_PLAYER_NAME',
       steamId: 'FAKE_STEAM_ID',
+      etf2lProfileId: 123456,
     });
   });
 
@@ -136,6 +137,13 @@ describe('PlayersService', () => {
   describe('#findBySteamId()', () => {
     it('should query playerModel', async () => {
       const player = await service.findBySteamId('FAKE_STEAM_ID');
+      expect(player.toObject()).toEqual(mockPlayer.toObject());
+    });
+  });
+
+  describe('#findByEtf2lProfileId()', () => {
+    it('should query playerModel', async () => {
+      const player = await service.findByEtf2lProfileId(123456);
       expect(player.toObject()).toEqual(mockPlayer.toObject());
     });
   });
