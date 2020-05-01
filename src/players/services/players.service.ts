@@ -12,6 +12,7 @@ import { OnlinePlayersService } from './online-players.service';
 import { DiscordNotificationsService } from '@/discord/services/discord-notifications.service';
 import { ConfigService } from '@nestjs/config';
 import { SteamApiService } from './steam-api.service';
+import { Subject } from 'rxjs';
 
 @Injectable()
 export class PlayersService {
@@ -19,6 +20,11 @@ export class PlayersService {
   private logger = new Logger(PlayersService.name);
   private requireEtf2lAccount = this.configService.get<boolean>('requireEtf2lAccount');
   private minimumTf2InGameHours = this.configService.get<number>('minimumTf2InGameHours');
+  private _playerRegistered = new Subject<string>();
+
+  get playerRegistered() {
+    return this._playerRegistered.asObservable();
+  }
 
   constructor(
     private environment: Environment,
@@ -31,7 +37,7 @@ export class PlayersService {
     private steamApiService: SteamApiService,
   ) { }
 
-  async getAll(): Promise<Array<DocumentType<Player>>> {
+  async getAll(): Promise<DocumentType<Player>[]> {
     return await this.playerModel.find();
   }
 
@@ -82,6 +88,7 @@ export class PlayersService {
     });
 
     this.logger.verbose(`created new player (name: ${player?.name})`);
+    this._playerRegistered.next(player.id);
     this.discordNotificationsService.notifyNewPlayer(player);
     return player;
   }

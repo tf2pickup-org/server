@@ -204,6 +204,14 @@ describe('PlayersService', () => {
       expect(ret.role).toEqual('super-user');
     });
 
+    it('should emit the rxjs event', done => {
+      service.playerRegistered.subscribe(e => {
+        expect(e).toBeTruthy();
+        done();
+      });
+      service.createPlayer(mockSteamProfile);
+    });
+
     it('should notify on discord', async () => {
       const spy = jest.spyOn(discordNotificationsService, 'notifyNewPlayer');
       const player = await service.createPlayer(mockSteamProfile);

@@ -1,4 +1,4 @@
-import { Injectable, Inject, forwardRef } from '@nestjs/common';
+import { Injectable, Inject, forwardRef, OnModuleInit } from '@nestjs/common';
 import { InjectModel } from 'nestjs-typegoose';
 import { PlayerSkill } from '../models/player-skill';
 import { ReturnModelType, DocumentType } from '@typegoose/typegoose';
@@ -7,16 +7,28 @@ import { Console, Command, createSpinner } from 'nestjs-console';
 import { writeFileSync } from 'fs';
 import { QueueConfigService } from '@/queue/services/queue-config.service';
 import moment = require('moment');
+import { FuturePlayerSkillService } from './future-player-skill.service';
 
 @Injectable()
 @Console()
-export class PlayerSkillService {
+export class PlayerSkillService implements OnModuleInit {
 
   constructor(
     @InjectModel(PlayerSkill) private playerSkillModel: ReturnModelType<typeof PlayerSkill>,
     @Inject(forwardRef(() => PlayersService)) private playersService: PlayersService,
     private queueConfigService: QueueConfigService,
+    private futurePlayerSkillService: FuturePlayerSkillService,
   ) { }
+
+  onModuleInit() {
+    this.playersService.playerRegistered.subscribe(async playerId => {
+      const player = await this.playersService.getById(playerId);
+      const futureSkill = await this.futurePlayerSkillService.findSkill(player.steamId);
+      if (futureSkill) {
+        await this.setPlayerSkill(player.id, futureSkill.skill);
+      }
+    });
+  }
 
   async getAll(): Promise<DocumentType<PlayerSkill>[]> {
     return await this.playerSkillModel.find({ });
@@ -26,10 +38,10 @@ export class PlayerSkillService {
     return await this.playerSkillModel.findOne({ player: playerId });
   }
 
-  async setPlayerSkill(playerId: string, newSkill: { [gameClass: string]: number }): Promise<DocumentType<PlayerSkill>> {
+  async setPlayerSkill(playerId: string, newSkill: Map<string, number>): Promise<DocumentType<PlayerSkill>> {
     const skill = await this.playerSkillModel.findOne({ player: playerId });
     if (skill) {
-      skill.skill = new Map(Object.entries(newSkill));
+      skill.skill = newSkill;
       return await skill.save();
     } else {
       const player = await this.playersService.getById(playerId);
@@ -38,8 +50,8 @@ export class PlayerSkillService {
       }
 
       return await this.playerSkillModel.create({
-        player,
-        skill: new Map(Object.entries(newSkill)),
+        player: player.id,
+        skill: newSkill,
       });
     }
   }
