@@ -64,19 +64,11 @@
       "configName": "stopwatch"
     },
     {
-      "name": "pl_borneo",
-      "configName": "stopwatch"
-    },
-    {
       "name": "pl_swiftwater_final1",
       "configName": "stopwatch"
     },
     {
       "name": "pl_vigil_rc6",
-      "configName": "stopwatch"
-    },
-    {
-      "name": "pl_barnblitz_pro6",
       "configName": "stopwatch"
     }
   ],
@@ -85,5 +77,5 @@
     "stopwatch": "etf2l_9v9_stopwatch",
     "5cp": "etf2l_9v9_5cp"
   },
-  "whitelistId": "10712"
+  "whitelistId": "10750"
 }
