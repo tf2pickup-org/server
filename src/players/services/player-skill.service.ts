@@ -105,7 +105,7 @@ export class PlayerSkillService implements OnModuleInit {
     let i = 0;
 
     for await (const line of rl) {
-      const [ etf2lProfileId, ...rawSkill ] = line.split(',');
+      const [ etf2lProfileId, ...rawSkill ] = line.split(/;|,/);
 
       const skill = new Map(
         this.queueConfigService.queueConfig.classes
