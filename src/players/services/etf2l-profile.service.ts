@@ -20,6 +20,7 @@ export class Etf2lProfileService {
     private httpService: HttpService,
   ) { }
 
+  // TODO This is steamId or etf2lProfileId
   async fetchPlayerInfo(steamId: string): Promise<Etf2lProfile> {
     return this.httpService.get<Etf2lPlayerResponse>(`${this.etf2lEndpoint}/player/${steamId}.json`).pipe(
       catchError(error => {

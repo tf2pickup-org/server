@@ -11,6 +11,7 @@ import { QueueConfigService } from '@/queue/services/queue-config.service';
 import * as fs from 'fs';
 import { Subject } from 'rxjs';
 import { FuturePlayerSkillService } from './future-player-skill.service';
+import { Etf2lProfileService } from './etf2l-profile.service';
 
 class PlayersServiceStub {
   getById(id: string) { return Promise.resolve(null); }
@@ -30,6 +31,10 @@ class FuturePlayerSkillServiceStub {
   findSkill(steamId: string) { return Promise.resolve(null); }
 }
 
+class Etf2lProfileServiceStub {
+  fetchPlayerInfo(id: string) { return Promise.resolve(); }
+}
+
 describe('PlayerSkillService', () => {
   let service: PlayerSkillService;
   let mongod: MongoMemoryServer;
@@ -38,6 +43,7 @@ describe('PlayerSkillService', () => {
   let mockPlayerSkill: DocumentType<PlayerSkill>;
   let playersService: PlayersServiceStub;
   let futurePlayerSkillService: FuturePlayerSkillServiceStub;
+  let etf2lProfileService: Etf2lProfileServiceStub;
 
   beforeAll(() => mongod = new MongoMemoryServer());
   afterAll(async () => await mongod.stop());
@@ -53,6 +59,7 @@ describe('PlayerSkillService', () => {
         { provide: PlayersService, useClass: PlayersServiceStub },
         { provide: QueueConfigService, useClass: QueueConfigServiceStub },
         { provide: FuturePlayerSkillService, useClass: FuturePlayerSkillServiceStub },
+        { provide: Etf2lProfileService, useClass: Etf2lProfileServiceStub },
       ],
     }).compile();
 
@@ -60,6 +67,7 @@ describe('PlayerSkillService', () => {
     playerSkillModel = module.get(getModelToken('PlayerSkill'));
     playersService = module.get(PlayersService);
     futurePlayerSkillService = module.get(FuturePlayerSkillService);
+    etf2lProfileService = module.get(Etf2lProfileService);
 
     service.onModuleInit();
   });
@@ -153,9 +161,22 @@ describe('PlayerSkillService', () => {
         await service.exportPlayerSkills();
         expect(spy).toHaveBeenCalledWith(
           expect.stringMatching(/^player-skills-.+\.csv$/),
-          'name,etf2lProfileId,soldier\nFAKE_PLAYER_NAME,12345,4',
+          'etf2lProfileId,soldier\n12345,4',
         );
       });
+    });
+  });
+
+  describe('#importPlayerSkills()', () => {
+    it.todo('should fail when the file name is empty');
+    it.todo('should fail if the given file does not exist');
+
+    describe('when the player exists', () => {
+      it.todo('should import player skills');
+    });
+
+    describe('when the player does not exist', () => {
+      it.todo('should import player skills into the future skills');
     });
   });
 });

@@ -4,10 +4,12 @@ import { PlayerSkill } from '../models/player-skill';
 import { ReturnModelType, DocumentType } from '@typegoose/typegoose';
 import { PlayersService } from './players.service';
 import { Console, Command, createSpinner } from 'nestjs-console';
-import { writeFileSync } from 'fs';
+import { writeFileSync, createReadStream } from 'fs';
 import { QueueConfigService } from '@/queue/services/queue-config.service';
 import moment = require('moment');
 import { FuturePlayerSkillService } from './future-player-skill.service';
+import { createInterface } from 'readline';
+import { Etf2lProfileService } from './etf2l-profile.service';
 
 @Injectable()
 @Console()
@@ -18,6 +20,7 @@ export class PlayerSkillService implements OnModuleInit {
     @Inject(forwardRef(() => PlayersService)) private playersService: PlayersService,
     private queueConfigService: QueueConfigService,
     private futurePlayerSkillService: FuturePlayerSkillService,
+    private etf2lProfileService: Etf2lProfileService,
   ) { }
 
   onModuleInit() {
@@ -68,10 +71,10 @@ export class PlayerSkillService implements OnModuleInit {
     const gameClasses = this.queueConfigService.queueConfig.classes.map(c => c.name);
     const players = await this.playersService.getAll();
     const rows = [
-      [ 'name', 'etf2lProfileId', ...gameClasses ].join(','),
+      [ 'etf2lProfileId', ...gameClasses ].join(','),
       ...(await Promise.all(players.map(async p => {
         const skill = await this.getPlayerSkill(p.id);
-        return skill ? [ p.name, p.etf2lProfileId, ...gameClasses.map(gc => skill.skill.get(gc)) ] : null;
+        return skill ? [ p.etf2lProfileId, ...gameClasses.map(gc => skill.skill.get(gc)) ] : null;
       })))
       .filter(entry => !!entry)
       .map(row => row.join(',')),
@@ -80,6 +83,50 @@ export class PlayerSkillService implements OnModuleInit {
     const fileName = `player-skills-${moment().format('YYYYMMDDHHmmss')}.csv`;
     writeFileSync(fileName, rows.join('\n'));
     spinner.succeed(`${fileName} saved.`);
+  }
+
+  @Command({
+    command: 'import-skills <fileName>',
+    description: 'Import skills of all players',
+  })
+  async importPlayerSkills(inputFileName: string) {
+    const spinner = createSpinner();
+
+    if (!inputFileName?.length) {
+      spinner.fail('An input file name is required.');
+      return;
+    }
+
+    spinner.start('Import player skills');
+
+    const fileStream = createReadStream(inputFileName);
+    const rl = createInterface({ input: fileStream, crlfDelay: Infinity });
+
+    let i = 0;
+
+    for await (const line of rl) {
+      const [ etf2lProfileId, ...rawSkill ] = line.split(',');
+
+      const skill = new Map(
+        this.queueConfigService.queueConfig.classes
+          .map((c, index) => [ `${c}`, parseInt(rawSkill[index], 10) ])
+      );
+
+      try {
+        const player = await this.playersService.findByEtf2lProfileId(parseInt(etf2lProfileId, 10));
+        if (player) {
+          await this.setPlayerSkill(player.id, skill);
+        } else {
+          const etf2lProfile = await this.etf2lProfileService.fetchPlayerInfo(etf2lProfileId);
+          await this.futurePlayerSkillService.registerSkill(etf2lProfile.steam.id64, skill);
+        }
+        i += 1;
+      } catch (e) {
+        spinner.warn(`Failed to parse line "${line}": ${e}`);
+      }
+    }
+
+    spinner.succeed(`Imported skills for ${i} players.`);
   }
 
 }
