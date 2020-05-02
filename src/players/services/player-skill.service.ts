@@ -67,7 +67,7 @@ export class PlayerSkillService implements OnModuleInit {
     const spinner = createSpinner();
     spinner.start('Exporting player skills');
 
-    // nick,etf2l_userid,scout,soldier,pyro,demoman,heavyweapons,engineer,medic,sniper,spy
+    // etf2l_profileid,scout,soldier,pyro,demoman,heavyweapons,engineer,medic,sniper,spy
     const gameClasses = this.queueConfigService.queueConfig.classes.map(c => c.name);
     const players = await this.playersService.getAll();
     const rows = [
@@ -109,7 +109,7 @@ export class PlayerSkillService implements OnModuleInit {
 
       const skill = new Map(
         this.queueConfigService.queueConfig.classes
-          .map((c, index) => [ `${c}`, parseInt(rawSkill[index], 10) ])
+          .map((c, index) => [ c.name, parseInt(rawSkill[index], 10) ])
       );
 
       try {
