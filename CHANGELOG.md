@@ -1,3 +1,9 @@
+# [2.5.1](https://github.com/tf2pickup-pl/server/compare/2.5.0...2.5.1) (2020-05-02)
+
+### Fixes
+* Handle semicolons in csv files on skill import ([215cb4e](https://github.com/tf2pickup-pl/server/commit/215cb4e91ec8f86ddbe89902c07ee05532087f03))
+* Use class name as skill map key ([9eb85ad](https://github.com/tf2pickup-pl/server/commit/9eb85ad2b560680d9d92121ed182172450705bfb))
+
 # [2.5.0](https://github.com/tf2pickup-pl/server/compare/2.4.1...2.5.0) (2020-05-02)
 
 ### Features
