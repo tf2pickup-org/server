@@ -16,6 +16,8 @@ import { HallOfFameController } from './controllers/hall-of-fame.controller';
 import { DiscordModule } from '@/discord/discord.module';
 import { SteamApiService } from './services/steam-api.service';
 import { QueueModule } from '@/queue/queue.module';
+import { FuturePlayerSkillService } from './services/future-player-skill.service';
+import { FuturePlayerSkill } from './models/future-player-skill';
 
 @Module({
   imports: [
@@ -24,6 +26,7 @@ import { QueueModule } from '@/queue/queue.module';
       standardSchemaOptions(Player),
       standardSchemaOptions(PlayerBan),
       standardSchemaOptions(PlayerSkill),
+      standardSchemaOptions(FuturePlayerSkill),
     ]),
 
     forwardRef(() => GamesModule),
@@ -38,6 +41,7 @@ import { QueueModule } from '@/queue/queue.module';
     OnlinePlayersService,
     PlayersGateway,
     SteamApiService,
+    FuturePlayerSkillService,
   ],
   exports: [
     PlayersService,

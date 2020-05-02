@@ -41,7 +41,7 @@ class GamesServiceStub {
   getPlayerGames(playerId: string, sort: any = { launchedAt: -1 }, limit: number = 10, skip: number = 0) {
     return new Promise(resolve => resolve(this.games));
   }
-  getPlayerGameCount() { return new Promise(resolve => resolve(2)); }
+  getPlayerGameCount() { return Promise.resolve(2); }
 }
 
 class PlayerSkillServiceStub {
@@ -50,7 +50,7 @@ class PlayerSkillServiceStub {
     skill: new Map<string, number>([['scout', 2], ['soldier', 2], ['demoman', 1], ['medic', 2]]),
   };
   getPlayerSkill(playerId: string) { return new Promise(resolve => resolve(this.skill)); }
-  setPlayerSkill(playerId: string, skill: any) { return new Promise(resolve => resolve(this.skill)); }
+  setPlayerSkill(playerId: string, skill: Map<string, number>) { return Promise.resolve(this.skill); }
   getAll() { return new Promise(resolve => resolve([ this.skill ])); }
 }
 
@@ -210,7 +210,7 @@ describe('Players Controller', () => {
       const skill = { soldier: 1, medic: 2 };
       const spy = jest.spyOn(playerSkillService, 'setPlayerSkill');
       const ret = await controller.setPlayerSkill('FAKE_ID', skill);
-      expect(spy).toHaveBeenCalledWith('FAKE_ID', skill);
+      expect(spy).toHaveBeenCalledWith('FAKE_ID', new Map([['soldier', 1], ['medic', 2]]));
       expect(ret).toEqual(playerSkillService.skill.skill);
     });
   });

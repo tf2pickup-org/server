@@ -117,6 +117,7 @@ describe('PlayersService', () => {
     mockPlayer = await playerModel.create({
       name: 'FAKE_PLAYER_NAME',
       steamId: 'FAKE_STEAM_ID',
+      etf2lProfileId: 123456,
     });
   });
 
@@ -136,6 +137,13 @@ describe('PlayersService', () => {
   describe('#findBySteamId()', () => {
     it('should query playerModel', async () => {
       const player = await service.findBySteamId('FAKE_STEAM_ID');
+      expect(player.toObject()).toEqual(mockPlayer.toObject());
+    });
+  });
+
+  describe('#findByEtf2lProfileId()', () => {
+    it('should query playerModel', async () => {
+      const player = await service.findByEtf2lProfileId(123456);
       expect(player.toObject()).toEqual(mockPlayer.toObject());
     });
   });
@@ -202,6 +210,14 @@ describe('PlayersService', () => {
       environment.superUser = 'FAKE_STEAM_ID_2';
       const ret = await service.createPlayer(mockSteamProfile);
       expect(ret.role).toEqual('super-user');
+    });
+
+    it('should emit the rxjs event', done => {
+      service.playerRegistered.subscribe(e => {
+        expect(e).toBeTruthy();
+        done();
+      });
+      service.createPlayer(mockSteamProfile);
     });
 
     it('should notify on discord', async () => {
