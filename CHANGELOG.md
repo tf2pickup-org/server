@@ -1,3 +1,9 @@
+# [2.5.0](https://github.com/tf2pickup-pl/server/compare/2.4.1...2.5.0) (2020-05-02)
+
+### Features
+* Export player skills ([cf0507f](https://github.com/tf2pickup-pl/server/commit/cf0507f64ba39ed0cd3e0cb31ddf524d421727a6))
+* Import player skills ([828810a](https://github.com/tf2pickup-pl/server/commit/828810a9f2dfcc5b52951a022b41a7683cf3c718))
+
 # [2.4.1](https://github.com/tf2pickup-pl/server/compare/2.4.0...2.4.1) (2020-04-23)
 
 ### Fixes
