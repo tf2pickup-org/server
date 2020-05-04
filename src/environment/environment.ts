@@ -92,4 +92,12 @@ export class Environment {
     return this.configService.get<string>('DISCORD_ADMIN_NOTIFICATIONS_CHANNEL');
   }
 
+  get twitchClientId() {
+    return this.configService.get<string>('TWITCH_CLIENT_ID');
+  }
+
+  get twitchClientSecret() {
+    return this.configService.get<string>('TWITCH_CLIENT_SECRET');
+  }
+
 }

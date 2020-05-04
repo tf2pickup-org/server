@@ -1,4 +1,4 @@
-import { Module, NestModule, MiddlewareConsumer } from '@nestjs/common';
+import { Module, NestModule, MiddlewareConsumer, HttpModule } from '@nestjs/common';
 import { AuthService } from './services/auth.service';
 import { PlayersModule } from 'src/players/players.module';
 import { PassportModule } from '@nestjs/passport';
@@ -10,6 +10,7 @@ import { RefreshToken } from './models/refresh-token';
 import { KeyStoreService } from './services/key-store.service';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { AuthGateway } from './gateways/auth.gateway';
+import { TwitchTvStrategy } from './strategies/twitchtv.strategy';
 
 const passportModule = PassportModule.register({
   defaultStrategy: 'jwt',
@@ -20,6 +21,7 @@ const passportModule = PassportModule.register({
   imports: [
     passportModule,
     TypegooseModule.forFeature([ RefreshToken ]),
+    HttpModule,
 
     PlayersModule,
   ],
@@ -29,6 +31,7 @@ const passportModule = PassportModule.register({
     SteamStrategy,
     JwtStrategy,
     AuthGateway,
+    TwitchTvStrategy,
   ],
   controllers: [
     AuthController,
@@ -43,6 +46,10 @@ export class AuthModule implements NestModule {
     consumer
       .apply(authenticate('steam', { session: false }))
       .forRoutes('/auth/steam');
+
+    consumer
+      .apply(authenticate('twitchtv', { session: false }))
+      .forRoutes('/auth/twitchtv');
   }
 
 }
