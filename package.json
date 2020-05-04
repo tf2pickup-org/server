@@ -37,7 +37,7 @@
     "jsonschema": "1.2.6",
     "jsonwebtoken": "8.5.1",
     "lodash": "4.17.15",
-    "moment": "2.25.1",
+    "moment": "2.25.3",
     "mongoose": "5.9.4",
     "nestjs-console": "3.0.2",
     "nestjs-typegoose": "7.1.22",
