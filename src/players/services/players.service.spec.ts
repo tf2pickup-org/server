@@ -248,6 +248,23 @@ describe('PlayersService', () => {
     });
   });
 
+  describe('#registerTwitchAccount()', () => {
+    describe('when the given user does not exist', () => {
+      beforeEach(() => {
+        jest.spyOn(service, 'getById').mockResolvedValue(null);
+      });
+
+      it('should throw an error', async () => {
+        expect(service.registerTwitchAccount('FAKE_ID', 'FAKE_TWITCH_TV_USER_ID')).rejects.toThrowError('no such player');
+      });
+    });
+
+    it('should save the twitch user id', async () => {
+      const ret = await service.registerTwitchAccount(mockPlayer.id, 'FAKE_TWITCH_TV_USER_ID');
+      expect(ret.twitchTvUserId).toEqual('FAKE_TWITCH_TV_USER_ID');
+    });
+  });
+
   describe('#updatePlayer()', () => {
     it('should update player name', async () => {
       const ret = await service.updatePlayer(mockPlayer.id, { name: 'NEW_NAME' });

@@ -24,4 +24,7 @@ export class Player {
 
   @prop()
   etf2lProfileId?: number;
+
+  @prop()
+  twitchTvUserId?: string;
 }

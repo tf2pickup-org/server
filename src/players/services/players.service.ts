@@ -97,6 +97,17 @@ export class PlayersService {
     return player;
   }
 
+  async registerTwitchAccount(playerId: string, twitchTvUserId: string) {
+    const player = await this.getById(playerId);
+    if (!player) {
+      throw new Error('no such player');
+    }
+
+    player.twitchTvUserId = twitchTvUserId;
+    await player.save();
+    return player;
+  }
+
   async updatePlayer(playerId: string, update: Partial<Player>): Promise<DocumentType<Player>> {
     const player = await this.getById(playerId);
     if (player) {
