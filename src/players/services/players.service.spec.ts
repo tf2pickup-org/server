@@ -265,6 +265,20 @@ describe('PlayersService', () => {
     });
   });
 
+  describe('#getTwitchTvUsers()', () => {
+    beforeEach(async () => {
+      const user = await playerModel.findOne();
+      user.twitchTvUserId = 'FAKE_TWITCH_TV_USER_ID';
+      await user.save();
+    });
+
+    it('should return all twitch.tv user ids', async () => {
+      const ret = await service.getTwitchTvUsers();
+      expect(ret.length).toBe(1);
+      expect(ret).toEqual([ 'FAKE_TWITCH_TV_USER_ID' ]);
+    });
+  });
+
   describe('#updatePlayer()', () => {
     it('should update player name', async () => {
       const ret = await service.updatePlayer(mockPlayer.id, { name: 'NEW_NAME' });

@@ -108,6 +108,11 @@ export class PlayersService {
     return player;
   }
 
+  async getTwitchTvUsers() {
+    const users = await this.playerModel.find({ twitchTvUserId: { $exists: true } });
+    return users.map(u => u.twitchTvUserId);
+  }
+
   async updatePlayer(playerId: string, update: Partial<Player>): Promise<DocumentType<Player>> {
     const player = await this.getById(playerId);
     if (player) {
