@@ -73,7 +73,7 @@
     "@types/socketio-jwt-auth": "0.0.0",
     "@types/steamid": "1.1.0",
     "@types/supertest": "2.0.9",
-    "jest": "26.0.0",
+    "jest": "26.0.1",
     "mongodb-memory-server": "6.5.2",
     "prettier": "2.0.5",
     "supertest": "4.0.2",
