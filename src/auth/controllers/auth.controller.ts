@@ -37,11 +37,6 @@ export class AuthController {
     });
   }
 
-  @Get('twitchtv/return')
-  async twitchTvLogin(@Request() req) {
-    return req.user;
-  }
-
   @Post()
   async refreshToken(@Query('refresh_token') oldRefreshToken: string) {
     if (oldRefreshToken !== undefined) {
