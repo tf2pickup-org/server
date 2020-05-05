@@ -2,8 +2,9 @@ import { Injectable, HttpService } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { Environment } from '@/environment/environment';
 import { Strategy as OAuth2Strategy } from 'passport-oauth2';
-import { map } from 'rxjs/operators';
+import { map, tap } from 'rxjs/operators';
 import { TwitchUser } from '../models/twitch-user';
+import { ConfigService } from '@nestjs/config';
 
 interface TwitchGetUsersResponse {
   data: TwitchUser[];
@@ -15,11 +16,12 @@ const tokenURL = 'https://id.twitch.tv/oauth2/token';
 @Injectable()
 export class TwitchTvStrategy extends PassportStrategy(OAuth2Strategy, 'twitchtv') {
 
-  private readonly twitchTvApiEndpoint = 'https://api.twitch.tv/helix';
+  private readonly twitchTvApiEndpoint = this.configService.get<string>('twitchTvApiEndpoint');
 
   constructor(
     private environment: Environment,
     private httpService: HttpService,
+    private configService: ConfigService,
   ) {
     super({
       authorizationURL,
@@ -37,7 +39,7 @@ export class TwitchTvStrategy extends PassportStrategy(OAuth2Strategy, 'twitchtv
       headers: {
         'Authorization': `Bearer ${accessToken}`,
         'Client-ID': this.environment.twitchClientId,
-      }
+      },
     }).pipe(
       map(response => response.data.data[0]),
     ).toPromise();
