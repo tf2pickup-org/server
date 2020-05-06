@@ -5,6 +5,7 @@ import { PlayersService } from '@/players/services/players.service';
 import { ConfigService } from '@nestjs/config';
 import { Environment } from '@/environment/environment';
 import { tap, map } from 'rxjs/operators';
+import { BehaviorSubject } from 'rxjs';
 
 interface TwitchGetUsersResponse {
   data: {
@@ -21,12 +22,32 @@ interface TwitchGetUsersResponse {
   }[];
 }
 
+interface TwitchGetStreamsResponse {
+  data: {
+    game_id: string;
+    id: string;
+    language: string;
+    pagination: string;
+    started_at: string;
+    tag_ids: string;
+    thumbnail_url: string;
+    title: string;
+    type: 'live' | '';
+    user_id: string;
+    user_name: string;
+    viewer_count: number;
+  }[];
+}
+
 @Injectable()
 export class TwitchService {
 
-  streams: TwitchStream[];
-
   private readonly twitchTvApiEndpoint = this.configService.get<string>('twitchTvApiEndpoint');
+  private _streams = new BehaviorSubject<TwitchStream[]>([]);
+
+  get streams() {
+    return this._streams.value;
+  }
 
   constructor(
     private playersService: PlayersService,
@@ -51,14 +72,33 @@ export class TwitchService {
   async pollUsersStreams() {
     const users = await this.playersService.getTwitchTvUsers();
     if (users.length > 0) {
-      this.httpService.get(`${this.twitchTvApiEndpoint}/streams?user_id=${users.join(',')}`, {
-        headers: {
-          'Client-ID': this.environment.twitchClientId,
-        },
-      }).pipe(
-        tap(console.log),
-      ).subscribe();
+      const rawStreams = await this.fetchStreams(users);
+      const streams = await Promise.all(rawStreams.map(async s => {
+        const player = await this.playersService.findByTwitchUserId(s.user_id);
+        return {
+          playerId: player.id,
+          id: s.id,
+          title: s.title,
+          thumbnailUrl: s.thumbnail_url,
+          viewerCount: s.viewer_count,
+        };
+      }));
+      this._streams.next(streams);
     }
+  }
+
+  private async fetchStreams(users: string[]) {
+    // https://dev.twitch.tv/docs/api/reference#get-streams
+    return this.httpService.get<TwitchGetStreamsResponse>(`${this.twitchTvApiEndpoint}/streams`, {
+      params: {
+        user_id: users,
+      },
+      headers: {
+        'Client-ID': this.environment.twitchClientId,
+      },
+    }).pipe(
+      map(response => response.data.data),
+    ).toPromise();
   }
 
 }
