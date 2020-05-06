@@ -40,8 +40,10 @@ describe('TwitchAuthService', () => {
     expect(service).toBeDefined();
   });
 
-  it('should provide the oauthRedirectUrl', () => {
-    expect(service.oauthRedirectUrl).toEqual('https://id.twitch.tv/oauth2/authorize?client_id=FAKE_TWITCH_CLIENT_ID&redirect_uri=FAKE_API_URL/twitch/auth/return&response_type=code&scope=user_read');
+  describe('#getOauthRedirectUrl()', () => {
+    it('should provide the oauthRedirectUrl', () => {
+      expect(service.getOauthRedirectUrl('FAKE_STATE')).toEqual('https://id.twitch.tv/oauth2/authorize?client_id=FAKE_TWITCH_CLIENT_ID&redirect_uri=FAKE_API_URL/twitch/auth/return&response_type=code&scope=user_read&state=FAKE_STATE');
+    });
   });
 
   describe('#fetchToken()', () => {

@@ -23,13 +23,14 @@ export class TwitchAuthService {
     private httpService: HttpService,
   ) { }
 
-  get oauthRedirectUrl() {
+  getOauthRedirectUrl(state: string) {
     // https://dev.twitch.tv/docs/authentication/getting-tokens-oauth
     return `${twitchOauth2AuthorizeUrl}` +
       `?client_id=${this.environment.twitchClientId}` +
       `&redirect_uri=${this.redirectUri}` +
       `&response_type=code` +
-      `&scope=user_read`;
+      `&scope=user_read` +
+      `&state=${state}`;
   }
 
   async fetchToken(code: string) {

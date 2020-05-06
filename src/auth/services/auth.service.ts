@@ -20,7 +20,7 @@ export class AuthService implements OnModuleInit {
     this.removeOldRefreshTokens();
   }
 
-  async generateJwtToken(purpose: 'auth' | 'refresh' | 'ws', userId: string): Promise<string> {
+  async generateJwtToken(purpose: 'auth' | 'refresh' | 'ws' | 'context', userId: string): Promise<string> {
     switch (purpose) {
       case 'auth': {
         const key = this.keyStoreService.getKey('auth', 'sign');
@@ -37,6 +37,11 @@ export class AuthService implements OnModuleInit {
       case 'ws': {
         const key = this.keyStoreService.getKey('ws', 'sign');
         return sign({ id: userId }, key, { algorithm: 'HS256', expiresIn: '10m' });
+      }
+
+      case 'context': {
+        const key = this.keyStoreService.getKey('context', 'sign');
+        return sign({ id: userId }, key, { algorithm: 'ES512', expiresIn: '1m' })
       }
     }
   }
@@ -55,6 +60,11 @@ export class AuthService implements OnModuleInit {
     const refreshToken = await this.generateJwtToken('refresh', userId);
     const authToken = await this.generateJwtToken('auth', userId);
     return { refreshToken, authToken };
+  }
+
+  verifyToken(purpose: 'auth' | 'context', token: string): { id: string; iat: number; exp: number } {
+    const key = this.keyStoreService.getKey(purpose, 'verify');
+    return verify(token, key, { algorithms: ['ES512'] }) as { id: string; iat: number; exp: number };
   }
 
   @Cron('0 0 4 * * *') // 4 am everyday
