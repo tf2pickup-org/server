@@ -128,6 +128,14 @@ describe('PlayersService', () => {
     expect(service).toBeDefined();
   });
 
+  describe('#getAll()', () => {
+    it('should retrieve all players from the database', async () => {
+      const ret = await service.getAll();
+      expect(ret.length).toEqual(1);
+      expect(ret[0].toObject()).toEqual(mockPlayer.toObject());
+    });
+  });
+
   describe('#getById()', () => {
     it('should retrieve the player from the database', async () => {
       const player = await service.getById(mockPlayer.id);
@@ -146,6 +154,19 @@ describe('PlayersService', () => {
     it('should query playerModel', async () => {
       const player = await service.findByEtf2lProfileId(123456);
       expect(player.toObject()).toEqual(mockPlayer.toObject());
+    });
+  });
+
+  describe('#findByTwitchUserId()', () => {
+    beforeEach(async () => {
+      const player = await playerModel.findOne();
+      player.twitchTvUserId = 'FAKE_TWITCH_TV_USER_ID';
+      await player.save();
+    });
+
+    it('should query playerModel', async () => {
+      const player = await service.findByTwitchUserId('FAKE_TWITCH_TV_USER_ID');
+      expect(player.toObject()).toEqual({ ...mockPlayer.toObject(), twitchTvUserId: 'FAKE_TWITCH_TV_USER_ID' });
     });
   });
 

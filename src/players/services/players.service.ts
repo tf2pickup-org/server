@@ -53,6 +53,10 @@ export class PlayersService {
     return await this.playerModel.findOne({ etf2lProfileId });
   }
 
+  async findByTwitchUserId(twitchTvUserId: string) {
+    return await this.playerModel.findOne({ twitchTvUserId });
+  }
+
   async createPlayer(steamProfile: SteamProfile): Promise<DocumentType<Player>> {
     const hoursInTf2 = await this.steamApiService.getTf2InGameHours(steamProfile.id);
     if (hoursInTf2 < this.minimumTf2InGameHours) {
