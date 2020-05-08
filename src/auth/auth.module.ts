@@ -1,4 +1,4 @@
-import { Module, NestModule, MiddlewareConsumer, HttpModule } from '@nestjs/common';
+import { Module, NestModule, MiddlewareConsumer } from '@nestjs/common';
 import { AuthService } from './services/auth.service';
 import { PlayersModule } from 'src/players/players.module';
 import { PassportModule } from '@nestjs/passport';
@@ -20,7 +20,6 @@ const passportModule = PassportModule.register({
   imports: [
     passportModule,
     TypegooseModule.forFeature([ RefreshToken ]),
-    HttpModule,
 
     PlayersModule,
   ],
@@ -44,7 +43,7 @@ export class AuthModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer
       .apply(authenticate('steam', { session: false }))
-      .forRoutes('/auth/steam')
+      .forRoutes('/auth/steam');
   }
 
 }

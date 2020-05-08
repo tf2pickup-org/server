@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Query, BadRequestException, Logger, Request, Redirect } from '@nestjs/common';
+import { Controller, Get, Post, Query, BadRequestException, Logger } from '@nestjs/common';
 import { HttpAdapterHost } from '@nestjs/core';
 import { authenticate } from 'passport';
 import { Environment } from '@/environment/environment';
