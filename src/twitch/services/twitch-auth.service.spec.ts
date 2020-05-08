@@ -14,6 +14,7 @@ class HttpServiceStub {
   result = {
     data: {
       access_token: 'FAKE_ACCESS_TOKEN',
+      expires_in: 3600,
     },
   };
   post(url: string) { return of(this.result); }
@@ -46,15 +47,24 @@ describe('TwitchAuthService', () => {
     });
   });
 
-  describe('#fetchToken()', () => {
-    it('should call the correct url', async () => {
-      const spy = jest.spyOn(httpService, 'post');
-      await service.fetchToken('FAKE_CODE');
-      expect(spy).toHaveBeenCalledWith('https://id.twitch.tv/oauth2/token?client_id=FAKE_TWITCH_CLIENT_ID&client_secret=FAKE_TWITCH_SECRET&code=FAKE_CODE&grant_type=authorization_code&redirect_uri=FAKE_API_URL/twitch/auth/return');
+  describe('#fetchUserAccessToken()', () => {
+    it('should return the access token', async () => {
+      const token = await service.fetchUserAccessToken('FAKE_CODE');
+      expect(token).toEqual('FAKE_ACCESS_TOKEN');
+    });
+  });
+
+  describe('#getAppAccessToken()', () => {
+    it('should return the access token', async () => {
+      const accessToken = await service.getAppAccessToken();
+      expect(accessToken).toEqual('FAKE_ACCESS_TOKEN');
     });
 
-    it('should return the access token', async () => {
-      expect(await service.fetchToken('FAKE_CODE')).toEqual('FAKE_ACCESS_TOKEN');
+    it('should cache the token', async () => {
+      const spy = jest.spyOn(httpService, 'post');
+      await service.getAppAccessToken();
+      await service.getAppAccessToken();
+      expect(spy).toHaveBeenCalledTimes(1);
     });
   });
 });

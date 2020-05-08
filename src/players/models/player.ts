@@ -1,5 +1,6 @@
 import { prop } from '@typegoose/typegoose';
 import { PlayerRole } from './player-role';
+import { TwitchTvUser } from './twitch-tv-user';
 
 export class Player {
   id: string;
@@ -25,6 +26,7 @@ export class Player {
   @prop()
   etf2lProfileId?: number;
 
-  @prop()
-  twitchTvUserId?: string;
+  @prop({ type: TwitchTvUser })
+  twitchTvUser?: TwitchTvUser;
+
 }

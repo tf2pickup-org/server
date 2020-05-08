@@ -1,11 +1,13 @@
-import { Injectable, HttpService } from '@nestjs/common';
+import { Injectable, HttpService, OnModuleInit, Logger } from '@nestjs/common';
 import { TwitchStream } from '../models/twitch-stream';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { PlayersService } from '@/players/services/players.service';
 import { ConfigService } from '@nestjs/config';
 import { Environment } from '@/environment/environment';
-import { tap, map } from 'rxjs/operators';
+import { map, distinctUntilChanged } from 'rxjs/operators';
 import { BehaviorSubject } from 'rxjs';
+import { TwitchGateway } from '../gateways/twitch.gateway';
+import { TwitchAuthService } from './twitch-auth.service';
 
 interface TwitchGetUsersResponse {
   data: {
@@ -40,9 +42,10 @@ interface TwitchGetStreamsResponse {
 }
 
 @Injectable()
-export class TwitchService {
+export class TwitchService implements OnModuleInit {
 
   private readonly twitchTvApiEndpoint = this.configService.get<string>('twitchTvApiEndpoint');
+  private logger = new Logger(TwitchService.name);
   private _streams = new BehaviorSubject<TwitchStream[]>([]);
 
   get streams() {
@@ -54,7 +57,15 @@ export class TwitchService {
     private httpService: HttpService,
     private configService: ConfigService,
     private environment: Environment,
+    private twitchGateway: TwitchGateway,
+    private twitchAuthService: TwitchAuthService,
   ) { }
+
+  onModuleInit() {
+    this._streams.pipe(
+      distinctUntilChanged((x, y) => JSON.stringify(x) === JSON.stringify(y)),
+    ).subscribe(streams => this.twitchGateway.emitStreamsUpdate(streams));
+  }
 
   async fetchUserProfile(accessToken: string) {
     // https://dev.twitch.tv/docs/api/reference#get-users
@@ -70,20 +81,22 @@ export class TwitchService {
 
   @Cron(CronExpression.EVERY_MINUTE)
   async pollUsersStreams() {
-    const users = await this.playersService.getTwitchTvUsers();
+    const users = await this.playersService.getUsersWithTwitchTvAccount();
     if (users.length > 0) {
-      const rawStreams = await this.fetchStreams(users);
+      const rawStreams = await this.fetchStreams(users.map(u => u.twitchTvUser.userId));
       const streams = await Promise.all(rawStreams.map(async s => {
         const player = await this.playersService.findByTwitchUserId(s.user_id);
         return {
           playerId: player.id,
           id: s.id,
+          userName: s.user_name,
           title: s.title,
           thumbnailUrl: s.thumbnail_url,
           viewerCount: s.viewer_count,
         };
       }));
       this._streams.next(streams);
+      this.logger.debug('streams refreshed');
     }
   }
 
@@ -95,6 +108,7 @@ export class TwitchService {
       },
       headers: {
         'Client-ID': this.environment.twitchClientId,
+        'Authorization': `Bearer ${await this.twitchAuthService.getAppAccessToken()}`,
       },
     }).pipe(
       map(response => response.data.data),

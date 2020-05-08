@@ -160,13 +160,20 @@ describe('PlayersService', () => {
   describe('#findByTwitchUserId()', () => {
     beforeEach(async () => {
       const player = await playerModel.findOne();
-      player.twitchTvUserId = 'FAKE_TWITCH_TV_USER_ID';
+      player.twitchTvUser = {
+        userId: 'FAKE_TWITCH_TV_USER_ID',
+        login: 'FAKE_TWITCH_TV_LOGIN',
+      };
       await player.save();
     });
 
     it('should query playerModel', async () => {
       const player = await service.findByTwitchUserId('FAKE_TWITCH_TV_USER_ID');
-      expect(player.toObject()).toEqual({ ...mockPlayer.toObject(), twitchTvUserId: 'FAKE_TWITCH_TV_USER_ID' });
+      expect(player.toObject()).toEqual(expect.objectContaining({
+        twitchTvUser: expect.objectContaining({
+          userId: 'FAKE_TWITCH_TV_USER_ID',
+        }),
+      }));
     });
   });
 
@@ -276,27 +283,37 @@ describe('PlayersService', () => {
       });
 
       it('should throw an error', async () => {
-        expect(service.registerTwitchAccount('FAKE_ID', 'FAKE_TWITCH_TV_USER_ID')).rejects.toThrowError('no such player');
+        expect(service.registerTwitchAccount('FAKE_ID', {
+          userId: 'FAKE_TWITCH_TV_USER_ID',
+          login: 'FAKE_TWITCH_TV_LOGIN',
+        })).rejects.toThrowError('no such player');
       });
     });
 
     it('should save the twitch user id', async () => {
-      const ret = await service.registerTwitchAccount(mockPlayer.id, 'FAKE_TWITCH_TV_USER_ID');
-      expect(ret.twitchTvUserId).toEqual('FAKE_TWITCH_TV_USER_ID');
+      const twitchTvUser = {
+        userId: 'FAKE_TWITCH_TV_USER_ID',
+        login: 'FAKE_TWITCH_TV_LOGIN',
+      };
+      const ret = await service.registerTwitchAccount(mockPlayer.id, twitchTvUser);
+      expect(ret.twitchTvUser).toEqual(expect.objectContaining(twitchTvUser));
     });
   });
 
-  describe('#getTwitchTvUsers()', () => {
+  describe('#getUsersWithTwitchTvAccount()', () => {
     beforeEach(async () => {
-      const user = await playerModel.findOne();
-      user.twitchTvUserId = 'FAKE_TWITCH_TV_USER_ID';
-      await user.save();
+      const player = await playerModel.findOne();
+      player.twitchTvUser = {
+        userId: 'FAKE_TWITCH_TV_USER_ID',
+        login: 'FAKE_TWITCH_TV_LOGIN',
+      };
+      await player.save();
     });
 
     it('should return all twitch.tv user ids', async () => {
-      const ret = await service.getTwitchTvUsers();
+      const ret = await service.getUsersWithTwitchTvAccount();
       expect(ret.length).toBe(1);
-      expect(ret).toEqual([ 'FAKE_TWITCH_TV_USER_ID' ]);
+      expect(ret[0].twitchTvUser.userId).toEqual('FAKE_TWITCH_TV_USER_ID');
     });
   });
 

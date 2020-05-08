@@ -4,6 +4,7 @@ import { TwitchAuthService } from '../services/twitch-auth.service';
 import { PlayersService } from '@/players/services/players.service';
 import { AuthService } from '@/auth/services/auth.service';
 import { JsonWebTokenError } from 'jsonwebtoken';
+import { TwitchTvUser } from '@/players/models/twitch-tv-user';
 
 @Controller('twitch')
 export class TwitchController {
@@ -34,9 +35,15 @@ export class TwitchController {
   @Get('auth/return')
   async authenticationCallback(@Query('code') code: string, @Query('state') state: string) {
     const { id } = this.authService.verifyToken('context', state);
-    const token = await this.twitchAuthService.fetchToken(code);
+    const token = await this.twitchAuthService.fetchUserAccessToken(code);
     const userProfile = await this.twitchService.fetchUserProfile(token);
-    await this.playersService.registerTwitchAccount(id, userProfile.id);
+    const twitchTvUser: TwitchTvUser = {
+      userId: userProfile.id,
+      login: userProfile.login,
+      displayName: userProfile.display_name,
+      profileImageUrl: userProfile.profile_image_url,
+    };
+    await this.playersService.registerTwitchAccount(id, twitchTvUser);
     return userProfile;
   }
 
