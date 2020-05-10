@@ -110,6 +110,11 @@ export class PlayersService {
 
     player.twitchTvUser = twitchTvUser;
     await player.save();
+
+    this.onlinePlayersService.getSocketsForPlayer(playerId).forEach(socket => {
+      socket.emit('profile update', { twitchTvUser });
+    });
+
     return player;
   }
 

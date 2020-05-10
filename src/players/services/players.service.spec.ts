@@ -277,6 +277,11 @@ describe('PlayersService', () => {
   });
 
   describe('#registerTwitchAccount()', () => {
+    const twitchTvUser = {
+      userId: 'FAKE_TWITCH_TV_USER_ID',
+      login: 'FAKE_TWITCH_TV_LOGIN',
+    };
+
     describe('when the given user does not exist', () => {
       beforeEach(() => {
         jest.spyOn(service, 'getById').mockResolvedValue(null);
@@ -291,12 +296,17 @@ describe('PlayersService', () => {
     });
 
     it('should save the twitch user id', async () => {
-      const twitchTvUser = {
-        userId: 'FAKE_TWITCH_TV_USER_ID',
-        login: 'FAKE_TWITCH_TV_LOGIN',
-      };
       const ret = await service.registerTwitchAccount(mockPlayer.id, twitchTvUser);
       expect(ret.twitchTvUser).toEqual(expect.objectContaining(twitchTvUser));
+    });
+
+    it('should notify all clients via ws', async () => {
+      const socket = { emit: (...args: any[]) => null };
+      jest.spyOn(onlinePlayersService, 'getSocketsForPlayer').mockReturnValue([ socket ] as any);
+      const spy = jest.spyOn(socket, 'emit');
+
+      await service.registerTwitchAccount(mockPlayer.id, twitchTvUser);
+      expect(spy).toHaveBeenCalledWith('profile update', { twitchTvUser });
     });
   });
 
