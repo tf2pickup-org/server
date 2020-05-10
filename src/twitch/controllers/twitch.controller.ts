@@ -33,6 +33,7 @@ export class TwitchController {
   }
 
   @Get('auth/return')
+  @Redirect('/logged-in-with-twitch-tv.html')
   async authenticationCallback(@Query('code') code: string, @Query('state') state: string) {
     const { id } = this.authService.verifyToken('context', state);
     const token = await this.twitchAuthService.fetchUserAccessToken(code);
@@ -44,7 +45,6 @@ export class TwitchController {
       profileImageUrl: userProfile.profile_image_url,
     };
     await this.playersService.registerTwitchAccount(id, twitchTvUser);
-    return userProfile;
   }
 
   @Get('streams')

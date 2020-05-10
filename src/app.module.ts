@@ -19,6 +19,8 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { DocumentsModule } from './documents/documents.module';
 import { ConsoleModule } from 'nestjs-console';
 import { TwitchModule } from './twitch/twitch.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
 function createMongodbUri(environment: Environment) {
   let credentials = '';
@@ -52,6 +54,9 @@ function createMongodbUri(environment: Environment) {
     }),
     ScheduleModule.forRoot(),
     ConsoleModule,
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'client'),
+    }),
 
     EnvironmentModule,
     AuthModule,
