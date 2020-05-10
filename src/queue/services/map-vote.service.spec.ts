@@ -4,10 +4,24 @@ import { QueueConfigService } from './queue-config.service';
 import { QueueService } from './queue.service';
 import { Subject } from 'rxjs';
 import { QueueGateway } from '../gateways/queue.gateway';
+import { ConfigService } from '@nestjs/config';
 
 class QueueConfigServiceStub {
   queueConfig = {
-    maps: [1, 2, 3, 4].map(n => `fake_map_${n}`),
+    maps: [
+      {
+        'name': 'cp_badlands',
+        'configName': '5cp'
+      },
+      {
+        'name': 'cp_process_final',
+        'configName': '5cp'
+      },
+      {
+        'name': 'cp_snakewater_final1',
+        'configName': '5cp'
+      },
+    ],
   };
 }
 
@@ -18,6 +32,15 @@ class QueueServiceStub {
 
 class QueueGatewayStub {
   emitVoteResultsUpdate(results: any[]) { return null; }
+}
+
+class ConfigServiceStub {
+  get(key: string) {
+    switch(key) {
+      case 'queue.mapCooldown':
+        return 2;
+    }
+  }
 }
 
 describe('MapVoteService', () => {
@@ -33,6 +56,7 @@ describe('MapVoteService', () => {
         { provide: QueueConfigService, useClass: QueueConfigServiceStub },
         { provide: QueueService, useClass: QueueServiceStub },
         { provide: QueueGateway, useClass: QueueGatewayStub },
+        { provide: ConfigService, useClass: ConfigServiceStub },
       ],
     }).compile();
 
@@ -49,22 +73,18 @@ describe('MapVoteService', () => {
   });
 
   it('should reset all votes initially', () => {
-    expect(service.mapOptions.every(m => queueConfigService.queueConfig.maps.includes(m))).toBe(true);
+    expect(service.mapOptions.every(m => queueConfigService.queueConfig.maps.map(n => n.name).includes(m))).toBe(true);
     expect(service.results.every(r => r.voteCount === 0)).toBe(true);
   });
 
   describe('#voteForMap()', () => {
-    beforeEach(() => {
-      service.mapOptions = ['cp_badlands', 'cp_process_final', 'cp_snakewater_final1'];
-    });
-
     it('should save the vote', () => {
       service.voteForMap('FAKE_ID', 'cp_badlands');
-      expect(service.results).toEqual([
+      expect(service.results).toEqual(jasmine.arrayContaining([
         { map: 'cp_badlands', voteCount: 1 },
         { map: 'cp_process_final', voteCount: 0 },
         { map: 'cp_snakewater_final1', voteCount: 0 },
-      ]);
+      ]));
       expect(service.voteCountForMap('cp_badlands')).toEqual(1);
     });
 
@@ -92,10 +112,6 @@ describe('MapVoteService', () => {
   });
 
   describe('#getWinner()', () => {
-    beforeEach(() => {
-      service.mapOptions = ['cp_badlands', 'cp_process_final', 'cp_snakewater_final1'];
-    });
-
     it('should return the map with the most votes', () => {
       service.voteForMap('FAKE_ID', 'cp_badlands');
       expect(service.getWinner()).toEqual('cp_badlands');
