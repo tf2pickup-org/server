@@ -3,6 +3,8 @@ import { DiscordNotificationsService } from './discord-notifications.service';
 import { Environment } from '@/environment/environment';
 import { ConfigService } from '@nestjs/config';
 import { Client, TextChannel } from 'discord.js';
+import { MessageEmbedFactoryService } from './message-embed-factory.service';
+import { PlayersService } from '@/players/services/players.service';
 
 class EnvironmentStub {
   discordBotToken = 'FAKE_DISCORD_BOT_TOKEN';
@@ -21,6 +23,10 @@ class ConfigServiceStub {
   }
 }
 
+class PlayersServiceStub {
+
+}
+
 jest.mock('discord.js');
 
 describe('DiscordNotificationsService', () => {
@@ -37,6 +43,8 @@ describe('DiscordNotificationsService', () => {
         DiscordNotificationsService,
         { provide: Environment, useClass: EnvironmentStub },
         { provide: ConfigService, useClass: ConfigServiceStub },
+        { provide: PlayersService, useClass: PlayersServiceStub },
+        MessageEmbedFactoryService,
       ],
     }).compile();
 
@@ -45,7 +53,6 @@ describe('DiscordNotificationsService', () => {
 
   beforeEach(() => {
     client = (Client as any as jest.MockedClass<typeof Client>).mock.instances[0];
-
     client.user = { tag: 'bot#1337' } as any;
 
     jest.spyOn(client, 'login').mockResolvedValue('FAKE_DISCORD_BOT_TOKEN');
@@ -70,6 +77,16 @@ describe('DiscordNotificationsService', () => {
       const spy = jest.spyOn(client, 'login');
       service.onModuleInit();
       expect(spy).toHaveBeenCalledWith('FAKE_DISCORD_BOT_TOKEN');
+    });
+  });
+
+  describe('when logged in', () => {
+    beforeEach(() => {
+      service.onModuleInit();
+    });
+
+    describe('#notifyQueue()', () => {
+
     });
   });
 });

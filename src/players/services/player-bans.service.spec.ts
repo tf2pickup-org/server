@@ -14,8 +14,8 @@ class OnlinePlayersServiceStub {
 }
 
 class DiscordNotificationsServiceStub {
-  notifyBanAdded(ban: any) { return null; }
-  notifyBanRevoked(ban: any) { return null; }
+  notifyPlayerBanAdded(ban: any) { return null; }
+  notifyPlayerBanRevoked(ban: any) { return null; }
 }
 
 describe('PlayerBansService', () => {
@@ -119,7 +119,7 @@ describe('PlayerBansService', () => {
     });
 
     it('should notify on discord', async () => {
-      const spy = jest.spyOn(discordNotificationsService, 'notifyBanAdded');
+      const spy = jest.spyOn(discordNotificationsService, 'notifyPlayerBanAdded');
       const ret = await service.addPlayerBan(mockBan);
       expect(spy).toHaveBeenCalledWith(ret);
     });
@@ -166,7 +166,7 @@ describe('PlayerBansService', () => {
     });
 
     it('should send discord notification', async () => {
-      const spy = jest.spyOn(discordNotificationsService, 'notifyBanRevoked');
+      const spy = jest.spyOn(discordNotificationsService, 'notifyPlayerBanRevoked');
       const ban = await service.revokeBan(mockBan.id);
       expect(spy).toHaveBeenCalledWith(ban);
     });
