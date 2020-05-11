@@ -5,6 +5,7 @@ import { maxBy, shuffle } from 'lodash';
 import { BehaviorSubject } from 'rxjs';
 import { MapVoteResult } from '../map-vote-result';
 import { QueueGateway } from '../gateways/queue.gateway';
+import { ConfigService } from '@nestjs/config';
 
 interface MapVote {
   playerId: string;
@@ -14,15 +15,17 @@ interface MapVote {
 @Injectable()
 export class MapVoteService implements OnModuleInit {
 
+  private readonly mapCooldown = this.configService.get<number>('queue.mapCooldown');
   private _results = new BehaviorSubject<MapVoteResult[]>([]);
+  private mapPool= this.queueConfigService.queueConfig.maps.map(m => ({ map: m.name, cooldown: 0 }));
 
+  // available options to vote for
   public mapOptions: string[];
 
   get results(): MapVoteResult[] {
     return this._results.value;
   }
 
-  private lastPlayedMap: string;
   private readonly mapVoteOptionCount = 3;
   private votes: MapVote[];
 
@@ -30,6 +33,7 @@ export class MapVoteService implements OnModuleInit {
     private queueConfigService: QueueConfigService,
     @Inject(forwardRef(() => QueueService)) private queueService: QueueService,
     @Inject(forwardRef(() => QueueGateway)) private queueGateway: QueueGateway,
+    private configService: ConfigService,
   ) {
     this.reset();
   }
@@ -71,19 +75,20 @@ export class MapVoteService implements OnModuleInit {
     const maxVotes = maxBy(this.results, r => r.voteCount).voteCount;
     const mapsWithMaxVotes = this.results.filter(m => m.voteCount === maxVotes);
     const map = mapsWithMaxVotes[Math.floor(Math.random() * mapsWithMaxVotes.length)].map;
-    this.lastPlayedMap = map;
+    this.mapPool.find(m => m.map === map).cooldown = this.mapCooldown;
     setImmediate(() => this.reset());
     return map;
   }
 
   private reset() {
     this.mapOptions = shuffle(
-        this.queueConfigService.queueConfig.maps
-          .filter(m => m.name !== this.lastPlayedMap)
-          .map(m => m.name)
+        this.mapPool
+          .filter(m => m.cooldown <= 0)
+          .map(m => m.map)
     ).slice(0, this.mapVoteOptionCount);
     this.votes = [];
     this._results.next(this.getResults());
+    this.mapPool.forEach(p => p.cooldown -= 1);
   }
 
   private resetPlayerVote(playerId: string) {

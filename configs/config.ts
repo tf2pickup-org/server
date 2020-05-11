@@ -23,6 +23,12 @@ export default () => ({
      * Default: 60 * 1000 (1 minute).
      */
     readyStateTimeout: 60 * 1000,
+
+    /**
+     * How many times the last played map cannot be an option to vote for.
+     * Default: 2
+     */
+    mapCooldown: 2,
   },
 
   /**
