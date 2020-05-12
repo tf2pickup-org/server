@@ -1,5 +1,5 @@
 import { Injectable, OnModuleInit, Logger } from '@nestjs/common';
-import { Client, TextChannel, MessageEmbed, Message } from 'discord.js';
+import { Client, TextChannel, MessageEmbed, Message, Guild } from 'discord.js';
 import { Environment } from '@/environment/environment';
 import { ConfigService } from '@nestjs/config';
 import { SubstituteRequest } from '@/queue/substitute-request';
@@ -16,6 +16,7 @@ export enum TargetChannel {
 export class DiscordNotificationsService implements OnModuleInit {
 
   private client = new Client();
+  private guild: Guild;
   private enabled = false;
   private logger = new Logger(DiscordNotificationsService.name);
 
@@ -29,7 +30,7 @@ export class DiscordNotificationsService implements OnModuleInit {
     if (this.environment.discordBotToken) {
       this.client.on('ready', () => {
         this.logger.log(`logged in as ${this.client.user.tag}`);
-        this.enabled = true;
+        this.enable();
       });
 
       this.client.login(this.environment.discordBotToken)
@@ -41,9 +42,14 @@ export class DiscordNotificationsService implements OnModuleInit {
     if (this.enabled && this.environment.discordQueueNotificationsChannel) {
       const channel = this.findChannel(this.environment.discordQueueNotificationsChannel);
       if (channel) {
-        const mentionRole = this.configService.get<string>('discordNotifications.promptJoinQueueMentionRole');
-        channel.send(`${mentionRole} ${currentPlayerCount}/${targetPlayerCount} in the queue.
-        Go to ${this.environment.clientUrl} and don't miss the next game!`);
+        const message = `${currentPlayerCount}/${targetPlayerCount} in the queue.
+          Go to ${this.environment.clientUrl} and don't miss the next game!`;
+        const roleToMention = this.guild.roles.cache.find(role => role.name === this.environment.discordQueueNotificationsMentionRole);
+        if (roleToMention?.mentionable) {
+          channel.send(`${roleToMention} ${message}`);
+        } else {
+          channel.send(message);
+        }
       } else {
         this.logger.warn(`channel ${this.environment.discordQueueNotificationsChannel} not found`);
       }
@@ -95,8 +101,17 @@ export class DiscordNotificationsService implements OnModuleInit {
     return this.sendNotification(TargetChannel.Admins, await this.messageEmbedFactoryService.fromNewPlayer(player));
   }
 
+  private enable() {
+    this.guild = this.client.guilds.cache.find(guild => guild.name === this.environment.discordGuild);
+    if (this.guild?.available) {
+      this.enabled = true;
+    } else {
+      this.logger.warn(`Guild '${this.environment.discordGuild}' is not available`);
+    }
+  }
+
   private findChannel(name: string) {
-    return this.client.channels.cache
+    return this.guild.channels.cache
       .filter(c => c instanceof TextChannel)
       .find(c => (c as TextChannel).name === name) as TextChannel;
   }

@@ -54,11 +54,6 @@ export default () => ({
      * Specifies the minimum delay between prompts.
      * Default: 5 * 60 * 1000 (5 minutes).
      */
-    promptAnnouncementDelay: 5 * 60 * 1000,
-
-    /**
-     * When prompting players to join the pickup queue, this role will be mentioned in the announcement.
-     */
-    promptJoinQueueMentionRole: '<@&610855230992678922>',
+    promptAnnouncementDelay: 1 * 60 * 1000,
   },
 });

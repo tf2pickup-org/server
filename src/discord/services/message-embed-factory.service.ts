@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject, forwardRef } from '@nestjs/common';
 import { PlayerBan } from '@/players/models/player-ban';
 import { PlayersService } from '@/players/services/players.service';
 import moment = require('moment');
@@ -11,7 +11,7 @@ import { SubstituteRequest } from '@/queue/substitute-request';
 export class MessageEmbedFactoryService {
 
   constructor(
-    private playersService: PlayersService,
+    @Inject(forwardRef(() => PlayersService)) private playersService: PlayersService,
     private environment: Environment,
   ) { }
 
