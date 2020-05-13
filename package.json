@@ -60,7 +60,7 @@
     "@types/gamedig": "1.0.0",
     "@types/hapi__joi": "17.1.0",
     "@types/helmet": "0.0.47",
-    "@types/jest": "25.2.1",
+    "@types/jest": "25.2.2",
     "@types/jsonschema": "1.1.1",
     "@types/jsonwebtoken": "8.3.9",
     "@types/lodash": "4.14.150",
