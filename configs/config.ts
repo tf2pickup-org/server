@@ -55,28 +55,5 @@ export default () => ({
      * Default: 5 * 60 * 1000 (5 minutes).
      */
     promptAnnouncementDelay: 5 * 60 * 1000,
-
-    /**
-     * When prompting players to join the pickup queue, this role will be mentioned in the announcement.
-     */
-    promptJoinQueueMentionRole: '<@&610855230992678922>',
-
-    /**
-     * When enabled, a notification will be sent to the admin channel each time any player receives a ban.
-     * Default: true
-     */
-    notifyBans: true,
-
-    /**
-     * When enabled, a notification will be sent to the admin channel each time a new player registers.
-     * Default: true
-     */
-    notifyNewPlayers: true,
-
-    /**
-     * Enables the substitute request announcements.
-     * Default: true
-     */
-    notifySubstituteRequests: true,
   },
 });

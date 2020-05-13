@@ -53,7 +53,7 @@ export class PlayerSubstitutionService {
     await game.save();
     this.gamesGateway.emitGameUpdated(game);
     this.queueGateway.updateSubstituteRequests();
-    this.discordNotificationsService.notifySubstituteIsNeeded({
+    this.discordNotificationsService.notifySubstituteRequest({
       gameId: game.id,
       gameNumber: game.number,
       gameClass: slot.gameClass,

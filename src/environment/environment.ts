@@ -76,8 +76,16 @@ export class Environment {
     return this.configService.get<string>('DISCORD_BOT_TOKEN');
   }
 
+  get discordGuild() {
+    return this.configService.get<string>('DISCORD_GUILD');
+  }
+
   get discordQueueNotificationsChannel() {
     return this.configService.get<string>('DISCORD_QUEUE_NOTIFICATIONS_CHANNEL');
+  }
+
+  get discordQueueNotificationsMentionRole() {
+    return this.configService.get<string>('DISCORD_QUEUE_NOTIFICATIONS_MENTION_ROLE');
   }
 
   get discordAdminNotificationsChannel() {

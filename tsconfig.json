@@ -16,7 +16,8 @@
     "allowSyntheticDefaultImports": true,
     "types": ["jest"],
     "paths": {
-      "@/*": [ "src/*" ]
+      "@/*": [ "src/*" ],
+      "@mocks/*": [ "__mocks__/*" ]
     }
   },
   "exclude": [

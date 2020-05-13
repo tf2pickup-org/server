@@ -85,7 +85,7 @@ class GamesGatewayStub {
 }
 
 class DiscordNotificationsServiceStub {
-  notifySubstituteIsNeeded(substituteRequest: SubstituteRequest) { return null; }
+  notifySubstituteRequest(substituteRequest: SubstituteRequest) { return null; }
 }
 
 class QueueGatewayStub {
@@ -175,7 +175,7 @@ describe('PlayerSubstitutionService', () => {
     });
 
     it('should notify on discord', async () => {
-      const spy = jest.spyOn(discordNotificationsService, 'notifySubstituteIsNeeded');
+      const spy = jest.spyOn(discordNotificationsService, 'notifySubstituteRequest');
       await service.substitutePlayer('FAKE_GAME_ID', 'FAKE_PLAYER_1');
       expect(spy).toHaveBeenCalledWith({
         gameId: 'FAKE_GAME_ID',
