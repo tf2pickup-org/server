@@ -52,7 +52,8 @@ class OnlinePlayersServiceStub {
 }
 
 class DiscordNotificationsServiceStub {
-  notifyNewPlayer(player: any) { return null; }
+  notifyNewPlayer(player: any) { return Promise.resolve(); }
+  notifyNameChange(player: any, oldName: string) { return Promise.resolve(); }
 }
 
 class ConfigServiceStub {
@@ -273,6 +274,12 @@ describe('PlayersService', () => {
     it('should return null if the given player does not exist', async () => {
       jest.spyOn(service, 'getById').mockResolvedValue(null);
       expect(await service.updatePlayer('FAKE_ID', { })).toBeNull();
+    });
+
+    it('should notify admins on Discord', async () => {
+      const spy = jest.spyOn(discordNotificationsService, 'notifyNameChange');
+      await service.updatePlayer(mockPlayer.id, { name: 'NEW_NAME' });
+      expect(spy).toHaveBeenCalledWith(expect.objectContaining({ name: 'NEW_NAME' }), 'FAKE_PLAYER_NAME');
     });
   });
 

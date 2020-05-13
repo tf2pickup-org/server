@@ -171,7 +171,7 @@ describe('DiscordNotificationsService', () => {
     });
 
     describe('#notifyPlayerBanAdded()', () => {
-      it('should send a notification to the queue channel', async () => {
+      it('should send a notification to the admin channel', async () => {
         const spy = jest.spyOn(adminChannel, 'send');
         await service.notifyPlayerBanAdded({ player: new ObjectId(), admin: new ObjectId(), start: new Date(),
             end: new Date(), _id: new ObjectId().toString() });
@@ -180,7 +180,7 @@ describe('DiscordNotificationsService', () => {
     });
 
     describe('#notifyPlayerBanRevoked()', () => {
-      it('should send a notification to the queue channel', async () => {
+      it('should send a notification to the admin channel', async () => {
         const spy = jest.spyOn(adminChannel, 'send');
         await service.notifyPlayerBanRevoked({ player: new ObjectId(), admin: new ObjectId(), start: new Date(),
             end: new Date(), _id: new ObjectId().toString() });
@@ -189,9 +189,17 @@ describe('DiscordNotificationsService', () => {
     });
 
     describe('#notifyNewPlayer()', () => {
-      it('should send a notification to the queue channel', async () => {
+      it('should send a notification to the admin channel', async () => {
         const spy = jest.spyOn(adminChannel, 'send');
         await service.notifyNewPlayer({ id: 'FAKE_PLAYER_ID', name: 'FAKE_PLAYER', steamId: 'FAKE_STEAM_ID', hasAcceptedRules: true });
+        expect(spy).toHaveBeenCalledWith(expect.any(MessageEmbed));
+      });
+    });
+
+    describe('#notifyNameChange()', () => {
+      it('should send a notification to the admin channel', async () => {
+        const spy = jest.spyOn(adminChannel, 'send');
+        await service.notifyNameChange({ id: 'FAKE_PLAYER_ID', name: 'FAKE_PLAYER', steamId: 'FAKE_STEAM_ID', hasAcceptedRules: true }, 'OLD_NAME');
         expect(spy).toHaveBeenCalledWith(expect.any(MessageEmbed));
       });
     });
