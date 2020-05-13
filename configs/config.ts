@@ -54,6 +54,6 @@ export default () => ({
      * Specifies the minimum delay between prompts.
      * Default: 5 * 60 * 1000 (5 minutes).
      */
-    promptAnnouncementDelay: 1 * 60 * 1000,
+    promptAnnouncementDelay: 5 * 60 * 1000,
   },
 });
