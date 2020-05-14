@@ -33,9 +33,9 @@ export default () => ({
 
   /**
    * Time after which the server will be cleaned up & released after a match ends.
-   * Default: 60 * 1000 (1 minute).
+   * Default: 120 * 1000 (2 minutes).
    */
-  serverCleanupDelay: 60 * 1000,
+  serverCleanupDelay: 120 * 1000,
 
   /**
    * To have all the discord integration enabled, the DISCORD_BOT_TOKEN env constant must be set.
