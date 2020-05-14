@@ -90,6 +90,20 @@ describe('MessageEmbedFactoryService', () => {
     });
   });
 
+  describe('fromNameChange()', () => {
+    it('should render the MessageEmbed', async () => {
+      const ret = await service.fromNameChange({ name: 'FAKE_PLAYER', id: 'FAKE_PLAYER_ID' } as any, 'OLD_NAME');
+
+      expect(ret.title).toEqual('Player name changed');
+      expect(ret.fields).toEqual([
+        { name: 'Old name', value: 'OLD_NAME', inline: false },
+        { name: 'New name', value: 'FAKE_PLAYER', inline: false },
+        { name: 'Profile URL', value: 'FAKE_CLIENT_URL/player/FAKE_PLAYER_ID', inline: false },
+      ]);
+      expect(ret.timestamp).toBeTruthy();
+    });
+  });
+
   describe('fromSubstituteRequest()', () => {
     it('should render the MessageEmbed', async () => {
       const ret = await service.fromSubstituteRequest({

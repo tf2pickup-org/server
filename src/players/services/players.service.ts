@@ -101,7 +101,9 @@ export class PlayersService {
     const player = await this.getById(playerId);
     if (player) {
       if (update.name) {
+        const oldName = player.name;
         player.name = update.name;
+        this.discordNotificationsService.notifyNameChange(player, oldName);
       }
 
       if (update.role !== undefined) {

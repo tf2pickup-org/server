@@ -50,6 +50,16 @@ export class MessageEmbedFactoryService {
       .setTimestamp();
   }
 
+  async fromNameChange(player: Player, oldName: string) {
+    return new MessageEmbed()
+      .setColor('#5230dc')
+      .setTitle('Player name changed')
+      .addField('Old name', oldName)
+      .addField('New name', player.name)
+      .addField('Profile URL', `${this.environment.clientUrl}/player/${player.id}`)
+      .setTimestamp();
+  }
+
   async fromSubstituteRequest(substituteRequest: SubstituteRequest) {
     return new MessageEmbed()
       .setColor('#ff557f')

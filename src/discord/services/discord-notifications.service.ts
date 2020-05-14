@@ -101,6 +101,10 @@ export class DiscordNotificationsService implements OnModuleInit {
     return this.sendNotification(TargetChannel.Admins, await this.messageEmbedFactoryService.fromNewPlayer(player));
   }
 
+  async notifyNameChange(player: Player, oldName: string) {
+    return this.sendNotification(TargetChannel.Admins, await this.messageEmbedFactoryService.fromNameChange(player, oldName));
+  }
+
   private enable() {
     this.guild = this.client.guilds.cache.find(guild => guild.name === this.environment.discordGuild);
     if (this.guild?.available) {
