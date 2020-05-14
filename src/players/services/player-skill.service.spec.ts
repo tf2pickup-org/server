@@ -9,16 +9,12 @@ import { ReturnModelType, DocumentType } from '@typegoose/typegoose';
 import { ObjectId } from 'mongodb';
 import { QueueConfigService } from '@/queue/services/queue-config.service';
 import * as fs from 'fs';
-import { Subject } from 'rxjs';
 import { FuturePlayerSkillService } from './future-player-skill.service';
 import { Etf2lProfileService } from './etf2l-profile.service';
 import { DiscordNotificationsService } from '@/discord/services/discord-notifications.service';
+import { Player } from '../models/player';
 
-class PlayersServiceStub {
-  getById(id: string) { return Promise.resolve(null); }
-  getAll() { return Promise.resolve([]); }
-  playerRegistered = new Subject<string>();
-}
+jest.mock('./players.service');
 
 class QueueConfigServiceStub {
   queueConfig = {
@@ -44,9 +40,9 @@ describe('PlayerSkillService', () => {
   let service: PlayerSkillService;
   let mongod: MongoMemoryServer;
   let playerSkillModel: ReturnModelType<typeof PlayerSkill>;
-  let mockPlayerId: string;
+  let mockPlayer: Player;
   let mockPlayerSkill: DocumentType<PlayerSkill>;
-  let playersService: PlayersServiceStub;
+  let playersService: PlayersService;
   let futurePlayerSkillService: FuturePlayerSkillServiceStub;
   let etf2lProfileService: Etf2lProfileServiceStub;
   let discordNotificationsService: DiscordNotificationsServiceStub;
@@ -62,7 +58,7 @@ describe('PlayerSkillService', () => {
       ],
       providers: [
         PlayerSkillService,
-        { provide: PlayersService, useClass: PlayersServiceStub },
+        PlayersService,
         { provide: QueueConfigService, useClass: QueueConfigServiceStub },
         { provide: FuturePlayerSkillService, useClass: FuturePlayerSkillServiceStub },
         { provide: Etf2lProfileService, useClass: Etf2lProfileServiceStub },
@@ -81,9 +77,10 @@ describe('PlayerSkillService', () => {
   });
 
   beforeEach(async () => {
-    mockPlayerId = new ObjectId().toString();
+    // @ts-expect-error
+    mockPlayer = playersService._createOne();
     mockPlayerSkill = await playerSkillModel.create({
-      player: mockPlayerId,
+      player: mockPlayer.id,
       skill: {
         soldier: 4,
       },
@@ -97,18 +94,15 @@ describe('PlayerSkillService', () => {
   });
 
   describe('upon player registration', () => {
-    let playerId: string;
-
-    beforeEach(() => {
-      playerId = new ObjectId().toString();
-      jest.spyOn(playersService, 'getById').mockResolvedValue({ id: playerId, _id: playerId, steamId: 'FAKE_STEAM_ID' });
-    });
-
     describe('when there is no future skill', () => {
       it('should not update player\'s skill', done => {
-        playersService.playerRegistered.next(playerId);
+        // @ts-expect-error
+        const newPlayer = playersService._createOne();
+
+        // @ts-expect-error
+        playersService.playerRegistered.next(newPlayer.id.toString());
         setTimeout(async () => {
-          expect(await playerSkillModel.findOne({ player: playerId })).toBe(null);
+          expect(await playerSkillModel.findOne({ player: newPlayer.id })).toBe(null);
           done();
         }, 100);
       });
@@ -116,13 +110,14 @@ describe('PlayerSkillService', () => {
 
     describe('when there is future skill for the given player', () => {
       beforeEach(() => {
-        jest.spyOn(futurePlayerSkillService, 'findSkill').mockResolvedValue({ steamId: 'FAKE_STEAM_ID', skill: new Map([['soldier', 2]]) });
+        jest.spyOn(futurePlayerSkillService, 'findSkill').mockResolvedValue({ steamId: mockPlayer.steamId, skill: new Map([['soldier', 2]]) });
       });
 
       it('should update player\'s skill', done => {
-        playersService.playerRegistered.next(playerId);
+        // @ts-expect-error
+        playersService.playerRegistered.next(mockPlayer.id.toString());
         setTimeout(async () => {
-          expect(await playerSkillModel.findOne({ player: playerId })).toBeTruthy();
+          expect(await playerSkillModel.findOne({ player: mockPlayer.id })).toBeTruthy();
           done();
         }, 100);
       });
@@ -138,14 +133,14 @@ describe('PlayerSkillService', () => {
 
   describe('#getPlayerSkill()', () => {
     it('should retrieve player skill', async () => {
-      const ret = await service.getPlayerSkill(mockPlayerId);
+      const ret = await service.getPlayerSkill(mockPlayer.id);
       expect(ret.toObject()).toEqual(mockPlayerSkill.toObject());
     });
   });
 
   describe('#setPlayerSkill()', () => {
     it('should set player skill', async () => {
-      const ret = await service.setPlayerSkill(mockPlayerId, new Map([['soldier', 2]]));
+      const ret = await service.setPlayerSkill(mockPlayer.id, new Map([['soldier', 2]]));
       expect(ret.toObject()).toMatchObject({
         skill: new Map([['soldier', 2]]),
       });
@@ -157,25 +152,19 @@ describe('PlayerSkillService', () => {
 
     it('should notify admins on discord', async () => {
       const spy = jest.spyOn(discordNotificationsService, 'notifySkillChange');
-      await service.setPlayerSkill(mockPlayerId, new Map([['soldier', 2]]));
+      await service.setPlayerSkill(mockPlayer.id, new Map([['soldier', 2]]));
       expect(spy).toHaveBeenCalled();
     });
   });
 
   describe('#exportPlayerSkills()', () => {
     describe('with players in the database', () => {
-      beforeEach(() => {
-        jest.spyOn(playersService, 'getAll').mockResolvedValue([
-          { id: mockPlayerId, name: 'FAKE_PLAYER_NAME', etf2lProfileId: 12345 },
-        ]);
-      });
-
       it('should save all players\' skill to a csv file', async () => {
         const spy = jest.spyOn(fs, 'writeFileSync').mockImplementation();
         await service.exportPlayerSkills();
         expect(spy).toHaveBeenCalledWith(
           expect.stringMatching(/^player-skills-.+\.csv$/),
-          'etf2lProfileId,soldier\n12345,4',
+          `etf2lProfileId,soldier\n${mockPlayer.etf2lProfileId},4`,
         );
       });
     });
