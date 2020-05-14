@@ -8,6 +8,7 @@ import { map, distinctUntilChanged } from 'rxjs/operators';
 import { BehaviorSubject } from 'rxjs';
 import { TwitchGateway } from '../gateways/twitch.gateway';
 import { TwitchAuthService } from './twitch-auth.service';
+import { PlayerBansService } from '@/players/services/player-bans.service';
 
 interface TwitchGetUsersResponse {
   data: {
@@ -59,6 +60,7 @@ export class TwitchService implements OnModuleInit {
     private environment: Environment,
     private twitchGateway: TwitchGateway,
     private twitchAuthService: TwitchAuthService,
+    private playerBansService: PlayerBansService,
   ) { }
 
   onModuleInit() {
@@ -84,17 +86,22 @@ export class TwitchService implements OnModuleInit {
     const users = await this.playersService.getUsersWithTwitchTvAccount();
     if (users.length > 0) {
       const rawStreams = await this.fetchStreams(users.map(u => u.twitchTvUser.userId));
-      const streams = await Promise.all(rawStreams.map(async s => {
+      const streams = (await Promise.all(rawStreams.map(async s => {
         const player = await this.playersService.findByTwitchUserId(s.user_id);
-        return {
-          playerId: player.id,
-          id: s.id,
-          userName: s.user_name,
-          title: s.title,
-          thumbnailUrl: s.thumbnail_url,
-          viewerCount: s.viewer_count,
-        };
-      }));
+        const bans = await this.playerBansService.getPlayerBans(player.id);
+        if (bans.length > 0) {
+          return null;
+        } else {
+          return {
+            playerId: player.id,
+            id: s.id,
+            userName: s.user_name,
+            title: s.title,
+            thumbnailUrl: s.thumbnail_url,
+            viewerCount: s.viewer_count,
+          };
+        }
+      }))).filter(stream => !!stream);
       this._streams.next(streams);
       this.logger.debug('streams refreshed');
     }

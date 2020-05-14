@@ -7,6 +7,7 @@ import { Environment } from '@/environment/environment';
 import { of } from 'rxjs';
 import { TwitchGateway } from '../gateways/twitch.gateway';
 import { TwitchAuthService } from './twitch-auth.service';
+import { PlayerBansService } from '@/players/services/player-bans.service';
 
 class PlayersServiceStub {
   twitchUser = {
@@ -42,9 +43,14 @@ class TwitchAuthServiceStub {
   getAppAccessToken() { return Promise.resolve('FAKE_APP_ACCESS_TOKEN'); }
 }
 
+class PlayerBansServiceStub {
+  getPlayerBans(playerId: string) { return Promise.resolve([]); }
+}
+
 describe('TwitchService', () => {
   let service: TwitchService;
   let httpService: HttpServiceStub;
+  let playerBansService: PlayerBansService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -57,11 +63,13 @@ describe('TwitchService', () => {
         { provide: TwitchGateway, useClass: TwitchGatewayStub },
         { provide: TwitchAuthService, useClass: TwitchAuthServiceStub },
         { provide: HttpService, useClass: HttpServiceStub },
+        { provide: PlayerBansService, useClass: PlayerBansServiceStub },
       ],
     }).compile();
 
     service = module.get<TwitchService>(TwitchService);
     httpService = module.get(HttpService);
+    playerBansService = module.get(PlayerBansService);
   });
 
   it('should be defined', () => {
@@ -132,6 +140,17 @@ describe('TwitchService', () => {
     it('should refresh all streams', async () => {
       await service.pollUsersStreams();
       expect(service.streams.length).toEqual(1);
+    });
+
+    describe('when a user is banned', () => {
+      beforeEach(() => {
+        jest.spyOn(playerBansService, 'getPlayerBans').mockResolvedValue([{ } as any]);
+      });
+
+      it('should not add his stream to the list of streams', async () => {
+        await service.pollUsersStreams();
+        expect(service.streams.length).toEqual(0);
+      });
     });
   });
 });
