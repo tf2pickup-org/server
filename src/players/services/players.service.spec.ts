@@ -128,6 +128,14 @@ describe('PlayersService', () => {
     expect(service).toBeDefined();
   });
 
+  describe('#getAll()', () => {
+    it('should retrieve all players from the database', async () => {
+      const ret = await service.getAll();
+      expect(ret.length).toEqual(1);
+      expect(ret[0].toObject()).toEqual(mockPlayer.toObject());
+    });
+  });
+
   describe('#getById()', () => {
     it('should retrieve the player from the database', async () => {
       const player = await service.getById(mockPlayer.id);
@@ -146,6 +154,26 @@ describe('PlayersService', () => {
     it('should query playerModel', async () => {
       const player = await service.findByEtf2lProfileId(123456);
       expect(player.toObject()).toEqual(mockPlayer.toObject());
+    });
+  });
+
+  describe('#findByTwitchUserId()', () => {
+    beforeEach(async () => {
+      const player = await playerModel.findOne();
+      player.twitchTvUser = {
+        userId: 'FAKE_TWITCH_TV_USER_ID',
+        login: 'FAKE_TWITCH_TV_LOGIN',
+      };
+      await player.save();
+    });
+
+    it('should query playerModel', async () => {
+      const player = await service.findByTwitchUserId('FAKE_TWITCH_TV_USER_ID');
+      expect(player.toObject()).toEqual(expect.objectContaining({
+        twitchTvUser: expect.objectContaining({
+          userId: 'FAKE_TWITCH_TV_USER_ID',
+        }),
+      }));
     });
   });
 
@@ -245,6 +273,57 @@ describe('PlayersService', () => {
       it('should deny', async () => {
         await expect(service.createPlayer(mockSteamProfile)).rejects.toThrowError('cannot verify in-game hours for TF2');
       });
+    });
+  });
+
+  describe('#registerTwitchAccount()', () => {
+    const twitchTvUser = {
+      userId: 'FAKE_TWITCH_TV_USER_ID',
+      login: 'FAKE_TWITCH_TV_LOGIN',
+    };
+
+    describe('when the given user does not exist', () => {
+      beforeEach(() => {
+        jest.spyOn(service, 'getById').mockResolvedValue(null);
+      });
+
+      it('should throw an error', async () => {
+        expect(service.registerTwitchAccount('FAKE_ID', {
+          userId: 'FAKE_TWITCH_TV_USER_ID',
+          login: 'FAKE_TWITCH_TV_LOGIN',
+        })).rejects.toThrowError('no such player');
+      });
+    });
+
+    it('should save the twitch user id', async () => {
+      const ret = await service.registerTwitchAccount(mockPlayer.id, twitchTvUser);
+      expect(ret.twitchTvUser).toEqual(expect.objectContaining(twitchTvUser));
+    });
+
+    it('should notify all clients via ws', async () => {
+      const socket = { emit: (...args: any[]) => null };
+      jest.spyOn(onlinePlayersService, 'getSocketsForPlayer').mockReturnValue([ socket ] as any);
+      const spy = jest.spyOn(socket, 'emit');
+
+      await service.registerTwitchAccount(mockPlayer.id, twitchTvUser);
+      expect(spy).toHaveBeenCalledWith('profile update', { twitchTvUser });
+    });
+  });
+
+  describe('#getUsersWithTwitchTvAccount()', () => {
+    beforeEach(async () => {
+      const player = await playerModel.findOne();
+      player.twitchTvUser = {
+        userId: 'FAKE_TWITCH_TV_USER_ID',
+        login: 'FAKE_TWITCH_TV_LOGIN',
+      };
+      await player.save();
+    });
+
+    it('should return all twitch.tv user ids', async () => {
+      const ret = await service.getUsersWithTwitchTvAccount();
+      expect(ret.length).toBe(1);
+      expect(ret[0].twitchTvUser.userId).toEqual('FAKE_TWITCH_TV_USER_ID');
     });
   });
 

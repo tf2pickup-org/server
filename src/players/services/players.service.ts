@@ -13,6 +13,7 @@ import { DiscordNotificationsService } from '@/discord/services/discord-notifica
 import { ConfigService } from '@nestjs/config';
 import { SteamApiService } from './steam-api.service';
 import { Subject } from 'rxjs';
+import { TwitchTvUser } from '../models/twitch-tv-user';
 
 @Injectable()
 export class PlayersService {
@@ -51,6 +52,10 @@ export class PlayersService {
 
   async findByEtf2lProfileId(etf2lProfileId: number) {
     return await this.playerModel.findOne({ etf2lProfileId });
+  }
+
+  async findByTwitchUserId(twitchTvUserId: string) {
+    return await this.playerModel.findOne({ 'twitchTvUser.userId': twitchTvUserId });
   }
 
   async createPlayer(steamProfile: SteamProfile): Promise<DocumentType<Player>> {
@@ -95,6 +100,26 @@ export class PlayersService {
     this._playerRegistered.next(player.id);
     this.discordNotificationsService.notifyNewPlayer(player);
     return player;
+  }
+
+  async registerTwitchAccount(playerId: string, twitchTvUser: TwitchTvUser) {
+    const player = await this.getById(playerId);
+    if (!player) {
+      throw new Error('no such player');
+    }
+
+    player.twitchTvUser = twitchTvUser;
+    await player.save();
+
+    this.onlinePlayersService.getSocketsForPlayer(playerId).forEach(socket => {
+      socket.emit('profile update', { twitchTvUser });
+    });
+
+    return player;
+  }
+
+  async getUsersWithTwitchTvAccount() {
+    return await this.playerModel.find({ twitchTvUser: { $exists: true } });
   }
 
   async updatePlayer(playerId: string, update: Partial<Player>): Promise<DocumentType<Player>> {

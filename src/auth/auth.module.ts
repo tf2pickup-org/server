@@ -35,6 +35,7 @@ const passportModule = PassportModule.register({
   ],
   exports: [
     passportModule,
+    AuthService,
   ],
 })
 export class AuthModule implements NestModule {

@@ -17,6 +17,7 @@ class KeyStoreServiceStub {
     switch (name) {
       case 'auth':
       case 'refresh':
+      case 'context':
         switch (purpose) {
           case 'sign': return this.key.privateKey.export({ format: 'pem', type: 'pkcs8' });
           case 'verify': return this.key.publicKey.export({ format: 'pem', type: 'spki' });
@@ -109,6 +110,20 @@ describe('AuthService', () => {
       it('should encode user id', async () => {
         const token = await service.generateJwtToken('ws', 'FAKE_USER_ID');
         const decoded = decode(token) as { id: string, iat: number, exp: number };
+        expect(decoded.id).toEqual('FAKE_USER_ID');
+      });
+    });
+
+    describe('context', () => {
+      it('should retrieve the signing key from the key store', async () => {
+        const spy = jest.spyOn(keyStoreService, 'getKey');
+        await service.generateJwtToken('context', 'FAKE_USER_ID');
+        expect(spy).toHaveBeenCalledWith('context', 'sign');
+      });
+
+      it('should encode user id', async () => {
+        const token = await service.generateJwtToken('context', 'FAKE_USER_ID');
+        const decoded = decode(token) as { id: string; iat: number; exp: number };
         expect(decoded.id).toEqual('FAKE_USER_ID');
       });
     });

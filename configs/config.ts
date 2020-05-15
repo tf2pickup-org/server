@@ -56,4 +56,7 @@ export default () => ({
      */
     promptAnnouncementDelay: 5 * 60 * 1000,
   },
+
+  twitchTvApiEndpoint: 'https://api.twitch.tv/helix',
+
 });

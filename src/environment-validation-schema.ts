@@ -25,4 +25,6 @@ export default object({
   DISCORD_BOT_TOKEN: any().optional(),
   DISCORD_QUEUE_NOTIFICATIONS_CHANNEL_ID: any().optional(),
   DISCORD_ADMIN_NOTIFICATIONS_CHANNEL_ID: any().optional(),
+  TWITCH_CLIENT_ID: any().optional(),
+  TWITCH_CLIENT_SECRET: any().optional(),
 });

@@ -75,7 +75,6 @@ export class GameLauncherService {
 
   @Cron('30 * * * * *') // every minute
   async launchOrphanedGames() {
-    this.logger.debug('launching orphaned games...');
     const orphanedGames = await this.gamesService.getOrphanedGames();
     for (const game of orphanedGames) {
       this.logger.verbose(`launching game #${game.number}...`);

@@ -9,7 +9,7 @@ interface KeyPair {
   publicKey: KeyObject;
 }
 
-type KeyName = 'auth' | 'refresh' | 'ws';
+type KeyName = 'auth' | 'refresh' | 'ws' | 'context';
 type KeyPurpose = 'sign' | 'verify';
 
 @Injectable()
@@ -28,7 +28,8 @@ export class KeyStoreService {
   getKey(name: KeyName, purpose: KeyPurpose): string | Buffer {
     switch (name) {
       case 'auth':
-      case 'refresh': {
+      case 'refresh':
+      case 'context':{
         switch (purpose) {
           case 'sign':
             return this.keys.get(name).privateKey.export({ format: 'pem', type: 'pkcs8' });
@@ -102,6 +103,12 @@ export class KeyStoreService {
 
     const wsSecret = generate({ length: 32, numbers: true, uppercase: true });
     this.secrets.set('ws', wsSecret);
+
+    const contextKeys = generateKeyPairSync('ec', {
+      namedCurve: 'secp521r1',
+    });
+
+    this.keys.set('context', contextKeys);
   }
 
 }
