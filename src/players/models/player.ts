@@ -1,7 +1,9 @@
-import { prop } from '@typegoose/typegoose';
+import { prop, index } from '@typegoose/typegoose';
 import { PlayerRole } from './player-role';
 import { TwitchTvUser } from './twitch-tv-user';
 
+@index({ steamId: 'hashed' })
+@index({ etf2lProfileId: 1 })
 export class Player {
   id: string;
 

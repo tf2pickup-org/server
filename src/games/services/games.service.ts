@@ -40,7 +40,7 @@ export class GamesService {
     return await this.gameModel.findById(gameId);
   }
 
-  async getRunningGames(): Promise<Array<DocumentType<Game>>> {
+  async getRunningGames(): Promise<DocumentType<Game>[]> {
     return await this.gameModel.find({ state: /launching|started/ });
   }
 
@@ -162,7 +162,7 @@ export class GamesService {
     ]);
   }
 
-  async getGamesWithSubstitutionRequests(): Promise<Array<DocumentType<Game>>> {
+  async getGamesWithSubstitutionRequests(): Promise<DocumentType<Game>[]> {
     return this.gameModel
       .find({
         'state': { $in: ['launching', 'started'] },
@@ -170,7 +170,7 @@ export class GamesService {
       });
   }
 
-  async getOrphanedGames(): Promise<Array<DocumentType<Game>>> {
+  async getOrphanedGames(): Promise<DocumentType<Game>[]> {
     return this.gameModel
       .find({
         state: 'launching',

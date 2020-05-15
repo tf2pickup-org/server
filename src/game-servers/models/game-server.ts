@@ -1,6 +1,7 @@
-import { prop, arrayProp } from '@typegoose/typegoose';
+import { prop, arrayProp, index } from '@typegoose/typegoose';
 import { IsString, IsPort } from 'class-validator';
 
+@index({ resolvedIpAddresses: 1 })
 export class GameServer {
   @prop({ default: () => new Date() })
   createdAt?: Date;
