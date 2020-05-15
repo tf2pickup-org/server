@@ -105,6 +105,10 @@ export class DiscordNotificationsService implements OnModuleInit {
     return this.sendNotification(TargetChannel.Admins, await this.messageEmbedFactoryService.fromNameChange(player, oldName));
   }
 
+  async notifySkillChange(playerId: string, oldSkill: Map<string, number>, newSkill: Map<string, number>) {
+    return this.sendNotification(TargetChannel.Admins, await this.messageEmbedFactoryService.fromSkillChange(playerId, oldSkill, newSkill));
+  }
+
   private enable() {
     this.guild = this.client.guilds.cache.find(guild => guild.name === this.environment.discordGuild);
     if (this.guild?.available) {
