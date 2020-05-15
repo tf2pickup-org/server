@@ -1,6 +1,8 @@
-import { prop } from '@typegoose/typegoose';
+import { prop, index } from '@typegoose/typegoose';
 import { PlayerConnectionStatus } from './player-connection-status';
 
+@index({ playerId: 1 })
+@index({ status: 1 })
 export class GamePlayer {
   @prop({ required: true })
   playerId!: string;

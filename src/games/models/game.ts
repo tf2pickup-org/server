@@ -1,10 +1,13 @@
-import { prop, mapProp, arrayProp, Ref } from '@typegoose/typegoose';
+import { prop, mapProp, arrayProp, Ref, index } from '@typegoose/typegoose';
 import { Player } from '@/players/models/player';
 import { GamePlayer } from './game-player';
 import { GameServer } from '@/game-servers/models/game-server';
 
 type GameState = 'launching' | 'started' | 'ended' | 'interrupted';
 
+@index({ state: 1 })
+@index({ players: 1 })
+@index({ gameServer: 1 })
 export class Game {
   @prop({ default: () => new Date() })
   launchedAt?: Date;
@@ -16,7 +19,7 @@ export class Game {
   teams?: Map<string, string>;
 
   @arrayProp({ ref: 'Player' })
-  players?: Array<Ref<Player>>;
+  players?: Ref<Player>[];
 
   @arrayProp({ items: GamePlayer })
   slots?: GamePlayer[];

@@ -1,5 +1,6 @@
-import { prop } from '@typegoose/typegoose';
+import { prop, index } from '@typegoose/typegoose';
 
+@index({ value: 'hashed' })
 export class RefreshToken {
   @prop({ required: true })
   value!: string;
