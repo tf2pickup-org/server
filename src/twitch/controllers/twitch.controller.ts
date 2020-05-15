@@ -1,4 +1,4 @@
-import { Controller, Get, Redirect, Query, BadRequestException } from '@nestjs/common';
+import { Controller, Get, Redirect, Query, BadRequestException, Logger } from '@nestjs/common';
 import { TwitchService } from '../services/twitch.service';
 import { TwitchAuthService } from '../services/twitch-auth.service';
 import { PlayersService } from '@/players/services/players.service';
@@ -8,6 +8,8 @@ import { TwitchTvUser } from '@/players/models/twitch-tv-user';
 
 @Controller('twitch')
 export class TwitchController {
+
+  private logger = new Logger(TwitchController.name);
 
   constructor(
     private twitchService: TwitchService,
@@ -24,6 +26,7 @@ export class TwitchController {
       const contextToken = await this.authService.generateJwtToken('context', id);
       return { url: this.twitchAuthService.getOauthRedirectUrl(contextToken) };
     } catch (e) {
+      this.logger.error(e);
       if (e instanceof JsonWebTokenError) {
         throw new BadRequestException(e.message);
       } else {
