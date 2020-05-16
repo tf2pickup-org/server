@@ -44,7 +44,7 @@ class TwitchAuthServiceStub {
 }
 
 class PlayerBansServiceStub {
-  getPlayerBans(playerId: string) { return Promise.resolve([]); }
+  getPlayerActiveBans(playerId: string) { return Promise.resolve([]); }
 }
 
 describe('TwitchService', () => {
@@ -144,7 +144,7 @@ describe('TwitchService', () => {
 
     describe('when a user is banned', () => {
       beforeEach(() => {
-        jest.spyOn(playerBansService, 'getPlayerBans').mockResolvedValue([{ } as any]);
+        jest.spyOn(playerBansService, 'getPlayerActiveBans').mockResolvedValue([{ } as any]);
       });
 
       it('should not add his stream to the list of streams', async () => {
