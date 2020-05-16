@@ -1,3 +1,15 @@
+# [2.6.0](https://github.com/tf2pickup-pl/server/compare/2.5.1...2.6.0) (2020-05-16)
+
+### Features
+* twitch.tv integration ([be73490](https://github.com/tf2pickup-pl/server/commit/be73490c2b50b65f7b1fc9db18e88260f40c669a))
+* Configurable map cooldown ([83521e7](https://github.com/tf2pickup-pl/server/commit/83521e746abff8e667422af311ef552322762b4a))
+* Add database indexes ([da74427](https://github.com/tf2pickup-pl/server/commit/da744272ad17b167f022dae2f047b7024763d1ea))
+* Notify admins on name change ([b76a0b8](https://github.com/tf2pickup-pl/server/commit/b76a0b872791d9c7bacf38fcd78b1f078aa118e9))
+* Notify admins on skill change ([f1d043e](https://github.com/tf2pickup-pl/server/commit/f1d043eed78ff984c9e8f5d164434bafa39231c0))
+
+### Refactor
+* DiscordModule ([bfe35e7](https://github.com/tf2pickup-pl/server/commit/bfe35e7877e82c7ea22138a50539fa6d005a053a))
+
 # [2.5.1](https://github.com/tf2pickup-pl/server/compare/2.5.0...2.5.1) (2020-05-02)
 
 ### Fixes
