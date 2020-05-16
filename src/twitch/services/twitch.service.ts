@@ -88,7 +88,7 @@ export class TwitchService implements OnModuleInit {
       const rawStreams = await this.fetchStreams(users.map(u => u.twitchTvUser.userId));
       const streams = (await Promise.all(rawStreams.map(async s => {
         const player = await this.playersService.findByTwitchUserId(s.user_id);
-        const bans = await this.playerBansService.getPlayerBans(player.id);
+        const bans = await this.playerBansService.getPlayerActiveBans(player.id);
         if (bans.length > 0) {
           return null;
         } else {
