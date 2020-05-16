@@ -76,15 +76,8 @@ export class PlayersService {
 
       name = etf2lProfile.name;
     } catch (error) {
-      switch (error.message) {
-        case 'no etf2l profile':
-          if (this.requireEtf2lAccount) {
-            throw error;
-          }
-          break;
-
-        default:
-          throw error;
+      if (this.requireEtf2lAccount) {
+        throw error;
       }
     }
 
