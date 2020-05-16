@@ -123,4 +123,21 @@ describe('MessageEmbedFactoryService', () => {
       expect(ret.thumbnail).toEqual({ url: 'FAKE_CLIENT_URL/assets/android-icon-192x192.png' });
     });
   });
+
+  describe('fromSkillChange()', () => {
+    it('should render skill changes', async () => {
+      const ret = await service.fromSkillChange(
+        'FAKE_PLAYER_ID',
+        new Map([['scout', 1], ['soldier', 2]]),
+        new Map([['scout', 1], ['soldier', 3], ['medic', 4]]),
+      );
+
+      expect(ret.title).toEqual('Player\'s skill has been updated');
+      expect(ret.fields).toEqual([
+        { name: 'Player name', value: 'FAKE_PLAYER', inline: false },
+        { name: 'soldier', value: '2 => 3', inline: false },
+        { name: 'medic', value: '1 => 4', inline: false },
+      ])
+    });
+  });
 });

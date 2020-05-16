@@ -203,5 +203,13 @@ describe('DiscordNotificationsService', () => {
         expect(spy).toHaveBeenCalledWith(expect.any(MessageEmbed));
       });
     });
+
+    describe('#notifySkillChange()', () => {
+      it('should send a notification to the admin channel', async () => {
+        const spy = jest.spyOn(adminChannel, 'send');
+        await service.notifySkillChange('FAKE_PLAYER_ID', new Map([]), new Map([]));
+        expect(spy).toHaveBeenLastCalledWith(expect.any(MessageEmbed));
+      });
+    });
   });
 });

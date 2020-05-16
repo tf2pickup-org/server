@@ -10,6 +10,7 @@ import moment = require('moment');
 import { FuturePlayerSkillService } from './future-player-skill.service';
 import { createInterface } from 'readline';
 import { Etf2lProfileService } from './etf2l-profile.service';
+import { DiscordNotificationsService } from '@/discord/services/discord-notifications.service';
 
 @Injectable()
 @Console()
@@ -21,6 +22,7 @@ export class PlayerSkillService implements OnModuleInit {
     private queueConfigService: QueueConfigService,
     private futurePlayerSkillService: FuturePlayerSkillService,
     private etf2lProfileService: Etf2lProfileService,
+    private discordNotificationsService: DiscordNotificationsService,
   ) { }
 
   onModuleInit() {
@@ -44,6 +46,7 @@ export class PlayerSkillService implements OnModuleInit {
   async setPlayerSkill(playerId: string, newSkill: Map<string, number>): Promise<DocumentType<PlayerSkill>> {
     const skill = await this.playerSkillModel.findOne({ player: playerId });
     if (skill) {
+      this.discordNotificationsService.notifySkillChange(playerId, skill.skill, newSkill);
       skill.skill = newSkill;
       return await skill.save();
     } else {
@@ -51,6 +54,8 @@ export class PlayerSkillService implements OnModuleInit {
       if (!player) {
         throw new Error('no such player');
       }
+
+      this.discordNotificationsService.notifySkillChange(playerId, new Map([]), newSkill);
 
       return await this.playerSkillModel.create({
         player: player.id,

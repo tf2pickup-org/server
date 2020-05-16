@@ -71,4 +71,25 @@ export class MessageEmbedFactoryService {
       .setThumbnail(`${this.environment.clientUrl}/assets/android-icon-192x192.png`);
   }
 
+  async fromSkillChange(playerId: string, oldSkill: Map<string, number>, newSkill: Map<string, number>) {
+    const player = await this.playersService.getById(playerId);
+    const embed = new MessageEmbed()
+      .setColor('#ff953e')
+      .setTitle('Player\'s skill has been updated')
+      .addField('Player name', player.name);
+
+    for (const key of newSkill.keys()) {
+      const newSkillValue = newSkill.get(key);
+      const oldSkillValue = oldSkill.get(key);
+      if (newSkillValue !== oldSkillValue) {
+        embed.addField(key, `${oldSkillValue || 1} => ${newSkillValue}`);
+      }
+    }
+
+    embed
+      .setURL(`${this.environment.clientUrl}/player/${player.id}`)
+      .setTimestamp();
+    return embed;
+  }
+
 }
