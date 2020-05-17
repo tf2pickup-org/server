@@ -1,3 +1,8 @@
+# [2.6.1](https://github.com/tf2pickup-pl/server/compare/2.6.0...2.6.1) (2020-05-17)
+
+### Fixes
+* Disable streams for players with active bans only ([31db9bb](https://github.com/tf2pickup-pl/server/commit/31db9bb3bb055cdc126bbb8aa1c154e3e9393974))
+
 # [2.6.0](https://github.com/tf2pickup-pl/server/compare/2.5.1...2.6.0) (2020-05-16)
 
 ### Features
