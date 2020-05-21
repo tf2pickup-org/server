@@ -5,13 +5,14 @@ import { PlayersService } from '@/players/services/players.service';
 import { PlayerBansService } from '@/players/services/player-bans.service';
 import { GameRuntimeService } from './game-runtime.service';
 import { GamesGateway } from '../gateways/games.gateway';
-import { SubstituteRequest } from '@/queue/substitute-request';
 import { DiscordNotificationsService } from '@/discord/services/discord-notifications.service';
 import { cloneDeep } from 'lodash';
 import { QueueGateway } from '@/queue/gateways/queue.gateway';
 import { QueueService } from '@/queue/services/queue.service';
 
 // fixme: use TestingMongooseModule here
+
+jest.mock('@/discord/services/discord-notifications.service');
 
 const mockGame = {
   id: 'FAKE_GAME_ID',
@@ -84,10 +85,6 @@ class GamesGatewayStub {
   emitGameUpdated(game: any) { return null; }
 }
 
-class DiscordNotificationsServiceStub {
-  notifySubstituteRequest(substituteRequest: SubstituteRequest) { return null; }
-}
-
 class QueueGatewayStub {
   updateSubstituteRequests() { return null; }
 }
@@ -103,7 +100,7 @@ describe('PlayerSubstitutionService', () => {
   let playerBansService: PlayerBansServiceStub;
   let gameRuntimeService: GameRuntimeServiceStub;
   let gamesGateway: GamesGatewayStub;
-  let discordNotificationsService: DiscordNotificationsServiceStub;
+  let discordNotificationsService: DiscordNotificationsService;
   let queueGateway: QueueGatewayStub;
   let queueService: QueueServiceStub;
 
@@ -116,7 +113,7 @@ describe('PlayerSubstitutionService', () => {
         { provide: PlayerBansService, useClass: PlayerBansServiceStub },
         { provide: GameRuntimeService, useClass: GameRuntimeServiceStub },
         { provide: GamesGateway, useClass: GamesGatewayStub },
-        { provide: DiscordNotificationsService, useClass: DiscordNotificationsServiceStub },
+        DiscordNotificationsService,
         { provide: QueueGateway, useClass: QueueGatewayStub },
         { provide: QueueService, useClass: QueueServiceStub },
       ],

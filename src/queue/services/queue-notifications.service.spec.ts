@@ -5,14 +5,12 @@ import { DiscordNotificationsService } from '@/discord/services/discord-notifica
 import { Subject } from 'rxjs';
 import { ConfigService } from '@nestjs/config';
 
+jest.mock('@/discord/services/discord-notifications.service');
+
 class QueueServiceStub {
   playerCount = 6;
   requiredPlayerCount = 12;
   playerJoin = new Subject<string>();
-}
-
-class DiscordNotificationsServiceStub {
-  public notifyQueue(currentPlayerCount: number, targetPlayerCount: number) { return null; }
 }
 
 class ConfigServiceStub {
@@ -30,14 +28,14 @@ class ConfigServiceStub {
 describe('QueueNotificationsService', () => {
   let service: QueueNotificationsService;
   let queueService: QueueServiceStub;
-  let discordNotificationsService: DiscordNotificationsServiceStub;
+  let discordNotificationsService: DiscordNotificationsService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         QueueNotificationsService,
         { provide: QueueService, useClass: QueueServiceStub },
-        { provide: DiscordNotificationsService, useClass: DiscordNotificationsServiceStub },
+        DiscordNotificationsService,
         { provide: ConfigService, useClass: ConfigServiceStub },
       ],
     }).compile();

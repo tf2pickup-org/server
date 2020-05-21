@@ -15,6 +15,7 @@ import { DiscordNotificationsService } from '@/discord/services/discord-notifica
 import { Player } from '../models/player';
 
 jest.mock('./players.service');
+jest.mock('@/discord/services/discord-notifications.service');
 
 class QueueConfigServiceStub {
   queueConfig = {
@@ -32,10 +33,6 @@ class Etf2lProfileServiceStub {
   fetchPlayerInfo(id: string) { return Promise.resolve(); }
 }
 
-class DiscordNotificationsServiceStub {
-  notifySkillChange(playerId: string, oldSkill: any, newSkill: any) { return Promise.resolve(); }
-}
-
 describe('PlayerSkillService', () => {
   let service: PlayerSkillService;
   let mongod: MongoMemoryServer;
@@ -45,7 +42,7 @@ describe('PlayerSkillService', () => {
   let playersService: PlayersService;
   let futurePlayerSkillService: FuturePlayerSkillServiceStub;
   let etf2lProfileService: Etf2lProfileServiceStub;
-  let discordNotificationsService: DiscordNotificationsServiceStub;
+  let discordNotificationsService: DiscordNotificationsService;
 
   beforeAll(() => mongod = new MongoMemoryServer());
   afterAll(async () => await mongod.stop());
@@ -62,7 +59,7 @@ describe('PlayerSkillService', () => {
         { provide: QueueConfigService, useClass: QueueConfigServiceStub },
         { provide: FuturePlayerSkillService, useClass: FuturePlayerSkillServiceStub },
         { provide: Etf2lProfileService, useClass: Etf2lProfileServiceStub },
-        { provide: DiscordNotificationsService, useClass: DiscordNotificationsServiceStub },
+        DiscordNotificationsService,
       ],
     }).compile();
 

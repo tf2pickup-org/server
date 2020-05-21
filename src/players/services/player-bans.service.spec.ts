@@ -9,19 +9,16 @@ import { typegooseTestingModule } from '@/utils/testing-typegoose-module';
 import { ReturnModelType, DocumentType } from '@typegoose/typegoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 
+jest.mock('@/discord/services/discord-notifications.service');
+
 class OnlinePlayersServiceStub {
   getSocketsForPlayer(playerId: string) { return []; }
-}
-
-class DiscordNotificationsServiceStub {
-  notifyPlayerBanAdded(ban: any) { return null; }
-  notifyPlayerBanRevoked(ban: any) { return null; }
 }
 
 describe('PlayerBansService', () => {
   let service: PlayerBansService;
   let mongod: MongoMemoryServer;
-  let discordNotificationsService: DiscordNotificationsServiceStub;
+  let discordNotificationsService: DiscordNotificationsService;
   let playerBanModel: ReturnModelType<typeof PlayerBan>;
   let playerBan: DocumentType<PlayerBan>;
   let onlinePlayersService: OnlinePlayersServiceStub;
@@ -38,7 +35,7 @@ describe('PlayerBansService', () => {
       providers: [
         PlayerBansService,
         { provide: OnlinePlayersService, useClass: OnlinePlayersServiceStub },
-        { provide: DiscordNotificationsService, useClass: DiscordNotificationsServiceStub },
+        DiscordNotificationsService,
       ],
     }).compile();
 
