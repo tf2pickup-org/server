@@ -2,7 +2,7 @@ import { WebSocketGateway, OnGatewayInit } from '@nestjs/websockets';
 import { Socket } from 'socket.io';
 import { TwitchStream } from '../models/twitch-stream';
 
-@WebSocketGateway({ namespace: 'twitch' })
+@WebSocketGateway()
 export class TwitchGateway implements OnGatewayInit {
 
   private socket: Socket;
