@@ -8,7 +8,7 @@ export class TwitchGateway implements OnGatewayInit {
   private socket: Socket;
 
   emitStreamsUpdate(streams: TwitchStream[]) {
-    this.socket?.emit('streams update', streams)
+    this.socket?.emit('twitch streams update', streams)
   }
 
   afterInit(socket: Socket) {

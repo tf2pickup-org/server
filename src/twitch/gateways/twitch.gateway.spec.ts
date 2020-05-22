@@ -30,7 +30,7 @@ describe('TwitchGateway', () => {
     it('should emit the event through the socket', () => {
       const spy = jest.spyOn(socket, 'emit');
       gateway.emitStreamsUpdate([]);
-      expect(spy).toHaveBeenCalledWith('streams update', []);
+      expect(spy).toHaveBeenCalledWith('twitch streams update', []);
     });
   });
 });
