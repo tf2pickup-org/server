@@ -207,7 +207,7 @@ describe('DiscordNotificationsService', () => {
     describe('#notifySkillChange()', () => {
       it('should send a notification to the admin channel', async () => {
         const spy = jest.spyOn(adminChannel, 'send');
-        await service.notifySkillChange('FAKE_PLAYER_ID', new Map([]), new Map([]));
+        await service.notifySkillChange('FAKE_PLAYER_ID', new Map([['scout', 1]]), new Map([['scout', 2]]));
         expect(spy).toHaveBeenLastCalledWith(expect.any(MessageEmbed));
       });
     });
