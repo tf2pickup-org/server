@@ -77,13 +77,20 @@ export class MessageEmbedFactoryService {
       .setColor('#ff953e')
       .setTitle('Player\'s skill has been updated')
       .addField('Player name', player.name);
+    
+    let i = 0;
 
     for (const key of newSkill.keys()) {
       const newSkillValue = newSkill.get(key);
-      const oldSkillValue = oldSkill.get(key);
+      const oldSkillValue = oldSkill.get(key) || 1;
       if (newSkillValue !== oldSkillValue) {
-        embed.addField(key, `${oldSkillValue || 1} => ${newSkillValue}`);
+        embed.addField(key, `${oldSkillValue} => ${newSkillValue}`);
+        i += 1;
       }
+    }
+
+    if (i === 0) {
+      return null;
     }
 
     embed

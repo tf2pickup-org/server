@@ -3,6 +3,7 @@ import { MessageEmbedFactoryService } from './message-embed-factory.service';
 import { PlayersService } from '@/players/services/players.service';
 import moment = require('moment');
 import { Environment } from '@/environment/environment';
+import { map } from 'rxjs/operators';
 
 class PlayersServiceStub {
   players = new Map([
@@ -138,6 +139,29 @@ describe('MessageEmbedFactoryService', () => {
         { name: 'soldier', value: '2 => 3', inline: false },
         { name: 'medic', value: '1 => 4', inline: false },
       ])
+    });
+
+    it('should not render anything if there are no changes', async () => {
+      const ret = await service.fromSkillChange(
+        'FAKE_PLAYER_ID',
+        new Map([['scout', 1], ['soldier', 1]]),
+        new Map([['scout', 1], ['soldier', 1]]),
+      );
+
+      expect(ret).toBeNull();
+    });
+
+    it('should not render changes for null => 1', async () => {
+      const ret = await service.fromSkillChange(
+        'FAKE_PLAYER_ID',
+        new Map(),
+        new Map([['scout', 1], ['soldier', 2]]),
+      );
+
+      expect(ret.fields).toEqual([
+        { name: 'Player name', value: 'FAKE_PLAYER', inline: false },
+        { name: 'soldier', value: '1 => 2', inline: false },
+      ]);
     });
   });
 });
