@@ -15,6 +15,8 @@ import { typegooseTestingModule } from '@/utils/testing-typegoose-module';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { SteamApiService } from './steam-api.service';
 
+jest.mock('@/discord/services/discord-notifications.service');
+
 class EnvironmentStub {
   superUser = null;
 }
@@ -51,11 +53,6 @@ class OnlinePlayersServiceStub {
   getSocketsForPlayer(playerId: string) { return []; }
 }
 
-class DiscordNotificationsServiceStub {
-  notifyNewPlayer(player: any) { return Promise.resolve(); }
-  notifyNameChange(player: any, oldName: string) { return Promise.resolve(); }
-}
-
 class ConfigServiceStub {
   get(key: string) {
     switch (key) {
@@ -80,7 +77,7 @@ describe('PlayersService', () => {
   let etf2lProfileService: Etf2lProfileServiceStub;
   let gamesService: GamesServiceStub;
   let onlinePlayersService: OnlinePlayersServiceStub;
-  let discordNotificationsService: DiscordNotificationsServiceStub;
+  let discordNotificationsService: DiscordNotificationsService;
   let steamApiService: SteamApiServiceStub;
 
   beforeAll(() => mongod = new MongoMemoryServer());
@@ -98,7 +95,7 @@ describe('PlayersService', () => {
         { provide: Etf2lProfileService, useClass: Etf2lProfileServiceStub },
         { provide: GamesService, useClass: GamesServiceStub },
         { provide: OnlinePlayersService, useClass: OnlinePlayersServiceStub },
-        { provide: DiscordNotificationsService, useClass: DiscordNotificationsServiceStub },
+        DiscordNotificationsService,
         { provide: ConfigService, useClass: ConfigServiceStub },
         { provide: SteamApiService, useClass: SteamApiServiceStub },
       ],
