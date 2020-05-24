@@ -51,7 +51,7 @@ describe('PlayerSkillService', () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [
         typegooseTestingModule(mongod),
-        TypegooseModule.forFeature([ PlayerSkill ]),
+        TypegooseModule.forFeature([ PlayerSkill, Player ]),
       ],
       providers: [
         PlayerSkillService,
@@ -75,7 +75,7 @@ describe('PlayerSkillService', () => {
 
   beforeEach(async () => {
     // @ts-expect-error
-    mockPlayer = playersService._createOne();
+    mockPlayer = await playersService._createOne();
     mockPlayerSkill = await playerSkillModel.create({
       player: mockPlayer.id,
       skill: {
@@ -84,7 +84,11 @@ describe('PlayerSkillService', () => {
     });
   });
 
-  afterEach(async () => await playerSkillModel.deleteMany({ }));
+  afterEach(async () => {
+    await playerSkillModel.deleteMany({ });
+    // @ts-expect-error
+    await playersService._reset();
+  });
 
   it('should be defined', () => {
     expect(service).toBeDefined();
@@ -92,9 +96,9 @@ describe('PlayerSkillService', () => {
 
   describe('upon player registration', () => {
     describe('when there is no future skill', () => {
-      it('should not update player\'s skill', done => {
+      it('should not update player\'s skill', async done => {
         // @ts-expect-error
-        const newPlayer = playersService._createOne();
+        const newPlayer = await playersService._createOne();
 
         // @ts-expect-error
         playersService.playerRegistered.next(newPlayer.id.toString());

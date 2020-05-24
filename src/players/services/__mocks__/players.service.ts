@@ -1,31 +1,39 @@
 import { Subject } from 'rxjs';
-import { ObjectId } from 'mongodb';
+import { ReturnModelType } from '@typegoose/typegoose';
+import { Player } from '@/players/models/player';
+import { Injectable } from '@nestjs/common';
+import { InjectModel } from 'nestjs-typegoose';
 
+@Injectable()
 export class PlayersService {
 
-  _players = new Map<string, any>();
-
+  private lastId = 0;
   playerRegistered = new Subject<string>();
 
+  constructor(
+    @InjectModel(Player) private playerModel: ReturnModelType<typeof Player>,
+  ) { }
+
   getById(id: string) {
-    return Promise.resolve(this._players.get(id));
+    return this.playerModel.findById(id);
   }
 
   getAll() {
-    return Promise.resolve(Array.from(this._players.values()));
+    return this.playerModel.find().exec();
   }
 
-  _createOne() {
-    const id = new ObjectId();
+  async _reset() {
+    await this.playerModel.deleteMany({ }).exec();
+  }
+
+  async _createOne() {
     const player = {
-      id,
-      name: `player_${id}`,
+      name: `fake_player_${++this.lastId}`,
       steamId: `${Math.floor(Math.random() * 100)}`,
       hasAcceptedRules: false,
       etf2lProfileId: Math.floor(Math.random() * 100),
     };
-    this._players.set(player.id.toString(), player);
-    return player;
+    return await this.playerModel.create(player);
   }
 
 }
