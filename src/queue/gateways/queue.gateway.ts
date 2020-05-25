@@ -9,6 +9,7 @@ import { Inject, forwardRef } from '@nestjs/common';
 import { MapVoteResult } from '../map-vote-result';
 import { QueueAnnouncementsService } from '../services/queue-announcements.service';
 import { FriendsService, Friendship } from '../services/friends.service';
+import { ObjectId } from 'mongodb';
 
 @WebSocketGateway()
 export class QueueGateway implements OnGatewayInit {
@@ -43,7 +44,7 @@ export class QueueGateway implements OnGatewayInit {
   @WsAuthorized()
   @SubscribeMessage('mark friend')
   markFriend(client: any, payload: { friendPlayerId: string }) {
-    return this.friendsService.markFriend(client.request.user.id, payload.friendPlayerId);
+    return this.friendsService.markFriend(client.request.user.id, new ObjectId(payload.friendPlayerId));
   }
 
   @WsAuthorized()

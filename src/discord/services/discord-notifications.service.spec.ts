@@ -1,7 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { DiscordNotificationsService, TargetChannel } from './discord-notifications.service';
 import { Environment } from '@/environment/environment';
-import { ConfigService } from '@nestjs/config';
 import { MessageEmbedFactoryService } from './message-embed-factory.service';
 import { PlayersService } from '@/players/services/players.service';
 import { Client, queueChannel, pickupsRole, adminChannel } from '@mocks/discord.js';
@@ -15,15 +14,6 @@ class EnvironmentStub {
   discordQueueNotificationsChannel = queueChannel.name;
   discordAdminNotificationsChannel = adminChannel.name;
 };
-
-class ConfigServiceStub {
-  get(key: string) {
-    switch (key) {
-      default:
-        return null;
-    }
-  }
-}
 
 class PlayersServiceStub {
   getById() { return Promise.resolve({ name: 'FAKE_PLAYER' }); }
@@ -39,7 +29,6 @@ describe('DiscordNotificationsService', () => {
       providers: [
         DiscordNotificationsService,
         { provide: Environment, useClass: EnvironmentStub },
-        { provide: ConfigService, useClass: ConfigServiceStub },
         { provide: PlayersService, useClass: PlayersServiceStub },
         MessageEmbedFactoryService,
       ],
@@ -207,7 +196,7 @@ describe('DiscordNotificationsService', () => {
     describe('#notifySkillChange()', () => {
       it('should send a notification to the admin channel', async () => {
         const spy = jest.spyOn(adminChannel, 'send');
-        await service.notifySkillChange('FAKE_PLAYER_ID', new Map([['scout', 1]]), new Map([['scout', 2]]));
+        await service.notifySkillChange(new ObjectId(), new Map([['scout', 1]]), new Map([['scout', 2]]));
         expect(spy).toHaveBeenLastCalledWith(expect.any(MessageEmbed));
       });
     });

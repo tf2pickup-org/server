@@ -10,18 +10,15 @@ import { ReturnModelType, DocumentType } from '@typegoose/typegoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 
 jest.mock('@/discord/services/discord-notifications.service');
-
-class OnlinePlayersServiceStub {
-  getSocketsForPlayer(playerId: string) { return []; }
-}
+jest.mock('./online-players.service');
 
 describe('PlayerBansService', () => {
   let service: PlayerBansService;
   let mongod: MongoMemoryServer;
-  let discordNotificationsService: DiscordNotificationsService;
   let playerBanModel: ReturnModelType<typeof PlayerBan>;
+  let discordNotificationsService: DiscordNotificationsService;
   let playerBan: DocumentType<PlayerBan>;
-  let onlinePlayersService: OnlinePlayersServiceStub;
+  let onlinePlayersService: OnlinePlayersService;
 
   beforeAll(() => mongod = new MongoMemoryServer());
   afterAll(async () => mongod.stop());
@@ -34,7 +31,7 @@ describe('PlayerBansService', () => {
       ],
       providers: [
         PlayerBansService,
-        { provide: OnlinePlayersService, useClass: OnlinePlayersServiceStub },
+        OnlinePlayersService,
         DiscordNotificationsService,
       ],
     }).compile();
@@ -43,6 +40,10 @@ describe('PlayerBansService', () => {
     discordNotificationsService = module.get(DiscordNotificationsService);
     playerBanModel = module.get(getModelToken('PlayerBan'));
     onlinePlayersService = module.get(OnlinePlayersService);
+  });
+
+  beforeEach(() => {
+    onlinePlayersService.getSocketsForPlayer = () => [];
   });
 
   beforeEach(() => service.onModuleInit());
@@ -73,14 +74,14 @@ describe('PlayerBansService', () => {
 
   describe('#getPlayerBans()', () => {
     it('should query model', async () => {
-      const ret = await service.getPlayerBans(playerBan.player.toString());
+      const ret = await service.getPlayerBans(playerBan.player as ObjectId);
       expect(ret.map(r => r.toJSON())).toEqual([ playerBan.toJSON() ]);
     });
   });
 
   describe('#getPlayerActiveBans()', () => {
     it('should query model', async () => {
-      const ret = await service.getPlayerActiveBans(playerBan.player.toString());
+      const ret = await service.getPlayerActiveBans(playerBan.player as ObjectId);
       expect(ret.map(r => r.toJSON())).toEqual([ playerBan.toJSON() ]);
     });
   });
@@ -108,7 +109,7 @@ describe('PlayerBansService', () => {
 
     it('should emit the event', async done => {
       service.banAdded.subscribe(playerId => {
-        expect(playerId).toEqual(mockBan.player.toString());
+        expect(playerId.toString()).toEqual(mockBan.player.toString());
         done();
       });
 
@@ -121,14 +122,18 @@ describe('PlayerBansService', () => {
       expect(spy).toHaveBeenCalledWith(ret);
     });
 
-    // figure a way to flush observables
-    it.skip('should emit profile update event on player\'s socket', async done => {
-      const socket = { emit: (...args: any[]) => done() };
-      jest.spyOn(onlinePlayersService, 'getSocketsForPlayer').mockReturnValue([ socket ]);
-      const spy = jest.spyOn(socket, 'emit');
+    it('should emit profile update event on player\'s socket', async done => {
+      const socket = {
+        emit: (eventName: string, update: any) => {
+          expect(eventName).toEqual('profile update');
+          expect(update.bans.length).toEqual(1);
+          done();
+        },
+      };
 
+      // @ts-expect-error
+      onlinePlayersService.getSocketsForPlayer = () => [ socket ];
       await service.addPlayerBan(mockBan);
-      expect(spy).toHaveBeenCalledWith('profile update', { bans: [ mockBan ] });
     });
   });
 
@@ -155,7 +160,7 @@ describe('PlayerBansService', () => {
 
     it('should emit the event', async done => {
       service.banRevoked.subscribe(playerId => {
-        expect(playerId).toEqual(mockBan.player.toString());
+        expect(playerId.toString()).toEqual(mockBan.player.toString());
         done();
       });
 

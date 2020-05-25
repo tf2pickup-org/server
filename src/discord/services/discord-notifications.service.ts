@@ -1,11 +1,11 @@
 import { Injectable, OnModuleInit, Logger } from '@nestjs/common';
 import { Client, TextChannel, MessageEmbed, Message, Guild } from 'discord.js';
 import { Environment } from '@/environment/environment';
-import { ConfigService } from '@nestjs/config';
 import { SubstituteRequest } from '@/queue/substitute-request';
 import { MessageEmbedFactoryService } from './message-embed-factory.service';
 import { PlayerBan } from '@/players/models/player-ban';
 import { Player } from '@/players/models/player';
+import { ObjectId } from 'mongodb';
 
 export enum TargetChannel {
   Admins,
@@ -22,7 +22,6 @@ export class DiscordNotificationsService implements OnModuleInit {
 
   constructor(
     private environment: Environment,
-    private configService: ConfigService,
     private messageEmbedFactoryService: MessageEmbedFactoryService,
   ) { }
 
@@ -105,7 +104,7 @@ export class DiscordNotificationsService implements OnModuleInit {
     return this.sendNotification(TargetChannel.Admins, await this.messageEmbedFactoryService.fromNameChange(player, oldName));
   }
 
-  async notifySkillChange(playerId: string, oldSkill: Map<string, number>, newSkill: Map<string, number>) {
+  async notifySkillChange(playerId: ObjectId, oldSkill: Map<string, number>, newSkill: Map<string, number>) {
     return this.sendNotification(TargetChannel.Admins, await this.messageEmbedFactoryService.fromSkillChange(playerId, oldSkill, newSkill));
   }
 

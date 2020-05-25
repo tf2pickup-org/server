@@ -5,6 +5,7 @@ import { Environment } from '@/environment/environment';
 import { GameEventHandlerService } from './game-event-handler.service';
 import { GameServersService } from '@/game-servers/services/game-servers.service';
 import { GamesService } from './games.service';
+import { ObjectId } from 'mongodb';
 
 interface GameEvent {
   /* name of the game event */
@@ -14,7 +15,7 @@ interface GameEvent {
   regex: RegExp;
 
   /* handle the event being triggered */
-  handle: (gameId: string, matches: RegExpMatchArray) => void;
+  handle: (gameId: ObjectId, matches: RegExpMatchArray) => void;
 }
 
 @Injectable()

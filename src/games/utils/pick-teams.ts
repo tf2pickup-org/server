@@ -1,13 +1,14 @@
 import { GamePlayer } from '../models/game-player';
+import { ObjectId } from 'mongodb';
 
 export interface PlayerSlot {
-  playerId: string;
+  player: ObjectId;
   gameClass: string;
   skill: number; // the skill for the given gameClass
 }
 
 export interface TeamOverrides {
-  friends: string[][];
+  friends: ObjectId[][];
 }
 
 interface InterimTeamSetup {
@@ -18,7 +19,7 @@ interface InterimTeamSetup {
 function filterTeamOverrides(teamSetups: InterimTeamSetup[], overrides: TeamOverrides): InterimTeamSetup[] {
   return teamSetups.filter(setup => {
     return overrides.friends.every(friendPair => {
-      return (friendPair.every(f => !!setup[0].find(s => s.playerId === f)) || friendPair.every(f => !!setup[1].find(s => s.playerId === f)));
+      return (friendPair.every(f => !!setup[0].find(s => s.player.equals(f))) || friendPair.every(f => !!setup[1].find(s => s.player.equals(f))));
     });
   });
 }

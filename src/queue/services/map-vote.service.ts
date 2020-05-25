@@ -6,9 +6,10 @@ import { BehaviorSubject } from 'rxjs';
 import { MapVoteResult } from '../map-vote-result';
 import { QueueGateway } from '../gateways/queue.gateway';
 import { ConfigService } from '@nestjs/config';
+import { ObjectId } from 'mongodb';
 
 interface MapVote {
-  playerId: string;
+  playerId: ObjectId;
   map: string;
 }
 
@@ -47,7 +48,7 @@ export class MapVoteService implements OnModuleInit {
     return this.votes.filter(v => v.map === map).length;
   }
 
-  voteForMap(playerId: string, map: string) {
+  voteForMap(playerId: ObjectId, map: string) {
     if (!this.mapOptions.includes(map)) {
       throw new Error('this map is not an option in the vote');
     }
@@ -64,8 +65,8 @@ export class MapVoteService implements OnModuleInit {
     this._results.next(this.getResults());
   }
 
-  playerVote(playerId: string): string {
-    return this.votes.find(v => v.playerId === playerId)?.map;
+  playerVote(playerId: ObjectId): string {
+    return this.votes.find(v => v.playerId.equals(playerId))?.map;
   }
 
   /**
@@ -91,8 +92,8 @@ export class MapVoteService implements OnModuleInit {
     this.mapPool.forEach(p => p.cooldown -= 1);
   }
 
-  private resetPlayerVote(playerId: string) {
-    this.votes = [ ...this.votes.filter(v => v.playerId !== playerId) ];
+  private resetPlayerVote(playerId: ObjectId) {
+    this.votes = [ ...this.votes.filter(v => !v.playerId.equals(playerId)) ];
     this._results.next(this.getResults());
   }
 

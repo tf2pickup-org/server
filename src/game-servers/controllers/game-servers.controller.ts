@@ -3,6 +3,7 @@ import { GameServersService } from '../services/game-servers.service';
 import { ObjectIdValidationPipe } from '@/shared/pipes/object-id-validation.pipe';
 import { Auth } from '@/auth/decorators/auth.decorator';
 import { GameServer } from '../models/game-server';
+import { ObjectId } from 'mongodb';
 
 @Controller('game-servers')
 export class GameServersController {
@@ -17,7 +18,7 @@ export class GameServersController {
   }
 
   @Get(':id')
-  async getGameServer(@Param('id', ObjectIdValidationPipe) gameServerId: string) {
+  async getGameServer(@Param('id', ObjectIdValidationPipe) gameServerId: ObjectId) {
     const gameServer = await this.gameServersService.getById(gameServerId);
     if (gameServer) {
       return gameServer;
@@ -35,7 +36,7 @@ export class GameServersController {
 
   @Delete(':id')
   @Auth('super-user')
-  async removeGameServer(@Param('id', ObjectIdValidationPipe) gameServerId: string) {
+  async removeGameServer(@Param('id', ObjectIdValidationPipe) gameServerId: ObjectId) {
     await this.gameServersService.removeGameServer(gameServerId);
   }
 

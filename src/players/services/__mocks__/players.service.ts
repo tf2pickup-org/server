@@ -3,6 +3,7 @@ import { ReturnModelType } from '@typegoose/typegoose';
 import { Player } from '@/players/models/player';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from 'nestjs-typegoose';
+import { ObjectId } from 'mongodb';
 
 @Injectable()
 export class PlayersService {
@@ -18,19 +19,27 @@ export class PlayersService {
     return this.playerModel.findById(id);
   }
 
-  getAll() {
-    return this.playerModel.find().exec();
+  async getAll() {
+    return await this.playerModel.find();
   }
 
   async _reset() {
-    await this.playerModel.deleteMany({ }).exec();
+    await this.playerModel.deleteMany({ });
+  }
+
+  async updatePlayer(playerId: ObjectId, update: Partial<Player>) {
+    return await this.playerModel.findByIdAndUpdate(playerId, update);
+  }
+
+  async findBySteamId(steamId: string) {
+    return await this.playerModel.findOne({ steamId });
   }
 
   async _createOne() {
     const player = {
       name: `fake_player_${++this.lastId}`,
-      steamId: `${Math.floor(Math.random() * 100)}`,
-      hasAcceptedRules: false,
+      steamId: `${Math.floor(Math.random() * 1000)}`,
+      hasAcceptedRules: true,
       etf2lProfileId: Math.floor(Math.random() * 100),
     };
     return await this.playerModel.create(player);

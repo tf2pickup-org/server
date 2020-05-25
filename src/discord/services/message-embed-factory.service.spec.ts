@@ -4,14 +4,18 @@ import { PlayersService } from '@/players/services/players.service';
 import moment = require('moment');
 import { Environment } from '@/environment/environment';
 import { map } from 'rxjs/operators';
+import { ObjectId } from 'mongodb';
 
 class PlayersServiceStub {
+  _adminId = new ObjectId();
+  _playerId = new ObjectId();
+
   players = new Map([
-    ['FAKE_ADMIN_ID', { name: 'FAKE_ADMIN' }],
-    ['FAKE_PLAYER_ID', { name: 'FAKE_PLAYER' }],
+    [this._adminId, { name: 'FAKE_ADMIN' }],
+    [this._playerId, { name: 'FAKE_PLAYER' }],
   ]);
 
-  getById(id: string) { return Promise.resolve(this.players.get(id)); }
+  getById(id: ObjectId) { return Promise.resolve(this.players.get(id)); }
 }
 
 const environment = {
@@ -42,8 +46,8 @@ describe('MessageEmbedFactoryService', () => {
   describe('fromPlayerBanAdded()', () => {
     it('should render the MessageEmbed', async () => {
       const ret = await service.fromPlayerBanAdded({
-        admin: 'FAKE_ADMIN_ID',
-        player: 'FAKE_PLAYER_ID',
+        admin: playersService._adminId,
+        player: playersService._playerId,
         end: moment().add(1, 'hour').toDate(),
         reason: 'FAKE_REASON',
       } as any);
@@ -62,7 +66,7 @@ describe('MessageEmbedFactoryService', () => {
   describe('fromPlayerBanRevoked()', () => {
     it('should render the MessageEmbed', async () => {
       const ret = await service.fromPlayerBanRevoked({
-        player: 'FAKE_PLAYER_ID',
+        player: playersService._playerId,
         reason: 'FAKE_REASON',
       } as any);
 
@@ -128,7 +132,7 @@ describe('MessageEmbedFactoryService', () => {
   describe('fromSkillChange()', () => {
     it('should render skill changes', async () => {
       const ret = await service.fromSkillChange(
-        'FAKE_PLAYER_ID',
+        playersService._playerId,
         new Map([['scout', 1], ['soldier', 2]]),
         new Map([['scout', 1], ['soldier', 3], ['medic', 4]]),
       );
@@ -143,7 +147,7 @@ describe('MessageEmbedFactoryService', () => {
 
     it('should not render anything if there are no changes', async () => {
       const ret = await service.fromSkillChange(
-        'FAKE_PLAYER_ID',
+        playersService._playerId,
         new Map([['scout', 1], ['soldier', 1]]),
         new Map([['scout', 1], ['soldier', 1]]),
       );
@@ -153,7 +157,7 @@ describe('MessageEmbedFactoryService', () => {
 
     it('should not render changes for null => 1', async () => {
       const ret = await service.fromSkillChange(
-        'FAKE_PLAYER_ID',
+        playersService._playerId,
         new Map(),
         new Map([['scout', 1], ['soldier', 2]]),
       );

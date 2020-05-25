@@ -14,6 +14,7 @@ import { ConfigService } from '@nestjs/config';
 import { SteamApiService } from './steam-api.service';
 import { Subject } from 'rxjs';
 import { TwitchTvUser } from '../models/twitch-tv-user';
+import { ObjectId } from 'mongodb';
 
 @Injectable()
 export class PlayersService {
@@ -21,7 +22,7 @@ export class PlayersService {
   private logger = new Logger(PlayersService.name);
   private requireEtf2lAccount = this.configService.get<boolean>('requireEtf2lAccount');
   private minimumTf2InGameHours = this.configService.get<number>('minimumTf2InGameHours');
-  private _playerRegistered = new Subject<string>();
+  private _playerRegistered = new Subject<ObjectId>();
 
   get playerRegistered() {
     return this._playerRegistered.asObservable();
@@ -38,11 +39,11 @@ export class PlayersService {
     private steamApiService: SteamApiService,
   ) { }
 
-  async getAll(): Promise<DocumentType<Player>[]> {
+  async getAll() {
     return await this.playerModel.find();
   }
 
-  async getById(id: string): Promise<DocumentType<Player>> {
+  async getById(id: ObjectId) {
     return await this.playerModel.findById(id);
   }
 
@@ -95,7 +96,7 @@ export class PlayersService {
     return player;
   }
 
-  async registerTwitchAccount(playerId: string, twitchTvUser: TwitchTvUser) {
+  async registerTwitchAccount(playerId: ObjectId, twitchTvUser: TwitchTvUser) {
     const player = await this.getById(playerId);
     if (!player) {
       throw new Error('no such player');
@@ -115,7 +116,7 @@ export class PlayersService {
     return await this.playerModel.find({ twitchTvUser: { $exists: true } });
   }
 
-  async updatePlayer(playerId: string, update: Partial<Player>): Promise<DocumentType<Player>> {
+  async updatePlayer(playerId: ObjectId, update: Partial<Player>): Promise<DocumentType<Player>> {
     const player = await this.getById(playerId);
     if (player) {
       if (update.name) {
@@ -141,7 +142,7 @@ export class PlayersService {
    * Player accepts the rules.
    * Without accepting the rules, player cannot join the queue nor any game.
    */
-  async acceptTerms(playerId: string): Promise<DocumentType<Player>> {
+  async acceptTerms(playerId: ObjectId): Promise<DocumentType<Player>> {
     const player = await this.getById(playerId);
     if (!player) {
       throw new Error('no such player');
@@ -152,10 +153,10 @@ export class PlayersService {
     return player;
   }
 
-  async getPlayerStats(playerId: string): Promise<PlayerStats> {
+  async getPlayerStats(playerId: ObjectId): Promise<PlayerStats> {
     const gamesPlayed = await this.gamesService.getPlayerGameCount(playerId, { endedOnly: true });
     const classesPlayed = await this.gamesService.getPlayerPlayedClassCount(playerId);
-    return { player: playerId, gamesPlayed, classesPlayed };
+    return { player: playerId.toString(), gamesPlayed, classesPlayed };
   }
 
 }

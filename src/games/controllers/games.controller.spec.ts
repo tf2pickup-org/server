@@ -1,42 +1,28 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { GamesController } from './games.controller';
 import { GamesService } from '../services/games.service';
-import { Game } from '../models/game';
 import { GameRuntimeService } from '../services/game-runtime.service';
 import { PlayerSubstitutionService } from '../services/player-substitution.service';
+import { ObjectId } from 'mongodb';
 
-class GamesServiceStub {
-  games: Game[] = [
-    { number: 1, map: 'cp_fake_rc1', state: 'ended', assignedSkills: new Map([['FAKE_PLAYER_ID', 1]]) },
-    { number: 2, map: 'cp_fake_rc2', state: 'launching', assignedSkills: new Map([['FAKE_PLAYER_ID', 5]]) },
-  ];
-  getGames(sort: any, limit: number, skip: number) { return new Promise(resolve => resolve(this.games)); }
-  getGameCount() { return new Promise(resolve => resolve(2)); }
-  getById(id: string) { return new Promise(resolve => resolve(this.games[0])); }
-}
+jest.mock('../services/game-runtime.service');
+jest.mock('../services/player-substitution.service');
+jest.mock('../services/games.service');
 
-class GameRuntimeServiceStub {
-  reconfigure(gameId: string) { return new Promise(resolve => resolve()); }
-  forceEnd(gameId: string) { return new Promise(resolve => resolve()); }
-}
-
-class PlayerSubstitutionServiceStub {
-  substitutePlayer(gameId: string, playerId: string) { return new Promise(resolve => resolve()); }
-  cancelSubstitutionRequest(gameId: string, playerId: string) { return new Promise(resolve => resolve()); }
-}
+const mockGame = { id: new ObjectId(), number: 1, map: 'cp_fake_rc1', state: 'ended', assignedSkills: new Map([['FAKE_PLAYER_ID', 1]]) };
 
 describe('Games Controller', () => {
   let controller: GamesController;
-  let gamesService: GamesServiceStub;
-  let gameRuntimeService: GameRuntimeServiceStub;
-  let playerSubstitutionService: PlayerSubstitutionServiceStub;
+  let gamesService: GamesService;
+  let gameRuntimeService: GameRuntimeService;
+  let playerSubstitutionService: PlayerSubstitutionService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        { provide: GamesService, useClass: GamesServiceStub },
-        { provide: GameRuntimeService, useClass: GameRuntimeServiceStub },
-        { provide: PlayerSubstitutionService, useClass: PlayerSubstitutionServiceStub },
+        GamesService,
+        GameRuntimeService,
+        PlayerSubstitutionService,
       ],
       controllers: [GamesController],
     }).compile();
@@ -45,6 +31,12 @@ describe('Games Controller', () => {
     gamesService = module.get(GamesService);
     gameRuntimeService = module.get(GameRuntimeService);
     playerSubstitutionService = module.get(PlayerSubstitutionService);
+  });
+
+  beforeEach(() => {
+    gamesService.getGames = () => Promise.resolve([ mockGame ] as any);
+    gamesService.getById = () => Promise.resolve(mockGame as any);
+    gamesService.getGameCount = () => Promise.resolve(1);
   });
 
   it('should be defined', () => {
@@ -60,53 +52,53 @@ describe('Games Controller', () => {
       expect(spy1).toHaveBeenCalledWith({ launchedAt: 1 }, 44, 52);
       expect(spy2).toHaveBeenCalled();
       expect(ret).toEqual({
-        results: gamesService.games,
-        itemCount: 2,
+        results: [ mockGame ],
+        itemCount: 1,
       } as any);
     });
   });
 
   describe('#getGame()', () => {
     it('should return the given game', async () => {
-      const spy = jest.spyOn(gamesService, 'getById');
-      const ret = await controller.getGame('FAKE_ID');
-      expect(spy).toHaveBeenCalledWith('FAKE_ID');
-      expect(ret).toEqual(gamesService.games[0] as any);
+      const ret = await controller.getGame(mockGame.id);
+      expect(ret).toEqual(mockGame);
     });
   });
 
   describe('#getGameSkills()', () => {
     it('should return given game assigned skills', async () => {
-      const spy = jest.spyOn(gamesService, 'getById');
-      const ret = await controller.getGameSkills('FAKE_ID');
-      expect(spy).toHaveBeenCalledWith('FAKE_ID');
-      expect(ret).toEqual(gamesService.games[0].assignedSkills);
+      const ret = await controller.getGameSkills(mockGame.id);
+      expect(ret).toEqual(mockGame.assignedSkills);
     });
   });
 
   describe('#takeAdminAction()', () => {
+    let playerId: ObjectId;
+
+    beforeEach(() => playerId = new ObjectId());
+
     it('should reinitialize server', async () => {
       const spy = jest.spyOn(gameRuntimeService, 'reconfigure');
-      await controller.takeAdminAction('FAKE_GAME_ID', '', undefined, undefined, undefined);
-      expect(spy).toHaveBeenCalledWith('FAKE_GAME_ID');
+      await controller.takeAdminAction(mockGame.id, '', undefined, undefined, undefined);
+      expect(spy).toHaveBeenCalledWith(mockGame.id);
     });
 
     it('should force end the game', async () => {
       const spy = jest.spyOn(gameRuntimeService, 'forceEnd');
-      await controller.takeAdminAction('FAKE_GAME_ID', undefined, '', undefined, undefined);
-      expect(spy).toHaveBeenCalledWith('FAKE_GAME_ID');
+      await controller.takeAdminAction(mockGame.id, undefined, '', undefined, undefined);
+      expect(spy).toHaveBeenCalledWith(mockGame.id);
     });
 
     it('should substitute player', async () => {
       const spy = jest.spyOn(playerSubstitutionService, 'substitutePlayer');
-      await controller.takeAdminAction('FAKE_GAME_ID', undefined, undefined, 'FAKE_PLAYER_ID', undefined);
-      expect(spy).toHaveBeenCalledWith('FAKE_GAME_ID', 'FAKE_PLAYER_ID');
+      await controller.takeAdminAction(mockGame.id, undefined, undefined, playerId.toString(), undefined);
+      expect(spy).toHaveBeenCalledWith(mockGame.id, playerId);
     });
 
     it('should cancel substitution request', async () => {
       const spy = jest.spyOn(playerSubstitutionService, 'cancelSubstitutionRequest');
-      await controller.takeAdminAction('FAKE_GAME_ID', undefined, undefined, undefined, 'FAKE_PLAYER_ID');
-      expect(spy).toHaveBeenCalledWith('FAKE_GAME_ID', 'FAKE_PLAYER_ID');
+      await controller.takeAdminAction(mockGame.id, undefined, undefined, undefined, playerId.toString());
+      expect(spy).toHaveBeenCalledWith(mockGame.id, playerId);
     });
   });
 });

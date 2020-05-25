@@ -4,6 +4,7 @@ import { ObjectIdValidationPipe } from '@/shared/pipes/object-id-validation.pipe
 import { Auth } from '@/auth/decorators/auth.decorator';
 import { GameRuntimeService } from '../services/game-runtime.service';
 import { PlayerSubstitutionService } from '../services/player-substitution.service';
+import { ObjectId } from 'mongodb';
 
 @Controller('games')
 export class GamesController {
@@ -45,7 +46,7 @@ export class GamesController {
   }
 
   @Get(':id')
-  async getGame(@Param('id', ObjectIdValidationPipe) gameId: string) {
+  async getGame(@Param('id', ObjectIdValidationPipe) gameId: ObjectId) {
     const game = await this.gamesService.getById(gameId);
     if (game) {
       return game;
@@ -56,7 +57,7 @@ export class GamesController {
 
   @Get(':id/skills')
   @Auth('admin', 'super-user')
-  async getGameSkills(@Param('id', ObjectIdValidationPipe) gameId: string) {
+  async getGameSkills(@Param('id', ObjectIdValidationPipe) gameId: ObjectId) {
     const game = await this.gamesService.getById(gameId);
     if (game) {
       return game.assignedSkills;
@@ -69,7 +70,7 @@ export class GamesController {
   @Auth('admin', 'super-user')
   @HttpCode(200)
   async takeAdminAction(
-    @Param('id', ObjectIdValidationPipe) gameId: string,
+    @Param('id', ObjectIdValidationPipe) gameId: ObjectId,
     @Query('reinitialize_server') reinitializeServer: any,
     @Query('force_end') forceEnd: any,
     @Query('substitute_player') substitutePlayerId: string,
@@ -84,11 +85,11 @@ export class GamesController {
     }
 
     if (substitutePlayerId !== undefined) {
-      await this.playerSubstitutionService.substitutePlayer(gameId, substitutePlayerId);
+      await this.playerSubstitutionService.substitutePlayer(gameId, new ObjectId(substitutePlayerId));
     }
 
     if (cancelSubstitutePlayerId !== undefined) {
-      await this.playerSubstitutionService.cancelSubstitutionRequest(gameId, cancelSubstitutePlayerId);
+      await this.playerSubstitutionService.cancelSubstitutionRequest(gameId, new ObjectId(cancelSubstitutePlayerId));
     }
   }
 

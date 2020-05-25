@@ -16,6 +16,8 @@ import { Player } from '../models/player';
 
 jest.mock('./players.service');
 jest.mock('@/discord/services/discord-notifications.service');
+jest.mock('./future-player-skill.service');
+jest.mock('./etf2l-profile.service');
 
 class QueueConfigServiceStub {
   queueConfig = {
@@ -25,23 +27,15 @@ class QueueConfigServiceStub {
   };
 }
 
-class FuturePlayerSkillServiceStub {
-  findSkill(steamId: string) { return Promise.resolve(null); }
-}
-
-class Etf2lProfileServiceStub {
-  fetchPlayerInfo(id: string) { return Promise.resolve(); }
-}
-
 describe('PlayerSkillService', () => {
   let service: PlayerSkillService;
   let mongod: MongoMemoryServer;
   let playerSkillModel: ReturnModelType<typeof PlayerSkill>;
-  let mockPlayer: Player;
+  let mockPlayer: DocumentType<Player>;
   let mockPlayerSkill: DocumentType<PlayerSkill>;
   let playersService: PlayersService;
-  let futurePlayerSkillService: FuturePlayerSkillServiceStub;
-  let etf2lProfileService: Etf2lProfileServiceStub;
+  let futurePlayerSkillService: FuturePlayerSkillService;
+  let etf2lProfileService: Etf2lProfileService;
   let discordNotificationsService: DiscordNotificationsService;
 
   beforeAll(() => mongod = new MongoMemoryServer());
@@ -57,8 +51,8 @@ describe('PlayerSkillService', () => {
         PlayerSkillService,
         PlayersService,
         { provide: QueueConfigService, useClass: QueueConfigServiceStub },
-        { provide: FuturePlayerSkillService, useClass: FuturePlayerSkillServiceStub },
-        { provide: Etf2lProfileService, useClass: Etf2lProfileServiceStub },
+        FuturePlayerSkillService,
+        Etf2lProfileService,
         DiscordNotificationsService,
       ],
     }).compile();
@@ -111,7 +105,8 @@ describe('PlayerSkillService', () => {
 
     describe('when there is future skill for the given player', () => {
       beforeEach(() => {
-        jest.spyOn(futurePlayerSkillService, 'findSkill').mockResolvedValue({ steamId: mockPlayer.steamId, skill: new Map([['soldier', 2]]) });
+        // @ts-expect-error
+        futurePlayerSkillService.findSkill = () => Promise.resolve({ steamId: mockPlayer.steamId, skill: new Map([['soldier', 2]]) });
       });
 
       it('should update player\'s skill', done => {
@@ -134,7 +129,7 @@ describe('PlayerSkillService', () => {
 
   describe('#getPlayerSkill()', () => {
     it('should retrieve player skill', async () => {
-      const ret = await service.getPlayerSkill(mockPlayer.id);
+      const ret = await service.getPlayerSkill(mockPlayer._id);
       expect(ret.toObject()).toEqual(mockPlayerSkill.toObject());
     });
   });
@@ -148,7 +143,7 @@ describe('PlayerSkillService', () => {
     });
 
     it('should fail if there is no such player', async () => {
-      await expect(service.setPlayerSkill(new ObjectId().toString(), new Map([['scout', 1]]))).rejects.toThrowError('no such player');
+      await expect(service.setPlayerSkill(new ObjectId(), new Map([['scout', 1]]))).rejects.toThrowError('no such player');
     });
 
     it('should notify admins on discord', async () => {

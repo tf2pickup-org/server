@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { OnlinePlayersService } from './online-players.service';
 import { PlayersGateway } from '../gateways/players.gateway';
 import { Subject } from 'rxjs';
+import { ObjectId } from 'mongodb';
 
 class PlayersGatewayStub {
   playerConnected = new Subject<any>();
@@ -34,20 +35,21 @@ describe('OnlinePlayersService', () => {
   });
 
   it('should handle player connections and disconnections properly', done => {
-    expect(service.getSocketsForPlayer('FAKE_ID')).toEqual([]);
+    expect(service.getSocketsForPlayer(new ObjectId())).toEqual([]);
 
-    const socket = { id: 'asdjklhuger', request: { user: { logged_in: true, id: 'FAKE_ID' } } };
+    const playerId = new ObjectId();
+    const socket = { id: 'asdjklhuger', request: { user: { logged_in: true, id: playerId } } };
     playersGateway.playerConnected.next(socket);
-    expect(service.getSocketsForPlayer('FAKE_ID')).toEqual([ socket ] as any);
+    expect(service.getSocketsForPlayer(playerId)).toEqual([ socket ] as any);
 
     playersGateway.playerConnected.next(socket);
-    expect(service.getSocketsForPlayer('FAKE_ID')).toEqual([ socket ] as any);
+    expect(service.getSocketsForPlayer(playerId)).toEqual([ socket ] as any);
 
     playersGateway.playerDisconnected.next(socket);
-    expect(service.getSocketsForPlayer('FAKE_ID')).toEqual([]);
+    expect(service.getSocketsForPlayer(playerId)).toEqual([]);
 
-    service.playerLeft.subscribe(playerId => {
-      expect(playerId).toEqual('FAKE_ID');
+    service.playerLeft.subscribe(_playerId => {
+      expect(_playerId).toEqual(playerId);
       done();
     });
 

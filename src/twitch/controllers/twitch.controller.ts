@@ -5,6 +5,7 @@ import { PlayersService } from '@/players/services/players.service';
 import { AuthService } from '@/auth/services/auth.service';
 import { JsonWebTokenError } from 'jsonwebtoken';
 import { TwitchTvUser } from '@/players/models/twitch-tv-user';
+import { ObjectId } from 'mongodb';
 
 @Controller('twitch')
 export class TwitchController {
@@ -47,7 +48,7 @@ export class TwitchController {
       displayName: userProfile.display_name,
       profileImageUrl: userProfile.profile_image_url,
     };
-    await this.playersService.registerTwitchAccount(id, twitchTvUser);
+    await this.playersService.registerTwitchAccount(new ObjectId(id), twitchTvUser);
   }
 
   @Get('streams')

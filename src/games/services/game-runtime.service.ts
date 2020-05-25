@@ -8,6 +8,7 @@ import { addGamePlayer, delGamePlayer, say } from '../utils/rcon-commands';
 import { GamePlayer } from '../models/game-player';
 import { GamesGateway } from '../gateways/games.gateway';
 import { Rcon } from 'rcon-client/lib';
+import { ObjectId } from 'mongodb';
 
 @Injectable()
 export class GameRuntimeService {
@@ -23,7 +24,7 @@ export class GameRuntimeService {
     @Inject(forwardRef(() => GamesGateway)) private gamesGateway: GamesGateway,
   ) { }
 
-  async reconfigure(gameId: string) {
+  async reconfigure(gameId: ObjectId) {
     const game = await this.gamesService.getById(gameId);
     if (!game) {
       throw new Error('no such game');
@@ -39,7 +40,7 @@ export class GameRuntimeService {
     await game.save();
     this.gamesGateway.emitGameUpdated(game);
 
-    const gameServer = await this.gameServersService.getById(game.gameServer.toString());
+    const gameServer = await this.gameServersService.getById(game.gameServer as ObjectId);
     try {
       const { connectString } = await this.serverConfiguratorService.configureServer(gameServer, game);
       game.connectString = connectString;
@@ -52,7 +53,7 @@ export class GameRuntimeService {
     return game;
   }
 
-  async forceEnd(gameId: string) {
+  async forceEnd(gameId: ObjectId) {
     const game = await this.gamesService.getById(gameId);
     if (!game) {
       throw new Error('no such game');
@@ -66,13 +67,13 @@ export class GameRuntimeService {
     this.gamesGateway.emitGameUpdated(game);
 
     if (game.gameServer) {
-      await this.cleanupServer(game.gameServer.toString());
+      await this.cleanupServer(game.gameServer as ObjectId);
     }
 
     return game;
   }
 
-  async replacePlayer(gameId: string, replaceeId: string, replacementSlot: GamePlayer) {
+  async replacePlayer(gameId: ObjectId, replaceeId: ObjectId, replacementSlot: GamePlayer) {
     const game = await this.gamesService.getById(gameId);
     if (!game) {
       throw new Error('no such game');
@@ -82,12 +83,12 @@ export class GameRuntimeService {
       throw new Error('this game has no server assigned');
     }
 
-    const gameServer = await this.gameServersService.getById(game.gameServer.toString());
+    const gameServer = await this.gameServersService.getById(game.gameServer as ObjectId);
     let rcon: Rcon;
 
     try {
       rcon = await this.rconFactoryService.createRcon(gameServer);
-      const player = await this.playersService.getById(replacementSlot.playerId);
+      const player = await this.playersService.getById(replacementSlot.player as ObjectId);
       const team = parseInt(replacementSlot.teamId, 10) + 2;
 
       const cmd = addGamePlayer(player.steamId, player.name, team, replacementSlot.gameClass);
@@ -105,7 +106,7 @@ export class GameRuntimeService {
     }
   }
 
-  async cleanupServer(serverId: string) {
+  async cleanupServer(serverId: ObjectId) {
     const gameServer = await this.gameServersService.getById(serverId);
 
     try {
@@ -117,7 +118,7 @@ export class GameRuntimeService {
     await this.gameServersService.releaseServer(serverId);
   }
 
-  async sayChat(gameServerId: string, message: string) {
+  async sayChat(gameServerId: ObjectId, message: string) {
     const gameServer = await this.gameServersService.getById(gameServerId);
     if (!gameServer) {
       throw new Error('game server does not exist');

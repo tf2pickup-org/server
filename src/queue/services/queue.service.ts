@@ -3,13 +3,14 @@ import { QueueSlot } from '@/queue/queue-slot';
 import { PlayersService } from '@/players/services/players.service';
 import { QueueConfigService } from './queue-config.service';
 import { PlayerBansService } from '@/players/services/player-bans.service';
-import { BehaviorSubject, Observable, Subject, merge } from 'rxjs';
+import { BehaviorSubject, Subject, merge } from 'rxjs';
 import { pairwise, distinctUntilChanged } from 'rxjs/operators';
 import { GamesService } from '@/games/services/games.service';
 import { OnlinePlayersService } from '@/players/services/online-players.service';
 import { ConfigService } from '@nestjs/config';
 import { QueueState } from '../queue-state';
 import { QueueGateway } from '../gateways/queue.gateway';
+import { ObjectId } from 'mongodb';
 
 @Injectable()
 export class QueueService implements OnModuleInit {
@@ -22,15 +23,15 @@ export class QueueService implements OnModuleInit {
   private readyStateTimeout = this.configService.get<number>('queue.readyStateTimeout');
 
   // events
-  private _playerJoin = new Subject<string>();
-  private _playerLeave = new Subject<string>();
+  private _playerJoin = new Subject<ObjectId>();
+  private _playerLeave = new Subject<ObjectId>();
   private _slotsChange = new Subject<QueueSlot[]>();
 
-  get requiredPlayerCount(): number {
+  get requiredPlayerCount() {
     return this.slots.length;
   }
 
-  get playerCount(): number {
+  get playerCount() {
     return this.slots.filter(s => !!s.playerId).length;
   }
 
@@ -38,23 +39,23 @@ export class QueueService implements OnModuleInit {
     return this.slots.filter(s => s.ready).length;
   }
 
-  get state(): QueueState {
+  get state() {
     return this._stateChange.value;
   }
 
-  get stateChange(): Observable<QueueState> {
+  get stateChange() {
     return this._stateChange.asObservable();
   }
 
-  get playerJoin(): Observable<string> {
+  get playerJoin() {
     return this._playerJoin.asObservable();
   }
 
-  get playerLeave(): Observable<string> {
+  get playerLeave() {
     return this._playerLeave.asObservable();
   }
 
-  get slotsChange(): Observable<QueueSlot[]> {
+  get slotsChange() {
     return this._slotsChange.asObservable();
   }
 
@@ -89,12 +90,12 @@ export class QueueService implements OnModuleInit {
     return this.slots.find(s => s.id === id);
   }
 
-  findSlotByPlayerId(playerId: string): QueueSlot {
-    return this.slots.find(s => s.playerId === playerId);
+  findSlotByPlayerId(playerId: ObjectId): QueueSlot {
+    return this.slots.find(s => s.playerId.equals(playerId));
   }
 
-  isInQueue(playerId: string): boolean {
-    return !!this.slots.find(s => s.playerId === playerId);
+  isInQueue(playerId: ObjectId): boolean {
+    return !!this.slots.find(s => s.playerId.equals(playerId));
   }
 
   reset() {
@@ -110,7 +111,7 @@ export class QueueService implements OnModuleInit {
    * @param {number} slotId Slot id to take.
    * @param {string} playerId ID of the player who joins the queue.
    */
-  async join(slotId: number, playerId: string): Promise<QueueSlot[]> {
+  async join(slotId: number, playerId: ObjectId): Promise<QueueSlot[]> {
     if (this.state === 'launching') {
       throw new Error('cannot join the queue at this stage');
     }
@@ -166,7 +167,7 @@ export class QueueService implements OnModuleInit {
     return slots;
   }
 
-  leave(playerId: string): QueueSlot {
+  leave(playerId: ObjectId): QueueSlot {
     const slot = this.findSlotByPlayerId(playerId);
     if (slot) {
       if (slot.ready && this.state !== 'waiting') {
@@ -184,7 +185,7 @@ export class QueueService implements OnModuleInit {
     }
   }
 
-  kick(...playerIds: string[]) {
+  kick(...playerIds: ObjectId[]) {
     if (this.state === 'launching') {
       return;
     }
@@ -205,7 +206,7 @@ export class QueueService implements OnModuleInit {
     setImmediate(() => this.maybeUpdateState());
   }
 
-  readyUp(playerId: string): QueueSlot {
+  readyUp(playerId: ObjectId): QueueSlot {
     if (this.state !== 'ready') {
       throw new Error('queue not ready');
     }

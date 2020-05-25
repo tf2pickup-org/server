@@ -11,6 +11,7 @@ import { FuturePlayerSkillService } from './future-player-skill.service';
 import { createInterface } from 'readline';
 import { Etf2lProfileService } from './etf2l-profile.service';
 import { DiscordNotificationsService } from '@/discord/services/discord-notifications.service';
+import { ObjectId } from 'mongodb';
 
 @Injectable()
 @Console()
@@ -35,16 +36,16 @@ export class PlayerSkillService implements OnModuleInit {
     });
   }
 
-  async getAll(): Promise<DocumentType<PlayerSkill>[]> {
+  async getAll() {
     return await this.playerSkillModel.find({ });
   }
 
-  async getPlayerSkill(playerId: string): Promise<DocumentType<PlayerSkill>> {
+  async getPlayerSkill(playerId: ObjectId) {
     return await this.playerSkillModel.findOne({ player: playerId });
   }
 
-  async setPlayerSkill(playerId: string, newSkill: Map<string, number>): Promise<DocumentType<PlayerSkill>> {
-    const skill = await this.playerSkillModel.findOne({ player: playerId });
+  async setPlayerSkill(playerId: ObjectId, newSkill: Map<string, number>): Promise<DocumentType<PlayerSkill>> {
+    const skill = await this.getPlayerSkill(playerId);
     if (skill) {
       this.discordNotificationsService.notifySkillChange(playerId, skill.skill, newSkill);
       skill.skill = newSkill;

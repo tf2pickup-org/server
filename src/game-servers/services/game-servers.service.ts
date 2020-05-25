@@ -1,11 +1,12 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from 'nestjs-typegoose';
 import { GameServer } from '../models/game-server';
-import { ReturnModelType, DocumentType } from '@typegoose/typegoose';
+import { ReturnModelType } from '@typegoose/typegoose';
 import { resolve as resolveCb } from 'dns';
 import { promisify } from 'util';
 import { isServerOnline } from '../utils/is-server-online';
 import { Cron } from '@nestjs/schedule';
+import { ObjectId } from 'mongodb';
 
 const resolve = promisify(resolveCb);
 
@@ -18,15 +19,15 @@ export class GameServersService {
     @InjectModel(GameServer) private gameServerModel: ReturnModelType<typeof GameServer>,
   ) { }
 
-  async getAllGameServers(): Promise<Array<DocumentType<GameServer>>> {
+  async getAllGameServers() {
     return await this.gameServerModel.find();
   }
 
-  async getById(gameServerId: string): Promise<DocumentType<GameServer>> {
+  async getById(gameServerId: ObjectId) {
     return await this.gameServerModel.findById(gameServerId);
   }
 
-  async addGameServer(gameServer: Partial<GameServer>): Promise<DocumentType<GameServer>> {
+  async addGameServer(gameServer: Partial<GameServer>) {
     const resolvedIpAddresses = await resolve(gameServer.address);
     this.logger.verbose(`resolved addresses for ${gameServer.address}: ${resolvedIpAddresses}`);
     gameServer.resolvedIpAddresses = resolvedIpAddresses;
@@ -46,7 +47,7 @@ export class GameServersService {
     return ret;
   }
 
-  async removeGameServer(gameServerId: string) {
+  async removeGameServer(gameServerId: ObjectId) {
     const { ok } = await this.gameServerModel.deleteOne({ _id: gameServerId });
     if (!ok) {
       throw new Error('unable to remove game server');
@@ -55,12 +56,12 @@ export class GameServersService {
     }
   }
 
-  async findFreeGameServer(): Promise<DocumentType<GameServer>> {
+  async findFreeGameServer() {
     const gameServer = this.gameServerModel.findOne({ isOnline: true, isFree: true });
     return gameServer;
   }
 
-  async takeServer(gameServerId: string): Promise<DocumentType<GameServer>> {
+  async takeServer(gameServerId: ObjectId) {
     const gameServer = await this.getById(gameServerId);
     if (gameServer) {
       gameServer.isFree = false;
@@ -72,7 +73,7 @@ export class GameServersService {
     }
   }
 
-  async releaseServer(gameServerId: string): Promise<DocumentType<GameServer>>  {
+  async releaseServer(gameServerId: ObjectId)  {
     const gameServer = await this.getById(gameServerId);
     if (gameServer) {
       gameServer.isFree = true;
@@ -84,7 +85,7 @@ export class GameServersService {
     }
   }
 
-  async getGameServerByEventSource(eventSource: { address: string; port: number; }): Promise<DocumentType<GameServer>> {
+  async getGameServerByEventSource(eventSource: { address: string; port: number; }) {
     return await this.gameServerModel.findOne({
       resolvedIpAddresses: eventSource.address,
       port: `${eventSource.port}`,

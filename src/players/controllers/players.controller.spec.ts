@@ -9,10 +9,11 @@ import { PlayerSkillService } from '../services/player-skill.service';
 import { PlayerSkill } from '../models/player-skill';
 import { PlayerBansService } from '../services/player-bans.service';
 import { NotFoundException, BadRequestException } from '@nestjs/common';
+import { ObjectId } from 'mongodb';
 
 class PlayersServiceStub {
   player: Player = {
-    id: 'FAKE_ID',
+    id: new ObjectId().toString(),
     name: 'FAKE_PLAYER_NAME',
     steamId: 'FAKE_STEAM_ID',
     hasAcceptedRules: true,
@@ -27,10 +28,10 @@ class PlayersServiceStub {
       medic: 92,
     },
   };
-  getAll() { return new Promise(resolve => resolve([ this.player ])); }
-  getById(id: string) { return new Promise(resolve => resolve(this.player)); }
-  updatePlayer(playerId: string, update: Partial<Player>) { return new Promise(resolve => resolve(this.player)); }
-  getPlayerStats(playerId: string) { return new Promise(resolve => resolve(this.stats)); }
+  getAll() { return Promise.resolve([ this.player ]); }
+  getById(id: string) { return Promise.resolve(this.player); }
+  updatePlayer(playerId: string, update: Partial<Player>) { return Promise.resolve(this.player); }
+  getPlayerStats(playerId: string) { return Promise.resolve(this.stats); }
 }
 
 class GamesServiceStub {
@@ -124,33 +125,32 @@ describe('Players Controller', () => {
 
   describe('#getAllPlayers()', () => {
     it('should return all players', async () => {
-      const spy = jest.spyOn(playersService, 'getAll');
       const players = await controller.getAllPlayers();
-      expect(spy).toHaveBeenCalled();
-      expect(players).toEqual([ playersService.player ] as any[]);
+      expect(players).toEqual([ playersService.player ]);
     });
   });
 
   describe('#getPlayer()', () => {
     it('should return the player', async () => {
-      const spy = jest.spyOn(playersService, 'getById');
-      const ret = await controller.getPlayer('FAKE_ID');
-      expect(spy).toHaveBeenCalledWith('FAKE_ID');
-      expect(ret).toEqual(playersService.player as any);
+      const ret = await controller.getPlayer(new ObjectId(playersService.player.id));
+      expect(ret).toEqual(playersService.player);
     });
 
-    it('should return 404', async () => {
-      jest.spyOn(playersService, 'getById').mockResolvedValue(null);
-      await expect(controller.getPlayer('FAKE_ID')).rejects.toThrow(NotFoundException);
+    describe('when the requested player does not exist', () => {
+      beforeEach(() => {
+        jest.spyOn(playersService, 'getById').mockResolvedValue(null);
+      });
+
+      it('should return 404', async () => {
+        await expect(controller.getPlayer(new ObjectId())).rejects.toThrow(NotFoundException);
+      });
     });
   });
 
   describe('#updatePlayer()', () => {
     it('should update the player', async () => {
-      const spy = jest.spyOn(playersService, 'updatePlayer');
-      const ret = await controller.updatePlayer('FAKE_ID', { name: 'FAKE_NEW_NAME' });
-      expect(spy).toHaveBeenCalledWith('FAKE_ID', { name: 'FAKE_NEW_NAME' });
-      expect(ret).toEqual(playersService.player as any);
+      const ret = await controller.updatePlayer(new ObjectId(playersService.player.id), { name: 'FAKE_NEW_NAME' });
+      expect(ret).toEqual(playersService.player);
     });
   });
 
@@ -158,9 +158,10 @@ describe('Players Controller', () => {
     it('should return player games', async () => {
       const spy1 = jest.spyOn(gamesService, 'getPlayerGames');
       const spy2 = jest.spyOn(gamesService, 'getPlayerGameCount');
+      const playerId = new ObjectId(playersService.player.id);
 
-      const ret = await controller.getPlayerGames('FAKE_ID', 44, 52, 'launched_at');
-      expect(spy1).toHaveBeenCalledWith('FAKE_ID', { launchedAt: 1 }, 44, 52);
+      const ret = await controller.getPlayerGames(playerId, 44, 52, 'launched_at');
+      expect(spy1).toHaveBeenCalledWith(playerId, { launchedAt: 1 }, 44, 52);
       expect(spy2).toHaveBeenCalled();
       expect(ret).toEqual({
         results: gamesService.games,
@@ -169,15 +170,15 @@ describe('Players Controller', () => {
     });
 
     it('should throw an error unless the sort param is correct', async () => {
-      await expect(controller.getPlayerGames('FAKE_ID', 3, 5, 'lol')).rejects.toThrow();
+      await expect(controller.getPlayerGames(new ObjectId(playersService.player.id), 3, 5, 'lol')).rejects.toThrow();
     });
   });
 
   describe('#getPlayerStats()', () => {
     it('should return player stats', async () => {
       const spy = jest.spyOn(playersService, 'getPlayerStats');
-      const ret = await controller.getPlayerStats('FAKE_ID');
-      expect(spy).toHaveBeenCalledWith('FAKE_ID');
+      const ret = await controller.getPlayerStats(new ObjectId(playersService.player.id));
+      expect(spy).toHaveBeenCalledWith(new ObjectId(playersService.player.id));
       expect(ret).toEqual(playersService.stats);
     });
   });
@@ -194,14 +195,19 @@ describe('Players Controller', () => {
   describe('#getPlayerSkill()', () => {
     it('should return player skill', async () => {
       const spy = jest.spyOn(playerSkillService, 'getPlayerSkill');
-      const ret = await controller.getPlayerSkill('FAKE_ID');
-      expect(spy).toHaveBeenCalledWith('FAKE_ID');
+      const ret = await controller.getPlayerSkill(new ObjectId(playersService.player.id));
+      expect(spy).toHaveBeenCalledWith(new ObjectId(playersService.player.id));
       expect(ret).toEqual(playerSkillService.skill.skill);
     });
 
-    it('should return 404', async () => {
-      jest.spyOn(playerSkillService, 'getPlayerSkill').mockResolvedValue(null);
-      await expect(controller.getPlayerSkill('FAKE_ID')).rejects.toThrow(NotFoundException);
+    describe('when the given skill could not be found', () => {
+      beforeEach(() => {
+        jest.spyOn(playerSkillService, 'getPlayerSkill').mockResolvedValue(null);
+      });
+
+      it('should return 404', async () => {
+        await expect(controller.getPlayerSkill(new ObjectId())).rejects.toThrow(NotFoundException);
+      });
     });
   });
 
@@ -209,8 +215,8 @@ describe('Players Controller', () => {
     it('should set player skill', async () => {
       const skill = { soldier: 1, medic: 2 };
       const spy = jest.spyOn(playerSkillService, 'setPlayerSkill');
-      const ret = await controller.setPlayerSkill('FAKE_ID', skill);
-      expect(spy).toHaveBeenCalledWith('FAKE_ID', new Map([['soldier', 1], ['medic', 2]]));
+      const ret = await controller.setPlayerSkill(new ObjectId(playersService.player.id), skill);
+      expect(spy).toHaveBeenCalledWith(new ObjectId(playersService.player.id), new Map([['soldier', 1], ['medic', 2]]));
       expect(ret).toEqual(playerSkillService.skill.skill);
     });
   });
@@ -218,8 +224,8 @@ describe('Players Controller', () => {
   describe('#getPlayerBans()', () => {
     it('should return player bans', async () => {
       const spy = jest.spyOn(playerBansService, 'getPlayerBans');
-      const ret = await controller.getPlayerBans('FAKE_ID');
-      expect(spy).toHaveBeenCalledWith('FAKE_ID');
+      const ret = await controller.getPlayerBans(new ObjectId(playersService.player.id));
+      expect(spy).toHaveBeenCalledWith(new ObjectId(playersService.player.id));
       expect(ret).toEqual(playerBansService.bans as any);
     });
   });
@@ -236,13 +242,14 @@ describe('Players Controller', () => {
 
     it('should add player ban', async () => {
       const spy = jest.spyOn(playerBansService, 'addPlayerBan');
-      const ret = await controller.addPlayerBan('FAKE_ID', ban as any, { id: '5d448875b963ff7e00c6b6b3' });
+      const ret = await controller.addPlayerBan(new ObjectId(playersService.player.id), ban as any, { id: '5d448875b963ff7e00c6b6b3' });
       expect(spy).toHaveBeenCalledWith(ban);
       expect(ret).toEqual(ban as any);
     });
 
     it('should fail if the authorized user id is not the same as admin\'s', async () => {
-      await expect(controller.addPlayerBan('FAKE_ID', ban as any, { id: 'SOME_ID' })).rejects.toThrow(BadRequestException);
+      await expect(controller.addPlayerBan(new ObjectId(playersService.player.id),
+        ban as any, { id: 'SOME_ID' })).rejects.toThrow(BadRequestException);
     });
   });
 });

@@ -6,6 +6,7 @@ import { MessageEmbed } from 'discord.js';
 import { Player } from '@/players/models/player';
 import { Environment } from '@/environment/environment';
 import { SubstituteRequest } from '@/queue/substitute-request';
+import { ObjectId } from 'mongodb';
 
 @Injectable()
 export class MessageEmbedFactoryService {
@@ -16,8 +17,8 @@ export class MessageEmbedFactoryService {
   ) { }
 
   async fromPlayerBanAdded(playerBan: PlayerBan) {
-    const admin = await this.playersService.getById(playerBan.admin.toString());
-    const player = await this.playersService.getById(playerBan.player.toString());
+    const admin = await this.playersService.getById(playerBan.admin as ObjectId);
+    const player = await this.playersService.getById(playerBan.player as ObjectId);
     const endText = moment(playerBan.end).fromNow();
 
     return new MessageEmbed()
@@ -31,7 +32,7 @@ export class MessageEmbedFactoryService {
   }
 
   async fromPlayerBanRevoked(playerBan: PlayerBan) {
-    const player = await this.playersService.getById(playerBan.player.toString());
+    const player = await this.playersService.getById(playerBan.player as ObjectId)
 
     return new MessageEmbed()
       .setColor('#9838dc')
@@ -71,13 +72,13 @@ export class MessageEmbedFactoryService {
       .setThumbnail(`${this.environment.clientUrl}/assets/android-icon-192x192.png`);
   }
 
-  async fromSkillChange(playerId: string, oldSkill: Map<string, number>, newSkill: Map<string, number>) {
+  async fromSkillChange(playerId: ObjectId, oldSkill: Map<string, number>, newSkill: Map<string, number>) {
     const player = await this.playersService.getById(playerId);
     const embed = new MessageEmbed()
       .setColor('#ff953e')
       .setTitle('Player\'s skill has been updated')
       .addField('Player name', player.name);
-    
+
     let i = 0;
 
     for (const key of newSkill.keys()) {

@@ -1,14 +1,15 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { GamesGateway } from './games.gateway';
 import { PlayerSubstitutionService } from '../services/player-substitution.service';
+import { ObjectId } from 'mongodb';
 
-const game = {
+const mockGame = {
   id: 'FAKE_GAME_ID',
   state: 'launching',
 };
 
 class PlayerSubstitutionServiceStub {
-  replacePlayer(gameId: string, replaceeId: string, replacementId: string) { return new Promise(resolve => resolve(game)); }
+  replacePlayer(gameId: ObjectId, replaceeId: ObjectId, replacementId: ObjectId) { return Promise.resolve(mockGame); }
 }
 
 describe('GamesGateway', () => {
@@ -34,9 +35,13 @@ describe('GamesGateway', () => {
   describe('#replacePlayer()', () => {
     it('should replace the player', async () => {
       const spy = jest.spyOn(playerSubstitutionService, 'replacePlayer');
-      const ret = await gateway.replacePlayer({ request: { user: { id: 'FAKE_REPLACEMENT_ID' } } }, { gameId: 'FAKE_GAME_ID', replaceeId: 'FAKE_REPLACEE_ID' });
-      expect(spy).toHaveBeenCalledWith('FAKE_GAME_ID', 'FAKE_REPLACEE_ID', 'FAKE_REPLACEMENT_ID');
-      expect(ret).toEqual(game as any);
+      const [ gameId, replacementId, replaceeId ] = [ new ObjectId(), new ObjectId(), new ObjectId() ];
+      const ret = await gateway.replacePlayer(
+        { request: { user: { id: replacementId.toString() } } },
+        { gameId: gameId.toString(), replaceeId: replaceeId.toString() }
+      );
+      expect(spy).toHaveBeenCalledWith(gameId, replaceeId, replacementId);
+      expect(ret).toEqual(mockGame as any);
     });
   });
 });

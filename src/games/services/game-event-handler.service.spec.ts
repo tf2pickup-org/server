@@ -14,26 +14,12 @@ import { Player } from '@/players/models/player';
 import { QueueGateway } from '@/queue/gateways/queue.gateway';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 
-class PlayersServiceStub {
-  playerIds: ObjectId[] = [];
-
-  constructor(
-    @InjectModel(Player) private playerModel: ReturnModelType<typeof Game>,
-  ) { }
-
-  async initialize() {
-    this.playerIds.push((await this.playerModel.create({
-      name: 'FAKE_PLAYER_1',
-      steamId: 'FAKE_STEAM_ID_1',
-    })).id);
-    this.playerIds.push((await this.playerModel.create({
-      name: 'FAKE_PLAYER_2',
-      steamId: 'FAKE_STEAM_ID_2',
-    })).id);
-  }
-
-  async findBySteamId(steamId: string) { return this.playerModel.findOne({ steamId }); }
-}
+jest.mock('@/players/services/players.service');
+jest.mock('./games.service');
+jest.mock('@nestjs/config');
+jest.mock('./game-runtime.service');
+jest.mock('../gateways/games.gateway');
+jest.mock('@/queue/gateways/queue.gateway');
 
 class GamesServiceStub {
   mockGame: DocumentType<Game>;
@@ -44,6 +30,8 @@ class GamesServiceStub {
   ) { }
 
   async initialize() {
+    const players = await this.playersService.getAll();
+
     this.mockGame = await this.gameModel.create({
       number: 1,
       teams: {
@@ -51,48 +39,29 @@ class GamesServiceStub {
         2: 'BLU',
       },
       slots: [
-        { playerId: (this.playersService as unknown as PlayersServiceStub).playerIds[0], teamId: 1, gameClass: 'scout' },
-        { playerId: (this.playersService as unknown as PlayersServiceStub).playerIds[1], teamId: 2, gameClass: 'scout' },
+        { player: players[0], teamId: 1, gameClass: 'scout' },
+        { player: players[1], teamId: 2, gameClass: 'scout' },
       ],
-      players: (this.playersService as unknown as PlayersServiceStub).playerIds,
+      players: players.map(p => p._id),
       map: 'cp_badlands',
     });
   }
 
-  async getById(id: string) { return await this.gameModel.findById(id); }
-}
-
-class ConfigServiceStub {
-  get(key: string) {
-    switch (key) {
-      case 'serverCleanupDelay':
-        return 0;
-    }
-  }
-}
-
-class GameRuntimeServiceStub {
-  cleanupServer(gameId: any) { return null; }
-}
-
-class GamesGatewayStub {
-  emitGameUpdated(game: any) { return null; }
-}
-
-class QueueGatewayStub {
-  updateSubstituteRequests() { return null; }
+  async getById(id: ObjectId) { return await this.gameModel.findById(id); }
 }
 
 describe('GameEventHandlerService', () => {
   let service: GameEventHandlerService;
   let mongod: MongoMemoryServer;
-  let playersService: PlayersServiceStub;
-  let gamesService: GamesServiceStub;
-  let gameRuntimeService: GameRuntimeServiceStub;
-  let gamesGateway: GamesGatewayStub;
   let gameModel: ReturnModelType<typeof Game>;
   let playerModel: ReturnModelType<typeof Player>;
-  let queueGateway: QueueGatewayStub;
+  let playersService: PlayersService;
+  let gamesService: GamesServiceStub;
+  let gameRuntimeService: GameRuntimeService;
+  let gamesGateway: GamesGateway;
+  let queueGateway: QueueGateway;
+  let player1: DocumentType<Player>;
+  let player2: DocumentType<Player>;
 
   beforeAll(() => mongod = new MongoMemoryServer());
   afterAll(async () => await mongod.stop());
@@ -105,12 +74,12 @@ describe('GameEventHandlerService', () => {
       ],
       providers: [
         GameEventHandlerService,
-        { provide: PlayersService, useClass: PlayersServiceStub },
+        PlayersService,
         { provide: GamesService, useClass: GamesServiceStub },
-        { provide: ConfigService, useClass: ConfigServiceStub },
-        { provide: GameRuntimeService, useClass: GameRuntimeServiceStub },
-        { provide: GamesGateway, useClass: GamesGatewayStub },
-        { provide: QueueGateway, useClass: QueueGatewayStub },
+        ConfigService,
+        GameRuntimeService,
+        GamesGateway,
+        QueueGateway,
       ],
     }).compile();
 
@@ -125,13 +94,17 @@ describe('GameEventHandlerService', () => {
   });
 
   beforeEach(async () => {
-    await playersService.initialize();
+    // @ts-expect-error
+    player1 = await playersService._createOne();
+    // @ts-expect-error
+    player2 = await playersService._createOne();
     await gamesService.initialize();
   });
 
   afterEach(async () => {
     await gameModel.deleteMany({ });
-    await playerModel.deleteMany({ });
+    // @ts-expect-error
+    await playersService._reset();
   });
 
   it('should be defined', () => {
@@ -140,27 +113,27 @@ describe('GameEventHandlerService', () => {
 
   describe('#onMatchStarted()', () => {
     it('should update game state', async () => {
-      await service.onMatchStarted(gamesService.mockGame.id);
-      const game = await gameModel.findOne();
+      await service.onMatchStarted(gamesService.mockGame._id);
+      const game = await gameModel.findById(gamesService.mockGame._id);
       expect(game.state).toEqual('started');
     });
 
     it('should emit an event over ws', async () => {
       const spy = jest.spyOn(gamesGateway, 'emitGameUpdated');
-      await service.onMatchStarted(gamesService.mockGame.id);
+      await service.onMatchStarted(gamesService.mockGame._id);
       expect(spy).toHaveBeenCalledWith(jasmine.objectContaining({ id: gamesService.mockGame.id }));
     });
 
-    describe('when the game has ended', () => {
+    describe('when the game has already ended', () => {
       beforeEach(async () => {
-        const game = await gameModel.findOne();
+        const game = await gameModel.findById(gamesService.mockGame._id);
         game.state = 'ended';
         await game.save();
       });
 
       it('should not change the state', async () => {
         await service.onMatchStarted(gamesService.mockGame.id);
-        const game = await gameModel.findOne();
+        const game = await gameModel.findById(gamesService.mockGame._id);
         expect(game.state).toEqual('ended');
       });
     });
@@ -171,14 +144,14 @@ describe('GameEventHandlerService', () => {
 
     beforeEach(async () => {
       gameServerId = new ObjectId();
-      const game = await gameModel.findOne();
+      const game = await gameModel.findById(gamesService.mockGame._id);
       game.gameServer = gameServerId;
       await game.save();
     });
 
     it('should update state', async () => {
       await service.onMatchEnded(gamesService.mockGame.id);
-      const game = await gameModel.findOne();
+      const game = await gameModel.findById(gamesService.mockGame._id);
       expect(game.state).toEqual('ended');
     });
 
@@ -186,7 +159,7 @@ describe('GameEventHandlerService', () => {
       const spy = jest.spyOn(gameRuntimeService, 'cleanupServer');
       await service.onMatchEnded(gamesService.mockGame.id);
       setTimeout(() => {
-        expect(spy).toHaveBeenCalledWith(gameServerId.toString());
+        expect(spy).toHaveBeenCalledWith(gameServerId);
         done();
       }, 0);
     });
@@ -194,25 +167,25 @@ describe('GameEventHandlerService', () => {
     it('should emit an event over ws', async () => {
       const spy = jest.spyOn(gamesGateway, 'emitGameUpdated');
       await service.onMatchEnded(gamesService.mockGame.id);
-      expect(spy).toHaveBeenCalledWith(jasmine.objectContaining({ id: gamesService.mockGame.id }));
+      expect(spy).toHaveBeenCalledWith(expect.objectContaining({ id: gamesService.mockGame.id }));
     });
 
     describe('with player awaiting a substitute', () => {
       beforeEach(async () => {
-        const game = await gameModel.findOne();
+        const game = await gameModel.findById(gamesService.mockGame._id);
         game.slots[0].status = 'waiting for substitute';
         await game.save();
       });
 
       it('should set his status back to active', async () => {
         await service.onMatchEnded(gamesService.mockGame.id);
-        const game = await gameModel.findOne();
+        const game = await gameModel.findById(gamesService.mockGame._id);
         expect(game.slots.every(s => s.status === 'active')).toBe(true);
       });
 
       it('should emit subsitute requests change event over ws', async () => {
         const spy = jest.spyOn(queueGateway, 'updateSubstituteRequests');
-        await service.onMatchEnded(gamesService.mockGame.id);
+        await service.onMatchEnded(gamesService.mockGame._id);
         expect(spy).toHaveBeenCalled();
       });
     });
@@ -220,75 +193,75 @@ describe('GameEventHandlerService', () => {
 
   describe('#onLogsUploaded()', () => {
     it('should update logsUrl', async () => {
-      await service.onLogsUploaded(gamesService.mockGame.id, 'FAKE_LOGS_URL');
-      const game = await gameModel.findOne();
+      await service.onLogsUploaded(gamesService.mockGame._id, 'FAKE_LOGS_URL');
+      const game = await gameModel.findById(gamesService.mockGame._id);
       expect(game.logsUrl).toEqual('FAKE_LOGS_URL');
     });
 
     it('should emit an event over ws', async () => {
       const spy = jest.spyOn(gamesGateway, 'emitGameUpdated');
-      await service.onLogsUploaded(gamesService.mockGame.id, 'FAKE_LOGS_URL');
-      expect(spy).toHaveBeenCalledWith(jasmine.objectContaining({ id: gamesService.mockGame.id }));
+      await service.onLogsUploaded(gamesService.mockGame._id, 'FAKE_LOGS_URL');
+      expect(spy).toHaveBeenCalledWith(expect.objectContaining({ id: gamesService.mockGame.id }));
     });
   });
 
   describe('#onPlayerJoining()', () => {
     it('should update the player\'s online state', async () => {
-      await service.onPlayerJoining(gamesService.mockGame.id, 'FAKE_STEAM_ID_1');
-      const game = await gameModel.findOne();
-      expect(game.slots.find(s => s.playerId === playersService.playerIds[0].toString()).connectionStatus).toEqual('joining');
+      await service.onPlayerJoining(gamesService.mockGame.id, player1.steamId);
+      const game = await gameModel.findById(gamesService.mockGame._id);
+      expect(game.slots.find(s => player1._id.equals(s.player)).connectionStatus).toEqual('joining');
     });
 
     it('should emit an event over ws', async () => {
       const spy = jest.spyOn(gamesGateway, 'emitGameUpdated');
-      await service.onPlayerJoining(gamesService.mockGame.id, 'FAKE_STEAM_ID_1');
-      expect(spy).toHaveBeenCalledWith(jasmine.objectContaining({ id: gamesService.mockGame.id }));
+      await service.onPlayerJoining(gamesService.mockGame.id, player1.steamId);
+      expect(spy).toHaveBeenCalledWith(expect.objectContaining({ id: gamesService.mockGame.id }));
     });
   });
 
   describe('#onPlayerConnected()', () => {
     it('should update the player\'s online state', async () => {
-      await service.onPlayerConnected(gamesService.mockGame.id, 'FAKE_STEAM_ID_1');
-      const game = await gameModel.findOne();
-      expect(game.slots.find(s => s.playerId === playersService.playerIds[0].toString()).connectionStatus).toEqual('connected');
+      await service.onPlayerConnected(gamesService.mockGame.id, player1.steamId);
+      const game = await gameModel.findById(gamesService.mockGame._id);
+      expect(game.slots.find(s => player1._id.equals(s.player)).connectionStatus).toEqual('connected');
     });
 
     it('should emit an event over ws', async () => {
       const spy = jest.spyOn(gamesGateway, 'emitGameUpdated');
-      await service.onPlayerConnected(gamesService.mockGame.id, 'FAKE_STEAM_ID_1');
-      expect(spy).toHaveBeenCalledWith(jasmine.objectContaining({ id: gamesService.mockGame.id }));
+      await service.onPlayerConnected(gamesService.mockGame.id, player1.steamId);
+      expect(spy).toHaveBeenCalledWith(expect.objectContaining({ id: gamesService.mockGame.id }));
     });
   });
 
   describe('#onPlayerDisconnected()', () => {
     it('should update the player\'s online state', async () => {
-      await service.onPlayerDisconnected(gamesService.mockGame.id, 'FAKE_STEAM_ID_1');
-      const game = await gameModel.findOne();
-      expect(game.slots.find(s => s.playerId === playersService.playerIds[0].toString()).connectionStatus).toEqual('offline');
+      await service.onPlayerDisconnected(gamesService.mockGame.id, player1.steamId);
+      const game = await gameModel.findById(gamesService.mockGame._id);
+      expect(game.slots.find(s => player1._id.equals(s.player)).connectionStatus).toEqual('offline');
     });
 
     it('should emit an event over ws', async () => {
       const spy = jest.spyOn(gamesGateway, 'emitGameUpdated');
-      await service.onPlayerDisconnected(gamesService.mockGame.id, 'FAKE_STEAM_ID_1');
-      expect(spy).toHaveBeenCalledWith(jasmine.objectContaining({ id: gamesService.mockGame.id }));
+      await service.onPlayerDisconnected(gamesService.mockGame.id, player1.steamId);
+      expect(spy).toHaveBeenCalledWith(expect.objectContaining({ id: gamesService.mockGame.id }));
     });
   });
 
   describe('#onScoreReported()', () => {
     it('should update the game\'s score', async () => {
       await service.onScoreReported(gamesService.mockGame.id, 'Red', '2');
-      let game = await gameModel.findOne();
+      let game = await gameModel.findById(gamesService.mockGame._id);
       expect(game.score.get('1')).toEqual(2);
 
       await service.onScoreReported(gamesService.mockGame.id, 'Blue', '5');
-      game = await gameModel.findOne();
+      game = await gameModel.findById(gamesService.mockGame._id);
       expect(game.score.get('2')).toEqual(5);
     });
 
     it('should emit an event over ws', async () => {
       const spy = jest.spyOn(gamesGateway, 'emitGameUpdated');
       await service.onScoreReported(gamesService.mockGame.id, 'Red', '2');
-      expect(spy).toHaveBeenCalledWith(jasmine.objectContaining({ id: gamesService.mockGame.id }));
+      expect(spy).toHaveBeenCalledWith(expect.objectContaining({ id: gamesService.mockGame.id }));
     });
   });
 });

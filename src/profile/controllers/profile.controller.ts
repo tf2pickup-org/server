@@ -6,6 +6,7 @@ import { PlayersService } from '@/players/services/players.service';
 import { GamesService } from '@/games/services/games.service';
 import { PlayerBansService } from '@/players/services/player-bans.service';
 import { MapVoteService } from '@/queue/services/map-vote.service';
+import { ObjectId } from 'mongodb';
 
 @Controller('profile')
 export class ProfileController {
@@ -20,9 +21,10 @@ export class ProfileController {
   @Auth()
   @Get()
   async getProfile(@User() user: Player) {
-    const activeGameId = (await this.gamesService.getPlayerActiveGame(user.id))?.id ?? null;
-    const bans = await this.playerBansService.getPlayerActiveBans(user.id);
-    const mapVote = this.mapVoteService.playerVote(user.id);
+    const userId = new ObjectId(user.id);
+    const activeGameId = (await this.gamesService.getPlayerActiveGame(userId))?.id ?? null;
+    const bans = await this.playerBansService.getPlayerActiveBans(userId);
+    const mapVote = this.mapVoteService.playerVote(userId);
     return { ...user, activeGameId, bans, mapVote };
   }
 
@@ -31,7 +33,7 @@ export class ProfileController {
   @HttpCode(204)
   async acceptTerms(@User() user: Player, @Query('accept_terms') acceptTerms: string) {
     if (acceptTerms !== undefined) {
-      await this.playersService.acceptTerms(user.id);
+      await this.playersService.acceptTerms(new ObjectId(user.id));
     } else {
       throw new BadRequestException();
     }

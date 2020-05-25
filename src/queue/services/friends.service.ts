@@ -2,10 +2,11 @@ import { Injectable, OnModuleInit, Inject, forwardRef } from '@nestjs/common';
 import { QueueService } from './queue.service';
 import { QueueSlot } from '../queue-slot';
 import { QueueGateway } from '../gateways/queue.gateway';
+import { ObjectId } from 'mongodb';
 
 export interface Friendship {
-  sourcePlayerId: string;
-  targetPlayerId: string;
+  sourcePlayerId: ObjectId;
+  targetPlayerId: ObjectId;
 }
 
 @Injectable()
@@ -22,14 +23,14 @@ export class FriendsService implements OnModuleInit {
     this.queueService.slotsChange.subscribe(slots => this.cleanupFriendships(slots));
   }
 
-  markFriend(sourcePlayerId: string, targetPlayerId: string) {
+  markFriend(sourcePlayerId: ObjectId, targetPlayerId: ObjectId) {
     if (this.queueService.state === 'launching') {
       throw new Error('cannot make friends at this stage');
     }
 
     if (targetPlayerId === null) { // only removing frienship
       this.friendships = [
-        ...this.friendships.filter(f => f.sourcePlayerId !== sourcePlayerId),
+        ...this.friendships.filter(f => !f.sourcePlayerId.equals(sourcePlayerId)),
       ];
     } else {
       const sourcePlayerSlot = this.queueService.findSlotByPlayerId(sourcePlayerId);

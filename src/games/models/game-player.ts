@@ -1,11 +1,13 @@
-import { prop, index } from '@typegoose/typegoose';
+import { prop, index, Ref } from '@typegoose/typegoose';
 import { PlayerConnectionStatus } from './player-connection-status';
+import { Player } from '@/players/models/player';
 
 @index({ playerId: 1 })
 @index({ status: 1 })
 export class GamePlayer {
-  @prop({ required: true })
-  playerId!: string;
+
+  @prop({ required: true, ref: 'Player' })
+  player!: Ref<Player>;
 
   @prop({ required: true })
   teamId!: string;
@@ -18,4 +20,5 @@ export class GamePlayer {
 
   @prop({ default: 'offline' })
   connectionStatus?: PlayerConnectionStatus;
+
 }

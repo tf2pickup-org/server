@@ -5,6 +5,7 @@ import { ServerConfiguratorService } from './server-configurator.service';
 import { Environment } from '@/environment/environment';
 import { GamesGateway } from '../gateways/games.gateway';
 import { Cron } from '@nestjs/schedule';
+import { ObjectId } from 'mongodb';
 
 /**
  * This service is responsible for launching a single game.
@@ -31,7 +32,7 @@ export class GameLauncherService {
    * @param {string} gameId The id of the game to be launched.
    * @memberof GameLauncherService
    */
-  async launch(gameId: string) {
+  async launch(gameId: ObjectId) {
     const game = await this.gamesService.getById(gameId);
     if (!game) {
       throw new Error('no such game');

@@ -166,7 +166,7 @@ describe('GameServersService', () => {
     });
 
     it('should fail gracefully', async () => {
-      await expect(service.takeServer(new ObjectId().toString())).rejects.toThrowError('no such game server');
+      await expect(service.takeServer(new ObjectId())).rejects.toThrowError('no such game server');
     });
   });
 
@@ -177,9 +177,9 @@ describe('GameServersService', () => {
     });
 
     describe('when the game server does not exist', () => {
-      let id: string;
+      let id: ObjectId;
 
-      beforeEach(() => id = new ObjectId().toString());
+      beforeEach(() => id = new ObjectId());
 
       it('should throw an error', async () => {
         await expect(service.releaseServer(id)).rejects.toThrowError('no such game server');

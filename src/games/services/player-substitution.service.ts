@@ -8,6 +8,7 @@ import { GamesGateway } from '../gateways/games.gateway';
 import { DiscordNotificationsService } from '@/discord/services/discord-notifications.service';
 import { QueueGateway } from '@/queue/gateways/queue.gateway';
 import { QueueService } from '@/queue/services/queue.service';
+import { ObjectId } from 'mongodb';
 
 /**
  * A service that handles player substitution logic.
@@ -31,7 +32,7 @@ export class PlayerSubstitutionService {
     private queueSevice: QueueService,
   ) { }
 
-  async substitutePlayer(gameId: string, playerId: string) {
+  async substitutePlayer(gameId: ObjectId, playerId: ObjectId) {
     const { game, slot } = await this.findPlayerSlot(gameId, playerId);
 
     if (!/launching|started/.test(game.state)) {
@@ -62,7 +63,7 @@ export class PlayerSubstitutionService {
     return game;
   }
 
-  async cancelSubstitutionRequest(gameId: string, playerId: string) {
+  async cancelSubstitutionRequest(gameId: ObjectId, playerId: ObjectId) {
     const { game, slot } = await this.findPlayerSlot(gameId, playerId);
 
     if (!/launching|started/.test(game.state)) {
@@ -87,7 +88,7 @@ export class PlayerSubstitutionService {
     return game;
   }
 
-  async replacePlayer(gameId: string, replaceeId: string, replacementId: string) {
+  async replacePlayer(gameId: ObjectId, replaceeId: ObjectId, replacementId: ObjectId) {
     if ((await this.playerBansService.getPlayerActiveBans(replacementId)).length > 0) {
       throw new Error('player is banned');
     }
@@ -120,13 +121,13 @@ export class PlayerSubstitutionService {
       throw new Error('no such player');
     }
 
-    let replacementSlot: GamePlayer = game.slots.find(s => s.playerId === replacementId);
+    let replacementSlot: GamePlayer = game.slots.find(s => replacementId.equals(s.player as ObjectId));
     if (replacementSlot) {
       replacementSlot.status = 'active';
     } else {
       // create new slot of the replacement player
       replacementSlot = {
-        playerId: replacementId,
+        player: replacementId,
         teamId: slot.teamId,
         gameClass: slot.gameClass,
         status: 'active',
@@ -147,7 +148,7 @@ export class PlayerSubstitutionService {
     const replacee = await this.playersService.getById(replaceeId);
 
     this.gameRuntimeService.sayChat(
-      game.gameServer.toString(),
+      game.gameServer as ObjectId,
       `${replacement.name} is replacing ${replacee.name} on ${replacementSlot.gameClass}.`,
     );
 
@@ -157,13 +158,13 @@ export class PlayerSubstitutionService {
     return game;
   }
 
-  private async findPlayerSlot(gameId: string, playerId: string) {
+  private async findPlayerSlot(gameId: ObjectId, playerId: ObjectId) {
     const game = await this.gamesService.getById(gameId);
     if (!game) {
       throw new Error('no such game');
     }
 
-    const slot = game.slots.find(s => s.playerId === playerId);
+    const slot = game.slots.find(s => playerId.equals(s.player as ObjectId));
     if (!slot) {
       throw new Error('no such player');
     }

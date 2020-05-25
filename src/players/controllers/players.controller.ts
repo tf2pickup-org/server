@@ -9,6 +9,7 @@ import { PlayerSkillService } from '../services/player-skill.service';
 import { PlayerBansService } from '../services/player-bans.service';
 import { PlayerBan } from '../models/player-ban';
 import { User } from '@/auth/decorators/user.decorator';
+import { ObjectId } from 'mongodb';
 
 @Controller('players')
 export class PlayersController {
@@ -26,7 +27,7 @@ export class PlayersController {
   }
 
   @Get(':id')
-  async getPlayer(@Param('id', ObjectIdValidationPipe) playerId: string) {
+  async getPlayer(@Param('id', ObjectIdValidationPipe) playerId: ObjectId) {
     const player = await this.playersService.getById(playerId);
     if (player) {
       return player;
@@ -37,12 +38,12 @@ export class PlayersController {
 
   @Patch(':id')
   @Auth('admin', 'super-user')
-  async updatePlayer(@Param('id', ObjectIdValidationPipe) playerId: string, @Body() player: Partial<Player>) {
+  async updatePlayer(@Param('id', ObjectIdValidationPipe) playerId: ObjectId, @Body() player: Partial<Player>) {
     return await this.playersService.updatePlayer(playerId, player);
   }
 
   @Get(':id/games')
-  async getPlayerGames(@Param('id', ObjectIdValidationPipe) playerId: string, @Query('limit', ParseIntPipe) limit: number = 10,
+  async getPlayerGames(@Param('id', ObjectIdValidationPipe) playerId: ObjectId, @Query('limit', ParseIntPipe) limit: number = 10,
                        @Query('offset', ParseIntPipe) offset: number = 0, @Query('sort') sort: string = '-launched_at') {
     let sortParam: { launchedAt: 1 | -1 };
     switch (sort) {
@@ -69,7 +70,7 @@ export class PlayersController {
   }
 
   @Get(':id/stats')
-  async getPlayerStats(@Param('id', ObjectIdValidationPipe) playerId: string) {
+  async getPlayerStats(@Param('id', ObjectIdValidationPipe) playerId: ObjectId) {
     return await this.playersService.getPlayerStats(playerId);
   }
 
@@ -81,7 +82,7 @@ export class PlayersController {
 
   @Get(':id/skill')
   @Auth('admin', 'super-user')
-  async getPlayerSkill(@Param('id', ObjectIdValidationPipe) playerId: string) {
+  async getPlayerSkill(@Param('id', ObjectIdValidationPipe) playerId: ObjectId) {
     const skill = await this.playerSkillService.getPlayerSkill(playerId);
     if (skill) {
       return skill.skill;
@@ -93,20 +94,20 @@ export class PlayersController {
   @Put(':id/skill')
   @Auth('admin', 'super-user')
   // todo validate skill
-  async setPlayerSkill(@Param('id', ObjectIdValidationPipe) playerId: string, @Body() newSkill: { [className: string]: number }) {
+  async setPlayerSkill(@Param('id', ObjectIdValidationPipe) playerId: ObjectId, @Body() newSkill: { [className: string]: number }) {
     return (await this.playerSkillService.setPlayerSkill(playerId, new Map(Object.entries(newSkill)))).skill;
   }
 
   @Get(':id/bans')
   @Auth('admin', 'super-user')
-  async getPlayerBans(@Param('id', ObjectIdValidationPipe) playerId: string) {
+  async getPlayerBans(@Param('id', ObjectIdValidationPipe) playerId: ObjectId) {
     return await this.playerBansService.getPlayerBans(playerId);
   }
 
   @Post(':id/bans')
   @Auth('admin', 'super-user')
   @UsePipes(ValidationPipe)
-  async addPlayerBan(@Param('id', ObjectIdValidationPipe) playerId: string, @Body() playerBan: PlayerBan, @User() user: any) {
+  async addPlayerBan(@Param('id', ObjectIdValidationPipe) playerId: ObjectId, @Body() playerBan: PlayerBan, @User() user: any) {
     if ((playerBan.admin as unknown as string) !== user.id) {
       throw new BadRequestException('the admin field must be the same as authorized user\'s id');
     }
@@ -116,7 +117,7 @@ export class PlayersController {
   @Post(':playerId/bans/:banId')
   @Auth('admin', 'super-user')
   @HttpCode(200)
-  async updatePlayerBan(@Param('playerId', ObjectIdValidationPipe) playerId: string, @Param('banId', ObjectIdValidationPipe) banId: string,
+  async updatePlayerBan(@Param('playerId', ObjectIdValidationPipe) playerId: ObjectId, @Param('banId', ObjectIdValidationPipe) banId: string,
                         @Query('revoke') revoke: any) {
     const player = await this.playersService.getById(playerId);
     if (!player) {
@@ -128,7 +129,7 @@ export class PlayersController {
       throw new NotFoundException('ban not found');
     }
 
-    if (ban.player.toString() !== playerId) {
+    if (!playerId.equals(ban.player as ObjectId)) {
       throw new BadRequestException('the given ban is not of the user\'s');
     }
 

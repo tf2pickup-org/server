@@ -3,6 +3,7 @@ import { Socket } from 'socket.io';
 import { PlayersGateway } from '../gateways/players.gateway';
 import { Player } from '../models/player';
 import { Subject } from 'rxjs';
+import { ObjectId } from 'mongodb';
 
 type SocketList = Socket[];
 
@@ -11,8 +12,8 @@ export class OnlinePlayersService implements OnModuleInit {
 
   private readonly verifyPlayerTimeout = 10 * 1000; // 10 seconds
   private logger = new Logger(OnlinePlayersService.name);
-  private sockets = new Map<string, SocketList>();
-  private _playerLeft = new Subject<string>();
+  private sockets = new Map<ObjectId, SocketList>();
+  private _playerLeft = new Subject<ObjectId>();
 
   get playerLeft() {
     return this._playerLeft.asObservable();
@@ -26,10 +27,11 @@ export class OnlinePlayersService implements OnModuleInit {
     this.playersGateway.playerConnected.subscribe(socket => {
       if (socket.request.user.logged_in) {
         const player = socket.request.user as Player;
-        const sockets = this.sockets.get(player.id) || [];
+        const playerId = new ObjectId(player.id);
+        const sockets = this.sockets.get(playerId) || [];
         if (!sockets.includes(socket)) {
           this.logger.debug(`${player.name} connected`);
-          this.sockets.set(player.id, [ ...sockets, socket ]);
+          this.sockets.set(playerId, [ ...sockets, socket ]);
         }
       }
     });
@@ -38,18 +40,19 @@ export class OnlinePlayersService implements OnModuleInit {
       if (socket.request.user.logged_in) {
         const player = socket.request.user as Player;
         this.logger.debug(`${player.name} disconnected`);
-        const sockets = this.getSocketsForPlayer(player.id);
-        this.sockets.set(player.id, sockets.filter(s => s !== socket));
-        setTimeout(() => this.verifyPlayer(player.id), this.verifyPlayerTimeout);
+        const playerId = new ObjectId(player.id);
+        const sockets = this.getSocketsForPlayer(playerId);
+        this.sockets.set(playerId, sockets.filter(s => s !== socket));
+        setTimeout(() => this.verifyPlayer(playerId), this.verifyPlayerTimeout);
       }
     });
   }
 
-  getSocketsForPlayer(playerId: string) {
+  getSocketsForPlayer(playerId: ObjectId) {
     return this.sockets.get(playerId) || [];
   }
 
-  private verifyPlayer(playerId: string) {
+  private verifyPlayer(playerId: ObjectId) {
     const sockets = this.sockets.get(playerId);
     if (sockets.length === 0) {
       this._playerLeft.next(playerId);

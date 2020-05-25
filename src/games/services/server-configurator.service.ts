@@ -11,6 +11,7 @@ import { logAddressAdd, changelevel, execConfig, setPassword, addGamePlayer, log
 import { deburr } from 'lodash';
 import { extractConVarValue } from '../utils/extract-con-var-value';
 import { Rcon } from 'rcon-client/lib';
+import { ObjectId } from 'mongodb';
 
 @Injectable()
 export class ServerConfiguratorService {
@@ -65,7 +66,7 @@ export class ServerConfiguratorService {
       await rcon.send(setPassword(password));
 
       for (const slot of game.slots) {
-        const player = await this.playersService.getById(slot.playerId);
+        const player = await this.playersService.getById(slot.player as ObjectId);
         const team = parseInt(slot.teamId, 10) + 2;
 
         const playerName = deburr(player.name);

@@ -5,58 +5,64 @@ import { Subject } from 'rxjs';
 import { MapVoteService } from '../services/map-vote.service';
 import { QueueAnnouncementsService } from '../services/queue-announcements.service';
 import { FriendsService } from '../services/friends.service';
+import { ObjectId } from 'mongodb';
 
-class QueueServiceStub {
-  slotsChange = new Subject<any>();
-  stateChange = new Subject<string>();
+jest.mock('../services/queue.service');
+jest.mock('../services/map-vote.service');
+jest.mock('../services/queue-announcements.service');
+jest.mock('../services/friends.service');
 
-  join(slotId: number, playerId: string) {
-    return new Promise(resolve => resolve([{ id: slotId, playerId }]));
-  }
+// class QueueServiceStub {
+//   slotsChange = new Subject<any>();
+//   stateChange = new Subject<string>();
 
-  leave(playerId: string) {
-    return { id: 0, playerId };
-  }
+//   join(slotId: number, playerId: string) {
+//     return new Promise(resolve => resolve([{ id: slotId, playerId }]));
+//   }
 
-  readyUp(playerId: string) {
-    return { id: 0, playerId, ready: true };
-  }
-}
+//   leave(playerId: string) {
+//     return { id: 0, playerId };
+//   }
 
-class MapVoteServiceStub {
-  resultsChange = new Subject<any[]>();
-  voteForMap(playerId: string, map: string) { return null; }
-}
+//   readyUp(playerId: string) {
+//     return { id: 0, playerId, ready: true };
+//   }
+// }
+
+// class MapVoteServiceStub {
+//   resultsChange = new Subject<any[]>();
+//   voteForMap(playerId: string, map: string) { return null; }
+// }
 
 class SocketStub {
   emit(event: string, ...args: any[]) { return null; }
 }
 
-class QueueAnnouncementsServiceStub {
-  requests = [{ gameId: 'FAKE_GAME_ID', gameNumber: 5, gameClass: 'scout', team: 'BLU' }];
-  substituteRequests() { return new Promise(resolve => resolve(this.requests)); }
-}
+// class QueueAnnouncementsServiceStub {
+//   requests = [{ gameId: 'FAKE_GAME_ID', gameNumber: 5, gameClass: 'scout', team: 'BLU' }];
+//   substituteRequests() { return new Promise(resolve => resolve(this.requests)); }
+// }
 
-class FriendsServiceStub {
-  markFriend(player1: string, player2: string) { return null; }
-}
+// class FriendsServiceStub {
+//   markFriend(player1: string, player2: string) { return null; }
+// }
 
 describe('QueueGateway', () => {
   let gateway: QueueGateway;
-  let queueService: QueueServiceStub;
-  let mapVoteService: MapVoteServiceStub;
+  let queueService: QueueService;
+  let mapVoteService: MapVoteService;
   let socket: SocketStub;
-  let queueAnnouncementsService: QueueAnnouncementsServiceStub;
-  let friendsService: FriendsServiceStub;
+  let queueAnnouncementsService: QueueAnnouncementsService;
+  let friendsService: FriendsService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         QueueGateway,
-        { provide: QueueService, useClass: QueueServiceStub },
-        { provide: MapVoteService, useClass: MapVoteServiceStub },
-        { provide: QueueAnnouncementsService, useClass: QueueAnnouncementsServiceStub },
-        { provide: FriendsService, useClass: FriendsServiceStub },
+        QueueService,
+        MapVoteService,
+        QueueAnnouncementsService,
+        FriendsService,
       ],
     }).compile();
 
@@ -75,6 +81,11 @@ describe('QueueGateway', () => {
   });
 
   describe('#joinQueue()', () => {
+    beforeEach(() => {
+      // @ts-expect-error
+      queueService.join = (slotId, playerId) => Promise.resolve([{ id: slotId, playerId }]);
+    });
+
     it('should join the queue', async () => {
       const spy = jest.spyOn(queueService, 'join');
       const ret = await gateway.joinQueue({ request: { user: { id: 'FAKE_ID' } } }, { slotId: 5 });
@@ -84,6 +95,11 @@ describe('QueueGateway', () => {
   });
 
   describe('#leaveQueue()', () => {
+    beforeEach(() => {
+      // @ts-expect-error
+      queueService.leave = playerId => ({ id: 0, playerId });
+    });
+
     it('should leave the queue', () => {
       const spy = jest.spyOn(queueService, 'leave');
       const ret = gateway.leaveQueue({ request: { user: { id: 'FAKE_ID' } } });
@@ -93,6 +109,11 @@ describe('QueueGateway', () => {
   });
 
   describe('#playerReady()', () => {
+    beforeEach(() => {
+      // @ts-expect-error
+      queueService.readyUp = playerId => ({ id: 0, playerId, ready: true });
+    });
+
     it('should ready up the player', () => {
       const spy = jest.spyOn(queueService, 'readyUp');
       const ret = gateway.playerReady({ request: { user: { id: 'FAKE_ID' } } });
@@ -103,9 +124,10 @@ describe('QueueGateway', () => {
 
   describe('#markFriend()', () => {
     it('should mark friend', async () => {
+      const friendId = new ObjectId();
       const spy = jest.spyOn(friendsService, 'markFriend');
-      const ret = await gateway.markFriend({ request: { user: { id: 'FAKE_ID' } } }, { friendPlayerId: 'FAKE_FRIEND_ID' });
-      expect(spy).toHaveBeenCalledWith('FAKE_ID', 'FAKE_FRIEND_ID');
+      const ret = gateway.markFriend({ request: { user: { id: 'FAKE_ID' } } }, { friendPlayerId: friendId.toString() });
+      expect(spy).toHaveBeenCalledWith('FAKE_ID', friendId);
     });
   });
 
@@ -121,7 +143,7 @@ describe('QueueGateway', () => {
   describe('#emitSlotsUpdate()', () => {
     it('should emit the event', () => {
       const spy = jest.spyOn(socket, 'emit');
-      const slot = { id: 0, playerId: 'FAKE_ID', ready: true, gameClass: 'soldier', friend: null };
+      const slot = { id: 0, playerId: new ObjectId(), ready: true, gameClass: 'soldier', friend: null };
       gateway.emitSlotsUpdate([slot]);
       expect(spy).toHaveBeenCalledWith('queue slots update', [slot]);
     });
@@ -144,10 +166,16 @@ describe('QueueGateway', () => {
   });
 
   describe('#updateSubstituteRequests()', () => {
+    const requests = [{ gameId: 'FAKE_GAME_ID', gameNumber: 5, gameClass: 'scout', team: 'BLU' }];
+
+    beforeEach(() => {
+      queueAnnouncementsService.substituteRequests = () => Promise.resolve(requests);
+    });
+
     it('should emit requests over the ws', async () => {
       const spy = jest.spyOn(socket, 'emit');
       await gateway.updateSubstituteRequests();
-      expect(spy).toHaveBeenCalledWith('substitute requests update', queueAnnouncementsService.requests);
+      expect(spy).toHaveBeenCalledWith('substitute requests update', requests);
     });
   });
 });

@@ -6,6 +6,7 @@ import { ConfigService } from '@nestjs/config';
 import { GameRuntimeService } from './game-runtime.service';
 import { GamesGateway } from '../gateways/games.gateway';
 import { QueueGateway } from '@/queue/gateways/queue.gateway';
+import { ObjectId } from 'mongodb';
 
 @Injectable()
 export class GameEventHandlerService {
@@ -22,7 +23,7 @@ export class GameEventHandlerService {
     private queueGateway: QueueGateway,
   ) { }
 
-  async onMatchStarted(gameId: string) {
+  async onMatchStarted(gameId: ObjectId) {
     const game = await this.gamesService.getById(gameId);
     if (game) {
       // The server sometimes logs match start right after it was ended (probably due to readyup mode bugs).
@@ -37,7 +38,7 @@ export class GameEventHandlerService {
     }
   }
 
-  async onMatchEnded(gameId: string) {
+  async onMatchEnded(gameId: ObjectId) {
     const game = await this.gamesService.getById(gameId);
     if (game) {
       game.state = 'ended';
@@ -50,13 +51,13 @@ export class GameEventHandlerService {
       await game.save();
       this.gamesGateway.emitGameUpdated(game);
       this.queueGateway.updateSubstituteRequests();
-      setTimeout(() => this.gameRuntimeService.cleanupServer(game.gameServer.toString()), this.serverCleanupDelay);
+      setTimeout(() => this.gameRuntimeService.cleanupServer(game.gameServer as ObjectId), this.serverCleanupDelay);
     } else {
       this.logger.warn(`no such game: ${gameId}`);
     }
   }
 
-  async onLogsUploaded(gameId: string, logsUrl: string) {
+  async onLogsUploaded(gameId: ObjectId, logsUrl: string) {
     const game = await this.gamesService.getById(gameId);
     if (game) {
       game.logsUrl = logsUrl;
@@ -67,19 +68,19 @@ export class GameEventHandlerService {
     }
   }
 
-  async onPlayerJoining(gameId: string, steamId: string) {
+  async onPlayerJoining(gameId: ObjectId, steamId: string) {
     await this.setPlayerConnectionStatus(gameId, steamId, 'joining');
   }
 
-  async onPlayerConnected(gameId: string, steamId: string) {
+  async onPlayerConnected(gameId: ObjectId, steamId: string) {
     await this.setPlayerConnectionStatus(gameId, steamId, 'connected');
   }
 
-  async onPlayerDisconnected(gameId: string, steamId: string) {
+  async onPlayerDisconnected(gameId: ObjectId, steamId: string) {
     await this.setPlayerConnectionStatus(gameId, steamId, 'offline');
   }
 
-  async onScoreReported(gameId: string, teamName: string, score: string) {
+  async onScoreReported(gameId: ObjectId, teamName: string, score: string) {
     const game = await this.gamesService.getById(gameId);
     if (game) {
       const fixedTeamName = teamName.toUpperCase().substring(0, 3); // converts Red to RED and Blue to BLU
@@ -97,7 +98,7 @@ export class GameEventHandlerService {
     }
   }
 
-  private async setPlayerConnectionStatus(gameId: string, steamId: string, connectionStatus: PlayerConnectionStatus) {
+  private async setPlayerConnectionStatus(gameId: ObjectId, steamId: string, connectionStatus: PlayerConnectionStatus) {
     const player = await this.playersService.findBySteamId(steamId);
     if (!player) {
       this.logger.warn(`no such player: ${steamId}`);
@@ -106,7 +107,7 @@ export class GameEventHandlerService {
 
     const game = await this.gamesService.getById(gameId);
     if (game) {
-      const slot = game.slots.find(s => s.playerId === player.id);
+      const slot = game.slots.find(s => (s.player as ObjectId).equals(player.id));
       if (slot) {
         slot.connectionStatus = connectionStatus;
         await game.save();

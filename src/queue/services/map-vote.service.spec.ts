@@ -5,6 +5,11 @@ import { QueueService } from './queue.service';
 import { Subject } from 'rxjs';
 import { QueueGateway } from '../gateways/queue.gateway';
 import { ConfigService } from '@nestjs/config';
+import { ObjectId } from 'mongodb';
+
+jest.mock('./queue.service');
+jest.mock('../gateways/queue.gateway');
+jest.mock('@nestjs/config');
 
 class QueueConfigServiceStub {
   queueConfig = {
@@ -25,38 +30,20 @@ class QueueConfigServiceStub {
   };
 }
 
-class QueueServiceStub {
-  public isInQueue(playerId: string) { return true; }
-  playerLeave = new Subject<string>();
-}
-
-class QueueGatewayStub {
-  emitVoteResultsUpdate(results: any[]) { return null; }
-}
-
-class ConfigServiceStub {
-  get(key: string) {
-    switch(key) {
-      case 'queue.mapCooldown':
-        return 2;
-    }
-  }
-}
-
 describe('MapVoteService', () => {
   let service: MapVoteService;
   let queueConfigService: QueueConfigServiceStub;
-  let queueService: QueueServiceStub;
-  let queueGateway: QueueGatewayStub;
+  let queueService: QueueService;
+  let queueGateway: QueueGateway;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         MapVoteService,
         { provide: QueueConfigService, useClass: QueueConfigServiceStub },
-        { provide: QueueService, useClass: QueueServiceStub },
-        { provide: QueueGateway, useClass: QueueGatewayStub },
-        { provide: ConfigService, useClass: ConfigServiceStub },
+        QueueService,
+        QueueGateway,
+        ConfigService,
       ],
     }).compile();
 
@@ -64,9 +51,15 @@ describe('MapVoteService', () => {
     queueConfigService = module.get(QueueConfigService);
     queueService = module.get(QueueService);
     queueGateway = module.get(QueueGateway);
-
-    service.onModuleInit();
   });
+
+  beforeEach(() => {
+    // @ts-expect-error
+    queueService.playerLeave = new Subject<ObjectId>();
+    queueService.isInQueue = () => true;
+  });
+
+  beforeEach(() => service.onModuleInit());
 
   it('should be defined', () => {
     expect(service).toBeDefined();
@@ -79,7 +72,7 @@ describe('MapVoteService', () => {
 
   describe('#voteForMap()', () => {
     it('should save the vote', () => {
-      service.voteForMap('FAKE_ID', 'cp_badlands');
+      service.voteForMap(new ObjectId(), 'cp_badlands');
       expect(service.results).toEqual(jasmine.arrayContaining([
         { map: 'cp_badlands', voteCount: 1 },
         { map: 'cp_process_final', voteCount: 0 },
@@ -89,43 +82,50 @@ describe('MapVoteService', () => {
     });
 
     it('should deny voting for maps out of pool', () => {
-      expect(() => service.voteForMap('FAKE_ID', 'cp_sunshine')).toThrowError();
+      expect(() => service.voteForMap(new ObjectId(), 'cp_sunshine')).toThrowError();
     });
 
-    it('should deny voting if the player is not in the queue', () => {
-      jest.spyOn(queueService, 'isInQueue').mockReturnValue(false);
-      expect(() => service.voteForMap('FAKE_ID', 'cp_badlands')).toThrowError();
+    describe('when the given player is not in the queue', () => {
+      beforeEach(() => {
+        queueService.isInQueue = () => false;
+      });
+
+      it('should throw an error', () => {
+        expect(() => service.voteForMap(new ObjectId(), 'cp_badlands')).toThrowError();
+      });
     });
 
     it('should remove the player\'s vote when the player leaves the queue', () => {
-      service.voteForMap('FAKE_PLAYER_ID', 'cp_badlands');
+      const playerId = new ObjectId();
+      service.voteForMap(playerId, 'cp_badlands');
       expect(service.voteCountForMap('cp_badlands')).toEqual(1);
-      queueService.playerLeave.next('FAKE_PLAYER_ID');
+      // @ts-expect-error
+      queueService.playerLeave.next(playerId);
       expect(service.voteCountForMap('cp_badlands')).toEqual(0);
     });
 
     it('should emit the event over ws', () => {
       const spy = jest.spyOn(queueGateway, 'emitVoteResultsUpdate');
-      service.voteForMap('FAKE_ID', 'cp_badlands');
+      service.voteForMap(new ObjectId(), 'cp_badlands');
       expect(spy).toHaveBeenCalled();
     });
   });
 
   describe('#getWinner()', () => {
     it('should return the map with the most votes', () => {
-      service.voteForMap('FAKE_ID', 'cp_badlands');
+      service.voteForMap(new ObjectId(), 'cp_badlands');
       expect(service.getWinner()).toEqual('cp_badlands');
     });
 
     it('should return one of two most-voted maps', () => {
-      service.voteForMap('FAKE_ID_1', 'cp_badlands');
-      service.voteForMap('FAKE_ID_2', 'cp_process_final');
+      service.voteForMap(new  ObjectId(), 'cp_badlands');
+      service.voteForMap(new ObjectId(), 'cp_process_final');
       expect(service.getWinner()).toMatch(/cp_badlands|cp_process_final/);
     });
 
     it('should eventually reset the vote', done => {
-      service.voteForMap('FAKE_ID_1', 'cp_badlands');
-      service.voteForMap('FAKE_ID_2', 'cp_process_final');
+      service.voteForMap(new ObjectId(), 'cp_badlands');
+      service.voteForMap(new ObjectId(), 'cp_process_final');
       const spy = jest.spyOn(queueGateway, 'emitVoteResultsUpdate');
 
       const map = service.getWinner();

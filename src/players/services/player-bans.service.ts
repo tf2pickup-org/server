@@ -5,13 +5,14 @@ import { ReturnModelType, DocumentType } from '@typegoose/typegoose';
 import { Subject, merge } from 'rxjs';
 import { OnlinePlayersService } from './online-players.service';
 import { DiscordNotificationsService } from '@/discord/services/discord-notifications.service';
+import { ObjectId } from 'mongodb';
 
 @Injectable()
 export class PlayerBansService implements OnModuleInit {
 
   private logger = new Logger(PlayerBansService.name);
-  private _banAdded = new Subject<string>();
-  private _banRevoked = new Subject<string>();
+  private _banAdded = new Subject<ObjectId>();
+  private _banRevoked = new Subject<ObjectId>();
 
   get banAdded() {
     return this._banAdded.asObservable();
@@ -43,11 +44,11 @@ export class PlayerBansService implements OnModuleInit {
     return await this.playerBanModel.findById(banId);
   }
 
-  async getPlayerBans(playerId: string): Promise<Array<DocumentType<PlayerBan>>> {
+  async getPlayerBans(playerId: ObjectId) {
     return await this.playerBanModel.find({ player: playerId }).sort({ start: -1 });
   }
 
-  async getPlayerActiveBans(playerId: string): Promise<Array<DocumentType<PlayerBan>>> {
+  async getPlayerActiveBans(playerId: ObjectId) {
     return await this.playerBanModel.find({
       player: playerId,
       end: {
@@ -58,7 +59,7 @@ export class PlayerBansService implements OnModuleInit {
 
   async addPlayerBan(playerBan: Partial<PlayerBan>): Promise<DocumentType<PlayerBan>> {
     const addedBan = await this.playerBanModel.create(playerBan);
-    const playerId = addedBan.player.toString();
+    const playerId = addedBan.player as ObjectId;
     this._banAdded.next(playerId);
     this.logger.verbose(`ban added for player ${playerId} (reason: ${playerBan.reason})`);
     this.discordNotificationsService.notifyPlayerBanAdded(addedBan);
@@ -70,7 +71,7 @@ export class PlayerBansService implements OnModuleInit {
     ban.end = new Date();
     await ban.save();
 
-    const playerId = ban.player.toString();
+    const playerId = ban.player as ObjectId;
     this._banRevoked.next(playerId);
     this.logger.verbose(`ban revoked for player ${playerId}`);
     this.discordNotificationsService.notifyPlayerBanRevoked(ban);

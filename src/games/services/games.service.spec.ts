@@ -4,40 +4,20 @@ import { TypegooseModule, getModelToken } from 'nestjs-typegoose';
 import { PlayersService } from '@/players/services/players.service';
 import { PlayerSkillService } from '@/players/services/player-skill.service';
 import { Player } from '@/players/models/player';
-import { PlayerSkill } from '@/players/models/player-skill';
 import { typegooseTestingModule } from '@/utils/testing-typegoose-module';
 import { Game } from '../models/game';
-import { ReturnModelType } from '@typegoose/typegoose';
+import { ReturnModelType, DocumentType } from '@typegoose/typegoose';
 import { ObjectId } from 'mongodb';
 import { QueueSlot } from '@/queue/queue-slot';
 import { GameLauncherService } from './game-launcher.service';
 import { QueueConfigService } from '@/queue/services/queue-config.service';
 import { GamesGateway } from '../gateways/games.gateway';
-import { cloneDeep } from 'lodash';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 
-class PlayersServiceStub {
-  player: Player = {
-    id: 'FAKE_PLAYER_ID',
-    steamId: 'FAKE_STEAM_ID',
-    name: 'FAKE_PLAYER_NAME',
-    hasAcceptedRules: true,
-  };
-
-  async getById(playerId: string) {
-    return new Promise(resolve => resolve({ ...this.player, _id: playerId }));
-  }
-}
-
-class PlayerSkillServiceStub {
-  playerSkill: PlayerSkill = {
-    skill: new Map([['scout', 1], ['soldier', 2], ['demoman', 3], ['medic', 4]]),
-  };
-
-  async getPlayerSkill(playerId: string) {
-    return new Promise(resolve => resolve({ ...this.playerSkill, player: playerId }));
-  }
-}
+jest.mock('@/players/services/players.service');
+jest.mock('@/players/services/player-skill.service');
+jest.mock('./game-launcher.service');
+jest.mock('../gateways/games.gateway');
 
 class QueueConfigServiceStub {
   queueConfig = {
@@ -54,20 +34,12 @@ class QueueConfigServiceStub {
   };
 }
 
-class GameLauncherServiceStub {
-  launch(gameId: string) { return null; }
-}
-
-class GamesGatewayStub {
-  emitGameCreated(game: any) { return null; }
-  emitGameUpdated(game: any) { return null; }
-}
-
 describe('GamesService', () => {
   let service: GamesService;
   let mongod: MongoMemoryServer;
   let gameModel: ReturnModelType<typeof Game>;
-  let gameLauncherService: GameLauncherServiceStub;
+  let playersService: PlayersService;
+  let gameLauncherService: GameLauncherService;
 
   beforeAll(() => mongod = new MongoMemoryServer());
   afterAll(async () => await mongod.stop());
@@ -76,25 +48,29 @@ describe('GamesService', () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [
         typegooseTestingModule(mongod),
-        TypegooseModule.forFeature([Game]),
+        TypegooseModule.forFeature([Game, Player]),
       ],
       providers: [
         GamesService,
-        { provide: PlayersService, useClass: PlayersServiceStub },
-        { provide: PlayerSkillService, useClass: PlayerSkillServiceStub },
+        PlayersService,
+        PlayerSkillService,
         { provide: QueueConfigService, useClass: QueueConfigServiceStub },
-        { provide: GameLauncherService, useClass: GameLauncherServiceStub },
-        { provide: GamesGateway, useClass: GamesGatewayStub },
+        GameLauncherService,
+        GamesGateway,
       ],
     }).compile();
 
     service = module.get<GamesService>(GamesService);
     gameModel = module.get(getModelToken('Game'));
+    playersService = module.get(PlayersService);
     gameLauncherService = module.get(GameLauncherService);
   });
 
-  beforeEach(async () => await gameModel.deleteMany({ }));
-  afterEach(async () => await gameModel.deleteMany({ }));
+  afterEach(async () => {
+    await gameModel.deleteMany({ });
+    // @ts-expect-error
+    await playersService._reset();
+  });
 
   it('should be defined', () => {
     expect(service).toBeDefined();
@@ -110,19 +86,30 @@ describe('GamesService', () => {
   });
 
   describe('#getById()', () => {
+    let game: DocumentType<Game>;
+
+    beforeEach(async () => {
+      game = await gameModel.create({ number: 1, map: 'cp_badlands' });
+    });
+
     it('should get the game by its id', async () => {
-      const game = await gameModel.create({ number: 1, map: 'cp_badlands' });
       const ret = await service.getById(game.id);
       expect(ret.toJSON()).toEqual(game.toJSON());
     });
   });
 
   describe('#getRunningGames()', () => {
-    it('should get only running games', async () => {
-      const launchingGame = await gameModel.create({ number: 1, map: 'cp_badlands', state: 'launching' });
-      const runningGame = await gameModel.create({ number: 2, map: 'cp_badlands', state: 'started' });
-      const endedGame = await gameModel.create({ number: 3, map: 'cp_badlands', state: 'ended' });
+    let launchingGame: DocumentType<Game>;
+    let runningGame: DocumentType<Game>;
+    let endedGame: DocumentType<Game>;
 
+    beforeEach(async () => {
+      launchingGame = await gameModel.create({ number: 1, map: 'cp_badlands', state: 'launching' });
+      runningGame = await gameModel.create({ number: 2, map: 'cp_badlands', state: 'started' });
+      endedGame = await gameModel.create({ number: 3, map: 'cp_badlands', state: 'ended' });
+    });
+
+    it('should get only running games', async () => {
       const ret = await service.getRunningGames();
       expect(ret.length).toEqual(2);
       expect(JSON.stringify(ret)).toEqual(JSON.stringify([ launchingGame, runningGame ]));
@@ -130,172 +117,227 @@ describe('GamesService', () => {
   });
 
   describe('#findByAssignedGameServer()', () => {
+    let gameServerId: ObjectId;
+    let game: DocumentType<Game>;
+
+    beforeEach(async () => {
+      gameServerId = new ObjectId();
+      game = await gameModel.create({ number: 2, map: 'cp_process_final', state: 'started', createdAt: new Date(), gameServer: gameServerId });
+    });
+
     it('should get the last game', async () => {
-      const now = new Date();
-      const hourAgo = new Date();
-      hourAgo.setHours(hourAgo.getHours() - 1);
-      const serverId = new ObjectId();
-
-      const game = await gameModel.create({ number: 2, map: 'cp_process_final', state: 'started', createdAt: now, gameServer: serverId });
-
-      const ret = await service.findByAssignedGameServer(serverId.toString());
+      const ret = await service.findByAssignedGameServer(gameServerId);
       expect(ret.toJSON()).toEqual(game.toJSON());
     });
   });
 
   describe('#getPlayerActiveGame()', () => {
-    it('should return a game if the player is active', async () => {
-      const playerId = new ObjectId();
-      const game = await gameModel.create({
-        number: 1,
-        map: 'cp_badlands',
-        state: 'started',
-        players: [ playerId ],
-        slots: {
-          playerId,
-          status: 'active',
-          gameClass: 'soldier',
-          teamId: 1,
-        },
-      });
-      const ret = await service.getPlayerActiveGame(playerId.toString());
-      expect(ret).toBeTruthy();
-      expect(ret.toJSON()).toEqual(game.toJSON());
-    });
+    describe('when a player is active in a game', () => {
+      let game: DocumentType<Game>;
+      let playerId: ObjectId;
 
-    it('should return a game if the player is waiting for a substitute', async () => {
-      const playerId = new ObjectId();
-      const game = await gameModel.create({
-        number: 1,
-        map: 'cp_badlands',
-        state: 'started',
-        players: [ playerId ],
-        slots: [
-          {
-            playerId,
-            status: 'waiting for substitute',
-            gameClass: 'soldier',
-            teamId: 1,
-          },
-        ],
-      });
-      const ret = await service.getPlayerActiveGame(playerId.toString());
-      expect(ret).toBeTruthy();
-      expect(ret.toJSON()).toEqual(game.toJSON());
-    });
-
-    it('should not return a game if the player has been replaced', async () => {
-      const playerId = new ObjectId();
-      const playerId2 = new ObjectId();
-      await  gameModel.create({
-        number: 1,
-        map: 'cp_badlands',
-        state: 'started',
-        players: [ playerId ],
-        slots: [
-          {
-            playerId,
-            status: 'replaced',
-            gameClass: 'soldier',
-            teamId: 1,
-          },
-          {
-            playerId: playerId2,
+      beforeEach(async () => {
+        playerId = new ObjectId();
+        game = await gameModel.create({
+          number: 1,
+          map: 'cp_badlands',
+          state: 'started',
+          players: [ playerId ],
+          slots: {
+            player: playerId,
             status: 'active',
             gameClass: 'soldier',
             teamId: 1,
           },
-        ],
+        });
       });
 
-      const ret = await service.getPlayerActiveGame(playerId.toString());
-      expect(ret).toBeNull();
+      it('should return that game', async () => {
+        const ret = await service.getPlayerActiveGame(playerId);
+        expect(ret).toBeTruthy();
+        expect(ret.toJSON()).toEqual(game.toJSON());
+      });
     });
 
-    it('should not return a game if a game is no longer active', async () => {
-      const playerId = new ObjectId();
-      const game = await  gameModel.create({
-        number: 1,
-        map: 'cp_badlands',
-        state: 'ended',
-        players: [ playerId ],
-        slots: {
-          playerId,
-          status: 'active',
-          gameClass: 'soldier',
-          teamId: 1,
-        },
+    describe('when a player is marked as awaitng substitute in a gem', () => {
+      let game: DocumentType<Game>;
+      let playerId: ObjectId;
+
+      beforeEach(async () => {
+        playerId = new ObjectId();
+        game = await gameModel.create({
+          number: 1,
+          map: 'cp_badlands',
+          state: 'started',
+          players: [ playerId ],
+          slots: [
+            {
+              player: playerId,
+              status: 'waiting for substitute',
+              gameClass: 'soldier',
+              teamId: 1,
+            },
+          ],
+        });
       });
 
-      const ret = await service.getPlayerActiveGame(playerId.toString());
-      expect(ret).toBeNull();
+      it('should return that game', async () => {
+        const ret = await service.getPlayerActiveGame(playerId);
+        expect(ret).toBeTruthy();
+        expect(ret.toJSON()).toEqual(game.toJSON());
+      });
+    });
+
+    describe('when a player has been replaced in a game', () => {
+      let playerId: ObjectId;
+      let player2Id: ObjectId;
+
+      beforeEach(async () => {
+        playerId = new ObjectId();
+        player2Id = new ObjectId();
+
+        await  gameModel.create({
+          number: 1,
+          map: 'cp_badlands',
+          state: 'started',
+          players: [ playerId ],
+          slots: [
+            {
+              player: playerId,
+              status: 'replaced',
+              gameClass: 'soldier',
+              teamId: 1,
+            },
+            {
+              player: player2Id,
+              status: 'active',
+              gameClass: 'soldier',
+              teamId: 1,
+            },
+          ],
+        });
+      });
+
+      it('should not return that game', async () => {
+        const ret = await service.getPlayerActiveGame(playerId);
+        expect(ret).toBeNull();
+      });
+    });
+
+    describe('when a player was active in a game that has already been ended', () => {
+      let playerId: ObjectId;
+
+      beforeEach(async () => {
+        playerId = new ObjectId();
+        await  gameModel.create({
+          number: 1,
+          map: 'cp_badlands',
+          state: 'ended',
+          players: [ playerId ],
+          slots: {
+            player: playerId,
+            status: 'active',
+            gameClass: 'soldier',
+            teamId: 1,
+          },
+        });
+      });
+
+      it('should not return that game', async () => {
+        const ret = await service.getPlayerActiveGame(playerId);
+        expect(ret).toBeNull();
+      });
     });
   });
 
   describe('#create()', () => {
-    const slots: QueueSlot[] = [
-      { id: 0, gameClass: 'scout', playerId: new ObjectId(), ready: true, friend: null },
-      { id: 1, gameClass: 'scout', playerId: new ObjectId(), ready: true, friend: null },
-      { id: 2, gameClass: 'scout', playerId: new ObjectId(), ready: true, friend: null },
-      { id: 3, gameClass: 'scout', playerId: new ObjectId(), ready: true, friend: null },
-      { id: 4, gameClass: 'soldier', playerId: new ObjectId(), ready: true, friend: null },
-      { id: 5, gameClass: 'soldier', playerId: new ObjectId(), ready: true, friend: null },
-      { id: 6, gameClass: 'soldier', playerId: new ObjectId(), ready: true, friend: null },
-      { id: 7, gameClass: 'soldier', playerId: new ObjectId(), ready: true, friend: null },
-      { id: 8, gameClass: 'demoman', playerId: new ObjectId(), ready: true, friend: null },
-      { id: 9, gameClass: 'demoman', playerId: new ObjectId(), ready: true, friend: null },
-      { id: 10, gameClass: 'medic', playerId: new ObjectId(), ready: true, friend: null },
-      { id: 11, gameClass: 'medic', playerId: new ObjectId(), ready: true, friend: null },
-    ] as any;
+    let slots: QueueSlot[];
 
-    beforeEach(async () => gameModel.deleteMany({ }));
+    beforeEach(async () => {
+      slots = [
+        // @ts-expect-error
+        { id: 0, gameClass: 'scout', playerId: (await playersService._createOne())._id, ready: true, friend: null },
+        // @ts-expect-error
+        { id: 1, gameClass: 'scout', playerId: (await playersService._createOne())._id, ready: true, friend: null },
+        // @ts-expect-error
+        { id: 2, gameClass: 'scout', playerId: (await playersService._createOne())._id, ready: true, friend: null },
+        // @ts-expect-error
+        { id: 3, gameClass: 'scout', playerId: (await playersService._createOne())._id, ready: true, friend: null },
+        // @ts-expect-error
+        { id: 4, gameClass: 'soldier', playerId: (await playersService._createOne())._id, ready: true, friend: null },
+        // @ts-expect-error
+        { id: 5, gameClass: 'soldier', playerId: (await playersService._createOne())._id, ready: true, friend: null },
+        // @ts-expect-error
+        { id: 6, gameClass: 'soldier', playerId: (await playersService._createOne())._id, ready: true, friend: null },
+        // @ts-expect-error
+        { id: 7, gameClass: 'soldier', playerId: (await playersService._createOne())._id, ready: true, friend: null },
+        // @ts-expect-error
+        { id: 8, gameClass: 'demoman', playerId: (await playersService._createOne())._id, ready: true, friend: null },
+        // @ts-expect-error
+        { id: 9, gameClass: 'demoman', playerId: (await playersService._createOne())._id, ready: true, friend: null },
+        // @ts-expect-error
+        { id: 10, gameClass: 'medic', playerId: (await playersService._createOne())._id, ready: true, friend: null },
+        // @ts-expect-error
+        { id: 11, gameClass: 'medic', playerId: (await playersService._createOne())._id, ready: true, friend: null },
+      ] as any;
+    });
 
-    it('should fail if the queue is not full', async () => {
-      const tSlots = cloneDeep(slots);
-      tSlots[3].ready = false;
-      tSlots[3].playerId = null;
-      await expect(service.create(tSlots, 'cp_fake')).rejects.toThrow('queue not full');
+    describe('when the queue is not full', () => {
+      beforeEach(() => {
+        slots[3].ready = false;
+        slots[3].playerId = null;
+      });
+
+      it('should fail', async () => {
+        await expect(service.create(slots, 'cp_fake')).rejects.toThrow('queue not full');
+      });
     });
 
     it('should create a game', async () => {
       const game = await service.create(slots, 'cp_fake');
-      expect(game.toObject()).toEqual(jasmine.objectContaining({
+      expect(game.toObject()).toEqual(expect.objectContaining({
         number: 1,
         map: 'cp_fake',
         teams: new Map([ [ '0', 'RED' ], [ '1', 'BLU' ] ]),
-        slots: jasmine.any(Array),
+        slots: expect.any(Array),
         players: slots.map(s => s.playerId),
-        assignedSkills: jasmine.any(Object),
+        assignedSkills: expect.any(Object),
         state: 'launching',
-        launchedAt: jasmine.any(Date),
+        launchedAt: expect.any(Date),
       }));
     });
   });
 
   describe('#launch()', () => {
     it('should launch the game', async () => {
+      const gameId = new ObjectId();
       const spy = jest.spyOn(gameLauncherService, 'launch');
-      await service.launch('FAKE_GAME_ID');
-      expect(spy).toHaveBeenCalledWith('FAKE_GAME_ID');
+      await service.launch(gameId);
+      expect(spy).toHaveBeenCalledWith(gameId);
     });
   });
 
   describe('#getGamesWithSubstitutionRequests()', () => {
-    it('should return games with substitution requests', async () => {
-      const player1 = new ObjectId().toString();
-      const player2 = new ObjectId().toString();
-      const game = await gameModel.create({
+    let game: DocumentType<Game>;
+
+    beforeEach(async () => {
+      // @ts-expect-error
+      const player1 = (await playersService._createOne())._id;
+      // @ts-expect-error
+      const player2 = (await playersService._createOne())._id;
+
+      game = await gameModel.create({
         number: 1,
         players: [ player1, player2 ],
         slots: [
           {
-            playerId: player1,
+            player: player1,
             teamId: 1,
             gameClass: 'scout',
             status: 'waiting for substitute',
           },
           {
-            playerId: player2,
+            player: player2,
             teamId: 2,
             gameClass: 'scout',
             status: 'active',
@@ -304,17 +346,21 @@ describe('GamesService', () => {
         map: 'cp_badlands',
         state: 'launching',
       });
+    });
 
+    it('should return games with substitution requests', async () => {
       const ret = await service.getGamesWithSubstitutionRequests();
       expect(ret).toEqual([
-        jasmine.objectContaining({ id: game.id }),
+        expect.objectContaining({ id: game.id }),
       ]);
     });
   });
 
   describe('#getOrphanedGames()', () => {
     beforeEach(async () => {
-      const player = new ObjectId().toString();
+      // @ts-expect-error
+      const player = (await playersService._createOne())._id;
+
       await gameModel.create({
         number: 1,
         players: [ player ],
@@ -323,7 +369,7 @@ describe('GamesService', () => {
         state: 'launching',
       });
 
-      const gameServer = new ObjectId().toString();
+      const gameServer = new ObjectId();
       await gameModel.create({
         number: 2,
         players: [ player ],

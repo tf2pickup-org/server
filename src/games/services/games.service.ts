@@ -9,6 +9,7 @@ import { PlayerSkillService } from '@/players/services/player-skill.service';
 import { QueueConfigService } from '@/queue/services/queue-config.service';
 import { GameLauncherService } from './game-launcher.service';
 import { GamesGateway } from '../gateways/games.gateway';
+import { ObjectId } from 'mongodb';
 
 interface GameSortOptions {
   launchedAt: 1 | -1;
@@ -32,19 +33,19 @@ export class GamesService {
     @Inject(forwardRef(() => GamesGateway)) private gamesGateway: GamesGateway,
   ) { }
 
-  async getGameCount(): Promise<number> {
+  async getGameCount() {
     return await this.gameModel.estimatedDocumentCount();
   }
 
-  async getById(gameId: string): Promise<DocumentType<Game>> {
+  async getById(gameId: ObjectId) {
     return await this.gameModel.findById(gameId);
   }
 
-  async getRunningGames(): Promise<DocumentType<Game>[]> {
+  async getRunningGames() {
     return await this.gameModel.find({ state: /launching|started/ });
   }
 
-  async findByAssignedGameServer(gameServerId: string): Promise<DocumentType<Game>> {
+  async findByAssignedGameServer(gameServerId: ObjectId) {
     return (await this.gameModel
       .find({ gameServer: gameServerId })
       .sort({ launchedAt: -1 })
@@ -59,7 +60,7 @@ export class GamesService {
       .skip(skip);
   }
 
-  async getPlayerGames(playerId: string, sort: GameSortOptions = { launchedAt: -1 }, limit: number = 10, skip: number = 0) {
+  async getPlayerGames(playerId: ObjectId, sort: GameSortOptions = { launchedAt: -1 }, limit: number = 10, skip: number = 0) {
     return await this.gameModel
       .find({ players: playerId })
       .sort(sort)
@@ -67,7 +68,7 @@ export class GamesService {
       .skip(skip);
   }
 
-  async getPlayerGameCount(playerId: string, options: GetPlayerGameCountOptions = { }) {
+  async getPlayerGameCount(playerId: ObjectId, options: GetPlayerGameCountOptions = { }) {
     const defaultOptions: GetPlayerGameCountOptions = { endedOnly: false };
     const _options = { ...defaultOptions, ...options };
 
@@ -79,38 +80,38 @@ export class GamesService {
     return await this.gameModel.countDocuments(criteria);
   }
 
-  async getPlayerPlayedClassCount(playerId: string): Promise<{ [gameClass: string]: number }> {
+  async getPlayerPlayedClassCount(playerId: ObjectId): Promise<{ [gameClass: string]: number }> {
     // fixme refactor this to aggregate
     const allGames = await this.gameModel.find({ players: playerId, state: 'ended' });
     return this.queueConfigService.queueConfig.classes
       .map(cls => cls.name)
       .reduce((prev, gameClass) => {
         prev[gameClass] = allGames
-          .filter(g => !!g.slots.find(s => s.playerId === playerId && s.gameClass === gameClass))
+          .filter(g => !!g.slots.find(s => playerId.equals(s.player.toString()) && s.gameClass === gameClass))
           .length;
         return prev;
-      }, {});
+      }, { });
   }
 
-  async getPlayerActiveGame(playerId: string): Promise<DocumentType<Game>> {
+  async getPlayerActiveGame(playerId: ObjectId): Promise<DocumentType<Game>> {
     return await this.gameModel.findOne({
       state: /launching|started/,
       slots: {
         $elemMatch: {
           status: /active|waiting for substitute/,
-          playerId,
+          player: playerId,
         },
       },
     });
   }
 
-  async create(queueSlots: QueueSlot[], map: string, friends: string[][] = []): Promise<DocumentType<Game>> {
+  async create(queueSlots: QueueSlot[], map: string, friends: ObjectId[][] = []) {
     if (!queueSlots.every(slot => !!slot.playerId)) {
       throw new Error('queue not full');
     }
 
     const players: PlayerSlot[] = await Promise.all(queueSlots.map(slot => this.queueSlotToPlayerSlot(slot)));
-    const assignedSkills = players.reduce((prev, curr) => { prev[curr.playerId] = curr.skill; return prev; }, { });
+    const assignedSkills = players.reduce((prev, curr) => { prev[curr.player.toString()] = curr.skill; return prev; }, { });
     const slots = pickTeams(players, this.queueConfigService.queueConfig.classes.map(cls => cls.name), { friends });
     const gameNo = await this.getNextGameNumber();
 
@@ -135,7 +136,7 @@ export class GamesService {
    * @deprecated Use GameLauncherService.launch()
    * @param gameId The game to be launched.
    */
-  async launch(gameId: string) {
+  async launch(gameId: ObjectId) {
     await this.gameLauncherService.launch(gameId);
   }
 
@@ -178,8 +179,7 @@ export class GamesService {
       });
   }
 
-  private async queueSlotToPlayerSlot(queueSlot: QueueSlot): Promise<PlayerSlot> {
-    const { playerId, gameClass } = queueSlot;
+  private async queueSlotToPlayerSlot({ playerId, gameClass }: QueueSlot): Promise<PlayerSlot> {
     const player = await this.playersService.getById(playerId);
     if (!player) {
       throw new Error(`no such player (${playerId})`);
@@ -188,9 +188,9 @@ export class GamesService {
     const skill = await this.playerSkillService.getPlayerSkill(playerId);
     if (skill) {
       const skillForClass = skill.skill.get(gameClass);
-      return { playerId, gameClass, skill: skillForClass };
+      return { player: playerId, gameClass, skill: skillForClass };
     } else {
-      return { playerId, gameClass, skill: 1 };
+      return { player: playerId, gameClass, skill: 1 };
     }
   }
 
