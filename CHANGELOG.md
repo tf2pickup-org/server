@@ -1,3 +1,9 @@
+# [2.6.2](https://github.com/tf2pickup-pl/server/compare/2.6.1...2.6.2) (2020-05-25)
+
+### Fixes
+* Get rid of empty skill change notifications ([4d7447b](https://github.com/tf2pickup-pl/server/commit/4d7447bfe6b4cc584a82e14e0a478053344989ce))
+* Remove TwitchGateway namespace ([80d7e11](https://github.com/tf2pickup-pl/server/commit/80d7e1143b5d0fb7f86f37655d503fa6130b564f))
+
 # [2.6.1](https://github.com/tf2pickup-pl/server/compare/2.6.0...2.6.1) (2020-05-17)
 
 ### Fixes
