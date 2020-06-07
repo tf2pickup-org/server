@@ -1,182 +1,187 @@
 import { pickTeams, PlayerSlot, TeamOverrides } from './pick-teams';
-import { ObjectId } from 'mongodb';
 
 describe('pickTeams', () => {
-  describe('without team overrides', () => {
-    it('should pick teams for 4 slots', () => {
-      const players: PlayerSlot[] = [
-        { player: new ObjectId(), gameClass: 'soldier', skill: 1 },
-        { player: new ObjectId(), gameClass: 'soldier', skill: 2 },
-        { player: new ObjectId(), gameClass: 'soldier', skill: 3 },
-        { player: new ObjectId(), gameClass: 'soldier', skill: 4 },
-      ];
-      const gameClasses = ['soldier'];
+  describe('for 2v2', () => {
+    const players: PlayerSlot[] = [
+      { player: 'a', gameClass: 'soldier', skill: 1 },
+      { player: 'b', gameClass: 'soldier', skill: 2 },
+      { player: 'c', gameClass: 'soldier', skill: 3 },
+      { player: 'd', gameClass: 'soldier', skill: 4 },
+    ];
 
-      const gamePlayers = pickTeams(players, gameClasses);
-      expect(gamePlayers.length).toBe(4);
-      expect(gamePlayers.filter(p => p.teamId === '0').length).toBe(2);
-      expect(gamePlayers.filter(p => p.teamId === '1').length).toBe(2);
-
-      expect(gamePlayers.find(p => players[0].player.equals(p.player as ObjectId)).teamId)
-        .toEqual(gamePlayers.find(p => players[3].player.equals(p.player as ObjectId)).teamId);
-
-      expect(gamePlayers.find(p => players[1].player.equals(p.player as ObjectId)).teamId)
-        .toEqual(gamePlayers.find(p => players[2].player.equals(p.player as ObjectId)).teamId);
+    it('should pick teams', () => {
+      expect(pickTeams(players)).toEqual([
+        { player: 'a', gameClass: 'soldier', skill: 1, team: 'blu' },
+        { player: 'd', gameClass: 'soldier', skill: 4, team: 'blu' },
+        { player: 'b', gameClass: 'soldier', skill: 2, team: 'red' },
+        { player: 'c', gameClass: 'soldier', skill: 3, team: 'red' },
+      ]);
     });
 
-    it('should pick teams for 12 slots', () => {
-      const players: PlayerSlot[] = [
-        { player: new ObjectId(), gameClass: 'scout', skill: 2 },
-        { player: new ObjectId(), gameClass: 'scout', skill: 2 },
-        { player: new ObjectId(), gameClass: 'scout', skill: 2 },
-        { player: new ObjectId(), gameClass: 'scout', skill: 2 },
-        { player: new ObjectId(), gameClass: 'soldier', skill: 4 },
-        { player: new ObjectId(), gameClass: 'soldier', skill: 4 },
-        { player: new ObjectId(), gameClass: 'soldier', skill: 5 },
-        { player: new ObjectId(), gameClass: 'soldier', skill: 4 },
-        { player: new ObjectId(), gameClass: 'demoman', skill: 1 },
-        { player: new ObjectId(), gameClass: 'demoman', skill: 3 },
-        { player: new ObjectId(), gameClass: 'medic', skill: 2 },
-        { player: new ObjectId(), gameClass: 'medic', skill: 4 },
-      ];
-      const gameClasses = ['scout', 'soldier', 'demoman', 'medic'];
-      const gamePlayers = pickTeams(players, gameClasses);
+    describe('with friends', () => {
+      describe('having all the friends valid', () => {
+        const overrides: TeamOverrides = {
+          friends: [
+            [ 'a', 'c' ], // 'a' and 'c' will be in the same team
+          ],
+        };
 
-      expect(gamePlayers.filter(p => p.teamId === '0').length).toBe(6);
-      expect(gamePlayers.filter(p => p.teamId === '1').length).toBe(6);
-    });
+        it('should pick teams', () => {
+          expect(pickTeams(players, overrides)).toEqual([
+            { player: 'a', gameClass: 'soldier', skill: 1, team: 'blu' },
+            { player: 'c', gameClass: 'soldier', skill: 3, team: 'blu' },
+            { player: 'b', gameClass: 'soldier', skill: 2, team: 'red' },
+            { player: 'd', gameClass: 'soldier', skill: 4, team: 'red' },
+          ]);
+        });
+      });
 
-    it('should pick teams for 18 slots', () => {
-      const players: PlayerSlot[] = [
-        { player: new ObjectId(), gameClass: 'scout', skill: 1 },
-        { player: new ObjectId(), gameClass: 'scout', skill: 9 },
-        { player: new ObjectId(), gameClass: 'soldier', skill: 2 },
-        { player: new ObjectId(), gameClass: 'soldier', skill: 8 },
-        { player: new ObjectId(), gameClass: 'pyro', skill: 3 },
-        { player: new ObjectId(), gameClass: 'pyro', skill: 7 },
-        { player: new ObjectId(), gameClass: 'demoman', skill: 4 },
-        { player: new ObjectId(), gameClass: 'demoman', skill: 6 },
-        { player: new ObjectId(), gameClass: 'heavy', skill: 5 },
-        { player: new ObjectId(), gameClass: 'heavy', skill: 5 },
-        { player: new ObjectId(), gameClass: 'engineer', skill: 6 },
-        { player: new ObjectId(), gameClass: 'engineer', skill: 4 },
-        { player: new ObjectId(), gameClass: 'medic', skill: 7 },
-        { player: new ObjectId(), gameClass: 'medic', skill: 3 },
-        { player: new ObjectId(), gameClass: 'sniper', skill: 8 },
-        { player: new ObjectId(), gameClass: 'sniper', skill: 2 },
-        { player: new ObjectId(), gameClass: 'spy', skill: 9 },
-        { player: new ObjectId(), gameClass: 'spy', skill: 1 },
-      ];
-      const gameClasses = ['scout', 'soldier', 'pyro', 'demoman', 'heavy', 'engineer', 'medic', 'sniper', 'spy'];
-      const gamePlayers = pickTeams(players, gameClasses);
+      describe('missing one friend', () => {
+        const overrides: TeamOverrides = {
+          friends: [
+            [ 'a', 'e' ],
+          ],
+        };
 
-      expect(gamePlayers.filter(p => p.teamId === '0').length).toBe(9);
-      expect(gamePlayers.filter(p => p.teamId === '1').length).toBe(9);
-    });
-
-    it('should pick teams with minimum skill difference possible', () => {
-      const players: PlayerSlot[] = [
-        { player: new ObjectId(), gameClass: 'scout', skill: 1 },
-        { player: new ObjectId(), gameClass: 'scout', skill: 1 },
-        { player: new ObjectId(), gameClass: 'scout', skill: 1 },
-        { player: new ObjectId(), gameClass: 'scout', skill: 1 },
-        { player: new ObjectId(), gameClass: 'soldier', skill: 1 },
-        { player: new ObjectId(), gameClass: 'soldier', skill: 1 },
-        { player: new ObjectId(), gameClass: 'soldier', skill: 5 },
-        { player: new ObjectId(), gameClass: 'soldier', skill: 1 },
-        { player: new ObjectId(), gameClass: 'demoman', skill: 1 },
-        { player: new ObjectId(), gameClass: 'demoman', skill: 1 },
-        { player: new ObjectId(), gameClass: 'medic', skill: 3 },
-        { player: new ObjectId(), gameClass: 'medic', skill: 1 },
-      ];
-      const gameClasses = ['scout', 'soldier', 'demoman', 'medic'];
-      const gamePlayers = pickTeams(players, gameClasses);
-
-      expect(gamePlayers.filter(p => p.teamId === '0').length).toBe(6);
-      expect(gamePlayers.filter(p => p.teamId === '1').length).toBe(6);
-
-      expect(gamePlayers.find(p => players[6].player.equals(p.player as ObjectId)).teamId)
-        .not
-        .toEqual(gamePlayers.find(p => players[10].player.equals(p.player as ObjectId)).teamId);
+        it('should pick teams', () => {
+          expect(pickTeams(players, overrides)).toEqual([
+            { player: 'a', gameClass: 'soldier', skill: 1, team: 'blu' },
+            { player: 'd', gameClass: 'soldier', skill: 4, team: 'blu' },
+            { player: 'b', gameClass: 'soldier', skill: 2, team: 'red' },
+            { player: 'c', gameClass: 'soldier', skill: 3, team: 'red' },
+          ]);
+        });
+      });
     });
   });
 
-  describe('with team overrides', () => {
-    it('should pick teams for 4 slots with friends', () => {
-      const players: PlayerSlot[] = [
-        { player: new ObjectId(), gameClass: 'soldier', skill: 1 },
-        { player: new ObjectId(), gameClass: 'soldier', skill: 2 },
-        { player: new ObjectId(), gameClass: 'soldier', skill: 3 },
-        { player: new ObjectId(), gameClass: 'soldier', skill: 4 },
-      ];
-      const gameClasses = ['soldier'];
+  describe('for 6v6', () => {
+    const players: PlayerSlot[] = [
+      { player: 'a', gameClass: 'scout', skill: 3 },
+      { player: 'b', gameClass: 'scout', skill: 2 },
+      { player: 'c', gameClass: 'scout', skill: 2 },
+      { player: 'd', gameClass: 'scout', skill: 2 },
+      { player: 'e', gameClass: 'soldier', skill: 4 },
+      { player: 'f', gameClass: 'soldier', skill: 4 },
+      { player: 'g', gameClass: 'soldier', skill: 5 },
+      { player: 'h', gameClass: 'soldier', skill: 4 },
+      { player: 'i', gameClass: 'demoman', skill: 1 },
+      { player: 'j', gameClass: 'demoman', skill: 3 },
+      { player: 'k', gameClass: 'medic', skill: 2 },
+      { player: 'l', gameClass: 'medic', skill: 4 },
+    ];
+
+    it('should pick teams', () => {
+      expect(pickTeams(players)).toEqual([
+        { player: 'a', gameClass: 'scout', skill: 3, team: 'blu' },
+        { player: 'b', gameClass: 'scout', skill: 2, team: 'blu' },
+        { player: 'e', gameClass: 'soldier', skill: 4, team: 'blu' },
+        { player: 'f', gameClass: 'soldier', skill: 4, team: 'blu' },
+        { player: 'i', gameClass: 'demoman', skill: 1, team: 'blu' },
+        { player: 'l', gameClass: 'medic', skill: 4, team: 'blu' },
+        { player: 'c', gameClass: 'scout', skill: 2, team: 'red' },
+        { player: 'd', gameClass: 'scout', skill: 2, team: 'red' },
+        { player: 'g', gameClass: 'soldier', skill: 5, team: 'red' },
+        { player: 'h', gameClass: 'soldier', skill: 4, team: 'red' },
+        { player: 'j', gameClass: 'demoman', skill: 3, team: 'red' },
+        { player: 'k', gameClass: 'medic', skill: 2, team: 'red' },
+      ]);
+    });
+
+    describe('with friends', () => {
       const overrides: TeamOverrides = {
         friends: [
-          [ players[0].player, players[2].player ],
+          [ 'k', 'i' ],
+          [ 'l', 'g' ],
         ],
       };
 
-      const gamePlayers = pickTeams(players, gameClasses, overrides);
-      expect(gamePlayers.length).toBe(4);
-      expect(gamePlayers.find(p => players[0].player.equals(p.player as ObjectId)).teamId)
-        .toEqual(gamePlayers.find(p => players[2].player.equals(p.player as ObjectId)).teamId);
+      it('should pick teams', () => {
+        expect(pickTeams(players, overrides)).toEqual([
+          { player: 'a', gameClass: 'scout', skill: 3, team: 'blu' },
+          { player: 'b', gameClass: 'scout', skill: 2, team: 'blu' },
+          { player: 'e', gameClass: 'soldier', skill: 4, team: 'blu' },
+          { player: 'f', gameClass: 'soldier', skill: 4, team: 'blu' },
+          { player: 'i', gameClass: 'demoman', skill: 1, team: 'blu' },
+          { player: 'k', gameClass: 'medic', skill: 2, team: 'blu' },
+
+          { player: 'c', gameClass: 'scout', skill: 2, team: 'red' },
+          { player: 'd', gameClass: 'scout', skill: 2, team: 'red' },
+          { player: 'g', gameClass: 'soldier', skill: 5, team: 'red' },
+          { player: 'h', gameClass: 'soldier', skill: 4, team: 'red' },
+          { player: 'j', gameClass: 'demoman', skill: 3, team: 'red' },
+          { player: 'l', gameClass: 'medic', skill: 4, team: 'red' },
+        ]);
+      });
     });
+  });
 
-    it('should pick teams for 12 slots with friends', () => {
-      const players: PlayerSlot[] = [
-        { player: new ObjectId(), gameClass: 'scout', skill: 1 },
-        { player: new ObjectId(), gameClass: 'scout', skill: 1 },
-        { player: new ObjectId(), gameClass: 'scout', skill: 1 },
-        { player: new ObjectId(), gameClass: 'scout', skill: 1 },
-        { player: new ObjectId(), gameClass: 'soldier', skill: 1 },
-        { player: new ObjectId(), gameClass: 'soldier', skill: 1 },
-        { player: new ObjectId(), gameClass: 'soldier', skill: 5 },
-        { player: new ObjectId(), gameClass: 'soldier', skill: 1 },
-        { player: new ObjectId(), gameClass: 'demoman', skill: 1 },
-        { player: new ObjectId(), gameClass: 'demoman', skill: 1 },
-        { player: new ObjectId(), gameClass: 'medic', skill: 3 },
-        { player: new ObjectId(), gameClass: 'medic', skill: 1 },
-      ];
-      const gameClasses = ['scout', 'soldier', 'demoman', 'medic'];
-      const overrides: TeamOverrides = {
-        friends: [
-          [ players[10].player, players[6].player ],
-        ],
-      };
-      const gamePlayers = pickTeams(players, gameClasses, overrides);
+  describe('for 9v9', () => {
+    const players: PlayerSlot[] = [
+      { player: 'a', gameClass: 'scout', skill: 1 },
+      { player: 'b', gameClass: 'scout', skill: 9 },
+      { player: 'c', gameClass: 'soldier', skill: 2 },
+      { player: 'd', gameClass: 'soldier', skill: 8 },
+      { player: 'e', gameClass: 'pyro', skill: 3 },
+      { player: 'f', gameClass: 'pyro', skill: 7 },
+      { player: 'g', gameClass: 'demoman', skill: 4 },
+      { player: 'h', gameClass: 'demoman', skill: 6 },
+      { player: 'i', gameClass: 'heavy', skill: 5 },
+      { player: 'j', gameClass: 'heavy', skill: 5 },
+      { player: 'k', gameClass: 'engineer', skill: 6 },
+      { player: 'l', gameClass: 'engineer', skill: 4 },
+      { player: 'm', gameClass: 'medic', skill: 7 },
+      { player: 'n', gameClass: 'medic', skill: 3 },
+      { player: 'o', gameClass: 'sniper', skill: 8 },
+      { player: 'p', gameClass: 'sniper', skill: 2 },
+      { player: 'q', gameClass: 'spy', skill: 9 },
+      { player: 'r', gameClass: 'spy', skill: 1 },
+    ];
 
-      expect(gamePlayers.find(p => players[10].player.equals(p.player as ObjectId)).teamId)
-        .toEqual(gamePlayers.find(p => players[6].player.equals(p.player as ObjectId)).teamId);
+    it('should pick teams', () => {
+      expect(pickTeams(players)).toEqual([
+        { player: 'a', gameClass: 'scout', skill: 1, team: 'blu' },
+        { player: 'c', gameClass: 'soldier', skill: 2, team: 'blu' },
+        { player: 'e', gameClass: 'pyro', skill: 3, team: 'blu' },
+        { player: 'g', gameClass: 'demoman', skill: 4, team: 'blu' },
+        { player: 'i', gameClass: 'heavy', skill: 5, team: 'blu' },
+        { player: 'k', gameClass: 'engineer', skill: 6, team: 'blu' },
+        { player: 'm', gameClass: 'medic', skill: 7, team: 'blu' },
+        { player: 'o', gameClass: 'sniper', skill: 8, team: 'blu' },
+        { player: 'q', gameClass: 'spy', skill: 9, team: 'blu' },
+        { player: 'b', gameClass: 'scout', skill: 9, team: 'red' },
+        { player: 'd', gameClass: 'soldier', skill: 8, team: 'red' },
+        { player: 'f', gameClass: 'pyro', skill: 7, team: 'red' },
+        { player: 'h', gameClass: 'demoman', skill: 6, team: 'red' },
+        { player: 'j', gameClass: 'heavy', skill: 5, team: 'red' },
+        { player: 'l', gameClass: 'engineer', skill: 4, team: 'red' },
+        { player: 'n', gameClass: 'medic', skill: 3, team: 'red' },
+        { player: 'p', gameClass: 'sniper', skill: 2, team: 'red' },
+        { player: 'r', gameClass: 'spy', skill: 1, team: 'red' },
+      ]);
     });
+  });
 
-    it('should pick teams for 12 slots with friend pairs', () => {
-      const players: PlayerSlot[] = [
-        { player: new ObjectId(), gameClass: 'scout', skill: 1 },
-        { player: new ObjectId(), gameClass: 'scout', skill: 1 },
-        { player: new ObjectId(), gameClass: 'scout', skill: 1 },
-        { player: new ObjectId(), gameClass: 'scout', skill: 1 },
-        { player: new ObjectId(), gameClass: 'soldier', skill: 1 },
-        { player: new ObjectId(), gameClass: 'soldier', skill: 1 },
-        { player: new ObjectId(), gameClass: 'soldier', skill: 5 },
-        { player: new ObjectId(), gameClass: 'soldier', skill: 1 },
-        { player: new ObjectId(), gameClass: 'demoman', skill: 1 },
-        { player: new ObjectId(), gameClass: 'demoman', skill: 1 },
-        { player: new ObjectId(), gameClass: 'medic', skill: 3 },
-        { player: new ObjectId(), gameClass: 'medic', skill: 1 },
-      ];
-      const gameClasses = ['scout', 'soldier', 'demoman', 'medic'];
-      const overrides: TeamOverrides = {
-        friends: [
-          [ players[10].player, players[6].player ],
-          [ players[11].player, players[0].player ],
-        ],
-      };
-      const gamePlayers = pickTeams(players, gameClasses, overrides);
+  it('should throw an error if trying to make teams of 3 players the same class', () => {
+    const players: PlayerSlot[] = [
+      { player: 'a', gameClass: 'soldier', skill: 1 },
+      { player: 'b', gameClass: 'soldier', skill: 2 },
+      { player: 'c', gameClass: 'soldier', skill: 3 },
+      { player: 'd', gameClass: 'soldier', skill: 4 },
+      { player: 'e', gameClass: 'soldier', skill: 5 },
+      { player: 'f', gameClass: 'soldier', skill: 6 },
+    ];
 
-      expect(gamePlayers.find(p => players[10].player.equals(p.player as ObjectId)).teamId)
-        .toEqual(gamePlayers.find(p => players[6].player.equals(p.player as ObjectId)).teamId);
-      expect(gamePlayers.find(p => players[11].player.equals(p.player as ObjectId)).teamId)
-        .toEqual(gamePlayers.find(p => players[0].player.equals(p.player as ObjectId)).teamId);
-    });
+    expect(() => pickTeams(players)).toThrow();
+  });
+
+  it('should throw an error if player count is not even', () => {
+    const players: PlayerSlot[] = [
+      { player: 'a', gameClass: 'soldier', skill: 1 },
+      { player: 'b', gameClass: 'soldier', skill: 2 },
+      { player: 'c', gameClass: 'soldier', skill: 3 },
+    ];
+
+    expect(() => pickTeams(players)).toThrow();
   });
 });

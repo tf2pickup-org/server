@@ -1,129 +1,162 @@
-import { GamePlayer } from '../models/game-player';
-import { ObjectId } from 'mongodb';
+import { strict } from 'assert';
+import { NotImplementedException } from '@nestjs/common';
+import { Tf2Team } from '../models/tf2-team';
+import { meanBy } from 'lodash';
 
 export interface PlayerSlot {
-  player: ObjectId;
+  player: string;
   gameClass: string;
   skill: number; // the skill for the given gameClass
 }
 
+export interface PlayerSlotWithTeam extends PlayerSlot {
+  team: Tf2Team;
+}
+
 export interface TeamOverrides {
-  friends: ObjectId[][];
+  friends: string[][];
 }
 
-interface InterimTeamSetup {
-  [teamId: number]: PlayerSlot[];
-  skillDifference: number;
+interface TeamLineup {
+  lineup: PlayerSlot[];
 }
 
-function filterTeamOverrides(teamSetups: InterimTeamSetup[], overrides: TeamOverrides): InterimTeamSetup[] {
-  return teamSetups.filter(setup => {
-    return overrides.friends.every(friendPair => {
-      return (friendPair.every(f => !!setup[0].find(s => s.player.equals(f))) || friendPair.every(f => !!setup[1].find(s => s.player.equals(f))));
-    });
-  });
+type TeamId = 0 | 1;
+type PossibleLineup = Record<TeamId, TeamLineup>;
+
+/**
+ * Make all possible team setups.
+ * For 6v6 format, this outputs maximum of 36 combinations (3 * 3 * 2 * 2).
+ * For 9v9, it makes 512 teams (2 ^ 9).
+ * @return gameClass <=> lineup pairs.
+ */
+function makeAllPossibleLineups(gameClasses: string[], players: PlayerSlot[]): PossibleLineup[] {
+  // First off, let's make all possible lineups for each class.
+  // i.e. for scouts (A, B, C, D) make the following:
+  // ([A, B], [C, D]), ([A, C], [B, D]), ([A, D], [B, C])
+  // for medics (A, B) make only two combinatons:
+  // ([A, B]) and ([B, A])
+  const gameClassLineups = new Map<string, PossibleLineup[]>();
+  for (const gameClass of gameClasses) {
+    const playersOfGameClass = players.filter(p => p.gameClass === gameClass);
+    strict(playersOfGameClass.length % 2 === 0);
+
+    if (playersOfGameClass.length === 2) {
+      gameClassLineups.set(gameClass, [
+        {
+          0: { lineup: [ playersOfGameClass[0] ] },
+          1: { lineup: [ playersOfGameClass[1] ] },
+        },
+        {
+          0: { lineup: [ playersOfGameClass[1] ] },
+          1: { lineup: [ playersOfGameClass[0] ] },
+        },
+      ]);
+    } else if (playersOfGameClass.length === 4) {
+      gameClassLineups.set(gameClass, [
+        {
+          0: { lineup: [ playersOfGameClass[0], playersOfGameClass[1] ] },
+          1: { lineup: [ playersOfGameClass[2], playersOfGameClass[3] ] },
+        },
+        {
+          0: { lineup: [ playersOfGameClass[0], playersOfGameClass[2] ] },
+          1: { lineup: [ playersOfGameClass[1], playersOfGameClass[3] ] },
+        },
+        {
+          0: { lineup: [ playersOfGameClass[0], playersOfGameClass[3] ] },
+          1: { lineup: [ playersOfGameClass[1], playersOfGameClass[2] ] },
+        },
+      ]);
+    } else {
+      throw new NotImplementedException('more than two players of one class in a team is not implemented');
+    }
+  }
+
+  // The next thing to do is to make all combinations of the game class lineup possibilities above.
+  const possibleLineups: PossibleLineup[] = [];
+
+  function makeLineup(prev: PossibleLineup = { 0: { lineup: [] }, 1: { lineup: [] } }, i = 0) {
+    if (i === gameClasses.length) {
+      possibleLineups.push(prev);
+    } else {
+      const gameClass = gameClasses[i];
+      const gcLineups = gameClassLineups.get(gameClass);
+      for (const lineup of gcLineups) {
+        const tmp: PossibleLineup = {
+          0: { lineup: [ ...prev[0].lineup, ...lineup[0].lineup ] },
+          1: { lineup: [ ...prev[1].lineup, ...lineup[1].lineup ] },
+        }
+        makeLineup(tmp, i + 1);
+      }
+    }
+  }
+
+  makeLineup();
+  return possibleLineups;
+}
+
+interface TeamLineupWithSkillAverage extends TeamLineup {
+  skillAverage: number;
+}
+
+function calculateAverageSkill(lineup: TeamLineup): TeamLineupWithSkillAverage {
+  return { ...lineup, skillAverage: meanBy(lineup.lineup, 'skill') };
+}
+
+interface LineupWithSkillAverageDifference extends PossibleLineup {
+  skillAverageDifference: number;
+}
+
+function calculateAverageSkillDifference(lineup: Record<TeamId, TeamLineupWithSkillAverage>): LineupWithSkillAverageDifference {
+  return { ...lineup, skillAverageDifference: Math.abs(lineup[0].skillAverage - lineup[1].skillAverage) };
+}
+
+function respectsOverrides(lineup: Record<TeamId, TeamLineup>, overrides?: TeamOverrides): boolean {
+  if (overrides === undefined) {
+    return true;
+  }
+
+  function findPlayersTeam(player: string): TeamId | null {
+    if (lineup[0].lineup.find(p => p.player === player)) {
+      return 0;
+    } else if (lineup[1].lineup.find(p => p.player === player)) {
+      return 1;
+    } else {
+      return null;
+    }
+  }
+
+  return overrides.friends
+    .every(friendPair => [ ...new Set(
+      friendPair
+        .map(friend => findPlayersTeam(friend))
+        .filter(teamId => teamId !== null)
+      ) ].length < 2
+    );
 }
 
 /**
  * From the given pool of players make two teams that make the smallest average skill difference.
  */
-export function pickTeams(players: PlayerSlot[], gameClasses: string[], overrides?: TeamOverrides): GamePlayer[] {
-  const allPossibilities: {
-    gameClass: string,
-    allClassCombinations: { [teamId: number]: PlayerSlot[] }[],
-  }[] = [];
+export function pickTeams(players: PlayerSlot[], overrides?: TeamOverrides): PlayerSlotWithTeam[] {
+  const teams: Record<TeamId, Tf2Team> = { 0: 'blu', 1: 'red' };
+  const gameClasses = [ ...new Set(players.map(p => p.gameClass)) ];
 
-  for (const gameClass of gameClasses) {
-    const ofGameClass = players.filter(p => p.gameClass === gameClass);
-    const allClassCombinations: { [teamId: number]: PlayerSlot[] }[] = [];
-
-    if (ofGameClass.length === 2) {
-      allClassCombinations.push({
-        0: [ ofGameClass[0] ],
-        1: [ ofGameClass[1] ],
-      });
-
-      allClassCombinations.push({
-        0: [ ofGameClass[1] ],
-        1: [ ofGameClass[0] ],
-      });
-    } else {
-      for (let i = 0; i < ofGameClass.length - 1; ++i) {
-        for (let j = i + 1; j < ofGameClass.length; ++j) {
-          const a = [];
-          const b = [];
-          for (let k = 0; k < ofGameClass.length; ++k) {
-            if (k === i || k === j) {
-              a.push(ofGameClass[k]);
-            } else {
-              b.push(ofGameClass[k]);
-            }
-          }
-
-          allClassCombinations.push({
-            0: a,
-            1: b,
-          });
-        }
-      }
-    }
-
-    allPossibilities.push({ gameClass, allClassCombinations });
-  }
-
-  const tmp = [];
-
-  function makeAllCombinations(prev: any[]) {
-    if (prev.length === gameClasses.length) {
-      tmp.push(prev);
-    } else {
-      const gameClass = gameClasses[prev.length];
-      const allClassCombinations = allPossibilities
-        .filter(p => p.gameClass === gameClass)
-        .map(p => p.allClassCombinations)
-        [0];
-      for (const c of allClassCombinations) {
-        makeAllCombinations([...prev, c]);
-      }
-    }
-  }
-
-  makeAllCombinations([]);
-
-  let allCombinations: InterimTeamSetup[] = tmp.map(c => c.reduce((prev, curr) => {
-    prev[0] = prev[0].concat(curr[0]);
-    prev[1] = prev[1].concat(curr[1]);
-    return prev;
-  }, { 0: [], 1: [] }));
-
-  allCombinations.forEach(c => {
-    const skillRed = c[0].reduce((prev, curr) => prev + curr.skill, 0) / c[0].length;
-    const skillBlu = c[1].reduce((prev, curr) => prev + curr.skill, 0) / c[1].length;
-    c.skillDifference = Math.abs(skillRed - skillBlu);
-  });
-
-  if (overrides) {
-    const tmpCombinations = filterTeamOverrides(allCombinations, overrides);
-    if (tmpCombinations.length > 0) {
-      allCombinations = tmpCombinations;
-    }
-  }
-
-  allCombinations.sort((a, b) => a.skillDifference - b.skillDifference);
-  const lowestSkillDifference = allCombinations[0].skillDifference;
-  const possibleTeams = allCombinations.filter(c => c.skillDifference === lowestSkillDifference);
-  const selected = possibleTeams[Math.floor(Math.random() * possibleTeams.length)];
-
-  return Object.keys(selected)
-    .map(key => {
-      if (selected[key].length) {
-        return selected[key].map(p => ({...p, teamId: key}));
-      }
+  const allPossibleLineups = makeAllPossibleLineups(gameClasses, players)
+    .filter(lineup => respectsOverrides(lineup, overrides))
+    .map(lineup => {
+      return {
+        0: calculateAverageSkill(lineup[0]),
+        1: calculateAverageSkill(lineup[1]),
+      };
     })
-    .filter(e => !!e)
-    .flatMap(p => p)
-    .map(p => {
-      const { skill, ...player } = p;
-      return { ...player, status: 'active' };
-    });
+    .map(lineup => calculateAverageSkillDifference(lineup))
+    .sort((a, b) => a.skillAverageDifference - b.skillAverageDifference);
+
+  const selectedLineup = allPossibleLineups[0];
+
+  return [0, 1]
+    .flatMap(teamId => (selectedLineup[teamId] as TeamLineup).lineup
+      .map(slot => ({ ...slot, team: teams[teamId] }))
+    );
 }
