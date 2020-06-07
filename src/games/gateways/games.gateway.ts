@@ -18,7 +18,8 @@ export class GamesGateway implements OnGatewayInit {
   @WsAuthorized()
   @SubscribeMessage('replace player')
   async replacePlayer(client: any, payload: { gameId: string, replaceeId: string }) {
-    return await this.playerSubstitutionService.replacePlayer(new ObjectId(payload.gameId), new ObjectId(payload.replaceeId), client.request.user.id);
+    return await this.playerSubstitutionService.replacePlayer(new ObjectId(payload.gameId), new ObjectId(payload.replaceeId),
+      new ObjectId(client.request.user.id));
   }
 
   emitGameCreated(game: Game) {

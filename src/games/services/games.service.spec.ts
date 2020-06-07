@@ -147,7 +147,7 @@ describe('GamesService', () => {
             player: playerId,
             status: 'active',
             gameClass: 'soldier',
-            teamId: 1,
+            team: 'red',
           },
         });
       });
@@ -175,7 +175,7 @@ describe('GamesService', () => {
               player: playerId,
               status: 'waiting for substitute',
               gameClass: 'soldier',
-              teamId: 1,
+              team: 'red',
             },
           ],
         });
@@ -206,13 +206,13 @@ describe('GamesService', () => {
               player: playerId,
               status: 'replaced',
               gameClass: 'soldier',
-              teamId: 1,
+              team: 'blu',
             },
             {
               player: player2Id,
               status: 'active',
               gameClass: 'soldier',
-              teamId: 1,
+              team: 'red',
             },
           ],
         });
@@ -238,7 +238,7 @@ describe('GamesService', () => {
             player: playerId,
             status: 'active',
             gameClass: 'soldier',
-            teamId: 1,
+            team: 'blu',
           },
         });
       });
@@ -298,7 +298,6 @@ describe('GamesService', () => {
       expect(game.toObject()).toEqual(expect.objectContaining({
         number: 1,
         map: 'cp_fake',
-        teams: new Map([ [ '0', 'RED' ], [ '1', 'BLU' ] ]),
         slots: expect.any(Array),
         players: slots.map(s => s.playerId),
         assignedSkills: expect.any(Object),
@@ -332,13 +331,13 @@ describe('GamesService', () => {
         slots: [
           {
             player: player1,
-            teamId: 1,
+            team: 'blu',
             gameClass: 'scout',
             status: 'waiting for substitute',
           },
           {
             player: player2,
-            teamId: 2,
+            team: 'red',
             gameClass: 'scout',
             status: 'active',
           },

@@ -58,7 +58,7 @@ export class PlayerSubstitutionService {
       gameId: game.id,
       gameNumber: game.number,
       gameClass: slot.gameClass,
-      team: game.teams.get(slot.teamId),
+      team: slot.team,
     });
     return game;
   }
@@ -128,7 +128,7 @@ export class PlayerSubstitutionService {
       // create new slot of the replacement player
       replacementSlot = {
         player: replacementId,
-        teamId: slot.teamId,
+        team: slot.team,
         gameClass: slot.gameClass,
         status: 'active',
       };

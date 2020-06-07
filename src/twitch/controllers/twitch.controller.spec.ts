@@ -6,6 +6,7 @@ import { PlayersService } from '@/players/services/players.service';
 import { AuthService } from '@/auth/services/auth.service';
 import { JsonWebTokenError } from 'jsonwebtoken';
 import { BadRequestException } from '@nestjs/common';
+import { ObjectId } from 'mongodb';
 
 class TwitchServiceStub {
   streams = [
@@ -45,8 +46,10 @@ class PlayersServiceStub {
   registerTwitchAccount(playerId: string, twitchUserId: string) { return Promise.resolve(); }
 }
 
+const playerId = new ObjectId();
+
 class AuthServiceStub {
-  verifyToken(purpose, token) { return { id: 'FAKE_USER_ID' }; }
+  verifyToken(purpose, token) { return { id: playerId.toString() }; }
   generateJwtToken(purpose, userId) { return Promise.resolve('FAKE_JWT'); };
 }
 
@@ -87,7 +90,7 @@ describe('Twitch Controller', () => {
 
     describe('if the jwt is incorrect', () => {
       beforeEach(() => {
-        jest.spyOn(authService, 'verifyToken').mockImplementation(() => { throw new JsonWebTokenError('FAKE_ERROR'); });
+        authService.verifyToken = () => { throw new JsonWebTokenError('FAKE_ERROR'); }
       });
 
       it('should return 400', async () => {
@@ -100,7 +103,7 @@ describe('Twitch Controller', () => {
     it('should link the twitch.tv account', async () => {
       const spy = jest.spyOn(playersService, 'registerTwitchAccount');
       await controller.authenticationCallback('FAKE_CODE', 'FAKE_STATE');
-      expect(spy).toHaveBeenCalledWith('FAKE_USER_ID', {
+      expect(spy).toHaveBeenCalledWith(playerId, {
         userId: 'FAKE_TWITCH_TV_USER_ID',
         login: 'FAKE_TWITCH_TV_LOGIN',
         displayName: 'FAKE_TWITCH_TV_DISPLAY_NAME',

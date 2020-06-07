@@ -15,9 +15,6 @@ export class Game {
   @prop({ required: true, unique: true })
   number!: number;
 
-  @mapProp({ of: String })
-  teams?: Map<string, string>;
-
   @arrayProp({ ref: 'Player' })
   players?: Ref<Player>[];
 

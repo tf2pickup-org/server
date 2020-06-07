@@ -34,13 +34,9 @@ class GamesServiceStub {
 
     this.mockGame = await this.gameModel.create({
       number: 1,
-      teams: {
-        1: 'RED',
-        2: 'BLU',
-      },
       slots: [
-        { player: players[0], teamId: 1, gameClass: 'scout' },
-        { player: players[1], teamId: 2, gameClass: 'scout' },
+        { player: players[0], team: 'blu', gameClass: 'scout' },
+        { player: players[1], team: 'red', gameClass: 'scout' },
       ],
       players: players.map(p => p._id),
       map: 'cp_badlands',
@@ -251,11 +247,11 @@ describe('GameEventHandlerService', () => {
     it('should update the game\'s score', async () => {
       await service.onScoreReported(gamesService.mockGame.id, 'Red', '2');
       let game = await gameModel.findById(gamesService.mockGame._id);
-      expect(game.score.get('1')).toEqual(2);
+      expect(game.score.get('red')).toEqual(2);
 
       await service.onScoreReported(gamesService.mockGame.id, 'Blue', '5');
       game = await gameModel.findById(gamesService.mockGame._id);
-      expect(game.score.get('2')).toEqual(5);
+      expect(game.score.get('blu')).toEqual(5);
     });
 
     it('should emit an event over ws', async () => {

@@ -35,7 +35,7 @@ describe('Documents Controller', () => {
       expect(ret).toEqual('Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris in.');
     });
 
-    describe('when the document could not be found', async () => {
+    describe('when the document could not be found', () => {
       beforeEach(() => {
         jest.spyOn(documentsService, 'fetchDocument').mockResolvedValue(undefined);
       });

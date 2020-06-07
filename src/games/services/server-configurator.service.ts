@@ -12,6 +12,8 @@ import { deburr } from 'lodash';
 import { extractConVarValue } from '../utils/extract-con-var-value';
 import { Rcon } from 'rcon-client/lib';
 import { ObjectId } from 'mongodb';
+import { isDocument, isRefType } from '@typegoose/typegoose';
+import { Player } from '@/players/models/player';
 
 @Injectable()
 export class ServerConfiguratorService {
@@ -66,11 +68,15 @@ export class ServerConfiguratorService {
       await rcon.send(setPassword(password));
 
       for (const slot of game.slots) {
-        const player = await this.playersService.getById(slot.player as ObjectId);
-        const team = parseInt(slot.teamId, 10) + 2;
+        let player: Player;
+        if (isDocument(slot.player)) {
+          player = slot.player;
+        } else if (isRefType(slot.player)) {
+          player = await this.playersService.getById(slot.player);
+        }
 
         const playerName = deburr(player.name);
-        const cmd = addGamePlayer(player.steamId, playerName, team, slot.gameClass);
+        const cmd = addGamePlayer(player.steamId, playerName, slot.team, slot.gameClass);
         this.logger.debug(`[${server.name}] ${cmd}`);
         await rcon.send(cmd);
       }

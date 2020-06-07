@@ -10,6 +10,7 @@ import { QueueConfigService } from '@/queue/services/queue-config.service';
 import { GameLauncherService } from './game-launcher.service';
 import { GamesGateway } from '../gateways/games.gateway';
 import { ObjectId } from 'mongodb';
+import { shuffle } from 'lodash';
 
 interface GameSortOptions {
   launchedAt: 1 | -1;
@@ -112,7 +113,7 @@ export class GamesService {
 
     const players: PlayerSlot[] = await Promise.all(queueSlots.map(slot => this.queueSlotToPlayerSlot(slot)));
     const assignedSkills = players.reduce((prev, curr) => { prev[curr.player.toString()] = curr.skill; return prev; }, { });
-    const slots = pickTeams(players, this.queueConfigService.queueConfig.classes.map(cls => cls.name), { friends });
+    const slots = pickTeams(shuffle(players), { friends: JSON.parse(JSON.stringify(friends)) });
     const gameNo = await this.getNextGameNumber();
 
     const game = await this.gameModel.create({
@@ -180,12 +181,12 @@ export class GamesService {
   }
 
   private async queueSlotToPlayerSlot({ playerId, gameClass }: QueueSlot): Promise<PlayerSlot> {
-    const player = await this.playersService.getById(playerId);
+    const player = await this.playersService.getById(new ObjectId(playerId));
     if (!player) {
       throw new Error(`no such player (${playerId})`);
     }
 
-    const skill = await this.playerSkillService.getPlayerSkill(playerId);
+    const skill = await this.playerSkillService.getPlayerSkill(new ObjectId(playerId));
     if (skill) {
       const skillForClass = skill.skill.get(gameClass);
       return { player: playerId, gameClass, skill: skillForClass };

@@ -6,6 +6,7 @@ import { GamesService } from '@/games/services/games.service';
 import { PlayerBansService } from '@/players/services/player-bans.service';
 import { MapVoteService } from '@/queue/services/map-vote.service';
 import { BadRequestException } from '@nestjs/common';
+import { ObjectId } from 'mongodb';
 
 class PlayersServiceStub {
   acceptTerms(playerId: string) { return null; }
@@ -48,21 +49,28 @@ describe('Profile Controller', () => {
 
   describe('#getProfile()', () => {
     it('should return the logged-in user\'s profile', async () => {
-      const profile = { id: 'FAKE_ID', name: 'FAKE_USER_NAME', steamId: 'FAKE_STEAM_ID', hasAcceptedRules: false, activeGameId: null, bans: [],
-        mapVote: 'cp_badlands' };
-      expect(await controller.getProfile(profile)).toEqual(profile as any);
+      const playerId = new ObjectId();
+      const profile = { id: playerId.toString(), name: 'FAKE_USER_NAME', steamId: 'FAKE_STEAM_ID', hasAcceptedRules: false, activeGameId: null,
+        bans: [], mapVote: 'cp_badlands' };
+      expect(await controller.getProfile(profile)).toEqual(profile);
     });
   });
 
   describe('#acceptTerms', () => {
+    let playerId: ObjectId;
+
+    beforeEach(() => {
+      playerId = new ObjectId();
+    });
+
     it('should call players service', async () => {
       const spy = jest.spyOn(playersService, 'acceptTerms');
-      await controller.acceptTerms({ id: 'FAKE_ID' } as Player, '');
-      expect(spy).toHaveBeenCalledWith('FAKE_ID');
+      await controller.acceptTerms({ id: playerId.toString() } as Player, '');
+      expect(spy).toHaveBeenCalledWith(playerId);
     });
 
     it('should reject invalid requests', async () => {
-      await expect(controller.acceptTerms({ id: 'FAKE_ID' } as Player, undefined)).rejects.toThrow(BadRequestException);
+      await expect(controller.acceptTerms({ id: playerId.toString() } as Player, undefined)).rejects.toThrow(BadRequestException);
     });
   });
 });

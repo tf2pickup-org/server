@@ -1,6 +1,7 @@
 import { prop, index, Ref } from '@typegoose/typegoose';
 import { PlayerConnectionStatus } from './player-connection-status';
 import { Player } from '@/players/models/player';
+import { Tf2Team } from './tf2-team';
 
 @index({ playerId: 1 })
 @index({ status: 1 })
@@ -10,7 +11,7 @@ export class GamePlayer {
   player!: Ref<Player>;
 
   @prop({ required: true })
-  teamId!: string;
+  team!: Tf2Team;
 
   @prop({ required: true })
   gameClass!: string;

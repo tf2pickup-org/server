@@ -91,11 +91,11 @@ export class QueueService implements OnModuleInit {
   }
 
   findSlotByPlayerId(playerId: ObjectId): QueueSlot {
-    return this.slots.find(s => s.playerId.equals(playerId));
+    return this.slots.find(s => playerId.equals(s.playerId));
   }
 
   isInQueue(playerId: ObjectId): boolean {
-    return !!this.slots.find(s => s.playerId.equals(playerId));
+    return !!this.slots.find(s => playerId.equals(s.playerId));
   }
 
   reset() {
@@ -145,10 +145,10 @@ export class QueueService implements OnModuleInit {
     }
 
     // remove player from any slot(s) he could be occupying
-    const oldSlots = this.slots.filter(s => s.playerId === playerId);
+    const oldSlots = this.slots.filter(s => playerId.toString() === s.playerId);
     oldSlots.forEach(s => this.clearSlot(s));
 
-    targetSlot.playerId = playerId;
+    targetSlot.playerId = playerId.toString();
 
     if (this.state === 'ready' || this.playerCount === this.requiredPlayerCount) {
       targetSlot.ready = true;
@@ -301,7 +301,7 @@ export class QueueService implements OnModuleInit {
   private kickUnreadyPlayers() {
     this.logger.debug('kicking players that are not ready');
     const slots = this.slots.filter(s => !s.ready);
-    this.kick(...slots.map(s => s.playerId));
+    this.kick(...slots.map(s => new ObjectId(s.playerId)));
   }
 
   private unreadyQueue() {

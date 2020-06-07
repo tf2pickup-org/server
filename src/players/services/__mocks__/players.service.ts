@@ -38,7 +38,7 @@ export class PlayersService {
   async _createOne() {
     const player = {
       name: `fake_player_${++this.lastId}`,
-      steamId: `${Math.floor(Math.random() * 1000)}`,
+      steamId: `steam_id_${this.lastId}`,
       hasAcceptedRules: true,
       etf2lProfileId: Math.floor(Math.random() * 100),
     };
