@@ -14,12 +14,16 @@ export class PlayersService {
     @InjectModel(Player) private playerModel: ReturnModelType<typeof Player>,
   ) { }
 
-  getById(id: string) {
-    return this.playerModel.findById(id);
+  async getById(id: string) {
+    return await this.playerModel.findById(id);
   }
 
-  getAll() {
-    return this.playerModel.find().exec();
+  async getAll() {
+    return await this.playerModel.find();
+  }
+
+  async findBySteamId(steamId: string) {
+    return await this.playerModel.findOne({ steamId });
   }
 
   async _reset() {
@@ -29,9 +33,9 @@ export class PlayersService {
   async _createOne() {
     const player = {
       name: `fake_player_${++this.lastId}`,
-      steamId: `${Math.floor(Math.random() * 100)}`,
+      steamId: `steamid_${this.lastId}`,
       hasAcceptedRules: false,
-      etf2lProfileId: Math.floor(Math.random() * 100),
+      etf2lProfileId: this.lastId,
     };
     return await this.playerModel.create(player);
   }
