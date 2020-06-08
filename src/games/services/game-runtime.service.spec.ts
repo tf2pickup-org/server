@@ -210,14 +210,14 @@ describe('GameRuntimeService', () => {
 
       it('should close the RCON connection', async () => {
         const spy = jest.spyOn(rcon, 'end');
-        await service.replacePlayer(mockGame.id, new ObjectId(), { player: new ObjectId(), teamId: '0', gameClass: 'soldier' });
+        await service.replacePlayer(mockGame.id, new ObjectId(), { player: new ObjectId(), team: 'red', gameClass: 'soldier' });
         expect(spy).toHaveBeenCalled();
       });
     });
 
     it('should close the RCON connection', async () => {
       const spy = jest.spyOn(rcon, 'end');
-      await service.replacePlayer(mockGame.id, new ObjectId(), { player: new ObjectId(), teamId: '0', gameClass: 'soldier' });
+      await service.replacePlayer(mockGame.id, new ObjectId(), { player: new ObjectId(), team: 'red', gameClass: 'soldier' });
       expect(spy).toHaveBeenCalled();
     });
   });

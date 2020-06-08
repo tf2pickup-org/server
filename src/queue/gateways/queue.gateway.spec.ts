@@ -1,7 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { QueueGateway } from './queue.gateway';
 import { QueueService } from '../services/queue.service';
-import { Subject } from 'rxjs';
 import { MapVoteService } from '../services/map-vote.service';
 import { QueueAnnouncementsService } from '../services/queue-announcements.service';
 import { FriendsService } from '../services/friends.service';
@@ -12,40 +11,9 @@ jest.mock('../services/map-vote.service');
 jest.mock('../services/queue-announcements.service');
 jest.mock('../services/friends.service');
 
-// class QueueServiceStub {
-//   slotsChange = new Subject<any>();
-//   stateChange = new Subject<string>();
-
-//   join(slotId: number, playerId: string) {
-//     return new Promise(resolve => resolve([{ id: slotId, playerId }]));
-//   }
-
-//   leave(playerId: string) {
-//     return { id: 0, playerId };
-//   }
-
-//   readyUp(playerId: string) {
-//     return { id: 0, playerId, ready: true };
-//   }
-// }
-
-// class MapVoteServiceStub {
-//   resultsChange = new Subject<any[]>();
-//   voteForMap(playerId: string, map: string) { return null; }
-// }
-
 class SocketStub {
   emit(event: string, ...args: any[]) { return null; }
 }
-
-// class QueueAnnouncementsServiceStub {
-//   requests = [{ gameId: 'FAKE_GAME_ID', gameNumber: 5, gameClass: 'scout', team: 'BLU' }];
-//   substituteRequests() { return new Promise(resolve => resolve(this.requests)); }
-// }
-
-// class FriendsServiceStub {
-//   markFriend(player1: string, player2: string) { return null; }
-// }
 
 describe('QueueGateway', () => {
   let gateway: QueueGateway;
@@ -143,7 +111,7 @@ describe('QueueGateway', () => {
   describe('#emitSlotsUpdate()', () => {
     it('should emit the event', () => {
       const spy = jest.spyOn(socket, 'emit');
-      const slot = { id: 0, playerId: new ObjectId(), ready: true, gameClass: 'soldier', friend: null };
+      const slot = { id: 0, playerId: new ObjectId().toString(), ready: true, gameClass: 'soldier', friend: null };
       gateway.emitSlotsUpdate([slot]);
       expect(spy).toHaveBeenCalledWith('queue slots update', [slot]);
     });

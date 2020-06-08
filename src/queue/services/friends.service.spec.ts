@@ -16,9 +16,9 @@ class QueueServiceStub {
   slotsChange = new Subject<QueueSlot[]>();
   state = 'waiting';
   slots: QueueSlot[] = [
-    { id: 0, playerId: this._medicId, gameClass: 'medic', ready: false },
-    { id: 1, playerId: this._scoutId, gameClass: 'soldier', ready: false },
-    { id: 2, playerId: this._2ndMedicId, gameClass: 'medic', ready: false },
+    { id: 0, playerId: this._medicId.toString(), gameClass: 'medic', ready: false },
+    { id: 1, playerId: this._scoutId.toString(), gameClass: 'soldier', ready: false },
+    { id: 2, playerId: this._2ndMedicId.toString(), gameClass: 'medic', ready: false },
   ];
   findSlotByPlayerId(playerId: ObjectId) { return this.slots.find(s => playerId.equals(s.playerId)); }
 }
@@ -64,7 +64,7 @@ describe('FriendsService', () => {
 
     describe('when the medic is not in the queue', () => {
       beforeEach(() => {
-        queueService.slots = queueService.slots.filter(s => !s.playerId.equals(queueService._medicId));
+        queueService.slots = queueService.slots.filter(s => !queueService._medicId.equals(s.playerId));
       });
 
       it('should fail', () => {
@@ -75,7 +75,7 @@ describe('FriendsService', () => {
 
     describe('when the to-be friend is not in the queue', () => {
       beforeEach(() => {
-        queueService.slots = queueService.slots.filter(s => !s.playerId.equals(queueService._scoutId));
+        queueService.slots = queueService.slots.filter(s => !queueService._scoutId.equals(s.playerId));
       });
 
       it('should fail', () => {
@@ -133,7 +133,7 @@ describe('FriendsService', () => {
 
       beforeEach(() => {
         soldierId = new ObjectId();
-        queueService.slots.push({ id: 2, playerId: soldierId, gameClass: 'soldier', ready: false });
+        queueService.slots.push({ id: 2, playerId: soldierId.toString(), gameClass: 'soldier', ready: false });
         service.markFriend(queueService._medicId, queueService._scoutId);
       });
 
@@ -157,7 +157,7 @@ describe('FriendsService', () => {
 
     describe('when the medic leaves the queue', () => {
       beforeEach(() => {
-        queueService.slots = queueService.slots.filter(s => !s.playerId.equals(queueService._medicId));
+        queueService.slots = queueService.slots.filter(s => !queueService._medicId.equals(s.playerId));
         queueService.slotsChange.next(queueService.slots);
       });
 
@@ -179,7 +179,7 @@ describe('FriendsService', () => {
 
     describe('when the friend leaves the queue', () => {
       beforeEach(() => {
-        queueService.slots = queueService.slots.filter(s => !s.playerId.equals(queueService._scoutId));
+        queueService.slots = queueService.slots.filter(s => !queueService._scoutId.equals(s.playerId));
         queueService.slotsChange.next(queueService.slots);
       });
 

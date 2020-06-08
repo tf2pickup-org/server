@@ -88,20 +88,19 @@ describe('PlayerSubstitutionService', () => {
       slots: [
         {
           player: player1._id,
-          teamId: '0',
+          team: 'red',
           gameClass: 'soldier',
           status: 'active',
         },
         {
           player: player2._id,
-          teamId: '1',
+          team: 'blu',
           gameClass: 'soldier',
           status: 'active',
         },
       ],
       map: 'cp_badlands',
       state: 'launching',
-      teams: new Map([['0', 'RED'], ['1', 'BLU']]),
       gameServer: 'FAKE_GAME_SERVER_ID',
       save: () => null,
     };
@@ -178,7 +177,7 @@ describe('PlayerSubstitutionService', () => {
         gameId: mockGame.id,
         gameNumber: 1,
         gameClass: 'soldier',
-        team: 'RED',
+        team: 'red',
       });
     });
 
