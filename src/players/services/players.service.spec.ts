@@ -116,6 +116,7 @@ describe('PlayersService', () => {
       name: 'FAKE_PLAYER_NAME',
       steamId: 'FAKE_STEAM_ID',
       etf2lProfileId: 123456,
+      hasAcceptedRules: true,
     });
   });
 

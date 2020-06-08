@@ -111,7 +111,7 @@ describe('GamesService', () => {
 
   describe('#getById()', () => {
     it('should get the game by its id', async () => {
-      const game = await gameModel.create({ number: 1, map: 'cp_badlands' });
+      const game = await gameModel.create({ number: 1, map: 'cp_badlands' } as any);
       const ret = await service.getById(game.id);
       expect(ret.toJSON()).toEqual(game.toJSON());
     });
@@ -136,7 +136,7 @@ describe('GamesService', () => {
       hourAgo.setHours(hourAgo.getHours() - 1);
       const serverId = new ObjectId();
 
-      const game = await gameModel.create({ number: 2, map: 'cp_process_final', state: 'started', createdAt: now, gameServer: serverId });
+      const game = await gameModel.create({ number: 2, map: 'cp_process_final', state: 'started', gameServer: serverId });
 
       const ret = await service.findByAssignedGameServer(serverId.toString());
       expect(ret.toJSON()).toEqual(game.toJSON());
@@ -151,12 +151,14 @@ describe('GamesService', () => {
         map: 'cp_badlands',
         state: 'started',
         players: [ playerId ],
-        slots: {
-          playerId,
-          status: 'active',
-          gameClass: 'soldier',
-          teamId: 1,
-        },
+        slots: [
+          {
+            playerId: playerId.toString(),
+            status: 'active',
+            gameClass: 'soldier',
+            teamId: '1',
+          }
+        ],
       });
       const ret = await service.getPlayerActiveGame(playerId.toString());
       expect(ret).toBeTruthy();
@@ -172,10 +174,10 @@ describe('GamesService', () => {
         players: [ playerId ],
         slots: [
           {
-            playerId,
+            playerId: playerId.toString(),
             status: 'waiting for substitute',
             gameClass: 'soldier',
-            teamId: 1,
+            teamId: '1',
           },
         ],
       });
@@ -194,16 +196,16 @@ describe('GamesService', () => {
         players: [ playerId ],
         slots: [
           {
-            playerId,
+            playerId: playerId.toString(),
             status: 'replaced',
             gameClass: 'soldier',
-            teamId: 1,
+            teamId: '1',
           },
           {
-            playerId: playerId2,
+            playerId: playerId2.toString(),
             status: 'active',
             gameClass: 'soldier',
-            teamId: 1,
+            teamId: '1',
           },
         ],
       });
@@ -219,12 +221,14 @@ describe('GamesService', () => {
         map: 'cp_badlands',
         state: 'ended',
         players: [ playerId ],
-        slots: {
-          playerId,
-          status: 'active',
-          gameClass: 'soldier',
-          teamId: 1,
-        },
+        slots: [
+          {
+            playerId: playerId.toString(),
+            status: 'active',
+            gameClass: 'soldier',
+            teamId: '1',
+          },
+        ],
       });
 
       const ret = await service.getPlayerActiveGame(playerId.toString());
@@ -282,21 +286,21 @@ describe('GamesService', () => {
 
   describe('#getGamesWithSubstitutionRequests()', () => {
     it('should return games with substitution requests', async () => {
-      const player1 = new ObjectId().toString();
-      const player2 = new ObjectId().toString();
+      const player1 = new ObjectId();
+      const player2 = new ObjectId();
       const game = await gameModel.create({
         number: 1,
         players: [ player1, player2 ],
         slots: [
           {
-            playerId: player1,
-            teamId: 1,
+            playerId: player1.toString(),
+            teamId: '1',
             gameClass: 'scout',
             status: 'waiting for substitute',
           },
           {
-            playerId: player2,
-            teamId: 2,
+            playerId: player2.toString(),
+            teamId: '2',
             gameClass: 'scout',
             status: 'active',
           },
@@ -314,7 +318,7 @@ describe('GamesService', () => {
 
   describe('#getOrphanedGames()', () => {
     beforeEach(async () => {
-      const player = new ObjectId().toString();
+      const player = new ObjectId();
       await gameModel.create({
         number: 1,
         players: [ player ],
@@ -323,7 +327,7 @@ describe('GamesService', () => {
         state: 'launching',
       });
 
-      const gameServer = new ObjectId().toString();
+      const gameServer = new ObjectId();
       await gameModel.create({
         number: 2,
         players: [ player ],

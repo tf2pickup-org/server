@@ -56,7 +56,7 @@ export class PlayerBansService implements OnModuleInit {
     });
   }
 
-  async addPlayerBan(playerBan: Partial<PlayerBan>): Promise<DocumentType<PlayerBan>> {
+  async addPlayerBan(playerBan: PlayerBan): Promise<DocumentType<PlayerBan>> {
     const addedBan = await this.playerBanModel.create(playerBan);
     const playerId = addedBan.player.toString();
     this._banAdded.next(playerId);

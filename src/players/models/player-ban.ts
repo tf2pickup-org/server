@@ -3,8 +3,6 @@ import { Player } from './player';
 import { IsMongoId, IsString, IsNotEmpty } from 'class-validator';
 
 export class PlayerBan {
-  _id: string;
-
   @IsMongoId()
   @prop({ ref: 'Player', required: true })
   public player!: Ref<Player>;

@@ -26,13 +26,13 @@ export class GameServersService {
     return await this.gameServerModel.findById(gameServerId);
   }
 
-  async addGameServer(gameServer: Partial<GameServer>): Promise<DocumentType<GameServer>> {
+  async addGameServer(gameServer: GameServer): Promise<DocumentType<GameServer>> {
     const resolvedIpAddresses = await resolve(gameServer.address);
     this.logger.verbose(`resolved addresses for ${gameServer.address}: ${resolvedIpAddresses}`);
     gameServer.resolvedIpAddresses = resolvedIpAddresses;
 
     if (!gameServer.mumbleChannelName) {
-      const latestServer = await this.gameServerModel.findOne({ mumbleChannelName: { $ne: null } }, {}, { sort: { createdAt: -1 } });
+      const latestServer = await this.gameServerModel.findOne({ mumbleChannelName: { $ne: null } }).sort({ createdAt: -1 }).exec();
       if (latestServer) {
         const id = parseInt(latestServer.mumbleChannelName, 10) + 1;
         gameServer.mumbleChannelName = `${id}`;

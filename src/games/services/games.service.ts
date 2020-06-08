@@ -9,6 +9,7 @@ import { PlayerSkillService } from '@/players/services/player-skill.service';
 import { QueueConfigService } from '@/queue/services/queue-config.service';
 import { GameLauncherService } from './game-launcher.service';
 import { GamesGateway } from '../gateways/games.gateway';
+import { ObjectId } from 'mongodb';
 
 interface GameSortOptions {
   launchedAt: 1 | -1;
@@ -61,7 +62,7 @@ export class GamesService {
 
   async getPlayerGames(playerId: string, sort: GameSortOptions = { launchedAt: -1 }, limit: number = 10, skip: number = 0) {
     return await this.gameModel
-      .find({ players: playerId })
+      .find({ players: new ObjectId(playerId) })
       .sort(sort)
       .limit(limit)
       .skip(skip);
@@ -81,7 +82,7 @@ export class GamesService {
 
   async getPlayerPlayedClassCount(playerId: string): Promise<{ [gameClass: string]: number }> {
     // fixme refactor this to aggregate
-    const allGames = await this.gameModel.find({ players: playerId, state: 'ended' });
+    const allGames = await this.gameModel.find({ players: new ObjectId(playerId), state: 'ended' });
     return this.queueConfigService.queueConfig.classes
       .map(cls => cls.name)
       .reduce((prev, gameClass) => {
@@ -122,8 +123,9 @@ export class GamesService {
         1: 'BLU',
       },
       slots,
-      players: queueSlots.map(s => s.playerId),
+      players: queueSlots.map(s => new ObjectId(s.playerId)),
       assignedSkills,
+      state: 'launching',
     });
 
     this.logger.debug(`game #${game.number} created`);
@@ -195,7 +197,7 @@ export class GamesService {
   }
 
   private async getNextGameNumber(): Promise<number> {
-    const latestGame = await this.gameModel.findOne({}, {}, { sort: { launchedAt: -1 }});
+    const latestGame = await this.gameModel.findOne().sort({ launchedAt: -1 }).exec();
     if (latestGame) {
       return latestGame.number + 1;
     } else {
