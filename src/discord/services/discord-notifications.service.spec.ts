@@ -174,7 +174,7 @@ describe('DiscordNotificationsService', () => {
       it('should send a notification to the admin channel', async () => {
         const spy = jest.spyOn(adminChannel, 'send');
         await service.notifyPlayerBanAdded({ player: new ObjectId(), admin: new ObjectId(), start: new Date(),
-            end: new Date(), _id: new ObjectId().toString() });
+            end: new Date() });
         expect(spy).toHaveBeenCalledWith(expect.any(MessageEmbed));
       });
     });
@@ -183,7 +183,7 @@ describe('DiscordNotificationsService', () => {
       it('should send a notification to the admin channel', async () => {
         const spy = jest.spyOn(adminChannel, 'send');
         await service.notifyPlayerBanRevoked({ player: new ObjectId(), admin: new ObjectId(), start: new Date(),
-            end: new Date(), _id: new ObjectId().toString() });
+            end: new Date() });
         expect(spy).toHaveBeenCalledWith(expect.any(MessageEmbed));
       });
     });
