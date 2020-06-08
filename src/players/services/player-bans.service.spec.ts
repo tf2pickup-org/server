@@ -86,7 +86,7 @@ describe('PlayerBansService', () => {
   });
 
   describe('#addPlayerBan()', () => {
-    let mockBan: Partial<PlayerBan>;
+    let mockBan: PlayerBan;
 
     beforeEach(() => {
       const end = new Date();

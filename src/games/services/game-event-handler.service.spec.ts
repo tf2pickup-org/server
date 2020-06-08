@@ -25,11 +25,11 @@ class PlayersServiceStub {
     this.playerIds.push((await this.playerModel.create({
       name: 'FAKE_PLAYER_1',
       steamId: 'FAKE_STEAM_ID_1',
-    })).id);
+    } as any)).id);
     this.playerIds.push((await this.playerModel.create({
       name: 'FAKE_PLAYER_2',
       steamId: 'FAKE_STEAM_ID_2',
-    })).id);
+    } as any)).id);
   }
 
   async findBySteamId(steamId: string) { return this.playerModel.findOne({ steamId }); }
@@ -51,11 +51,12 @@ class GamesServiceStub {
         2: 'BLU',
       },
       slots: [
-        { playerId: (this.playersService as unknown as PlayersServiceStub).playerIds[0], teamId: 1, gameClass: 'scout' },
-        { playerId: (this.playersService as unknown as PlayersServiceStub).playerIds[1], teamId: 2, gameClass: 'scout' },
+        { playerId: (this.playersService as unknown as PlayersServiceStub).playerIds[0].toString(), teamId: '1', gameClass: 'scout' },
+        { playerId: (this.playersService as unknown as PlayersServiceStub).playerIds[1].toString(), teamId: '2', gameClass: 'scout' },
       ],
       players: (this.playersService as unknown as PlayersServiceStub).playerIds,
       map: 'cp_badlands',
+      state: 'launching',
     });
   }
 

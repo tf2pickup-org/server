@@ -87,6 +87,7 @@ export class PlayersService {
       avatarUrl: steamProfile.photos[0].value,
       role: this.environment.superUser === steamProfile.id ? 'super-user' : null,
       etf2lProfileId: etf2lProfile?.id,
+      hasAcceptedRules: false,
     });
 
     this.logger.verbose(`created new player (name: ${player?.name})`);

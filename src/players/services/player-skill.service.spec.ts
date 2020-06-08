@@ -37,7 +37,7 @@ describe('PlayerSkillService', () => {
   let service: PlayerSkillService;
   let mongod: MongoMemoryServer;
   let playerSkillModel: ReturnModelType<typeof PlayerSkill>;
-  let mockPlayer: Player;
+  let mockPlayer: DocumentType<Player>;
   let mockPlayerSkill: DocumentType<PlayerSkill>;
   let playersService: PlayersService;
   let futurePlayerSkillService: FuturePlayerSkillServiceStub;
@@ -77,7 +77,7 @@ describe('PlayerSkillService', () => {
     // @ts-expect-error
     mockPlayer = await playersService._createOne();
     mockPlayerSkill = await playerSkillModel.create({
-      player: mockPlayer.id,
+      player: mockPlayer._id,
       skill: {
         soldier: 4,
       },
