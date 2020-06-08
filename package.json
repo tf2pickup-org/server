@@ -14,7 +14,8 @@
     "test": "jest",
     "test:ci": "jest --ci --maxWorkers 4",
     "console": "ts-node -r tsconfig-paths/register src/console.ts",
-    "export-skills": "ts-node -r tsconfig-paths/register src/console.ts -- export-skills"
+    "export-skills": "ts-node -r tsconfig-paths/register src/console.ts -- export-skills",
+    "migrate": "migrate"
   },
   "dependencies": {
     "@hapi/joi": "17.1.1",
@@ -39,6 +40,7 @@
     "jsonschema": "1.2.6",
     "jsonwebtoken": "8.5.1",
     "lodash": "4.17.15",
+    "migrate": "^1.6.2",
     "moment": "2.26.0",
     "mongodb": "^3.5.7",
     "mongoose": "5.9.4",
