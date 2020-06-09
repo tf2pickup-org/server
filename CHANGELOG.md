@@ -1,3 +1,10 @@
+# [2.6.3](https://github.com/tf2pickup-pl/server/compare/2.6.2...2.6.3) (2020-06-10)
+
+### Fixes
+* Game event synchronization ([a8473ea](https://github.com/tf2pickup-pl/server/commit/a8473eae4032a2e607af50bd66b4907e791dc3ec))
+* Update 6v6 config ([01f66d7](https://github.com/tf2pickup-pl/server/commit/01f66d7765f8764d3f2ec15b798ca4d9c6acb6a5))
+* Update 9v9 config ([cdd8afc](https://github.com/tf2pickup-pl/server/commit/cdd8afc49c2b31a457eece04ec3e111fbab58148))
+
 # [2.6.2](https://github.com/tf2pickup-pl/server/compare/2.6.1...2.6.2) (2020-05-25)
 
 ### Fixes
