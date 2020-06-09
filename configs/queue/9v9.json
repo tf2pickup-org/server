@@ -52,12 +52,8 @@
       "configName": "koth"
     },
     {
-      "name": "pl_prowater_b6",
+      "name": "pl_badwater_pro_v9",
       "configName": "stopwatch"
-    },
-    {
-      "name": "cp_gullywash_final1",
-      "configName": "5cp"
     },
     {
       "name": "pl_upward",
@@ -70,6 +66,14 @@
     {
       "name": "pl_vigil_rc6",
       "configName": "stopwatch"
+    },
+    {
+       "name": "koth_lakeside_final",
+       "configName": "koth"
+    },
+    {
+      "name": "pl_summercoast_rc8d",
+      "configName": "stopwatch"
     }
   ],
   "configs": {
@@ -77,5 +81,5 @@
     "stopwatch": "etf2l_9v9_stopwatch",
     "5cp": "etf2l_9v9_5cp"
   },
-  "whitelistId": "10750"
+  "whitelistId": "10827"
 }
