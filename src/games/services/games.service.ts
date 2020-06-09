@@ -45,6 +45,10 @@ export class GamesService {
     return await this.gameModel.find({ state: /launching|started/ });
   }
 
+  async update(gameId: string, update: Partial<Game>) {
+    return await this.gameModel.findByIdAndUpdate(gameId, update, { new: true });
+  }
+
   async findByAssignedGameServer(gameServerId: string): Promise<DocumentType<Game>> {
     return (await this.gameModel
       .find({ gameServer: gameServerId })

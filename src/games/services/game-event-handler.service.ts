@@ -23,24 +23,17 @@ export class GameEventHandlerService {
   ) { }
 
   async onMatchStarted(gameId: string) {
-    const game = await this.gamesService.getById(gameId);
+    const game = await this.gamesService.update(gameId, { state: 'started' });
     if (game) {
-      // The server sometimes logs match start right after it was ended (probably due to readyup mode bugs).
-      // Let's make sure the game does not get marked as started again.
-      if (game.state === 'launching') {
-        game.state = 'started';
-        await game.save();
-        this.gamesGateway.emitGameUpdated(game);
-      }
+      this.gamesGateway.emitGameUpdated(game);
     } else {
       this.logger.warn(`no such game: ${gameId}`);
     }
   }
 
   async onMatchEnded(gameId: string) {
-    const game = await this.gamesService.getById(gameId);
+    const game = await this.gamesService.update(gameId, { state: 'ended' });
     if (game) {
-      game.state = 'ended';
       game.slots.forEach(slot => {
         if (slot.status === 'waiting for substitute') {
           slot.status = 'active';
@@ -48,6 +41,7 @@ export class GameEventHandlerService {
       });
 
       await game.save();
+
       this.gamesGateway.emitGameUpdated(game);
       this.queueGateway.updateSubstituteRequests();
       setTimeout(() => this.gameRuntimeService.cleanupServer(game.gameServer.toString()), this.serverCleanupDelay);
@@ -57,10 +51,8 @@ export class GameEventHandlerService {
   }
 
   async onLogsUploaded(gameId: string, logsUrl: string) {
-    const game = await this.gamesService.getById(gameId);
+    const game = await this.gamesService.update(gameId, { logsUrl });
     if (game) {
-      game.logsUrl = logsUrl;
-      await game.save();
       this.gamesGateway.emitGameUpdated(game);
     } else {
       this.logger.warn(`no such game: ${gameId}`);
