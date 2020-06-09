@@ -40,21 +40,13 @@
       "configName": "5cp"
     },
     {
-      "name": "cp_reckoner_rc2",
-      "configName": "5cp"
-    },
-    {
       "name": "cp_metalworks",
       "configName": "5cp"
-    },
-    {
-      "name": "koth_bagel_fall_b7",
-      "configName": "koth"
     }
   ],
   "configs": {
     "5cp": "etf2l_6v6_5cp",
     "koth": "etf2l_6v6_koth"
   },
-  "whitelistId": "10585"
+  "whitelistId": "10824"
 }
