@@ -6,9 +6,9 @@ import { ConfigService } from '@nestjs/config';
 import { GameRuntimeService } from './game-runtime.service';
 import { GamesGateway } from '../gateways/games.gateway';
 import { typegooseTestingModule } from '@/utils/testing-typegoose-module';
-import { TypegooseModule, getModelToken } from 'nestjs-typegoose';
+import { TypegooseModule } from 'nestjs-typegoose';
 import { Game } from '../models/game';
-import { ReturnModelType, DocumentType } from '@typegoose/typegoose';
+import { DocumentType } from '@typegoose/typegoose';
 import { ObjectId } from 'mongodb';
 import { Player } from '@/players/models/player';
 import { QueueGateway } from '@/queue/gateways/queue.gateway';
@@ -84,15 +84,29 @@ describe('GameEventHandlerService', () => {
 
   describe('#onMatchStarted()', () => {
     it('should update game state', async () => {
-      await service.onMatchStarted(mockGame._id);
+      await service.onMatchStarted(mockGame.id);
       const game = await gamesService.getById(mockGame.id);
       expect(game.state).toEqual('started');
     });
 
     it('should emit an event over ws', async () => {
       const spy = jest.spyOn(gamesGateway, 'emitGameUpdated');
-      await service.onMatchStarted(mockGame._id);
-      expect(spy).toHaveBeenCalledWith(jasmine.objectContaining({ id: mockGame.id }));
+      await service.onMatchStarted(mockGame.id);
+      expect(spy).toHaveBeenCalledWith(expect.objectContaining({ id: mockGame.id }));
+    });
+
+    describe('when the match has ended', () => {
+      beforeEach(async () => {
+        const game = await gamesService.getById(mockGame.id);
+        game.state = 'ended';
+        await game.save();
+      });
+
+      it('should not update game state', async () => {
+        await service.onMatchStarted(mockGame.id);
+        const game = await gamesService.getById(mockGame.id);
+        expect(game.state).toEqual('ended');
+      });
     });
   });
 
@@ -103,6 +117,7 @@ describe('GameEventHandlerService', () => {
       gameServerId = new ObjectId();
       const game = await gamesService.getById(mockGame.id);
       game.gameServer = gameServerId;
+      game.state = 'started';
       await game.save();
     });
 
@@ -140,9 +155,9 @@ describe('GameEventHandlerService', () => {
         expect(game.slots.every(s => s.status === 'active')).toBe(true);
       });
 
-      it('should emit subsitute requests change event over ws', async () => {
+      it('should emit substitute requests change event over ws', async () => {
         const spy = jest.spyOn(queueGateway, 'updateSubstituteRequests');
-        await service.onMatchEnded(mockGame._id);
+        await service.onMatchEnded(mockGame.id);
         expect(spy).toHaveBeenCalled();
       });
     });

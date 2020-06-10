@@ -124,27 +124,6 @@ describe('GamesService', () => {
     });
   });
 
-  describe('#update()', () => {
-    let game: DocumentType<Game>;
-
-    beforeEach(async () => {
-      game = await gameModel.create({ number: 1, map: 'cp_badlands', state: 'launching' });
-    });
-
-    it('should update existing game', async () => {
-      const ret = await service.update(game.id, { state: 'started' });
-      expect(ret.state).toEqual('started');
-      expect(ret).toEqual(await service.getById(game.id));
-    });
-
-    it('should not create a new game in case of missing id', async () => {
-      const wrongGameId = new ObjectId();
-      const ret = await service.update(wrongGameId.toString(), { state: 'started' });
-      expect(ret).toBe(null);
-      expect(await service.getById(wrongGameId.toString())).toBe(null);
-    });
-  });
-
   describe('#findByAssignedGameServer()', () => {
     let gameServerId: ObjectId;
     let game: DocumentType<Game>;
