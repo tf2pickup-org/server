@@ -36,7 +36,7 @@
     "discord.js": "12.2.0",
     "gamedig": "2.0.20",
     "generate-password": "1.5.1",
-    "helmet": "3.22.0",
+    "helmet": "3.22.1",
     "jsonschema": "1.2.6",
     "jsonwebtoken": "8.5.1",
     "lodash": "4.17.15",
