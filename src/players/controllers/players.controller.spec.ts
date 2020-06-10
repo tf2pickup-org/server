@@ -39,8 +39,9 @@ class GamesServiceStub {
     { number: 2, map: 'cp_fake_rc2', state: 'launching' },
   ];
   getPlayerGames(playerId: string, sort: any = { launchedAt: -1 }, limit: number = 10, skip: number = 0) {
-    return new Promise(resolve => resolve(this.games));
+    return Promise.resolve(this.games);
   }
+
   getPlayerGameCount() { return Promise.resolve(2); }
 }
 

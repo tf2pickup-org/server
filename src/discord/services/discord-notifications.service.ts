@@ -1,5 +1,5 @@
 import { Injectable, OnModuleInit, Logger } from '@nestjs/common';
-import { Client, TextChannel, MessageEmbed, Message, Guild } from 'discord.js';
+import { Client, TextChannel, MessageEmbed, Message, Guild, MessageEmbedOptions } from 'discord.js';
 import { Environment } from '@/environment/environment';
 import { ConfigService } from '@nestjs/config';
 import { SubstituteRequest } from '@/queue/substitute-request';
@@ -56,7 +56,7 @@ export class DiscordNotificationsService implements OnModuleInit {
     }
   }
 
-  async sendNotification(targetChannel: TargetChannel, notification: MessageEmbed): Promise<Message> {
+  async sendNotification(targetChannel: TargetChannel, notification: MessageEmbed | MessageEmbedOptions): Promise<Message> {
     if (!this.enabled) {
       return null;
     }
