@@ -10,6 +10,7 @@ import { QueueConfigService } from '@/queue/services/queue-config.service';
 import { GameLauncherService } from './game-launcher.service';
 import { GamesGateway } from '../gateways/games.gateway';
 import { ObjectId } from 'mongodb';
+import { FilterQuery } from 'mongoose';
 
 interface GameSortOptions {
   launchedAt: 1 | -1;
@@ -43,10 +44,6 @@ export class GamesService {
 
   async getRunningGames(): Promise<DocumentType<Game>[]> {
     return await this.gameModel.find({ state: /launching|started/ });
-  }
-
-  async update(gameId: string, update: Partial<Game>) {
-    return await this.gameModel.findByIdAndUpdate(gameId, update, { new: true });
   }
 
   async findByAssignedGameServer(gameServerId: string): Promise<DocumentType<Game>> {

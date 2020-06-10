@@ -6,6 +6,9 @@ import { ConfigService } from '@nestjs/config';
 import { GameRuntimeService } from './game-runtime.service';
 import { GamesGateway } from '../gateways/games.gateway';
 import { QueueGateway } from '@/queue/gateways/queue.gateway';
+import { InjectModel } from 'nestjs-typegoose';
+import { Game } from '../models/game';
+import { ReturnModelType } from '@typegoose/typegoose';
 
 @Injectable()
 export class GameEventHandlerService {
@@ -14,6 +17,7 @@ export class GameEventHandlerService {
   private serverCleanupDelay = this.configService.get<number>('serverCleanupDelay');
 
   constructor(
+    @InjectModel(Game) private gameModel: ReturnModelType<typeof Game>,
     private gamesService: GamesService,
     private playersService: PlayersService,
     private configService: ConfigService,
@@ -23,16 +27,16 @@ export class GameEventHandlerService {
   ) { }
 
   async onMatchStarted(gameId: string) {
-    const game = await this.gamesService.update(gameId, { state: 'started' });
+    const game = await this.gameModel.findOneAndUpdate({ _id: gameId, state: 'launching' }, { state: 'started' });
+
+    // const game = await this.gamesService.update({ _id: gameId, state: 'launching' }, { state: 'started' });
     if (game) {
       this.gamesGateway.emitGameUpdated(game);
-    } else {
-      this.logger.warn(`no such game: ${gameId}`);
     }
   }
 
   async onMatchEnded(gameId: string) {
-    const game = await this.gamesService.update(gameId, { state: 'ended' });
+    const game = await this.gameModel.findOneAndUpdate({ _id: gameId, state: 'started' }, { state: 'ended' });
     if (game) {
       game.slots.forEach(slot => {
         if (slot.status === 'waiting for substitute') {
@@ -51,7 +55,7 @@ export class GameEventHandlerService {
   }
 
   async onLogsUploaded(gameId: string, logsUrl: string) {
-    const game = await this.gamesService.update(gameId, { logsUrl });
+    const game = await this.gameModel.findOneAndUpdate({ _id: gameId }, { logsUrl });
     if (game) {
       this.gamesGateway.emitGameUpdated(game);
     } else {
