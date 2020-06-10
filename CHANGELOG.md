@@ -1,3 +1,16 @@
+# [2.7.0](https://github.com/garrappachc/server/compare/2.6.3...2.7.0) (2020-06-10)
+
+
+### Bug Fixes
+
+* ignore match start after it has been ended ([#422](https://github.com/garrappachc/server/issues/422)) ([b6e2958](https://github.com/garrappachc/server/commit/b6e29580ace014a223867842521bbaa1c304313d))
+* **deps:** update dependency nestjs-console to v3.0.6 ([#420](https://github.com/garrappachc/server/issues/420)) ([147fcbd](https://github.com/garrappachc/server/commit/147fcbd6c3ffe8028939163bd3c214f67c29e4be))
+
+
+### Features
+
+* **ci:** add release-it support ([aafcdfb](https://github.com/garrappachc/server/commit/aafcdfb50c0d56c21e532d25c991fedf0a591185))
+
 # [2.6.3](https://github.com/tf2pickup-pl/server/compare/2.6.2...2.6.3) (2020-06-10)
 
 ### Fixes
