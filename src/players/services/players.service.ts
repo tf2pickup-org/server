@@ -9,11 +9,12 @@ import { GamesService } from '@/games/services/games.service';
 import { PlayerStats } from '../models/player-stats';
 import { Etf2lProfile } from '../models/etf2l-profile';
 import { OnlinePlayersService } from './online-players.service';
-import { DiscordNotificationsService } from '@/discord/services/discord-notifications.service';
 import { ConfigService } from '@nestjs/config';
 import { SteamApiService } from './steam-api.service';
 import { Subject } from 'rxjs';
 import { TwitchTvUser } from '../models/twitch-tv-user';
+import { DiscordService } from '@/discord/services/discord.service';
+import { newPlayer, playerNameChanged } from '@/discord/notifications';
 
 @Injectable()
 export class PlayersService {
@@ -33,9 +34,9 @@ export class PlayersService {
     @InjectModel(Player) private playerModel: ReturnModelType<typeof Player>,
     @Inject(forwardRef(() => GamesService)) private gamesService: GamesService,
     private onlinePlayersService: OnlinePlayersService,
-    @Inject(forwardRef(() => DiscordNotificationsService)) private discordNotificationsService: DiscordNotificationsService,
     private configService: ConfigService,
     private steamApiService: SteamApiService,
+    private discordService: DiscordService,
   ) { }
 
   async getAll(): Promise<DocumentType<Player>[]> {
@@ -92,7 +93,12 @@ export class PlayersService {
 
     this.logger.verbose(`created new player (name: ${player?.name})`);
     this._playerRegistered.next(player.id);
-    this.discordNotificationsService.notifyNewPlayer(player);
+
+    this.discordService.getAdminsChannel()?.send(newPlayer({
+      name: player.name,
+      profileUrl: `${this.environment.clientUrl}/player/${player.id}`,
+    }));
+
     return player;
   }
 
@@ -122,7 +128,12 @@ export class PlayersService {
       if (update.name) {
         const oldName = player.name;
         player.name = update.name;
-        this.discordNotificationsService.notifyNameChange(player, oldName);
+
+        this.discordService.getAdminsChannel()?.send(playerNameChanged({
+          oldName,
+          newName: player.name,
+          profileUrl: `${this.environment.clientUrl}/player/${player.id}`,
+        }));
       }
 
       if (update.role !== undefined) {
