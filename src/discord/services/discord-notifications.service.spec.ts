@@ -4,7 +4,7 @@ import { Environment } from '@/environment/environment';
 import { ConfigService } from '@nestjs/config';
 import { MessageEmbedFactoryService } from './message-embed-factory.service';
 import { PlayersService } from '@/players/services/players.service';
-import { Client, queueChannel, pickupsRole, adminChannel } from '@mocks/discord.js';
+import { Client, playersChannel, pickupsRole, adminChannel } from '@mocks/discord.js';
 import { MessageEmbed } from 'discord.js';
 import { ObjectId } from 'mongodb';
 
@@ -12,7 +12,7 @@ class EnvironmentStub {
   discordBotToken = 'FAKE_DISCORD_BOT_TOKEN';
   discordGuild = 'FAKE_GUILD';
   discordQueueNotificationsMentionRole = pickupsRole.name;
-  discordQueueNotificationsChannel = queueChannel.name;
+  discordQueueNotificationsChannel = playersChannel.name;
   discordAdminNotificationsChannel = adminChannel.name;
 };
 
@@ -72,7 +72,7 @@ describe('DiscordNotificationsService', () => {
     describe('#notifyQueue()', () => {
       describe('when the role to mention exists and is mentionable', () => {
         it('should send the message mentioning the role', () => {
-          const spy = jest.spyOn(queueChannel, 'send');
+          const spy = jest.spyOn(playersChannel, 'send');
           service.notifyQueue(6, 12);
           expect(spy).toHaveBeenCalledWith(expect.stringMatching('&<pickups> 6/12'));
         });
@@ -84,7 +84,7 @@ describe('DiscordNotificationsService', () => {
         });
 
         it('should send the message without mentioning the role', () => {
-          const spy = jest.spyOn(queueChannel, 'send');
+          const spy = jest.spyOn(playersChannel, 'send');
           service.notifyQueue(6, 12);
           expect(spy).toHaveBeenCalledWith(expect.stringMatching('6/12'));
         });
@@ -96,7 +96,7 @@ describe('DiscordNotificationsService', () => {
         });
 
         it('should send the message without mentioning the role', () => {
-          const spy = jest.spyOn(queueChannel, 'send');
+          const spy = jest.spyOn(playersChannel, 'send');
           service.notifyQueue(6, 12);
           expect(spy).toHaveBeenCalledWith(expect.stringMatching('6/12'));
         });
@@ -108,7 +108,7 @@ describe('DiscordNotificationsService', () => {
         });
 
         it('should not send any messages', () => {
-          const spy = jest.spyOn(queueChannel, 'send');
+          const spy = jest.spyOn(playersChannel, 'send');
           service.notifyQueue(6, 12);
           expect(spy).not.toHaveBeenCalled();
         });
@@ -124,7 +124,7 @@ describe('DiscordNotificationsService', () => {
 
       describe('when the channel exists', () => {
         it('should send a notification to the queue channel', async () => {
-          const spy = jest.spyOn(queueChannel, 'send');
+          const spy = jest.spyOn(playersChannel, 'send');
           await service.sendNotification(TargetChannel.Queue, notification);
           expect(spy).toHaveBeenCalledWith(notification);
         });
@@ -143,7 +143,7 @@ describe('DiscordNotificationsService', () => {
         });
 
         it('should not send anything', async () => {
-          const spy = jest.spyOn(queueChannel, 'send');
+          const spy = jest.spyOn(playersChannel, 'send');
           await service.sendNotification(TargetChannel.Queue, notification);
           expect(spy).not.toHaveBeenCalled();
         });
@@ -155,7 +155,7 @@ describe('DiscordNotificationsService', () => {
         });
 
         it('should not send anything', async () => {
-          const spy = jest.spyOn(queueChannel, 'send');
+          const spy = jest.spyOn(playersChannel, 'send');
           await service.sendNotification(TargetChannel.Queue, notification);
           expect(spy).not.toHaveBeenCalled();
         });
@@ -164,7 +164,7 @@ describe('DiscordNotificationsService', () => {
 
     describe('#notifySubstituteRequest()', () => {
       it('should send a notification to the queue channel', async () => {
-        const spy = jest.spyOn(queueChannel, 'send');
+        const spy = jest.spyOn(playersChannel, 'send');
         await service.notifySubstituteRequest({ gameId: 'FAKE_GAME', gameNumber: 3, gameClass: 'soldier', team: 'RED' });
         expect(spy).toHaveBeenCalledWith(expect.any(MessageEmbed));
       });

@@ -1,13 +1,13 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { DiscordService } from './discord.service';
-import { Client, queueChannel, pickupsRole, adminChannel } from '@mocks/discord.js';
+import { Client, playersChannel, pickupsRole, adminChannel } from '@mocks/discord.js';
 import { Environment } from '@/environment/environment';
 
 class EnvironmentStub {
   discordBotToken = 'FAKE_DISCORD_BOT_TOKEN';
   discordGuild = 'FAKE_GUILD';
   discordQueueNotificationsMentionRole = pickupsRole.name;
-  discordQueueNotificationsChannel = queueChannel.name;
+  discordQueueNotificationsChannel = playersChannel.name;
   discordAdminNotificationsChannel = adminChannel.name;
 };
 
@@ -44,6 +44,12 @@ describe('DiscordService', () => {
     beforeEach(() => {
       service.onModuleInit();
       client.emit('ready');
+    });
+
+    describe('#getQueueChannel()', () => {
+      it('should return players channel', () => {
+        expect(service.getPlayersChannel()).toBe(playersChannel);
+      });
     });
 
     describe('#getAdminsChannel()', () => {

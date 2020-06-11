@@ -21,6 +21,8 @@ export class GamesService {
     return await this.gameModel.findByIdAndUpdate(gameId, update, { new: true });
   }
 
+  async getPlayerActiveGame(playerId: string) { return Promise.resolve(null); }
+
   async _createOne(players: Player[]) {
     let lastTeamId = 0;
     return await this.gameModel.create({

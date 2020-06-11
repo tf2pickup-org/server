@@ -25,7 +25,11 @@ export class DiscordService implements OnModuleInit {
     }
   }
 
-  getAdminsChannel(): TextChannel {
+  getPlayersChannel(): TextChannel | null {
+    return this.findChannel(this.environment.discordQueueNotificationsChannel);
+  }
+
+  getAdminsChannel(): TextChannel | null {
     return this.findChannel(this.environment.discordAdminNotificationsChannel);
   }
 
