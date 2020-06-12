@@ -15,8 +15,18 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
     logger: logLevels,
   });
+
   app.enableCors();
-  app.use(helmet());
+
+  app.use(helmet
+    .contentSecurityPolicy({
+      directives: {
+        defaultSrc: ['\'self\''],
+        scriptSrc: ['\'self\'', '\'unsafe-inline\''],
+      },
+    }),
+  );
+
   await app.listen(3000);
 }
 bootstrap();
