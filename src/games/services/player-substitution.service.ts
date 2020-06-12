@@ -10,6 +10,7 @@ import { QueueService } from '@/queue/services/queue.service';
 import { DiscordService } from '@/discord/services/discord.service';
 import { substituteRequest } from '@/discord/notifications';
 import { Environment } from '@/environment/environment';
+import { Message } from 'discord.js';
 
 /**
  * A service that handles player substitution logic.
@@ -21,6 +22,7 @@ import { Environment } from '@/environment/environment';
 export class PlayerSubstitutionService {
 
   private logger = new Logger(PlayerSubstitutionService.name);
+  private discordNotifications = new Map<string, Message>(); // playerId <-> message pairs
 
   constructor(
     @Inject(forwardRef(() => GamesService)) private gamesService: GamesService,
@@ -57,12 +59,13 @@ export class PlayerSubstitutionService {
     this.gamesGateway.emitGameUpdated(game);
     this.queueGateway.updateSubstituteRequests();
 
-    this.discordService.getPlayersChannel().send(substituteRequest({
+    const message = await this.discordService.getPlayersChannel()?.send(substituteRequest({
       gameNumber: game.number,
       gameClass: slot.gameClass,
       team: game.teams.get(slot.teamId),
       gameUrl: `${this.environment.clientUrl}/game/${game.id}`,
     }));
+    this.discordNotifications.set(playerId, message);
 
     return game;
   }
@@ -89,6 +92,13 @@ export class PlayerSubstitutionService {
     await game.save();
     this.gamesGateway.emitGameUpdated(game);
     this.queueGateway.updateSubstituteRequests();
+
+    const message = this.discordNotifications.get(playerId);
+    if (message) {
+      await message.delete({ reason: 'substitution request canceled' });
+      this.discordNotifications.delete(playerId);
+    }
+
     return game;
   }
 
@@ -155,6 +165,12 @@ export class PlayerSubstitutionService {
       game.gameServer.toString(),
       `${replacement.name} is replacing ${replacee.name} on ${replacementSlot.gameClass}.`,
     );
+
+    const message = this.discordNotifications.get(replaceeId);
+    if (message) {
+      await message.delete();
+      this.discordNotifications.delete(replaceeId);
+    }
 
     this.logger.verbose(`player ${replacement.name} is replacing ${replacee.name} on ${replacementSlot.gameClass} in game #${game.number}`);
 

@@ -180,7 +180,14 @@ describe('PlayerSubstitutionService', () => {
   });
 
   describe('#cancelSubstitutionRequest()', () => {
+    let discordMessage: any;
+    const channel = { send: () => discordMessage };
+
     beforeEach(async () => {
+      discordMessage = await discordService.getPlayersChannel().send({ });
+      // @ts-expect-error
+      discordService.getPlayersChannel = () => channel;
+
       await service.substitutePlayer(mockGame.id, player1.id);
     });
 
@@ -239,10 +246,23 @@ describe('PlayerSubstitutionService', () => {
       await service.cancelSubstitutionRequest(mockGame.id, player1.id);
       expect(spy).toHaveBeenCalled();
     });
+
+    it('should get rid of discord announcement', async () => {
+      const spy = jest.spyOn(discordMessage, 'delete');
+      await service.cancelSubstitutionRequest(mockGame.id, player1.id);
+      expect(spy).toHaveBeenCalled();
+    });
   });
 
   describe('#replacePlayer()', () => {
+    let discordMessage: any;
+    const channel = { send: () => discordMessage };
+
     beforeEach(async () => {
+      discordMessage = await discordService.getPlayersChannel().send({ });
+      // @ts-expect-error
+      discordService.getPlayersChannel = () => channel;
+
       await service.substitutePlayer(mockGame.id, player1.id);
     });
 
@@ -345,6 +365,12 @@ describe('PlayerSubstitutionService', () => {
       const spy = jest.spyOn(gameRuntimeService, 'sayChat');
       await service.replacePlayer(mockGame.id, player1.id, player3.id);
       expect(spy).toHaveBeenCalledWith(mockGame.gameServer.toString(), 'fake_player_3 is replacing fake_player_1 on soldier.');
+    });
+
+    it('should delete the discord announcement', async () => {
+      const spy = jest.spyOn(discordMessage, 'delete');
+      await service.replacePlayer(mockGame.id, player1.id, player3.id);
+      expect(spy).toHaveBeenCalled();
     });
   });
 });
