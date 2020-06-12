@@ -210,8 +210,8 @@ describe('Players Controller', () => {
     it('should set player skill', async () => {
       const skill = { soldier: 1, medic: 2 };
       const spy = jest.spyOn(playerSkillService, 'setPlayerSkill');
-      const ret = await controller.setPlayerSkill('FAKE_ID', skill);
-      expect(spy).toHaveBeenCalledWith('FAKE_ID', new Map([['soldier', 1], ['medic', 2]]));
+      const ret = await controller.setPlayerSkill('FAKE_ID', skill, { id: 'FAKE_ADMIN_ID' } as any);
+      expect(spy).toHaveBeenCalledWith('FAKE_ID', new Map([['soldier', 1], ['medic', 2]]), 'FAKE_ADMIN_ID');
       expect(ret).toEqual(playerSkillService.skill.skill);
     });
   });

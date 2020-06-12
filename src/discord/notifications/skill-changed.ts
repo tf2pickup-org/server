@@ -6,15 +6,16 @@ interface SkillChangedFields {
   oldSkill: Map<string, number>;
   newSkill: Map<string, number>;
   playerProfileUrl: string;
+  adminResponsible: string;
 }
 
 export function skillChanged(fields: SkillChangedFields): MessageEmbedOptions {
   const embed: MessageEmbedOptions = {
     color: Colors.SkillChanged,
-    title: 'Player\s skill has been updated',
+    title: `Player\'s skill has been updated by ${fields.adminResponsible}`,
     fields: [
       {
-        name: 'Player name',
+        name: 'Player',
         value: `[${fields.playerName}](${fields.playerProfileUrl})`,
       },
     ],

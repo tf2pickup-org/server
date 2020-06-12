@@ -93,8 +93,12 @@ export class PlayersController {
   @Put(':id/skill')
   @Auth('admin', 'super-user')
   // todo validate skill
-  async setPlayerSkill(@Param('id', ObjectIdValidationPipe) playerId: string, @Body() newSkill: { [className: string]: number }) {
-    return (await this.playerSkillService.setPlayerSkill(playerId, new Map(Object.entries(newSkill)))).skill;
+  async setPlayerSkill(
+    @Param('id', ObjectIdValidationPipe) playerId: string,
+    @Body() newSkill: Record<string, number>,
+    @User() user: Player,
+  ) {
+    return (await this.playerSkillService.setPlayerSkill(playerId, new Map(Object.entries(newSkill)), user.id))?.skill;
   }
 
   @Get(':id/bans')
