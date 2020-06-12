@@ -38,6 +38,16 @@ describe('DiscordService', () => {
       client.emit('ready');
       expect(spy).toHaveBeenCalledWith('FAKE_DISCORD_BOT_TOKEN');
     });
+
+    it('should send notification', done => {
+      const spy = jest.spyOn(adminChannel, 'send');
+      service.onModuleInit();
+      client.emit('ready');
+      setTimeout(() => {
+        expect(spy).toHaveBeenCalled();
+        done();
+      }, 0);
+    });
   });
 
   describe('when logged in', () => {

@@ -1,6 +1,7 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { Client, Guild, TextChannel, Role } from 'discord.js';
 import { Environment } from '@/environment/environment';
+import { version } from '../../../package.json';
 
 @Injectable()
 export class DiscordService implements OnModuleInit {
@@ -21,6 +22,7 @@ export class DiscordService implements OnModuleInit {
       });
 
       this.client.login(this.environment.discordBotToken)
+        .then(() => this.getAdminsChannel().send(`Server version ${version} started.`))
         .catch(error => this.logger.error(error.toString()));
     }
   }
