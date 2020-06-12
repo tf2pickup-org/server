@@ -94,10 +94,12 @@ export class PlayersService {
     this.logger.verbose(`created new player (name: ${player?.name})`);
     this._playerRegistered.next(player.id);
 
-    this.discordService.getAdminsChannel()?.send(newPlayer({
-      name: player.name,
-      profileUrl: `${this.environment.clientUrl}/player/${player.id}`,
-    }));
+    this.discordService.getAdminsChannel()?.send({
+      embed: newPlayer({
+        name: player.name,
+        profileUrl: `${this.environment.clientUrl}/player/${player.id}`,
+      }),
+    });
 
     return player;
   }
@@ -134,12 +136,14 @@ export class PlayersService {
         const oldName = player.name;
         player.name = update.name;
 
-        this.discordService.getAdminsChannel()?.send(playerNameChanged({
-          oldName,
-          newName: player.name,
-          profileUrl: `${this.environment.clientUrl}/player/${player.id}`,
-          adminResponsible: admin.name,
-        }));
+        this.discordService.getAdminsChannel()?.send({
+          embed: playerNameChanged({
+            oldName,
+            newName: player.name,
+            profileUrl: `${this.environment.clientUrl}/player/${player.id}`,
+            adminResponsible: admin.name,
+          }),
+        });
       }
 
       if (update.role !== undefined) {

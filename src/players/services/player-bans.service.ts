@@ -80,13 +80,15 @@ export class PlayerBansService implements OnModuleInit {
     this.logger.verbose(`ban added for player ${player.id} (reason: ${playerBan.reason})`);
     this._banAdded.next(player.id);
 
-    this.discordService.getAdminsChannel()?.send(playerBanAdded({
-      admin: admin.name,
-      player: player.name,
-      reason: addedBan.reason,
-      ends: addedBan.end,
-      playerProfileUrl: `${this.environment.clientUrl}/player/${player.id}`,
-    }));
+    this.discordService.getAdminsChannel()?.send({
+      embed: playerBanAdded({
+        admin: admin.name,
+        player: player.name,
+        reason: addedBan.reason,
+        ends: addedBan.end,
+        playerProfileUrl: `${this.environment.clientUrl}/player/${player.id}`,
+      }),
+    });
 
     return addedBan;
   }
@@ -110,12 +112,14 @@ export class PlayerBansService implements OnModuleInit {
     this.logger.verbose(`ban revoked for player ${player.id}`);
     this._banRevoked.next(player.id);
 
-    this.discordService.getAdminsChannel()?.send(playerBanRevoked({
-      player: player.name,
-      reason: ban.reason,
-      playerProfileUrl: `${this.environment.clientUrl}/player/${player.id}`,
-      adminResponsible: admin.name,
-    }));
+    this.discordService.getAdminsChannel()?.send({
+      embed: playerBanRevoked({
+        player: player.name,
+        reason: ban.reason,
+        playerProfileUrl: `${this.environment.clientUrl}/player/${player.id}`,
+        adminResponsible: admin.name,
+      }),
+    });
 
     return ban;
   }

@@ -59,12 +59,14 @@ export class PlayerSubstitutionService {
     this.gamesGateway.emitGameUpdated(game);
     this.queueGateway.updateSubstituteRequests();
 
-    const message = await this.discordService.getPlayersChannel()?.send(substituteRequest({
-      gameNumber: game.number,
-      gameClass: slot.gameClass,
-      team: game.teams.get(slot.teamId),
-      gameUrl: `${this.environment.clientUrl}/game/${game.id}`,
-    }));
+    const message = await this.discordService.getPlayersChannel()?.send({
+      embed:substituteRequest({
+        gameNumber: game.number,
+        gameClass: slot.gameClass,
+        team: game.teams.get(slot.teamId),
+        gameUrl: `${this.environment.clientUrl}/game/${game.id}`,
+      }),
+    });
     this.discordNotifications.set(playerId, message);
 
     return game;
