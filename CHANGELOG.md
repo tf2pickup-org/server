@@ -1,3 +1,10 @@
+## [2.8.1](https://github.com/garrappachc/server/compare/2.8.0...2.8.1) (2020-06-12)
+
+
+### Bug Fixes
+
+* **discord:** send actual embeds ([#429](https://github.com/garrappachc/server/issues/429)) ([64f75ab](https://github.com/garrappachc/server/commit/64f75ab0433b1ba58e35dc1fc5d4bc53a17a2e9e))
+
 # [2.8.0](https://github.com/garrappachc/server/compare/2.7.0...2.8.0) (2020-06-12)
 
 
