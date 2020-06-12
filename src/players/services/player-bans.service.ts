@@ -1,4 +1,4 @@
-import { Injectable, OnModuleInit, Logger } from '@nestjs/common';
+import { Injectable, OnModuleInit, Logger, Inject, forwardRef } from '@nestjs/common';
 import { InjectModel } from 'nestjs-typegoose';
 import { PlayerBan } from '../models/player-ban';
 import { ReturnModelType, DocumentType } from '@typegoose/typegoose';
@@ -28,7 +28,7 @@ export class PlayerBansService implements OnModuleInit {
     @InjectModel(PlayerBan) private playerBanModel: ReturnModelType<typeof PlayerBan>,
     private onlinePlayersService: OnlinePlayersService,
     private discordService: DiscordService,
-    private playersService: PlayersService,
+    @Inject(forwardRef(() => PlayersService)) private playersService: PlayersService,
     private environment: Environment,
   ) { }
 
