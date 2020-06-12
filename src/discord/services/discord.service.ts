@@ -1,5 +1,5 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import { Client, Guild, TextChannel } from 'discord.js';
+import { Client, Guild, TextChannel, Role } from 'discord.js';
 import { Environment } from '@/environment/environment';
 
 @Injectable()
@@ -31,6 +31,11 @@ export class DiscordService implements OnModuleInit {
 
   getAdminsChannel(): TextChannel | null {
     return this.findChannel(this.environment.discordAdminNotificationsChannel);
+  }
+
+  findRole(name: string): Role | null {
+    return this.guild.roles.cache
+      .find(role => role.name ===  name);
   }
 
   private enable() {

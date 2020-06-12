@@ -1,17 +1,23 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { QueueNotificationsService } from './queue-notifications.service';
 import { QueueService } from './queue.service';
-import { DiscordNotificationsService } from '@/discord/services/discord-notifications.service';
 import { Subject } from 'rxjs';
 import { ConfigService } from '@nestjs/config';
+import { Environment } from '@/environment/environment';
+import { DiscordService } from '@/discord/services/discord.service';
 
-jest.mock('@/discord/services/discord-notifications.service');
+jest.mock('@/discord/services/discord.service');
 
 class QueueServiceStub {
   playerCount = 6;
   requiredPlayerCount = 12;
   playerJoin = new Subject<string>();
 }
+
+const environment = {
+  clientUrl: 'FAKE_CLIENT_URL',
+  discordQueueNotificationsMentionRole: 'pickups',
+};
 
 class ConfigServiceStub {
   get(key: string) {
@@ -28,21 +34,22 @@ class ConfigServiceStub {
 describe('QueueNotificationsService', () => {
   let service: QueueNotificationsService;
   let queueService: QueueServiceStub;
-  let discordNotificationsService: DiscordNotificationsService;
+  let discordService: DiscordService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         QueueNotificationsService,
         { provide: QueueService, useClass: QueueServiceStub },
-        DiscordNotificationsService,
         { provide: ConfigService, useClass: ConfigServiceStub },
+        { provide: Environment, useValue: environment },
+        DiscordService,
       ],
     }).compile();
 
     service = module.get<QueueNotificationsService>(QueueNotificationsService);
     queueService = module.get(QueueService);
-    discordNotificationsService = module.get(DiscordNotificationsService);
+    discordService = module.get(DiscordService);
 
     service.onModuleInit();
   });
@@ -56,15 +63,15 @@ describe('QueueNotificationsService', () => {
 
   describe('when a player joins the queue', () => {
     it('should notify after 5 minutes', () => {
-      const spy = jest.spyOn(discordNotificationsService, 'notifyQueue');
+      const spy = jest.spyOn(discordService.getPlayersChannel(), 'send');
       queueService.playerJoin.next('FAKE_ID');
       expect(spy).not.toHaveBeenCalled();
       jest.advanceTimersByTime(5 * 60 * 1000 + 1);
-      expect(spy).toHaveBeenCalledWith(6, 12);
+      expect(spy).toHaveBeenCalled();
     });
 
     it('should notify only once if there are two consecutive player_join events', () => {
-      const spy = jest.spyOn(discordNotificationsService, 'notifyQueue');
+      const spy = jest.spyOn(discordService.getPlayersChannel(), 'send');
       queueService.playerJoin.next('FAKE_ID');
       jest.advanceTimersByTime(4 * 60 * 1000);
       expect(spy).not.toHaveBeenCalled();
@@ -77,7 +84,7 @@ describe('QueueNotificationsService', () => {
 
     it('should not notify below specified threshold', () => {
       queueService.playerCount = 5;
-      const spy = spyOn(discordNotificationsService, 'notifyQueue');
+      const spy = spyOn(discordService.getPlayersChannel(), 'send');
       queueService.playerJoin.next('FAKE_ID');
       jest.runAllTicks();
       expect(spy).not.toHaveBeenCalled();
@@ -85,7 +92,7 @@ describe('QueueNotificationsService', () => {
 
     it('should not notify on full queue', () => {
       queueService.playerCount = 12;
-      const spy = spyOn(discordNotificationsService, 'notifyQueue');
+      const spy = spyOn(discordService.getPlayersChannel(), 'send');
       queueService.playerJoin.next('FAKE_ID');
       jest.runAllTicks();
       expect(spy).not.toHaveBeenCalled();
@@ -93,7 +100,7 @@ describe('QueueNotificationsService', () => {
 
     it('should not notify if the player count drops below the required threshold', () => {
       queueService.playerCount = 6;
-      const spy = spyOn(discordNotificationsService, 'notifyQueue');
+      const spy = spyOn(discordService.getPlayersChannel(), 'send');
       queueService.playerJoin.next('FAKE_ID');
       jest.runAllTicks();
       queueService.playerCount = 5;

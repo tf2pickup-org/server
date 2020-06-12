@@ -19,4 +19,8 @@ export class DiscordService {
     return this.adminsChannel;
   }
 
+  findRole(role: string) {
+    return `&<${role}>`;
+  }
+
 }

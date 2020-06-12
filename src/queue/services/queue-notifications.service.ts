@@ -1,7 +1,8 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { QueueService } from './queue.service';
-import { DiscordNotificationsService } from '@/discord/services/discord-notifications.service';
 import { ConfigService } from '@nestjs/config/dist/config.service';
+import { Environment } from '@/environment/environment';
+import { DiscordService } from '@/discord/services/discord.service';
 
 @Injectable()
 export class QueueNotificationsService implements OnModuleInit {
@@ -13,8 +14,9 @@ export class QueueNotificationsService implements OnModuleInit {
 
   constructor(
     private queueService: QueueService,
-    private discordNotificationsService: DiscordNotificationsService,
     private configService: ConfigService,
+    private environment: Environment,
+    private discordService: DiscordService,
   ) { }
 
   onModuleInit() {
@@ -32,7 +34,15 @@ export class QueueNotificationsService implements OnModuleInit {
 
   private maybeNotify() {
     if (this.queueService.playerCount >= this.playerThreshold && this.queueService.playerCount < this.queueService.requiredPlayerCount) {
-      this.discordNotificationsService.notifyQueue(this.queueService.playerCount, this.queueService.requiredPlayerCount);
+      const message = `${this.queueService.playerCount}/${this.queueService.requiredPlayerCount} in the queue. Go to ${this.environment.clientUrl} and don't miss the next game!`;
+      const channel = this.discordService.getPlayersChannel();
+      const roleToMention = this.discordService.findRole(this.environment.discordQueueNotificationsMentionRole);
+
+      if (roleToMention?.mentionable) {
+        channel?.send(`${roleToMention} ${message}`);
+      } else {
+        channel?.send(message);
+      }
     }
   }
 

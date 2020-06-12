@@ -57,6 +57,12 @@ describe('DiscordService', () => {
         expect(service.getAdminsChannel()).toBe(adminChannel);
       });
     });
+
+    describe('#findRole()', () => {
+      it('should return the role', () => {
+        expect(service.findRole(pickupsRole.name)).toBe(pickupsRole);
+      });
+    });
   });
 
 });
