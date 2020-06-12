@@ -122,7 +122,12 @@ export class PlayersService {
     return await this.playerModel.find({ twitchTvUser: { $exists: true } });
   }
 
-  async updatePlayer(playerId: string, update: Partial<Player>): Promise<DocumentType<Player>> {
+  async updatePlayer(playerId: string, update: Partial<Player>, adminId: string): Promise<DocumentType<Player>> {
+    const admin = await this.getById(adminId);
+    if (!admin)  {
+      throw new Error('admin does not exist');
+    }
+
     const player = await this.getById(playerId);
     if (player) {
       if (update.name) {
@@ -133,6 +138,7 @@ export class PlayersService {
           oldName,
           newName: player.name,
           profileUrl: `${this.environment.clientUrl}/player/${player.id}`,
+          adminResponsible: admin.name,
         }));
       }
 

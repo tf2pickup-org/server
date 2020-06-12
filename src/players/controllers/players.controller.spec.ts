@@ -149,8 +149,8 @@ describe('Players Controller', () => {
   describe('#updatePlayer()', () => {
     it('should update the player', async () => {
       const spy = jest.spyOn(playersService, 'updatePlayer');
-      const ret = await controller.updatePlayer('FAKE_ID', { name: 'FAKE_NEW_NAME' });
-      expect(spy).toHaveBeenCalledWith('FAKE_ID', { name: 'FAKE_NEW_NAME' });
+      const ret = await controller.updatePlayer('FAKE_ID', { name: 'FAKE_NEW_NAME' }, { id: 'FAKE_ADMIN_ID' } as any);
+      expect(spy).toHaveBeenCalledWith('FAKE_ID', { name: 'FAKE_NEW_NAME' }, 'FAKE_ADMIN_ID');
       expect(ret).toEqual(playersService.player as any);
     });
   });

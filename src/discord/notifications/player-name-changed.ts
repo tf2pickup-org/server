@@ -5,12 +5,13 @@ interface PlayerNameChangedFields {
   oldName: string;
   newName: string;
   profileUrl: string;
+  adminResponsible: string;
 }
 
 export function playerNameChanged(fields: PlayerNameChangedFields): MessageEmbedOptions {
   return {
     color: Colors.PlayerNameChanged,
-    title: 'Player name changed',
+    title: `Player name changed by ${fields.adminResponsible}`,
     fields: [
       {
         name: 'Old name',

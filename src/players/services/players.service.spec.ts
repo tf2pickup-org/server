@@ -14,6 +14,7 @@ import { typegooseTestingModule } from '@/utils/testing-typegoose-module';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { SteamApiService } from './steam-api.service';
 import { DiscordService } from '@/discord/services/discord.service';
+import { ObjectId } from 'mongodb';
 
 jest.mock('@/discord/services/discord.service');
 
@@ -326,16 +327,27 @@ describe('PlayersService', () => {
   });
 
   describe('#updatePlayer()', () => {
+    let admin: DocumentType<Player>;
+
+    beforeEach(async () => {
+      admin = await playerModel.create({
+        name: 'FAKE_ADMIN_NAME',
+        steamId: 'FAKE_ADMIN_STEAM_ID',
+        etf2lProfileId: 1,
+        hasAcceptedRules: true,
+      });
+    });
+
     it('should update player name', async () => {
-      const ret = await service.updatePlayer(mockPlayer.id, { name: 'NEW_NAME' });
+      const ret = await service.updatePlayer(mockPlayer.id, { name: 'NEW_NAME' }, admin.id);
       expect(ret.name).toEqual('NEW_NAME');
     });
 
     it('should update player role', async () => {
-      const ret1 = await service.updatePlayer(mockPlayer.id, { role: 'admin' });
+      const ret1 = await service.updatePlayer(mockPlayer.id, { role: 'admin' }, admin.id);
       expect(ret1.role).toEqual('admin');
 
-      const ret2 = await service.updatePlayer(mockPlayer.id, { role: null });
+      const ret2 = await service.updatePlayer(mockPlayer.id, { role: null }, admin.id);
       expect(ret2.role).toBe(null);
     });
 
@@ -344,19 +356,24 @@ describe('PlayersService', () => {
       jest.spyOn(onlinePlayersService, 'getSocketsForPlayer').mockReturnValue([ socket ] as any);
       const spy = jest.spyOn(socket, 'emit');
 
-      await service.updatePlayer(mockPlayer.id, { name: 'NEW_NAME' });
+      await service.updatePlayer(mockPlayer.id, { name: 'NEW_NAME' }, admin.id);
       expect(spy).toHaveBeenCalledWith('profile update', { name: 'NEW_NAME' });
     });
 
     it('should return null if the given player does not exist', async () => {
-      jest.spyOn(service, 'getById').mockResolvedValue(null);
-      expect(await service.updatePlayer('FAKE_ID', { })).toBeNull();
+      expect(await service.updatePlayer(new ObjectId().toString(), { }, admin.id)).toBeNull();
     });
 
     it('should notify admins on Discord', async () => {
       const spy = jest.spyOn(discordService.getAdminsChannel(), 'send');
-      await service.updatePlayer(mockPlayer.id, { name: 'NEW_NAME' });
+      await service.updatePlayer(mockPlayer.id, { name: 'NEW_NAME' }, admin.id);
       expect(spy).toHaveBeenCalled();
+    });
+
+    describe('when the admin does not exist', () => {
+      it('should reject', async () => {
+        await expect(service.updatePlayer(mockPlayer.id, { name: 'NEW_NAME' }, new ObjectId().toString())).rejects.toThrowError();
+      });
     });
   });
 

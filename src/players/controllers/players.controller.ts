@@ -37,8 +37,8 @@ export class PlayersController {
 
   @Patch(':id')
   @Auth('admin', 'super-user')
-  async updatePlayer(@Param('id', ObjectIdValidationPipe) playerId: string, @Body() player: Partial<Player>) {
-    return await this.playersService.updatePlayer(playerId, player);
+  async updatePlayer(@Param('id', ObjectIdValidationPipe) playerId: string, @Body() player: Partial<Player>, @User() user: Player) {
+    return await this.playersService.updatePlayer(playerId, player, user.id);
   }
 
   @Get(':id/games')
