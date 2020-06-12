@@ -4,4 +4,5 @@ export enum Colors {
   NewPlayer = '#33dc7f',
   PlayerNameChanged = '#5230dc',
   SubstituteRequest = '#ff557f',
+  SkillChanged = '#ff953e',
 }

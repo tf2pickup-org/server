@@ -11,11 +11,14 @@ import { QueueConfigService } from '@/queue/services/queue-config.service';
 import * as fs from 'fs';
 import { FuturePlayerSkillService } from './future-player-skill.service';
 import { Etf2lProfileService } from './etf2l-profile.service';
-import { DiscordNotificationsService } from '@/discord/services/discord-notifications.service';
 import { Player } from '../models/player';
+import { DiscordService } from '@/discord/services/discord.service';
+import { Environment } from '@/environment/environment';
 
 jest.mock('./players.service');
-jest.mock('@/discord/services/discord-notifications.service');
+jest.mock('./future-player-skill.service');
+jest.mock('./etf2l-profile.service');
+jest.mock('@/discord/services/discord.service');
 
 class QueueConfigServiceStub {
   queueConfig = {
@@ -25,13 +28,9 @@ class QueueConfigServiceStub {
   };
 }
 
-class FuturePlayerSkillServiceStub {
-  findSkill(steamId: string) { return Promise.resolve(null); }
-}
-
-class Etf2lProfileServiceStub {
-  fetchPlayerInfo(id: string) { return Promise.resolve(); }
-}
+const environment = {
+  clientUrl: 'FAKE_CLIENT_URL',
+};
 
 describe('PlayerSkillService', () => {
   let service: PlayerSkillService;
@@ -40,9 +39,8 @@ describe('PlayerSkillService', () => {
   let mockPlayer: DocumentType<Player>;
   let mockPlayerSkill: DocumentType<PlayerSkill>;
   let playersService: PlayersService;
-  let futurePlayerSkillService: FuturePlayerSkillServiceStub;
-  let etf2lProfileService: Etf2lProfileServiceStub;
-  let discordNotificationsService: DiscordNotificationsService;
+  let futurePlayerSkillService: FuturePlayerSkillService;
+  let discordService: DiscordService;
 
   beforeAll(() => mongod = new MongoMemoryServer());
   afterAll(async () => await mongod.stop());
@@ -57,9 +55,10 @@ describe('PlayerSkillService', () => {
         PlayerSkillService,
         PlayersService,
         { provide: QueueConfigService, useClass: QueueConfigServiceStub },
-        { provide: FuturePlayerSkillService, useClass: FuturePlayerSkillServiceStub },
-        { provide: Etf2lProfileService, useClass: Etf2lProfileServiceStub },
-        DiscordNotificationsService,
+        FuturePlayerSkillService,
+        Etf2lProfileService,
+        DiscordService,
+        { provide: Environment, useValue: environment },
       ],
     }).compile();
 
@@ -67,8 +66,7 @@ describe('PlayerSkillService', () => {
     playerSkillModel = module.get(getModelToken('PlayerSkill'));
     playersService = module.get(PlayersService);
     futurePlayerSkillService = module.get(FuturePlayerSkillService);
-    etf2lProfileService = module.get(Etf2lProfileService);
-    discordNotificationsService = module.get(DiscordNotificationsService);
+    discordService = module.get(DiscordService);
 
     service.onModuleInit();
   });
@@ -96,10 +94,14 @@ describe('PlayerSkillService', () => {
 
   describe('upon player registration', () => {
     describe('when there is no future skill', () => {
-      it('should not update player\'s skill', async done => {
-        // @ts-expect-error
-        const newPlayer = await playersService._createOne();
+      let newPlayer: DocumentType<Player>;
 
+      beforeEach(async () => {
+        // @ts-expect-error
+        newPlayer = await playersService._createOne();
+      });
+
+      it('should not update player\'s skill', async done => {
         // @ts-expect-error
         playersService.playerRegistered.next(newPlayer.id.toString());
         setTimeout(async () => {
@@ -111,7 +113,8 @@ describe('PlayerSkillService', () => {
 
     describe('when there is future skill for the given player', () => {
       beforeEach(() => {
-        jest.spyOn(futurePlayerSkillService, 'findSkill').mockResolvedValue({ steamId: mockPlayer.steamId, skill: new Map([['soldier', 2]]) });
+        // @ts-expect-error
+        futurePlayerSkillService.findSkill = () => Promise.resolve({ steamId: mockPlayer.steamId, skill: new Map([['soldier', 2]]) });
       });
 
       it('should update player\'s skill', done => {
@@ -140,21 +143,55 @@ describe('PlayerSkillService', () => {
   });
 
   describe('#setPlayerSkill()', () => {
-    it('should set player skill', async () => {
-      const ret = await service.setPlayerSkill(mockPlayer.id, new Map([['soldier', 2]]));
-      expect(ret.toObject()).toMatchObject({
-        skill: new Map([['soldier', 2]]),
+    describe('when changing player skill', () => {
+      it('should update player skill', async () => {
+        const ret = await service.setPlayerSkill(mockPlayer.id, new Map([['soldier', 2]]));
+        expect(ret.toObject()).toMatchObject({
+          skill: new Map([['soldier', 2]]),
+        });
+      });
+
+      it('should notify admins on discord', async () => {
+        const spy = jest.spyOn(discordService.getAdminsChannel(), 'send');
+        await service.setPlayerSkill(mockPlayer.id, new Map([['soldier', 2]]));
+        expect(spy).toHaveBeenCalled();
       });
     });
 
-    it('should fail if there is no such player', async () => {
-      await expect(service.setPlayerSkill(new ObjectId().toString(), new Map([['scout', 1]]))).rejects.toThrowError('no such player');
+    describe('when not changing player skill', () => {
+      it('should return the original skill', async () => {
+        const ret = await service.setPlayerSkill(mockPlayer.id, new Map([['soldier', 4]]));
+        expect(ret.toObject()).toMatchObject({
+          skill: new Map([['soldier', 4]]),
+        });
+      });
+
+      it('should not notify admins on discord', async () => {
+        const spy = jest.spyOn(discordService.getAdminsChannel(), 'send');
+        await service.setPlayerSkill(mockPlayer.id, new Map([['soldier', 4]]));
+        expect(spy).not.toHaveBeenCalled();
+      });
     });
 
-    it('should notify admins on discord', async () => {
-      const spy = jest.spyOn(discordNotificationsService, 'notifySkillChange');
-      await service.setPlayerSkill(mockPlayer.id, new Map([['soldier', 2]]));
-      expect(spy).toHaveBeenCalled();
+    describe('when initializing player skill with ones', () => {
+      let newPlayer: DocumentType<Player>;
+
+      beforeEach(async () => {
+        // @ts-expect-error
+        newPlayer = await playersService._createOne();
+      });
+
+      it('should not notify admins on discord', async () => {
+        const spy = jest.spyOn(discordService.getAdminsChannel(), 'send');
+        await service.setPlayerSkill(newPlayer.id, new Map([['soldier', 1]]));
+        expect(spy).not.toHaveBeenCalled();
+      });
+    });
+
+    describe('when there is no such player', () => {
+      it('should fail', async () => {
+        await expect(service.setPlayerSkill(new ObjectId().toString(), new Map([['scout', 1]]))).rejects.toThrowError('no such player');
+      });
     });
   });
 
