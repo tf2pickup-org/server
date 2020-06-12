@@ -106,7 +106,7 @@ export class PlayersController {
   @Post(':id/bans')
   @Auth('admin', 'super-user')
   @UsePipes(ValidationPipe)
-  async addPlayerBan(@Param('id', ObjectIdValidationPipe) playerId: string, @Body() playerBan: PlayerBan, @User() user: any) {
+  async addPlayerBan(@Param('id', ObjectIdValidationPipe) playerId: string, @Body() playerBan: PlayerBan, @User() user: Player) {
     if (playerBan.admin.toString() !== user.id) {
       throw new BadRequestException('the admin field must be the same as authorized user\'s id');
     }
@@ -117,7 +117,7 @@ export class PlayersController {
   @Auth('admin', 'super-user')
   @HttpCode(200)
   async updatePlayerBan(@Param('playerId', ObjectIdValidationPipe) playerId: string, @Param('banId', ObjectIdValidationPipe) banId: string,
-                        @Query('revoke') revoke: any) {
+                        @Query('revoke') revoke: any, @User() user: Player) {
     const player = await this.playersService.getById(playerId);
     if (!player) {
       throw new NotFoundException('player not found');
@@ -133,7 +133,7 @@ export class PlayersController {
     }
 
     if (revoke !== undefined) {
-      return this.playerBansService.revokeBan(banId);
+      return this.playerBansService.revokeBan(banId, user.id);
     }
   }
 

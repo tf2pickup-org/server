@@ -5,12 +5,13 @@ interface PlayerBanRevokedFields {
   player: string;
   reason: string;
   playerProfileUrl: string;
+  adminResponsible: string;
 }
 
 export function playerBanRevoked(fields: PlayerBanRevokedFields): MessageEmbedOptions {
   return {
     color: Colors.PlayerBanRevoked,
-    title: 'Ban revoked',
+    title: `Ban revoked by ${fields.adminResponsible}`,
     fields: [
       {
         name: 'Player',

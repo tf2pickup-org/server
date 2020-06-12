@@ -237,13 +237,14 @@ describe('Players Controller', () => {
 
     it('should add player ban', async () => {
       const spy = jest.spyOn(playerBansService, 'addPlayerBan');
-      const ret = await controller.addPlayerBan('FAKE_ID', ban as any, { id: '5d448875b963ff7e00c6b6b3' });
+      const ret = await controller.addPlayerBan('FAKE_ID', ban as any, { id: '5d448875b963ff7e00c6b6b3' } as any);
       expect(spy).toHaveBeenCalledWith(ban);
       expect(ret).toEqual(ban as any);
     });
 
     it('should fail if the authorized user id is not the same as admin\'s', async () => {
-      await expect(controller.addPlayerBan('FAKE_ID', ban as any, { id: 'SOME_ID' })).rejects.toThrow(BadRequestException);
+      await expect(controller.addPlayerBan('FAKE_ID', ban as any, { id: 'SOME_ID' } as any))
+        .rejects.toThrow(BadRequestException);
     });
   });
 });

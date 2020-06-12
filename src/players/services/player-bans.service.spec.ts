@@ -183,7 +183,7 @@ describe('PlayerBansService', () => {
 
   describe('#revokeBan()', () => {
     it('should revoke the ban', async () => {
-      const ban = await service.revokeBan(mockPlayerBan.id);
+      const ban = await service.revokeBan(mockPlayerBan.id, admin.id);
       expect(ban.end.getTime()).toBeLessThanOrEqual(new Date().getTime());
     });
 
@@ -193,13 +193,30 @@ describe('PlayerBansService', () => {
         done();
       });
 
-      await service.revokeBan(mockPlayerBan.id);
+      await service.revokeBan(mockPlayerBan.id, admin.id);
     });
 
     it('should send discord notification', async () => {
       const spy = jest.spyOn(discordService.getAdminsChannel(), 'send');
-      const ban = await service.revokeBan(mockPlayerBan.id);
+      const ban = await service.revokeBan(mockPlayerBan.id, admin.id);
       expect(spy).toHaveBeenCalled();
+    });
+
+    describe('when attempting to revoke an already expired ban', () => {
+      beforeEach(async () => {
+        mockPlayerBan.end = new Date();
+        await mockPlayerBan.save();
+      });
+
+      it('should reject', async () => {
+        await expect(service.revokeBan(mockPlayerBan.id, admin.id)).rejects.toThrowError();
+      });
+    });
+
+    describe('when the provided admin does not exist', () => {
+      it('should reject', async () => {
+        await expect(service.revokeBan(mockPlayerBan.id, new ObjectId().toString())).rejects.toThrowError();
+      });
     });
   });
 });
