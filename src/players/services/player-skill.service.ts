@@ -67,13 +67,15 @@ export class PlayerSkillService implements OnModuleInit {
     for (const [key, value] of ret.skill) {
       const old = oldSkill?.skill.get(key) ?? 1;
       if (value !== old) {
-        this.discordService.getAdminsChannel()?.send(skillChanged({
-          playerName: player.name,
-          oldSkill: oldSkill.skill,
-          newSkill: skill,
-          playerProfileUrl: `${this.environment.clientUrl}/player/${player.id}`,
-          adminResponsible: admin?.name,
-        }));
+        this.discordService.getAdminsChannel()?.send({
+          embed: skillChanged({
+            playerName: player.name,
+            oldSkill: oldSkill.skill,
+            newSkill: skill,
+            playerProfileUrl: `${this.environment.clientUrl}/player/${player.id}`,
+            adminResponsible: admin?.name,
+          }),
+        });
         break;
       }
     }

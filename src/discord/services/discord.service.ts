@@ -19,10 +19,10 @@ export class DiscordService implements OnModuleInit {
       this.client.on('ready', () => {
         this.logger.log(`logged in as ${this.client.user.tag}`);
         this.enable();
+        this.getAdminsChannel().send(`Server version ${version} started.`)
       });
 
       this.client.login(this.environment.discordBotToken)
-        .then(() => this.getAdminsChannel().send(`Server version ${version} started.`))
         .catch(error => this.logger.error(error.toString()));
     }
   }
