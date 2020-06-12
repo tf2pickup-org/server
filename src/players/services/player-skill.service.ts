@@ -13,6 +13,7 @@ import { Etf2lProfileService } from './etf2l-profile.service';
 import { DiscordService } from '@/discord/services/discord.service';
 import { skillChanged } from '@/discord/notifications';
 import { Environment } from '@/environment/environment';
+import { Player } from '../models/player';
 
 @Injectable()
 @Console()
@@ -46,7 +47,15 @@ export class PlayerSkillService implements OnModuleInit {
     return await this.playerSkillModel.findOne({ player: playerId });
   }
 
-  async setPlayerSkill(playerId: string, skill: Map<string, number>): Promise<DocumentType<PlayerSkill>> {
+  async setPlayerSkill(playerId: string, skill: Map<string, number>, adminId?: string): Promise<DocumentType<PlayerSkill>> {
+    let admin: DocumentType<Player>;
+    if (adminId) {
+      admin = await this.playersService.getById(adminId);
+      if (!admin) {
+        throw new Error('invalid admin');
+      }
+    }
+
     const player = await this.playersService.getById(playerId);
     if (!player) {
       throw new Error('no such player');
@@ -63,6 +72,7 @@ export class PlayerSkillService implements OnModuleInit {
           oldSkill: oldSkill.skill,
           newSkill: skill,
           playerProfileUrl: `${this.environment.clientUrl}/player/${player.id}`,
+          adminResponsible: admin?.name,
         }));
         break;
       }

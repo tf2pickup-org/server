@@ -91,7 +91,12 @@ export class PlayerBansService implements OnModuleInit {
     return addedBan;
   }
 
-  async revokeBan(banId: string): Promise<DocumentType<PlayerBan>> {
+  async revokeBan(banId: string, adminId: string): Promise<DocumentType<PlayerBan>> {
+    const admin = await this.playersService.getById(adminId);
+    if (!admin) {
+      throw new Error('this admin does not exist');
+    }
+
     const ban = await this.playerBanModel.findById(banId);
 
     if (ban.end < new Date()) {
@@ -109,6 +114,7 @@ export class PlayerBansService implements OnModuleInit {
       player: player.name,
       reason: ban.reason,
       playerProfileUrl: `${this.environment.clientUrl}/player/${player.id}`,
+      adminResponsible: admin.name,
     }));
 
     return ban;

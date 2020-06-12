@@ -149,8 +149,8 @@ describe('Players Controller', () => {
   describe('#updatePlayer()', () => {
     it('should update the player', async () => {
       const spy = jest.spyOn(playersService, 'updatePlayer');
-      const ret = await controller.updatePlayer('FAKE_ID', { name: 'FAKE_NEW_NAME' });
-      expect(spy).toHaveBeenCalledWith('FAKE_ID', { name: 'FAKE_NEW_NAME' });
+      const ret = await controller.updatePlayer('FAKE_ID', { name: 'FAKE_NEW_NAME' }, { id: 'FAKE_ADMIN_ID' } as any);
+      expect(spy).toHaveBeenCalledWith('FAKE_ID', { name: 'FAKE_NEW_NAME' }, 'FAKE_ADMIN_ID');
       expect(ret).toEqual(playersService.player as any);
     });
   });
@@ -210,8 +210,8 @@ describe('Players Controller', () => {
     it('should set player skill', async () => {
       const skill = { soldier: 1, medic: 2 };
       const spy = jest.spyOn(playerSkillService, 'setPlayerSkill');
-      const ret = await controller.setPlayerSkill('FAKE_ID', skill);
-      expect(spy).toHaveBeenCalledWith('FAKE_ID', new Map([['soldier', 1], ['medic', 2]]));
+      const ret = await controller.setPlayerSkill('FAKE_ID', skill, { id: 'FAKE_ADMIN_ID' } as any);
+      expect(spy).toHaveBeenCalledWith('FAKE_ID', new Map([['soldier', 1], ['medic', 2]]), 'FAKE_ADMIN_ID');
       expect(ret).toEqual(playerSkillService.skill.skill);
     });
   });
@@ -237,13 +237,14 @@ describe('Players Controller', () => {
 
     it('should add player ban', async () => {
       const spy = jest.spyOn(playerBansService, 'addPlayerBan');
-      const ret = await controller.addPlayerBan('FAKE_ID', ban as any, { id: '5d448875b963ff7e00c6b6b3' });
+      const ret = await controller.addPlayerBan('FAKE_ID', ban as any, { id: '5d448875b963ff7e00c6b6b3' } as any);
       expect(spy).toHaveBeenCalledWith(ban);
       expect(ret).toEqual(ban as any);
     });
 
     it('should fail if the authorized user id is not the same as admin\'s', async () => {
-      await expect(controller.addPlayerBan('FAKE_ID', ban as any, { id: 'SOME_ID' })).rejects.toThrow(BadRequestException);
+      await expect(controller.addPlayerBan('FAKE_ID', ban as any, { id: 'SOME_ID' } as any))
+        .rejects.toThrow(BadRequestException);
     });
   });
 });

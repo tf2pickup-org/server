@@ -193,6 +193,15 @@ describe('PlayerSkillService', () => {
         await expect(service.setPlayerSkill(new ObjectId().toString(), new Map([['scout', 1]]))).rejects.toThrowError('no such player');
       });
     });
+
+    describe('when the admin id is provided', () => {
+      describe('and the provided admin does not exist', () => {
+        it('should reject', async () => {
+          await expect(service.setPlayerSkill(mockPlayer.id, new Map([['soldier', 4]]), new ObjectId().toString()))
+            .rejects.toThrowError();
+        });
+      });
+    });
   });
 
   describe('#exportPlayerSkills()', () => {
