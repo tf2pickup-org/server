@@ -1,3 +1,17 @@
+# [2.8.0](https://github.com/garrappachc/server/compare/2.7.0...2.8.0) (2020-06-12)
+
+
+### Bug Fixes
+
+* **deps:** update dependency helmet to v3.22.1 ([#421](https://github.com/garrappachc/server/issues/421)) ([1fe29fa](https://github.com/garrappachc/server/commit/1fe29fa14dceef453bf6390da6cfb7b6c7bbfe92))
+
+
+### Features
+
+* **discord:** add admin responsible field for discord admin notifications ([#427](https://github.com/garrappachc/server/issues/427)) ([dc7634f](https://github.com/garrappachc/server/commit/dc7634f17eb2a0af36373b8a2dbc4f359fd622a7))
+* **discord:** add server started notification ([#428](https://github.com/garrappachc/server/issues/428)) ([765b4df](https://github.com/garrappachc/server/commit/765b4dfc47adaa9b30d031ce3adfdaf04b3895c3))
+* **discord:** delete substitute request msgsWhen the substitute request is canceled or resolved delete the discordannouncement. ([#426](https://github.com/garrappachc/server/issues/426)) ([72415cf](https://github.com/garrappachc/server/commit/72415cfa965eae5ead4f01b7f687b627d740a3f9))
+
 # [2.7.0](https://github.com/garrappachc/server/compare/2.6.3...2.7.0) (2020-06-10)
 
 
