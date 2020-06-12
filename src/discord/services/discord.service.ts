@@ -36,7 +36,7 @@ export class DiscordService implements OnModuleInit {
   }
 
   findRole(name: string): Role | null {
-    return this.guild.roles.cache
+    return this.guild?.roles?.cache
       .find(role => role.name ===  name);
   }
 
@@ -48,7 +48,7 @@ export class DiscordService implements OnModuleInit {
   }
 
   private findChannel(name: string) {
-    return this.guild.channels.cache
+    return this.guild?.channels?.cache
       .filter(c => c instanceof TextChannel)
       .find(c => (c as TextChannel).name === name) as TextChannel;
   }
