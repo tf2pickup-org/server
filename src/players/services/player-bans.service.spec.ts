@@ -3,25 +3,36 @@ import { PlayerBansService } from './player-bans.service';
 import { getModelToken, TypegooseModule } from 'nestjs-typegoose';
 import { PlayerBan } from '../models/player-ban';
 import { OnlinePlayersService } from './online-players.service';
-import { DiscordNotificationsService } from '@/discord/services/discord-notifications.service';
 import { ObjectId } from 'mongodb';
 import { typegooseTestingModule } from '@/utils/testing-typegoose-module';
 import { ReturnModelType, DocumentType } from '@typegoose/typegoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
+import { Environment } from '@/environment/environment';
+import { PlayersService } from './players.service';
+import { Player } from '../models/player';
+import { DiscordService } from '@/discord/services/discord.service';
 
-jest.mock('@/discord/services/discord-notifications.service');
+jest.mock('./players.service');
+jest.mock('@/discord/services/discord.service');
 
 class OnlinePlayersServiceStub {
   getSocketsForPlayer(playerId: string) { return []; }
 }
 
+const environment = {
+  clientUrl: 'FAKE_CLIENT_URL',
+};
+
 describe('PlayerBansService', () => {
   let service: PlayerBansService;
   let mongod: MongoMemoryServer;
-  let discordNotificationsService: DiscordNotificationsService;
+  let discordService: DiscordService;
   let playerBanModel: ReturnModelType<typeof PlayerBan>;
-  let playerBan: DocumentType<PlayerBan>;
+  let mockPlayerBan: DocumentType<PlayerBan>;
   let onlinePlayersService: OnlinePlayersServiceStub;
+  let playersService: PlayersService;
+  let admin: DocumentType<Player>;
+  let player: DocumentType<Player>;
 
   beforeAll(() => mongod = new MongoMemoryServer());
   afterAll(async () => mongod.stop());
@@ -30,142 +41,165 @@ describe('PlayerBansService', () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [
         typegooseTestingModule(mongod),
-        TypegooseModule.forFeature([ PlayerBan ]),
+        TypegooseModule.forFeature([ PlayerBan, Player ]),
       ],
       providers: [
         PlayerBansService,
         { provide: OnlinePlayersService, useClass: OnlinePlayersServiceStub },
-        DiscordNotificationsService,
+        DiscordService,
+        { provide: Environment, useValue: environment },
+        PlayersService,
       ],
     }).compile();
 
     service = module.get<PlayerBansService>(PlayerBansService);
-    discordNotificationsService = module.get(DiscordNotificationsService);
+    discordService = module.get(DiscordService);
     playerBanModel = module.get(getModelToken('PlayerBan'));
     onlinePlayersService = module.get(OnlinePlayersService);
+    playersService = module.get(PlayersService);
+  });
+
+  beforeEach(async () => {
+    // @ts-expect-error
+    admin = await playersService._createOne();
+
+    // @ts-expect-error
+    player = await playersService._createOne();
+
+    const end = new Date();
+    end.setHours(end.getHours() + 1);
+
+    mockPlayerBan = await playerBanModel.create({
+      player: player._id,
+      admin: admin._id,
+      start: new Date(),
+      end,
+      reason: 'FAKE_BAN_REASON',
+    });
   });
 
   beforeEach(() => service.onModuleInit());
 
-  beforeEach(async () => {
-    const end = new Date();
-    end.setHours(end.getHours() + 1);
-
-    playerBan = await playerBanModel.create({
-      player: new ObjectId(),
-      admin: new ObjectId(),
-      start: new Date(),
-      end,
-      reason: 'TESTING PLAYER BANS',
-    });
-  });
+  // @ts-expect-error
+  afterEach(async () => await playersService._reset());
 
   it('should be defined', () => {
     expect(service).toBeDefined();
   });
 
   describe('#getById()', () => {
-    it('should query model', async () => {
-      const ret = await service.getById(playerBan.id);
-      expect(ret.toJSON()).toEqual(playerBan.toJSON());
+    it('should return the ban by its id', async () => {
+      const ret = await service.getById(mockPlayerBan.id);
+      expect(ret.id).toEqual(mockPlayerBan.id);
     });
   });
 
   describe('#getPlayerBans()', () => {
     it('should query model', async () => {
-      const ret = await service.getPlayerBans(playerBan.player.toString());
-      expect(ret.map(r => r.toJSON())).toEqual([ playerBan.toJSON() ]);
+      const ret = await service.getPlayerBans(player.id);
+      expect(ret.map(r => r.toJSON())).toEqual([ mockPlayerBan.toJSON() ]);
     });
   });
 
   describe('#getPlayerActiveBans()', () => {
     it('should query model', async () => {
-      const ret = await service.getPlayerActiveBans(playerBan.player.toString());
-      expect(ret.map(r => r.toJSON())).toEqual([ playerBan.toJSON() ]);
+      const ret = await service.getPlayerActiveBans(player.id);
+      expect(ret.map(r => r.toJSON())).toEqual([ mockPlayerBan.toJSON() ]);
     });
   });
 
   describe('#addPlayerBan()', () => {
-    let mockBan: PlayerBan;
+    describe('when adding a valid ban', () => {
+      let newBan: PlayerBan;
 
-    beforeEach(() => {
-      const end = new Date();
-      end.setHours(end.getHours() + 1);
+      beforeEach(() => {
+        const end = new Date();
+        end.setHours(end.getHours() + 1);
 
-      mockBan = {
-        player: new ObjectId(),
-        admin: new ObjectId(),
-        start: new Date(),
-        end,
-        reason: 'just testing',
-      };
-    });
-
-    it('should create ban via model', async () => {
-      const ret = await service.addPlayerBan(mockBan);
-      expect(ret.toObject()).toMatchObject(mockBan);
-    });
-
-    it('should emit the event', async done => {
-      service.banAdded.subscribe(playerId => {
-        expect(playerId).toEqual(mockBan.player.toString());
-        done();
+        newBan = {
+          player: player._id,
+          admin: admin._id,
+          start: new Date(),
+          end,
+          reason: 'just testing',
+        };
       });
 
-      await service.addPlayerBan(mockBan);
+      it('should create the ban and return it', async () => {
+        const ret = await service.addPlayerBan(newBan);
+        expect(ret.toObject()).toMatchObject(newBan);
+      });
+
+      it('should emit the event', async done => {
+        service.banAdded.subscribe(playerId => {
+          expect(playerId).toEqual(player.id);
+          done();
+        });
+
+        await service.addPlayerBan(newBan);
+      });
+
+      it('should notify on discord', async () => {
+        const spy = jest.spyOn(discordService.getAdminsChannel(), 'send');
+        await service.addPlayerBan(newBan);
+        expect(spy).toHaveBeenCalled();
+      });
+
+      it('should emit profile update event on player\'s socket', async done => {
+        const socket = {
+          emit: (eventName: string, update: any) => {
+            expect(eventName).toEqual('profile update');
+            expect(update.bans.length).toEqual(2);
+            done();
+          },
+        };
+
+        onlinePlayersService.getSocketsForPlayer = () => [ socket ];
+        await service.addPlayerBan(newBan);
+      });
     });
 
-    it('should notify on discord', async () => {
-      const spy = jest.spyOn(discordNotificationsService, 'notifyPlayerBanAdded');
-      const ret = await service.addPlayerBan(mockBan);
-      expect(spy).toHaveBeenCalledWith(ret);
-    });
+    describe('when adding a ban that has invalid player id', () => {
+      let invalidBan: PlayerBan;
 
-    // figure a way to flush observables
-    it.skip('should emit profile update event on player\'s socket', async done => {
-      const socket = { emit: (...args: any[]) => done() };
-      jest.spyOn(onlinePlayersService, 'getSocketsForPlayer').mockReturnValue([ socket ]);
-      const spy = jest.spyOn(socket, 'emit');
+      beforeEach(() => {
+        const end = new Date();
+        end.setHours(end.getHours() + 1);
 
-      await service.addPlayerBan(mockBan);
-      expect(spy).toHaveBeenCalledWith('profile update', { bans: [ mockBan ] });
+        invalidBan = {
+          player: new ObjectId(),
+          admin,
+          start: new Date(),
+          end,
+          reason: 'just testing',
+        };
+      });
+
+      it('should throw an error', async () => {
+        await expect(service.addPlayerBan(invalidBan)).rejects.toThrowError();
+      });
     });
   });
 
   describe('#revokeBan()', () => {
-    let mockBan: DocumentType<PlayerBan>;
-
-    beforeEach(async () =>  {
-      const end = new Date();
-      end.setHours(end.getHours() + 1);
-
-      mockBan = await playerBanModel.create({
-        player: new ObjectId(),
-        admin: new ObjectId(),
-        start: new Date(),
-        end,
-        reason: 'just testing',
-      });
-    });
-
     it('should revoke the ban', async () => {
-      const ban = await service.revokeBan(mockBan.id);
+      const ban = await service.revokeBan(mockPlayerBan.id);
       expect(ban.end.getTime()).toBeLessThanOrEqual(new Date().getTime());
     });
 
     it('should emit the event', async done => {
       service.banRevoked.subscribe(playerId => {
-        expect(playerId).toEqual(mockBan.player.toString());
+        expect(playerId).toEqual(player.id);
         done();
       });
 
-      await service.revokeBan(mockBan.id);
+      await service.revokeBan(mockPlayerBan.id);
     });
 
     it('should send discord notification', async () => {
-      const spy = jest.spyOn(discordNotificationsService, 'notifyPlayerBanRevoked');
-      const ban = await service.revokeBan(mockBan.id);
-      expect(spy).toHaveBeenCalledWith(ban);
+      const spy = jest.spyOn(discordService.getAdminsChannel(), 'send');
+      const ban = await service.revokeBan(mockPlayerBan.id);
+      expect(spy).toHaveBeenCalled();
     });
   });
 });

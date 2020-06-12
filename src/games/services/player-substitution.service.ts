@@ -5,9 +5,11 @@ import { PlayerBansService } from '@/players/services/player-bans.service';
 import { GamePlayer } from '../models/game-player';
 import { GameRuntimeService } from './game-runtime.service';
 import { GamesGateway } from '../gateways/games.gateway';
-import { DiscordNotificationsService } from '@/discord/services/discord-notifications.service';
 import { QueueGateway } from '@/queue/gateways/queue.gateway';
 import { QueueService } from '@/queue/services/queue.service';
+import { DiscordService } from '@/discord/services/discord.service';
+import { substituteRequest } from '@/discord/notifications';
+import { Environment } from '@/environment/environment';
 
 /**
  * A service that handles player substitution logic.
@@ -26,9 +28,10 @@ export class PlayerSubstitutionService {
     private playerBansService: PlayerBansService,
     @Inject(forwardRef(() => GameRuntimeService)) private gameRuntimeService: GameRuntimeService,
     @Inject(forwardRef(() => GamesGateway)) private gamesGateway: GamesGateway,
-    private discordNotificationsService: DiscordNotificationsService,
     private queueGateway: QueueGateway,
     private queueSevice: QueueService,
+    private discordService: DiscordService,
+    private environment: Environment,
   ) { }
 
   async substitutePlayer(gameId: string, playerId: string) {
@@ -53,12 +56,14 @@ export class PlayerSubstitutionService {
     await game.save();
     this.gamesGateway.emitGameUpdated(game);
     this.queueGateway.updateSubstituteRequests();
-    this.discordNotificationsService.notifySubstituteRequest({
-      gameId: game.id,
+
+    this.discordService.getPlayersChannel().send(substituteRequest({
       gameNumber: game.number,
       gameClass: slot.gameClass,
       team: game.teams.get(slot.teamId),
-    });
+      gameUrl: `${this.environment.clientUrl}/game/${game.id}`,
+    }));
+
     return game;
   }
 

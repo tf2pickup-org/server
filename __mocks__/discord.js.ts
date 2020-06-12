@@ -8,7 +8,7 @@ export class TextChannel {
   send(message: string) { return Promise.resolve(new Message()); }
 }
 
-export const queueChannel = new TextChannel('queue');
+export const playersChannel = new TextChannel('players');
 export const adminChannel = new TextChannel('admins');
 
 export class Role {
@@ -30,8 +30,8 @@ export class Guild {
 
   channels = {
     cache: new Collection([
-      [ 'queue', queueChannel ],
-      [ 'admins', adminChannel ],
+      [ 'queue', playersChannel ],
+      [ 'players', adminChannel ],
     ]),
   };
 

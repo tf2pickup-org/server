@@ -30,8 +30,8 @@ import { FuturePlayerSkill } from './models/future-player-skill';
     ]),
 
     forwardRef(() => GamesModule),
-    forwardRef(() => DiscordModule),
     forwardRef(() => QueueModule),
+    DiscordModule,
   ],
   providers: [
     PlayersService,

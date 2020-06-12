@@ -6,7 +6,6 @@ import { getModelToken, TypegooseModule } from 'nestjs-typegoose';
 import { SteamProfile } from '../models/steam-profile';
 import { GamesService } from '@/games/services/games.service';
 import { OnlinePlayersService } from './online-players.service';
-import { DiscordNotificationsService } from '@/discord/services/discord-notifications.service';
 import { ConfigService } from '@nestjs/config';
 import { Etf2lProfile } from '../models/etf2l-profile';
 import { ReturnModelType, DocumentType } from '@typegoose/typegoose';
@@ -14,8 +13,9 @@ import { Player } from '../models/player';
 import { typegooseTestingModule } from '@/utils/testing-typegoose-module';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { SteamApiService } from './steam-api.service';
+import { DiscordService } from '@/discord/services/discord.service';
 
-jest.mock('@/discord/services/discord-notifications.service');
+jest.mock('@/discord/services/discord.service');
 
 class EnvironmentStub {
   superUser = null;
@@ -77,8 +77,8 @@ describe('PlayersService', () => {
   let etf2lProfileService: Etf2lProfileServiceStub;
   let gamesService: GamesServiceStub;
   let onlinePlayersService: OnlinePlayersServiceStub;
-  let discordNotificationsService: DiscordNotificationsService;
   let steamApiService: SteamApiServiceStub;
+  let discordService: DiscordService;
 
   beforeAll(() => mongod = new MongoMemoryServer());
   afterAll(async () => await mongod.stop());
@@ -95,9 +95,9 @@ describe('PlayersService', () => {
         { provide: Etf2lProfileService, useClass: Etf2lProfileServiceStub },
         { provide: GamesService, useClass: GamesServiceStub },
         { provide: OnlinePlayersService, useClass: OnlinePlayersServiceStub },
-        DiscordNotificationsService,
         { provide: ConfigService, useClass: ConfigServiceStub },
         { provide: SteamApiService, useClass: SteamApiServiceStub },
+        DiscordService,
       ],
     }).compile();
 
@@ -107,8 +107,8 @@ describe('PlayersService', () => {
     etf2lProfileService = module.get(Etf2lProfileService);
     gamesService = module.get(GamesService);
     onlinePlayersService = module.get(OnlinePlayersService);
-    discordNotificationsService = module.get(DiscordNotificationsService);
     steamApiService = module.get(SteamApiService);
+    discordService = module.get(DiscordService);
   });
 
   beforeEach(async () => {
@@ -248,9 +248,9 @@ describe('PlayersService', () => {
     });
 
     it('should notify on discord', async () => {
-      const spy = jest.spyOn(discordNotificationsService, 'notifyNewPlayer');
+      const spy = jest.spyOn(discordService.getAdminsChannel(), 'send');
       const player = await service.createPlayer(mockSteamProfile);
-      expect(spy).toHaveBeenCalledWith(player);
+      expect(spy).toHaveBeenCalled();
     });
 
     describe('when TF2 in-game hours requirements are not met', () => {
@@ -354,9 +354,9 @@ describe('PlayersService', () => {
     });
 
     it('should notify admins on Discord', async () => {
-      const spy = jest.spyOn(discordNotificationsService, 'notifyNameChange');
+      const spy = jest.spyOn(discordService.getAdminsChannel(), 'send');
       await service.updatePlayer(mockPlayer.id, { name: 'NEW_NAME' });
-      expect(spy).toHaveBeenCalledWith(expect.objectContaining({ name: 'NEW_NAME' }), 'FAKE_PLAYER_NAME');
+      expect(spy).toHaveBeenCalled();
     });
   });
 

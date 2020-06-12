@@ -1,10 +1,13 @@
-import { Injectable, OnModuleInit, Logger } from '@nestjs/common';
+import { Injectable, OnModuleInit, Logger, Inject, forwardRef } from '@nestjs/common';
 import { InjectModel } from 'nestjs-typegoose';
 import { PlayerBan } from '../models/player-ban';
 import { ReturnModelType, DocumentType } from '@typegoose/typegoose';
 import { Subject, merge } from 'rxjs';
 import { OnlinePlayersService } from './online-players.service';
-import { DiscordNotificationsService } from '@/discord/services/discord-notifications.service';
+import { playerBanAdded, playerBanRevoked } from '@/discord/notifications';
+import { PlayersService } from './players.service';
+import { Environment } from '@/environment/environment';
+import { DiscordService } from '@/discord/services/discord.service';
 
 @Injectable()
 export class PlayerBansService implements OnModuleInit {
@@ -24,7 +27,9 @@ export class PlayerBansService implements OnModuleInit {
   constructor(
     @InjectModel(PlayerBan) private playerBanModel: ReturnModelType<typeof PlayerBan>,
     private onlinePlayersService: OnlinePlayersService,
-    private discordNotificationsService: DiscordNotificationsService,
+    private discordService: DiscordService,
+    @Inject(forwardRef(() => PlayersService)) private playersService: PlayersService,
+    private environment: Environment,
   ) { }
 
   onModuleInit() {
@@ -43,11 +48,11 @@ export class PlayerBansService implements OnModuleInit {
     return await this.playerBanModel.findById(banId);
   }
 
-  async getPlayerBans(playerId: string): Promise<Array<DocumentType<PlayerBan>>> {
+  async getPlayerBans(playerId: string) {
     return await this.playerBanModel.find({ player: playerId }).sort({ start: -1 });
   }
 
-  async getPlayerActiveBans(playerId: string): Promise<Array<DocumentType<PlayerBan>>> {
+  async getPlayerActiveBans(playerId: string) {
     return await this.playerBanModel.find({
       player: playerId,
       end: {
@@ -57,23 +62,55 @@ export class PlayerBansService implements OnModuleInit {
   }
 
   async addPlayerBan(playerBan: PlayerBan): Promise<DocumentType<PlayerBan>> {
+    const [ admin, player ] = await Promise.all([
+      await this.playersService.getById(playerBan.admin.toString()),
+      await this.playersService.getById(playerBan.player.toString()),
+    ]);
+
+    if (!admin) {
+      throw new Error('admin does not exist');
+    }
+
+    if (!player) {
+      throw new Error('player does not exist');
+    }
+
     const addedBan = await this.playerBanModel.create(playerBan);
-    const playerId = addedBan.player.toString();
-    this._banAdded.next(playerId);
-    this.logger.verbose(`ban added for player ${playerId} (reason: ${playerBan.reason})`);
-    this.discordNotificationsService.notifyPlayerBanAdded(addedBan);
+
+    this.logger.verbose(`ban added for player ${player.id} (reason: ${playerBan.reason})`);
+    this._banAdded.next(player.id);
+
+    this.discordService.getAdminsChannel()?.send(playerBanAdded({
+      admin: admin.name,
+      player: player.name,
+      reason: addedBan.reason,
+      ends: addedBan.end,
+      playerProfileUrl: `${this.environment.clientUrl}/player/${player.id}`,
+    }));
+
     return addedBan;
   }
 
   async revokeBan(banId: string): Promise<DocumentType<PlayerBan>> {
     const ban = await this.playerBanModel.findById(banId);
+
+    if (ban.end < new Date()) {
+      throw new Error('this ban is already expired');
+    }
+
     ban.end = new Date();
     await ban.save();
 
-    const playerId = ban.player.toString();
-    this._banRevoked.next(playerId);
-    this.logger.verbose(`ban revoked for player ${playerId}`);
-    this.discordNotificationsService.notifyPlayerBanRevoked(ban);
+    const player = await this.playersService.getById(ban.player.toString());
+    this.logger.verbose(`ban revoked for player ${player.id}`);
+    this._banRevoked.next(player.id);
+
+    this.discordService.getAdminsChannel()?.send(playerBanRevoked({
+      player: player.name,
+      reason: ban.reason,
+      playerProfileUrl: `${this.environment.clientUrl}/player/${player.id}`,
+    }));
+
     return ban;
   }
 

@@ -10,7 +10,9 @@ import moment = require('moment');
 import { FuturePlayerSkillService } from './future-player-skill.service';
 import { createInterface } from 'readline';
 import { Etf2lProfileService } from './etf2l-profile.service';
-import { DiscordNotificationsService } from '@/discord/services/discord-notifications.service';
+import { DiscordService } from '@/discord/services/discord.service';
+import { skillChanged } from '@/discord/notifications';
+import { Environment } from '@/environment/environment';
 
 @Injectable()
 @Console()
@@ -22,7 +24,8 @@ export class PlayerSkillService implements OnModuleInit {
     private queueConfigService: QueueConfigService,
     private futurePlayerSkillService: FuturePlayerSkillService,
     private etf2lProfileService: Etf2lProfileService,
-    private discordNotificationsService: DiscordNotificationsService,
+    private discordService: DiscordService,
+    private environment: Environment,
   ) { }
 
   onModuleInit() {
@@ -43,25 +46,29 @@ export class PlayerSkillService implements OnModuleInit {
     return await this.playerSkillModel.findOne({ player: playerId });
   }
 
-  async setPlayerSkill(playerId: string, newSkill: Map<string, number>): Promise<DocumentType<PlayerSkill>> {
-    const skill = await this.playerSkillModel.findOne({ player: playerId });
-    if (skill) {
-      this.discordNotificationsService.notifySkillChange(playerId, skill.skill, newSkill);
-      skill.skill = newSkill;
-      return await skill.save();
-    } else {
-      const player = await this.playersService.getById(playerId);
-      if (!player) {
-        throw new Error('no such player');
-      }
-
-      this.discordNotificationsService.notifySkillChange(playerId, new Map([]), newSkill);
-
-      return await this.playerSkillModel.create({
-        player: player.id,
-        skill: newSkill,
-      });
+  async setPlayerSkill(playerId: string, skill: Map<string, number>): Promise<DocumentType<PlayerSkill>> {
+    const player = await this.playersService.getById(playerId);
+    if (!player) {
+      throw new Error('no such player');
     }
+
+    const oldSkill = await this.playerSkillModel.findOne({ player: playerId });
+    const ret = await this.playerSkillModel.findOneAndUpdate({ player: playerId }, { skill }, { new: true, upsert: true });
+
+    for (const [key, value] of ret.skill) {
+      const old = oldSkill?.skill.get(key) ?? 1;
+      if (value !== old) {
+        this.discordService.getAdminsChannel()?.send(skillChanged({
+          playerName: player.name,
+          oldSkill: oldSkill.skill,
+          newSkill: skill,
+          playerProfileUrl: `${this.environment.clientUrl}/player/${player.id}`,
+        }));
+        break;
+      }
+    }
+
+    return ret;
   }
 
   @Command({

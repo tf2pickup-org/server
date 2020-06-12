@@ -107,7 +107,7 @@ export class PlayersController {
   @Auth('admin', 'super-user')
   @UsePipes(ValidationPipe)
   async addPlayerBan(@Param('id', ObjectIdValidationPipe) playerId: string, @Body() playerBan: PlayerBan, @User() user: any) {
-    if ((playerBan.admin as unknown as string) !== user.id) {
+    if (playerBan.admin.toString() !== user.id) {
       throw new BadRequestException('the admin field must be the same as authorized user\'s id');
     }
     return await this.playerBansService.addPlayerBan(playerBan);
