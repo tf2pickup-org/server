@@ -1,3 +1,16 @@
+# [2.9.0](https://github.com/garrappachc/server/compare/2.8.1...2.9.0) (2020-06-13)
+
+
+### Bug Fixes
+
+* **deps:** update dependency helmet to v3.23.0 ([#430](https://github.com/garrappachc/server/issues/430)) ([dfbbd9a](https://github.com/garrappachc/server/commit/dfbbd9a9ceb6d867ccf27db97ad1a3a00bc09653))
+* handle missing discord guild ([#432](https://github.com/garrappachc/server/issues/432)) ([e0b229c](https://github.com/garrappachc/server/commit/e0b229ca2c97b6f3c2ca0ee13b9f57c30e19a7a5))
+
+
+### Features
+
+* add CSP headers ([#431](https://github.com/garrappachc/server/issues/431)) ([fac778e](https://github.com/garrappachc/server/commit/fac778edf2a7166a0a7b57836ed6e7c0041e4c3a))
+
 ## [2.8.1](https://github.com/garrappachc/server/compare/2.8.0...2.8.1) (2020-06-12)
 
 
