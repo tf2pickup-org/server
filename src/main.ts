@@ -17,11 +17,13 @@ async function bootstrap() {
   });
 
   app.enableCors();
-
+  app.use(helmet());
   app.use(helmet
     .contentSecurityPolicy({
       directives: {
-        defaultSrc: ['\'self\''],
+        defaultSrc: ['\'none\''],
+        baseUri: ['\'none\''],
+        formAction: ['\'none\''],
         scriptSrc: ['\'self\'', '\'unsafe-inline\''],
       },
     }),
