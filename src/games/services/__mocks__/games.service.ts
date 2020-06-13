@@ -25,16 +25,13 @@ export class GamesService {
 
   async _createOne(players: Player[]) {
     let lastTeamId = 0;
+    const teams = [ 'red', 'blu' ];
     return await this.gameModel.create({
       number: ++this.lastGameId,
       map: 'cp_badlands',
-      teams: {
-        0: 'RED',
-        1: 'BLU',
-      },
       slots: players.map(p => ({
         playerId: p.id,
-        teamId: `${(lastTeamId++) % 2}`,
+        team: teams[`${(lastTeamId++) % 2}`],
         gameClass: 'soldier',
       })),
       players,

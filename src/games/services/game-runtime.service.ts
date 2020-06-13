@@ -88,9 +88,8 @@ export class GameRuntimeService {
     try {
       rcon = await this.rconFactoryService.createRcon(gameServer);
       const player = await this.playersService.getById(replacementSlot.playerId);
-      const team = parseInt(replacementSlot.teamId, 10) + 2;
 
-      const cmd = addGamePlayer(player.steamId, player.name, team, replacementSlot.gameClass);
+      const cmd = addGamePlayer(player.steamId, player.name, replacementSlot.team, replacementSlot.gameClass);
       this.logger.debug(cmd);
       await rcon.send(cmd);
 

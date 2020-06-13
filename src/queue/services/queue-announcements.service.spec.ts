@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { QueueAnnouncementsService } from './queue-announcements.service';
 import { GamesService } from '@/games/services/games.service';
+import { Tf2Team } from '@/games/models/tf2-team';
 
 class GamesServiceStub {
   getGamesWithSubstitutionRequests() {
@@ -8,16 +9,15 @@ class GamesServiceStub {
       {
         id: 'FAKE_GAME_ID',
         number: 234,
-        teams: new Map([[1, 'RED'], [2, 'BLU']]),
         slots: [
           {
             gameClass: 'soldier',
-            teamId: 1,
+            team: Tf2Team.Blu,
             status: 'waiting for substitute',
           },
           {
             gameClass: 'soldier',
-            teamId: 2,
+            team: Tf2Team.Red,
             status: 'active',
           },
         ],
@@ -52,7 +52,7 @@ describe('QueueAnnouncementsService', () => {
           gameId: 'FAKE_GAME_ID',
           gameNumber: 234,
           gameClass: 'soldier',
-          team: 'RED',
+          team: 'BLU',
         },
       ]);
     });

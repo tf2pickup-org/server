@@ -11,6 +11,7 @@ import { GameLauncherService } from './game-launcher.service';
 import { GamesGateway } from '../gateways/games.gateway';
 import { ObjectId } from 'mongodb';
 import { FilterQuery } from 'mongoose';
+import { shuffle } from 'lodash';
 
 interface GameSortOptions {
   launchedAt: 1 | -1;
@@ -113,16 +114,12 @@ export class GamesService {
 
     const players: PlayerSlot[] = await Promise.all(queueSlots.map(slot => this.queueSlotToPlayerSlot(slot)));
     const assignedSkills = players.reduce((prev, curr) => { prev[curr.playerId] = curr.skill; return prev; }, { });
-    const slots = pickTeams(players, this.queueConfigService.queueConfig.classes.map(cls => cls.name), { friends });
+    const slots = pickTeams(shuffle(players), { friends });
     const gameNo = await this.getNextGameNumber();
 
     const game = await this.gameModel.create({
       number: gameNo,
       map,
-      teams: {
-        0: 'RED',
-        1: 'BLU',
-      },
       slots,
       players: queueSlots.map(s => new ObjectId(s.playerId)),
       assignedSkills,

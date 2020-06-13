@@ -21,7 +21,7 @@ export class QueueAnnouncementsService {
           gameId: game.id,
           gameNumber: game.number,
           gameClass: slot.gameClass,
-          team: game.teams.get(slot.teamId),
+          team: slot.team.toUpperCase(),
         };
       });
     });
