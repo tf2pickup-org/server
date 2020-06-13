@@ -43,7 +43,7 @@ export class Game {
   @prop()
   error?: string;
 
-  @prop({ ref: 'GameServer' })
+  @prop({ ref: () => GameServer })
   gameServer?: Ref<GameServer>;
 
   @mapProp({ of: Number })

@@ -47,13 +47,6 @@ export class GamesService {
     return await this.gameModel.find({ state: /launching|started/ });
   }
 
-  async findByAssignedGameServer(gameServerId: string): Promise<DocumentType<Game>> {
-    return (await this.gameModel
-      .find({ gameServer: gameServerId })
-      .sort({ launchedAt: -1 })
-      .limit(1))?.[0];
-  }
-
   async getGames(sort: GameSortOptions = { launchedAt: -1 }, limit: number, skip: number) {
     return await this.gameModel
       .find()

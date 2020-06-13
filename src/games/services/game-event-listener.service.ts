@@ -1,7 +1,6 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { LogReceiver, LogMessage } from 'srcds-log-receiver';
 import * as SteamID from 'steamid';
-import { Environment } from '@/environment/environment';
 import { GameEventHandlerService } from './game-event-handler.service';
 import { GameServersService } from '@/game-servers/services/game-servers.service';
 import { GamesService } from './games.service';
@@ -109,7 +108,7 @@ export class GameEventListenerService implements OnModuleInit {
       const matches = message.match(gameEvent.regex);
       if (matches) {
         const gameServer = await this.gameSeversService.getGameServerByEventSource(eventSource);
-        const game = await this.gamesService.findByAssignedGameServer(gameServer.id);
+        const game = await this.gamesService.getById(gameServer.game.toString());
         this.logger.debug(`#${game.number}/${gameServer.name}: ${gameEvent.name}`);
         gameEvent.handle(game.id, matches);
         break;

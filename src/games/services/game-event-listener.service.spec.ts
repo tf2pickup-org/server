@@ -7,28 +7,21 @@ import { GamesService } from './games.service';
 import { LogReceiver } from 'srcds-log-receiver';
 import { EventEmitter } from 'events';
 
+jest.mock('./game-event-handler.service');
+
 class EnvironmentStub {
   logRelayAddress = '0.0.0.0';
   logRelayPort = '1234';
-}
-
-class GameEventHandlerServiceStub {
-  onMatchStarted(gameId: string) { }
-  onMatchEnded(gameId: string) { }
-  onLogsUploaded(gameId: string, logsUrl: string) { }
-  onPlayerJoining(gameId: string, steamId: string) { }
-  onPlayerConnected(gameId: string, steamId: string) { }
-  onPlayerDisconnected(gameId: string, steamId: string) { }
-  onScoreReported(gameId: string, teamName: string, score: string) { }
 }
 
 class GameServersServiceStub {
   mockGameServer = {
     id: 'FAKE_GAME_SERVER_ID',
     name: 'FAKE_GAME_SERVER',
+    game: 'FAKE_GAME_ID',
   };
 
-  getGameServerByEventSource(eventSource: any) { return new Promise(resolve => resolve(this.mockGameServer)); }
+  getGameServerByEventSource(eventSource: any) { return Promise.resolve(this.mockGameServer); }
 }
 
 class GamesServiceStub {
@@ -37,7 +30,8 @@ class GamesServiceStub {
     number: 1,
   };
 
-  findByAssignedGameServer(gameServerId: string) { return new Promise(resolve => resolve(this.mockGame)); }
+  getById(gameId: string) { return Promise.resolve(this.mockGame); }
+  findByAssignedGameServer(gameServerId: string) { return Promise.resolve(this.mockGame); }
 }
 
 class LogReceiverStub extends EventEmitter {
@@ -60,7 +54,7 @@ class LogReceiverStub extends EventEmitter {
 
 describe('GameEventListenerService', () => {
   let service: GameEventListenerService;
-  let gameEventHandlerService: GameEventHandlerServiceStub;
+  let gameEventHandlerService: GameEventHandlerService;
   let logReceiver: LogReceiverStub;
 
   beforeEach(async () => {
@@ -68,7 +62,7 @@ describe('GameEventListenerService', () => {
       providers: [
         GameEventListenerService,
         { provide: Environment, useClass: EnvironmentStub },
-        { provide: GameEventHandlerService, useClass: GameEventHandlerServiceStub },
+        GameEventHandlerService,
         { provide: GameServersService, useClass: GameServersServiceStub },
         { provide: GamesService, useClass: GamesServiceStub },
         { provide: LogReceiver, useClass: LogReceiverStub },

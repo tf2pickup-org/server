@@ -23,6 +23,7 @@ const mockGameServer = {
   id: 'FAKE_GAME_SERVER_ID',
   name: 'FAKE_GAME_SERVER',
   mumbleChannelName: 'FAKE_SERVER_MUMBLE_CHANNEL_NAME',
+  game: undefined,
 };
 
 class GameServersServiceStub {
@@ -87,10 +88,8 @@ describe('GameLauncherService', () => {
     });
 
     it('should take the game server', async () => {
-      const spy = jest.spyOn(gameServersService, 'takeServer');
-      const ret = await service.launch('FAKE_GAME_ID');
-      expect(spy).toHaveBeenCalledWith('FAKE_GAME_SERVER_ID');
-      expect(ret.gameServer).toEqual(mockGameServer as any);
+      await service.launch('FAKE_GAME_ID');
+      expect(mockGameServer.game.id).toEqual(mockGame.id);
     });
 
     it('should configure the game server', async () => {
