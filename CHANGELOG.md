@@ -1,3 +1,10 @@
+## [2.9.1](https://github.com/garrappachc/server/compare/2.9.0...2.9.1) (2020-06-13)
+
+
+### Bug Fixes
+
+* re-enable default helmet middleware ([ada5cf2](https://github.com/garrappachc/server/commit/ada5cf2890b99f804b14cff95678d182ab3cfeac))
+
 # [2.9.0](https://github.com/garrappachc/server/compare/2.8.1...2.9.0) (2020-06-13)
 
 
