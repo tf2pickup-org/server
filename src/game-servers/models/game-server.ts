@@ -1,8 +1,10 @@
-import { prop, arrayProp, index } from '@typegoose/typegoose';
+import { prop, arrayProp, index, Ref } from '@typegoose/typegoose';
 import { IsString, IsPort } from 'class-validator';
+import { Game } from '@/games/models/game';
 
 @index({ resolvedIpAddresses: 1 })
 export class GameServer {
+
   @prop({ default: () => new Date() })
   createdAt?: Date;
 
@@ -28,12 +30,13 @@ export class GameServer {
   @prop({ default: false })
   isOnline?: boolean; // was the server online last we checked
 
-  @prop({ default: true })
-  isFree?: boolean; // is the server free to use (has any games running?)
-
   @arrayProp({ items: String })
   resolvedIpAddresses?: string[]; // for tracing game server logs
 
   @prop()
   mumbleChannelName?: string;
+
+  @prop({ ref: () => Game })
+  game?: Ref<Game>;
+
 }

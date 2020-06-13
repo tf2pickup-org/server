@@ -41,25 +41,25 @@ export class GameLauncherService {
       this.logger.warn(`trying to launch game #${game.number} that has already been ended`);
     }
 
-    const server = await this.gameServersService.findFreeGameServer();
-    if (server) {
-      this.logger.verbose(`using server ${server.name} for game #${game.number}`);
+    const gameServer = await this.gameServersService.findFreeGameServer();
+    if (gameServer) {
+      this.logger.verbose(`using server ${gameServer.name} for game #${game.number}`);
 
       // step 1: obtain a free server
-      await this.gameServersService.takeServer(server.id);
-      game.gameServer = server;
+      gameServer.game = game;
+      game.gameServer = gameServer;
       await game.save();
       this.gamesGateway.emitGameUpdated(game);
 
       // step 2: set mumble url
-      const mumbleUrl = `mumble://${this.environment.mumbleServerUrl}/${this.environment.mumbleChannelName}/${server.mumbleChannelName}`;
+      const mumbleUrl = `mumble://${this.environment.mumbleServerUrl}/${this.environment.mumbleChannelName}/${gameServer.mumbleChannelName}`;
       this.logger.verbose(`game #${game.number} mumble url: ${mumbleUrl}`);
       game.mumbleUrl = mumbleUrl;
       await game.save();
       this.gamesGateway.emitGameUpdated(game);
 
       // step 3: configure server
-      const { connectString, stvConnectString } = await this.serverConfiguratorService.configureServer(server, game);
+      const { connectString, stvConnectString } = await this.serverConfiguratorService.configureServer(gameServer, game);
       game.connectString = connectString;
       game.stvConnectString = stvConnectString;
       await game.save();

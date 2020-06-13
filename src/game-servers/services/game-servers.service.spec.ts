@@ -51,7 +51,7 @@ describe('GameServersService', () => {
   });
 
   describe('#getAllServers()', () => {
-    it('should query model', async () => {
+    it('should return all game servers', async () => {
       const ret = await service.getAllGameServers();
       expect(ret.length).toBe(1);
       expect(ret[0].toJSON()).toEqual(testGameServer.toJSON());
@@ -59,7 +59,7 @@ describe('GameServersService', () => {
   });
 
   describe('#getById()', () => {
-    it('should query model', async () => {
+    it('should return the requested game server', async () => {
       const ret = await service.getById(testGameServer.id);
       expect(ret.toJSON()).toEqual(testGameServer.toJSON());
     });
@@ -139,50 +139,50 @@ describe('GameServersService', () => {
   });
 
   describe('#findFreeGameServer()', () => {
-    it('should return the server that is both online and free', async () => {
-      testGameServer.isFree = true;
-      testGameServer.isOnline = true;
-      await testGameServer.save();
+    describe('when the server is online but taken', () => {
+      beforeEach(async () => {
+        testGameServer.game = new ObjectId();
+        testGameServer.isOnline = true;
+        await testGameServer.save();
+      });
 
-      const goodServer = await service.findFreeGameServer();
-      expect(goodServer.toJSON()).toEqual(testGameServer.toJSON());
-
-      testGameServer.isFree = false;
-      testGameServer.isOnline = true;
-      await testGameServer.save();
-      expect(await service.findFreeGameServer()).toBeNull();
-
-      testGameServer.isFree = true;
-      testGameServer.isOnline = false;
-      await testGameServer.save();
-      expect(await service.findFreeGameServer()).toBeNull();
-    });
-  });
-
-  describe('#takeServer()', () => {
-    it('should set isFree property to false and save', async () => {
-      await service.takeServer(testGameServer.id);
-      expect((await service.getById(testGameServer.id)).isFree).toBe(false);
+      it('should return null', async () => {
+        expect(await service.findFreeGameServer()).toBeNull();
+      });
     });
 
-    it('should fail gracefully', async () => {
-      await expect(service.takeServer(new ObjectId().toString())).rejects.toThrowError('no such game server');
+    describe('when the server is free but offline', () => {
+      beforeEach(async () => {
+        testGameServer.isOnline = false;
+        await testGameServer.save();
+      });
+
+      it('should return null', async () => {
+        expect(await service.findFreeGameServer()).toBeNull();
+      });
+    });
+
+    describe('when the server is both free and online', () => {
+      beforeEach(async () => {
+        testGameServer.isOnline = true;
+        await testGameServer.save();
+      });
+
+      it('should return this game server', async () => {
+        expect((await service.findFreeGameServer()).id).toEqual(testGameServer.id);
+      });
     });
   });
 
   describe('#releaseServer()', () => {
-    it('should set isFree property to true and save', async () => {
+    it('should remove the game property', async () => {
       await service.releaseServer(testGameServer.id);
-      expect((await service.getById(testGameServer.id)).isFree).toBe(true);
+      expect((await service.getById(testGameServer.id)).game).toBe(undefined);
     });
 
     describe('when the game server does not exist', () => {
-      let id: string;
-
-      beforeEach(() => id = new ObjectId().toString());
-
       it('should throw an error', async () => {
-        await expect(service.releaseServer(id)).rejects.toThrowError('no such game server');
+        await expect(service.releaseServer(new ObjectId().toString())).rejects.toThrowError('no such game server');
       });
     });
   });

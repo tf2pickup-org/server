@@ -6,6 +6,7 @@ import { resolve as resolveCb } from 'dns';
 import { promisify } from 'util';
 import { isServerOnline } from '../utils/is-server-online';
 import { Cron } from '@nestjs/schedule';
+import { ObjectId } from 'mongodb';
 
 const resolve = promisify(resolveCb);
 
@@ -18,11 +19,11 @@ export class GameServersService {
     @InjectModel(GameServer) private gameServerModel: ReturnModelType<typeof GameServer>,
   ) { }
 
-  async getAllGameServers(): Promise<Array<DocumentType<GameServer>>> {
+  async getAllGameServers() {
     return await this.gameServerModel.find();
   }
 
-  async getById(gameServerId: string): Promise<DocumentType<GameServer>> {
+  async getById(gameServerId: string) {
     return await this.gameServerModel.findById(gameServerId);
   }
 
@@ -41,7 +42,8 @@ export class GameServersService {
       }
     }
 
-    const ret = await this.gameServerModel.create(gameServer);
+    const { game, ...tmp } = gameServer; // extract game
+    const ret = await this.gameServerModel.create(tmp);
     this.logger.log(`game server ${ret.id} (${ret.name}) added`);
     return ret;
   }
@@ -56,27 +58,12 @@ export class GameServersService {
   }
 
   async findFreeGameServer(): Promise<DocumentType<GameServer>> {
-    const gameServer = this.gameServerModel.findOne({ isOnline: true, isFree: true });
-    return gameServer;
-  }
-
-  async takeServer(gameServerId: string): Promise<DocumentType<GameServer>> {
-    const gameServer = await this.getById(gameServerId);
-    if (gameServer) {
-      gameServer.isFree = false;
-      await gameServer.save();
-      this.logger.debug(`game server ${gameServerId} (${gameServer.name}) marked as taken`);
-      return gameServer;
-    } else {
-      throw new Error('no such game server');
-    }
+    return await this.gameServerModel.findOne({ isOnline: true, game: { $exists: false } });
   }
 
   async releaseServer(gameServerId: string): Promise<DocumentType<GameServer>>  {
-    const gameServer = await this.getById(gameServerId);
+    const gameServer = await this.gameServerModel.findByIdAndUpdate(gameServerId, { $unset: { game: 1 } }, { new: true });
     if (gameServer) {
-      gameServer.isFree = true;
-      await gameServer.save();
       this.logger.debug(`game server ${gameServerId} (${gameServer.name}) marked as free`);
       return gameServer;
     } else {

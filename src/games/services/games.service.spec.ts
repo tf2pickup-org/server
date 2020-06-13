@@ -117,21 +117,6 @@ describe('GamesService', () => {
     });
   });
 
-  describe('#findByAssignedGameServer()', () => {
-    let gameServerId: ObjectId;
-    let game: DocumentType<Game>;
-
-    beforeEach(async () => {
-      gameServerId = new ObjectId();
-      game = await gameModel.create({ number: 2, map: 'cp_process_final', state: 'started', gameServer: gameServerId });
-    });
-
-    it('should get the last game', async () => {
-      const ret = await service.findByAssignedGameServer(gameServerId.toString());
-      expect(ret.toJSON()).toEqual(game.toJSON());
-    });
-  });
-
   describe('#getPlayerActiveGame()', () => {
     describe('when a player is active in a game', () => {
       let game: DocumentType<Game>;
