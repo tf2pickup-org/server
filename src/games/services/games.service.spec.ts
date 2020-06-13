@@ -12,11 +12,13 @@ import { QueueSlot } from '@/queue/queue-slot';
 import { GameLauncherService } from './game-launcher.service';
 import { QueueConfigService } from '@/queue/services/queue-config.service';
 import { GamesGateway } from '../gateways/games.gateway';
-import { cloneDeep } from 'lodash';
 import { MongoMemoryServer } from 'mongodb-memory-server';
+import { Tf2Team } from '../models/tf2-team';
 
 jest.mock('@/players/services/players.service');
 jest.mock('@/players/services/player-skill.service');
+jest.mock('./game-launcher.service');
+jest.mock('../gateways/games.gateway');
 
 class QueueConfigServiceStub {
   queueConfig = {
@@ -33,20 +35,11 @@ class QueueConfigServiceStub {
   };
 }
 
-class GameLauncherServiceStub {
-  launch(gameId: string) { return null; }
-}
-
-class GamesGatewayStub {
-  emitGameCreated(game: any) { return null; }
-  emitGameUpdated(game: any) { return null; }
-}
-
 describe('GamesService', () => {
   let service: GamesService;
   let mongod: MongoMemoryServer;
   let gameModel: ReturnModelType<typeof Game>;
-  let gameLauncherService: GameLauncherServiceStub;
+  let gameLauncherService: GameLauncherService;
   let playersService: PlayersService;
 
   beforeAll(() => mongod = new MongoMemoryServer());
@@ -63,8 +56,8 @@ describe('GamesService', () => {
         PlayersService,
         PlayerSkillService,
         { provide: QueueConfigService, useClass: QueueConfigServiceStub },
-        { provide: GameLauncherService, useClass: GameLauncherServiceStub },
-        { provide: GamesGateway, useClass: GamesGatewayStub },
+        GameLauncherService,
+        GamesGateway,
       ],
     }).compile();
 
@@ -156,7 +149,7 @@ describe('GamesService', () => {
               playerId: playerId.toString(),
               status: 'active',
               gameClass: 'soldier',
-              teamId: '1',
+              team: Tf2Team.Blu,
             },
           ],
         });
@@ -185,7 +178,7 @@ describe('GamesService', () => {
               playerId: playerId.toString(),
               status: 'waiting for substitute',
               gameClass: 'soldier',
-              teamId: '1',
+              team: Tf2Team.Blu,
             },
           ],
         });
@@ -216,13 +209,13 @@ describe('GamesService', () => {
               playerId: playerId.toString(),
               status: 'replaced',
               gameClass: 'soldier',
-              teamId: '1',
+              team: Tf2Team.Blu,
             },
             {
               playerId: player2Id.toString(),
               status: 'active',
               gameClass: 'soldier',
-              teamId: '2',
+              team: Tf2Team.Red,
             },
           ],
         });
@@ -249,7 +242,7 @@ describe('GamesService', () => {
               playerId: playerId.toString(),
               status: 'active',
               gameClass: 'soldier',
-              teamId: '1',
+              team: Tf2Team.Blu,
             },
           ],
         });
@@ -341,13 +334,13 @@ describe('GamesService', () => {
         slots: [
           {
             playerId: player1.toString(),
-            teamId: '1',
+            team: Tf2Team.Blu,
             gameClass: 'scout',
             status: 'waiting for substitute',
           },
           {
             playerId: player2.toString(),
-            teamId: '2',
+            team: Tf2Team.Red,
             gameClass: 'scout',
             status: 'active',
           },

@@ -7,6 +7,7 @@ import { RconFactoryService } from './rcon-factory.service';
 import { logAddressAdd, kickAll, changelevel, execConfig, addGamePlayer, enablePlayerWhitelist, tvPort, tvPassword,
   logAddressDel, delAllGamePlayers, disablePlayerWhitelist, tftrueWhitelistId } from '../utils/rcon-commands';
 import { QueueConfig } from '@/queue/queue-config';
+import { Tf2Team } from '../models/tf2-team';
 
 class EnvironmentStub {
   logRelayAddress = 'FAKE_RELAY_ADDRESS';
@@ -50,12 +51,12 @@ const game = {
   slots: [
     {
       playerId: 'PLAYER_1',
-      teamId: 0,
+      team: Tf2Team.Blu,
       gameClass: 'soldier',
     },
     {
       playerId: 'PLAYER_2',
-      teamId: 1,
+      team: Tf2Team.Red,
       gameClass: 'soldier',
     },
   ],
@@ -106,8 +107,8 @@ describe('ServerConfiguratorService', () => {
       expect(spy).toHaveBeenCalledWith(changelevel('cp_badlands'));
       expect(spy).toHaveBeenCalledWith(execConfig('etf2l_6v6_5cp'));
       expect(spy).toHaveBeenCalledWith(jasmine.stringMatching(/^sv_password\s.+$/));
-      expect(spy).toHaveBeenCalledWith(addGamePlayer('PLAYER_1_STEAMID', 'PLAYER_1_NAME', 2, 'soldier'));
-      expect(spy).toHaveBeenCalledWith(addGamePlayer('PLAYER_2_STEAMID', 'PLAYER_2_NAME', 3, 'soldier'));
+      expect(spy).toHaveBeenCalledWith(addGamePlayer('PLAYER_1_STEAMID', 'PLAYER_1_NAME', Tf2Team.Blu, 'soldier'));
+      expect(spy).toHaveBeenCalledWith(addGamePlayer('PLAYER_2_STEAMID', 'PLAYER_2_NAME', Tf2Team.Red, 'soldier'));
       expect(spy).toHaveBeenCalledWith(enablePlayerWhitelist());
       expect(spy).toHaveBeenCalledWith(tvPort());
       expect(spy).toHaveBeenCalledWith(tvPassword());
@@ -148,7 +149,7 @@ describe('ServerConfiguratorService', () => {
       const spy = jest.spyOn(rcon, 'send');
 
       await service.configureServer(gameServer as any, game as any);
-      expect(spy).toHaveBeenCalledWith(addGamePlayer('PLAYER_1_STEAMID', 'maly', 2, 'soldier'));
+      expect(spy).toHaveBeenCalledWith(addGamePlayer('PLAYER_1_STEAMID', 'maly', Tf2Team.Blu, 'soldier'));
     });
 
     it('should close the rcon connection even though an RCON command failed', async () => {

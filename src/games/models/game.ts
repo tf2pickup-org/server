@@ -9,14 +9,12 @@ type GameState = 'launching' | 'started' | 'ended' | 'interrupted';
 @index({ players: 1 })
 @index({ gameServer: 1 })
 export class Game {
+
   @prop({ default: () => new Date() })
   launchedAt?: Date;
 
   @prop({ required: true, unique: true })
   number!: number;
-
-  @mapProp({ of: String })
-  teams?: Map<string, string>;
 
   @arrayProp({ ref: 'Player' })
   players?: Ref<Player>[];
@@ -53,4 +51,5 @@ export class Game {
 
   @prop()
   stvConnectString?: string;
+
 }

@@ -223,11 +223,11 @@ describe('GameEventHandlerService', () => {
     it('should update the game\'s score', async () => {
       await service.onScoreReported(mockGame.id, 'Red', '2');
       let game = await gamesService.getById(mockGame.id);
-      expect(game.score.get('0')).toEqual(2);
+      expect(game.score.get('red')).toEqual(2);
 
       await service.onScoreReported(mockGame.id, 'Blue', '5');
       game = await gamesService.getById(mockGame.id);
-      expect(game.score.get('1')).toEqual(5);
+      expect(game.score.get('blu')).toEqual(5);
     });
 
     it('should emit an event over ws', async () => {

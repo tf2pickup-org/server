@@ -63,7 +63,7 @@ export class PlayerSubstitutionService {
       embed:substituteRequest({
         gameNumber: game.number,
         gameClass: slot.gameClass,
-        team: game.teams.get(slot.teamId),
+        team: slot.team.toUpperCase(),
         gameUrl: `${this.environment.clientUrl}/game/${game.id}`,
       }),
     });
@@ -144,7 +144,7 @@ export class PlayerSubstitutionService {
       // create new slot of the replacement player
       replacementSlot = {
         playerId: replacementId,
-        teamId: slot.teamId,
+        team: slot.team,
         gameClass: slot.gameClass,
         status: 'active',
       };

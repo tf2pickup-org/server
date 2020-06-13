@@ -1,14 +1,16 @@
 import { prop, index } from '@typegoose/typegoose';
 import { PlayerConnectionStatus } from './player-connection-status';
+import { Tf2Team } from './tf2-team';
 
 @index({ playerId: 1 })
 @index({ status: 1 })
 export class GamePlayer {
+
   @prop({ required: true })
   playerId!: string;
 
-  @prop({ required: true })
-  teamId!: string;
+  @prop({ required: true, enum: Tf2Team })
+  team!: Tf2Team;
 
   @prop({ required: true })
   gameClass!: string;
@@ -18,4 +20,5 @@ export class GamePlayer {
 
   @prop({ default: 'offline' })
   connectionStatus?: PlayerConnectionStatus;
+
 }

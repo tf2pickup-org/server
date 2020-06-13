@@ -28,8 +28,6 @@ export class GameEventHandlerService {
 
   async onMatchStarted(gameId: string) {
     const game = await this.gameModel.findOneAndUpdate({ _id: gameId, state: 'launching' }, { state: 'started' });
-
-    // const game = await this.gamesService.update({ _id: gameId, state: 'launching' }, { state: 'started' });
     if (game) {
       this.gamesGateway.emitGameUpdated(game);
     }
@@ -76,18 +74,10 @@ export class GameEventHandlerService {
   }
 
   async onScoreReported(gameId: string, teamName: string, score: string) {
-    const game = await this.gamesService.getById(gameId);
+    const fixedTeamName = teamName.toLowerCase().substring(0, 3); // converts Red to 'red' and Blue to 'blu'
+    const game = await this.gameModel.findOneAndUpdate({ _id: gameId }, { [`score.${fixedTeamName}`]: parseInt(score, 10) });
     if (game) {
-      const fixedTeamName = teamName.toUpperCase().substring(0, 3); // converts Red to RED and Blue to BLU
-      for (const [teamId, name] of game.teams) {
-        if (name === fixedTeamName) {
-          game.score = game.score || new Map();
-          game.score.set(teamId, parseInt(score, 10));
-          await game.save();
-          this.gamesGateway.emitGameUpdated(game);
-          break;
-        }
-      }
+      this.gamesGateway.emitGameUpdated(game);
     } else {
       this.logger.warn(`no such game: ${gameId}`);
     }

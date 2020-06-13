@@ -66,10 +66,9 @@ export class ServerConfiguratorService {
 
       for (const slot of game.slots) {
         const player = await this.playersService.getById(slot.playerId);
-        const team = parseInt(slot.teamId, 10) + 2;
 
         const playerName = deburr(player.name);
-        const cmd = addGamePlayer(player.steamId, playerName, team, slot.gameClass);
+        const cmd = addGamePlayer(player.steamId, playerName, slot.team, slot.gameClass);
         this.logger.debug(`[${server.name}] ${cmd}`);
         await rcon.send(cmd);
       }
