@@ -35,8 +35,8 @@ class PlayersServiceStub {
 
 class GamesServiceStub {
   games: Game[] = [
-    { number: 1, map: 'cp_fake_rc1', state: 'ended' },
-    { number: 2, map: 'cp_fake_rc2', state: 'launching' },
+    { number: 1, map: 'cp_fake_rc1', state: 'ended', slots: [] } as Game,
+    { number: 2, map: 'cp_fake_rc2', state: 'launching', slots: [] } as Game,
   ];
   getPlayerGames(playerId: string, sort: any = { launchedAt: -1 }, limit: number = 10, skip: number = 0) {
     return Promise.resolve(this.games);
