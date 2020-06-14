@@ -11,6 +11,7 @@ import { DiscordService } from '@/discord/services/discord.service';
 import { substituteRequest } from '@/discord/notifications';
 import { Environment } from '@/environment/environment';
 import { Message } from 'discord.js';
+import { ObjectId } from 'mongodb';
 
 /**
  * A service that handles player substitution logic.
@@ -137,20 +138,19 @@ export class PlayerSubstitutionService {
       throw new Error('no such player');
     }
 
-    let replacementSlot: GamePlayer = game.slots.find(s => s.playerId === replacementId);
+    let replacementSlot = game.findPlayerSlot(replacementId);
     if (replacementSlot) {
       replacementSlot.status = 'active';
     } else {
       // create new slot of the replacement player
       replacementSlot = {
-        playerId: replacementId,
+        player: new ObjectId(replacementId),
         team: slot.team,
         gameClass: slot.gameClass,
         status: 'active',
       };
 
       game.slots.push(replacementSlot);
-      game.players.push(replacement);
     }
 
     // update replacee
@@ -186,7 +186,7 @@ export class PlayerSubstitutionService {
       throw new Error('no such game');
     }
 
-    const slot = game.slots.find(s => s.playerId === playerId);
+    const slot = game.findPlayerSlot(playerId);
     if (!slot) {
       throw new Error('no such player');
     }

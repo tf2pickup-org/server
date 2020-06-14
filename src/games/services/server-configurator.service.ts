@@ -11,6 +11,7 @@ import { logAddressAdd, changelevel, execConfig, setPassword, addGamePlayer, log
 import { deburr } from 'lodash';
 import { extractConVarValue } from '../utils/extract-con-var-value';
 import { Rcon } from 'rcon-client/lib';
+import { isRefType } from '@typegoose/typegoose';
 
 @Injectable()
 export class ServerConfiguratorService {
@@ -65,7 +66,7 @@ export class ServerConfiguratorService {
       await rcon.send(setPassword(password));
 
       for (const slot of game.slots) {
-        const player = await this.playersService.getById(slot.playerId);
+        const player = isRefType(slot.player) ? await this.playersService.getById(slot.player) : slot.player;
 
         const playerName = deburr(player.name);
         const cmd = addGamePlayer(player.steamId, playerName, slot.team, slot.gameClass);

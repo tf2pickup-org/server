@@ -7,8 +7,8 @@ import { PlayerSubstitutionService } from '../services/player-substitution.servi
 
 class GamesServiceStub {
   games: Game[] = [
-    { number: 1, map: 'cp_fake_rc1', state: 'ended', assignedSkills: new Map([['FAKE_PLAYER_ID', 1]]) },
-    { number: 2, map: 'cp_fake_rc2', state: 'launching', assignedSkills: new Map([['FAKE_PLAYER_ID', 5]]) },
+    { number: 1, map: 'cp_fake_rc1', state: 'ended', assignedSkills: new Map([['FAKE_PLAYER_ID', 1]]) } as Game,
+    { number: 2, map: 'cp_fake_rc2', state: 'launching', assignedSkills: new Map([['FAKE_PLAYER_ID', 5]]) } as Game,
   ];
   getGames(sort: any, limit: number, skip: number) { return new Promise(resolve => resolve(this.games)); }
   getGameCount() { return new Promise(resolve => resolve(2)); }

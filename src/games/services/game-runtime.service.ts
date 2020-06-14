@@ -8,6 +8,7 @@ import { addGamePlayer, delGamePlayer, say } from '../utils/rcon-commands';
 import { GamePlayer } from '../models/game-player';
 import { GamesGateway } from '../gateways/games.gateway';
 import { Rcon } from 'rcon-client/lib';
+import { isRefType } from '@typegoose/typegoose';
 
 @Injectable()
 export class GameRuntimeService {
@@ -87,7 +88,7 @@ export class GameRuntimeService {
 
     try {
       rcon = await this.rconFactoryService.createRcon(gameServer);
-      const player = await this.playersService.getById(replacementSlot.playerId);
+      const player = isRefType(replacementSlot.player) ? await this.playersService.getById(replacementSlot.player) : replacementSlot.player;
 
       const cmd = addGamePlayer(player.steamId, player.name, replacementSlot.team, replacementSlot.gameClass);
       this.logger.debug(cmd);

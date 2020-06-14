@@ -181,7 +181,7 @@ describe('GameEventHandlerService', () => {
     it('should update the player\'s online state', async () => {
       await service.onPlayerJoining(mockGame.id, player1.steamId);
       const game = await gamesService.getById(mockGame.id);
-      expect(game.slots.find(s => player1.id === s.playerId).connectionStatus).toEqual('joining');
+      expect(game.findPlayerSlot(player1.id).connectionStatus).toEqual('joining');
     });
 
     it('should emit an event over ws', async () => {
@@ -195,7 +195,7 @@ describe('GameEventHandlerService', () => {
     it('should update the player\'s online state', async () => {
       await service.onPlayerConnected(mockGame.id, player1.steamId);
       const game = await gamesService.getById(mockGame.id);
-      expect(game.slots.find(s => player1._id.equals(s.playerId)).connectionStatus).toEqual('connected');
+      expect(game.findPlayerSlot(player1.id).connectionStatus).toEqual('connected');
     });
 
     it('should emit an event over ws', async () => {
@@ -209,7 +209,7 @@ describe('GameEventHandlerService', () => {
     it('should update the player\'s online state', async () => {
       await service.onPlayerDisconnected(mockGame.id, player1.steamId);
       const game = await gamesService.getById(mockGame.id);
-      expect(game.slots.find(s => player1._id.equals(s.playerId)).connectionStatus).toEqual('offline');
+      expect(game.findPlayerSlot(player1.id).connectionStatus).toEqual('offline');
     });
 
     it('should emit an event over ws', async () => {

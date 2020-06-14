@@ -10,7 +10,6 @@ import { QueueConfigService } from '@/queue/services/queue-config.service';
 import { GameLauncherService } from './game-launcher.service';
 import { GamesGateway } from '../gateways/games.gateway';
 import { ObjectId } from 'mongodb';
-import { FilterQuery } from 'mongoose';
 import { shuffle } from 'lodash';
 
 interface GameSortOptions {
@@ -57,7 +56,7 @@ export class GamesService {
 
   async getPlayerGames(playerId: string, sort: GameSortOptions = { launchedAt: -1 }, limit: number = 10, skip: number = 0) {
     return await this.gameModel
-      .find({ players: new ObjectId(playerId) })
+      .find({ 'slots.player': new ObjectId(playerId) })
       .sort(sort)
       .limit(limit)
       .skip(skip);
@@ -67,7 +66,7 @@ export class GamesService {
     const defaultOptions: GetPlayerGameCountOptions = { endedOnly: false };
     const _options = { ...defaultOptions, ...options };
 
-    let criteria: any = { players: playerId };
+    let criteria: any = { 'slots.player': playerId };
     if (_options.endedOnly) {
       criteria = { ...criteria, state: 'ended' };
     }
@@ -77,12 +76,12 @@ export class GamesService {
 
   async getPlayerPlayedClassCount(playerId: string): Promise<{ [gameClass: string]: number }> {
     // fixme refactor this to aggregate
-    const allGames = await this.gameModel.find({ players: new ObjectId(playerId), state: 'ended' });
+    const allGames = await this.gameModel.find({ 'slots.player': new ObjectId(playerId), state: 'ended' });
     return this.queueConfigService.queueConfig.classes
       .map(cls => cls.name)
       .reduce((prev, gameClass) => {
         prev[gameClass] = allGames
-          .filter(g => !!g.slots.find(s => s.playerId === playerId && s.gameClass === gameClass))
+          .filter(g => g.findPlayerSlot(playerId)?.gameClass === gameClass)
           .length;
         return prev;
       }, {});
@@ -94,7 +93,7 @@ export class GamesService {
       slots: {
         $elemMatch: {
           status: /active|waiting for substitute/,
-          playerId,
+          player: playerId,
         },
       },
     });
@@ -107,14 +106,14 @@ export class GamesService {
 
     const players: PlayerSlot[] = await Promise.all(queueSlots.map(slot => this.queueSlotToPlayerSlot(slot)));
     const assignedSkills = players.reduce((prev, curr) => { prev[curr.playerId] = curr.skill; return prev; }, { });
-    const slots = pickTeams(shuffle(players), { friends });
+    const slots = pickTeams(shuffle(players), { friends })
+      .map(s => ({ ...s, player: new ObjectId(s.playerId) }));
     const gameNo = await this.getNextGameNumber();
 
     const game = await this.gameModel.create({
       number: gameNo,
       map,
       slots,
-      players: queueSlots.map(s => new ObjectId(s.playerId)),
       assignedSkills,
       state: 'launching',
     });

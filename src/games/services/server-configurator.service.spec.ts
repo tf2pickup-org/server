@@ -50,12 +50,12 @@ const game = {
   map: 'cp_badlands',
   slots: [
     {
-      playerId: 'PLAYER_1',
+      player: 'PLAYER_1',
       team: Tf2Team.Blu,
       gameClass: 'soldier',
     },
     {
-      playerId: 'PLAYER_2',
+      player: 'PLAYER_2',
       team: Tf2Team.Red,
       gameClass: 'soldier',
     },
