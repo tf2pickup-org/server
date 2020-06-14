@@ -1,7 +1,7 @@
-import { prop, mapProp, arrayProp, Ref, index } from '@typegoose/typegoose';
-import { Player } from '@/players/models/player';
+import { prop, Ref, index } from '@typegoose/typegoose';
 import { GamePlayer } from './game-player';
 import { GameServer } from '@/game-servers/models/game-server';
+import { ObjectId } from 'mongodb';
 
 type GameState = 'launching' | 'started' | 'ended' | 'interrupted';
 
@@ -16,13 +16,10 @@ export class Game {
   @prop({ required: true, unique: true })
   number!: number;
 
-  @arrayProp({ ref: 'Player' })
-  players?: Ref<Player>[];
+  @prop({ items: GamePlayer, required: true })
+  slots!: GamePlayer[];
 
-  @arrayProp({ items: GamePlayer })
-  slots?: GamePlayer[];
-
-  @mapProp({ of: Number })
+  @prop({ of: Number })
   assignedSkills?: Map<string, number>;
 
   @prop({ required: true })
@@ -46,10 +43,15 @@ export class Game {
   @prop({ ref: () => GameServer })
   gameServer?: Ref<GameServer>;
 
-  @mapProp({ of: Number })
+  @prop({ of: Number })
   score?: Map<string, number>;
 
   @prop()
   stvConnectString?: string;
+
+  findPlayerSlot(playerId: string | ObjectId) {
+    const _playerId = new ObjectId(playerId);
+    return this.slots.find(s => _playerId.equals(s.playerId as ObjectId));
+  }
 
 }

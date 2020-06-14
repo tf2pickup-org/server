@@ -138,7 +138,7 @@ describe('PlayerSubstitutionService', () => {
     it('should update the player status', async () => {
       const game = await service.substitutePlayer(mockGame.id, player1.id);
       expect(game.id).toEqual(mockGame.id);
-      const slot = game.slots.find(s => s.playerId === player1.id);
+      const slot = game.findPlayerSlot(player1.id);
       expect(slot.status).toEqual('waiting for substitute');
     });
 
@@ -219,7 +219,7 @@ describe('PlayerSubstitutionService', () => {
 
     it('should update the player status', async () => {
       const game = await service.cancelSubstitutionRequest(mockGame.id, player1.id);
-      const slot = game.slots.find(s => s.playerId === player1.id);
+      const slot = game.findPlayerSlot(player1.id);
       expect(slot.status).toEqual('active');
     });
 
@@ -270,12 +270,11 @@ describe('PlayerSubstitutionService', () => {
       // replace player 1 with player 3
       const game = await service.replacePlayer(mockGame.id, player1.id, player3.id);
       expect(game.id).toEqual(mockGame.id);
-      const replaceeSlot = game.slots.find(s => s.playerId === player1.id);
+      const replaceeSlot = game.findPlayerSlot(player1.id);
       expect(replaceeSlot.status).toBe('replaced');
-      const replacementSlot = game.slots.find(s => s.playerId === player3.id);
+      const replacementSlot = game.findPlayerSlot(player3.id);
       expect(replacementSlot).toBeTruthy();
       expect(replacementSlot.status).toBe('active');
-      expect(game.players.find((p: ObjectId) => p.equals(player3.id))).toBeTruthy();
     });
 
     it('should emit the event', async () => {
@@ -288,7 +287,7 @@ describe('PlayerSubstitutionService', () => {
       const spy = jest.spyOn(gameRuntimeService, 'replacePlayer');
       await service.replacePlayer(mockGame.id, player1.id, player3.id);
       setTimeout(() => {
-        expect(spy).toHaveBeenCalledWith(mockGame.id, player1.id, expect.objectContaining({ playerId: player3.id }));
+        expect(spy).toHaveBeenCalledWith(mockGame.id, player1.id, expect.objectContaining({ playerId: player3._id }));
         done();
       }, 100);
     });
@@ -317,7 +316,7 @@ describe('PlayerSubstitutionService', () => {
     it('should mark the slot back as active if a player is subbing himself', async () => {
       const game = await service.replacePlayer(mockGame.id, player1.id, player1.id);
       expect(game.id).toEqual(mockGame.id);
-      const slot = game.slots.find(s => s.playerId === player1.id);
+      const slot = game.findPlayerSlot(player1.id);
       expect(slot.status).toBe('active');
       expect(game.slots.length).toBe(2);
     });

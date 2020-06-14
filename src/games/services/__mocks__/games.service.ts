@@ -3,6 +3,7 @@ import { InjectModel } from 'nestjs-typegoose';
 import { Game } from '@/games/models/game';
 import { ReturnModelType } from '@typegoose/typegoose';
 import { Player } from '@/players/models/player';
+import { ObjectId } from 'mongodb';
 
 @Injectable()
 export class GamesService {
@@ -30,11 +31,10 @@ export class GamesService {
       number: ++this.lastGameId,
       map: 'cp_badlands',
       slots: players.map(p => ({
-        playerId: p.id,
+        playerId: new ObjectId(p.id),
         team: teams[`${(lastTeamId++) % 2}`],
         gameClass: 'soldier',
       })),
-      players,
       state: 'launching',
     });
   }

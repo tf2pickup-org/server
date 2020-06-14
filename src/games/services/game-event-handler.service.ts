@@ -92,7 +92,7 @@ export class GameEventHandlerService {
 
     const game = await this.gamesService.getById(gameId);
     if (game) {
-      const slot = game.slots.find(s => s.playerId === player.id);
+      const slot = game.findPlayerSlot(player.id);
       if (slot) {
         slot.connectionStatus = connectionStatus;
         await game.save();

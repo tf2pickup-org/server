@@ -90,7 +90,7 @@ describe('GamesService', () => {
     let game: DocumentType<Game>;
 
     beforeEach(async () => {
-      game = await gameModel.create({ number: 1, map: 'cp_badlands', state: 'launching' });
+      game = await gameModel.create({ number: 1, map: 'cp_badlands', state: 'launching', slots: [] });
     });
 
     it('should get the game by its id', async () => {
@@ -105,9 +105,9 @@ describe('GamesService', () => {
     let endedGame: DocumentType<Game>;
 
     beforeEach(async () => {
-      launchingGame = await gameModel.create({ number: 1, map: 'cp_badlands', state: 'launching' });
-      runningGame = await gameModel.create({ number: 2, map: 'cp_badlands', state: 'started' });
-      endedGame = await gameModel.create({ number: 3, map: 'cp_badlands', state: 'ended' });
+      launchingGame = await gameModel.create({ number: 1, map: 'cp_badlands', state: 'launching', slots: [] });
+      runningGame = await gameModel.create({ number: 2, map: 'cp_badlands', state: 'started', slots: [] });
+      endedGame = await gameModel.create({ number: 3, map: 'cp_badlands', state: 'ended', slots: [] });
     });
 
     it('should get only running games', async () => {
@@ -128,10 +128,9 @@ describe('GamesService', () => {
           number: 1,
           map: 'cp_badlands',
           state: 'started',
-          players: [ playerId ],
           slots: [
             {
-              playerId: playerId.toString(),
+              playerId,
               status: 'active',
               gameClass: 'soldier',
               team: Tf2Team.Blu,
@@ -147,7 +146,7 @@ describe('GamesService', () => {
       });
     });
 
-    describe('when a player is marked as awaitng substitute in a gem', () => {
+    describe('when a player is marked as awaitng substitute in a game', () => {
       let game: DocumentType<Game>;
       let playerId: ObjectId;
 
@@ -157,10 +156,9 @@ describe('GamesService', () => {
           number: 1,
           map: 'cp_badlands',
           state: 'started',
-          players: [ playerId ],
           slots: [
             {
-              playerId: playerId.toString(),
+              playerId,
               status: 'waiting for substitute',
               gameClass: 'soldier',
               team: Tf2Team.Blu,
@@ -188,16 +186,15 @@ describe('GamesService', () => {
           number: 1,
           map: 'cp_badlands',
           state: 'started',
-          players: [ playerId ],
           slots: [
             {
-              playerId: playerId.toString(),
+              playerId,
               status: 'replaced',
               gameClass: 'soldier',
               team: Tf2Team.Blu,
             },
             {
-              playerId: player2Id.toString(),
+              playerId: player2Id,
               status: 'active',
               gameClass: 'soldier',
               team: Tf2Team.Red,
@@ -221,10 +218,9 @@ describe('GamesService', () => {
           number: 1,
           map: 'cp_badlands',
           state: 'ended',
-          players: [ playerId ],
           slots: [
             {
-              playerId: playerId.toString(),
+              playerId,
               status: 'active',
               gameClass: 'soldier',
               team: Tf2Team.Blu,
@@ -288,7 +284,6 @@ describe('GamesService', () => {
         number: 1,
         map: 'cp_fake',
         slots: expect.any(Array),
-        players: slots.map(s => s.playerId),
         assignedSkills: expect.any(Object),
         state: 'launching',
         launchedAt: expect.any(Date),
@@ -315,16 +310,15 @@ describe('GamesService', () => {
 
       game = await gameModel.create({
         number: 1,
-        players: [ player1, player2 ],
         slots: [
           {
-            playerId: player1.toString(),
+            playerId: player1,
             team: Tf2Team.Blu,
             gameClass: 'scout',
             status: 'waiting for substitute',
           },
           {
-            playerId: player2.toString(),
+            playerId: player2,
             team: Tf2Team.Red,
             gameClass: 'scout',
             status: 'active',
@@ -350,7 +344,6 @@ describe('GamesService', () => {
 
       await gameModel.create({
         number: 1,
-        players: [ player ],
         slots: [],
         map: 'cp_badlands',
         state: 'launching',
@@ -359,7 +352,6 @@ describe('GamesService', () => {
       const gameServer = new ObjectId();
       await gameModel.create({
         number: 2,
-        players: [ player ],
         slots: [],
         map: 'cp_badlands',
         state: 'launching',

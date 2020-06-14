@@ -15,6 +15,7 @@ import { Subject } from 'rxjs';
 import { TwitchTvUser } from '../models/twitch-tv-user';
 import { DiscordService } from '@/discord/services/discord.service';
 import { newPlayer, playerNameChanged } from '@/discord/notifications';
+import { ObjectId } from 'mongodb';
 
 @Injectable()
 export class PlayersService {
@@ -43,7 +44,7 @@ export class PlayersService {
     return await this.playerModel.find();
   }
 
-  async getById(id: string): Promise<DocumentType<Player>> {
+  async getById(id: string | ObjectId): Promise<DocumentType<Player>> {
     return await this.playerModel.findById(id);
   }
 
