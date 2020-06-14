@@ -6,7 +6,6 @@ import { ObjectId } from 'mongodb';
 type GameState = 'launching' | 'started' | 'ended' | 'interrupted';
 
 @index({ state: 1 })
-@index({ players: 1 })
 @index({ gameServer: 1 })
 export class Game {
 
