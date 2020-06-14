@@ -31,7 +31,7 @@ export class GamesService {
       number: ++this.lastGameId,
       map: 'cp_badlands',
       slots: players.map(p => ({
-        playerId: new ObjectId(p.id),
+        player: new ObjectId(p.id),
         team: teams[`${(lastTeamId++) % 2}`],
         gameClass: 'soldier',
       })),

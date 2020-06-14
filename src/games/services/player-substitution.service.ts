@@ -144,7 +144,7 @@ export class PlayerSubstitutionService {
     } else {
       // create new slot of the replacement player
       replacementSlot = {
-        playerId: new ObjectId(replacementId),
+        player: new ObjectId(replacementId),
         team: slot.team,
         gameClass: slot.gameClass,
         status: 'active',

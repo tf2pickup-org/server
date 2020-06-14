@@ -51,7 +51,7 @@ export class Game {
 
   findPlayerSlot(playerId: string | ObjectId) {
     const _playerId = new ObjectId(playerId);
-    return this.slots.find(s => _playerId.equals(s.playerId as ObjectId));
+    return this.slots.find(s => _playerId.equals(s.player as ObjectId));
   }
 
 }

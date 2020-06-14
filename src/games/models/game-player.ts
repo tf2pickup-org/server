@@ -8,7 +8,7 @@ import { Player } from '@/players/models/player';
 export class GamePlayer {
 
   @prop({ required: true, ref: Player })
-  playerId!: Ref<Player>;
+  player!: Ref<Player>;
 
   @prop({ required: true, enum: Tf2Team })
   team!: Tf2Team;

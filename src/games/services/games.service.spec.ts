@@ -130,7 +130,7 @@ describe('GamesService', () => {
           state: 'started',
           slots: [
             {
-              playerId,
+              player: playerId,
               status: 'active',
               gameClass: 'soldier',
               team: Tf2Team.Blu,
@@ -158,7 +158,7 @@ describe('GamesService', () => {
           state: 'started',
           slots: [
             {
-              playerId,
+              player: playerId,
               status: 'waiting for substitute',
               gameClass: 'soldier',
               team: Tf2Team.Blu,
@@ -188,13 +188,13 @@ describe('GamesService', () => {
           state: 'started',
           slots: [
             {
-              playerId,
+              player: playerId,
               status: 'replaced',
               gameClass: 'soldier',
               team: Tf2Team.Blu,
             },
             {
-              playerId: player2Id,
+              player: player2Id,
               status: 'active',
               gameClass: 'soldier',
               team: Tf2Team.Red,
@@ -220,7 +220,7 @@ describe('GamesService', () => {
           state: 'ended',
           slots: [
             {
-              playerId,
+              player: playerId,
               status: 'active',
               gameClass: 'soldier',
               team: Tf2Team.Blu,
@@ -312,13 +312,13 @@ describe('GamesService', () => {
         number: 1,
         slots: [
           {
-            playerId: player1,
+            player: player1,
             team: Tf2Team.Blu,
             gameClass: 'scout',
             status: 'waiting for substitute',
           },
           {
-            playerId: player2,
+            player: player2,
             team: Tf2Team.Red,
             gameClass: 'scout',
             status: 'active',

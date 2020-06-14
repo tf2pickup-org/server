@@ -287,7 +287,7 @@ describe('PlayerSubstitutionService', () => {
       const spy = jest.spyOn(gameRuntimeService, 'replacePlayer');
       await service.replacePlayer(mockGame.id, player1.id, player3.id);
       setTimeout(() => {
-        expect(spy).toHaveBeenCalledWith(mockGame.id, player1.id, expect.objectContaining({ playerId: player3._id }));
+        expect(spy).toHaveBeenCalledWith(mockGame.id, player1.id, expect.objectContaining({ player: player3._id }));
         done();
       }, 100);
     });
