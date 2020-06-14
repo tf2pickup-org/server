@@ -6,7 +6,6 @@ import { ObjectId } from 'mongodb';
 type GameState = 'launching' | 'started' | 'ended' | 'interrupted';
 
 @index({ state: 1 })
-@index({ gameServer: 1 })
 export class Game {
 
   @prop({ default: () => new Date() })
@@ -24,8 +23,8 @@ export class Game {
   @prop({ required: true })
   map!: string;
 
-  @prop({ required: true, default: 'launching' })
-  state!: GameState;
+  @prop({ default: 'launching' })
+  state?: GameState;
 
   @prop()
   connectString?: string;

@@ -3,7 +3,7 @@ import { PlayerConnectionStatus } from './player-connection-status';
 import { Tf2Team } from './tf2-team';
 import { Player } from '@/players/models/player';
 
-@index({ playerId: 1 })
+@index({ player: 1 })
 @index({ status: 1 })
 export class GamePlayer {
 
