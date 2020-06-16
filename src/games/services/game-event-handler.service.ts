@@ -2,25 +2,23 @@ import { Injectable, Logger } from '@nestjs/common';
 import { GamesService } from './games.service';
 import { PlayersService } from '@/players/services/players.service';
 import { PlayerConnectionStatus } from '../models/player-connection-status';
-import { ConfigService } from '@nestjs/config';
 import { GameRuntimeService } from './game-runtime.service';
 import { GamesGateway } from '../gateways/games.gateway';
 import { QueueGateway } from '@/queue/gateways/queue.gateway';
 import { InjectModel } from 'nestjs-typegoose';
 import { Game } from '../models/game';
 import { ReturnModelType } from '@typegoose/typegoose';
+import { serverCleanupDelay } from '@configs/game-servers';
 
 @Injectable()
 export class GameEventHandlerService {
 
   private logger = new Logger(GameEventHandlerService.name);
-  private serverCleanupDelay = this.configService.get<number>('serverCleanupDelay');
 
   constructor(
     @InjectModel(Game) private gameModel: ReturnModelType<typeof Game>,
     private gamesService: GamesService,
     private playersService: PlayersService,
-    private configService: ConfigService,
     private gameRuntimeService: GameRuntimeService,
     private gamesGateway: GamesGateway,
     private queueGateway: QueueGateway,
@@ -46,7 +44,7 @@ export class GameEventHandlerService {
 
       this.gamesGateway.emitGameUpdated(game);
       this.queueGateway.updateSubstituteRequests();
-      setTimeout(() => this.gameRuntimeService.cleanupServer(game.gameServer.toString()), this.serverCleanupDelay);
+      setTimeout(() => this.gameRuntimeService.cleanupServer(game.gameServer.toString()), serverCleanupDelay);
     } else {
       this.logger.warn(`no such game: ${gameId}`);
     }

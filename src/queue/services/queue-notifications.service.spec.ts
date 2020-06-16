@@ -19,18 +19,6 @@ const environment = {
   discordQueueNotificationsMentionRole: 'pickups',
 };
 
-class ConfigServiceStub {
-  get(key: string) {
-    switch (key) {
-      case 'discordNotifications.promptAnnouncementDelay':
-        return 5 * 60 * 1000;
-
-      case 'discordNotifications.promptPlayerThresholdRatio':
-        return 0.5;
-    }
-  }
-}
-
 describe('QueueNotificationsService', () => {
   let service: QueueNotificationsService;
   let queueService: QueueServiceStub;
@@ -41,7 +29,6 @@ describe('QueueNotificationsService', () => {
       providers: [
         QueueNotificationsService,
         { provide: QueueService, useClass: QueueServiceStub },
-        { provide: ConfigService, useClass: ConfigServiceStub },
         { provide: Environment, useValue: environment },
         DiscordService,
       ],

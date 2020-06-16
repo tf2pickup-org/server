@@ -9,20 +9,18 @@ import { GamesService } from '@/games/services/games.service';
 import { PlayerStats } from '../models/player-stats';
 import { Etf2lProfile } from '../models/etf2l-profile';
 import { OnlinePlayersService } from './online-players.service';
-import { ConfigService } from '@nestjs/config';
 import { SteamApiService } from './steam-api.service';
 import { Subject } from 'rxjs';
 import { TwitchTvUser } from '../models/twitch-tv-user';
 import { DiscordService } from '@/discord/services/discord.service';
 import { newPlayer, playerNameChanged } from '@/discord/notifications';
 import { ObjectId } from 'mongodb';
+import { minimumTf2InGameHours, requireEtf2lAccount } from '@configs/players';
 
 @Injectable()
 export class PlayersService {
 
   private logger = new Logger(PlayersService.name);
-  private requireEtf2lAccount = this.configService.get<boolean>('requireEtf2lAccount');
-  private minimumTf2InGameHours = this.configService.get<number>('minimumTf2InGameHours');
   private _playerRegistered = new Subject<string>();
 
   get playerRegistered() {
@@ -35,7 +33,6 @@ export class PlayersService {
     @InjectModel(Player) private playerModel: ReturnModelType<typeof Player>,
     @Inject(forwardRef(() => GamesService)) private gamesService: GamesService,
     private onlinePlayersService: OnlinePlayersService,
-    private configService: ConfigService,
     private steamApiService: SteamApiService,
     private discordService: DiscordService,
   ) { }
@@ -62,7 +59,7 @@ export class PlayersService {
 
   async createPlayer(steamProfile: SteamProfile): Promise<DocumentType<Player>> {
     const hoursInTf2 = await this.steamApiService.getTf2InGameHours(steamProfile.id);
-    if (hoursInTf2 < this.minimumTf2InGameHours) {
+    if (hoursInTf2 < minimumTf2InGameHours) {
       throw new Error('not enough tf2 hours');
     }
 
@@ -78,7 +75,7 @@ export class PlayersService {
 
       name = etf2lProfile.name;
     } catch (error) {
-      if (this.requireEtf2lAccount) {
+      if (requireEtf2lAccount) {
         throw error;
       }
     }

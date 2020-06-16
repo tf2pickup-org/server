@@ -2,13 +2,13 @@ import { Injectable, HttpService, OnModuleInit, Logger } from '@nestjs/common';
 import { TwitchStream } from '../models/twitch-stream';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { PlayersService } from '@/players/services/players.service';
-import { ConfigService } from '@nestjs/config';
 import { Environment } from '@/environment/environment';
 import { map, distinctUntilChanged } from 'rxjs/operators';
 import { BehaviorSubject } from 'rxjs';
 import { TwitchGateway } from '../gateways/twitch.gateway';
 import { TwitchAuthService } from './twitch-auth.service';
 import { PlayerBansService } from '@/players/services/player-bans.service';
+import { twitchTvApiEndpoint } from '@configs/urls';
 
 interface TwitchGetUsersResponse {
   data: {
@@ -45,7 +45,6 @@ interface TwitchGetStreamsResponse {
 @Injectable()
 export class TwitchService implements OnModuleInit {
 
-  private readonly twitchTvApiEndpoint = this.configService.get<string>('twitchTvApiEndpoint');
   private logger = new Logger(TwitchService.name);
   private _streams = new BehaviorSubject<TwitchStream[]>([]);
 
@@ -56,7 +55,6 @@ export class TwitchService implements OnModuleInit {
   constructor(
     private playersService: PlayersService,
     private httpService: HttpService,
-    private configService: ConfigService,
     private environment: Environment,
     private twitchGateway: TwitchGateway,
     private twitchAuthService: TwitchAuthService,
@@ -71,7 +69,7 @@ export class TwitchService implements OnModuleInit {
 
   async fetchUserProfile(accessToken: string) {
     // https://dev.twitch.tv/docs/api/reference#get-users
-    return this.httpService.get<TwitchGetUsersResponse>(`${this.twitchTvApiEndpoint}/users`, {
+    return this.httpService.get<TwitchGetUsersResponse>(`${twitchTvApiEndpoint}/users`, {
       headers: {
         'Authorization': `Bearer ${accessToken}`,
         'Client-ID': this.environment.twitchClientId,
@@ -109,7 +107,7 @@ export class TwitchService implements OnModuleInit {
 
   private async fetchStreams(users: string[]) {
     // https://dev.twitch.tv/docs/api/reference#get-streams
-    return this.httpService.get<TwitchGetStreamsResponse>(`${this.twitchTvApiEndpoint}/streams`, {
+    return this.httpService.get<TwitchGetStreamsResponse>(`${twitchTvApiEndpoint}/streams`, {
       params: {
         user_id: users,
       },

@@ -26,10 +26,6 @@ class HttpServiceStub {
   get(url: string, options: any) { return of(); }
 }
 
-class ConfigServiceStub {
-  get(key: string) { return 'FAKE_URL'; }
-}
-
 const environment = {
   apiUrl: 'FAKE_API_URL',
   twitchClientId: 'FAKE_TWITCH_CLIENT_ID',
@@ -58,7 +54,6 @@ describe('TwitchService', () => {
         TwitchService,
         { provide: PlayersService, useClass: PlayersServiceStub },
         { provide: HttpService, useClass: HttpServiceStub },
-        { provide: ConfigService, useClass: ConfigServiceStub },
         { provide: Environment, useValue: environment },
         { provide: TwitchGateway, useClass: TwitchGatewayStub },
         { provide: TwitchAuthService, useClass: TwitchAuthServiceStub },
@@ -100,7 +95,7 @@ describe('TwitchService', () => {
 
     it('should query the correct endpoint', async () => {
       await service.fetchUserProfile('FAKE_ACCESS_TOKEN');
-      expect(spy).toHaveBeenCalledWith('FAKE_URL/users', {
+      expect(spy).toHaveBeenCalledWith(expect.stringMatching(/\/users$/), {
         headers: {
           'Authorization': 'Bearer FAKE_ACCESS_TOKEN',
           'Client-ID': 'FAKE_TWITCH_CLIENT_ID',

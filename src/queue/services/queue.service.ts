@@ -10,6 +10,7 @@ import { OnlinePlayersService } from '@/players/services/online-players.service'
 import { ConfigService } from '@nestjs/config';
 import { QueueState } from '../queue-state';
 import { QueueGateway } from '../gateways/queue.gateway';
+import { readyUpTimeout, readyStateTimeout } from '@configs/queue';
 
 @Injectable()
 export class QueueService implements OnModuleInit {
@@ -18,8 +19,6 @@ export class QueueService implements OnModuleInit {
   private logger = new Logger(QueueService.name);
   private _stateChange = new BehaviorSubject<QueueState>('waiting');
   private timer: NodeJS.Timer;
-  private readyUpTimeout = this.configService.get<number>('queue.readyUpTimeout');
-  private readyStateTimeout = this.configService.get<number>('queue.readyStateTimeout');
 
   // events
   private _playerJoin = new Subject<string>();
@@ -64,7 +63,6 @@ export class QueueService implements OnModuleInit {
     private playerBansService: PlayerBansService,
     @Inject(forwardRef(() => GamesService)) private gamesService: GamesService,
     private onlinePlayersService: OnlinePlayersService,
-    private configService: ConfigService,
     @Inject(forwardRef(() => QueueGateway)) private queueGateway: QueueGateway,
   ) { }
 
@@ -273,7 +271,7 @@ export class QueueService implements OnModuleInit {
 
   private onStateChange(oldState: QueueState, newState: QueueState) {
     if (oldState === 'waiting' && newState === 'ready') {
-      this.timer = setTimeout(() => this.onReadyUpTimeout(), this.readyUpTimeout);
+      this.timer = setTimeout(() => this.onReadyUpTimeout(), readyUpTimeout);
     } else if (oldState === 'ready' && newState === 'launching') {
       clearTimeout(this.timer);
     } else if (oldState === 'ready' && newState === 'waiting') {
@@ -288,7 +286,7 @@ export class QueueService implements OnModuleInit {
       this.kickUnreadyPlayers();
     }
 
-    const nextTimeout = this.readyStateTimeout - this.readyUpTimeout;
+    const nextTimeout = readyStateTimeout - readyUpTimeout;
 
     if (nextTimeout > 0) {
       this.timer = setTimeout(() => this.unreadyQueue(), nextTimeout);

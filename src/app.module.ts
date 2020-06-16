@@ -13,7 +13,6 @@ import { SharedModule } from './shared/shared.module';
 import { DiscordModule } from './discord/discord.module';
 import { EnvironmentModule } from './environment/environment.module';
 import { ConfigModule } from '@nestjs/config';
-import config from '../configs/config';
 import validationSchema from './environment-validation-schema';
 import { ScheduleModule } from '@nestjs/schedule';
 import { DocumentsModule } from './documents/documents.module';
@@ -38,9 +37,6 @@ function createMongodbUri(environment: Environment) {
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [
-        config,
-      ],
       validationSchema,
     }),
     TypegooseModule.forRootAsync({
