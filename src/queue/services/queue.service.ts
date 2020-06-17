@@ -7,7 +7,6 @@ import { BehaviorSubject, Observable, Subject, merge } from 'rxjs';
 import { pairwise, distinctUntilChanged } from 'rxjs/operators';
 import { GamesService } from '@/games/services/games.service';
 import { OnlinePlayersService } from '@/players/services/online-players.service';
-import { ConfigService } from '@nestjs/config';
 import { QueueState } from '../queue-state';
 import { QueueGateway } from '../gateways/queue.gateway';
 import { readyUpTimeout, readyStateTimeout } from '@configs/queue';

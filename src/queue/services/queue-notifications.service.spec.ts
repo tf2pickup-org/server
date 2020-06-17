@@ -2,7 +2,6 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { QueueNotificationsService } from './queue-notifications.service';
 import { QueueService } from './queue.service';
 import { Subject } from 'rxjs';
-import { ConfigService } from '@nestjs/config';
 import { Environment } from '@/environment/environment';
 import { DiscordService } from '@/discord/services/discord.service';
 

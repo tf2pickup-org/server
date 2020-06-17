@@ -7,7 +7,6 @@ import { PlayerBansService } from '@/players/services/player-bans.service';
 import { GamesService } from '@/games/services/games.service';
 import { OnlinePlayersService } from '@/players/services/online-players.service';
 import { Subject } from 'rxjs';
-import { ConfigService } from '@nestjs/config';
 import { QueueGateway } from '../gateways/queue.gateway';
 import { QueueSlot } from '../queue-slot';
 import { QueueState } from '../queue-state';

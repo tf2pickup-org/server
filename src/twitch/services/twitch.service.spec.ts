@@ -2,7 +2,6 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { TwitchService } from './twitch.service';
 import { PlayersService } from '@/players/services/players.service';
 import { HttpService } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { Environment } from '@/environment/environment';
 import { of } from 'rxjs';
 import { TwitchGateway } from '../gateways/twitch.gateway';

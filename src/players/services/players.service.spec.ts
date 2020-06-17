@@ -6,7 +6,6 @@ import { getModelToken, TypegooseModule } from 'nestjs-typegoose';
 import { SteamProfile } from '../models/steam-profile';
 import { GamesService } from '@/games/services/games.service';
 import { OnlinePlayersService } from './online-players.service';
-import { ConfigService } from '@nestjs/config';
 import { Etf2lProfile } from '../models/etf2l-profile';
 import { ReturnModelType, DocumentType } from '@typegoose/typegoose';
 import { Player } from '../models/player';
