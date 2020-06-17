@@ -7,17 +7,21 @@
 * one open UDP port for TF2 game server log relay
 * a Mumble server
 * *optionally* a Discord server
+* *optionally* twitch.tv client id & secret
 
 ## Setup
 
 * clone the repository or download a zipped release of your choice
 * copy `sample.env` to `.env` and adjust your environment values
-* review configuration in `configs/config.ts`
+* review configuration files in `configs/`
 * install dependencies
+
     ```bash
     npm i
     ```
+
 * build the project
+
     ```bash
     npm run build
     ```
@@ -27,20 +31,23 @@
 To launch the server application itself, you have a couple options:
 
 * launch the process in the shell manually
+
     ```bash
     node dist/src/main.js
     ```
+
     Note that you will probably want to run the process in a separate shell, i.e. tmux.
 
 * use process manager, i.e. `pm2`
+
     ```bash
     npm i -g pm2
     pm2 start dist/src/main.js
     ```
-    
+
 The server process listens for incoming connections on port 3000.
 
 ## Contact
 
 * mały#0226
-* http://steamcommunity.com/id/nieduzy/
+* <http://steamcommunity.com/id/nieduzy/>
