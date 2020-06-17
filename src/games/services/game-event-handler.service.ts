@@ -1,5 +1,4 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { GamesService } from './games.service';
 import { PlayersService } from '@/players/services/players.service';
 import { PlayerConnectionStatus } from '../models/player-connection-status';
 import { GameRuntimeService } from './game-runtime.service';
@@ -17,7 +16,6 @@ export class GameEventHandlerService {
 
   constructor(
     @InjectModel(Game) private gameModel: ReturnModelType<typeof Game>,
-    private gamesService: GamesService,
     private playersService: PlayersService,
     private gameRuntimeService: GameRuntimeService,
     private gamesGateway: GamesGateway,
@@ -25,14 +23,16 @@ export class GameEventHandlerService {
   ) { }
 
   async onMatchStarted(gameId: string) {
-    const game = await this.gameModel.findOneAndUpdate({ _id: gameId, state: 'launching' }, { state: 'started' });
+    const game = await this.gameModel.findOneAndUpdate({ _id: gameId, state: 'launching' }, { state: 'started' }, { new: true });
     if (game) {
       this.gamesGateway.emitGameUpdated(game);
     }
+
+    return game;
   }
 
   async onMatchEnded(gameId: string) {
-    const game = await this.gameModel.findOneAndUpdate({ _id: gameId, state: 'started' }, { state: 'ended' });
+    const game = await this.gameModel.findOneAndUpdate({ _id: gameId, state: 'started' }, { state: 'ended' }, { new: true });
     if (game) {
       game.slots.forEach(slot => {
         if (slot.status === 'waiting for substitute') {
@@ -48,37 +48,43 @@ export class GameEventHandlerService {
     } else {
       this.logger.warn(`no such game: ${gameId}`);
     }
+
+    return game;
   }
 
   async onLogsUploaded(gameId: string, logsUrl: string) {
-    const game = await this.gameModel.findOneAndUpdate({ _id: gameId }, { logsUrl });
+    const game = await this.gameModel.findOneAndUpdate({ _id: gameId }, { logsUrl }, { new: true });
     if (game) {
       this.gamesGateway.emitGameUpdated(game);
     } else {
       this.logger.warn(`no such game: ${gameId}`);
     }
+
+    return game;
   }
 
   async onPlayerJoining(gameId: string, steamId: string) {
-    await this.setPlayerConnectionStatus(gameId, steamId, 'joining');
+    return await this.setPlayerConnectionStatus(gameId, steamId, 'joining');
   }
 
   async onPlayerConnected(gameId: string, steamId: string) {
-    await this.setPlayerConnectionStatus(gameId, steamId, 'connected');
+    return await this.setPlayerConnectionStatus(gameId, steamId, 'connected');
   }
 
   async onPlayerDisconnected(gameId: string, steamId: string) {
-    await this.setPlayerConnectionStatus(gameId, steamId, 'offline');
+    return await this.setPlayerConnectionStatus(gameId, steamId, 'offline');
   }
 
   async onScoreReported(gameId: string, teamName: string, score: string) {
     const fixedTeamName = teamName.toLowerCase().substring(0, 3); // converts Red to 'red' and Blue to 'blu'
-    const game = await this.gameModel.findOneAndUpdate({ _id: gameId }, { [`score.${fixedTeamName}`]: parseInt(score, 10) });
+    const game = await this.gameModel.findOneAndUpdate({ _id: gameId }, { [`score.${fixedTeamName}`]: parseInt(score, 10) }, { new: true });
     if (game) {
       this.gamesGateway.emitGameUpdated(game);
     } else {
       this.logger.warn(`no such game: ${gameId}`);
     }
+
+    return game;
   }
 
   private async setPlayerConnectionStatus(gameId: string, steamId: string, connectionStatus: PlayerConnectionStatus) {
@@ -88,7 +94,7 @@ export class GameEventHandlerService {
       return;
     }
 
-    const game = await this.gamesService.getById(gameId);
+    const game = await this.gameModel.findById(gameId);
     if (game) {
       const slot = game.findPlayerSlot(player.id);
       if (slot) {
@@ -101,6 +107,8 @@ export class GameEventHandlerService {
     } else {
       this.logger.warn(`no such game: ${gameId}`);
     }
+
+    return game;
   }
 
 }
