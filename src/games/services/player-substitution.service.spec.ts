@@ -313,12 +313,20 @@ describe('PlayerSubstitutionService', () => {
       })
     });
 
-    it('should mark the slot back as active if a player is subbing himself', async () => {
-      const game = await service.replacePlayer(mockGame.id, player1.id, player1.id);
-      expect(game.id).toEqual(mockGame.id);
-      const slot = game.findPlayerSlot(player1.id);
-      expect(slot.status).toBe('active');
-      expect(game.slots.length).toBe(2);
+    describe('when a player is subbing himself', () => {
+      it('should mark the slot back as active', async () => {
+        const game = await service.replacePlayer(mockGame.id, player1.id, player1.id);
+        expect(game.id).toEqual(mockGame.id);
+        const slot = game.findPlayerSlot(player1.id);
+        expect(slot.status).toBe('active');
+        expect(game.slots.length).toBe(2);
+      });
+
+      it('should delete the discord announcement', async () => {
+        const spy = jest.spyOn(discordMessage, 'delete');
+        await service.replacePlayer(mockGame.id, player1.id, player1.id);
+        expect(spy).toHaveBeenCalled();
+      });
     });
 
     describe('when the given player has already been replaced', () => {

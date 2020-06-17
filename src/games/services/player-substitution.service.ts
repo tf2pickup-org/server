@@ -125,6 +125,7 @@ export class PlayerSubstitutionService {
       await game.save();
       this.gamesGateway.emitGameUpdated(game);
       this.queueGateway.updateSubstituteRequests();
+      await this.deleteDiscordAnnouncement(replaceeId);
       this.logger.verbose(`player has taken his own slot`);
       return game;
     }
@@ -168,11 +169,7 @@ export class PlayerSubstitutionService {
       `${replacement.name} is replacing ${replacee.name} on ${replacementSlot.gameClass}.`,
     );
 
-    const message = this.discordNotifications.get(replaceeId);
-    if (message) {
-      await message.delete();
-      this.discordNotifications.delete(replaceeId);
-    }
+    await this.deleteDiscordAnnouncement(replaceeId);
 
     this.logger.verbose(`player ${replacement.name} is replacing ${replacee.name} on ${replacementSlot.gameClass} in game #${game.number}`);
 
@@ -192,6 +189,14 @@ export class PlayerSubstitutionService {
     }
 
     return { game, slot };
+  }
+
+  private async deleteDiscordAnnouncement(replaceeId: string) {
+    const message = this.discordNotifications.get(replaceeId);
+    if (message) {
+      await message.delete();
+      this.discordNotifications.delete(replaceeId);
+    }
   }
 
 }
