@@ -299,6 +299,61 @@ describe('GamesService', () => {
     });
   });
 
+  describe('#getMostActivePlayers()', () => {
+    let player1: DocumentType<Player>;
+    let player2: DocumentType<Player>;
+
+    beforeEach(async () => {
+      // @ts-expect-error
+      player1 = await playersService._createOne();
+      // @ts-expect-error
+      player2 = await playersService._createOne();
+
+      await gameModel.create({
+        number: 1,
+        slots: [
+          {
+            player: player1._id,
+            team: Tf2Team.Blu,
+            gameClass: 'scout',
+            status: 'active',
+          },
+          {
+            player: player2._id,
+            team: Tf2Team.Red,
+            gameClass: 'scout',
+            status: 'active',
+          },
+        ],
+        map: 'cp_badlands',
+        state: 'ended',
+      });
+
+      await gameModel.create({
+        number: 2,
+        slots: [
+          {
+            player: player1._id,
+            team: Tf2Team.Blu,
+            gameClass: 'scout',
+            status: 'active',
+          },
+        ],
+        map: 'cp_badlands',
+        state: 'ended',
+      });
+    });
+
+    it('should return the most active players', async () => {
+      const ret = await service.getMostActivePlayers();
+      expect(ret).toEqual([{ player: player1.id, count: 2 }, { player: player2.id, count: 1 }]);
+    });
+  });
+
+  describe('#getMostActiveMedics()', () => {
+    it.todo('should return the most active medics');
+  });
+
   describe('#getGamesWithSubstitutionRequests()', () => {
     let game: DocumentType<Game>;
 
