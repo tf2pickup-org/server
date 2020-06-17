@@ -54,17 +54,6 @@ class OnlinePlayersServiceStub {
   getSocketsForPlayer(playerId: string) { return []; }
 }
 
-class ConfigServiceStub {
-  get(key: string) {
-    switch (key) {
-      case 'minimumTf2InGameHours':
-        return 500;
-      case 'requireEtf2lAccount':
-        return true;
-    }
-  }
-}
-
 class SteamApiServiceStub {
   getTf2InGameHours(steamId64: string) { return Promise.resolve(800); }
 }
@@ -96,7 +85,6 @@ describe('PlayersService', () => {
         { provide: Etf2lProfileService, useClass: Etf2lProfileServiceStub },
         { provide: GamesService, useClass: GamesServiceStub },
         { provide: OnlinePlayersService, useClass: OnlinePlayersServiceStub },
-        { provide: ConfigService, useClass: ConfigServiceStub },
         { provide: SteamApiService, useClass: SteamApiServiceStub },
         DiscordService,
       ],

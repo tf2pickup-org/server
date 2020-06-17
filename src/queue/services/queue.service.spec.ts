@@ -59,18 +59,6 @@ class OnlinePlayersServiceStub {
   playerLeft = new Subject<string>();
 }
 
-class ConfigServiceStub {
-  get(key: string) {
-    switch (key) {
-      case 'queue.readyUpTimeout':
-        return 40000;
-
-      case 'queue.readyStateTimeout':
-        return 60000;
-    }
-  }
-}
-
 class QueueGatewayStub {
   emitSlotsUpdate(slots: QueueSlot[]) { return null; }
   emitStateUpdate(state: QueueState) { return null; }
@@ -96,7 +84,6 @@ describe('QueueService', () => {
         { provide: PlayerBansService, useClass: PlayerBansServiceStub },
         { provide: GamesService, useClass: GamesServiceStub },
         { provide: OnlinePlayersService, useClass: OnlinePlayersServiceStub },
-        { provide: ConfigService, useClass: ConfigServiceStub },
         { provide: QueueGateway, useClass: QueueGatewayStub },
       ],
     }).compile();

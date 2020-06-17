@@ -4,7 +4,6 @@ import { QueueConfigService } from './queue-config.service';
 import { QueueService } from './queue.service';
 import { Subject } from 'rxjs';
 import { QueueGateway } from '../gateways/queue.gateway';
-import { ConfigService } from '@nestjs/config';
 
 class QueueConfigServiceStub {
   queueConfig = {
@@ -34,15 +33,6 @@ class QueueGatewayStub {
   emitVoteResultsUpdate(results: any[]) { return null; }
 }
 
-class ConfigServiceStub {
-  get(key: string) {
-    switch(key) {
-      case 'queue.mapCooldown':
-        return 2;
-    }
-  }
-}
-
 describe('MapVoteService', () => {
   let service: MapVoteService;
   let queueConfigService: QueueConfigServiceStub;
@@ -56,7 +46,6 @@ describe('MapVoteService', () => {
         { provide: QueueConfigService, useClass: QueueConfigServiceStub },
         { provide: QueueService, useClass: QueueServiceStub },
         { provide: QueueGateway, useClass: QueueGatewayStub },
-        { provide: ConfigService, useClass: ConfigServiceStub },
       ],
     }).compile();
 

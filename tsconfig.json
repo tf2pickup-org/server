@@ -17,7 +17,8 @@
     "types": ["jest"],
     "paths": {
       "@/*": [ "src/*" ],
-      "@mocks/*": [ "__mocks__/*" ]
+      "@mocks/*": [ "__mocks__/*" ],
+      "@configs/*": [ "configs/*" ]
     }
   },
   "exclude": [

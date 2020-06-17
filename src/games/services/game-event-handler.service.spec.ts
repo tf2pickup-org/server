@@ -2,7 +2,6 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { GameEventHandlerService } from './game-event-handler.service';
 import { GamesService } from './games.service';
 import { PlayersService } from '@/players/services/players.service';
-import { ConfigService } from '@nestjs/config';
 import { GameRuntimeService } from './game-runtime.service';
 import { GamesGateway } from '../gateways/games.gateway';
 import { typegooseTestingModule } from '@/utils/testing-typegoose-module';
@@ -13,6 +12,7 @@ import { ObjectId } from 'mongodb';
 import { Player } from '@/players/models/player';
 import { QueueGateway } from '@/queue/gateways/queue.gateway';
 import { MongoMemoryServer } from 'mongodb-memory-server';
+import { serverCleanupDelay } from '@configs/game-servers';
 
 jest.mock('@/players/services/players.service');
 jest.mock('./games.service');
@@ -46,7 +46,6 @@ describe('GameEventHandlerService', () => {
         GameEventHandlerService,
         PlayersService,
         GamesService,
-        ConfigService,
         GameRuntimeService,
         GamesGateway,
         QueueGateway,
@@ -127,13 +126,14 @@ describe('GameEventHandlerService', () => {
       expect(game.state).toEqual('ended');
     });
 
-    it('should eventually cleanup the server', async done => {
+    it('should eventually cleanup the server', async () => {
+      jest.useFakeTimers();
       const spy = jest.spyOn(gameRuntimeService, 'cleanupServer');
       await service.onMatchEnded(mockGame.id);
-      setTimeout(() => {
-        expect(spy).toHaveBeenCalledWith(gameServerId.toString());
-        done();
-      }, 0);
+
+      jest.advanceTimersByTime(serverCleanupDelay);
+      expect(spy).toHaveBeenCalledWith(gameServerId.toString());
+      jest.useRealTimers();
     });
 
     it('should emit an event over ws', async () => {

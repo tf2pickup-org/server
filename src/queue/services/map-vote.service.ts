@@ -5,7 +5,7 @@ import { maxBy, shuffle } from 'lodash';
 import { BehaviorSubject } from 'rxjs';
 import { MapVoteResult } from '../map-vote-result';
 import { QueueGateway } from '../gateways/queue.gateway';
-import { ConfigService } from '@nestjs/config';
+import { mapCooldown } from '@configs/queue';
 
 interface MapVote {
   playerId: string;
@@ -15,7 +15,6 @@ interface MapVote {
 @Injectable()
 export class MapVoteService implements OnModuleInit {
 
-  private readonly mapCooldown = this.configService.get<number>('queue.mapCooldown');
   private _results = new BehaviorSubject<MapVoteResult[]>([]);
   private mapPool= this.queueConfigService.queueConfig.maps.map(m => ({ map: m.name, cooldown: 0 }));
 
@@ -33,7 +32,6 @@ export class MapVoteService implements OnModuleInit {
     private queueConfigService: QueueConfigService,
     @Inject(forwardRef(() => QueueService)) private queueService: QueueService,
     @Inject(forwardRef(() => QueueGateway)) private queueGateway: QueueGateway,
-    private configService: ConfigService,
   ) {
     this.reset();
   }
@@ -75,7 +73,7 @@ export class MapVoteService implements OnModuleInit {
     const maxVotes = maxBy(this.results, r => r.voteCount).voteCount;
     const mapsWithMaxVotes = this.results.filter(m => m.voteCount === maxVotes);
     const map = mapsWithMaxVotes[Math.floor(Math.random() * mapsWithMaxVotes.length)].map;
-    this.mapPool.find(m => m.map === map).cooldown = this.mapCooldown;
+    this.mapPool.find(m => m.map === map).cooldown = mapCooldown;
     setImmediate(() => this.reset());
     return map;
   }
