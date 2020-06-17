@@ -1,3 +1,27 @@
+# [3.0.0](https://github.com/garrappachc/server/compare/2.9.1...3.0.0) (2020-06-17)
+
+
+### Bug Fixes
+
+* delete discord announcement when player is subbing himself ([#441](https://github.com/garrappachc/server/issues/441)) ([5c0fa5c](https://github.com/garrappachc/server/commit/5c0fa5c6e8a4538286491743f9d436aa3d90ae4a))
+* emit updated Game objects on game events ([#443](https://github.com/garrappachc/server/issues/443)) ([5ce71e8](https://github.com/garrappachc/server/commit/5ce71e8d5a917dfa576606d3721bcca0cef45cd9))
+* **deps:** update dependency helmet to v3.23.1 ([#440](https://github.com/garrappachc/server/issues/440)) ([0e59897](https://github.com/garrappachc/server/commit/0e598977f55446d4bc3a5b01327a36125d8ff4cf))
+* Game model migration ([#439](https://github.com/garrappachc/server/issues/439)) ([2898e76](https://github.com/garrappachc/server/commit/2898e76458b993f7172c14eb81159f4ee1729332))
+* **deps:** update dependency mongoose to v5.9.19 ([#438](https://github.com/garrappachc/server/issues/438)) ([896aac5](https://github.com/garrappachc/server/commit/896aac5fbf5aadc9e58049b19fe6c3e10030c38b))
+* ignore .migrate ([0a6d4e2](https://github.com/garrappachc/server/commit/0a6d4e29e5297af8ad2df8261b02a1f207e4aa55))
+* update GamePlayer & Game indexes ([8532f26](https://github.com/garrappachc/server/commit/8532f269b46e672cf21028993d41cf2e5bebe7cc))
+* **deps:** pin dependency migrate to 1.6.2 ([#435](https://github.com/garrappachc/server/issues/435)) ([fff3e9c](https://github.com/garrappachc/server/commit/fff3e9c59f0899d519ed18833c7e8ce5d4658da2))
+
+
+* refactor!: get rid of Game.players (#437) ([1a9b759](https://github.com/garrappachc/server/commit/1a9b759fa0156a82cbbba2335a112cdf2dffdf13)), closes [#437](https://github.com/garrappachc/server/issues/437)
+* refactor!: update Game model to use team names (#434) ([3fae9ca](https://github.com/garrappachc/server/commit/3fae9caec26d04c49bbb0cb61b147748a7856b24)), closes [#434](https://github.com/garrappachc/server/issues/434)
+
+
+### BREAKING CHANGES
+
+* Game.players is gone, GamePlayer.playerId is renamed to GamePlayer.player
+* Game.teams is now gone, GamePlayer.teamId is moved to GamePlayer.team
+
 ## [2.9.1](https://github.com/garrappachc/server/compare/2.9.0...2.9.1) (2020-06-13)
 
 
