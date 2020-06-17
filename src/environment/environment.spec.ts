@@ -1,0 +1,64 @@
+import { TestingModule, Test } from '@nestjs/testing';
+import { ConfigService } from '@nestjs/config';
+import { Environment } from './environment';
+
+jest.mock('@nestjs/config');
+
+describe('Environment', () => {
+  let environment: Environment;
+  let configService: ConfigService;
+
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        Environment,
+        ConfigService,
+      ],
+    }).compile();
+
+    environment = module.get<Environment>(Environment);
+    configService = module.get(ConfigService);
+
+    configService.get = varName => varName;
+  });
+
+  it('should be defined', () => {
+    expect(environment).toBeDefined();
+  });
+
+  [
+    'API_URL',
+    'CLIENT_URL',
+    'MONGODB_HOST',
+    'MONGODB_PORT',
+    'MONGODB_DB',
+    'MONGODB_USERNAME',
+    'MONGODB_PASSWORD',
+    'STEAM_API_KEY',
+    'KEY_STORE_FILE',
+    'KEY_STORE_PASSPHARE',
+    'SUPER_USER',
+    'QUEUE_CONFIG',
+    'MUMBLE_SERVER_URL',
+    'MUMBLE_CHANNEL_NAME',
+    'LOG_RELAY_ADDRESS',
+    'LOG_RELAY_PORT',
+    'DISCORD_BOT_TOKEN',
+    'DISCORD_GUILD',
+    'DISCORD_QUEUE_NOTIFICATIONS_CHANNEL',
+    'DISCORD_QUEUE_NOTIFICATIONS_MENTION_ROLE',
+    'DISCORD_ADMIN_NOTIFICATIONS_CHANNEL',
+    'TWITCH_CLIENT_ID',
+    'TWITCH_CLIENT_SECRET',
+  ].forEach(varName => {
+    const getterName = varName
+      .toLowerCase()
+      .replace(/_(.)/g, (_, p1) => p1.toString().toUpperCase())
+      .replace('mongodb', 'mongoDb')
+      .replace('mongoDbDb', 'mongoDbName');
+
+    it(`should return value for ${getterName}`, () => {
+      expect(environment[getterName]).toEqual(varName);
+    });
+  });
+});
