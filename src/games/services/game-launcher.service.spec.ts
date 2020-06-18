@@ -8,6 +8,7 @@ import { GamesGateway } from '../gateways/games.gateway';
 
 const mockGame = {
   id: 'FAKE_GAME_ID',
+  _id: 'FAKE_GAME_ID',
   number: 2,
   state: 'launching',
   gameServer: null,
@@ -21,6 +22,7 @@ class GamesServiceStub {
 
 const mockGameServer = {
   id: 'FAKE_GAME_SERVER_ID',
+  _id: 'FAKE_GAME_SERVER_ID',
   name: 'FAKE_GAME_SERVER',
   mumbleChannelName: 'FAKE_SERVER_MUMBLE_CHANNEL_NAME',
   game: undefined,
@@ -89,13 +91,13 @@ describe('GameLauncherService', () => {
 
     it('should take the game server', async () => {
       await service.launch('FAKE_GAME_ID');
-      expect(mockGameServer.game.id).toEqual(mockGame.id);
+      expect(mockGameServer.game).toEqual(mockGame.id);
     });
 
     it('should configure the game server', async () => {
       const spy = jest.spyOn(serverConfiguratorService, 'configureServer');
       const ret = await service.launch('FAKE_GAME_ID');
-      expect(spy).toHaveBeenCalledWith(jasmine.objectContaining({ id: mockGameServer.id }), jasmine.objectContaining({ id: mockGame.id }));
+      expect(spy).toHaveBeenCalledWith(expect.objectContaining({ id: mockGameServer.id }), expect.objectContaining({ id: mockGame.id }));
       expect(ret.connectString).toEqual('FAKE_CONNECT_STRING');
       expect(ret.stvConnectString).toEqual('FAKE_STV_CONNECT_STRING');
     });

@@ -46,8 +46,8 @@ export class GameLauncherService {
       this.logger.verbose(`using server ${gameServer.name} for game #${game.number}`);
 
       // step 1: obtain a free server
-      gameServer.game = game;
-      game.gameServer = gameServer;
+      gameServer.game = game._id;
+      game.gameServer = gameServer._id;
       await game.save();
       this.gamesGateway.emitGameUpdated(game);
 
