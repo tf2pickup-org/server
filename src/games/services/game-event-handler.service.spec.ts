@@ -186,6 +186,12 @@ describe('GameEventHandlerService', () => {
       await service.onDemoUploaded(mockGame._id, 'FAKE_DEMO_URL');
       expect(spy).toBeCalledWith(expect.objectContaining({ id: mockGame.id, demoUrl: 'FAKE_DEMO_URL' }));
     });
+
+    describe('when a wrong gameId is captured', () => {
+      it('should return null', async () => {
+        expect(await service.onDemoUploaded(new ObjectId().toString(), 'FAKE_DEMO_URL')).toBe(null);
+      });
+    });
   });
 
   describe('#onPlayerJoining()', () => {
