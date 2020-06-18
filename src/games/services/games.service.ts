@@ -38,7 +38,7 @@ export class GamesService {
     return await this.gameModel.estimatedDocumentCount();
   }
 
-  async getById(gameId: string): Promise<DocumentType<Game>> {
+  async getById(gameId: string | ObjectId): Promise<DocumentType<Game>> {
     return await this.gameModel.findById(gameId);
   }
 

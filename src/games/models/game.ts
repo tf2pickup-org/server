@@ -7,6 +7,7 @@ type GameState = 'launching' | 'started' | 'ended' | 'interrupted';
 
 @index({ state: 1 })
 export class Game {
+  id: string;
 
   @prop({ default: () => new Date() })
   launchedAt?: Date;

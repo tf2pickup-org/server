@@ -26,6 +26,7 @@ const mockGameServer = {
   name: 'FAKE_GAME_SERVER',
   mumbleChannelName: 'FAKE_SERVER_MUMBLE_CHANNEL_NAME',
   game: undefined,
+  save: () => null,
 };
 
 class GameServersServiceStub {
