@@ -47,6 +47,7 @@ export class GameLauncherService {
 
       // step 1: obtain a free server
       gameServer.game = game._id;
+      await gameServer.save();
       game.gameServer = gameServer._id;
       await game.save();
       this.gamesGateway.emitGameUpdated(game);
