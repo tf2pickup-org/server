@@ -1,3 +1,11 @@
+## [3.0.2](https://github.com/garrappachc/server/compare/3.0.1...3.0.2) (2020-06-18)
+
+
+### Bug Fixes
+
+* fix recursive game server assignment ([#452](https://github.com/garrappachc/server/issues/452)) ([ab08f22](https://github.com/garrappachc/server/commit/ab08f22e7aa33b5bd4ea302d8039bb47a07bab26))
+* **deps:** update dependency nestjs-typegoose to v7.1.28 ([#449](https://github.com/garrappachc/server/issues/449)) ([af9de32](https://github.com/garrappachc/server/commit/af9de3207fec4a4f7667b113493743f6cf12deda))
+
 ## [3.0.1](https://github.com/garrappachc/server/compare/3.0.0...3.0.1) (2020-06-18)
 
 
