@@ -1,3 +1,10 @@
+## [3.0.1](https://github.com/garrappachc/server/compare/3.0.0...3.0.1) (2020-06-18)
+
+
+### Bug Fixes
+
+* fix hall of fame reporting ([#445](https://github.com/garrappachc/server/issues/445)) ([15780b7](https://github.com/garrappachc/server/commit/15780b779153b1fad714970b74815ab876d23f25))
+
 # [3.0.0](https://github.com/garrappachc/server/compare/2.9.1...3.0.0) (2020-06-17)
 
 
