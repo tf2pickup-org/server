@@ -1,3 +1,10 @@
+## [3.0.3](https://github.com/garrappachc/server/compare/3.0.2...3.0.3) (2020-06-18)
+
+
+### Bug Fixes
+
+* fix GameServer not being saved after assigning a game ([#453](https://github.com/garrappachc/server/issues/453)) ([ef30ffd](https://github.com/garrappachc/server/commit/ef30ffd05f11fdc5f0b74b4fcd08f05bc0156ea8))
+
 ## [3.0.2](https://github.com/garrappachc/server/compare/3.0.1...3.0.2) (2020-06-18)
 
 
