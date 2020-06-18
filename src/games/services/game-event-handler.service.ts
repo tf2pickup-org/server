@@ -63,6 +63,17 @@ export class GameEventHandlerService {
     return game;
   }
 
+  async onDemoUploaded(gameId: string, demoUrl: string) {
+    const game = await this.gameModel.findByIdAndUpdate(gameId, { demoUrl }, { new: true });
+    if (game) {
+      this.gamesGateway.emitGameUpdated(game);
+    } else {
+      this.logger.warn(`no such game: ${gameId}`);
+    }
+
+    return game;
+  }
+
   async onPlayerJoining(gameId: string, steamId: string) {
     return await this.setPlayerConnectionStatus(gameId, steamId, 'joining');
   }

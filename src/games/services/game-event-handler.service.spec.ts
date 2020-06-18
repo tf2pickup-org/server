@@ -175,6 +175,19 @@ describe('GameEventHandlerService', () => {
     });
   });
 
+  describe('#onDemoUploaded()', () => {
+    it('should update demoUrl', async () => {
+      const game = await service.onDemoUploaded(mockGame._id, 'FAKE_DEMO_URL');
+      expect(game.demoUrl).toEqual('FAKE_DEMO_URL');
+    });
+
+    it('should emit an event over ws', async () => {
+      const spy = jest.spyOn(gamesGateway, 'emitGameUpdated');
+      await service.onDemoUploaded(mockGame._id, 'FAKE_DEMO_URL');
+      expect(spy).toBeCalledWith(expect.objectContaining({ id: mockGame.id, demoUrl: 'FAKE_DEMO_URL' }));
+    });
+  });
+
   describe('#onPlayerJoining()', () => {
     it('should update the player\'s online state', async () => {
       const game =  await service.onPlayerJoining(mockGame.id, player1.steamId);

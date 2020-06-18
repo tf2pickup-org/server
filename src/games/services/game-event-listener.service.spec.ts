@@ -31,7 +31,6 @@ class GamesServiceStub {
   };
 
   getById(gameId: string) { return Promise.resolve(this.mockGame); }
-  findByAssignedGameServer(gameServerId: string) { return Promise.resolve(this.mockGame); }
 }
 
 class LogReceiverStub extends EventEmitter {
@@ -104,6 +103,15 @@ describe('GameEventListenerService', () => {
       logReceiver.mockEvent('01/26/2020 - 20:38:52: [TFTrue] The log is available here: http://logs.tf/2458457. Type !log to view it.');
       setTimeout(() => {
         expect(spy).toHaveBeenCalledWith('FAKE_GAME_ID', 'http://logs.tf/2458457');
+        done();
+      }, 0);
+    });
+
+    it('demo uploaded', done => {
+      const spy = jest.spyOn(gameEventHandlerService, 'onDemoUploaded');
+      logReceiver.mockEvent('06/19/2020 - 00:04:28: [demos.tf]: STV available at: https://demos.tf/427407');
+      setTimeout(() => {
+        expect(spy).toBeCalledWith('FAKE_GAME_ID', 'https://demos.tf/427407');
         done();
       }, 0);
     });
