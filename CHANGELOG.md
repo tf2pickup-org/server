@@ -42,8 +42,10 @@
 * **deps:** pin dependency migrate to 1.6.2 ([#435](https://github.com/garrappachc/server/issues/435)) ([fff3e9c](https://github.com/garrappachc/server/commit/fff3e9c59f0899d519ed18833c7e8ce5d4658da2))
 
 
-* refactor!: get rid of Game.players (#437) ([1a9b759](https://github.com/garrappachc/server/commit/1a9b759fa0156a82cbbba2335a112cdf2dffdf13)), closes [#437](https://github.com/garrappachc/server/issues/437)
-* refactor!: update Game model to use team names (#434) ([3fae9ca](https://github.com/garrappachc/server/commit/3fae9caec26d04c49bbb0cb61b147748a7856b24)), closes [#434](https://github.com/garrappachc/server/issues/434)
+### Code Refactoring
+
+* get rid of Game.players ([#437](https://github.com/garrappachc/server/issues/437) ([1a9b759](https://github.com/garrappachc/server/commit/1a9b759fa0156a82cbbba2335a112cdf2dffdf13))
+* update Game model to use team names ([#434](https://github.com/garrappachc/server/issues/434)) ([3fae9ca](https://github.com/garrappachc/server/commit/3fae9caec26d04c49bbb0cb61b147748a7856b24))
 
 
 ### BREAKING CHANGES
