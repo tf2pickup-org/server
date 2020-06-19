@@ -37,6 +37,9 @@ export class Game {
   logsUrl?: string;
 
   @prop()
+  demoUrl?: string;
+
+  @prop()
   error?: string;
 
   @prop({ ref: () => GameServer })

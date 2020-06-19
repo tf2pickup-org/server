@@ -84,6 +84,15 @@ export class GameEventListenerService implements OnModuleInit {
         this.gameEventHandlerService.onScoreReported(gameId, teamName, score);
       },
     },
+    {
+      name: 'demo uploaded',
+      // https://regex101.com/r/JLGRYa/2
+      regex: /^[\d\/\s-:]+\[demos\.tf\]:\sSTV\savailable\sat:\s(.+)$/,
+      handle: (gameId, matches) => {
+        const demoUrl = matches[1];
+        this.gameEventHandlerService.onDemoUploaded(gameId, demoUrl);
+      }
+    },
   ];
 
   constructor(
