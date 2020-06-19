@@ -1,3 +1,10 @@
+## [3.0.4](https://github.com/garrappachc/server/compare/3.0.3...3.0.4) (2020-06-19)
+
+
+### Bug Fixes
+
+* capture uploaded demo url ([#455](https://github.com/garrappachc/server/issues/455)) ([cde2a39](https://github.com/garrappachc/server/commit/cde2a3976ddc11df26e58592e387e89dedf7361e))
+
 ## [3.0.3](https://github.com/garrappachc/server/compare/3.0.2...3.0.3) (2020-06-18)
 
 
