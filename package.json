@@ -42,7 +42,7 @@
     "jsonwebtoken": "8.5.1",
     "lodash": "4.17.15",
     "migrate": "1.6.2",
-    "moment": "2.26.0",
+    "moment": "2.27.0",
     "mongoose": "5.9.19",
     "nestjs-console": "3.0.6",
     "nestjs-typegoose": "7.1.28",
