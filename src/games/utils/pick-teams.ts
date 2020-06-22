@@ -92,6 +92,7 @@ function makeAllPossibleLineups(gameClasses: string[], players: PlayerSlot[]): P
   }
 
   makeLineup();
+  console.log(JSON.stringify(possibleLineups, null, 2));
   return possibleLineups;
 }
 
