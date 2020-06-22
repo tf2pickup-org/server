@@ -114,6 +114,48 @@ describe('pickTeams', () => {
         ]);
       });
     });
+
+    describe('issue 456', () => {
+      const players: PlayerSlot[] = [
+        { playerId: 'zinner', gameClass: 'soldier', skill: 4 },
+        { playerId: 'mielzky', gameClass: 'soldier', skill: 2 },
+        { playerId: 'mejf', gameClass: 'demoman', skill: 3 },
+        { playerId: 'wonder', gameClass: 'soldier', skill: 3 },
+        { playerId: 'stan', gameClass: 'medic', skill: 4 },
+        { playerId: 'cieniu97', gameClass: 'demoman', skill: 2 },
+        { playerId: 'bobair', gameClass: 'medic', skill: 1 },
+        { playerId: 'kwq', gameClass: 'scout', skill: 7 },
+        { playerId: 'antro15cm', gameClass: 'scout', skill: 2 },
+        { playerId: 'graba', gameClass: 'scout', skill: 4 },
+        { playerId: 'crzje', gameClass: 'scout', skill: 4 },
+        { playerId: 'loww', gameClass: 'soldier', skill: 3 },
+      ];
+
+      const overrides: TeamOverrides = {
+        friends: [
+          ['bobair', 'kwq'],
+          ['stan', 'zinner'],
+        ],
+      };
+
+      it('should pick teams', () => {
+        expect(pickTeams(players, overrides)).toEqual([
+          { playerId: 'zinner', gameClass: 'soldier', skill: 4, team: 'blu' },
+          { playerId: 'mielzky', gameClass: 'soldier', skill: 2, team: 'blu' },
+          { playerId: 'cieniu97', gameClass: 'demoman', skill: 2, team: 'blu' },
+          { playerId: 'stan', gameClass: 'medic', skill: 4, team: 'blu' },
+          { playerId: 'graba', gameClass: 'scout', skill: 4, team: 'blu' },
+          { playerId: 'crzje', gameClass: 'scout', skill: 4, team: 'blu' },
+
+          { playerId: 'wonder', gameClass: 'soldier', skill: 3, team: 'red' },
+          { playerId: 'loww', gameClass: 'soldier', skill: 3, team: 'red' },
+          { playerId: 'mejf', gameClass: 'demoman', skill: 3, team: 'red' },
+          { playerId: 'bobair', gameClass: 'medic', skill: 1, team: 'red' },
+          { playerId: 'kwq', gameClass: 'scout', skill: 7, team: 'red' },
+          { playerId: 'antro15cm', gameClass: 'scout', skill: 2, team: 'red' },
+        ]);
+      });
+    });
   });
 
   describe('for 9v9', () => {

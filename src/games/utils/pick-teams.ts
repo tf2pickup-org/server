@@ -66,6 +66,10 @@ function makeAllPossibleLineups(gameClasses: string[], players: PlayerSlot[]): P
           0: { lineup: [ playersOfGameClass[0], playersOfGameClass[3] ] },
           1: { lineup: [ playersOfGameClass[1], playersOfGameClass[2] ] },
         },
+        {
+          0: { lineup: [ playersOfGameClass[2], playersOfGameClass[3] ] },
+          1: { lineup: [ playersOfGameClass[0], playersOfGameClass[1] ] },
+        },
       ]);
     } else {
       throw new NotImplementedException('more than two players of one class in a team is not implemented');
