@@ -1,5 +1,4 @@
 import { pickTeams, PlayerSlot, TeamOverrides } from './pick-teams';
-import { shuffle } from 'lodash';
 
 describe('pickTeams', () => {
   describe('for 2v2', () => {
@@ -132,8 +131,6 @@ describe('pickTeams', () => {
         { playerId: 'loww', gameClass: 'soldier', skill: 3 },
       ];
 
-      console.log(players);
-
       const overrides: TeamOverrides = {
         friends: [
           ['bobair', 'kwq'],
@@ -141,8 +138,22 @@ describe('pickTeams', () => {
         ],
       };
 
-      it.only('should pick teams', () => {
-        expect(pickTeams(players, overrides)).toEqual([]);
+      it('should pick teams', () => {
+        expect(pickTeams(players, overrides)).toEqual([
+          { playerId: 'zinner', gameClass: 'soldier', skill: 4, team: 'blu' },
+          { playerId: 'mielzky', gameClass: 'soldier', skill: 2, team: 'blu' },
+          { playerId: 'cieniu97', gameClass: 'demoman', skill: 2, team: 'blu' },
+          { playerId: 'stan', gameClass: 'medic', skill: 4, team: 'blu' },
+          { playerId: 'graba', gameClass: 'scout', skill: 4, team: 'blu' },
+          { playerId: 'crzje', gameClass: 'scout', skill: 4, team: 'blu' },
+
+          { playerId: 'wonder', gameClass: 'soldier', skill: 3, team: 'red' },
+          { playerId: 'loww', gameClass: 'soldier', skill: 3, team: 'red' },
+          { playerId: 'mejf', gameClass: 'demoman', skill: 3, team: 'red' },
+          { playerId: 'bobair', gameClass: 'medic', skill: 1, team: 'red' },
+          { playerId: 'kwq', gameClass: 'scout', skill: 7, team: 'red' },
+          { playerId: 'antro15cm', gameClass: 'scout', skill: 2, team: 'red' },
+        ]);
       });
     });
   });
