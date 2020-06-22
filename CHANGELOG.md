@@ -1,3 +1,12 @@
+## [3.0.5](https://github.com/garrappachc/server/compare/3.0.4...3.0.5) (2020-06-22)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @nestjs/serve-static to v2.1.3 ([#460](https://github.com/garrappachc/server/issues/460)) ([5ae17dd](https://github.com/garrappachc/server/commit/5ae17dda7b3cb084b330c8b3f51dc2a5201f0f12))
+* **deps:** update dependency moment to v2.27.0 ([#454](https://github.com/garrappachc/server/issues/454)) ([90af439](https://github.com/garrappachc/server/commit/90af439237f83be68f4812e1f4e107a1d4795b26))
+* **games:** prevent team overrides from eliminating all possible lineups ([#461](https://github.com/garrappachc/server/issues/461)) ([d5aaf54](https://github.com/garrappachc/server/commit/d5aaf540841b63f4629a476d281fadb304f92703))
+
 ## [3.0.4](https://github.com/garrappachc/server/compare/3.0.3...3.0.4) (2020-06-19)
 
 
