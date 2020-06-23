@@ -80,7 +80,7 @@
     "@types/steamid": "1.1.0",
     "@types/supertest": "2.0.9",
     "copyfiles": "2.3.0",
-    "jest": "26.0.1",
+    "jest": "26.1.0",
     "mongodb-memory-server": "6.6.1",
     "prettier": "2.0.5",
     "release-it": "13.6.3",
