@@ -1,5 +1,6 @@
 import { Controller, Get, Param, NotFoundException, Patch, Body, BadRequestException, ParseIntPipe, Query, Put, Post, UsePipes, ValidationPipe,
-  HttpCode } from '@nestjs/common';
+  HttpCode, 
+  Header} from '@nestjs/common';
 import { PlayersService } from '../services/players.service';
 import { ObjectIdValidationPipe } from '@/shared/pipes/object-id-validation.pipe';
 import { Player } from '../models/player';
@@ -42,6 +43,7 @@ export class PlayersController {
   }
 
   @Get(':id/games')
+  @Header('Warning', '299 - "Deprecated API"')
   async getPlayerGames(@Param('id', ObjectIdValidationPipe) playerId: string, @Query('limit', ParseIntPipe) limit: number = 10,
                        @Query('offset', ParseIntPipe) offset: number = 0, @Query('sort') sort: string = '-launched_at') {
     let sortParam: { launchedAt: 1 | -1 };
