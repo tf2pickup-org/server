@@ -8,7 +8,7 @@ import { IsOneOfPipe } from '@/shared/pipes/is-one-of.pipe';
 import { Game } from '../models/game';
 
 const sortOptions: string[] = [
-  'lauched_at',
+  'launched_at',
   'launchedAt',
   '-launched_at',
   '-launchedAt',
