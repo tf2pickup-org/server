@@ -4,39 +4,35 @@ import { GamesService } from '../services/games.service';
 import { Game } from '../models/game';
 import { GameRuntimeService } from '../services/game-runtime.service';
 import { PlayerSubstitutionService } from '../services/player-substitution.service';
+import { NotFoundException } from '@nestjs/common';
+
+jest.mock('../services/game-runtime.service');
+jest.mock('../services/player-substitution.service');
 
 class GamesServiceStub {
   games: Game[] = [
     { number: 1, map: 'cp_fake_rc1', state: 'ended', assignedSkills: new Map([['FAKE_PLAYER_ID', 1]]) } as Game,
     { number: 2, map: 'cp_fake_rc2', state: 'launching', assignedSkills: new Map([['FAKE_PLAYER_ID', 5]]) } as Game,
   ];
-  getGames(sort: any, limit: number, skip: number) { return new Promise(resolve => resolve(this.games)); }
-  getGameCount() { return new Promise(resolve => resolve(2)); }
-  getById(id: string) { return new Promise(resolve => resolve(this.games[0])); }
-}
-
-class GameRuntimeServiceStub {
-  reconfigure(gameId: string) { return new Promise(resolve => resolve()); }
-  forceEnd(gameId: string) { return new Promise(resolve => resolve()); }
-}
-
-class PlayerSubstitutionServiceStub {
-  substitutePlayer(gameId: string, playerId: string) { return new Promise(resolve => resolve()); }
-  cancelSubstitutionRequest(gameId: string, playerId: string) { return new Promise(resolve => resolve()); }
+  getById(id: string) { return Promise.resolve(this.games[0]); }
+  getGames(sort: any, limit: number, skip: number) { return Promise.resolve(this.games); }
+  getGameCount() { return Promise.resolve(2); }
+  getPlayerGames(playerId: string, sort: any, limit: number, skip: number) { return Promise.resolve(this.games); }
+  getPlayerGameCount(playerId: string) { return Promise.resolve(1); }
 }
 
 describe('Games Controller', () => {
   let controller: GamesController;
   let gamesService: GamesServiceStub;
-  let gameRuntimeService: GameRuntimeServiceStub;
-  let playerSubstitutionService: PlayerSubstitutionServiceStub;
+  let gameRuntimeService: GameRuntimeService;
+  let playerSubstitutionService: PlayerSubstitutionService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         { provide: GamesService, useClass: GamesServiceStub },
-        { provide: GameRuntimeService, useClass: GameRuntimeServiceStub },
-        { provide: PlayerSubstitutionService, useClass: PlayerSubstitutionServiceStub },
+        GameRuntimeService,
+        PlayerSubstitutionService,
       ],
       controllers: [GamesController],
     }).compile();
@@ -52,35 +48,88 @@ describe('Games Controller', () => {
   });
 
   describe('#getGames()', () => {
-    it('should return games', async () => {
-      const spy1 = jest.spyOn(gamesService, 'getGames');
-      const spy2 = jest.spyOn(gamesService, 'getGameCount');
+    describe('when playerId is undefined', () => {
+      describe('when sorting with -launched_at', () => {
+        it('should return games', async () => {
+          const spy = jest.spyOn(gamesService, 'getGames');
+          const ret = await controller.getGames(10, 0, '-launched_at');
+          expect(spy).toHaveBeenCalledWith({ launchedAt: -1 }, 10, 0);
+          expect(ret).toEqual({
+            results: gamesService.games,
+            itemCount: 2,
+          });
+        });
+      });
 
-      const ret = await controller.getGames(44, 52, 'launched_at');
-      expect(spy1).toHaveBeenCalledWith({ launchedAt: 1 }, 44, 52);
-      expect(spy2).toHaveBeenCalled();
-      expect(ret).toEqual({
-        results: gamesService.games,
-        itemCount: 2,
-      } as any);
+      describe('when sorting with launched_at', () => {
+        it('should return games', async () => {
+          const spy = jest.spyOn(gamesService, 'getGames');
+    
+          const ret = await controller.getGames(44, 52, 'launched_at');
+          expect(spy).toHaveBeenCalledWith({ launchedAt: 1 }, 44, 52);
+          expect(ret).toEqual({
+            results: gamesService.games,
+            itemCount: 2,
+          });
+        });
+      });
+    });
+
+    describe('when playerId is specified', () => {
+      describe('when sorting with -launched_at', () => {
+        it('should return player games', async () => {
+          const spy = jest.spyOn(gamesService, 'getPlayerGames');
+          const ret = await controller.getGames(10, 0, '-launched_at', 'FAKE_PLAYER_ID');
+          expect(spy).toHaveBeenCalledWith('FAKE_PLAYER_ID', { launchedAt: -1 }, 10, 0);
+          expect(ret).toEqual({
+            results: gamesService.games,
+            itemCount: 1,
+          });
+        });
+      });
+
+      describe('when sorting with launched_at', () => {
+        it('should return player games', async () => {
+          const spy = jest.spyOn(gamesService, 'getPlayerGames');
+    
+          const ret = await controller.getGames(30, 2, 'launched_at', 'FAKE_PLAYER_ID');
+          expect(spy).toHaveBeenCalledWith('FAKE_PLAYER_ID', { launchedAt: 1 }, 30, 2);
+          expect(ret).toEqual({
+            results: gamesService.games,
+            itemCount: 1,
+          });
+        });
+      });
     });
   });
 
   describe('#getGame()', () => {
     it('should return the given game', async () => {
-      const spy = jest.spyOn(gamesService, 'getById');
       const ret = await controller.getGame('FAKE_ID');
-      expect(spy).toHaveBeenCalledWith('FAKE_ID');
-      expect(ret).toEqual(gamesService.games[0] as any);
+      expect(ret).toEqual(gamesService.games[0]);
+    });
+
+    describe('when requesting a non-existing game', () => {
+      beforeEach(() => jest.spyOn(gamesService, 'getById').mockResolvedValue(null));
+
+      it('should return 404', async () => {
+        await expect(controller.getGame('FAKE_GAME_ID')).rejects.toThrow(NotFoundException);
+      });
     });
   });
 
   describe('#getGameSkills()', () => {
     it('should return given game assigned skills', async () => {
-      const spy = jest.spyOn(gamesService, 'getById');
       const ret = await controller.getGameSkills('FAKE_ID');
-      expect(spy).toHaveBeenCalledWith('FAKE_ID');
       expect(ret).toEqual(gamesService.games[0].assignedSkills);
+    });
+
+    describe('when requesting assigned skills for a non-existing game', () => {
+      beforeEach(() => jest.spyOn(gamesService, 'getById').mockResolvedValue(null));
+
+      it('should return 404', async () => {
+        await expect(controller.getGameSkills('FAKE_GAME_ID')).rejects.toThrow(NotFoundException);
+      });
     });
   });
 

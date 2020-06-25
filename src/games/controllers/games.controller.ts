@@ -1,9 +1,18 @@
-import { Controller, Get, Query, ParseIntPipe, BadRequestException, Param, NotFoundException, Post, HttpCode } from '@nestjs/common';
+import { Controller, Get, Query, ParseIntPipe, BadRequestException, Param, NotFoundException, Post, HttpCode, UsePipes, ValidationPipe, DefaultValuePipe } from '@nestjs/common';
 import { GamesService } from '../services/games.service';
 import { ObjectIdValidationPipe } from '@/shared/pipes/object-id-validation.pipe';
 import { Auth } from '@/auth/decorators/auth.decorator';
 import { GameRuntimeService } from '../services/game-runtime.service';
 import { PlayerSubstitutionService } from '../services/player-substitution.service';
+import { IsOneOfPipe } from '@/shared/pipes/is-one-of.pipe';
+import { Game } from '../models/game';
+
+const sortOptions: string[] = [
+  'lauched_at',
+  'launchedAt',
+  '-launched_at',
+  '-launchedAt',
+];
 
 @Controller('games')
 export class GamesController {
@@ -16,9 +25,10 @@ export class GamesController {
 
   @Get()
   async getGames(
-    @Query('limit', ParseIntPipe) limit: number = 10,
-    @Query('offset', ParseIntPipe) offset: number = 0,
-    @Query('sort') sort: string = '-launched_at',
+    @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
+    @Query('offset', new DefaultValuePipe(0), ParseIntPipe) offset: number,
+    @Query('sort', new DefaultValuePipe('-launched_at'), new IsOneOfPipe(sortOptions)) sort: string,
+    @Query('playerId') playerId?: string,
   ) {
     let sortParam: { launchedAt: 1 | -1 };
     switch (sort) {
@@ -31,15 +41,22 @@ export class GamesController {
       case 'launchedAt':
         sortParam = { launchedAt: 1 };
         break;
-
-      default:
-        throw new BadRequestException('invalid value for the sort parameter');
     }
 
-    const [ results, itemCount ] = await Promise.all([
-      this.gamesService.getGames(sortParam, limit, offset),
-      this.gamesService.getGameCount(),
-    ]);
+    let results: Game[];
+    let itemCount: number;
+
+    if (playerId === undefined) {
+      [ results, itemCount ] = await Promise.all([
+        this.gamesService.getGames(sortParam, limit, offset),
+        this.gamesService.getGameCount(),
+      ]);
+    } else {
+      [ results, itemCount ] = await Promise.all([
+        this.gamesService.getPlayerGames(playerId, sortParam, limit, offset),
+        this.gamesService.getPlayerGameCount(playerId),
+      ]);
+    }
 
     return { results, itemCount };
   }
