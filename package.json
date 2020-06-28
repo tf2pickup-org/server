@@ -83,7 +83,7 @@
     "jest": "26.1.0",
     "mongodb-memory-server": "6.6.1",
     "prettier": "2.0.5",
-    "release-it": "13.6.3",
+    "release-it": "13.6.4",
     "supertest": "4.0.2",
     "ts-jest": "26.1.1",
     "ts-loader": "7.0.5",
