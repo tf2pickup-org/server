@@ -58,10 +58,7 @@ export class PlayersService {
   }
 
   async createPlayer(steamProfile: SteamProfile): Promise<DocumentType<Player>> {
-    const hoursInTf2 = await this.steamApiService.getTf2InGameHours(steamProfile.id);
-    if (hoursInTf2 < minimumTf2InGameHours) {
-      throw new Error('not enough tf2 hours');
-    }
+    await this.verifyTf2InGameHours(steamProfile.id);
 
     let etf2lProfile: Etf2lProfile;
     let name = steamProfile.displayName;
@@ -176,6 +173,21 @@ export class PlayersService {
     const gamesPlayed = await this.gamesService.getPlayerGameCount(playerId, { endedOnly: true });
     const classesPlayed = await this.gamesService.getPlayerPlayedClassCount(playerId);
     return { player: playerId, gamesPlayed, classesPlayed };
+  }
+
+  private async verifyTf2InGameHours(steamId: string) {
+    try {
+      const hoursInTf2 = await this.steamApiService.getTf2InGameHours(steamId);
+      if (hoursInTf2 < minimumTf2InGameHours) {
+        throw new Error('not enough tf2 hours');
+      }
+    } catch (e) {
+      if (e.message === 'cannot verify in-game hours for TF2' && minimumTf2InGameHours <= 0) {
+        return;
+      } else {
+        throw e;
+      }
+    }
   }
 
 }
