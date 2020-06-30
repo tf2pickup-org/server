@@ -1,3 +1,15 @@
+## [3.0.6](https://github.com/tf2pickup-pl/server/compare/3.0.5...3.0.6) (2020-06-30)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @nestjs/passport to v7.1.0 ([#473](https://github.com/tf2pickup-pl/server/issues/473)) ([9ccc4da](https://github.com/tf2pickup-pl/server/commit/9ccc4da97c983d469a7542363d433459afa56fff))
+* **deps:** update dependency helmet to v3.23.2 ([#463](https://github.com/tf2pickup-pl/server/issues/463)) ([0e1d193](https://github.com/tf2pickup-pl/server/commit/0e1d193789279e184b124291dc9fe7aad6e62732))
+* **deps:** update dependency helmet to v3.23.3 ([#471](https://github.com/tf2pickup-pl/server/issues/471)) ([19d2dd9](https://github.com/tf2pickup-pl/server/commit/19d2dd92d287a7a193680252681e03de80711c1f))
+* **deps:** update dependency migrate to v1.7.0 ([#475](https://github.com/tf2pickup-pl/server/issues/475)) ([18324a2](https://github.com/tf2pickup-pl/server/commit/18324a20a63abb4a1f98d12309be03c859fd2e46))
+* **deps:** update dependency mongoose to v5.9.20 ([#462](https://github.com/tf2pickup-pl/server/issues/462)) ([059ab69](https://github.com/tf2pickup-pl/server/commit/059ab698ea65d2d5a5204330d39f8bca347618a1))
+* **players:** ignore TF2 in-game hours verification failure when the verification is not needed ([#477](https://github.com/tf2pickup-pl/server/issues/477)) ([ae2ffc4](https://github.com/tf2pickup-pl/server/commit/ae2ffc4f9d664a245aff39f317cb676652ffae13))
+
 ## [3.0.5](https://github.com/garrappachc/server/compare/3.0.4...3.0.5) (2020-06-22)
 
 
