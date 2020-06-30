@@ -10,63 +10,63 @@
 * **deps:** update dependency mongoose to v5.9.20 ([#462](https://github.com/tf2pickup-pl/server/issues/462)) ([059ab69](https://github.com/tf2pickup-pl/server/commit/059ab698ea65d2d5a5204330d39f8bca347618a1))
 * **players:** ignore TF2 in-game hours verification failure when the verification is not needed ([#477](https://github.com/tf2pickup-pl/server/issues/477)) ([ae2ffc4](https://github.com/tf2pickup-pl/server/commit/ae2ffc4f9d664a245aff39f317cb676652ffae13))
 
-## [3.0.5](https://github.com/garrappachc/server/compare/3.0.4...3.0.5) (2020-06-22)
+## [3.0.5](https://github.com/tf2pickup-pl/server/compare/3.0.4...3.0.5) (2020-06-22)
 
 
 ### Bug Fixes
 
-* **deps:** update dependency @nestjs/serve-static to v2.1.3 ([#460](https://github.com/garrappachc/server/issues/460)) ([5ae17dd](https://github.com/garrappachc/server/commit/5ae17dda7b3cb084b330c8b3f51dc2a5201f0f12))
-* **deps:** update dependency moment to v2.27.0 ([#454](https://github.com/garrappachc/server/issues/454)) ([90af439](https://github.com/garrappachc/server/commit/90af439237f83be68f4812e1f4e107a1d4795b26))
-* **games:** prevent team overrides from eliminating all possible lineups ([#461](https://github.com/garrappachc/server/issues/461)) ([d5aaf54](https://github.com/garrappachc/server/commit/d5aaf540841b63f4629a476d281fadb304f92703))
+* **deps:** update dependency @nestjs/serve-static to v2.1.3 ([#460](https://github.com/tf2pickup-pl/server/issues/460)) ([5ae17dd](https://github.com/tf2pickup-pl/server/commit/5ae17dda7b3cb084b330c8b3f51dc2a5201f0f12))
+* **deps:** update dependency moment to v2.27.0 ([#454](https://github.com/tf2pickup-pl/server/issues/454)) ([90af439](https://github.com/tf2pickup-pl/server/commit/90af439237f83be68f4812e1f4e107a1d4795b26))
+* **games:** prevent team overrides from eliminating all possible lineups ([#461](https://github.com/tf2pickup-pl/server/issues/461)) ([d5aaf54](https://github.com/tf2pickup-pl/server/commit/d5aaf540841b63f4629a476d281fadb304f92703))
 
-## [3.0.4](https://github.com/garrappachc/server/compare/3.0.3...3.0.4) (2020-06-19)
-
-
-### Bug Fixes
-
-* capture uploaded demo url ([#455](https://github.com/garrappachc/server/issues/455)) ([cde2a39](https://github.com/garrappachc/server/commit/cde2a3976ddc11df26e58592e387e89dedf7361e))
-
-## [3.0.3](https://github.com/garrappachc/server/compare/3.0.2...3.0.3) (2020-06-18)
+## [3.0.4](https://github.com/tf2pickup-pl/server/compare/3.0.3...3.0.4) (2020-06-19)
 
 
 ### Bug Fixes
 
-* fix GameServer not being saved after assigning a game ([#453](https://github.com/garrappachc/server/issues/453)) ([ef30ffd](https://github.com/garrappachc/server/commit/ef30ffd05f11fdc5f0b74b4fcd08f05bc0156ea8))
+* capture uploaded demo url ([#455](https://github.com/tf2pickup-pl/server/issues/455)) ([cde2a39](https://github.com/tf2pickup-pl/server/commit/cde2a3976ddc11df26e58592e387e89dedf7361e))
 
-## [3.0.2](https://github.com/garrappachc/server/compare/3.0.1...3.0.2) (2020-06-18)
-
-
-### Bug Fixes
-
-* fix recursive game server assignment ([#452](https://github.com/garrappachc/server/issues/452)) ([ab08f22](https://github.com/garrappachc/server/commit/ab08f22e7aa33b5bd4ea302d8039bb47a07bab26))
-* **deps:** update dependency nestjs-typegoose to v7.1.28 ([#449](https://github.com/garrappachc/server/issues/449)) ([af9de32](https://github.com/garrappachc/server/commit/af9de3207fec4a4f7667b113493743f6cf12deda))
-
-## [3.0.1](https://github.com/garrappachc/server/compare/3.0.0...3.0.1) (2020-06-18)
+## [3.0.3](https://github.com/tf2pickup-pl/server/compare/3.0.2...3.0.3) (2020-06-18)
 
 
 ### Bug Fixes
 
-* fix hall of fame reporting ([#445](https://github.com/garrappachc/server/issues/445)) ([15780b7](https://github.com/garrappachc/server/commit/15780b779153b1fad714970b74815ab876d23f25))
+* fix GameServer not being saved after assigning a game ([#453](https://github.com/tf2pickup-pl/server/issues/453)) ([ef30ffd](https://github.com/tf2pickup-pl/server/commit/ef30ffd05f11fdc5f0b74b4fcd08f05bc0156ea8))
 
-# [3.0.0](https://github.com/garrappachc/server/compare/2.9.1...3.0.0) (2020-06-17)
+## [3.0.2](https://github.com/tf2pickup-pl/server/compare/3.0.1...3.0.2) (2020-06-18)
 
 
 ### Bug Fixes
 
-* delete discord announcement when player is subbing himself ([#441](https://github.com/garrappachc/server/issues/441)) ([5c0fa5c](https://github.com/garrappachc/server/commit/5c0fa5c6e8a4538286491743f9d436aa3d90ae4a))
-* emit updated Game objects on game events ([#443](https://github.com/garrappachc/server/issues/443)) ([5ce71e8](https://github.com/garrappachc/server/commit/5ce71e8d5a917dfa576606d3721bcca0cef45cd9))
-* **deps:** update dependency helmet to v3.23.1 ([#440](https://github.com/garrappachc/server/issues/440)) ([0e59897](https://github.com/garrappachc/server/commit/0e598977f55446d4bc3a5b01327a36125d8ff4cf))
-* Game model migration ([#439](https://github.com/garrappachc/server/issues/439)) ([2898e76](https://github.com/garrappachc/server/commit/2898e76458b993f7172c14eb81159f4ee1729332))
-* **deps:** update dependency mongoose to v5.9.19 ([#438](https://github.com/garrappachc/server/issues/438)) ([896aac5](https://github.com/garrappachc/server/commit/896aac5fbf5aadc9e58049b19fe6c3e10030c38b))
-* ignore .migrate ([0a6d4e2](https://github.com/garrappachc/server/commit/0a6d4e29e5297af8ad2df8261b02a1f207e4aa55))
-* update GamePlayer & Game indexes ([8532f26](https://github.com/garrappachc/server/commit/8532f269b46e672cf21028993d41cf2e5bebe7cc))
-* **deps:** pin dependency migrate to 1.6.2 ([#435](https://github.com/garrappachc/server/issues/435)) ([fff3e9c](https://github.com/garrappachc/server/commit/fff3e9c59f0899d519ed18833c7e8ce5d4658da2))
+* fix recursive game server assignment ([#452](https://github.com/tf2pickup-pl/server/issues/452)) ([ab08f22](https://github.com/tf2pickup-pl/server/commit/ab08f22e7aa33b5bd4ea302d8039bb47a07bab26))
+* **deps:** update dependency nestjs-typegoose to v7.1.28 ([#449](https://github.com/tf2pickup-pl/server/issues/449)) ([af9de32](https://github.com/tf2pickup-pl/server/commit/af9de3207fec4a4f7667b113493743f6cf12deda))
+
+## [3.0.1](https://github.com/tf2pickup-pl/server/compare/3.0.0...3.0.1) (2020-06-18)
+
+
+### Bug Fixes
+
+* fix hall of fame reporting ([#445](https://github.com/tf2pickup-pl/server/issues/445)) ([15780b7](https://github.com/tf2pickup-pl/server/commit/15780b779153b1fad714970b74815ab876d23f25))
+
+# [3.0.0](https://github.com/tf2pickup-pl/server/compare/2.9.1...3.0.0) (2020-06-17)
+
+
+### Bug Fixes
+
+* delete discord announcement when player is subbing himself ([#441](https://github.com/tf2pickup-pl/server/issues/441)) ([5c0fa5c](https://github.com/tf2pickup-pl/server/commit/5c0fa5c6e8a4538286491743f9d436aa3d90ae4a))
+* emit updated Game objects on game events ([#443](https://github.com/tf2pickup-pl/server/issues/443)) ([5ce71e8](https://github.com/tf2pickup-pl/server/commit/5ce71e8d5a917dfa576606d3721bcca0cef45cd9))
+* **deps:** update dependency helmet to v3.23.1 ([#440](https://github.com/tf2pickup-pl/server/issues/440)) ([0e59897](https://github.com/tf2pickup-pl/server/commit/0e598977f55446d4bc3a5b01327a36125d8ff4cf))
+* Game model migration ([#439](https://github.com/tf2pickup-pl/server/issues/439)) ([2898e76](https://github.com/tf2pickup-pl/server/commit/2898e76458b993f7172c14eb81159f4ee1729332))
+* **deps:** update dependency mongoose to v5.9.19 ([#438](https://github.com/tf2pickup-pl/server/issues/438)) ([896aac5](https://github.com/tf2pickup-pl/server/commit/896aac5fbf5aadc9e58049b19fe6c3e10030c38b))
+* ignore .migrate ([0a6d4e2](https://github.com/tf2pickup-pl/server/commit/0a6d4e29e5297af8ad2df8261b02a1f207e4aa55))
+* update GamePlayer & Game indexes ([8532f26](https://github.com/tf2pickup-pl/server/commit/8532f269b46e672cf21028993d41cf2e5bebe7cc))
+* **deps:** pin dependency migrate to 1.6.2 ([#435](https://github.com/tf2pickup-pl/server/issues/435)) ([fff3e9c](https://github.com/tf2pickup-pl/server/commit/fff3e9c59f0899d519ed18833c7e8ce5d4658da2))
 
 
 ### Code Refactoring
 
-* get rid of Game.players ([#437](https://github.com/garrappachc/server/issues/437) ([1a9b759](https://github.com/garrappachc/server/commit/1a9b759fa0156a82cbbba2335a112cdf2dffdf13))
-* update Game model to use team names ([#434](https://github.com/garrappachc/server/issues/434)) ([3fae9ca](https://github.com/garrappachc/server/commit/3fae9caec26d04c49bbb0cb61b147748a7856b24))
+* get rid of Game.players ([#437](https://github.com/tf2pickup-pl/server/issues/437) ([1a9b759](https://github.com/tf2pickup-pl/server/commit/1a9b759fa0156a82cbbba2335a112cdf2dffdf13))
+* update Game model to use team names ([#434](https://github.com/tf2pickup-pl/server/issues/434)) ([3fae9ca](https://github.com/tf2pickup-pl/server/commit/3fae9caec26d04c49bbb0cb61b147748a7856b24))
 
 
 ### BREAKING CHANGES
@@ -74,59 +74,59 @@
 * Game.players is gone, GamePlayer.playerId is renamed to GamePlayer.player
 * Game.teams is now gone, GamePlayer.teamId is moved to GamePlayer.team
 
-## [2.9.1](https://github.com/garrappachc/server/compare/2.9.0...2.9.1) (2020-06-13)
+## [2.9.1](https://github.com/tf2pickup-pl/server/compare/2.9.0...2.9.1) (2020-06-13)
 
 
 ### Bug Fixes
 
-* re-enable default helmet middleware ([ada5cf2](https://github.com/garrappachc/server/commit/ada5cf2890b99f804b14cff95678d182ab3cfeac))
+* re-enable default helmet middleware ([ada5cf2](https://github.com/tf2pickup-pl/server/commit/ada5cf2890b99f804b14cff95678d182ab3cfeac))
 
-# [2.9.0](https://github.com/garrappachc/server/compare/2.8.1...2.9.0) (2020-06-13)
+# [2.9.0](https://github.com/tf2pickup-pl/server/compare/2.8.1...2.9.0) (2020-06-13)
 
 
 ### Bug Fixes
 
-* **deps:** update dependency helmet to v3.23.0 ([#430](https://github.com/garrappachc/server/issues/430)) ([dfbbd9a](https://github.com/garrappachc/server/commit/dfbbd9a9ceb6d867ccf27db97ad1a3a00bc09653))
-* handle missing discord guild ([#432](https://github.com/garrappachc/server/issues/432)) ([e0b229c](https://github.com/garrappachc/server/commit/e0b229ca2c97b6f3c2ca0ee13b9f57c30e19a7a5))
+* **deps:** update dependency helmet to v3.23.0 ([#430](https://github.com/tf2pickup-pl/server/issues/430)) ([dfbbd9a](https://github.com/tf2pickup-pl/server/commit/dfbbd9a9ceb6d867ccf27db97ad1a3a00bc09653))
+* handle missing discord guild ([#432](https://github.com/tf2pickup-pl/server/issues/432)) ([e0b229c](https://github.com/tf2pickup-pl/server/commit/e0b229ca2c97b6f3c2ca0ee13b9f57c30e19a7a5))
 
 
 ### Features
 
-* add CSP headers ([#431](https://github.com/garrappachc/server/issues/431)) ([fac778e](https://github.com/garrappachc/server/commit/fac778edf2a7166a0a7b57836ed6e7c0041e4c3a))
+* add CSP headers ([#431](https://github.com/tf2pickup-pl/server/issues/431)) ([fac778e](https://github.com/tf2pickup-pl/server/commit/fac778edf2a7166a0a7b57836ed6e7c0041e4c3a))
 
-## [2.8.1](https://github.com/garrappachc/server/compare/2.8.0...2.8.1) (2020-06-12)
-
-
-### Bug Fixes
-
-* **discord:** send actual embeds ([#429](https://github.com/garrappachc/server/issues/429)) ([64f75ab](https://github.com/garrappachc/server/commit/64f75ab0433b1ba58e35dc1fc5d4bc53a17a2e9e))
-
-# [2.8.0](https://github.com/garrappachc/server/compare/2.7.0...2.8.0) (2020-06-12)
+## [2.8.1](https://github.com/tf2pickup-pl/server/compare/2.8.0...2.8.1) (2020-06-12)
 
 
 ### Bug Fixes
 
-* **deps:** update dependency helmet to v3.22.1 ([#421](https://github.com/garrappachc/server/issues/421)) ([1fe29fa](https://github.com/garrappachc/server/commit/1fe29fa14dceef453bf6390da6cfb7b6c7bbfe92))
+* **discord:** send actual embeds ([#429](https://github.com/tf2pickup-pl/server/issues/429)) ([64f75ab](https://github.com/tf2pickup-pl/server/commit/64f75ab0433b1ba58e35dc1fc5d4bc53a17a2e9e))
+
+# [2.8.0](https://github.com/tf2pickup-pl/server/compare/2.7.0...2.8.0) (2020-06-12)
+
+
+### Bug Fixes
+
+* **deps:** update dependency helmet to v3.22.1 ([#421](https://github.com/tf2pickup-pl/server/issues/421)) ([1fe29fa](https://github.com/tf2pickup-pl/server/commit/1fe29fa14dceef453bf6390da6cfb7b6c7bbfe92))
 
 
 ### Features
 
-* **discord:** add admin responsible field for discord admin notifications ([#427](https://github.com/garrappachc/server/issues/427)) ([dc7634f](https://github.com/garrappachc/server/commit/dc7634f17eb2a0af36373b8a2dbc4f359fd622a7))
-* **discord:** add server started notification ([#428](https://github.com/garrappachc/server/issues/428)) ([765b4df](https://github.com/garrappachc/server/commit/765b4dfc47adaa9b30d031ce3adfdaf04b3895c3))
-* **discord:** delete substitute request msgsWhen the substitute request is canceled or resolved delete the discordannouncement. ([#426](https://github.com/garrappachc/server/issues/426)) ([72415cf](https://github.com/garrappachc/server/commit/72415cfa965eae5ead4f01b7f687b627d740a3f9))
+* **discord:** add admin responsible field for discord admin notifications ([#427](https://github.com/tf2pickup-pl/server/issues/427)) ([dc7634f](https://github.com/tf2pickup-pl/server/commit/dc7634f17eb2a0af36373b8a2dbc4f359fd622a7))
+* **discord:** add server started notification ([#428](https://github.com/tf2pickup-pl/server/issues/428)) ([765b4df](https://github.com/tf2pickup-pl/server/commit/765b4dfc47adaa9b30d031ce3adfdaf04b3895c3))
+* **discord:** delete substitute request msgsWhen the substitute request is canceled or resolved delete the discordannouncement. ([#426](https://github.com/tf2pickup-pl/server/issues/426)) ([72415cf](https://github.com/tf2pickup-pl/server/commit/72415cfa965eae5ead4f01b7f687b627d740a3f9))
 
-# [2.7.0](https://github.com/garrappachc/server/compare/2.6.3...2.7.0) (2020-06-10)
+# [2.7.0](https://github.com/tf2pickup-pl/server/compare/2.6.3...2.7.0) (2020-06-10)
 
 
 ### Bug Fixes
 
-* ignore match start after it has been ended ([#422](https://github.com/garrappachc/server/issues/422)) ([b6e2958](https://github.com/garrappachc/server/commit/b6e29580ace014a223867842521bbaa1c304313d))
-* **deps:** update dependency nestjs-console to v3.0.6 ([#420](https://github.com/garrappachc/server/issues/420)) ([147fcbd](https://github.com/garrappachc/server/commit/147fcbd6c3ffe8028939163bd3c214f67c29e4be))
+* ignore match start after it has been ended ([#422](https://github.com/tf2pickup-pl/server/issues/422)) ([b6e2958](https://github.com/tf2pickup-pl/server/commit/b6e29580ace014a223867842521bbaa1c304313d))
+* **deps:** update dependency nestjs-console to v3.0.6 ([#420](https://github.com/tf2pickup-pl/server/issues/420)) ([147fcbd](https://github.com/tf2pickup-pl/server/commit/147fcbd6c3ffe8028939163bd3c214f67c29e4be))
 
 
 ### Features
 
-* **ci:** add release-it support ([aafcdfb](https://github.com/garrappachc/server/commit/aafcdfb50c0d56c21e532d25c991fedf0a591185))
+* **ci:** add release-it support ([aafcdfb](https://github.com/tf2pickup-pl/server/commit/aafcdfb50c0d56c21e532d25c991fedf0a591185))
 
 # [2.6.3](https://github.com/tf2pickup-pl/server/compare/2.6.2...2.6.3) (2020-06-10)
 
