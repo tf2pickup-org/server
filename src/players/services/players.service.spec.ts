@@ -15,6 +15,12 @@ import { SteamApiService } from './steam-api.service';
 import { DiscordService } from '@/discord/services/discord.service';
 import { ObjectId } from 'mongodb';
 
+jest.mock('@configs/players', () => ({
+  minimumTf2InGameHours: 500,
+  requireEtf2lAccount: true,
+}));
+import { minimumTf2InGameHours } from '@configs/players';
+
 jest.mock('@/discord/services/discord.service');
 
 class EnvironmentStub {
@@ -258,6 +264,22 @@ describe('PlayersService', () => {
 
       it('should deny', async () => {
         await expect(service.createPlayer(mockSteamProfile)).rejects.toThrowError('cannot verify in-game hours for TF2');
+      });
+
+      describe('and nobody cares', () => {
+        beforeEach(() => {
+          // @ts-ignore
+          minimumTf2InGameHours = 0;
+        });
+
+        afterEach(() => {
+          // @ts-ignore
+          minimumTf2InGameHours = 500;
+        });
+
+        it('should pass', async () => {
+          await service.createPlayer(mockSteamProfile);
+        });
       });
     });
   });
