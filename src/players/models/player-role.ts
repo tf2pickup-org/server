@@ -1,1 +1,1 @@
-export type PlayerRole = 'admin' | 'super-user';
+export type PlayerRole = 'admin' | 'super-user' | 'bot';

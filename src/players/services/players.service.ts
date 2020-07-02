@@ -1,4 +1,4 @@
-import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
+import { Injectable, Logger, Inject, forwardRef, OnModuleInit } from '@nestjs/common';
 import { Environment } from '@/environment/environment';
 import { Player } from '../models/player';
 import { DocumentType, ReturnModelType } from '@typegoose/typegoose';
@@ -18,7 +18,7 @@ import { ObjectId } from 'mongodb';
 import { minimumTf2InGameHours, requireEtf2lAccount } from '@configs/players';
 
 @Injectable()
-export class PlayersService {
+export class PlayersService implements OnModuleInit {
 
   private logger = new Logger(PlayersService.name);
   private _playerRegistered = new Subject<string>();
@@ -36,6 +36,16 @@ export class PlayersService {
     private steamApiService: SteamApiService,
     private discordService: DiscordService,
   ) { }
+
+  async onModuleInit() {
+    const bot = await this.findBot();
+    if (bot === null) {
+      await this.playerModel.create({
+        name: this.environment.botName,
+        role: 'bot',
+      })
+    }
+  }
 
   async getAll(): Promise<DocumentType<Player>[]> {
     return await this.playerModel.find();
@@ -55,6 +65,10 @@ export class PlayersService {
 
   async findByTwitchUserId(twitchTvUserId: string) {
     return await this.playerModel.findOne({ 'twitchTvUser.userId': twitchTvUserId });
+  }
+
+  async findBot() {
+    return this.playerModel.findOne({ name: this.environment.botName });
   }
 
   async createPlayer(steamProfile: SteamProfile): Promise<DocumentType<Player>> {
