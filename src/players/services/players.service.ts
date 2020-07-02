@@ -48,7 +48,7 @@ export class PlayersService implements OnModuleInit {
   }
 
   async getAll(): Promise<DocumentType<Player>[]> {
-    return await this.playerModel.find();
+    return await this.playerModel.find({ role: { $ne: 'bot' } });
   }
 
   async getById(id: string | ObjectId): Promise<DocumentType<Player>> {

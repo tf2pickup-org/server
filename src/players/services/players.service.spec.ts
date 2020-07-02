@@ -147,6 +147,17 @@ describe('PlayersService', () => {
       expect(ret.length).toEqual(1);
       expect(ret[0].toObject()).toEqual(mockPlayer.toObject());
     });
+
+    describe('when the bot user is created', () => {
+      beforeEach(async () => {
+        await service.onModuleInit();
+      });
+
+      it('should exclude the bot from the player list', async () => {
+        const ret = await service.getAll();
+        expect(ret.length).toEqual(1);
+      });
+    });
   });
 
   describe('#getById()', () => {
