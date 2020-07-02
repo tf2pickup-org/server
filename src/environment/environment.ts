@@ -16,6 +16,10 @@ export class Environment {
     return this.configService.get<string>('CLIENT_URL');
   }
 
+  get botName() {
+    return this.configService.get<string>('BOT_NAME');
+  }
+
   get mongoDbHost() {
     return this.configService.get<string>('MONGODB_HOST');
   }

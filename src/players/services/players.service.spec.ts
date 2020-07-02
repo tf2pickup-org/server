@@ -25,6 +25,7 @@ jest.mock('@/discord/services/discord.service');
 
 class EnvironmentStub {
   superUser = null;
+  botName = 'FAKE_BOT_NAME';
 }
 
 class Etf2lProfileServiceStub {
@@ -120,11 +121,42 @@ describe('PlayersService', () => {
     expect(service).toBeDefined();
   });
 
+  describe('#onModuleInit()', () => {
+    describe('when the bot user is not yet created', () => {
+      it('should create the bot user', async () => {
+        await service.onModuleInit();
+        expect(await playerModel.findOne({ name: 'FAKE_BOT_NAME' })).toBeTruthy();
+      });
+    });
+
+    describe('when the bot user is already created', () => {
+      beforeEach(async () => {
+        await service.onModuleInit();
+      });
+
+      it('should not create any users', async () => {
+        await service.onModuleInit();
+        expect((await playerModel.find({ name: 'FAKE_BOT_NAME' })).length).toEqual(1);
+      });
+    });
+  });
+
   describe('#getAll()', () => {
     it('should retrieve all players from the database', async () => {
       const ret = await service.getAll();
       expect(ret.length).toEqual(1);
       expect(ret[0].toObject()).toEqual(mockPlayer.toObject());
+    });
+
+    describe('when the bot user is created', () => {
+      beforeEach(async () => {
+        await service.onModuleInit();
+      });
+
+      it('should exclude the bot from the player list', async () => {
+        const ret = await service.getAll();
+        expect(ret.length).toEqual(1);
+      });
     });
   });
 
@@ -166,6 +198,22 @@ describe('PlayersService', () => {
           userId: 'FAKE_TWITCH_TV_USER_ID',
         }),
       }));
+    });
+  });
+
+  describe('#findBot()', () => {
+    beforeEach(async () => {
+      await playerModel.create({
+        name: 'FAKE_BOT_NAME',
+        role: 'bot',
+      })
+    });
+
+    it('should find the bot', async () => {
+      expect(await service.findBot()).toMatchObject({
+        name: 'FAKE_BOT_NAME',
+        role: 'bot',
+      });
     });
   });
 
