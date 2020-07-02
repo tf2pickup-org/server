@@ -29,6 +29,7 @@ describe('Environment', () => {
   [
     'API_URL',
     'CLIENT_URL',
+    'BOT_NAME',
     'MONGODB_HOST',
     'MONGODB_PORT',
     'MONGODB_DB',
