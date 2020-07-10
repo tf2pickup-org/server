@@ -70,7 +70,7 @@
     "@types/jsonschema": "1.1.1",
     "@types/jsonwebtoken": "8.5.0",
     "@types/lodash": "4.14.157",
-    "@types/mongoose": "5.7.30",
+    "@types/mongoose": "5.7.31",
     "@types/node": "12.12.31",
     "@types/passport": "1.0.4",
     "@types/passport-jwt": "3.0.3",
