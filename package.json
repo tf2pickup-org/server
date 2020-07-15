@@ -86,7 +86,7 @@
     "release-it": "13.6.5",
     "supertest": "4.0.2",
     "ts-jest": "26.1.2",
-    "ts-loader": "8.0.0",
+    "ts-loader": "8.0.1",
     "ts-node": "8.10.2",
     "tslint": "6.1.2",
     "tslint-no-focused-test": "0.5.0",
