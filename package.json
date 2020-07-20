@@ -75,7 +75,7 @@
     "@types/passport": "1.0.4",
     "@types/passport-jwt": "3.0.3",
     "@types/passport-steam": "1.0.1",
-    "@types/socket.io": "2.1.8",
+    "@types/socket.io": "2.1.9",
     "@types/socketio-jwt-auth": "0.0.0",
     "@types/steamid": "1.1.0",
     "@types/supertest": "2.0.10",
