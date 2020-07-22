@@ -33,7 +33,7 @@
     "@typegoose/typegoose": "7.3.0",
     "class-transformer": "0.2.3",
     "class-validator": "0.12.2",
-    "commander": "5.1.0",
+    "commander": "6.0.0",
     "discord.js": "12.2.0",
     "gamedig": "2.0.20",
     "generate-password": "1.5.1",
