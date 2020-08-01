@@ -45,7 +45,7 @@
     "moment": "2.27.0",
     "mongoose": "5.9.27",
     "nestjs-console": "3.1.1",
-    "nestjs-typegoose": "7.1.31",
+    "nestjs-typegoose": "7.1.32",
     "passport": "0.4.1",
     "passport-jwt": "4.0.0",
     "passport-steam": "1.0.14",
