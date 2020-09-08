@@ -177,7 +177,7 @@ describe('AuthService', () => {
   describe('#removeOldRefreshTokens()', () => {
     it('should remove old tokens', async () => {
       const key = keyStoreService.getKey('refresh', 'sign');
-      const token = sign({ id: 'FAKE_USER_ID' }, key, this.refreshTokenOptions);
+      const token = sign({ id: 'FAKE_USER_ID' }, key, { algorithm: 'ES512', expiresIn: '7d' });
 
       const createdAt = new Date();
       createdAt.setDate(createdAt.getDate() - 8);
