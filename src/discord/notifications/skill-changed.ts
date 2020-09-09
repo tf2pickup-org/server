@@ -1,4 +1,4 @@
-import { MessageEmbedOptions } from 'discord.js';
+import { MessageEmbedOptions, EmbedFieldData } from 'discord.js';
 import { Colors } from './colors';
 
 interface SkillChangedFields {
@@ -7,6 +7,13 @@ interface SkillChangedFields {
   newSkill: Map<string, number>;
   playerProfileUrl: string;
   adminResponsible: string;
+}
+
+function generateSkillFields(oldSkill: Map<string, number>, newSkill: Map<string, number>): EmbedFieldData[] {
+  return Array.from(newSkill)
+    .map(([className, newSkillValue]) => ({ className, newSkillValue, oldSkillValue : oldSkill.get(className) ?? 1 }))
+    .filter(e => e.oldSkillValue !== e.newSkillValue)
+    .map(e => ({ name: e.className, value: `${e.oldSkillValue} => ${e.newSkillValue}` }));
 }
 
 export function skillChanged(fields: SkillChangedFields): MessageEmbedOptions {
@@ -18,18 +25,10 @@ export function skillChanged(fields: SkillChangedFields): MessageEmbedOptions {
         name: 'Player',
         value: `[${fields.playerName}](${fields.playerProfileUrl})`,
       },
+      ...generateSkillFields(fields.oldSkill, fields.newSkill),
     ],
     timestamp: new Date(),
   };
-
-  for (const key of fields.newSkill.keys()) {
-    const newSkillValue = fields.newSkill.get(key);
-    const oldSkillValue = fields.oldSkill.get(key) || 1;
-
-    if (newSkillValue !== oldSkillValue) {
-      embed.fields.push({ name: key, value: `${oldSkillValue} => ${newSkillValue}` });
-    }
-  }
 
   return embed;
 }
