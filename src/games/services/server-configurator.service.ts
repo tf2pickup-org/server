@@ -42,17 +42,22 @@ export class ServerConfiguratorService {
       this.logger.debug(`[${server.name}] changing map to ${game.map}...`);
       await rcon.send(changelevel(game.map));
 
+      // source servers need a moment after the map has been changed
+      await new Promise(resolve => setTimeout(resolve, 10 * 1000));
+
       const configName = this.queueConfigService.queueConfig.maps.find(m => m.name === game.map)?.configName;
       const config = this.queueConfigService.queueConfig.configs[configName];
       if (config) {
         this.logger.debug(`[${server.name}] executing ${config}...`);
         await rcon.send(execConfig(config));
+        await new Promise(resolve => setTimeout(resolve, 10 * 1000));
       }
 
       if (this.queueConfigService.queueConfig.execConfigs) {
         for (const c of this.queueConfigService.queueConfig.execConfigs) {
           this.logger.debug(`[${server.name}] executing ${c}...`);
           await rcon.send(execConfig(c));
+          await new Promise(resolve => setTimeout(resolve, 10 * 1000));
         }
       }
 
