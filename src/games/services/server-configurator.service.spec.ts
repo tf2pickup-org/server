@@ -95,6 +95,8 @@ describe('ServerConfiguratorService', () => {
     beforeEach(() => {
       rcon = new RconStub();
       jest.spyOn(rconFactoryService, 'createRcon').mockResolvedValue(rcon as never);
+      jest.useFakeTimers();
+      jest.spyOn(global, 'setTimeout').mockImplementation(cb => { cb(); return null; });
     });
 
     it('should execute correct rcon commands', async () => {
