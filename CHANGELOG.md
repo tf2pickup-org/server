@@ -1,3 +1,26 @@
+## [3.1.1](https://github.com/tf2pickup-pl/server/compare/3.1.0...3.1.1) (2020-09-29)
+
+
+### Bug Fixes
+
+* get rid of wrong server password ([#631](https://github.com/tf2pickup-pl/server/issues/631)) ([9a0826a](https://github.com/tf2pickup-pl/server/commit/9a0826a61e20d9be51cc345a074b31903d817231))
+* **deps:** update dependency @nestjs/schedule to v0.4.1 ([#625](https://github.com/tf2pickup-pl/server/issues/625)) ([1717a84](https://github.com/tf2pickup-pl/server/commit/1717a8417034b3fd1a8b6db0985ba72f15e7afe4))
+* **deps:** update dependency @typegoose/typegoose to v7.4.0 ([#616](https://github.com/tf2pickup-pl/server/issues/616)) ([2d1c823](https://github.com/tf2pickup-pl/server/commit/2d1c8235ab8c40d3be35b8c88c3ca6ad8c69413d))
+* **deps:** update dependency @typegoose/typegoose to v7.4.1 ([#623](https://github.com/tf2pickup-pl/server/issues/623)) ([d41c1c7](https://github.com/tf2pickup-pl/server/commit/d41c1c76d4696b9a19f81048311d2db3b681b519))
+* **deps:** update dependency discord.js to v12.3.1 ([#553](https://github.com/tf2pickup-pl/server/issues/553)) ([b86f613](https://github.com/tf2pickup-pl/server/commit/b86f613aadb47b695ded127d227a06fc845f38c5))
+* **deps:** update dependency helmet to v4.1.1 ([#605](https://github.com/tf2pickup-pl/server/issues/605)) ([aa9a498](https://github.com/tf2pickup-pl/server/commit/aa9a498789671e30a9d0aa1aa70504e8dca80a34))
+* **deps:** update dependency jsonschema to v1.2.7 ([#630](https://github.com/tf2pickup-pl/server/issues/630)) ([d310eab](https://github.com/tf2pickup-pl/server/commit/d310eab25a5af9598da6234165741d1e5360271f))
+* **deps:** update dependency moment to v2.28.0 ([#610](https://github.com/tf2pickup-pl/server/issues/610)) ([ba8eef4](https://github.com/tf2pickup-pl/server/commit/ba8eef49fd200c9a308967f0189378a816d84e29))
+* **deps:** update dependency moment to v2.29.0 ([#622](https://github.com/tf2pickup-pl/server/issues/622)) ([38d8520](https://github.com/tf2pickup-pl/server/commit/38d8520559cfddb7131b3a839af2f9bd4997b71f))
+* **deps:** update dependency mongoose to v5.10.4 ([#602](https://github.com/tf2pickup-pl/server/issues/602)) ([00e1374](https://github.com/tf2pickup-pl/server/commit/00e13744658dc599f1e485c49e957927da0b7e77))
+* **deps:** update dependency mongoose to v5.10.5 ([#607](https://github.com/tf2pickup-pl/server/issues/607)) ([eb67394](https://github.com/tf2pickup-pl/server/commit/eb67394de1a05796a21b060f6d0bb1f58d36df82))
+* **deps:** update dependency mongoose to v5.10.6 ([#618](https://github.com/tf2pickup-pl/server/issues/618)) ([33586dd](https://github.com/tf2pickup-pl/server/commit/33586ddd1b54f30e6483800db2961b0f0a8d769a))
+* **deps:** update dependency mongoose to v5.10.7 ([#627](https://github.com/tf2pickup-pl/server/issues/627)) ([8f46521](https://github.com/tf2pickup-pl/server/commit/8f46521dc8437a08c7fc57eeaf815f9aa404933a))
+* **deps:** update dependency nestjs-console to v3.1.2 ([#613](https://github.com/tf2pickup-pl/server/issues/613)) ([00b01e5](https://github.com/tf2pickup-pl/server/commit/00b01e5df6a375409a1ec524401944a0305b3b80))
+* **deps:** update dependency nestjs-typegoose to v7.1.37 ([#603](https://github.com/tf2pickup-pl/server/issues/603)) ([37872fb](https://github.com/tf2pickup-pl/server/commit/37872fbd1c23862977f1787d7ed09bec71182866))
+* **deps:** update dependency nestjs-typegoose to v7.1.38 ([#633](https://github.com/tf2pickup-pl/server/issues/633)) ([98c526f](https://github.com/tf2pickup-pl/server/commit/98c526f46b501a33247f1dd7527c4268b0cfb757))
+* **deps:** update dependency rcon-client to v4.2.3 ([#626](https://github.com/tf2pickup-pl/server/issues/626)) ([bf72b8b](https://github.com/tf2pickup-pl/server/commit/bf72b8b36d4255200b32adfd7cd46482137f2325))
+
 # [3.1.0](https://github.com/tf2pickup-pl/server/compare/3.0.6...3.1.0) (2020-09-08)
 
 
