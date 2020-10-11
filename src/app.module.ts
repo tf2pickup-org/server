@@ -38,6 +38,9 @@ function createMongodbUri(environment: Environment) {
     ConfigModule.forRoot({
       isGlobal: true,
       validationSchema,
+      validationOptions: {
+        abortEarly: true,
+      },
     }),
     TypegooseModule.forRootAsync({
       imports: [ EnvironmentModule ],
