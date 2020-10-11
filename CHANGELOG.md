@@ -1,3 +1,17 @@
+## [3.1.2](https://github.com/tf2pickup-pl/server/compare/3.1.1...3.1.2) (2020-10-11)
+
+
+### Bug Fixes
+
+* get rid of deprecated decorators ([#650](https://github.com/tf2pickup-pl/server/issues/650)) ([7d7c565](https://github.com/tf2pickup-pl/server/commit/7d7c56545d39267b8d9f4ef63db8888b98297b8f))
+* **config:** update environment validation schema ([#649](https://github.com/tf2pickup-pl/server/issues/649)) ([35ceb18](https://github.com/tf2pickup-pl/server/commit/35ceb187680638ede0bc54b0c62d831db44185b1))
+* **deps:** update dependency jsonschema to v1.2.10 ([#642](https://github.com/tf2pickup-pl/server/issues/642)) ([431e7f8](https://github.com/tf2pickup-pl/server/commit/431e7f8fdaacea41fdd4675fb5324218b3945b73))
+* **deps:** update dependency jsonschema to v1.2.11 ([#647](https://github.com/tf2pickup-pl/server/issues/647)) ([3654ae8](https://github.com/tf2pickup-pl/server/commit/3654ae8a24d89cd5365ffc86c1bd34d9532b8384))
+* **deps:** update dependency jsonschema to v1.2.8 ([#637](https://github.com/tf2pickup-pl/server/issues/637)) ([b0a59f6](https://github.com/tf2pickup-pl/server/commit/b0a59f66a77f511f8ab96c8f14b54a5614c33e0f))
+* **deps:** update dependency moment to v2.29.1 ([#641](https://github.com/tf2pickup-pl/server/issues/641)) ([f2c2af1](https://github.com/tf2pickup-pl/server/commit/f2c2af1025cc00905d6e3b984b176726463aa7d3))
+* **deps:** update dependency mongoose to v5.10.8 ([#639](https://github.com/tf2pickup-pl/server/issues/639)) ([0e51aa9](https://github.com/tf2pickup-pl/server/commit/0e51aa96dfb7de8efdedf5af2cc0e1d6efa810ed))
+* **deps:** update dependency mongoose to v5.10.9 ([#646](https://github.com/tf2pickup-pl/server/issues/646)) ([f2ce40a](https://github.com/tf2pickup-pl/server/commit/f2ce40aea8818f646838d10f5acbc99f70872a4e))
+
 ## [3.1.1](https://github.com/tf2pickup-pl/server/compare/3.1.0...3.1.1) (2020-09-29)
 
 
