@@ -6,7 +6,7 @@ export class PlayerSkill {
   @prop({ ref: 'Player' })
   player?: Ref<Player>;
 
-  @mapProp({ of: Number })
+  @prop({ type: Number })
   skill?: Map<string, number>;
 
 }

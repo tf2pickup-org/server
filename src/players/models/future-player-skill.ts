@@ -8,7 +8,7 @@ export class FuturePlayerSkill {
   @prop({ required: true, unique: true })
   steamId!: string;
 
-  @mapProp({ of: Number })
+  @prop({ type: Number })
   skill?: Map<string, number>;
 
 }
