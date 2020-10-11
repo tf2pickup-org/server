@@ -30,7 +30,7 @@ export class GameServer {
   @prop({ default: false })
   isOnline?: boolean; // was the server online last we checked
 
-  @arrayProp({ items: String })
+  @prop({ type: () => [String] })
   resolvedIpAddresses?: string[]; // for tracing game server logs
 
   @prop()
