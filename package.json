@@ -69,7 +69,7 @@
     "@types/jest": "26.0.15",
     "@types/jsonschema": "1.1.1",
     "@types/jsonwebtoken": "8.5.0",
-    "@types/lodash": "4.14.162",
+    "@types/lodash": "4.14.163",
     "@types/mongoose": "5.7.36",
     "@types/node": "12.12.31",
     "@types/passport": "1.0.4",
