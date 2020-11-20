@@ -82,7 +82,7 @@
     "copyfiles": "2.4.0",
     "jest": "26.6.3",
     "mongodb-memory-server": "6.9.2",
-    "prettier": "2.1.2",
+    "prettier": "2.2.0",
     "release-it": "14.2.1",
     "supertest": "6.0.1",
     "ts-jest": "26.4.4",
