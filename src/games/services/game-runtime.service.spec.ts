@@ -111,7 +111,7 @@ describe('GameRuntimeService', () => {
     it('should configure the server again', async () => {
       const spy = jest.spyOn(serverConfiguratorService, 'configureServer');
       const ret = await service.reconfigure(mockGame.id);
-      expect(spy).toHaveBeenCalledWith(jasmine.objectContaining({ id: mockGameServer.id }), jasmine.objectContaining({ id: mockGame.id }));
+      expect(spy).toHaveBeenCalledWith(expect.objectContaining({ id: mockGameServer.id }), expect.objectContaining({ id: mockGame.id }));
       expect(ret.connectString).toEqual('FAKE_CONNECT_STRING');
     });
 
@@ -259,7 +259,7 @@ describe('GameRuntimeService', () => {
     });
 
     it('should execute the correct commands', async () => {
-      const spy = spyOn(rcon, 'send');
+      const spy = jest.spyOn(rcon, 'send');
       await service.sayChat(mockGameServer.id, 'some message');
       expect(spy).toHaveBeenCalledWith(say('some message'));
     });

@@ -283,14 +283,14 @@ describe('PlayerSubstitutionService', () => {
       expect(spy).toHaveBeenCalledWith(game);
     });
 
-    it('should replace the player in-game', async done => {
+    it('should replace the player in-game', async () => new Promise(resolve => {
       const spy = jest.spyOn(gameRuntimeService, 'replacePlayer');
-      await service.replacePlayer(mockGame.id, player1.id, player3.id);
       setTimeout(() => {
         expect(spy).toHaveBeenCalledWith(mockGame.id, player1.id, expect.objectContaining({ player: player3._id }));
-        done();
+        resolve();
       }, 100);
-    });
+      service.replacePlayer(mockGame.id, player1.id, player3.id);
+    }));
 
     describe('when the replacement player is banned', () => {
       beforeEach(() => {

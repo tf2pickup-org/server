@@ -41,7 +41,7 @@ describe('Documents Controller', () => {
       });
 
       it('should return 404', async () => {
-        expect(controller.getDocument('RULES.md')).rejects.toThrow(new NotFoundException());
+        await expect(controller.getDocument('RULES.md')).rejects.toThrow(new NotFoundException());
       });
     });
   });

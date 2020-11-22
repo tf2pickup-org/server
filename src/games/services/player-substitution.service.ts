@@ -2,7 +2,6 @@ import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
 import { GamesService } from './games.service';
 import { PlayersService } from '@/players/services/players.service';
 import { PlayerBansService } from '@/players/services/player-bans.service';
-import { GamePlayer } from '../models/game-player';
 import { GameRuntimeService } from './game-runtime.service';
 import { GamesGateway } from '../gateways/games.gateway';
 import { QueueGateway } from '@/queue/gateways/queue.gateway';
@@ -130,7 +129,7 @@ export class PlayerSubstitutionService {
       return game;
     }
 
-    if (!!await this.gamesService.getPlayerActiveGame(replacementId)) {
+    if (await this.gamesService.getPlayerActiveGame(replacementId)) {
       throw new Error('player is involved in a currently running game');
     }
 

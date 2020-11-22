@@ -44,8 +44,8 @@ export class PlayersController {
 
   @Get(':id/games')
   @Header('Warning', '299 - "Deprecated API"')
-  async getPlayerGames(@Param('id', ObjectIdValidationPipe) playerId: string, @Query('limit', ParseIntPipe) limit: number = 10,
-                       @Query('offset', ParseIntPipe) offset: number = 0, @Query('sort') sort: string = '-launched_at') {
+  async getPlayerGames(@Param('id', ObjectIdValidationPipe) playerId: string, @Query('limit', ParseIntPipe) limit = 10,
+                       @Query('offset', ParseIntPipe) offset = 0, @Query('sort') sort = '-launched_at') {
     let sortParam: { launchedAt: 1 | -1 };
     switch (sort) {
       case '-launched_at':

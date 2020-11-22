@@ -139,7 +139,7 @@ describe('QueueGateway', () => {
     it('should emit the event', () => {
       const spy = jest.spyOn(socket, 'emit');
       gateway.emitVoteResultsUpdate([]);
-      expect(spy).toHaveBeenCalledWith('map vote results update', jasmine.any(Array));
+      expect(spy).toHaveBeenCalledWith('map vote results update', expect.any(Array));
     });
   });
 

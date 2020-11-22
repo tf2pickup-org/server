@@ -69,7 +69,7 @@ describe('MapVoteService', () => {
   describe('#voteForMap()', () => {
     it('should save the vote', () => {
       service.voteForMap('FAKE_ID', 'cp_badlands');
-      expect(service.results).toEqual(jasmine.arrayContaining([
+      expect(service.results).toEqual(expect.arrayContaining([
         { map: 'cp_badlands', voteCount: 1 },
         { map: 'cp_process_final', voteCount: 0 },
         { map: 'cp_snakewater_final1', voteCount: 0 },
@@ -112,18 +112,21 @@ describe('MapVoteService', () => {
       expect(service.getWinner()).toMatch(/cp_badlands|cp_process_final/);
     });
 
-    it('should eventually reset the vote', done => {
-      service.voteForMap('FAKE_ID_1', 'cp_badlands');
-      service.voteForMap('FAKE_ID_2', 'cp_process_final');
-      const spy = jest.spyOn(queueGateway, 'emitVoteResultsUpdate');
+    it('should eventually reset the vote', async () => {
+      return new Promise(resolve => {
+        service.voteForMap('FAKE_ID_1', 'cp_badlands');
+        service.voteForMap('FAKE_ID_2', 'cp_process_final');
+        const spy = jest.spyOn(queueGateway, 'emitVoteResultsUpdate');
 
-      const map = service.getWinner();
-      setImmediate(() => {
-        expect(service.results.every(r => r.voteCount === 0)).toBe(true);
-        expect(service.mapOptions.every(m => m !== map));
-        expect(spy).toHaveBeenCalled();
-        done();
+        const map = service.getWinner();
+        setImmediate(() => {
+          expect(service.results.every(r => r.voteCount === 0)).toBe(true);
+          expect(service.mapOptions.every(m => m !== map)).toBe(true);
+          expect(spy).toHaveBeenCalled();
+          resolve();
+        });
       });
+
     });
   });
 });

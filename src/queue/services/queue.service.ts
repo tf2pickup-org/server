@@ -136,7 +136,7 @@ export class QueueService implements OnModuleInit {
       throw new Error('no such slot');
     }
 
-    if (!!targetSlot.playerId) {
+    if (targetSlot.playerId) {
       throw new Error('slot occupied');
     }
 

@@ -19,7 +19,7 @@ function generateSkillFields(oldSkill: Map<string, number>, newSkill: Map<string
 export function skillChanged(fields: SkillChangedFields): MessageEmbedOptions {
   const embed: MessageEmbedOptions = {
     color: Colors.SkillChanged,
-    title: `Player\'s skill has been updated by ${fields.adminResponsible}`,
+    title: `Player's skill has been updated by ${fields.adminResponsible}`,
     fields: [
       {
         name: 'Player',

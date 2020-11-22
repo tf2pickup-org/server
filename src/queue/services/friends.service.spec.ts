@@ -95,7 +95,7 @@ describe('FriendsService', () => {
     });
 
     it('should emit an event over the gateway', () => {
-      const spy = spyOn(queueGateway, 'emitFriendshipsUpdate');
+      const spy = jest.spyOn(queueGateway, 'emitFriendshipsUpdate');
       service.markFriend('FAKE_MEDIC', 'FAKE_DM_CLASS');
       expect(spy).toHaveBeenCalledWith([{ sourcePlayerId: 'FAKE_MEDIC', targetPlayerId: 'FAKE_DM_CLASS' }]);
     });
@@ -119,7 +119,7 @@ describe('FriendsService', () => {
     });
 
     it('should not remove frienship if the friend leaves the queue', () => {
-      queueService.slots = queueService.slots.filter(s => s.playerId !== 'FAKE_DM_CLASS');
+      queueService.slots = queueService.slots.filter(s => s.playerId !== 'FAKE_DM_CLASS');
       queueService.slotsChange.next(queueService.slots);
       expect(service.friendships).toEqual([{ sourcePlayerId: 'FAKE_MEDIC', targetPlayerId: 'FAKE_DM_CLASS' }]);
     });

@@ -47,7 +47,7 @@ class PlayersServiceStub {
 
 class AuthServiceStub {
   verifyToken(purpose, token) { return { id: 'FAKE_USER_ID' }; }
-  generateJwtToken(purpose, userId) { return Promise.resolve('FAKE_JWT'); };
+  generateJwtToken(purpose, userId) { return Promise.resolve('FAKE_JWT'); }
 }
 
 describe('Twitch Controller', () => {

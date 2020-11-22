@@ -72,7 +72,7 @@ describe('GameServers Controller', () => {
 
   describe('#removeGameServer()', () => {
     it('should call the service', async () => {
-      const spy = spyOn(gameServersService, 'removeGameServer').and.callThrough();
+      const spy = jest.spyOn(gameServersService, 'removeGameServer');
       await controller.removeGameServer('FAKE_ID');
       expect(spy).toHaveBeenCalledWith('FAKE_ID');
     });

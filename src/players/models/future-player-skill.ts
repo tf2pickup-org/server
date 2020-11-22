@@ -1,4 +1,4 @@
-import { prop, mapProp } from '@typegoose/typegoose';
+import { prop } from '@typegoose/typegoose';
 
 /**
  * Imported skills for players that have not registered their account yet.

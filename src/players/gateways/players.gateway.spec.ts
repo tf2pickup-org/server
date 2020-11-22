@@ -16,21 +16,21 @@ describe('PlayersGateway', () => {
     expect(gateway).toBeDefined();
   });
 
-  it('should emit playerConnected', done => {
+  it('should emit playerConnected', async () => new Promise(resolve => {
     const socket = { id: 'fasldfhasdkjfh' };
     gateway.playerConnected.subscribe(s => {
       expect(s).toEqual(socket as any);
-      done();
+      resolve();
     });
     gateway.handleConnection(socket as any);
-  });
+  }));
 
-  it('should emit playerDisconnected', done => {
+  it('should emit playerDisconnected', async () => new Promise(resolve => {
     const socket = { id: 'fklsdafhf984' };
     gateway.playerDisconnected.subscribe(s => {
       expect(s).toEqual(socket as any);
-      done();
+      resolve();
     });
     gateway.handleDisconnect(socket as any);
-  });
+  }));
 });

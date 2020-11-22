@@ -281,13 +281,13 @@ describe('PlayersService', () => {
       expect(ret.role).toEqual('super-user');
     });
 
-    it('should emit the rxjs event', done => {
+    it('should emit the rxjs event', async () => new Promise(resolve => {
       service.playerRegistered.subscribe(e => {
         expect(e).toBeTruthy();
-        done();
+        resolve();
       });
       service.createPlayer(mockSteamProfile);
-    });
+    }));
 
     it('should notify on discord', async () => {
       const spy = jest.spyOn(discordService.getAdminsChannel(), 'send');
@@ -316,17 +316,19 @@ describe('PlayersService', () => {
 
       describe('and nobody cares', () => {
         beforeEach(() => {
-          // @ts-ignore
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-expect-error
           minimumTf2InGameHours = 0;
         });
 
         afterEach(() => {
-          // @ts-ignore
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-expect-error
           minimumTf2InGameHours = 500;
         });
 
         it('should pass', async () => {
-          await service.createPlayer(mockSteamProfile);
+          await expect(service.createPlayer(mockSteamProfile)).resolves.toBeTruthy();
         });
       });
     });
@@ -344,7 +346,7 @@ describe('PlayersService', () => {
       });
 
       it('should throw an error', async () => {
-        expect(service.registerTwitchAccount('FAKE_ID', {
+        await expect(service.registerTwitchAccount('FAKE_ID', {
           userId: 'FAKE_TWITCH_TV_USER_ID',
           login: 'FAKE_TWITCH_TV_LOGIN',
         })).rejects.toThrowError('no such player');

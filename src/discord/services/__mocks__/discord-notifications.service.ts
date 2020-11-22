@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { PlayerBan } from '@/players/models/player-ban';
 import { Player } from '@/players/models/player';
 import { SubstituteRequest } from '@/queue/substitute-request';

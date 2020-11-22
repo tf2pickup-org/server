@@ -1,4 +1,4 @@
-import { prop, Ref, mapProp } from '@typegoose/typegoose';
+import { prop, Ref } from '@typegoose/typegoose';
 import { Player } from './player';
 
 export class PlayerSkill {

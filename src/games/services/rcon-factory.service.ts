@@ -6,7 +6,7 @@ import { Rcon } from 'rcon-client';
 export class RconFactoryService {
 
   async createRcon(gameServer: GameServer): Promise<Rcon> {
-    return new Promise(async  (resolve, reject) => {
+    return new Promise((resolve, reject) => {
       const rcon = new Rcon({
         host: gameServer.address,
         port: parseInt(gameServer.port, 10),

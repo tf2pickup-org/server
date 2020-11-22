@@ -101,14 +101,14 @@ describe('PlayerSkillService', () => {
         newPlayer = await playersService._createOne();
       });
 
-      it('should not update player\'s skill', async done => {
+      it('should not update player\'s skill', async () => new Promise(resolve => {
         // @ts-expect-error
         playersService.playerRegistered.next(newPlayer.id.toString());
         setTimeout(async () => {
           expect(await playerSkillModel.findOne({ player: newPlayer.id })).toBe(null);
-          done();
+          resolve();
         }, 100);
-      });
+      }));
     });
 
     describe('when there is future skill for the given player', () => {
@@ -117,14 +117,14 @@ describe('PlayerSkillService', () => {
         futurePlayerSkillService.findSkill = () => Promise.resolve({ steamId: mockPlayer.steamId, skill: new Map([['soldier', 2]]) });
       });
 
-      it('should update player\'s skill', done => {
+      it('should update player\'s skill', async () => new Promise(resolve => {
         // @ts-expect-error
         playersService.playerRegistered.next(mockPlayer.id.toString());
         setTimeout(async () => {
           expect(await playerSkillModel.findOne({ player: mockPlayer.id })).toBeTruthy();
-          done();
+          resolve();
         }, 100);
-      });
+      }));
     });
   });
 
