@@ -9,6 +9,7 @@ before_script:
 script:
   - npm run build
   - npm run test:ci
+  - npm run lint
 
 after_success:
   - codecov
