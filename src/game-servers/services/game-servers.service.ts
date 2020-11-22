@@ -6,7 +6,6 @@ import { resolve as resolveCb } from 'dns';
 import { promisify } from 'util';
 import { isServerOnline } from '../utils/is-server-online';
 import { Cron } from '@nestjs/schedule';
-import { ObjectId } from 'mongodb';
 
 const resolve = promisify(resolveCb);
 
@@ -42,6 +41,7 @@ export class GameServersService {
       }
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { game, ...tmp } = gameServer; // extract game
     const ret = await this.gameServerModel.create(tmp);
     this.logger.log(`game server ${ret.id} (${ret.name}) added`);

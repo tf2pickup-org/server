@@ -54,7 +54,7 @@ export class GamesService {
       .skip(skip);
   }
 
-  async getPlayerGames(playerId: string, sort: GameSortOptions = { launchedAt: -1 }, limit: number = 10, skip: number = 0) {
+  async getPlayerGames(playerId: string, sort: GameSortOptions = { launchedAt: -1 }, limit = 10, skip = 0) {
     return await this.gameModel
       .find({ 'slots.player': new ObjectId(playerId) })
       .sort(sort)

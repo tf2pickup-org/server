@@ -114,22 +114,22 @@ describe('QueueService', () => {
 
   describe('#join()', () => {
     it('should fail if the given player doesn\'t exist', async () => {
-      spyOn(playersService, 'getById').and.returnValue(new Promise(resolve => resolve(null)));
+      jest.spyOn(playersService, 'getById').mockResolvedValue(null);
       await expect(service.join(0, 'FAKE_PLAYER_ID')).rejects.toThrowError('no such player');
     });
 
     it('should fail if the joining player hasn\'t accepted rules', async () => {
-      spyOn(playersService, 'getById').and.returnValue(new Promise(resolve => resolve({ ...playersService.player, hasAcceptedRules: false })));
+      jest.spyOn(playersService, 'getById').mockResolvedValue({ ...playersService.player, hasAcceptedRules: false });
       await expect(service.join(0, 'FAKE_ID')).rejects.toThrowError('player has not accepted rules');
     });
 
     it('should fail if the player is banned', async () => {
-      spyOn(playerBansService, 'getPlayerActiveBans').and.returnValue(new Promise(resolve => resolve([{}])));
+      jest.spyOn(playerBansService, 'getPlayerActiveBans').mockResolvedValue([{}]);
       await expect(service.join(0, 'FAKE_ID')).rejects.toThrowError('player is banned');
     });
 
     it('should fail if the player is currently playing a game', async () => {
-      spyOn(gamesService, 'getPlayerActiveGame').and.returnValue(new Promise(resolve => resolve({ number: 1, state: 'started' })));
+      jest.spyOn(gamesService, 'getPlayerActiveGame').mockResolvedValue({ number: 1, state: 'started' });
       await expect(service.join(0, 'FAKE_ID')).rejects.toThrowError('player involved in a currently active game');
     });
 
@@ -158,13 +158,15 @@ describe('QueueService', () => {
       expect(oldSlots[0].playerId).toBeNull();
     });
 
-    it('should emit playerJoin', async done => {
-      service.playerJoin.subscribe(playerId => {
-        expect(playerId).toEqual('FAKE_ID');
-        done();
-      });
+    it('should emit playerJoin', async () => {
+      return new Promise((resolve) => {
+        service.playerJoin.subscribe(playerId => {
+          expect(playerId).toEqual('FAKE_ID');
+          resolve();
+        });
 
-      await service.join(0, 'FAKE_ID');
+        service.join(0, 'FAKE_ID');
+      });
     });
 
     it('should ready up immediately when joining as 12th player', async () => {
@@ -197,7 +199,6 @@ describe('QueueService', () => {
     beforeEach(async () => {
       await service.join(0, 'FAKE_PLAYER_ID');
       const slot = service.getSlotById(0);
-      expect(slot.playerId).toBe('FAKE_PLAYER_ID');
     });
 
     it('should reset the slot', () => {

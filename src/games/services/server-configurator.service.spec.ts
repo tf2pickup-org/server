@@ -108,7 +108,7 @@ describe('ServerConfiguratorService', () => {
       expect(spy).toHaveBeenCalledWith(kickAll());
       expect(spy).toHaveBeenCalledWith(changelevel('cp_badlands'));
       expect(spy).toHaveBeenCalledWith(execConfig('etf2l_6v6_5cp'));
-      expect(spy).toHaveBeenCalledWith(jasmine.stringMatching(/^sv_password\s.+$/));
+      expect(spy).toHaveBeenCalledWith(expect.stringMatching(/^sv_password\s.+$/));
       expect(spy).toHaveBeenCalledWith(addGamePlayer('PLAYER_1_STEAMID', 'PLAYER_1_NAME', Tf2Team.Blu, 'soldier'));
       expect(spy).toHaveBeenCalledWith(addGamePlayer('PLAYER_2_STEAMID', 'PLAYER_2_NAME', Tf2Team.Red, 'soldier'));
       expect(spy).toHaveBeenCalledWith(enablePlayerWhitelist());
@@ -155,7 +155,7 @@ describe('ServerConfiguratorService', () => {
     });
 
     it('should close the rcon connection even though an RCON command failed', async () => {
-      spyOn(rcon, 'send').and.throwError('some random RCON error');
+      jest.spyOn(rcon, 'send').mockRejectedValue('some random RCON error');
       const spy = jest.spyOn(rcon, 'end');
 
       await expect(service.configureServer(gameServer as any, game as any)).rejects.toThrowError();
@@ -188,7 +188,7 @@ describe('ServerConfiguratorService', () => {
 
     it('should close the rcon connection even though an RCON command failed', async () => {
       jest.spyOn(rcon, 'send').mockRejectedValue('some random RCON error');
-      const spy = spyOn(rcon, 'end');
+      const spy = jest.spyOn(rcon, 'end');
 
       await expect(service.cleanupServer(gameServer as any)).rejects.toThrowError();
       expect(spy).toHaveBeenCalled();

@@ -2,6 +2,7 @@ import { isServerOnline } from './is-server-online';
 
 describe('isServerOnline()', () => {
   beforeEach(() => {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
     require('gamedig').__resetResult();
   });
 
@@ -13,6 +14,7 @@ describe('isServerOnline()', () => {
 
   describe('when the queried server if offline', () => {
     beforeEach(() => {
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
       require('gamedig').__setResult(null);
     });
 

@@ -8,10 +8,10 @@ describe('ObjectIdValidationPipe', () => {
 
   it('should pass valid object id', () => {
     const id = new ObjectId().toString();
-    expect(new ObjectIdValidationPipe().transform(id, null)).toEqual(id);
+    expect(new ObjectIdValidationPipe().transform(id)).toEqual(id);
   });
 
   it('should deny invalid object id',() => {
-    expect(() => new ObjectIdValidationPipe().transform('some invalid id', null)).toThrow();
+    expect(() => new ObjectIdValidationPipe().transform('some invalid id')).toThrow();
   });
 });

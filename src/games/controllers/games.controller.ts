@@ -1,4 +1,4 @@
-import { Controller, Get, Query, ParseIntPipe, BadRequestException, Param, NotFoundException, Post, HttpCode, UsePipes, ValidationPipe, DefaultValuePipe } from '@nestjs/common';
+import { Controller, Get, Query, ParseIntPipe, Param, NotFoundException, Post, HttpCode, DefaultValuePipe } from '@nestjs/common';
 import { GamesService } from '../services/games.service';
 import { ObjectIdValidationPipe } from '@/shared/pipes/object-id-validation.pipe';
 import { Auth } from '@/auth/decorators/auth.decorator';

@@ -1,4 +1,4 @@
-import { prop, arrayProp, index, Ref } from '@typegoose/typegoose';
+import { prop, index, Ref } from '@typegoose/typegoose';
 import { IsString, IsPort } from 'class-validator';
 import { Game } from '@/games/models/game';
 

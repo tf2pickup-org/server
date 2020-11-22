@@ -1,6 +1,5 @@
 import { Injectable, OnModuleInit, Inject, forwardRef } from '@nestjs/common';
 import { QueueService } from './queue.service';
-import { QueueSlot } from '../queue-slot';
 import { QueueGateway } from '../gateways/queue.gateway';
 
 export interface Friendship {
@@ -19,7 +18,7 @@ export class FriendsService implements OnModuleInit {
   ) { }
 
   onModuleInit() {
-    this.queueService.slotsChange.subscribe(slots => this.cleanupFriendships(slots));
+    this.queueService.slotsChange.subscribe(() => this.cleanupFriendships());
   }
 
   markFriend(sourcePlayerId: string, targetPlayerId: string) {
@@ -60,7 +59,7 @@ export class FriendsService implements OnModuleInit {
     return this.friendships;
   }
 
-  private cleanupFriendships(slots: QueueSlot[]) {
+  private cleanupFriendships() {
     this.friendships = this.friendships.filter(f => this.queueService.findSlotByPlayerId(f.sourcePlayerId)?.gameClass === 'medic');
     this.queueGateway.emitFriendshipsUpdate(this.friendships);
   }

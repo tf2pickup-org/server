@@ -33,7 +33,7 @@ describe('OnlinePlayersService', () => {
     expect(service).toBeDefined();
   });
 
-  it('should handle player connections and disconnections properly', done => {
+  it('should handle player connections and disconnections properly', async () => new Promise(resolve => {
     expect(service.getSocketsForPlayer('FAKE_ID')).toEqual([]);
 
     const socket = { id: 'asdjklhuger', request: { user: { logged_in: true, id: 'FAKE_ID' } } };
@@ -48,9 +48,9 @@ describe('OnlinePlayersService', () => {
 
     service.playerLeft.subscribe(playerId => {
       expect(playerId).toEqual('FAKE_ID');
-      done();
+      resolve();
     });
 
     jest.runAllTimers();
-  });
+  }));
 });

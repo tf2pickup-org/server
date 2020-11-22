@@ -70,7 +70,7 @@ describe('QueueNotificationsService', () => {
 
     it('should not notify below specified threshold', () => {
       queueService.playerCount = 5;
-      const spy = spyOn(discordService.getPlayersChannel(), 'send');
+      const spy = jest.spyOn(discordService.getPlayersChannel(), 'send');
       queueService.playerJoin.next('FAKE_ID');
       jest.runAllTicks();
       expect(spy).not.toHaveBeenCalled();
@@ -78,7 +78,7 @@ describe('QueueNotificationsService', () => {
 
     it('should not notify on full queue', () => {
       queueService.playerCount = 12;
-      const spy = spyOn(discordService.getPlayersChannel(), 'send');
+      const spy = jest.spyOn(discordService.getPlayersChannel(), 'send');
       queueService.playerJoin.next('FAKE_ID');
       jest.runAllTicks();
       expect(spy).not.toHaveBeenCalled();
@@ -86,7 +86,7 @@ describe('QueueNotificationsService', () => {
 
     it('should not notify if the player count drops below the required threshold', () => {
       queueService.playerCount = 6;
-      const spy = spyOn(discordService.getPlayersChannel(), 'send');
+      const spy = jest.spyOn(discordService.getPlayersChannel(), 'send');
       queueService.playerJoin.next('FAKE_ID');
       jest.runAllTicks();
       queueService.playerCount = 5;

@@ -26,17 +26,17 @@ export class GameEventListenerService implements OnModuleInit {
   readonly gameEvents: GameEvent[] = [
     {
       name: 'match started',
-      regex: /^[\d\/\s-:]+World triggered \"Round_Start\"$/,
+      regex: /^[\d/\s-:]+World triggered "Round_Start"$/,
       handle: gameId => this.gameEventHandlerService.onMatchStarted(gameId),
     },
     {
       name: 'match ended',
-      regex: /^[\d\/\s-:]+World triggered \"Game_Over\" reason \".*\"$/,
+      regex: /^[\d/\s-:]+World triggered "Game_Over" reason ".*"$/,
       handle: gameId => this.gameEventHandlerService.onMatchEnded(gameId),
     },
     {
       name: 'logs uploaded',
-      regex: /^[\d\/\s-:]+\[TFTrue\].+\shttp:\/\/logs\.tf\/(\d+)\..*$/,
+      regex: /^[\d/\s-:]+\[TFTrue\].+\shttp:\/\/logs\.tf\/(\d+)\..*$/,
       handle: (gameId, matches) => {
         const logsUrl = `http://logs.tf/${matches[1]}`;
         this.gameEventHandlerService.onLogsUploaded(gameId, logsUrl);
@@ -45,7 +45,7 @@ export class GameEventListenerService implements OnModuleInit {
     {
       name: 'player connected',
       // https://regex101.com/r/uyPW8m/4
-      regex: /^(\d{2}\/\d{2}\/\d{4})\s-\s(\d{2}:\d{2}:\d{2}):\s\"(.+)\<(\d+)\>\<(\[.[^\]]+\])\>\<\>"\sconnected,\saddress\s\"(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d{1,5})"$/,
+      regex: /^(\d{2}\/\d{2}\/\d{4})\s-\s(\d{2}:\d{2}:\d{2}):\s"(.+)<(\d+)><(\[.[^\]]+\])><>"\sconnected,\saddress\s"(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d{1,5})"$/,
       handle: (gameId, matches) => {
         const steamId = new SteamID(matches[5]);
         if (steamId.isValid()) {
@@ -56,7 +56,7 @@ export class GameEventListenerService implements OnModuleInit {
     {
       name: 'player joined team',
       // https://regex101.com/r/yzX9zG/1
-      regex: /^(\d{2}\/\d{2}\/\d{4})\s-\s(\d{2}:\d{2}:\d{2}):\s\"(.+)\<(\d+)\>\<(\[.[^\]]+\])\>\<(.+)\>"\sjoined\steam\s\"(.+)\"/,
+      regex: /^(\d{2}\/\d{2}\/\d{4})\s-\s(\d{2}:\d{2}:\d{2}):\s"(.+)<(\d+)><(\[.[^\]]+\])><(.+)>"\sjoined\steam\s"(.+)"/,
       handle: (gameId, matches) => {
         const steamId = new SteamID(matches[5]);
         if (steamId.isValid()) {
@@ -67,7 +67,7 @@ export class GameEventListenerService implements OnModuleInit {
     {
       name: 'player disconnected',
       // https://regex101.com/r/x4AMTG/1
-      regex: /^(\d{2}\/\d{2}\/\d{4})\s-\s(\d{2}:\d{2}:\d{2}):\s\"(.+)\<(\d+)\>\<(\[.[^\]]+\])\>\<(.[^\>]+)\>\"\sdisconnected\s\(reason\s\"(.[^\"]+)\"\)$/,
+      regex: /^(\d{2}\/\d{2}\/\d{4})\s-\s(\d{2}:\d{2}:\d{2}):\s"(.+)<(\d+)><(\[.[^\]]+\])><(.[^>]+)>"\sdisconnected\s\(reason\s"(.[^"]+)"\)$/,
       handle: (gameId, matches) => {
         const steamId = new SteamID(matches[5]);
         if (steamId.isValid()) {
@@ -78,7 +78,7 @@ export class GameEventListenerService implements OnModuleInit {
     {
       name: 'score reported',
       // https://regex101.com/r/RAUdTe/1
-      regex: /^[\d\/\s-:]+Team \"(.[^"]+)\" final score \"(\d)\" with \"(\d)\" players$/,
+      regex: /^[\d/\s-:]+Team "(.[^"]+)" final score "(\d)" with "(\d)" players$/,
       handle: (gameId, matches) => {
         const [, teamName, score] = matches;
         this.gameEventHandlerService.onScoreReported(gameId, teamName, score);
@@ -87,7 +87,7 @@ export class GameEventListenerService implements OnModuleInit {
     {
       name: 'demo uploaded',
       // https://regex101.com/r/JLGRYa/2
-      regex: /^[\d\/\s-:]+\[demos\.tf\]:\sSTV\savailable\sat:\s(.+)$/,
+      regex: /^[\d/\s-:]+\[demos\.tf\]:\sSTV\savailable\sat:\s(.+)$/,
       handle: (gameId, matches) => {
         const demoUrl = matches[1];
         this.gameEventHandlerService.onDemoUploaded(gameId, demoUrl);

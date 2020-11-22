@@ -54,17 +54,19 @@ describe('AutoGameLauncherService', () => {
     expect(service).toBeDefined();
   });
 
-  it('should launch the game and reset the queue', async done => {
-    const resetSpy = jest.spyOn(queueService, 'reset');
-    const createSpy = jest.spyOn(gamesService, 'create');
-    const launchSpy = jest.spyOn(gamesService, 'launch');
-    queueService.stateChange.next('launching');
+  it('should launch the game and reset the queue', async () => {
+    return new Promise(resolve => {
+      const resetSpy = jest.spyOn(queueService, 'reset');
+      const createSpy = jest.spyOn(gamesService, 'create');
+      const launchSpy = jest.spyOn(gamesService, 'launch');
+      queueService.stateChange.next('launching');
 
-    setImmediate(() => {
-      expect(resetSpy).toHaveBeenCalled();
-      expect(createSpy).toHaveBeenCalledWith(queueService.slots, 'cp_badlands', [['FAKE_MEDIC', 'FAKE_DM_CLASS']]);
-      expect(launchSpy).toHaveBeenCalledWith('FAKE_GAME_ID');
-      done();
+      setImmediate(() => {
+        expect(resetSpy).toHaveBeenCalled();
+        expect(createSpy).toHaveBeenCalledWith(queueService.slots, 'cp_badlands', [['FAKE_MEDIC', 'FAKE_DM_CLASS']]);
+        expect(launchSpy).toHaveBeenCalledWith('FAKE_GAME_ID');
+        resolve();
+      });
     });
   });
 });

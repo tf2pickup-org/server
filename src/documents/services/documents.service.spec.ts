@@ -48,7 +48,7 @@ describe('DocumentsService', () => {
       });
 
       it('should return undefined', async () => {
-        expect(service.fetchDocument('some random document')).resolves.toBe(undefined);
+        await expect(service.fetchDocument('some random document')).resolves.toBe(undefined);
       });
     });
   });

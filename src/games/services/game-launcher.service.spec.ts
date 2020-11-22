@@ -80,7 +80,7 @@ describe('GameLauncherService', () => {
 
   describe('#launch()', () => {
     it('should throw an error if the given game does not exist', async () => {
-      spyOn(gamesService, 'getById').and.returnValue(null);
+      jest.spyOn(gamesService, 'getById').mockResolvedValue(null);
       await expect(service.launch('FAKE_GAME_ID')).rejects.toThrowError('no such game');
     });
 

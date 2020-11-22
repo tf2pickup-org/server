@@ -11,6 +11,7 @@ import { Environment } from '@/environment/environment';
 import { PlayersService } from './players.service';
 import { Player } from '../models/player';
 import { DiscordService } from '@/discord/services/discord.service';
+import { resolve } from 'dns';
 
 jest.mock('./players.service');
 jest.mock('@/discord/services/discord.service');
@@ -130,14 +131,14 @@ describe('PlayerBansService', () => {
         expect(ret.toObject()).toMatchObject(newBan);
       });
 
-      it('should emit the event', async done => {
+      it('should emit the event', async () => new Promise(resolve => {
         service.banAdded.subscribe(playerId => {
           expect(playerId).toEqual(player.id);
-          done();
+          resolve();
         });
 
-        await service.addPlayerBan(newBan);
-      });
+        service.addPlayerBan(newBan);
+      }));
 
       it('should notify on discord', async () => {
         const spy = jest.spyOn(discordService.getAdminsChannel(), 'send');
@@ -145,18 +146,18 @@ describe('PlayerBansService', () => {
         expect(spy).toHaveBeenCalled();
       });
 
-      it('should emit profile update event on player\'s socket', async done => {
+      it('should emit profile update event on player\'s socket', async () => new Promise(resolve => {
         const socket = {
           emit: (eventName: string, update: any) => {
             expect(eventName).toEqual('profile update');
             expect(update.bans.length).toEqual(2);
-            done();
+            resolve();
           },
         };
 
         onlinePlayersService.getSocketsForPlayer = () => [ socket ];
-        await service.addPlayerBan(newBan);
-      });
+        service.addPlayerBan(newBan);
+      }));
     });
 
     describe('when adding a ban that has invalid player id', () => {
@@ -187,14 +188,14 @@ describe('PlayerBansService', () => {
       expect(ban.end.getTime()).toBeLessThanOrEqual(new Date().getTime());
     });
 
-    it('should emit the event', async done => {
+    it('should emit the event', async () => new Promise(resolve => {
       service.banRevoked.subscribe(playerId => {
         expect(playerId).toEqual(player.id);
-        done();
+        resolve();
       });
 
-      await service.revokeBan(mockPlayerBan.id, admin.id);
-    });
+      service.revokeBan(mockPlayerBan.id, admin.id);
+    }));
 
     it('should send discord notification', async () => {
       const spy = jest.spyOn(discordService.getAdminsChannel(), 'send');

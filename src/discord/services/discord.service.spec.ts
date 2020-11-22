@@ -9,7 +9,7 @@ class EnvironmentStub {
   discordQueueNotificationsMentionRole = pickupsRole.name;
   discordQueueNotificationsChannel = playersChannel.name;
   discordAdminNotificationsChannel = adminChannel.name;
-};
+}
 
 describe('DiscordService', () => {
   let service: DiscordService;
@@ -39,15 +39,15 @@ describe('DiscordService', () => {
       expect(spy).toHaveBeenCalledWith('FAKE_DISCORD_BOT_TOKEN');
     });
 
-    it('should send notification', done => {
+    it('should send notification', async () => new Promise(resolve => {
       const spy = jest.spyOn(adminChannel, 'send');
       service.onModuleInit();
       client.emit('ready');
       setTimeout(() => {
         expect(spy).toHaveBeenCalled();
-        done();
+        resolve();
       }, 0);
-    });
+    }));
   });
 
   describe('when logged in', () => {

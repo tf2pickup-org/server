@@ -82,7 +82,7 @@ describe('AuthService', () => {
 
     describe('refresh', () => {
       it('should retrieve the signing refresh key from the key store', async () => {
-        const spy = spyOn(keyStoreService, 'getKey').and.callThrough();
+        const spy = jest.spyOn(keyStoreService, 'getKey');
         await service.generateJwtToken('refresh', 'FAKE_USER_ID');
         expect(spy).toHaveBeenCalledWith('refresh', 'sign');
       });
@@ -104,7 +104,7 @@ describe('AuthService', () => {
       it('should retrieve the ws secret from the key store', async () => {
         const spy = jest.spyOn(keyStoreService, 'getKey');
         await service.generateJwtToken('ws', 'FAKE_USER_ID');
-        expect(spy).toHaveBeenCalledWith('ws', jasmine.any(String));
+        expect(spy).toHaveBeenCalledWith('ws', expect.any(String));
       });
 
       it('should encode user id', async () => {

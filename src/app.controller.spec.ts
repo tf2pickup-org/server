@@ -24,7 +24,7 @@ describe('AppController', () => {
   describe('#index()', () => {
     it('should return api index', () => {
       expect(appController.index()).toEqual({
-        version: jasmine.any(String),
+        version: expect.any(String),
         clientUrl: 'FAKE_CLIENT_URL',
         loginUrl: 'FAKE_API_URL/auth/steam',
       });
