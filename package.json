@@ -34,7 +34,7 @@
     "class-transformer": "0.3.1",
     "class-validator": "0.12.2",
     "commander": "6.2.0",
-    "discord.js": "12.4.1",
+    "discord.js": "12.5.0",
     "gamedig": "2.0.20",
     "generate-password": "1.5.1",
     "helmet": "4.2.0",
