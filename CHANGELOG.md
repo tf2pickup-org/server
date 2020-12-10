@@ -1,3 +1,10 @@
+# [3.2.0](https://github.com/tf2pickup-pl/server/compare/3.1.2...3.2.0) (2020-12-10)
+
+
+### Features
+
+* redirect cookie for auth route ([#745](https://github.com/tf2pickup-pl/server/issues/745)) ([faf5f37](https://github.com/tf2pickup-pl/server/commit/faf5f371d06c37c0668576fd9c877538f2d43c22))
+
 ## [3.1.2](https://github.com/tf2pickup-pl/server/compare/3.1.1...3.1.2) (2020-10-11)
 
 
