@@ -5,6 +5,7 @@ import { Environment } from '@/environment/environment';
 import { AuthService } from '../services/auth.service';
 import { User } from '../decorators/user.decorator';
 import { Auth } from '../decorators/auth.decorator';
+import { redirectUrlCookieName } from '../middlewares/set-redirect-url-cookie';
 
 @Controller('auth')
 export class AuthController {
@@ -21,9 +22,11 @@ export class AuthController {
     // https://github.com/liamcurry/passport-steam/issues/57
     this.adapterHost.httpAdapter?.get('/auth/steam/return', (req, res, next) => {
       return authenticate('steam', async (error, user) => {
+        const url = req.cookies?.[redirectUrlCookieName] || this.environment.clientUrl;
+
         if (error) {
           this.logger.warn(`Steam login error for ${user}: ${error}`);
-          return res.redirect(`${this.environment.clientUrl}/auth-error?error=${error.message}`);
+          return res.redirect(`${url}/auth-error?error=${error.message}`);
         }
 
         if (!user) {
@@ -32,7 +35,7 @@ export class AuthController {
 
         const refreshToken = await this.authService.generateJwtToken('refresh', user.id);
         const authToken = await this.authService.generateJwtToken('auth', user.id);
-        return res.redirect(`${this.environment.clientUrl}?refresh_token=${refreshToken}&auth_token=${authToken}`);
+        return res.redirect(`${url}?refresh_token=${refreshToken}&auth_token=${authToken}`);
       })(req, res, next);
     });
   }

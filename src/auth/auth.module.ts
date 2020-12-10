@@ -10,6 +10,7 @@ import { RefreshToken } from './models/refresh-token';
 import { KeyStoreService } from './services/key-store.service';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { AuthGateway } from './gateways/auth.gateway';
+import { setRedirectUrlCookie } from './middlewares/set-redirect-url-cookie';
 
 const passportModule = PassportModule.register({
   defaultStrategy: 'jwt',
@@ -42,7 +43,10 @@ export class AuthModule implements NestModule {
 
   configure(consumer: MiddlewareConsumer) {
     consumer
-      .apply(authenticate('steam', { session: false }))
+      .apply(
+        setRedirectUrlCookie,
+        authenticate('steam', { session: false }),
+      )
       .forRoutes('/auth/steam');
   }
 
