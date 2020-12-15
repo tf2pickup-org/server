@@ -1,6 +1,7 @@
 import { prop } from '@typegoose/typegoose';
 
 export class TwitchTvUser {
+
   @prop({ required: true })
   userId!: string;
 

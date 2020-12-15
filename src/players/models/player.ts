@@ -1,4 +1,5 @@
 import { prop, index } from '@typegoose/typegoose';
+import { PlayerAvatar } from './player-avatar';
 import { PlayerRole } from './player-role';
 import { TwitchTvUser } from './twitch-tv-user';
 
@@ -15,8 +16,12 @@ export class Player {
   @prop({ default: () => new Date() })
   joinedAt?: Date;
 
+  // TODO 3.0: remove
   @prop()
-  avatarUrl?: string;
+  avatarUrl?: string; // deprecated
+
+  @prop()
+  avatar?: PlayerAvatar;
 
   @prop()
   role?: PlayerRole;
