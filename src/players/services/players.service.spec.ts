@@ -222,7 +222,11 @@ describe('PlayersService', () => {
       provider: 'steam',
       id: 'FAKE_STEAM_ID_2',
       displayName: 'FAKE_DISPLAY_NAME',
-      photos: [{ value: 'FAKE_AVATAR_URL' }],
+      photos: [
+        { value: 'FAKE_SMALL_AVATAR_URL' },
+        { value: 'FAKE_MEDIUM_AVATAR_URL' },
+        { value: 'FAKE_FULL_AVATAR_URL' },
+      ],
     };
 
     describe('when an ETFL2 profile doesn\'t exist', () => {
@@ -269,7 +273,12 @@ describe('PlayersService', () => {
       expect(ret.toObject()).toMatchObject({
         steamId: 'FAKE_STEAM_ID_2',
         name: 'maly',
-        avatarUrl: 'FAKE_AVATAR_URL',
+        avatarUrl: 'FAKE_SMALL_AVATAR_URL',
+        avatar: {
+          small: 'FAKE_SMALL_AVATAR_URL',
+          medium: 'FAKE_MEDIUM_AVATAR_URL',
+          large: 'FAKE_FULL_AVATAR_URL',
+        },
         role: null,
         etf2lProfileId: 112758,
       });
