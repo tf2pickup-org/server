@@ -16,6 +16,7 @@ import { DiscordService } from '@/discord/services/discord.service';
 import { newPlayer, playerNameChanged } from '@/discord/notifications';
 import { ObjectId } from 'mongodb';
 import { minimumTf2InGameHours, requireEtf2lAccount } from '@configs/players';
+import { PlayerAvatar } from '../models/player-avatar';
 
 @Injectable()
 export class PlayersService implements OnModuleInit {
@@ -91,10 +92,18 @@ export class PlayersService implements OnModuleInit {
       }
     }
 
+    const avatar: PlayerAvatar = {
+      small: steamProfile.photos[0].value,
+      medium: steamProfile.photos[1].value,
+      large: steamProfile.photos[2].value,
+    };
+
     const player = await this.playerModel.create({
       steamId: steamProfile.id,
       name,
+      // TODO 3.0: remove
       avatarUrl: steamProfile.photos[0].value,
+      avatar,
       role: this.environment.superUser === steamProfile.id ? 'super-user' : null,
       etf2lProfileId: etf2lProfile?.id,
       hasAcceptedRules: false,
