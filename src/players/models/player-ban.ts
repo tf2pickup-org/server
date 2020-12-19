@@ -3,12 +3,13 @@ import { Player } from './player';
 import { IsMongoId, IsString, IsNotEmpty } from 'class-validator';
 
 export class PlayerBan {
+
   @IsMongoId()
-  @prop({ ref: 'Player', required: true })
+  @prop({ ref: () => Player, required: true })
   public player!: Ref<Player>;
 
   @IsMongoId()
-  @prop({ ref: 'Player', required: true })
+  @prop({ ref: () => Player, required: true })
   public admin!: Ref<Player>;
 
   @IsNotEmpty()

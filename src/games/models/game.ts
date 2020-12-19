@@ -1,11 +1,10 @@
-import { prop, Ref, index } from '@typegoose/typegoose';
+import { prop, Ref } from '@typegoose/typegoose';
 import { GamePlayer } from './game-player';
 import { GameServer } from '@/game-servers/models/game-server';
 import { ObjectId } from 'mongodb';
 
 type GameState = 'launching' | 'started' | 'ended' | 'interrupted';
 
-@index({ state: 1 })
 export class Game {
   id: string;
 
@@ -15,16 +14,16 @@ export class Game {
   @prop({ required: true, unique: true })
   number!: number;
 
-  @prop({ items: GamePlayer, required: true })
+  @prop({ type: () => [GamePlayer], required: true })
   slots!: GamePlayer[];
 
-  @prop({ of: Number })
+  @prop({ type: Number })
   assignedSkills?: Map<string, number>;
 
   @prop({ required: true })
   map!: string;
 
-  @prop({ default: 'launching' })
+  @prop({ default: 'launching', index: true })
   state?: GameState;
 
   @prop()
@@ -45,7 +44,7 @@ export class Game {
   @prop({ ref: () => GameServer })
   gameServer?: Ref<GameServer>;
 
-  @prop({ of: Number })
+  @prop({ type: Number })
   score?: Map<string, number>;
 
   @prop()
