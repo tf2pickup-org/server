@@ -49,6 +49,8 @@ function createMongodbUri(environment: Environment) {
         uri: createMongodbUri(environment),
         useNewUrlParser: true,
         useUnifiedTopology: true,
+        useFindAndModify: false,
+        useCreateIndex: true,
       }),
     }),
     ScheduleModule.forRoot(),

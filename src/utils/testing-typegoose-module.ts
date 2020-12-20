@@ -5,9 +5,11 @@ export const typegooseTestingModule = (mongod?: MongoMemoryServer) => TypegooseM
   useFactory: async () => {
     mongod = mongod ?? new MongoMemoryServer();
     return {
-      uri: await mongod.getConnectionString(),
+      uri: await mongod.getUri(),
       useNewUrlParser: true,
       useUnifiedTopology: true,
+      useFindAndModify: false,
+      useCreateIndex: true,
     };
   },
 });

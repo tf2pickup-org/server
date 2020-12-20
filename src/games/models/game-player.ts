@@ -1,13 +1,11 @@
-import { prop, index, Ref } from '@typegoose/typegoose';
+import { prop, Ref } from '@typegoose/typegoose';
 import { PlayerConnectionStatus } from './player-connection-status';
 import { Tf2Team } from './tf2-team';
 import { Player } from '@/players/models/player';
 
-@index({ player: 1 })
-@index({ status: 1 })
 export class GamePlayer {
 
-  @prop({ required: true, ref: Player })
+  @prop({ required: true, ref: Player, index: true })
   player!: Ref<Player>;
 
   @prop({ required: true, enum: Tf2Team })
@@ -16,7 +14,7 @@ export class GamePlayer {
   @prop({ required: true })
   gameClass!: string;
 
-  @prop({ default: 'active' })
+  @prop({ default: 'active', index: true })
   status?: 'active' | 'waiting for substitute' | 'replaced';
 
   @prop({ default: 'offline' })

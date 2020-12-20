@@ -7,6 +7,7 @@ import { decode, sign, verify } from 'jsonwebtoken';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { RefreshToken } from '../models/refresh-token';
 import { ReturnModelType } from '@typegoose/typegoose';
+import { typegooseTestingModule } from '@/utils/testing-typegoose-module';
 
 class KeyStoreServiceStub {
   public key = generateKeyPairSync('ec', {
@@ -39,13 +40,7 @@ describe('AuthService', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [
-        TypegooseModule.forRootAsync({
-          useFactory: async () => ({
-            uri: await mongod.getConnectionString(),
-            useNewUrlParser: true,
-            useUnifiedTopology: true,
-          }),
-        }),
+        typegooseTestingModule(mongod),
         TypegooseModule.forFeature([RefreshToken]),
       ],
       providers: [
