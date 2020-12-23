@@ -1,3 +1,21 @@
+# [3.3.0](https://github.com/tf2pickup-pl/server/compare/3.2.0...3.3.0) (2020-12-23)
+
+
+### Bug Fixes
+
+* **deps:** update nest monorepo to v7.6.4 ([#756](https://github.com/tf2pickup-pl/server/issues/756)) ([3598ac2](https://github.com/tf2pickup-pl/server/commit/3598ac2716190fd7761e9628d22490663b5c9217))
+* get rid of mongoose deprecations ([#755](https://github.com/tf2pickup-pl/server/issues/755)) ([75dede9](https://github.com/tf2pickup-pl/server/commit/75dede9bcbacab5d809cba9e7a2f46655d987fc3))
+* **ci:** fix lint.yml ([5797d45](https://github.com/tf2pickup-pl/server/commit/5797d4534c42c86d0f887767d58dc50a290b72de))
+* **deps:** update dependency commander to v6.2.1 ([#748](https://github.com/tf2pickup-pl/server/issues/748)) ([02c2c7e](https://github.com/tf2pickup-pl/server/commit/02c2c7e83fe2fbb7cb9d1e341f04b1e3a762104d))
+* **deps:** update dependency passport-steam to v1.0.15 ([#750](https://github.com/tf2pickup-pl/server/issues/750)) ([aa2c7bd](https://github.com/tf2pickup-pl/server/commit/aa2c7bd274975b402c3049c9d01adfcd86d150c7))
+* **deps:** update nest monorepo to v7.6.3 ([#752](https://github.com/tf2pickup-pl/server/issues/752)) ([985d1ee](https://github.com/tf2pickup-pl/server/commit/985d1ee0f21dbca5d4833c4764cebb1e8e35c9b1))
+
+
+### Features
+
+* **ci:** move to github actions ([#753](https://github.com/tf2pickup-pl/server/issues/753)) ([44118d2](https://github.com/tf2pickup-pl/server/commit/44118d2d101d0c7d2eaeecea65c850dd916b7c20))
+* provide all avatar sizes ([#751](https://github.com/tf2pickup-pl/server/issues/751)) ([0b4cdd7](https://github.com/tf2pickup-pl/server/commit/0b4cdd793ebbceed70c61b4dc573bd70afc87500))
+
 # [3.2.0](https://github.com/tf2pickup-pl/server/compare/3.1.2...3.2.0) (2020-12-10)
 
 
