@@ -72,7 +72,7 @@
     "@types/lodash": "4.14.166",
     "@types/mongoose": "5.10.1",
     "@types/node": "12.12.31",
-    "@types/passport": "1.0.4",
+    "@types/passport": "1.0.5",
     "@types/passport-jwt": "3.0.3",
     "@types/passport-steam": "1.0.1",
     "@types/socket.io": "2.1.12",
