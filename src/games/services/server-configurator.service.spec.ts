@@ -8,6 +8,8 @@ import { logAddressAdd, kickAll, changelevel, execConfig, addGamePlayer, enableP
   logAddressDel, delAllGamePlayers, disablePlayerWhitelist, tftrueWhitelistId } from '../utils/rcon-commands';
 import { QueueConfig } from '@/queue/queue-config';
 import { Tf2Team } from '../models/tf2-team';
+import { Game } from '../models/game';
+import { ObjectId } from 'mongodb';
 
 class EnvironmentStub {
   logRelayAddress = 'FAKE_RELAY_ADDRESS';
@@ -46,22 +48,6 @@ const gameServer = {
   name: 'FAKE_SERVER',
 };
 
-const game = {
-  map: 'cp_badlands',
-  slots: [
-    {
-      player: 'PLAYER_1',
-      team: Tf2Team.Blu,
-      gameClass: 'soldier',
-    },
-    {
-      player: 'PLAYER_2',
-      team: Tf2Team.Red,
-      gameClass: 'soldier',
-    },
-  ],
-};
-
 describe('ServerConfiguratorService', () => {
   let service: ServerConfiguratorService;
   let rconFactoryService: RconFactoryServiceStub;
@@ -91,8 +77,30 @@ describe('ServerConfiguratorService', () => {
 
   describe('#configureServer()', () => {
     let rcon: RconStub;
+    let game: Game;
 
     beforeEach(() => {
+      game = new Game();
+      game.launchedAt = new Date();
+      game.number = 1;
+      game.slots = [
+        {
+          // @ts-expect-error
+          player: 'PLAYER_1',
+          team: Tf2Team.Blu,
+          gameClass: 'soldier',
+          status: 'active',
+        },
+        {
+          // @ts-expect-error
+          player: 'PLAYER_2',
+          team: Tf2Team.Red,
+          gameClass: 'soldier',
+          status: 'active',
+        },
+      ];
+      game.map = 'cp_badlands';
+
       rcon = new RconStub();
       jest.spyOn(rconFactoryService, 'createRcon').mockResolvedValue(rcon as never);
       jest.useFakeTimers();
@@ -101,8 +109,7 @@ describe('ServerConfiguratorService', () => {
 
     it('should execute correct rcon commands', async () => {
       const spy = jest.spyOn(rcon, 'send');
-
-      await service.configureServer(gameServer as any, game as any);
+      await service.configureServer(gameServer as any, game);
 
       expect(spy).toHaveBeenCalledWith(logAddressAdd('FAKE_RELAY_ADDRESS:1234'));
       expect(spy).toHaveBeenCalledWith(kickAll());
@@ -137,6 +144,35 @@ describe('ServerConfiguratorService', () => {
         const spy = jest.spyOn(rcon, 'send');
         await service.configureServer(gameServer as any, game as any);
         expect(spy).toHaveBeenCalledWith(execConfig('test'));
+      });
+    });
+
+    describe('when one player is replaced', () => {
+      beforeEach(() => {
+        game.slots = [
+          {
+            // @ts-expect-error
+            player: 'PLAYER_1',
+            team: Tf2Team.Blu,
+            gameClass: 'soldier',
+            status: 'active',
+          },
+          {
+            // @ts-expect-error
+            player: 'PLAYER_2',
+            team: Tf2Team.Red,
+            gameClass: 'soldier',
+            status: 'replaced',
+          },
+        ];
+      });
+
+      it('should not add this player to the game', async () => {
+        const spy = jest.spyOn(rcon, 'send');
+        await service.configureServer(gameServer as any, game);
+
+        expect(spy).toHaveBeenCalledWith(addGamePlayer('PLAYER_1_STEAMID', 'PLAYER_1_NAME', Tf2Team.Blu, 'soldier'));
+        expect(spy).not.toHaveBeenCalledWith(addGamePlayer('PLAYER_2_STEAMID', 'PLAYER_2_NAME', Tf2Team.Red, 'soldier'));
       });
     });
 

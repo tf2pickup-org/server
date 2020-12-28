@@ -55,4 +55,8 @@ export class Game {
     return this.slots.find(s => _playerId.equals(s.player as ObjectId));
   }
 
+  activeSlots() {
+    return this.slots.filter(slot => slot.status.match(/active|waiting for substitute/));
+  }
+
 }
