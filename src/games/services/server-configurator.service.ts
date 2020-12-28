@@ -70,7 +70,7 @@ export class ServerConfiguratorService {
       this.logger.debug(`[${server.name}] settings password to ${password}...`);
       await rcon.send(setPassword(password));
 
-      for (const slot of game.slots) {
+      for (const slot of game.activeSlots()) {
         const player = isRefType(slot.player) ? await this.playersService.getById(slot.player) : slot.player;
 
         const playerName = deburr(player.name);
