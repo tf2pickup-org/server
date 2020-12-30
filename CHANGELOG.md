@@ -1,3 +1,12 @@
+## [3.3.1](https://github.com/tf2pickup-pl/server/compare/3.3.0...3.3.1) (2020-12-30)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @typegoose/typegoose to v7.4.6 ([#765](https://github.com/tf2pickup-pl/server/issues/765)) ([662eb68](https://github.com/tf2pickup-pl/server/commit/662eb6873dc2def0e8d167a9ae5de0e3a87fdadc))
+* don't add replaced players ([#762](https://github.com/tf2pickup-pl/server/issues/762)) ([c2d7587](https://github.com/tf2pickup-pl/server/commit/c2d75879cde883932c7dd6afaa16a1095f9db1a4))
+* **deps:** update dependency helmet to v4.3.1 ([#760](https://github.com/tf2pickup-pl/server/issues/760)) ([1b30cc4](https://github.com/tf2pickup-pl/server/commit/1b30cc4e16a1be5a858cfde16fd84364bb0c1561))
+
 # [3.3.0](https://github.com/tf2pickup-pl/server/compare/3.2.0...3.3.0) (2020-12-23)
 
 
