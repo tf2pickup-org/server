@@ -44,7 +44,7 @@
       "configName": "koth"
     },
     {
-      "name": "koth_warmtic_b6",
+      "name": "koth_ashville_rc2c",
       "configName": "koth"
     },
     {
@@ -52,27 +52,19 @@
       "configName": "koth"
     },
     {
-      "name": "pl_badwater_pro_v9",
+      "name": "koth_lakeside_r",
+      "configName": "koth"
+    },
+    {
+      "name": "koth_warmtic_b6",
+      "configName": "koth"
+    },
+    {
+      "name": "pl_prowater_b11",
       "configName": "stopwatch"
     },
     {
       "name": "pl_upward",
-      "configName": "stopwatch"
-    },
-    {
-      "name": "pl_swiftwater_final1",
-      "configName": "stopwatch"
-    },
-    {
-      "name": "pl_vigil_rc6",
-      "configName": "stopwatch"
-    },
-    {
-       "name": "koth_lakeside_final",
-       "configName": "koth"
-    },
-    {
-      "name": "pl_summercoast_rc8d",
       "configName": "stopwatch"
     }
   ],
