@@ -1,3 +1,11 @@
+## [3.3.2](https://github.com/tf2pickup-pl/server/compare/3.3.1...3.3.2) (2020-12-30)
+
+
+### Bug Fixes
+
+* update 9v9 mappool ([9b3113b](https://github.com/tf2pickup-pl/server/commit/9b3113b9dc642b30d8387827920cb290264ed1c9))
+* **deps:** update nest monorepo to v7.6.5 ([#766](https://github.com/tf2pickup-pl/server/issues/766)) ([8063791](https://github.com/tf2pickup-pl/server/commit/8063791028ce52b04bc51e2d8963b77875f15b66))
+
 ## [3.3.1](https://github.com/tf2pickup-pl/server/compare/3.3.0...3.3.1) (2020-12-30)
 
 
