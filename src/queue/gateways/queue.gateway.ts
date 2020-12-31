@@ -3,15 +3,14 @@ import { QueueService } from '../services/queue.service';
 import { WsAuthorized } from '@/auth/decorators/ws-authorized.decorator';
 import { Socket } from 'socket.io';
 import { MapVoteService } from '../services/map-vote.service';
-import { QueueSlot } from '../queue-slot';
-import { QueueState } from '../queue-state';
-import { Inject, forwardRef } from '@nestjs/common';
+import { Inject, forwardRef, OnModuleInit } from '@nestjs/common';
 import { MapVoteResult } from '../map-vote-result';
 import { QueueAnnouncementsService } from '../services/queue-announcements.service';
 import { FriendsService, Friendship } from '../services/friends.service';
+import { Events } from '@/events';
 
 @WebSocketGateway()
-export class QueueGateway implements OnGatewayInit {
+export class QueueGateway implements OnGatewayInit, OnModuleInit {
 
   private socket: Socket;
 
@@ -20,7 +19,13 @@ export class QueueGateway implements OnGatewayInit {
     @Inject(forwardRef(() => MapVoteService)) private mapVoteService: MapVoteService,
     private queueAnnouncementsService: QueueAnnouncementsService,
     @Inject(forwardRef(() => FriendsService)) private friendsService: FriendsService,
+    private events: Events,
   ) { }
+
+  onModuleInit() {
+    this.events.queueSlotsChange.subscribe(({ slots }) => this.socket.emit('queue slots update', slots));
+    this.events.queueStateChange.subscribe(({ state }) => this.socket.emit('queue state update', state));
+  }
 
   @WsAuthorized()
   @SubscribeMessage('join queue')
@@ -51,14 +56,6 @@ export class QueueGateway implements OnGatewayInit {
   voteForMap(client: any, payload: { map: string }) {
     this.mapVoteService.voteForMap(client.request.user.id, payload.map);
     return payload.map;
-  }
-
-  emitSlotsUpdate(slots: QueueSlot[]) {
-    this.socket.emit('queue slots update', slots);
-  }
-
-  emitStateUpdate(state: QueueState) {
-    this.socket?.emit('queue state update', state);
   }
 
   emitVoteResultsUpdate(mapVoteResults: MapVoteResult[]) {

@@ -20,6 +20,7 @@ import { ConsoleModule } from 'nestjs-console';
 import { TwitchModule } from './twitch/twitch.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
+import { Events } from './events';
 
 function createMongodbUri(environment: Environment) {
   let credentials = '';
@@ -76,6 +77,7 @@ function createMongodbUri(environment: Environment) {
   ],
   providers: [
     AppService,
+    Events,
   ],
 })
 export class AppModule { }

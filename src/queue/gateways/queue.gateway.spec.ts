@@ -5,23 +5,9 @@ import { Subject } from 'rxjs';
 import { MapVoteService } from '../services/map-vote.service';
 import { QueueAnnouncementsService } from '../services/queue-announcements.service';
 import { FriendsService } from '../services/friends.service';
+import { Events } from '@/events';
 
-class QueueServiceStub {
-  slotsChange = new Subject<any>();
-  stateChange = new Subject<string>();
-
-  join(slotId: number, playerId: string) {
-    return new Promise(resolve => resolve([{ id: slotId, playerId }]));
-  }
-
-  leave(playerId: string) {
-    return { id: 0, playerId };
-  }
-
-  readyUp(playerId: string) {
-    return { id: 0, playerId, ready: true };
-  }
-}
+jest.mock('../services/queue.service');
 
 class MapVoteServiceStub {
   resultsChange = new Subject<any[]>();
@@ -29,7 +15,7 @@ class MapVoteServiceStub {
 }
 
 class SocketStub {
-  emit(event: string, ...args: any[]) { return null; }
+  emit = jest.fn();
 }
 
 class QueueAnnouncementsServiceStub {
@@ -43,17 +29,19 @@ class FriendsServiceStub {
 
 describe('QueueGateway', () => {
   let gateway: QueueGateway;
-  let queueService: QueueServiceStub;
+  let queueService: QueueService;
   let mapVoteService: MapVoteServiceStub;
   let socket: SocketStub;
   let queueAnnouncementsService: QueueAnnouncementsServiceStub;
   let friendsService: FriendsServiceStub;
+  let events: Events;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         QueueGateway,
-        { provide: QueueService, useClass: QueueServiceStub },
+        Events,
+        QueueService,
         { provide: MapVoteService, useClass: MapVoteServiceStub },
         { provide: QueueAnnouncementsService, useClass: QueueAnnouncementsServiceStub },
         { provide: FriendsService, useClass: FriendsServiceStub },
@@ -65,6 +53,9 @@ describe('QueueGateway', () => {
     mapVoteService = module.get(MapVoteService);
     queueAnnouncementsService = module.get(QueueAnnouncementsService);
     friendsService = module.get(FriendsService);
+    events = module.get(Events);
+
+    gateway.onModuleInit();
 
     socket = new SocketStub();
     gateway.afterInit(socket as any);
@@ -75,29 +66,41 @@ describe('QueueGateway', () => {
   });
 
   describe('#joinQueue()', () => {
+    beforeEach(() => {
+      queueService.join = (slotId, playerId) => Promise.resolve([{ id: slotId, playerId, gameClass: 'scout', ready: false }]);
+    });
+
     it('should join the queue', async () => {
       const spy = jest.spyOn(queueService, 'join');
       const ret = await gateway.joinQueue({ request: { user: { id: 'FAKE_ID' } } }, { slotId: 5 });
       expect(spy).toHaveBeenCalledWith(5, 'FAKE_ID');
-      expect(ret).toEqual([ { id: 5, playerId: 'FAKE_ID' } ] as any);
+      expect(ret).toEqual([ { id: 5, playerId: 'FAKE_ID', gameClass: 'scout', ready: false } ]);
     });
   });
 
   describe('#leaveQueue()', () => {
+    beforeEach(() => {
+      queueService.leave = playerId => ({ id: 0, playerId, gameClass: 'scout', ready: false });
+    });
+
     it('should leave the queue', () => {
       const spy = jest.spyOn(queueService, 'leave');
       const ret = gateway.leaveQueue({ request: { user: { id: 'FAKE_ID' } } });
       expect(spy).toHaveBeenCalledWith('FAKE_ID');
-      expect(ret).toEqual({ id: 0, playerId: 'FAKE_ID' } as any);
+      expect(ret).toEqual({ id: 0, playerId: 'FAKE_ID', gameClass: 'scout', ready: false });
     });
   });
 
   describe('#playerReady()', () => {
+    beforeEach(() => {
+      queueService.readyUp = playerId => ({ id: 0, playerId, gameClass: 'scout', ready: true });
+    });
+
     it('should ready up the player', () => {
       const spy = jest.spyOn(queueService, 'readyUp');
       const ret = gateway.playerReady({ request: { user: { id: 'FAKE_ID' } } });
       expect(spy).toHaveBeenCalledWith('FAKE_ID');
-      expect(ret).toEqual({ id: 0, playerId: 'FAKE_ID', ready: true } as any);
+      expect(ret).toEqual({ id: 0, playerId: 'FAKE_ID', gameClass: 'scout', ready: true });
     });
   });
 
@@ -118,20 +121,23 @@ describe('QueueGateway', () => {
     });
   });
 
-  describe('#emitSlotsUpdate()', () => {
-    it('should emit the event', () => {
-      const spy = jest.spyOn(socket, 'emit');
-      const slot = { id: 0, playerId: 'FAKE_ID', ready: true, gameClass: 'soldier', friend: null };
-      gateway.emitSlotsUpdate([slot]);
-      expect(spy).toHaveBeenCalledWith('queue slots update', [slot]);
+  describe('when the queueSlotsChange event is fired', () => {
+    beforeEach(() => {
+      events.queueSlotsChange.next({ slots: [ { id: 0, playerId: 'FAKE_ID', ready: true, gameClass: 'soldier' } ] });
+    });
+
+    it('should emit the event over the socket', () => {
+      expect(socket.emit).toHaveBeenCalledWith('queue slots update', [ { id: 0, playerId: 'FAKE_ID', ready: true, gameClass: 'soldier' } ]);
     });
   });
 
-  describe('#emitStateUpdate()', () => {
-    it('should emit the event', () => {
-      const spy = jest.spyOn(socket, 'emit');
-      gateway.emitStateUpdate('launching');
-      expect(spy).toHaveBeenCalledWith('queue state update', 'launching');
+  describe('when the queueStateChange event is fired', () => {
+    beforeEach(() => {
+      events.queueStateChange.next({ state: 'ready' });
+    });
+
+    it('should emit the event over the socket', () => {
+      expect(socket.emit).toHaveBeenCalledWith('queue state update', 'ready');
     });
   });
 

@@ -30,12 +30,13 @@ export class PlayersService {
     await this.playerModel.deleteMany({ }).exec();
   }
 
-  async _createOne() {
+  async _createOne(overrides: Partial<Player> = { }) {
     const player = {
       name: `fake_player_${++this.lastId}`,
       steamId: `steamid_${this.lastId}`,
       hasAcceptedRules: false,
       etf2lProfileId: this.lastId,
+      ...overrides,
     };
     return await this.playerModel.create(player);
   }
