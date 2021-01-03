@@ -4,8 +4,8 @@ import { QueueService } from './queue.service';
 import { maxBy, shuffle } from 'lodash';
 import { BehaviorSubject } from 'rxjs';
 import { MapVoteResult } from '../map-vote-result';
-import { QueueGateway } from '../gateways/queue.gateway';
 import { mapCooldown } from '@configs/queue';
+import { Events } from '@/events';
 
 interface MapVote {
   playerId: string;
@@ -15,8 +15,8 @@ interface MapVote {
 @Injectable()
 export class MapVoteService implements OnModuleInit {
 
-  private _results = new BehaviorSubject<MapVoteResult[]>([]);
-  private mapPool= this.queueConfigService.queueConfig.maps.map(m => ({ map: m.name, cooldown: 0 }));
+  private readonly _results = new BehaviorSubject<MapVoteResult[]>([]);
+  private readonly mapPool = this.queueConfigService.queueConfig.maps.map(m => ({ map: m.name, cooldown: 0 }));
 
   // available options to vote for
   public mapOptions: string[];
@@ -31,14 +31,14 @@ export class MapVoteService implements OnModuleInit {
   constructor(
     private queueConfigService: QueueConfigService,
     @Inject(forwardRef(() => QueueService)) private queueService: QueueService,
-    @Inject(forwardRef(() => QueueGateway)) private queueGateway: QueueGateway,
+    private events: Events,
   ) {
     this.reset();
   }
 
   onModuleInit() {
-    this.queueService.playerLeave.subscribe(playerId => this.resetPlayerVote(playerId));
-    this._results.subscribe(results => this.queueGateway.emitVoteResultsUpdate(results));
+    this.events.playerLeavesQueue.subscribe(({ playerId }) => this.resetPlayerVote(playerId));
+    this._results.subscribe(results => this.events.mapVotesChange.next({ results }));
   }
 
   voteCountForMap(map: string): number {
@@ -80,9 +80,9 @@ export class MapVoteService implements OnModuleInit {
 
   private reset() {
     this.mapOptions = shuffle(
-        this.mapPool
-          .filter(m => m.cooldown <= 0)
-          .map(m => m.map)
+      this.mapPool
+        .filter(m => m.cooldown <= 0)
+        .map(m => m.map)
     ).slice(0, this.mapVoteOptionCount);
     this.votes = [];
     this._results.next(this.getResults());

@@ -1,12 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { FriendsService } from './friends.service';
-import { Subject } from 'rxjs';
 import { QueueSlot } from '../queue-slot';
 import { QueueService } from './queue.service';
-import { QueueGateway } from '../gateways/queue.gateway';
+import { Events } from '@/events';
 
 class QueueServiceStub {
-  slotsChange = new Subject<QueueSlot[]>();
   state = 'waiting';
   slots: QueueSlot[] = [
     { id: 0, playerId: 'FAKE_MEDIC', gameClass: 'medic', ready: false },
@@ -16,27 +14,23 @@ class QueueServiceStub {
   findSlotByPlayerId(playerId: string) { return this.slots.find(s => s.playerId === playerId); }
 }
 
-class QueueGatewayStub {
-  emitFriendshipsUpdate(friendships: any) { return null; }
-}
-
 describe('FriendsService', () => {
   let service: FriendsService;
   let queueService: QueueServiceStub;
-  let queueGateway: QueueGatewayStub;
+  let events: Events;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         FriendsService,
         { provide: QueueService, useClass: QueueServiceStub },
-        { provide: QueueGateway, useClass: QueueGatewayStub },
+        Events,
       ],
     }).compile();
 
     service = module.get<FriendsService>(FriendsService);
     queueService = module.get(QueueService);
-    queueGateway = module.get(QueueGateway);
+    events = module.get(Events);
   });
 
   beforeEach(() => service.onModuleInit());
@@ -94,11 +88,14 @@ describe('FriendsService', () => {
       expect(friendships).toEqual([{ sourcePlayerId: 'FAKE_MEDIC', targetPlayerId: 'ANOTHER_PLAYER' }]);
     });
 
-    it('should emit an event over the gateway', () => {
-      const spy = jest.spyOn(queueGateway, 'emitFriendshipsUpdate');
+    it('should emit the queueFriendshipsChange event', async () => new Promise(resolve => {
+      events.queueFriendshipsChange.subscribe(({ friendships }) => {
+        expect(friendships).toEqual([{ sourcePlayerId: 'FAKE_MEDIC', targetPlayerId: 'FAKE_DM_CLASS' }]);
+        resolve();
+      });
+
       service.markFriend('FAKE_MEDIC', 'FAKE_DM_CLASS');
-      expect(spy).toHaveBeenCalledWith([{ sourcePlayerId: 'FAKE_MEDIC', targetPlayerId: 'FAKE_DM_CLASS' }]);
-    });
+    }));
   });
 
   describe('onSlotsChange', () => {
@@ -108,19 +105,19 @@ describe('FriendsService', () => {
 
     it('should remove frienship if the medic leaves the queue', () => {
       queueService.slots = queueService.slots.filter(s => s.playerId !== 'FAKE_MEDIC');
-      queueService.slotsChange.next(queueService.slots);
+      events.queueSlotsChange.next({ slots: queueService.slots });
       expect(service.friendships).toEqual([]);
     });
 
     it('should remove friendship if the medic changes class', () => {
       queueService.slots[0].gameClass = 'soldier';
-      queueService.slotsChange.next(queueService.slots);
+      events.queueSlotsChange.next({ slots: queueService.slots });
       expect(service.friendships).toEqual([]);
     });
 
     it('should not remove frienship if the friend leaves the queue', () => {
       queueService.slots = queueService.slots.filter(s => s.playerId !== 'FAKE_DM_CLASS');
-      queueService.slotsChange.next(queueService.slots);
+      events.queueSlotsChange.next({ slots: queueService.slots });
       expect(service.friendships).toEqual([{ sourcePlayerId: 'FAKE_MEDIC', targetPlayerId: 'FAKE_DM_CLASS' }]);
     });
   });

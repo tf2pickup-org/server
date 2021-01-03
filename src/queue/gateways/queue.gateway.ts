@@ -6,7 +6,7 @@ import { MapVoteService } from '../services/map-vote.service';
 import { Inject, forwardRef, OnModuleInit } from '@nestjs/common';
 import { MapVoteResult } from '../map-vote-result';
 import { QueueAnnouncementsService } from '../services/queue-announcements.service';
-import { FriendsService, Friendship } from '../services/friends.service';
+import { FriendsService } from '../services/friends.service';
 import { Events } from '@/events';
 
 @WebSocketGateway()
@@ -18,13 +18,14 @@ export class QueueGateway implements OnGatewayInit, OnModuleInit {
     @Inject(forwardRef(() => QueueService)) private queueService: QueueService,
     @Inject(forwardRef(() => MapVoteService)) private mapVoteService: MapVoteService,
     private queueAnnouncementsService: QueueAnnouncementsService,
-    @Inject(forwardRef(() => FriendsService)) private friendsService: FriendsService,
+    private friendsService: FriendsService,
     private events: Events,
   ) { }
 
   onModuleInit() {
     this.events.queueSlotsChange.subscribe(({ slots }) => this.socket.emit('queue slots update', slots));
     this.events.queueStateChange.subscribe(({ state }) => this.socket.emit('queue state update', state));
+    this.events.queueFriendshipsChange.subscribe(({ friendships }) => this.socket.emit('friendships update', friendships));
   }
 
   @WsAuthorized()
@@ -60,10 +61,6 @@ export class QueueGateway implements OnGatewayInit, OnModuleInit {
 
   emitVoteResultsUpdate(mapVoteResults: MapVoteResult[]) {
     this.socket?.emit('map vote results update', mapVoteResults);
-  }
-
-  emitFriendshipsUpdate(friendships: Friendship[]) {
-    this.socket.emit('friendships update', friendships);
   }
 
   async updateSubstituteRequests() {
