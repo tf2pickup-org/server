@@ -41,6 +41,7 @@ export class QueueService implements OnModuleInit {
     this.resetSlots();
     this.events.queueSlotsChange.subscribe(() => this.maybeUpdateState());
     this.events.queueStateChange.subscribe(({ state }) => this.onStateChange(state));
+    this.events.playerDisconnects.subscribe(({ playerId }) => this.kick(playerId));
 
     // merge(
     //   this.playerBansService.banAdded,

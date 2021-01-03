@@ -344,4 +344,20 @@ describe('QueueService', () => {
       });
     });
   });
+
+  describe('when a player is in the queue', () => {
+    beforeEach(async () => {
+      service.join(0, player.id);
+    });
+
+    describe('and after he disconnects', () => {
+      beforeEach(() => {
+        events.playerDisconnects.next(({ playerId: player.id }));
+      });
+
+      it('should kick him from the queue', () => {
+        expect(service.isInQueue(player.id)).toBe(false);
+      });
+    });
+  });
 });

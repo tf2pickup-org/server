@@ -16,6 +16,8 @@ export class Events {
 
   readonly playerRegisters = new Subject<{ player: Player }>();
 
+  readonly playerDisconnects = new Subject<{ playerId: string }>();
+
   readonly playerJoinsQueue = new Subject<{ playerId: string }>();
   readonly playerLeavesQueue = new Subject<{ playerId: string, reason: 'manual' | 'kicked' }>();
   readonly queueSlotsChange = new Subject<{ slots: QueueSlot[] }>();
