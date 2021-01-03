@@ -3,11 +3,11 @@ import { QueueService } from '../services/queue.service';
 import { WsAuthorized } from '@/auth/decorators/ws-authorized.decorator';
 import { Socket } from 'socket.io';
 import { MapVoteService } from '../services/map-vote.service';
-import { Inject, forwardRef, OnModuleInit } from '@nestjs/common';
-import { MapVoteResult } from '../map-vote-result';
+import { OnModuleInit } from '@nestjs/common';
 import { QueueAnnouncementsService } from '../services/queue-announcements.service';
 import { FriendsService } from '../services/friends.service';
 import { Events } from '@/events/events';
+import { distinctUntilChanged } from 'rxjs/operators';
 
 @WebSocketGateway()
 export class QueueGateway implements OnGatewayInit, OnModuleInit {
@@ -15,17 +15,26 @@ export class QueueGateway implements OnGatewayInit, OnModuleInit {
   private socket: Socket;
 
   constructor(
-    @Inject(forwardRef(() => QueueService)) private queueService: QueueService,
-    @Inject(forwardRef(() => MapVoteService)) private mapVoteService: MapVoteService,
+    private queueService: QueueService,
+    private mapVoteService: MapVoteService,
     private queueAnnouncementsService: QueueAnnouncementsService,
     private friendsService: FriendsService,
     private events: Events,
   ) { }
 
   onModuleInit() {
-    this.events.queueSlotsChange.subscribe(({ slots }) => this.socket.emit('queue slots update', slots));
-    this.events.queueStateChange.subscribe(({ state }) => this.socket.emit('queue state update', state));
-    this.events.queueFriendshipsChange.subscribe(({ friendships }) => this.socket.emit('friendships update', friendships));
+    this.events.queueSlotsChange
+      .pipe(distinctUntilChanged())
+      .subscribe(({ slots }) => this.socket.emit('queue slots update', slots));
+    this.events.queueStateChange
+      .pipe(distinctUntilChanged())
+      .subscribe(({ state }) => this.socket.emit('queue state update', state));
+    this.events.queueFriendshipsChange
+      .pipe(distinctUntilChanged())
+      .subscribe(({ friendships }) => this.socket.emit('friendships update', friendships));
+    this.events.mapVotesChange
+      .pipe(distinctUntilChanged())
+      .subscribe(({ results }) => this.socket.emit('map vote results update', results));
   }
 
   @WsAuthorized()
@@ -57,10 +66,6 @@ export class QueueGateway implements OnGatewayInit, OnModuleInit {
   voteForMap(client: any, payload: { map: string }) {
     this.mapVoteService.voteForMap(client.request.user.id, payload.map);
     return payload.map;
-  }
-
-  emitVoteResultsUpdate(mapVoteResults: MapVoteResult[]) {
-    this.socket?.emit('map vote results update', mapVoteResults);
   }
 
   async updateSubstituteRequests() {

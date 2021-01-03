@@ -141,11 +141,19 @@ describe('QueueGateway', () => {
     });
   });
 
-  describe('#emitVoteResultsUpdate()', () => {
-    it('should emit the event', () => {
-      const spy = jest.spyOn(socket, 'emit');
-      gateway.emitVoteResultsUpdate([]);
-      expect(spy).toHaveBeenCalledWith('map vote results update', expect.any(Array));
+  describe('when the mapVotesChange event is fired', () => {
+    const results = [
+      { map: 'cp_process_final', voteCount: 0 },
+      { map: 'cp_gullywash_final1', voteCount: 0 },
+      { map: 'cp_metalworks', voteCount: 1 },
+    ];
+
+    beforeEach(() => {
+      events.mapVotesChange.next({ results });
+    });
+
+    it('should emit the event over the socket', () => {
+      expect(socket.emit).toHaveBeenCalledWith('map vote results update', results);
     });
   });
 
