@@ -20,6 +20,7 @@ jest.mock('@configs/players', () => ({
   requireEtf2lAccount: true,
 }));
 import { minimumTf2InGameHours } from '@configs/players';
+import { Events } from '@/events/events';
 
 jest.mock('@/discord/services/discord.service');
 
@@ -75,6 +76,7 @@ describe('PlayersService', () => {
   let onlinePlayersService: OnlinePlayersServiceStub;
   let steamApiService: SteamApiServiceStub;
   let discordService: DiscordService;
+  let events: Events;
 
   beforeAll(() => mongod = new MongoMemoryServer());
   afterAll(async () => await mongod.stop());
@@ -93,6 +95,7 @@ describe('PlayersService', () => {
         { provide: OnlinePlayersService, useClass: OnlinePlayersServiceStub },
         { provide: SteamApiService, useClass: SteamApiServiceStub },
         DiscordService,
+        Events,
       ],
     }).compile();
 
@@ -104,6 +107,7 @@ describe('PlayersService', () => {
     onlinePlayersService = module.get(OnlinePlayersService);
     steamApiService = module.get(SteamApiService);
     discordService = module.get(DiscordService);
+    events = module.get(Events);
   });
 
   beforeEach(async () => {
@@ -290,9 +294,10 @@ describe('PlayersService', () => {
       expect(ret.role).toEqual('super-user');
     });
 
-    it('should emit the rxjs event', async () => new Promise(resolve => {
-      service.playerRegistered.subscribe(e => {
-        expect(e).toBeTruthy();
+    it('should emit the playerRegisters event', async () => new Promise(resolve => {
+      events.playerRegisters.subscribe(({ player }) => {
+        expect(player).toBeTruthy();
+        expect(player.steamId).toEqual(mockSteamProfile.id);
         resolve();
       });
       service.createPlayer(mockSteamProfile);

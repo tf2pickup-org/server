@@ -14,6 +14,7 @@ import { Etf2lProfileService } from './etf2l-profile.service';
 import { Player } from '../models/player';
 import { DiscordService } from '@/discord/services/discord.service';
 import { Environment } from '@/environment/environment';
+import { Events } from '@/events/events';
 
 jest.mock('./players.service');
 jest.mock('./future-player-skill.service');
@@ -41,6 +42,7 @@ describe('PlayerSkillService', () => {
   let playersService: PlayersService;
   let futurePlayerSkillService: FuturePlayerSkillService;
   let discordService: DiscordService;
+  let events: Events;
 
   beforeAll(() => mongod = new MongoMemoryServer());
   afterAll(async () => await mongod.stop());
@@ -59,6 +61,7 @@ describe('PlayerSkillService', () => {
         Etf2lProfileService,
         DiscordService,
         { provide: Environment, useValue: environment },
+        Events,
       ],
     }).compile();
 
@@ -67,6 +70,7 @@ describe('PlayerSkillService', () => {
     playersService = module.get(PlayersService);
     futurePlayerSkillService = module.get(FuturePlayerSkillService);
     discordService = module.get(DiscordService);
+    events = module.get(Events);
 
     service.onModuleInit();
   });

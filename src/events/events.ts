@@ -1,3 +1,4 @@
+import { Player } from '@/players/models/player';
 import { Injectable, Logger } from '@nestjs/common';
 import { Subject } from 'rxjs';
 import { MapVoteResult } from '../queue/map-vote-result';
@@ -12,6 +13,8 @@ import { Friendship } from '../queue/services/friends.service';
 export class Events {
 
   private logger = new Logger(Events.name);
+
+  readonly playerRegisters = new Subject<{ player: Player }>();
 
   readonly playerJoinsQueue = new Subject<{ playerId: string }>();
   readonly playerLeavesQueue = new Subject<{ playerId: string, reason: 'manual' | 'kicked' }>();
