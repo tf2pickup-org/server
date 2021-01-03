@@ -1,6 +1,6 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { QueueService } from './queue.service';
-import { Events } from '@/events';
+import { Events } from '@/events/events';
 
 export interface Friendship {
   sourcePlayerId: string;

@@ -7,7 +7,7 @@ import { Inject, forwardRef, OnModuleInit } from '@nestjs/common';
 import { MapVoteResult } from '../map-vote-result';
 import { QueueAnnouncementsService } from '../services/queue-announcements.service';
 import { FriendsService } from '../services/friends.service';
-import { Events } from '@/events';
+import { Events } from '@/events/events';
 
 @WebSocketGateway()
 export class QueueGateway implements OnGatewayInit, OnModuleInit {

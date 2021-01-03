@@ -4,7 +4,7 @@ import { MapVoteService } from './map-vote.service';
 import { GamesService } from '@/games/services/games.service';
 import { filter } from 'rxjs/operators';
 import { FriendsService } from './friends.service';
-import { Events } from '@/events';
+import { Events } from '@/events/events';
 
 /**
  * Automatically launches a game once the queue is ready to play it.

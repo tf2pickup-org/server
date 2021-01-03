@@ -6,7 +6,7 @@ import { PlayerBansService } from '@/players/services/player-bans.service';
 import { GamesService } from '@/games/services/games.service';
 import { QueueState } from '../queue-state';
 import { readyUpTimeout, readyStateTimeout } from '@configs/queue';
-import { Events } from '@/events';
+import { Events } from '@/events/events';
 
 @Injectable()
 export class QueueService implements OnModuleInit {

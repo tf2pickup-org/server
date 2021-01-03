@@ -3,7 +3,7 @@ import { QueueNotificationsService } from './queue-notifications.service';
 import { QueueService } from './queue.service';
 import { Environment } from '@/environment/environment';
 import { DiscordService } from '@/discord/services/discord.service';
-import { Events } from '@/events';
+import { Events } from '@/events/events';
 
 jest.mock('@/discord/services/discord.service');
 

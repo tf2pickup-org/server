@@ -4,7 +4,7 @@ import { QueueService } from './queue.service';
 import { MapVoteService } from './map-vote.service';
 import { GamesService } from '@/games/services/games.service';
 import { FriendsService } from './friends.service';
-import { Events } from '@/events';
+import { Events } from '@/events/events';
 
 jest.mock('./friends.service');
 jest.mock('./queue.service');

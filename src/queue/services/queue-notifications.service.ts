@@ -3,7 +3,7 @@ import { QueueService } from './queue.service';
 import { Environment } from '@/environment/environment';
 import { DiscordService } from '@/discord/services/discord.service';
 import { promptPlayerThresholdRatio, promptAnnouncementDelay } from '@configs/discord';
-import { Events } from '@/events';
+import { Events } from '@/events/events';
 
 @Injectable()
 export class QueueNotificationsService implements OnModuleInit {

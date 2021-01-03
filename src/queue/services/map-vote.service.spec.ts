@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { MapVoteService } from './map-vote.service';
 import { QueueConfigService } from './queue-config.service';
 import { QueueService } from './queue.service';
-import { Events } from '@/events';
+import { Events } from '@/events/events';
 
 jest.mock('./queue.service');
 

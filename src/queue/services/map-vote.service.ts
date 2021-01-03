@@ -5,7 +5,7 @@ import { maxBy, shuffle } from 'lodash';
 import { BehaviorSubject } from 'rxjs';
 import { MapVoteResult } from '../map-vote-result';
 import { mapCooldown } from '@configs/queue';
-import { Events } from '@/events';
+import { Events } from '@/events/events';
 
 interface MapVote {
   playerId: string;

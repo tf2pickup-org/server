@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { FriendsService } from './friends.service';
 import { QueueSlot } from '../queue-slot';
 import { QueueService } from './queue.service';
-import { Events } from '@/events';
+import { Events } from '@/events/events';
 
 class QueueServiceStub {
   state = 'waiting';

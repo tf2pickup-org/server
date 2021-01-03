@@ -5,7 +5,7 @@ import { Subject } from 'rxjs';
 import { MapVoteService } from '../services/map-vote.service';
 import { QueueAnnouncementsService } from '../services/queue-announcements.service';
 import { FriendsService } from '../services/friends.service';
-import { Events } from '@/events';
+import { Events } from '@/events/events';
 
 jest.mock('../services/queue.service');
 
