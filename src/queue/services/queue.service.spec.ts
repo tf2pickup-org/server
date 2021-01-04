@@ -33,6 +33,8 @@ class QueueConfigServiceStub {
   };
 }
 
+const waitForImmediate = () => new Promise(resolve => setImmediate(resolve));
+
 describe('QueueService', () => {
   let service: QueueService;
   let mongod: MongoMemoryServer;
@@ -206,6 +208,21 @@ describe('QueueService', () => {
 
       service.join(0, player.id);
     }));
+
+    describe('when the player joins as the last one', () => {
+      beforeEach(async () => {
+        for (let i = 0; i < 11; ++i) {
+          // @ts-expect-error
+          const player = await playersService._createOne({ hasAcceptedRules: true });
+          await service.join(i, player.id);
+        }
+      });
+
+      it('should ready-up the slot immediately', async () => {
+        const slots = await service.join(11, player.id);
+        expect(slots[0].ready).toBe(true);
+      });
+    });
   });
 
   describe('#leave()', () => {
@@ -277,7 +294,7 @@ describe('QueueService', () => {
     });
   });
 
-  describe('when the queue is in ready state', () => {
+  describe('when the queue is in the ready state', () => {
     let players: DocumentType<Player>[];
 
     beforeEach(async () => {
@@ -289,6 +306,8 @@ describe('QueueService', () => {
         await service.join(i, player.id);
         players.push(player);
       }
+
+      await waitForImmediate();
     });
 
     it('should change the state to ready', () => {
@@ -335,11 +354,12 @@ describe('QueueService', () => {
     });
 
     describe('when all players leave', () => {
-      beforeEach(() => {
-        players.forEach(player => service.leave(player.id));
+      beforeEach(async () => {
+        service.kick(...players.map(p => p.id));
+        await waitForImmediate();
       });
 
-      it('should go back to waiting state', () => {
+      it('should go back to the waiting state', () => {
         expect(service.state).toEqual('waiting');
       });
     });

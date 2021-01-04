@@ -39,7 +39,7 @@ export class QueueService implements OnModuleInit {
 
   onModuleInit() {
     this.resetSlots();
-    this.events.queueSlotsChange.subscribe(() => this.maybeUpdateState());
+    this.events.queueSlotsChange.subscribe(() => setImmediate(() => this.maybeUpdateState()));
     this.events.queueStateChange.subscribe(({ state }) => this.onStateChange(state));
     this.events.playerDisconnects.subscribe(({ playerId }) => this.kick(playerId));
     this.events.playerBanAdded.subscribe(({ ban }) => this.kick(ban.player.toString()));
@@ -108,7 +108,7 @@ export class QueueService implements OnModuleInit {
 
     targetSlot.playerId = playerId;
 
-    if (this.state === 'ready') {
+    if (this.state === 'ready' || this.playerCount === this.requiredPlayerCount) {
       targetSlot.ready = true;
     }
 
