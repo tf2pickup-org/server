@@ -1,4 +1,5 @@
 import { Player } from '@/players/models/player';
+import { PlayerBan } from '@/players/models/player-ban';
 import { Injectable, Logger } from '@nestjs/common';
 import { Subject } from 'rxjs';
 import { MapVoteResult } from '../queue/map-vote-result';
@@ -15,8 +16,9 @@ export class Events {
   private logger = new Logger(Events.name);
 
   readonly playerRegisters = new Subject<{ player: Player }>();
-
   readonly playerDisconnects = new Subject<{ playerId: string }>();
+  readonly playerBanAdded = new Subject<{ ban: PlayerBan }>();
+  readonly playerBanRevoked = new Subject<{ ban: PlayerBan }>();
 
   readonly playerJoinsQueue = new Subject<{ playerId: string }>();
   readonly playerLeavesQueue = new Subject<{ playerId: string, reason: 'manual' | 'kicked' }>();

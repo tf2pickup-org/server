@@ -97,7 +97,7 @@ describe('QueueService', () => {
   });
 
   describe('#reset()', () => {
-    it('should emit the queueSlotsChange event', async () => new Promise(resolve => {
+    it('should emit the queueSlotsChange event', async () => new Promise<void>(resolve => {
       events.queueSlotsChange.subscribe(({ slots }) => {
         expect(slots.length).toEqual(12);
         expect(slots.every(s => s.playerId === null)).toBe(true);
@@ -189,7 +189,7 @@ describe('QueueService', () => {
       expect(oldSlots[0].playerId).toBeNull();
     });
 
-    it('should emit the playerJoinsQueue event', async () => new Promise(resolve => {
+    it('should emit the playerJoinsQueue event', async () => new Promise<void>(resolve => {
       events.playerJoinsQueue.subscribe(({ playerId }) => {
         expect(playerId).toEqual(player.id);
         resolve();
@@ -198,7 +198,7 @@ describe('QueueService', () => {
       service.join(0, player.id);
     }));
 
-    it('should emit the queueSlotsChange event', async () => new Promise(resolve => {
+    it('should emit the queueSlotsChange event', async () => new Promise<void>(resolve => {
       events.queueSlotsChange.subscribe(({ slots }) => {
         expect(slots).toEqual([ { gameClass: 'scout', id: 0, playerId: player.id, ready: false } ]);
         resolve();
@@ -220,7 +220,7 @@ describe('QueueService', () => {
       expect(slot.ready).toBe(false);
     });
 
-    it('should emit the playerLeavesQueue event', async () => new Promise(resolve => {
+    it('should emit the playerLeavesQueue event', async () => new Promise<void>(resolve => {
       events.playerLeavesQueue.subscribe(({ playerId, reason }) => {
         expect(playerId).toEqual(player.id);
         expect(reason).toEqual('manual');
@@ -254,7 +254,7 @@ describe('QueueService', () => {
       expect(service.playerCount).toBe(0);
     });
 
-    it('should emit the playerLeavesQueue event', async () => new Promise(resolve => {
+    it('should emit the playerLeavesQueue event', async () => new Promise<void>(resolve => {
       events.playerLeavesQueue.subscribe(({ playerId, reason }) => {
         expect(playerId).toEqual(player.id);
         expect(reason).toEqual('kicked');
@@ -307,7 +307,7 @@ describe('QueueService', () => {
         expect(() => service.readyUp(player.id)).toThrow();
       });
 
-      it('should emit the queueSlotsChange event', async () => new Promise(resolve => {
+      it('should emit the queueSlotsChange event', async () => new Promise<void>(resolve => {
         events.queueSlotsChange.subscribe(({ slots }) => {
           expect(slots.length).toEqual(1);
           expect(slots[0].ready).toBe(true);
@@ -353,6 +353,16 @@ describe('QueueService', () => {
     describe('and after he disconnects', () => {
       beforeEach(() => {
         events.playerDisconnects.next(({ playerId: player.id }));
+      });
+
+      it('should kick him from the queue', () => {
+        expect(service.isInQueue(player.id)).toBe(false);
+      });
+    });
+
+    describe('and when he gets banned', () => {
+      beforeEach(() => {
+        events.playerBanAdded.next({ ban: { player: player.id, admin: new ObjectId(), start: new Date(), end: new Date(), reason: 'unit testing' } });
       });
 
       it('should kick him from the queue', () => {

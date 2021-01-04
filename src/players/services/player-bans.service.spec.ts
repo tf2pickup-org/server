@@ -11,7 +11,7 @@ import { Environment } from '@/environment/environment';
 import { PlayersService } from './players.service';
 import { Player } from '../models/player';
 import { DiscordService } from '@/discord/services/discord.service';
-import { resolve } from 'dns';
+import { Events } from '@/events/events';
 
 jest.mock('./players.service');
 jest.mock('@/discord/services/discord.service');
@@ -34,6 +34,7 @@ describe('PlayerBansService', () => {
   let playersService: PlayersService;
   let admin: DocumentType<Player>;
   let player: DocumentType<Player>;
+  let events: Events;
 
   beforeAll(() => mongod = new MongoMemoryServer());
   afterAll(async () => mongod.stop());
@@ -50,6 +51,7 @@ describe('PlayerBansService', () => {
         DiscordService,
         { provide: Environment, useValue: environment },
         PlayersService,
+        Events,
       ],
     }).compile();
 
@@ -58,6 +60,7 @@ describe('PlayerBansService', () => {
     playerBanModel = module.get(getModelToken('PlayerBan'));
     onlinePlayersService = module.get(OnlinePlayersService);
     playersService = module.get(PlayersService);
+    events = module.get(Events);
   });
 
   beforeEach(async () => {
@@ -131,9 +134,9 @@ describe('PlayerBansService', () => {
         expect(ret.toObject()).toMatchObject(newBan);
       });
 
-      it('should emit the event', async () => new Promise(resolve => {
-        service.banAdded.subscribe(playerId => {
-          expect(playerId).toEqual(player.id);
+      it('should emit the playerBanAdded event', async () => new Promise<void>(resolve => {
+        events.playerBanAdded.subscribe(({ ban }) => {
+          expect(ban.player.toString()).toEqual(player.id);
           resolve();
         });
 
@@ -146,7 +149,7 @@ describe('PlayerBansService', () => {
         expect(spy).toHaveBeenCalled();
       });
 
-      it('should emit profile update event on player\'s socket', async () => new Promise(resolve => {
+      it('should emit profile update event on player\'s socket', async () => new Promise<void>(resolve => {
         const socket = {
           emit: (eventName: string, update: any) => {
             expect(eventName).toEqual('profile update');
@@ -188,9 +191,9 @@ describe('PlayerBansService', () => {
       expect(ban.end.getTime()).toBeLessThanOrEqual(new Date().getTime());
     });
 
-    it('should emit the event', async () => new Promise(resolve => {
-      service.banRevoked.subscribe(playerId => {
-        expect(playerId).toEqual(player.id);
+    it('should emit the playerBanRevoked event', async () => new Promise<void>(resolve => {
+      events.playerBanRevoked.subscribe(({ ban }) => {
+        expect(ban.player.toString()).toEqual(player.id);
         resolve();
       });
 
