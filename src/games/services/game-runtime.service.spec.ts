@@ -35,12 +35,13 @@ describe('GameRuntimeService', () => {
   let mongod: MongoMemoryServer;
   let playersService: PlayersService;
   let gamesService: GamesService;
-  let gameServersService: GameServersService;
+  let gameServersService: jest.Mocked<GameServersService>;
   let serverConfiguratorService: ServerConfiguratorService;
   let rconFactoryService: RconFactoryService;
   let mockGameServer: GameServer & { id: string };
   let mockPlayers: DocumentType<Player>[];
   let mockGame: DocumentType<Game>;
+  let events: Events;
 
   beforeAll(() => mongod = new MongoMemoryServer());
   afterAll(async () => await mongod.stop());
@@ -68,6 +69,7 @@ describe('GameRuntimeService', () => {
     gameServersService = module.get(GameServersService);
     serverConfiguratorService = module.get(ServerConfiguratorService);
     rconFactoryService = module.get(RconFactoryService);
+    events = module.get(Events);
   });
 
   beforeEach(async () => {
@@ -79,8 +81,7 @@ describe('GameRuntimeService', () => {
       rconPassword: 'FAKE_RCON_PASSWORD',
     };
 
-    // @ts-expect-error
-    gameServersService.getById = () => Promise.resolve(mockGameServer);
+    gameServersService.getById.mockResolvedValue(mockGameServer as any);
 
     // @ts-expect-error
     mockPlayers = await Promise.all([ playersService._createOne(), playersService._createOne() ]);
@@ -161,6 +162,21 @@ describe('GameRuntimeService', () => {
       expect(releaseSpy).toHaveBeenCalledWith(mockGameServer.id);
     });
 
+    it('should emit the gameChanges event', async () => new Promise<void>(resolve => {
+      events.gameChanges.subscribe(({ game }) => {
+        expect(game.id).toEqual(mockGame.id);
+        resolve();
+      });
+
+      service.forceEnd(mockGame.id);
+    }));
+
+    // eslint-disable-next-line jest/expect-expect
+    it('should emit the substituteRequestsChange event', async () => new Promise<void>(resolve => {
+      events.substituteRequestsChange.subscribe(resolve);
+      service.forceEnd(mockGame.id);
+    }));
+
     describe('when the given game does not exist', () => {
       it('should reject', async () => {
         await expect(service.forceEnd(new ObjectId().toString())).rejects.toThrowError('no such game');
@@ -174,6 +190,18 @@ describe('GameRuntimeService', () => {
 
       it('should handle the error', async () => {
         await expect(service.forceEnd(mockGame.id)).resolves.toBeTruthy();
+      });
+    });
+
+    describe('if one of the players is waiting to be substituted', () => {
+      beforeEach(async () => {
+        mockGame.slots[0].status = 'waiting for substitute';
+        await mockGame.save();
+      });
+
+      it('should set his status back to active', async () => {
+        const ret = await service.forceEnd(mockGame.id);
+        expect(ret.slots[0].status).toEqual('active');
       });
     });
   });
@@ -251,7 +279,7 @@ describe('GameRuntimeService', () => {
 
     describe('when the given game server does not exist', () => {
       beforeEach(() => {
-        gameServersService.getById = () => Promise.resolve(null);
+        gameServersService.getById.mockResolvedValue(null);
       });
 
       it('should throw an error', async () => {
