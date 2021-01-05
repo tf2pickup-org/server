@@ -30,16 +30,21 @@ export class GameEventHandlerService {
   }
 
   async onMatchEnded(gameId: string) {
-    const game = await this.gameModel.findOneAndUpdate({ _id: gameId, state: 'started' }, { state: 'ended' }, { new: true });
+    const game = await this.gameModel.findOneAndUpdate(
+      { _id: gameId, state: 'started' },
+      {
+        state: 'ended',
+        'slots.$[element].status': 'active',
+      },
+      {
+        new: true, // return updated document
+        arrayFilters: [
+          { 'element.status': { $eq: 'waiting for substitute' } },
+        ],
+      }
+    );
+
     if (game) {
-      game.slots.forEach(slot => {
-        if (slot.status === 'waiting for substitute') {
-          slot.status = 'active';
-        }
-      });
-
-      await game.save();
-
       this.events.gameChanges.next({ game: game.toJSON() });
       this.events.substituteRequestsChange.next();
       setTimeout(() => this.gameRuntimeService.cleanupServer(game.gameServer.toString()), serverCleanupDelay);
@@ -103,16 +108,21 @@ export class GameEventHandlerService {
       return;
     }
 
-    const game = await this.gameModel.findById(gameId);
-    if (game) {
-      const slot = game.findPlayerSlot(player.id);
-      if (slot) {
-        slot.connectionStatus = connectionStatus;
-        await game.save();
-        this.events.gameChanges.next({ game: game.toJSON() });
-      } else {
-        this.logger.warn(`player ${player.name} does not belong in this game`);
+    const game = await this.gameModel.findByIdAndUpdate(
+      gameId,
+      {
+        'slots.$[element].connectionStatus': connectionStatus,
+      },
+      {
+        new: true, // return updated document
+        arrayFilters: [
+          { 'element.player': { $eq: player.id } },
+        ],
       }
+    );
+
+    if (game) {
+      this.events.gameChanges.next({ game: game.toJSON() });
     } else {
       this.logger.warn(`no such game: ${gameId}`);
     }
