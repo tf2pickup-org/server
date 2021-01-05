@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { GamesGateway } from './games.gateway';
 import { PlayerSubstitutionService } from '../services/player-substitution.service';
+import { Events } from '@/events/events';
 
 const game = {
   id: 'FAKE_GAME_ID',
@@ -14,17 +15,20 @@ class PlayerSubstitutionServiceStub {
 describe('GamesGateway', () => {
   let gateway: GamesGateway;
   let playerSubstitutionService: PlayerSubstitutionServiceStub;
+  let events: Events;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         GamesGateway,
         { provide: PlayerSubstitutionService, useClass: PlayerSubstitutionServiceStub },
+        Events,
       ],
     }).compile();
 
     gateway = module.get<GamesGateway>(GamesGateway);
     playerSubstitutionService = module.get(PlayerSubstitutionService);
+    events = module.get(Events);
   });
 
   it('should be defined', () => {

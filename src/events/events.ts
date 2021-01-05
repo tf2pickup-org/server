@@ -1,3 +1,4 @@
+import { Game } from '@/games/models/game';
 import { Player } from '@/players/models/player';
 import { PlayerBan } from '@/players/models/player-ban';
 import { Injectable, Logger } from '@nestjs/common';
@@ -26,6 +27,8 @@ export class Events {
   readonly queueStateChange = new Subject<{ state: QueueState }>();
   readonly queueFriendshipsChange = new Subject<{ friendships: Friendship[] }>();
   readonly mapVotesChange = new Subject<{ results: MapVoteResult[] }>();
+
+  readonly gameChanges = new Subject<{ game: Game }>();
 
   constructor() {
     for (const eventName in this) {

@@ -4,7 +4,6 @@ import { GamesService } from './games.service';
 import { PlayersService } from '@/players/services/players.service';
 import { PlayerBansService } from '@/players/services/player-bans.service';
 import { GameRuntimeService } from './game-runtime.service';
-import { GamesGateway } from '../gateways/games.gateway';
 import { QueueGateway } from '@/queue/gateways/queue.gateway';
 import { QueueService } from '@/queue/services/queue.service';
 import { DiscordService } from '@/discord/services/discord.service';
@@ -16,6 +15,9 @@ import { ObjectId } from 'mongodb';
 import { typegooseTestingModule } from '@/utils/testing-typegoose-module';
 import { TypegooseModule } from 'nestjs-typegoose';
 import { Game } from '../models/game';
+import { Events } from '@/events/events';
+import { standardSchemaOptions } from '@/utils/standard-schema-options';
+import { removeGameAssignedSkills } from '@/utils/tojson-transform';
 
 jest.mock('@/discord/services/discord.service');
 jest.mock('@/players/services/players.service');
@@ -37,7 +39,6 @@ describe('PlayerSubstitutionService', () => {
   let playersService: PlayersService;
   let playerBansService: PlayerBansService;
   let gameRuntimeService: GameRuntimeService;
-  let gamesGateway: GamesGateway;
   let queueGateway: QueueGateway;
   let queueService: QueueService;
   let player1: DocumentType<Player>;
@@ -45,6 +46,7 @@ describe('PlayerSubstitutionService', () => {
   let player3: DocumentType<Player>;
   let mockGame: DocumentType<Game>;
   let discordService: DiscordService;
+  let events: Events;
 
   beforeAll(() => mongod = new MongoMemoryServer());
   afterAll(async () => await mongod.stop());
@@ -53,7 +55,7 @@ describe('PlayerSubstitutionService', () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [
         typegooseTestingModule(mongod),
-        TypegooseModule.forFeature([ Player, Game ]),
+        TypegooseModule.forFeature([ Player, standardSchemaOptions(Game, removeGameAssignedSkills) ]),
       ],
       providers: [
         PlayerSubstitutionService,
@@ -61,11 +63,11 @@ describe('PlayerSubstitutionService', () => {
         PlayersService,
         PlayerBansService,
         GameRuntimeService,
-        GamesGateway,
         QueueGateway,
         QueueService,
         DiscordService,
         { provide: Environment, useValue: environment },
+        Events,
       ],
     }).compile();
 
@@ -74,10 +76,10 @@ describe('PlayerSubstitutionService', () => {
     playersService = module.get(PlayersService);
     playerBansService = module.get(PlayerBansService);
     gameRuntimeService = module.get(GameRuntimeService);
-    gamesGateway = module.get(GamesGateway);
     queueGateway = module.get(QueueGateway);
     queueService = module.get(QueueService);
     discordService = module.get(DiscordService);
+    events = module.get(Events);
   });
 
   beforeEach(async () => {
@@ -142,11 +144,14 @@ describe('PlayerSubstitutionService', () => {
       expect(slot.status).toEqual('waiting for substitute');
     });
 
-    it('should emit the  event', async () => {
-      const spy = jest.spyOn(gamesGateway, 'emitGameUpdated');
-      const game = await service.substitutePlayer(mockGame.id, player1.id);
-      expect(spy).toHaveBeenCalledWith(game);
-    });
+    it('should emit the gameChanges event', async () => new Promise<void>(resolve => {
+      events.gameChanges.subscribe(({ game }) => {
+        expect(game).toMatchObject({ id: mockGame.id });
+        resolve();
+      });
+
+      service.substitutePlayer(mockGame.id, player1.id);
+    }));
 
     describe('when the game has already ended', () => {
       beforeEach(async () => {
@@ -223,11 +228,14 @@ describe('PlayerSubstitutionService', () => {
       expect(slot.status).toEqual('active');
     });
 
-    it('should emit the event', async () => {
-      const spy = jest.spyOn(gamesGateway, 'emitGameUpdated');
-      const game = await service.cancelSubstitutionRequest(mockGame.id, player1.id);
-      expect(spy).toHaveBeenCalledWith(game);
-    });
+    it('should emit the gameChanges event', async () => new Promise<void>(resolve => {
+      events.gameChanges.subscribe(({ game }) => {
+        expect(game).toMatchObject({ id: mockGame.id });
+        resolve();
+      });
+
+      service.cancelSubstitutionRequest(mockGame.id, player1.id);
+    }));
 
     describe('when the game is no longer running', () => {
       beforeEach(async () => {
@@ -277,13 +285,16 @@ describe('PlayerSubstitutionService', () => {
       expect(replacementSlot.status).toBe('active');
     });
 
-    it('should emit the event', async () => {
-      const spy = jest.spyOn(gamesGateway, 'emitGameUpdated');
-      const game = await service.replacePlayer(mockGame.id, player1.id, player3.id);
-      expect(spy).toHaveBeenCalledWith(game);
-    });
+    it('should emit the gameChanges event', async () => new Promise<void>(resolve => {
+      events.gameChanges.subscribe(({ game }) => {
+        expect(game).toMatchObject({ id: mockGame.id });
+        resolve();
+      });
 
-    it('should replace the player in-game', async () => new Promise(resolve => {
+      service.replacePlayer(mockGame.id, player1.id, player3.id);
+    }));
+
+    it('should replace the player in-game', async () => new Promise<void>(resolve => {
       const spy = jest.spyOn(gameRuntimeService, 'replacePlayer');
       setTimeout(() => {
         expect(spy).toHaveBeenCalledWith(mockGame.id, player1.id, expect.objectContaining({ player: player3._id }));

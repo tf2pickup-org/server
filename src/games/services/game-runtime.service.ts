@@ -6,9 +6,9 @@ import { RconFactoryService } from './rcon-factory.service';
 import { PlayersService } from '@/players/services/players.service';
 import { addGamePlayer, delGamePlayer, say } from '../utils/rcon-commands';
 import { GamePlayer } from '../models/game-player';
-import { GamesGateway } from '../gateways/games.gateway';
 import { Rcon } from 'rcon-client/lib';
 import { isRefType } from '@typegoose/typegoose';
+import { Events } from '@/events/events';
 
 @Injectable()
 export class GameRuntimeService {
@@ -21,7 +21,7 @@ export class GameRuntimeService {
     private serverConfiguratorService: ServerConfiguratorService,
     private rconFactoryService: RconFactoryService,
     @Inject(forwardRef(() => PlayersService)) private playersService: PlayersService,
-    @Inject(forwardRef(() => GamesGateway)) private gamesGateway: GamesGateway,
+    private events: Events,
   ) { }
 
   async reconfigure(gameId: string) {
@@ -38,14 +38,14 @@ export class GameRuntimeService {
 
     game.connectString = null;
     await game.save();
-    this.gamesGateway.emitGameUpdated(game);
+    this.events.gameChanges.next({ game });
 
     const gameServer = await this.gameServersService.getById(game.gameServer.toString());
     try {
       const { connectString } = await this.serverConfiguratorService.configureServer(gameServer, game);
       game.connectString = connectString;
       await game.save();
-      this.gamesGateway.emitGameUpdated(game);
+      this.events.gameChanges.next({ game });
     } catch (e) {
       this.logger.error(e.message);
     }
@@ -64,7 +64,7 @@ export class GameRuntimeService {
     game.state = 'interrupted';
     game.error = 'ended by admin';
     await game.save();
-    this.gamesGateway.emitGameUpdated(game);
+    this.events.gameChanges.next({ game });
 
     if (game.gameServer) {
       await this.cleanupServer(game.gameServer.toString());

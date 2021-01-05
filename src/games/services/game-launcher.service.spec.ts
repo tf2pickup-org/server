@@ -4,7 +4,7 @@ import { GamesService } from './games.service';
 import { GameServersService } from '@/game-servers/services/game-servers.service';
 import { ServerConfiguratorService } from './server-configurator.service';
 import { Environment } from '@/environment/environment';
-import { GamesGateway } from '../gateways/games.gateway';
+import { Events } from '@/events/events';
 
 const mockGame = {
   id: 'FAKE_GAME_ID',
@@ -12,7 +12,8 @@ const mockGame = {
   number: 2,
   state: 'launching',
   gameServer: null,
-  save: () => null,
+  save: () => Promise.resolve(),
+  toJSON: () => this,
 };
 
 class GamesServiceStub {
@@ -46,10 +47,6 @@ class EnvironmentStub {
   mumbleChannelName = 'FAKE_MUMBLE_CHANNEL_NAME';
 }
 
-class GamesGatewayStub {
-  emitGameUpdated(game: any) { return null; }
-}
-
 describe('GameLauncherService', () => {
   let service: GameLauncherService;
   let gamesService: GamesServiceStub;
@@ -64,7 +61,7 @@ describe('GameLauncherService', () => {
         { provide: GameServersService, useClass: GameServersServiceStub },
         { provide: ServerConfiguratorService, useClass: ServerConfiguratorServiceStub },
         { provide: Environment, useClass: EnvironmentStub },
-        { provide: GamesGateway, useClass: GamesGatewayStub },
+        Events,
       ],
     }).compile();
 

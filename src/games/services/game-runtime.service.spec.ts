@@ -5,7 +5,6 @@ import { GameServersService } from '@/game-servers/services/game-servers.service
 import { ServerConfiguratorService } from './server-configurator.service';
 import { RconFactoryService } from './rcon-factory.service';
 import { PlayersService } from '@/players/services/players.service';
-import { GamesGateway } from '../gateways/games.gateway';
 import { say } from '../utils/rcon-commands';
 import { Tf2Team } from '../models/tf2-team';
 import { ObjectId } from 'mongodb';
@@ -16,13 +15,15 @@ import { Player } from '@/players/models/player';
 import { DocumentType } from '@typegoose/typegoose';
 import { Game } from '../models/game';
 import { GameServer } from '@/game-servers/models/game-server';
+import { standardSchemaOptions } from '@/utils/standard-schema-options';
+import { removeGameAssignedSkills } from '@/utils/tojson-transform';
+import { Events } from '@/events/events';
 
 jest.mock('./games.service');
 jest.mock('@/game-servers/services/game-servers.service');
 jest.mock('./server-configurator.service');
 jest.mock('./rcon-factory.service');
 jest.mock('@/players/services/players.service');
-jest.mock('../gateways/games.gateway');
 
 class RconStub {
   send(cmd: string) { return Promise.resolve(); }
@@ -48,7 +49,7 @@ describe('GameRuntimeService', () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [
         typegooseTestingModule(mongod),
-        TypegooseModule.forFeature([ Game, Player ]),
+        TypegooseModule.forFeature([ standardSchemaOptions(Game, removeGameAssignedSkills), Player ]),
       ],
       providers: [
         GameRuntimeService,
@@ -57,7 +58,7 @@ describe('GameRuntimeService', () => {
         ServerConfiguratorService,
         RconFactoryService,
         PlayersService,
-        GamesGateway,
+        Events,
       ],
     }).compile();
 
