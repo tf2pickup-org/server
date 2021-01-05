@@ -63,8 +63,10 @@ export class GameRuntimeService {
 
     game.state = 'interrupted';
     game.error = 'ended by admin';
+    game.slots.filter(s => s.status === 'waiting for substitute').forEach(s => s.status = 'active');
     await game.save();
     this.events.gameChanges.next({ game });
+    this.events.substituteRequestsChange.next();
 
     if (game.gameServer) {
       await this.cleanupServer(game.gameServer.toString());
