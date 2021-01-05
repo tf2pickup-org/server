@@ -294,7 +294,7 @@ describe('PlayersService', () => {
       expect(ret.role).toEqual('super-user');
     });
 
-    it('should emit the playerRegisters event', async () => new Promise(resolve => {
+    it('should emit the playerRegisters event', async () => new Promise<void>(resolve => {
       events.playerRegisters.subscribe(({ player }) => {
         expect(player).toBeTruthy();
         expect(player.steamId).toEqual(mockSteamProfile.id);
@@ -414,6 +414,14 @@ describe('PlayersService', () => {
     it('should update player name', async () => {
       const ret = await service.updatePlayer(mockPlayer.id, { name: 'NEW_NAME' }, admin.id);
       expect(ret.name).toEqual('NEW_NAME');
+    });
+
+    describe('when setting the same name', () => {
+      it('should not update player name', async () => {
+        const spy = jest.spyOn(discordService.getAdminsChannel(), 'send');
+        await service.updatePlayer(mockPlayer.id, { name: `${mockPlayer.name}` }, admin.id);
+        expect(spy).not.toHaveBeenCalled();
+      });
     });
 
     it('should update player role', async () => {

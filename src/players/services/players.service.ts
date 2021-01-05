@@ -146,7 +146,7 @@ export class PlayersService implements OnModuleInit {
 
     const player = await this.getById(playerId);
     if (player) {
-      if (update.name) {
+      if (update.name && player.name !== update.name) {
         const oldName = player.name;
         player.name = update.name;
 
