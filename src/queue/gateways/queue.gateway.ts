@@ -35,6 +35,10 @@ export class QueueGateway implements OnGatewayInit, OnModuleInit {
     this.events.mapVotesChange
       .pipe(distinctUntilChanged())
       .subscribe(({ results }) => this.socket.emit('map vote results update', results));
+    this.events.substituteRequestsChange.subscribe(async () => {
+      const requests = await this.queueAnnouncementsService.substituteRequests();
+      this.socket.emit('substitute requests update', requests);
+    });
   }
 
   @WsAuthorized()
@@ -66,11 +70,6 @@ export class QueueGateway implements OnGatewayInit, OnModuleInit {
   voteForMap(client: any, payload: { map: string }) {
     this.mapVoteService.voteForMap(client.request.user.id, payload.map);
     return payload.map;
-  }
-
-  async updateSubstituteRequests() {
-    const requests = await this.queueAnnouncementsService.substituteRequests();
-    this.socket.emit('substitute requests update', requests);
   }
 
   afterInit(socket: Socket) {

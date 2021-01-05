@@ -30,6 +30,7 @@ export class Events {
 
   readonly gameCreated = new Subject<{ game: Game }>();
   readonly gameChanges = new Subject<{ game: Game }>();
+  readonly substituteRequestsChange = new Subject<void>();
 
   constructor() {
     for (const eventName in this) {

@@ -8,7 +8,6 @@ import { Game } from '../models/game';
 import { DocumentType, ReturnModelType } from '@typegoose/typegoose';
 import { ObjectId } from 'mongodb';
 import { Player } from '@/players/models/player';
-import { QueueGateway } from '@/queue/gateways/queue.gateway';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { serverCleanupDelay } from '@configs/game-servers';
 import { GamesService } from './games.service';
@@ -19,7 +18,6 @@ import { removeGameAssignedSkills } from '@/utils/tojson-transform';
 jest.mock('@/players/services/players.service');
 jest.mock('@nestjs/config');
 jest.mock('./game-runtime.service');
-jest.mock('@/queue/gateways/queue.gateway');
 jest.mock('./games.service');
 
 describe('GameEventHandlerService', () => {
@@ -27,7 +25,6 @@ describe('GameEventHandlerService', () => {
   let mongod: MongoMemoryServer;
   let playersService: PlayersService;
   let gameRuntimeService: GameRuntimeService;
-  let queueGateway: QueueGateway;
   let player1: DocumentType<Player>;
   let player2: DocumentType<Player>;
   let mockGame: DocumentType<Game>;
@@ -48,7 +45,6 @@ describe('GameEventHandlerService', () => {
         GameEventHandlerService,
         PlayersService,
         GameRuntimeService,
-        QueueGateway,
         GamesService,
         Events,
       ],
@@ -57,7 +53,6 @@ describe('GameEventHandlerService', () => {
     service = module.get<GameEventHandlerService>(GameEventHandlerService);
     playersService = module.get(PlayersService);
     gameRuntimeService = module.get(GameRuntimeService);
-    queueGateway = module.get(QueueGateway);
     gameModel = module.get(getModelToken(Game.name));
     gamesService = module.get(GamesService);
     events = module.get(Events);
@@ -161,11 +156,11 @@ describe('GameEventHandlerService', () => {
         expect(game.slots.every(s => s.status === 'active')).toBe(true);
       });
 
-      it('should emit substitute requests change event over ws', async () => {
-        const spy = jest.spyOn(queueGateway, 'updateSubstituteRequests');
-        await service.onMatchEnded(mockGame.id);
-        expect(spy).toHaveBeenCalled();
-      });
+      // eslint-disable-next-line jest/expect-expect
+      it('should emit the substituteRequestsChange event', async () => new Promise<void>(resolve => {
+        events.substituteRequestsChange.subscribe(resolve);
+        service.onMatchEnded(mockGame.id);
+      }));
     });
   });
 

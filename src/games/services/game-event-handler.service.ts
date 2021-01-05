@@ -2,7 +2,6 @@ import { Injectable, Logger } from '@nestjs/common';
 import { PlayersService } from '@/players/services/players.service';
 import { PlayerConnectionStatus } from '../models/player-connection-status';
 import { GameRuntimeService } from './game-runtime.service';
-import { QueueGateway } from '@/queue/gateways/queue.gateway';
 import { InjectModel } from 'nestjs-typegoose';
 import { Game } from '../models/game';
 import { ReturnModelType } from '@typegoose/typegoose';
@@ -18,7 +17,6 @@ export class GameEventHandlerService {
     @InjectModel(Game) private gameModel: ReturnModelType<typeof Game>,
     private playersService: PlayersService,
     private gameRuntimeService: GameRuntimeService,
-    private queueGateway: QueueGateway,
     private events: Events,
   ) { }
 
@@ -43,7 +41,7 @@ export class GameEventHandlerService {
       await game.save();
 
       this.events.gameChanges.next({ game: game.toJSON() });
-      this.queueGateway.updateSubstituteRequests();
+      this.events.substituteRequestsChange.next();
       setTimeout(() => this.gameRuntimeService.cleanupServer(game.gameServer.toString()), serverCleanupDelay);
     } else {
       this.logger.warn(`no such game: ${gameId}`);
