@@ -28,6 +28,7 @@ export class Events {
   readonly queueFriendshipsChange = new Subject<{ friendships: Friendship[] }>();
   readonly mapVotesChange = new Subject<{ results: MapVoteResult[] }>();
 
+  readonly gameCreated = new Subject<{ game: Game }>();
   readonly gameChanges = new Subject<{ game: Game }>();
 
   constructor() {

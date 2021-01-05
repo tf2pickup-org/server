@@ -8,9 +8,9 @@ import { PlayersService } from '@/players/services/players.service';
 import { PlayerSkillService } from '@/players/services/player-skill.service';
 import { QueueConfigService } from '@/queue/services/queue-config.service';
 import { GameLauncherService } from './game-launcher.service';
-import { GamesGateway } from '../gateways/games.gateway';
 import { ObjectId } from 'mongodb';
 import { shuffle } from 'lodash';
+import { Events } from '@/events/events';
 
 interface GameSortOptions {
   launchedAt: 1 | -1;
@@ -31,7 +31,7 @@ export class GamesService {
     private playerSkillService: PlayerSkillService,
     private queueConfigService: QueueConfigService,
     @Inject(forwardRef(() => GameLauncherService)) private gameLauncherService: GameLauncherService,
-    @Inject(forwardRef(() => GamesGateway)) private gamesGateway: GamesGateway,
+    private events: Events,
   ) { }
 
   async getGameCount(): Promise<number> {
@@ -119,7 +119,7 @@ export class GamesService {
     });
 
     this.logger.debug(`game #${game.number} created`);
-    this.gamesGateway.emitGameCreated(game);
+    this.events.gameCreated.next({ game: game.toJSON() });
     return game;
   }
 

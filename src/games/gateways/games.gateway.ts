@@ -2,7 +2,6 @@ import { WebSocketGateway, OnGatewayInit, SubscribeMessage } from '@nestjs/webso
 import { Socket } from 'socket.io';
 import { WsAuthorized } from '@/auth/decorators/ws-authorized.decorator';
 import { PlayerSubstitutionService } from '../services/player-substitution.service';
-import { Game } from '../models/game';
 import { Inject, forwardRef, OnModuleInit } from '@nestjs/common';
 import { Events } from '@/events/events';
 
@@ -22,15 +21,12 @@ export class GamesGateway implements OnGatewayInit, OnModuleInit {
     return await this.playerSubstitutionService.replacePlayer(payload.gameId, payload.replaceeId, client.request.user.id);
   }
 
-  emitGameCreated(game: Game) {
-    this.socket.emit('game created', game);
-  }
-
   afterInit(socket: Socket) {
     this.socket = socket;
   }
 
   onModuleInit() {
+    this.events.gameCreated.subscribe(({ game }) => this.socket.emit('game created', game));
     this.events.gameChanges.subscribe(({ game }) => this.socket.emit('game updated', game));
   }
 
