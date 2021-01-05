@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { OnlinePlayersService } from './online-players.service';
 import { PlayersGateway } from '../gateways/players.gateway';
 import { Subject } from 'rxjs';
+import { Events } from '@/events/events';
 
 class PlayersGatewayStub {
   playerConnected = new Subject<any>();
@@ -11,17 +12,20 @@ class PlayersGatewayStub {
 describe('OnlinePlayersService', () => {
   let service: OnlinePlayersService;
   let playersGateway: PlayersGatewayStub;
+  let events: Events;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         OnlinePlayersService,
         { provide: PlayersGateway, useClass: PlayersGatewayStub },
+        Events,
       ],
     }).compile();
 
     service = module.get<OnlinePlayersService>(OnlinePlayersService);
     playersGateway = module.get(PlayersGateway);
+    events = module.get(Events);
   });
 
   beforeEach(() => jest.useFakeTimers());
@@ -46,7 +50,7 @@ describe('OnlinePlayersService', () => {
     playersGateway.playerDisconnected.next(socket);
     expect(service.getSocketsForPlayer('FAKE_ID')).toEqual([]);
 
-    service.playerLeft.subscribe(playerId => {
+    events.playerDisconnects.subscribe(({ playerId }) => {
       expect(playerId).toEqual('FAKE_ID');
       resolve();
     });

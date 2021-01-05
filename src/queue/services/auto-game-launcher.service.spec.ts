@@ -1,54 +1,66 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AutoGameLauncherService } from './auto-game-launcher.service';
-import { Subject } from 'rxjs';
 import { QueueService } from './queue.service';
 import { MapVoteService } from './map-vote.service';
 import { GamesService } from '@/games/services/games.service';
 import { FriendsService } from './friends.service';
+import { Events } from '@/events/events';
 
-class QueueServiceStub {
-  stateChange = new Subject<string>();
-  slots = [ { id: 0, player: 'FAKE_PLAYER_ID_1' }, { id: 1, player: 'FAKE_PLAYER_ID_2' } ];
-  reset() { return null; }
-}
-
-class MapVoteServiceStub {
-  getWinner() { return 'cp_badlands'; }
-}
+jest.mock('./friends.service');
+jest.mock('./queue.service');
+jest.mock('./map-vote.service');
 
 class GamesServiceStub {
-  create(slots: any[], map: string, friends: string[][]) { return { id: 'FAKE_GAME_ID' }; }
-  launch(gameId: string) { return new Promise(resolve => resolve()); }
-}
-
-class FriendsServiceStub {
-  friendships = [{ sourcePlayerId: 'FAKE_MEDIC', targetPlayerId: 'FAKE_DM_CLASS' }];
+  create = jest.fn().mockReturnValue({ id: 'FAKE_GAME_ID' });
+  launch = jest.fn().mockResolvedValue({ id: 'FAKE_GAME_ID' });
 }
 
 describe('AutoGameLauncherService', () => {
   let service: AutoGameLauncherService;
-  let queueService: QueueServiceStub;
-  let gamesService: GamesServiceStub;
-  let friendsService: FriendsServiceStub;
+  let queueService: QueueService;
+  let gamesService: GamesService;
+  let events: Events;
+
+  beforeEach(() => {
+    // @ts-expect-error
+    MapVoteService.mockImplementation(() => ({
+      getWinner: () => 'cp_badlands',
+    }));
+
+    // @ts-expect-error
+    FriendsService.mockImplementation(() => ({
+      friendships: [{ sourcePlayerId: 'FAKE_MEDIC', targetPlayerId: 'FAKE_DM_CLASS' }],
+    }));
+
+    // @ts-expect-error
+    QueueService.mockImplementation(() => ({
+      slots: [
+        { id: 0, playerId: 'FAKE_PLAYER_ID_1', gameClass: 'soldier', ready: true },
+        { id: 1, playerId: 'FAKE_PLAYER_ID_2', gameClass: 'soldier', ready: true },
+      ],
+      reset: jest.fn(),
+    }));
+  });
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AutoGameLauncherService,
-        { provide: QueueService, useClass: QueueServiceStub },
-        { provide: MapVoteService, useClass: MapVoteServiceStub },
+        QueueService,
+        MapVoteService,
         { provide: GamesService, useClass: GamesServiceStub },
-        { provide: FriendsService, useClass: FriendsServiceStub },
+        FriendsService,
+        Events,
       ],
     }).compile();
 
     service = module.get<AutoGameLauncherService>(AutoGameLauncherService);
     queueService = module.get(QueueService);
     gamesService = module.get(GamesService);
-    friendsService = module.get(FriendsService);
-  });
+    events = module.get(Events);
 
-  beforeEach(() => service.onModuleInit());
+    service.onModuleInit();
+  });
 
   it('should be defined', () => {
     expect(service).toBeDefined();
@@ -56,15 +68,12 @@ describe('AutoGameLauncherService', () => {
 
   it('should launch the game and reset the queue', async () => {
     return new Promise(resolve => {
-      const resetSpy = jest.spyOn(queueService, 'reset');
-      const createSpy = jest.spyOn(gamesService, 'create');
-      const launchSpy = jest.spyOn(gamesService, 'launch');
-      queueService.stateChange.next('launching');
+      events.queueStateChange.next({ state: 'launching' });
 
       setImmediate(() => {
-        expect(resetSpy).toHaveBeenCalled();
-        expect(createSpy).toHaveBeenCalledWith(queueService.slots, 'cp_badlands', [['FAKE_MEDIC', 'FAKE_DM_CLASS']]);
-        expect(launchSpy).toHaveBeenCalledWith('FAKE_GAME_ID');
+        expect(queueService.reset).toHaveBeenCalled();
+        expect(gamesService.create).toHaveBeenCalledWith(queueService.slots, 'cp_badlands', [['FAKE_MEDIC', 'FAKE_DM_CLASS']]);
+        expect(gamesService.launch).toHaveBeenCalledWith('FAKE_GAME_ID');
         resolve();
       });
     });

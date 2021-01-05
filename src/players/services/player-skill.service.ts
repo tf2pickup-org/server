@@ -14,6 +14,7 @@ import { DiscordService } from '@/discord/services/discord.service';
 import { skillChanged } from '@/discord/notifications';
 import { Environment } from '@/environment/environment';
 import { Player } from '../models/player';
+import { Events } from '@/events/events';
 
 @Injectable()
 @Console()
@@ -27,11 +28,11 @@ export class PlayerSkillService implements OnModuleInit {
     private etf2lProfileService: Etf2lProfileService,
     private discordService: DiscordService,
     private environment: Environment,
+    private events: Events,
   ) { }
 
   onModuleInit() {
-    this.playersService.playerRegistered.subscribe(async playerId => {
-      const player = await this.playersService.getById(playerId);
+    this.events.playerRegisters.subscribe(async ({ player }) => {
       const futureSkill = await this.futurePlayerSkillService.findSkill(player.steamId);
       if (futureSkill) {
         await this.setPlayerSkill(player.id, futureSkill.skill);

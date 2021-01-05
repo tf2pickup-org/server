@@ -2,8 +2,9 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { MapVoteService } from './map-vote.service';
 import { QueueConfigService } from './queue-config.service';
 import { QueueService } from './queue.service';
-import { Subject } from 'rxjs';
-import { QueueGateway } from '../gateways/queue.gateway';
+import { Events } from '@/events/events';
+
+jest.mock('./queue.service');
 
 class QueueConfigServiceStub {
   queueConfig = {
@@ -24,37 +25,32 @@ class QueueConfigServiceStub {
   };
 }
 
-class QueueServiceStub {
-  public isInQueue(playerId: string) { return true; }
-  playerLeave = new Subject<string>();
-}
-
-class QueueGatewayStub {
-  emitVoteResultsUpdate(results: any[]) { return null; }
-}
-
 describe('MapVoteService', () => {
   let service: MapVoteService;
   let queueConfigService: QueueConfigServiceStub;
-  let queueService: QueueServiceStub;
-  let queueGateway: QueueGatewayStub;
+  let queueService: QueueService;
+  let events: Events;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         MapVoteService,
         { provide: QueueConfigService, useClass: QueueConfigServiceStub },
-        { provide: QueueService, useClass: QueueServiceStub },
-        { provide: QueueGateway, useClass: QueueGatewayStub },
+        { provide: QueueService, useClass: QueueService },
+        Events,
       ],
     }).compile();
 
     service = module.get<MapVoteService>(MapVoteService);
     queueConfigService = module.get(QueueConfigService);
     queueService = module.get(QueueService);
-    queueGateway = module.get(QueueGateway);
+    events = module.get(Events);
 
     service.onModuleInit();
+  });
+
+  beforeEach(() => {
+    queueService.isInQueue = () => true;
   });
 
   it('should be defined', () => {
@@ -81,23 +77,32 @@ describe('MapVoteService', () => {
       expect(() => service.voteForMap('FAKE_ID', 'cp_sunshine')).toThrowError();
     });
 
-    it('should deny voting if the player is not in the queue', () => {
-      jest.spyOn(queueService, 'isInQueue').mockReturnValue(false);
-      expect(() => service.voteForMap('FAKE_ID', 'cp_badlands')).toThrowError();
+    describe('when the player is not in the queue', () => {
+      beforeEach(() => {
+        queueService.isInQueue = () => false;
+      });
+
+      it('should deny', () => {
+        expect(() => service.voteForMap('FAKE_ID', 'cp_badlands')).toThrowError();
+      });
     });
 
     it('should remove the player\'s vote when the player leaves the queue', () => {
       service.voteForMap('FAKE_PLAYER_ID', 'cp_badlands');
       expect(service.voteCountForMap('cp_badlands')).toEqual(1);
-      queueService.playerLeave.next('FAKE_PLAYER_ID');
+      events.playerLeavesQueue.next({ playerId: 'FAKE_PLAYER_ID', reason: 'manual' });
       expect(service.voteCountForMap('cp_badlands')).toEqual(0);
     });
 
-    it('should emit the event over ws', () => {
-      const spy = jest.spyOn(queueGateway, 'emitVoteResultsUpdate');
+    it('should emit the mapVotesChange event', async () => new Promise(resolve => {
+      events.mapVotesChange.subscribe(({ results }) => {
+        expect(results.length).toEqual(3);
+        expect(results.find(r => r.map === 'cp_badlands').voteCount).toEqual(1);
+        resolve();
+      });
+
       service.voteForMap('FAKE_ID', 'cp_badlands');
-      expect(spy).toHaveBeenCalled();
-    });
+    }));
   });
 
   describe('#getWinner()', () => {
@@ -112,21 +117,16 @@ describe('MapVoteService', () => {
       expect(service.getWinner()).toMatch(/cp_badlands|cp_process_final/);
     });
 
-    it('should eventually reset the vote', async () => {
-      return new Promise(resolve => {
-        service.voteForMap('FAKE_ID_1', 'cp_badlands');
-        service.voteForMap('FAKE_ID_2', 'cp_process_final');
-        const spy = jest.spyOn(queueGateway, 'emitVoteResultsUpdate');
+    it('should eventually reset the vote', async () => new Promise(resolve => {
+      service.voteForMap('FAKE_ID_1', 'cp_badlands');
+      service.voteForMap('FAKE_ID_2', 'cp_process_final');
 
-        const map = service.getWinner();
-        setImmediate(() => {
-          expect(service.results.every(r => r.voteCount === 0)).toBe(true);
-          expect(service.mapOptions.every(m => m !== map)).toBe(true);
-          expect(spy).toHaveBeenCalled();
-          resolve();
-        });
+      const map = service.getWinner();
+      setImmediate(() => {
+        expect(service.results.every(r => r.voteCount === 0)).toBe(true);
+        expect(service.mapOptions.every(m => m !== map)).toBe(true);
+        resolve();
       });
-
-    });
+    }));
   });
 });

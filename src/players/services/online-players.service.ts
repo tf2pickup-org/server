@@ -1,8 +1,8 @@
+import { Events } from '@/events/events';
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { Socket } from 'socket.io';
 import { PlayersGateway } from '../gateways/players.gateway';
 import { Player } from '../models/player';
-import { Subject } from 'rxjs';
 
 type SocketList = Socket[];
 
@@ -12,14 +12,10 @@ export class OnlinePlayersService implements OnModuleInit {
   private readonly verifyPlayerTimeout = 10 * 1000; // 10 seconds
   private logger = new Logger(OnlinePlayersService.name);
   private sockets = new Map<string, SocketList>();
-  private _playerLeft = new Subject<string>();
-
-  get playerLeft() {
-    return this._playerLeft.asObservable();
-  }
 
   constructor(
     private playersGateway: PlayersGateway,
+    private events: Events,
   ) { }
 
   onModuleInit() {
@@ -52,7 +48,7 @@ export class OnlinePlayersService implements OnModuleInit {
   private verifyPlayer(playerId: string) {
     const sockets = this.sockets.get(playerId);
     if (sockets.length === 0) {
-      this._playerLeft.next(playerId);
+      this.events.playerDisconnects.next({ playerId });
     }
   }
 

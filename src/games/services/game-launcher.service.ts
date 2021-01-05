@@ -3,8 +3,8 @@ import { GamesService } from './games.service';
 import { GameServersService } from '@/game-servers/services/game-servers.service';
 import { ServerConfiguratorService } from './server-configurator.service';
 import { Environment } from '@/environment/environment';
-import { GamesGateway } from '../gateways/games.gateway';
 import { Cron } from '@nestjs/schedule';
+import { Events } from '@/events/events';
 
 /**
  * This service is responsible for launching a single game.
@@ -22,7 +22,7 @@ export class GameLauncherService {
     private gameServersService: GameServersService,
     private serverConfiguratorService: ServerConfiguratorService,
     private environment: Environment,
-    private gamesGateway: GamesGateway,
+    private events: Events,
   ) { }
 
   /**
@@ -50,21 +50,21 @@ export class GameLauncherService {
       await gameServer.save();
       game.gameServer = gameServer._id;
       await game.save();
-      this.gamesGateway.emitGameUpdated(game);
+      this.events.gameChanges.next({ game: game.toJSON() });
 
       // step 2: set mumble url
       const mumbleUrl = `mumble://${this.environment.mumbleServerUrl}/${this.environment.mumbleChannelName}/${gameServer.mumbleChannelName}`;
       this.logger.verbose(`game #${game.number} mumble url: ${mumbleUrl}`);
       game.mumbleUrl = mumbleUrl;
       await game.save();
-      this.gamesGateway.emitGameUpdated(game);
+      this.events.gameChanges.next({ game: game.toJSON() });
 
       // step 3: configure server
       const { connectString, stvConnectString } = await this.serverConfiguratorService.configureServer(gameServer, game);
       game.connectString = connectString;
       game.stvConnectString = stvConnectString;
       await game.save();
-      this.gamesGateway.emitGameUpdated(game);
+      this.events.gameChanges.next({ game: game.toJSON() });
 
       this.logger.verbose(`game #${game.number} initialized`);
       return game;

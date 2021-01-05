@@ -2,27 +2,18 @@ import { Injectable, OnModuleInit, Logger, Inject, forwardRef } from '@nestjs/co
 import { InjectModel } from 'nestjs-typegoose';
 import { PlayerBan } from '../models/player-ban';
 import { ReturnModelType, DocumentType } from '@typegoose/typegoose';
-import { Subject, merge } from 'rxjs';
+import { merge } from 'rxjs';
 import { OnlinePlayersService } from './online-players.service';
 import { playerBanAdded, playerBanRevoked } from '@/discord/notifications';
 import { PlayersService } from './players.service';
 import { Environment } from '@/environment/environment';
 import { DiscordService } from '@/discord/services/discord.service';
+import { Events } from '@/events/events';
 
 @Injectable()
 export class PlayerBansService implements OnModuleInit {
 
   private logger = new Logger(PlayerBansService.name);
-  private _banAdded = new Subject<string>();
-  private _banRevoked = new Subject<string>();
-
-  get banAdded() {
-    return this._banAdded.asObservable();
-  }
-
-  get banRevoked() {
-    return this._banRevoked.asObservable();
-  }
 
   constructor(
     @InjectModel(PlayerBan) private playerBanModel: ReturnModelType<typeof PlayerBan>,
@@ -30,17 +21,17 @@ export class PlayerBansService implements OnModuleInit {
     private discordService: DiscordService,
     @Inject(forwardRef(() => PlayersService)) private playersService: PlayersService,
     private environment: Environment,
+    private events: Events,
   ) { }
 
   onModuleInit() {
     merge(
-      this.banAdded,
-      this.banRevoked,
-    ).subscribe(playerId => {
-      this.onlinePlayersService.getSocketsForPlayer(playerId).forEach(async socket => {
-        const bans = await this.getPlayerActiveBans(playerId);
-        socket.emit('profile update', { bans });
-      });
+      this.events.playerBanAdded,
+      this.events.playerBanRevoked,
+    ).subscribe(async ({ ban }) => {
+      const playerId = ban.player.toString();
+      const bans = await this.getPlayerActiveBans(playerId);
+      this.onlinePlayersService.getSocketsForPlayer(playerId).forEach(socket => socket.emit('profile update', { bans }));
     });
   }
 
@@ -78,7 +69,7 @@ export class PlayerBansService implements OnModuleInit {
     const addedBan = await this.playerBanModel.create(playerBan);
 
     this.logger.verbose(`ban added for player ${player.id} (reason: ${playerBan.reason})`);
-    this._banAdded.next(player.id);
+    this.events.playerBanAdded.next({ ban: addedBan });
 
     this.discordService.getAdminsChannel()?.send({
       embed: playerBanAdded({
@@ -100,9 +91,8 @@ export class PlayerBansService implements OnModuleInit {
     }
 
     const ban = await this.playerBanModel.findById(banId);
-
     if (ban.end < new Date()) {
-      throw new Error('this ban is already expired');
+      throw new Error('this ban has already expired');
     }
 
     ban.end = new Date();
@@ -110,7 +100,7 @@ export class PlayerBansService implements OnModuleInit {
 
     const player = await this.playersService.getById(ban.player.toString());
     this.logger.verbose(`ban revoked for player ${player.id}`);
-    this._banRevoked.next(player.id);
+    this.events.playerBanRevoked.next({ ban });
 
     this.discordService.getAdminsChannel()?.send({
       embed: playerBanRevoked({

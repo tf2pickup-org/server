@@ -3,6 +3,7 @@ import { QueueService } from './queue.service';
 import { Environment } from '@/environment/environment';
 import { DiscordService } from '@/discord/services/discord.service';
 import { promptPlayerThresholdRatio, promptAnnouncementDelay } from '@configs/discord';
+import { Events } from '@/events/events';
 
 @Injectable()
 export class QueueNotificationsService implements OnModuleInit {
@@ -14,11 +15,12 @@ export class QueueNotificationsService implements OnModuleInit {
     private queueService: QueueService,
     private environment: Environment,
     private discordService: DiscordService,
+    private events: Events,
   ) { }
 
   onModuleInit() {
     this.playerThreshold = this.queueService.requiredPlayerCount * promptPlayerThresholdRatio;
-    this.queueService.playerJoin.subscribe(() => this.triggerNotifier());
+    this.events.playerJoinsQueue.subscribe(() => this.triggerNotifier());
   }
 
   private triggerNotifier() {

@@ -3,26 +3,19 @@ import { QueueSlot } from '@/queue/queue-slot';
 import { PlayersService } from '@/players/services/players.service';
 import { QueueConfigService } from './queue-config.service';
 import { PlayerBansService } from '@/players/services/player-bans.service';
-import { BehaviorSubject, Observable, Subject, merge } from 'rxjs';
-import { pairwise, distinctUntilChanged } from 'rxjs/operators';
 import { GamesService } from '@/games/services/games.service';
-import { OnlinePlayersService } from '@/players/services/online-players.service';
 import { QueueState } from '../queue-state';
-import { QueueGateway } from '../gateways/queue.gateway';
 import { readyUpTimeout, readyStateTimeout } from '@configs/queue';
+import { Events } from '@/events/events';
 
 @Injectable()
 export class QueueService implements OnModuleInit {
 
   slots: QueueSlot[] = [];
-  private logger = new Logger(QueueService.name);
-  private _stateChange = new BehaviorSubject<QueueState>('waiting');
-  private timer: NodeJS.Timer;
+  state: QueueState = 'waiting';
 
-  // events
-  private _playerJoin = new Subject<string>();
-  private _playerLeave = new Subject<string>();
-  private _slotsChange = new Subject<QueueSlot[]>();
+  private logger = new Logger(QueueService.name);
+  private timer: NodeJS.Timer;
 
   get requiredPlayerCount(): number {
     return this.slots.length;
@@ -36,50 +29,20 @@ export class QueueService implements OnModuleInit {
     return this.slots.filter(s => s.ready).length;
   }
 
-  get state(): QueueState {
-    return this._stateChange.value;
-  }
-
-  get stateChange(): Observable<QueueState> {
-    return this._stateChange.asObservable();
-  }
-
-  get playerJoin(): Observable<string> {
-    return this._playerJoin.asObservable();
-  }
-
-  get playerLeave(): Observable<string> {
-    return this._playerLeave.asObservable();
-  }
-
-  get slotsChange(): Observable<QueueSlot[]> {
-    return this._slotsChange.asObservable();
-  }
-
   constructor(
     @Inject(forwardRef(() => PlayersService)) private playersService: PlayersService,
     private queueConfigService: QueueConfigService,
     private playerBansService: PlayerBansService,
     @Inject(forwardRef(() => GamesService)) private gamesService: GamesService,
-    private onlinePlayersService: OnlinePlayersService,
-    @Inject(forwardRef(() => QueueGateway)) private queueGateway: QueueGateway,
+    private events: Events,
   ) { }
 
   onModuleInit() {
     this.resetSlots();
-
-    merge(
-      this.playerBansService.banAdded,
-      this.onlinePlayersService.playerLeft,
-    ).subscribe(playerId => this.kick(playerId));
-
-    this.stateChange.pipe(
-      distinctUntilChanged(),
-      pairwise(),
-    ).subscribe(([oldState, newState]) => this.onStateChange(oldState, newState));
-
-    this.slotsChange.subscribe(slots => this.queueGateway.emitSlotsUpdate(slots));
-    this.stateChange.subscribe(state => this.queueGateway.emitStateUpdate(state));
+    this.events.queueSlotsChange.subscribe(() => setImmediate(() => this.maybeUpdateState()));
+    this.events.queueStateChange.subscribe(({ state }) => this.onStateChange(state));
+    this.events.playerDisconnects.subscribe(({ playerId }) => this.kick(playerId));
+    this.events.playerBanAdded.subscribe(({ ban }) => this.kick(ban.player.toString()));
   }
 
   getSlotById(id: number): QueueSlot {
@@ -95,10 +58,9 @@ export class QueueService implements OnModuleInit {
   }
 
   reset() {
-    this.resetSlots();
     this.logger.debug('queue reset');
-    this._slotsChange.next(this.slots);
-    setImmediate(() => this.maybeUpdateState());
+    this.resetSlots();
+    this.events.queueSlotsChange.next({ slots: this.slots });
   }
 
   /**
@@ -154,12 +116,11 @@ export class QueueService implements OnModuleInit {
 
     // is player joining instead of only changing slots?
     if (oldSlots.length === 0) {
-      this._playerJoin.next(playerId);
+      this.events.playerJoinsQueue.next({ playerId });
     }
 
     const slots = [ targetSlot, ...oldSlots ];
-    this._slotsChange.next(slots);
-    setImmediate(() => this.maybeUpdateState());
+    this.events.queueSlotsChange.next({ slots })
     return slots;
   }
 
@@ -172,9 +133,8 @@ export class QueueService implements OnModuleInit {
 
       this.clearSlot(slot);
       this.logger.debug(`slot ${slot.id} (gameClass=${slot.gameClass}) free`);
-      this._playerLeave.next(playerId);
-      this._slotsChange.next([ slot ]);
-      setImmediate(() => this.maybeUpdateState());
+      this.events.playerLeavesQueue.next({ playerId, reason: 'manual' });
+      this.events.queueSlotsChange.next({ slots: [ slot ] });
       return slot;
     } else {
       throw new Error('slot already free');
@@ -192,14 +152,13 @@ export class QueueService implements OnModuleInit {
       const slot = this.findSlotByPlayerId(playerId);
       if (slot) {
         this.clearSlot(slot);
-        this._playerLeave.next(playerId);
+        this.events.playerLeavesQueue.next({ playerId, reason: 'kicked' });
         this.logger.debug(`slot ${slot.id} (gameClass=${slot.gameClass}) free (player was kicked)`);
         updatedSlots.push(slot);
       }
     }
 
-    this._slotsChange.next(updatedSlots);
-    setImmediate(() => this.maybeUpdateState());
+    this.events.queueSlotsChange.next({ slots: updatedSlots });
   }
 
   readyUp(playerId: string): QueueSlot {
@@ -211,11 +170,46 @@ export class QueueService implements OnModuleInit {
     if (slot) {
       slot.ready = true;
       this.logger.debug(`slot ${slot.id} ready (${this.readyPlayerCount}/${this.requiredPlayerCount})`);
-      this._slotsChange.next([ slot ]);
-      setImmediate(() => this.maybeUpdateState());
+      this.events.queueSlotsChange.next({ slots: [ slot ] });
       return slot;
     } else {
       throw new Error('player is not in the queue');
+    }
+  }
+
+  private maybeUpdateState() {
+    // check whether we can change state
+    switch (this.state) {
+      case 'waiting':
+        if (this.playerCount === this.requiredPlayerCount) {
+          this.setState('ready');
+        }
+        break;
+
+      case 'ready':
+        if (this.playerCount === 0) {
+          this.setState('waiting');
+        } else if (this.readyPlayerCount === this.requiredPlayerCount) {
+          this.setState('launching');
+        }
+        break;
+
+      case 'launching':
+        this.setState('waiting');
+        break;
+    }
+  }
+
+  private onStateChange(state: QueueState) {
+    switch (state) {
+      case 'ready':
+        this.timer = setTimeout(() => this.onReadyUpTimeout(), readyUpTimeout);
+        break;
+
+      case 'launching':
+      case 'waiting':
+        clearTimeout(this.timer);
+        break;
     }
   }
 
@@ -245,41 +239,6 @@ export class QueueService implements OnModuleInit {
     slot.ready = false;
   }
 
-  private maybeUpdateState() {
-    // check whether we can change state
-    switch (this.state) {
-      case 'waiting':
-        if (this.playerCount === this.requiredPlayerCount) {
-          this._stateChange.next('ready');
-        }
-        break;
-
-      case 'ready':
-        if (this.playerCount === 0) {
-          this._stateChange.next('waiting');
-        } else if (this.readyPlayerCount === this.requiredPlayerCount) {
-          this._stateChange.next('launching');
-        }
-        break;
-
-      case 'launching':
-        this._stateChange.next('waiting');
-        break;
-    }
-  }
-
-  private onStateChange(oldState: QueueState, newState: QueueState) {
-    if (oldState === 'waiting' && newState === 'ready') {
-      this.timer = setTimeout(() => this.onReadyUpTimeout(), readyUpTimeout);
-    } else if (oldState === 'ready' && newState === 'launching') {
-      clearTimeout(this.timer);
-    } else if (oldState === 'ready' && newState === 'waiting') {
-      clearTimeout(this.timer);
-    }
-
-    this.logger.debug(`queue state change (${oldState} => ${newState})`);
-  }
-
   private onReadyUpTimeout() {
     if (this.readyPlayerCount < this.requiredPlayerCount) {
       this.kickUnreadyPlayers();
@@ -303,8 +262,13 @@ export class QueueService implements OnModuleInit {
   private unreadyQueue() {
     const slots = this.slots.filter(s => !!s.playerId);
     slots.forEach(s => s.ready = false);
-    this._slotsChange.next(slots);
-    this._stateChange.next('waiting');
+    this.events.queueSlotsChange.next({ slots });
+    this.setState('waiting');
+  }
+
+  private setState(state: QueueState) {
+    this.state = state;
+    this.events.queueStateChange.next({ state });
   }
 
 }

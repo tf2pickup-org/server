@@ -11,14 +11,13 @@ import { ObjectId } from 'mongodb';
 import { QueueSlot } from '@/queue/queue-slot';
 import { GameLauncherService } from './game-launcher.service';
 import { QueueConfigService } from '@/queue/services/queue-config.service';
-import { GamesGateway } from '../gateways/games.gateway';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { Tf2Team } from '../models/tf2-team';
+import { Events } from '@/events/events';
 
 jest.mock('@/players/services/players.service');
 jest.mock('@/players/services/player-skill.service');
 jest.mock('./game-launcher.service');
-jest.mock('../gateways/games.gateway');
 
 class QueueConfigServiceStub {
   queueConfig = {
@@ -41,6 +40,7 @@ describe('GamesService', () => {
   let gameModel: ReturnModelType<typeof Game>;
   let gameLauncherService: GameLauncherService;
   let playersService: PlayersService;
+  let events: Events;
 
   beforeAll(() => mongod = new MongoMemoryServer());
   afterAll(async () => await mongod.stop());
@@ -57,7 +57,7 @@ describe('GamesService', () => {
         PlayerSkillService,
         { provide: QueueConfigService, useClass: QueueConfigServiceStub },
         GameLauncherService,
-        GamesGateway,
+        Events,
       ],
     }).compile();
 
@@ -65,6 +65,7 @@ describe('GamesService', () => {
     gameModel = module.get(getModelToken('Game'));
     gameLauncherService = module.get(GameLauncherService);
     playersService = module.get(PlayersService);
+    events = module.get(Events);
   });
 
   afterEach(async () => {
@@ -235,6 +236,7 @@ describe('GamesService', () => {
       });
     });
   });
+
   describe('#create()', () => {
     let slots: QueueSlot[];
 
@@ -289,6 +291,15 @@ describe('GamesService', () => {
         launchedAt: expect.any(Date),
       }));
     });
+
+    it('should emit the gameCreated event', async () => new Promise<void>(resolve => {
+      events.gameCreated.subscribe(({ game }) => {
+        expect(game).toMatchObject({ number: 1, map: 'cp_fake', state: 'launching' });
+        resolve();
+      });
+
+      service.create(slots, 'cp_fake');
+    }));
   });
 
   describe('#launch()', () => {

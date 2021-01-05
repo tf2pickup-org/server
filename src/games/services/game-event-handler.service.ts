@@ -2,12 +2,11 @@ import { Injectable, Logger } from '@nestjs/common';
 import { PlayersService } from '@/players/services/players.service';
 import { PlayerConnectionStatus } from '../models/player-connection-status';
 import { GameRuntimeService } from './game-runtime.service';
-import { GamesGateway } from '../gateways/games.gateway';
-import { QueueGateway } from '@/queue/gateways/queue.gateway';
 import { InjectModel } from 'nestjs-typegoose';
 import { Game } from '../models/game';
 import { ReturnModelType } from '@typegoose/typegoose';
 import { serverCleanupDelay } from '@configs/game-servers';
+import { Events } from '@/events/events';
 
 @Injectable()
 export class GameEventHandlerService {
@@ -18,14 +17,13 @@ export class GameEventHandlerService {
     @InjectModel(Game) private gameModel: ReturnModelType<typeof Game>,
     private playersService: PlayersService,
     private gameRuntimeService: GameRuntimeService,
-    private gamesGateway: GamesGateway,
-    private queueGateway: QueueGateway,
+    private events: Events,
   ) { }
 
   async onMatchStarted(gameId: string) {
     const game = await this.gameModel.findOneAndUpdate({ _id: gameId, state: 'launching' }, { state: 'started' }, { new: true });
     if (game) {
-      this.gamesGateway.emitGameUpdated(game);
+      this.events.gameChanges.next({ game: game.toJSON() });
     }
 
     return game;
@@ -42,8 +40,8 @@ export class GameEventHandlerService {
 
       await game.save();
 
-      this.gamesGateway.emitGameUpdated(game);
-      this.queueGateway.updateSubstituteRequests();
+      this.events.gameChanges.next({ game: game.toJSON() });
+      this.events.substituteRequestsChange.next();
       setTimeout(() => this.gameRuntimeService.cleanupServer(game.gameServer.toString()), serverCleanupDelay);
     } else {
       this.logger.warn(`no such game: ${gameId}`);
@@ -55,7 +53,7 @@ export class GameEventHandlerService {
   async onLogsUploaded(gameId: string, logsUrl: string) {
     const game = await this.gameModel.findOneAndUpdate({ _id: gameId }, { logsUrl }, { new: true });
     if (game) {
-      this.gamesGateway.emitGameUpdated(game);
+      this.events.gameChanges.next({ game: game.toJSON() });
     } else {
       this.logger.warn(`no such game: ${gameId}`);
     }
@@ -66,7 +64,7 @@ export class GameEventHandlerService {
   async onDemoUploaded(gameId: string, demoUrl: string) {
     const game = await this.gameModel.findByIdAndUpdate(gameId, { demoUrl }, { new: true });
     if (game) {
-      this.gamesGateway.emitGameUpdated(game);
+      this.events.gameChanges.next({ game: game.toJSON() });
     } else {
       this.logger.warn(`no such game: ${gameId}`);
     }
@@ -90,7 +88,7 @@ export class GameEventHandlerService {
     const fixedTeamName = teamName.toLowerCase().substring(0, 3); // converts Red to 'red' and Blue to 'blu'
     const game = await this.gameModel.findOneAndUpdate({ _id: gameId }, { [`score.${fixedTeamName}`]: parseInt(score, 10) }, { new: true });
     if (game) {
-      this.gamesGateway.emitGameUpdated(game);
+      this.events.gameChanges.next({ game: game.toJSON() });
     } else {
       this.logger.warn(`no such game: ${gameId}`);
     }
@@ -111,7 +109,7 @@ export class GameEventHandlerService {
       if (slot) {
         slot.connectionStatus = connectionStatus;
         await game.save();
-        this.gamesGateway.emitGameUpdated(game);
+        this.events.gameChanges.next({ game: game.toJSON() });
       } else {
         this.logger.warn(`player ${player.name} does not belong in this game`);
       }

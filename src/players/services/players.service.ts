@@ -10,23 +10,18 @@ import { PlayerStats } from '../models/player-stats';
 import { Etf2lProfile } from '../models/etf2l-profile';
 import { OnlinePlayersService } from './online-players.service';
 import { SteamApiService } from './steam-api.service';
-import { Subject } from 'rxjs';
 import { TwitchTvUser } from '../models/twitch-tv-user';
 import { DiscordService } from '@/discord/services/discord.service';
 import { newPlayer, playerNameChanged } from '@/discord/notifications';
 import { ObjectId } from 'mongodb';
 import { minimumTf2InGameHours, requireEtf2lAccount } from '@configs/players';
 import { PlayerAvatar } from '../models/player-avatar';
+import { Events } from '@/events/events';
 
 @Injectable()
 export class PlayersService implements OnModuleInit {
 
   private logger = new Logger(PlayersService.name);
-  private _playerRegistered = new Subject<string>();
-
-  get playerRegistered() {
-    return this._playerRegistered.asObservable();
-  }
 
   constructor(
     private environment: Environment,
@@ -36,6 +31,7 @@ export class PlayersService implements OnModuleInit {
     private onlinePlayersService: OnlinePlayersService,
     private steamApiService: SteamApiService,
     private discordService: DiscordService,
+    private events: Events,
   ) { }
 
   async onModuleInit() {
@@ -110,7 +106,7 @@ export class PlayersService implements OnModuleInit {
     });
 
     this.logger.verbose(`created new player (name: ${player?.name})`);
-    this._playerRegistered.next(player.id);
+    this.events.playerRegisters.next({ player });
 
     this.discordService.getAdminsChannel()?.send({
       embed: newPlayer({

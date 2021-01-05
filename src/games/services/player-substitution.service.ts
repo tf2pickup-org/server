@@ -3,14 +3,13 @@ import { GamesService } from './games.service';
 import { PlayersService } from '@/players/services/players.service';
 import { PlayerBansService } from '@/players/services/player-bans.service';
 import { GameRuntimeService } from './game-runtime.service';
-import { GamesGateway } from '../gateways/games.gateway';
-import { QueueGateway } from '@/queue/gateways/queue.gateway';
 import { QueueService } from '@/queue/services/queue.service';
 import { DiscordService } from '@/discord/services/discord.service';
 import { substituteRequest } from '@/discord/notifications';
 import { Environment } from '@/environment/environment';
 import { Message } from 'discord.js';
 import { ObjectId } from 'mongodb';
+import { Events } from '@/events/events';
 
 /**
  * A service that handles player substitution logic.
@@ -29,11 +28,10 @@ export class PlayerSubstitutionService {
     @Inject(forwardRef(() => PlayersService)) private playersService: PlayersService,
     private playerBansService: PlayerBansService,
     @Inject(forwardRef(() => GameRuntimeService)) private gameRuntimeService: GameRuntimeService,
-    @Inject(forwardRef(() => GamesGateway)) private gamesGateway: GamesGateway,
-    private queueGateway: QueueGateway,
     private queueSevice: QueueService,
     private discordService: DiscordService,
     private environment: Environment,
+    private events: Events,
   ) { }
 
   async substitutePlayer(gameId: string, playerId: string) {
@@ -56,8 +54,8 @@ export class PlayerSubstitutionService {
 
     slot.status = 'waiting for substitute';
     await game.save();
-    this.gamesGateway.emitGameUpdated(game);
-    this.queueGateway.updateSubstituteRequests();
+    this.events.gameChanges.next({ game: game.toJSON() });
+    this.events.substituteRequestsChange.next();
 
     const message = await this.discordService.getPlayersChannel()?.send({
       embed:substituteRequest({
@@ -92,8 +90,8 @@ export class PlayerSubstitutionService {
 
     slot.status = 'active';
     await game.save();
-    this.gamesGateway.emitGameUpdated(game);
-    this.queueGateway.updateSubstituteRequests();
+    this.events.gameChanges.next({ game });
+    this.events.substituteRequestsChange.next();
 
     const message = this.discordNotifications.get(playerId);
     if (message) {
@@ -122,8 +120,8 @@ export class PlayerSubstitutionService {
     if (replaceeId === replacementId) {
       slot.status = 'active';
       await game.save();
-      this.gamesGateway.emitGameUpdated(game);
-      this.queueGateway.updateSubstituteRequests();
+      this.events.gameChanges.next({ game });
+      this.events.substituteRequestsChange.next();
       await this.deleteDiscordAnnouncement(replaceeId);
       this.logger.verbose(`player has taken his own slot`);
       return game;
@@ -157,8 +155,8 @@ export class PlayerSubstitutionService {
     slot.status = 'replaced';
 
     await game.save();
-    this.gamesGateway.emitGameUpdated(game);
-    this.queueGateway.updateSubstituteRequests();
+    this.events.gameChanges.next({ game });
+    this.events.substituteRequestsChange.next();
     this.queueSevice.kick(replacementId);
 
     const replacee = await this.playersService.getById(replaceeId);
