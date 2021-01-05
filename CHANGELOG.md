@@ -1,3 +1,12 @@
+## [3.3.3](https://github.com/tf2pickup-pl/server/compare/3.3.2...3.3.3) (2021-01-05)
+
+
+### Bug Fixes
+
+* add client/index.html ([#767](https://github.com/tf2pickup-pl/server/issues/767)) ([e4936b2](https://github.com/tf2pickup-pl/server/commit/e4936b208d39ec84b93f14ac7ef9a12c5da16272))
+* dont notify when setting the same player's name ([#775](https://github.com/tf2pickup-pl/server/issues/775)) ([4ebfc6e](https://github.com/tf2pickup-pl/server/commit/4ebfc6eaedab093929f37b01b3c6fd878d55fea7))
+* make game updates atomic ([#774](https://github.com/tf2pickup-pl/server/issues/774)) ([cb6ad98](https://github.com/tf2pickup-pl/server/commit/cb6ad98835a8bb339c96fd67b3e2d535a65d078b))
+
 ## [3.3.2](https://github.com/tf2pickup-pl/server/compare/3.3.1...3.3.2) (2020-12-30)
 
 
