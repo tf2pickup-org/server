@@ -2,6 +2,7 @@ import { prop, Ref } from '@typegoose/typegoose';
 import { PlayerConnectionStatus } from './player-connection-status';
 import { Tf2Team } from './tf2-team';
 import { Player } from '@/players/models/player';
+import { SlotStatus } from './slot-status';
 
 export class GamePlayer {
 
@@ -14,8 +15,8 @@ export class GamePlayer {
   @prop({ required: true })
   gameClass!: string;
 
-  @prop({ default: 'active', index: true })
-  status?: 'active' | 'waiting for substitute' | 'replaced';
+  @prop({ index: true, enum: SlotStatus, default: SlotStatus.Active })
+  status?: SlotStatus;
 
   @prop({ default: 'offline' })
   connectionStatus?: PlayerConnectionStatus;

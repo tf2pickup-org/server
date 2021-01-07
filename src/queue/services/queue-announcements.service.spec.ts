@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { QueueAnnouncementsService } from './queue-announcements.service';
 import { GamesService } from '@/games/services/games.service';
 import { Tf2Team } from '@/games/models/tf2-team';
+import { SlotStatus } from '@/games/models/slot-status';
 
 class GamesServiceStub {
   getGamesWithSubstitutionRequests() {
@@ -13,12 +14,12 @@ class GamesServiceStub {
           {
             gameClass: 'soldier',
             team: Tf2Team.Blu,
-            status: 'waiting for substitute',
+            status: SlotStatus.WaitingForSubstitute,
           },
           {
             gameClass: 'soldier',
             team: Tf2Team.Red,
-            status: 'active',
+            status: SlotStatus.Active,
           },
         ],
       },

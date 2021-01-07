@@ -18,6 +18,7 @@ import { GameServer } from '@/game-servers/models/game-server';
 import { standardSchemaOptions } from '@/utils/standard-schema-options';
 import { removeGameAssignedSkills } from '@/utils/tojson-transform';
 import { Events } from '@/events/events';
+import { SlotStatus } from '../models/slot-status';
 
 jest.mock('./games.service');
 jest.mock('@/game-servers/services/game-servers.service');
@@ -195,13 +196,13 @@ describe('GameRuntimeService', () => {
 
     describe('if one of the players is waiting to be substituted', () => {
       beforeEach(async () => {
-        mockGame.slots[0].status = 'waiting for substitute';
+        mockGame.slots[0].status = SlotStatus.WaitingForSubstitute;
         await mockGame.save();
       });
 
       it('should set his status back to active', async () => {
         const ret = await service.forceEnd(mockGame.id);
-        expect(ret.slots[0].status).toEqual('active');
+        expect(ret.slots[0].status).toEqual(SlotStatus.Active);
       });
     });
   });

@@ -7,6 +7,7 @@ import { Game } from '../models/game';
 import { ReturnModelType } from '@typegoose/typegoose';
 import { serverCleanupDelay } from '@configs/game-servers';
 import { Events } from '@/events/events';
+import { SlotStatus } from '../models/slot-status';
 
 @Injectable()
 export class GameEventHandlerService {
@@ -34,12 +35,12 @@ export class GameEventHandlerService {
       { _id: gameId, state: 'started' },
       {
         state: 'ended',
-        'slots.$[element].status': 'active',
+        'slots.$[element].status': `${SlotStatus.Active}`,
       },
       {
         new: true, // return updated document
         arrayFilters: [
-          { 'element.status': { $eq: 'waiting for substitute' } },
+          { 'element.status': { $eq: `${SlotStatus.WaitingForSubstitute}` } },
         ],
       }
     );

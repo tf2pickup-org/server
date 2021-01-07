@@ -9,6 +9,7 @@ import { GamePlayer } from '../models/game-player';
 import { Rcon } from 'rcon-client/lib';
 import { isRefType } from '@typegoose/typegoose';
 import { Events } from '@/events/events';
+import { SlotStatus } from '../models/slot-status';
 
 @Injectable()
 export class GameRuntimeService {
@@ -63,7 +64,7 @@ export class GameRuntimeService {
 
     game.state = 'interrupted';
     game.error = 'ended by admin';
-    game.slots.filter(s => s.status === 'waiting for substitute').forEach(s => s.status = 'active');
+    game.slots.filter(s => s.status === SlotStatus.WaitingForSubstitute).forEach(s => s.status = SlotStatus.Active);
     await game.save();
     this.events.gameChanges.next({ game });
     this.events.substituteRequestsChange.next();
