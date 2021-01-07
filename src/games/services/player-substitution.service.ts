@@ -10,6 +10,7 @@ import { Environment } from '@/environment/environment';
 import { Message } from 'discord.js';
 import { ObjectId } from 'mongodb';
 import { Events } from '@/events/events';
+import { SlotStatus } from '../models/slot-status';
 
 /**
  * A service that handles player substitution logic.
@@ -41,18 +42,18 @@ export class PlayerSubstitutionService {
       throw new Error('the game has already ended');
     }
 
-    if (slot.status === 'replaced') {
+    if (slot.status === SlotStatus.Replaced) {
       throw new Error('this player has already been replaced');
     }
 
-    if (slot.status === 'waiting for substitute') {
+    if (slot.status === SlotStatus.WaitingForSubstitute) {
       return game;
     }
 
     const player = await this.playersService.getById(playerId);
     this.logger.debug(`player ${player.name} taking part in game #${game.number} is marked as 'waiting for substitute'`);
 
-    slot.status = 'waiting for substitute';
+    slot.status = SlotStatus.WaitingForSubstitute;
     await game.save();
     this.events.gameChanges.next({ game: game.toJSON() });
     this.events.substituteRequestsChange.next();
@@ -88,7 +89,7 @@ export class PlayerSubstitutionService {
     const player = await this.playersService.getById(playerId);
     this.logger.verbose(`player ${player.name} taking part in game #${game.number} is marked as 'active'`);
 
-    slot.status = 'active';
+    slot.status = SlotStatus.Active;
     await game.save();
     this.events.gameChanges.next({ game });
     this.events.substituteRequestsChange.next();
@@ -103,22 +104,29 @@ export class PlayerSubstitutionService {
   }
 
   async replacePlayer(gameId: string, replaceeId: string, replacementId: string) {
+    const replacement = await this.playersService.getById(replacementId);
+    if (!replacement) {
+      throw new Error('no such player');
+    }
+
     if ((await this.playerBansService.getPlayerActiveBans(replacementId)).length > 0) {
       throw new Error('player is banned');
     }
 
-    const { game, slot } = await this.findPlayerSlot(gameId, replaceeId);
-
-    if (slot.status === 'active') {
-      throw new Error('the replacee is marked as active');
+    const game = await this.gamesService.getById(gameId);
+    if (!game) {
+      throw new Error('no such game');
     }
 
-    if (slot.status === 'replaced') {
-      throw new Error('this player has already been replaced');
+    const _replaceeId = new ObjectId(replaceeId);
+    const slot = game.slots.find(slot => slot.status === SlotStatus.WaitingForSubstitute && _replaceeId.equals(slot.player as ObjectId));
+
+    if (!slot) {
+      throw new Error('no such slot');
     }
 
     if (replaceeId === replacementId) {
-      slot.status = 'active';
+      slot.status = SlotStatus.Active;
       await game.save();
       this.events.gameChanges.next({ game });
       this.events.substituteRequestsChange.next();
@@ -130,29 +138,17 @@ export class PlayerSubstitutionService {
     if (await this.gamesService.getPlayerActiveGame(replacementId)) {
       throw new Error('player is involved in a currently running game');
     }
+    // create new slot of the replacement player
+    const replacementSlot = {
+      player: new ObjectId(replacementId),
+      team: slot.team,
+      gameClass: slot.gameClass,
+    };
 
-    const replacement = await this.playersService.getById(replacementId);
-    if (!replacement) {
-      throw new Error('no such player');
-    }
-
-    let replacementSlot = game.findPlayerSlot(replacementId);
-    if (replacementSlot) {
-      replacementSlot.status = 'active';
-    } else {
-      // create new slot of the replacement player
-      replacementSlot = {
-        player: new ObjectId(replacementId),
-        team: slot.team,
-        gameClass: slot.gameClass,
-        status: 'active',
-      };
-
-      game.slots.push(replacementSlot);
-    }
+    game.slots.push(replacementSlot);
 
     // update replacee
-    slot.status = 'replaced';
+    slot.status = SlotStatus.Replaced;
 
     await game.save();
     this.events.gameChanges.next({ game });

@@ -17,6 +17,7 @@ import { Game } from '../models/game';
 import { Events } from '@/events/events';
 import { standardSchemaOptions } from '@/utils/standard-schema-options';
 import { removeGameAssignedSkills } from '@/utils/tojson-transform';
+import { SlotStatus } from '../models/slot-status';
 
 jest.mock('@/discord/services/discord.service');
 jest.mock('@/players/services/players.service');
@@ -132,7 +133,7 @@ describe('PlayerSubstitutionService', () => {
       const game = await service.substitutePlayer(mockGame.id, player1.id);
       expect(game.id).toEqual(mockGame.id);
       const slot = game.findPlayerSlot(player1.id);
-      expect(slot.status).toEqual('waiting for substitute');
+      expect(slot.status).toEqual(SlotStatus.WaitingForSubstitute);
     });
 
     it('should emit the gameChanges event', async () => new Promise<void>(resolve => {
@@ -212,7 +213,7 @@ describe('PlayerSubstitutionService', () => {
     it('should update the player status', async () => {
       const game = await service.cancelSubstitutionRequest(mockGame.id, player1.id);
       const slot = game.findPlayerSlot(player1.id);
-      expect(slot.status).toEqual('active');
+      expect(slot.status).toEqual(SlotStatus.Active);
     });
 
     it('should emit the gameChanges event', async () => new Promise<void>(resolve => {
@@ -266,10 +267,10 @@ describe('PlayerSubstitutionService', () => {
       const game = await service.replacePlayer(mockGame.id, player1.id, player3.id);
       expect(game.id).toEqual(mockGame.id);
       const replaceeSlot = game.findPlayerSlot(player1.id);
-      expect(replaceeSlot.status).toBe('replaced');
+      expect(replaceeSlot.status).toEqual(SlotStatus.Replaced);
       const replacementSlot = game.findPlayerSlot(player3.id);
       expect(replacementSlot).toBeTruthy();
-      expect(replacementSlot.status).toBe('active');
+      expect(replacementSlot.status).toEqual(SlotStatus.Active);
     });
 
     it('should emit the gameChanges event', async () => new Promise<void>(resolve => {
@@ -306,7 +307,7 @@ describe('PlayerSubstitutionService', () => {
     describe('when replacing an active player', () => {
       it('should reject', async () => {
         await expect(service.replacePlayer(mockGame.id, player2.id, player3.id))
-          .rejects.toThrowError('the replacee is marked as active');
+          .rejects.toThrowError();
       })
     });
 
@@ -315,7 +316,7 @@ describe('PlayerSubstitutionService', () => {
         const game = await service.replacePlayer(mockGame.id, player1.id, player1.id);
         expect(game.id).toEqual(mockGame.id);
         const slot = game.findPlayerSlot(player1.id);
-        expect(slot.status).toBe('active');
+        expect(slot.status).toBe(SlotStatus.Active);
         expect(game.slots.length).toBe(2);
       });
 
@@ -333,7 +334,7 @@ describe('PlayerSubstitutionService', () => {
 
       it('should reject', async () => {
         await expect(service.replacePlayer(mockGame.id, player1.id, player3.id)).rejects
-          .toThrowError('this player has already been replaced');
+          .toThrowError();
       });
     });
 
@@ -373,6 +374,19 @@ describe('PlayerSubstitutionService', () => {
       const spy = jest.spyOn(discordMessage, 'delete');
       await service.replacePlayer(mockGame.id, player1.id, player3.id);
       expect(spy).toHaveBeenCalled();
+    });
+
+    describe('when a player1 gets replaced, but then player2 leaves', () => {
+      beforeEach(async () => {
+        await service.replacePlayer(mockGame.id, player1.id, player3.id);
+        await service.substitutePlayer(mockGame.id, player2.id);
+      });
+
+      it('player1 should be able to take player2\' slot', async () => {
+        const game = await service.replacePlayer(mockGame.id, player2.id, player1.id);
+        const _player1Id = new ObjectId(player1.id);
+        expect(game.slots.filter(s => _player1Id.equals(s.player as ObjectId)).length).toEqual(2);
+      })
     });
   });
 });

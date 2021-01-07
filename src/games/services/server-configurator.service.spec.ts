@@ -10,6 +10,7 @@ import { QueueConfig } from '@/queue/queue-config';
 import { Tf2Team } from '../models/tf2-team';
 import { Game } from '../models/game';
 import { ObjectId } from 'mongodb';
+import { SlotStatus } from '../models/slot-status';
 
 class EnvironmentStub {
   logRelayAddress = 'FAKE_RELAY_ADDRESS';
@@ -89,14 +90,14 @@ describe('ServerConfiguratorService', () => {
           player: 'PLAYER_1',
           team: Tf2Team.Blu,
           gameClass: 'soldier',
-          status: 'active',
+          status: SlotStatus.Active,
         },
         {
           // @ts-expect-error
           player: 'PLAYER_2',
           team: Tf2Team.Red,
           gameClass: 'soldier',
-          status: 'active',
+          status: SlotStatus.Active,
         },
       ];
       game.map = 'cp_badlands';
@@ -147,7 +148,7 @@ describe('ServerConfiguratorService', () => {
       });
     });
 
-    describe('when one player is replaced', () => {
+    describe('when one of the players is replaced', () => {
       beforeEach(() => {
         game.slots = [
           {
@@ -155,14 +156,14 @@ describe('ServerConfiguratorService', () => {
             player: 'PLAYER_1',
             team: Tf2Team.Blu,
             gameClass: 'soldier',
-            status: 'active',
+            status: SlotStatus.Active,
           },
           {
             // @ts-expect-error
             player: 'PLAYER_2',
             team: Tf2Team.Red,
             gameClass: 'soldier',
-            status: 'replaced',
+            status: SlotStatus.Replaced,
           },
         ];
       });

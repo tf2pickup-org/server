@@ -11,6 +11,7 @@ import { GameLauncherService } from './game-launcher.service';
 import { ObjectId } from 'mongodb';
 import { shuffle } from 'lodash';
 import { Events } from '@/events/events';
+import { SlotStatus } from '../models/slot-status';
 
 interface GameSortOptions {
   launchedAt: 1 | -1;
@@ -92,7 +93,7 @@ export class GamesService {
       state: /launching|started/,
       slots: {
         $elemMatch: {
-          status: /active|waiting for substitute/,
+          status: { $in: [ SlotStatus.Active, SlotStatus.WaitingForSubstitute ] },
           player: playerId,
         },
       },
@@ -158,7 +159,7 @@ export class GamesService {
     return this.gameModel
       .find({
         'state': { $in: ['launching', 'started'] },
-        'slots.status': 'waiting for substitute',
+        'slots.status': SlotStatus.WaitingForSubstitute,
       });
   }
 

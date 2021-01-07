@@ -1,6 +1,7 @@
 import { Injectable, Inject, forwardRef } from '@nestjs/common';
 import { GamesService } from '@/games/services/games.service';
 import { SubstituteRequest } from '../substitute-request';
+import { SlotStatus } from '@/games/models/slot-status';
 
 @Injectable()
 export class QueueAnnouncementsService {
@@ -13,7 +14,7 @@ export class QueueAnnouncementsService {
     const games = await this.gamesService.getGamesWithSubstitutionRequests();
     return games.flatMap(game => {
       return game.slots.flatMap(slot => {
-        if (slot.status !== 'waiting for substitute') {
+        if (slot.status !== SlotStatus.WaitingForSubstitute) {
           return [];
         }
 
