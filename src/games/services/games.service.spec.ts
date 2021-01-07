@@ -16,6 +16,7 @@ import { Tf2Team } from '../models/tf2-team';
 import { Events } from '@/events/events';
 import { SlotStatus } from '../models/slot-status';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
+import { GameState } from '../models/game-state';
 
 jest.mock('@/players/services/players.service');
 jest.mock('@/players/services/player-skill.service');
@@ -93,7 +94,7 @@ describe('GamesService', () => {
     let game: DocumentType<Game>;
 
     beforeEach(async () => {
-      game = await gameModel.create({ number: 1, map: 'cp_badlands', state: 'launching', slots: [] });
+      game = await gameModel.create({ number: 1, map: 'cp_badlands', slots: [] });
     });
 
     it('should get the game by its id', async () => {
@@ -108,9 +109,9 @@ describe('GamesService', () => {
     let endedGame: DocumentType<Game>;
 
     beforeEach(async () => {
-      launchingGame = await gameModel.create({ number: 1, map: 'cp_badlands', state: 'launching', slots: [] });
-      runningGame = await gameModel.create({ number: 2, map: 'cp_badlands', state: 'started', slots: [] });
-      endedGame = await gameModel.create({ number: 3, map: 'cp_badlands', state: 'ended', slots: [] });
+      launchingGame = await gameModel.create({ number: 1, map: 'cp_badlands', state: GameState.launching, slots: [] });
+      runningGame = await gameModel.create({ number: 2, map: 'cp_badlands', state: GameState.started, slots: [] });
+      endedGame = await gameModel.create({ number: 3, map: 'cp_badlands', state: GameState.ended, slots: [] });
     });
 
     it('should get only running games', async () => {
@@ -130,7 +131,7 @@ describe('GamesService', () => {
         game = await gameModel.create({
           number: 1,
           map: 'cp_badlands',
-          state: 'started',
+          state: GameState.started,
           slots: [
             {
               player: playerId,
@@ -158,7 +159,7 @@ describe('GamesService', () => {
         game = await gameModel.create({
           number: 1,
           map: 'cp_badlands',
-          state: 'started',
+          state: GameState.started,
           slots: [
             {
               player: playerId,
@@ -188,7 +189,7 @@ describe('GamesService', () => {
         await  gameModel.create({
           number: 1,
           map: 'cp_badlands',
-          state: 'started',
+          state: GameState.started,
           slots: [
             {
               player: playerId,
@@ -220,7 +221,7 @@ describe('GamesService', () => {
         await  gameModel.create({
           number: 1,
           map: 'cp_badlands',
-          state: 'ended',
+          state: GameState.ended,
           slots: [
             {
               player: playerId,
@@ -336,7 +337,7 @@ describe('GamesService', () => {
           },
         ],
         map: 'cp_badlands',
-        state: 'ended',
+        state: GameState.ended,
       });
 
       await gameModel.create({
@@ -349,7 +350,7 @@ describe('GamesService', () => {
           },
         ],
         map: 'cp_badlands',
-        state: 'ended',
+        state: GameState.ended,
       });
     });
 
@@ -389,7 +390,6 @@ describe('GamesService', () => {
           },
         ],
         map: 'cp_badlands',
-        state: 'launching',
       });
     });
 
@@ -410,7 +410,6 @@ describe('GamesService', () => {
         number: 1,
         slots: [],
         map: 'cp_badlands',
-        state: 'launching',
       });
 
       const gameServer = new ObjectId();
@@ -418,7 +417,6 @@ describe('GamesService', () => {
         number: 2,
         slots: [],
         map: 'cp_badlands',
-        state: 'launching',
         gameServer,
       });
     });
