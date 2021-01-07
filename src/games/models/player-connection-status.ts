@@ -1,1 +1,5 @@
-export type PlayerConnectionStatus = 'offline' | 'joining' | 'connected';
+export enum PlayerConnectionStatus {
+  offline = 'offline',
+  joining = 'joining',
+  connected = 'connected',
+}

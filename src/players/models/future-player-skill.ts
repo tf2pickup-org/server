@@ -1,3 +1,4 @@
+import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { prop } from '@typegoose/typegoose';
 
 /**
@@ -9,6 +10,6 @@ export class FuturePlayerSkill {
   steamId!: string;
 
   @prop({ type: Number })
-  skill?: Map<string, number>;
+  skill?: Map<Tf2ClassName, number>;
 
 }

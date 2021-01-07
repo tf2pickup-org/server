@@ -42,18 +42,18 @@ export class PlayerSubstitutionService {
       throw new Error('the game has already ended');
     }
 
-    if (slot.status === SlotStatus.Replaced) {
+    if (slot.status === SlotStatus.replaced) {
       throw new Error('this player has already been replaced');
     }
 
-    if (slot.status === SlotStatus.WaitingForSubstitute) {
+    if (slot.status === SlotStatus.waitingForSubstitute) {
       return game;
     }
 
     const player = await this.playersService.getById(playerId);
     this.logger.debug(`player ${player.name} taking part in game #${game.number} is marked as 'waiting for substitute'`);
 
-    slot.status = SlotStatus.WaitingForSubstitute;
+    slot.status = SlotStatus.waitingForSubstitute;
     await game.save();
     this.events.gameChanges.next({ game: game.toJSON() });
     this.events.substituteRequestsChange.next();
@@ -89,7 +89,7 @@ export class PlayerSubstitutionService {
     const player = await this.playersService.getById(playerId);
     this.logger.verbose(`player ${player.name} taking part in game #${game.number} is marked as 'active'`);
 
-    slot.status = SlotStatus.Active;
+    slot.status = SlotStatus.active;
     await game.save();
     this.events.gameChanges.next({ game });
     this.events.substituteRequestsChange.next();
@@ -119,14 +119,14 @@ export class PlayerSubstitutionService {
     }
 
     const _replaceeId = new ObjectId(replaceeId);
-    const slot = game.slots.find(slot => slot.status === SlotStatus.WaitingForSubstitute && _replaceeId.equals(slot.player as ObjectId));
+    const slot = game.slots.find(slot => slot.status === SlotStatus.waitingForSubstitute && _replaceeId.equals(slot.player as ObjectId));
 
     if (!slot) {
       throw new Error('no such slot');
     }
 
     if (replaceeId === replacementId) {
-      slot.status = SlotStatus.Active;
+      slot.status = SlotStatus.active;
       await game.save();
       this.events.gameChanges.next({ game });
       this.events.substituteRequestsChange.next();
@@ -148,7 +148,7 @@ export class PlayerSubstitutionService {
     game.slots.push(replacementSlot);
 
     // update replacee
-    slot.status = SlotStatus.Replaced;
+    slot.status = SlotStatus.replaced;
 
     await game.save();
     this.events.gameChanges.next({ game });

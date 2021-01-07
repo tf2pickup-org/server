@@ -15,6 +15,7 @@ import { Events } from '@/events/events';
 import { standardSchemaOptions } from '@/utils/standard-schema-options';
 import { removeGameAssignedSkills } from '@/utils/tojson-transform';
 import { SlotStatus } from '../models/slot-status';
+import { GameState } from '../models/game-state';
 
 jest.mock('@/players/services/players.service');
 jest.mock('@nestjs/config');
@@ -98,7 +99,7 @@ describe('GameEventHandlerService', () => {
     describe('when the match has ended', () => {
       beforeEach(async () => {
         const game = await gameModel.findById(mockGame.id);
-        game.state = 'ended';
+        game.state = GameState.ended;
         await game.save();
       });
 
@@ -117,7 +118,7 @@ describe('GameEventHandlerService', () => {
       gameServerId = new ObjectId();
       const game = await gameModel.findById(mockGame.id);
       game.gameServer = gameServerId;
-      game.state = 'started';
+      game.state = GameState.started;
       await game.save();
     });
 
@@ -148,13 +149,13 @@ describe('GameEventHandlerService', () => {
     describe('with player awaiting a substitute', () => {
       beforeEach(async () => {
         const game = await gameModel.findById(mockGame.id);
-        game.slots[0].status = SlotStatus.WaitingForSubstitute;
+        game.slots[0].status = SlotStatus.waitingForSubstitute;
         await game.save();
       });
 
       it('should set his status back to active', async () => {
         const game = await service.onMatchEnded(mockGame.id);
-        expect(game.slots.every(s => s.status === SlotStatus.Active)).toBe(true);
+        expect(game.slots.every(s => s.status === SlotStatus.active)).toBe(true);
       });
 
       // eslint-disable-next-line jest/expect-expect

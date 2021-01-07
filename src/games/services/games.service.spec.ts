@@ -15,6 +15,7 @@ import { MongoMemoryServer } from 'mongodb-memory-server';
 import { Tf2Team } from '../models/tf2-team';
 import { Events } from '@/events/events';
 import { SlotStatus } from '../models/slot-status';
+import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 
 jest.mock('@/players/services/players.service');
 jest.mock('@/players/services/player-skill.service');
@@ -133,9 +134,9 @@ describe('GamesService', () => {
           slots: [
             {
               player: playerId,
-              status: SlotStatus.Active,
-              gameClass: 'soldier',
-              team: Tf2Team.Blu,
+              status: SlotStatus.active,
+              gameClass: Tf2ClassName.soldier,
+              team: Tf2Team.blu,
             },
           ],
         });
@@ -161,9 +162,9 @@ describe('GamesService', () => {
           slots: [
             {
               player: playerId,
-              status: SlotStatus.WaitingForSubstitute,
-              gameClass: 'soldier',
-              team: Tf2Team.Blu,
+              status: SlotStatus.waitingForSubstitute,
+              gameClass: Tf2ClassName.soldier,
+              team: Tf2Team.blu,
             },
           ],
         });
@@ -191,15 +192,15 @@ describe('GamesService', () => {
           slots: [
             {
               player: playerId,
-              status: SlotStatus.Replaced,
-              gameClass: 'soldier',
-              team: Tf2Team.Blu,
+              status: SlotStatus.replaced,
+              gameClass: Tf2ClassName.soldier,
+              team: Tf2Team.blu,
             },
             {
               player: player2Id,
-              status: SlotStatus.Active,
-              gameClass: 'soldier',
-              team: Tf2Team.Red,
+              status: SlotStatus.active,
+              gameClass: Tf2ClassName.soldier,
+              team: Tf2Team.red,
             },
           ],
         });
@@ -223,8 +224,8 @@ describe('GamesService', () => {
           slots: [
             {
               player: playerId,
-              gameClass: 'soldier',
-              team: Tf2Team.Blu,
+              gameClass: Tf2ClassName.soldier,
+              team: Tf2Team.blu,
             },
           ],
         });
@@ -325,13 +326,13 @@ describe('GamesService', () => {
         slots: [
           {
             player: player1._id,
-            team: Tf2Team.Blu,
-            gameClass: 'scout',
+            team: Tf2Team.blu,
+            gameClass: Tf2ClassName.scout,
           },
           {
             player: player2._id,
-            team: Tf2Team.Red,
-            gameClass: 'scout',
+            team: Tf2Team.red,
+            gameClass: Tf2ClassName.scout,
           },
         ],
         map: 'cp_badlands',
@@ -343,8 +344,8 @@ describe('GamesService', () => {
         slots: [
           {
             player: player1._id,
-            team: Tf2Team.Blu,
-            gameClass: 'scout',
+            team: Tf2Team.blu,
+            gameClass: Tf2ClassName.scout,
           },
         ],
         map: 'cp_badlands',
@@ -376,15 +377,15 @@ describe('GamesService', () => {
         slots: [
           {
             player: player1,
-            team: Tf2Team.Blu,
-            gameClass: 'scout',
-            status: SlotStatus.WaitingForSubstitute,
+            team: Tf2Team.blu,
+            gameClass: Tf2ClassName.scout,
+            status: SlotStatus.waitingForSubstitute,
           },
           {
             player: player2,
-            team: Tf2Team.Red,
-            gameClass: 'scout',
-            status: SlotStatus.Active,
+            team: Tf2Team.red,
+            gameClass: Tf2ClassName.scout,
+            status: SlotStatus.active,
           },
         ],
         map: 'cp_badlands',
