@@ -5,6 +5,7 @@ import { typegooseTestingModule } from '@/utils/testing-typegoose-module';
 import { TypegooseModule, getModelToken } from 'nestjs-typegoose';
 import { FuturePlayerSkill } from '../models/future-player-skill';
 import { ReturnModelType } from '@typegoose/typegoose';
+import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 
 describe('FuturePlayerSkillService', () => {
   let service: FuturePlayerSkillService;
@@ -36,7 +37,7 @@ describe('FuturePlayerSkillService', () => {
   });
 
   describe('#registerSkill()', () => {
-    const skill = new Map([[ 'soldier', 5 ]]);
+    const skill = new Map([[ Tf2ClassName.soldier, 5 ]]);
 
     it('should insert player skill', async () => {
       await service.registerSkill('FAKE_STEAM_ID', skill);
@@ -50,7 +51,7 @@ describe('FuturePlayerSkillService', () => {
       });
 
       it('should update player skill', async () => {
-        const newSkill = new Map([[ 'soldier', 6 ]]);
+        const newSkill = new Map([[ Tf2ClassName.soldier, 6 ]]);
         await service.registerSkill('FAKE_STEAM_ID', newSkill);
         const doc = await futurePlayerSkillModel.findOne();
         expect(doc.toObject()).toEqual(expect.objectContaining({ steamId: 'FAKE_STEAM_ID', skill: newSkill }));

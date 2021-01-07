@@ -9,6 +9,7 @@ import { PlayerSkillService } from '../services/player-skill.service';
 import { PlayerSkill } from '../models/player-skill';
 import { PlayerBansService } from '../services/player-bans.service';
 import { NotFoundException, BadRequestException } from '@nestjs/common';
+import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 
 class PlayersServiceStub {
   player: Player = {
@@ -48,7 +49,12 @@ class GamesServiceStub {
 class PlayerSkillServiceStub {
   skill: PlayerSkill = {
     player: 'FAKE_ID' as any,
-    skill: new Map<string, number>([['scout', 2], ['soldier', 2], ['demoman', 1], ['medic', 2]]),
+    skill: new Map<Tf2ClassName, number>([
+      [Tf2ClassName.scout, 2],
+      [Tf2ClassName.soldier, 2],
+      [Tf2ClassName.demoman, 1],
+      [Tf2ClassName.medic, 2],
+    ]),
   };
   getPlayerSkill(playerId: string) { return new Promise(resolve => resolve(this.skill)); }
   setPlayerSkill(playerId: string, skill: Map<string, number>) { return Promise.resolve(this.skill); }

@@ -3,13 +3,14 @@ import { FriendsService } from './friends.service';
 import { QueueSlot } from '../queue-slot';
 import { QueueService } from './queue.service';
 import { Events } from '@/events/events';
+import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 
 class QueueServiceStub {
   state = 'waiting';
   slots: QueueSlot[] = [
-    { id: 0, playerId: 'FAKE_MEDIC', gameClass: 'medic', ready: false },
-    { id: 1, playerId: 'FAKE_DM_CLASS', gameClass: 'soldier', ready: false },
-    { id: 2, playerId: 'FAKE_2ND_MEDIC', gameClass: 'medic', ready: false },
+    { id: 0, playerId: 'FAKE_MEDIC', gameClass: Tf2ClassName.medic, ready: false },
+    { id: 1, playerId: 'FAKE_DM_CLASS', gameClass: Tf2ClassName.soldier, ready: false },
+    { id: 2, playerId: 'FAKE_2ND_MEDIC', gameClass: Tf2ClassName.medic, ready: false },
   ];
   findSlotByPlayerId(playerId: string) { return this.slots.find(s => s.playerId === playerId); }
 }
@@ -56,12 +57,12 @@ describe('FriendsService', () => {
     });
 
     it('should fail if the medic is not a medic after all', () => {
-      queueService.slots[0].gameClass = 'scout';
+      queueService.slots[0].gameClass = Tf2ClassName.scout;
       expect(() => service.markFriend('FAKE_MEDIC', 'FAKE_DM_CLASS')).toThrowError('only medics can make friends');
     });
 
     it('should fail the friend is also a medic', () => {
-      queueService.slots[1].gameClass = 'medic';
+      queueService.slots[1].gameClass = Tf2ClassName.medic;
       expect(() => service.markFriend('FAKE_MEDIC', 'FAKE_DM_CLASS')).toThrowError('cannot make the other medic as a friend');
     });
 
@@ -82,13 +83,13 @@ describe('FriendsService', () => {
     });
 
     it('should remove previous frienship', () => {
-      queueService.slots.push({ id: 2, playerId: 'ANOTHER_PLAYER', gameClass: 'soldier', ready: false });
+      queueService.slots.push({ id: 2, playerId: 'ANOTHER_PLAYER', gameClass: Tf2ClassName.soldier, ready: false });
       service.markFriend('FAKE_MEDIC', 'FAKE_DM_CLASS');
       const friendships = service.markFriend('FAKE_MEDIC', 'ANOTHER_PLAYER');
       expect(friendships).toEqual([{ sourcePlayerId: 'FAKE_MEDIC', targetPlayerId: 'ANOTHER_PLAYER' }]);
     });
 
-    it('should emit the queueFriendshipsChange event', async () => new Promise(resolve => {
+    it('should emit the queueFriendshipsChange event', async () => new Promise<void>(resolve => {
       events.queueFriendshipsChange.subscribe(({ friendships }) => {
         expect(friendships).toEqual([{ sourcePlayerId: 'FAKE_MEDIC', targetPlayerId: 'FAKE_DM_CLASS' }]);
         resolve();
@@ -110,7 +111,7 @@ describe('FriendsService', () => {
     });
 
     it('should remove friendship if the medic changes class', () => {
-      queueService.slots[0].gameClass = 'soldier';
+      queueService.slots[0].gameClass = Tf2ClassName.soldier;
       events.queueSlotsChange.next({ slots: queueService.slots });
       expect(service.friendships).toEqual([]);
     });
