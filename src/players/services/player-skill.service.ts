@@ -48,7 +48,7 @@ export class PlayerSkillService implements OnModuleInit {
     return await this.playerSkillModel.findOne({ player: playerId });
   }
 
-  async setPlayerSkill(playerId: string, skill: Map<string, number>, adminId?: string): Promise<DocumentType<PlayerSkill>> {
+  async setPlayerSkill(playerId: string, skill: PlayerSkill['skill'], adminId?: string): Promise<DocumentType<PlayerSkill>> {
     let admin: DocumentType<Player>;
     if (adminId) {
       admin = await this.playersService.getById(adminId);

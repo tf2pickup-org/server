@@ -15,6 +15,8 @@ import { MongoMemoryServer } from 'mongodb-memory-server';
 import { Tf2Team } from '../models/tf2-team';
 import { Events } from '@/events/events';
 import { SlotStatus } from '../models/slot-status';
+import { Tf2ClassName } from '@/shared/models/tf2-class-name';
+import { GameState } from '../models/game-state';
 
 jest.mock('@/players/services/players.service');
 jest.mock('@/players/services/player-skill.service');
@@ -92,7 +94,7 @@ describe('GamesService', () => {
     let game: DocumentType<Game>;
 
     beforeEach(async () => {
-      game = await gameModel.create({ number: 1, map: 'cp_badlands', state: 'launching', slots: [] });
+      game = await gameModel.create({ number: 1, map: 'cp_badlands', slots: [] });
     });
 
     it('should get the game by its id', async () => {
@@ -107,9 +109,9 @@ describe('GamesService', () => {
     let endedGame: DocumentType<Game>;
 
     beforeEach(async () => {
-      launchingGame = await gameModel.create({ number: 1, map: 'cp_badlands', state: 'launching', slots: [] });
-      runningGame = await gameModel.create({ number: 2, map: 'cp_badlands', state: 'started', slots: [] });
-      endedGame = await gameModel.create({ number: 3, map: 'cp_badlands', state: 'ended', slots: [] });
+      launchingGame = await gameModel.create({ number: 1, map: 'cp_badlands', state: GameState.launching, slots: [] });
+      runningGame = await gameModel.create({ number: 2, map: 'cp_badlands', state: GameState.started, slots: [] });
+      endedGame = await gameModel.create({ number: 3, map: 'cp_badlands', state: GameState.ended, slots: [] });
     });
 
     it('should get only running games', async () => {
@@ -129,13 +131,13 @@ describe('GamesService', () => {
         game = await gameModel.create({
           number: 1,
           map: 'cp_badlands',
-          state: 'started',
+          state: GameState.started,
           slots: [
             {
               player: playerId,
-              status: SlotStatus.Active,
-              gameClass: 'soldier',
-              team: Tf2Team.Blu,
+              status: SlotStatus.active,
+              gameClass: Tf2ClassName.soldier,
+              team: Tf2Team.blu,
             },
           ],
         });
@@ -157,13 +159,13 @@ describe('GamesService', () => {
         game = await gameModel.create({
           number: 1,
           map: 'cp_badlands',
-          state: 'started',
+          state: GameState.started,
           slots: [
             {
               player: playerId,
-              status: SlotStatus.WaitingForSubstitute,
-              gameClass: 'soldier',
-              team: Tf2Team.Blu,
+              status: SlotStatus.waitingForSubstitute,
+              gameClass: Tf2ClassName.soldier,
+              team: Tf2Team.blu,
             },
           ],
         });
@@ -187,19 +189,19 @@ describe('GamesService', () => {
         await  gameModel.create({
           number: 1,
           map: 'cp_badlands',
-          state: 'started',
+          state: GameState.started,
           slots: [
             {
               player: playerId,
-              status: SlotStatus.Replaced,
-              gameClass: 'soldier',
-              team: Tf2Team.Blu,
+              status: SlotStatus.replaced,
+              gameClass: Tf2ClassName.soldier,
+              team: Tf2Team.blu,
             },
             {
               player: player2Id,
-              status: SlotStatus.Active,
-              gameClass: 'soldier',
-              team: Tf2Team.Red,
+              status: SlotStatus.active,
+              gameClass: Tf2ClassName.soldier,
+              team: Tf2Team.red,
             },
           ],
         });
@@ -219,12 +221,12 @@ describe('GamesService', () => {
         await  gameModel.create({
           number: 1,
           map: 'cp_badlands',
-          state: 'ended',
+          state: GameState.ended,
           slots: [
             {
               player: playerId,
-              gameClass: 'soldier',
-              team: Tf2Team.Blu,
+              gameClass: Tf2ClassName.soldier,
+              team: Tf2Team.blu,
             },
           ],
         });
@@ -325,17 +327,17 @@ describe('GamesService', () => {
         slots: [
           {
             player: player1._id,
-            team: Tf2Team.Blu,
-            gameClass: 'scout',
+            team: Tf2Team.blu,
+            gameClass: Tf2ClassName.scout,
           },
           {
             player: player2._id,
-            team: Tf2Team.Red,
-            gameClass: 'scout',
+            team: Tf2Team.red,
+            gameClass: Tf2ClassName.scout,
           },
         ],
         map: 'cp_badlands',
-        state: 'ended',
+        state: GameState.ended,
       });
 
       await gameModel.create({
@@ -343,12 +345,12 @@ describe('GamesService', () => {
         slots: [
           {
             player: player1._id,
-            team: Tf2Team.Blu,
-            gameClass: 'scout',
+            team: Tf2Team.blu,
+            gameClass: Tf2ClassName.scout,
           },
         ],
         map: 'cp_badlands',
-        state: 'ended',
+        state: GameState.ended,
       });
     });
 
@@ -376,19 +378,18 @@ describe('GamesService', () => {
         slots: [
           {
             player: player1,
-            team: Tf2Team.Blu,
-            gameClass: 'scout',
-            status: SlotStatus.WaitingForSubstitute,
+            team: Tf2Team.blu,
+            gameClass: Tf2ClassName.scout,
+            status: SlotStatus.waitingForSubstitute,
           },
           {
             player: player2,
-            team: Tf2Team.Red,
-            gameClass: 'scout',
-            status: SlotStatus.Active,
+            team: Tf2Team.red,
+            gameClass: Tf2ClassName.scout,
+            status: SlotStatus.active,
           },
         ],
         map: 'cp_badlands',
-        state: 'launching',
       });
     });
 
@@ -409,7 +410,6 @@ describe('GamesService', () => {
         number: 1,
         slots: [],
         map: 'cp_badlands',
-        state: 'launching',
       });
 
       const gameServer = new ObjectId();
@@ -417,7 +417,6 @@ describe('GamesService', () => {
         number: 2,
         slots: [],
         map: 'cp_badlands',
-        state: 'launching',
         gameServer,
       });
     });

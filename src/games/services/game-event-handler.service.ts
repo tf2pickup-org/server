@@ -8,6 +8,7 @@ import { ReturnModelType } from '@typegoose/typegoose';
 import { serverCleanupDelay } from '@configs/game-servers';
 import { Events } from '@/events/events';
 import { SlotStatus } from '../models/slot-status';
+import { GameState } from '../models/game-state';
 
 @Injectable()
 export class GameEventHandlerService {
@@ -22,7 +23,7 @@ export class GameEventHandlerService {
   ) { }
 
   async onMatchStarted(gameId: string) {
-    const game = await this.gameModel.findOneAndUpdate({ _id: gameId, state: 'launching' }, { state: 'started' }, { new: true });
+    const game = await this.gameModel.findOneAndUpdate({ _id: gameId, state: GameState.launching }, { state: GameState.started }, { new: true });
     if (game) {
       this.events.gameChanges.next({ game: game.toJSON() });
     }
@@ -32,15 +33,15 @@ export class GameEventHandlerService {
 
   async onMatchEnded(gameId: string) {
     const game = await this.gameModel.findOneAndUpdate(
-      { _id: gameId, state: 'started' },
+      { _id: gameId, state: GameState.started },
       {
-        state: 'ended',
-        'slots.$[element].status': `${SlotStatus.Active}`,
+        state: GameState.ended,
+        'slots.$[element].status': `${SlotStatus.active}`,
       },
       {
         new: true, // return updated document
         arrayFilters: [
-          { 'element.status': { $eq: `${SlotStatus.WaitingForSubstitute}` } },
+          { 'element.status': { $eq: `${SlotStatus.waitingForSubstitute}` } },
         ],
       }
     );
@@ -79,15 +80,15 @@ export class GameEventHandlerService {
   }
 
   async onPlayerJoining(gameId: string, steamId: string) {
-    return await this.setPlayerConnectionStatus(gameId, steamId, 'joining');
+    return await this.setPlayerConnectionStatus(gameId, steamId, PlayerConnectionStatus.joining);
   }
 
   async onPlayerConnected(gameId: string, steamId: string) {
-    return await this.setPlayerConnectionStatus(gameId, steamId, 'connected');
+    return await this.setPlayerConnectionStatus(gameId, steamId, PlayerConnectionStatus.connected);
   }
 
   async onPlayerDisconnected(gameId: string, steamId: string) {
-    return await this.setPlayerConnectionStatus(gameId, steamId, 'offline');
+    return await this.setPlayerConnectionStatus(gameId, steamId, PlayerConnectionStatus.offline);
   }
 
   async onScoreReported(gameId: string, teamName: string, score: string) {

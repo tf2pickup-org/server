@@ -2,10 +2,11 @@ import { strict } from 'assert';
 import { NotImplementedException } from '@nestjs/common';
 import { Tf2Team } from '../models/tf2-team';
 import { meanBy } from 'lodash';
+import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 
 export interface PlayerSlot {
   playerId: string;
-  gameClass: string;
+  gameClass: Tf2ClassName;
   skill: number; // the skill for the given gameClass
 }
 
@@ -143,7 +144,7 @@ function respectsOverrides(lineup: Record<TeamId, TeamLineup>, overrides?: TeamO
  * From the given pool of players make two teams that make the smallest average skill difference.
  */
 export function pickTeams(players: PlayerSlot[], overrides?: TeamOverrides): PlayerSlotWithTeam[] {
-  const teams: Record<TeamId, Tf2Team> = { 0: Tf2Team.Blu, 1: Tf2Team.Red };
+  const teams: Record<TeamId, Tf2Team> = { 0: Tf2Team.blu, 1: Tf2Team.red };
   const gameClasses = [ ...new Set(players.map(p => p.gameClass)) ];
 
   const allPossibleLineups = makeAllPossibleLineups(gameClasses, players)

@@ -1,3 +1,4 @@
+import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { prop, Ref } from '@typegoose/typegoose';
 import { Player } from './player';
 
@@ -7,6 +8,6 @@ export class PlayerSkill {
   player?: Ref<Player>;
 
   @prop({ type: Number })
-  skill?: Map<string, number>;
+  skill?: Map<Tf2ClassName, number>;
 
 }

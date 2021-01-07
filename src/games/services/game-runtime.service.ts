@@ -5,11 +5,12 @@ import { GameServersService } from '@/game-servers/services/game-servers.service
 import { RconFactoryService } from './rcon-factory.service';
 import { PlayersService } from '@/players/services/players.service';
 import { addGamePlayer, delGamePlayer, say } from '../utils/rcon-commands';
-import { GamePlayer } from '../models/game-player';
+import { GameSlot } from '../models/game-slot';
 import { Rcon } from 'rcon-client/lib';
 import { isRefType } from '@typegoose/typegoose';
 import { Events } from '@/events/events';
 import { SlotStatus } from '../models/slot-status';
+import { GameState } from '../models/game-state';
 
 @Injectable()
 export class GameRuntimeService {
@@ -62,9 +63,9 @@ export class GameRuntimeService {
 
     this.logger.verbose(`game #${game.number} force ended`);
 
-    game.state = 'interrupted';
+    game.state = GameState.interrupted;
     game.error = 'ended by admin';
-    game.slots.filter(s => s.status === SlotStatus.WaitingForSubstitute).forEach(s => s.status = SlotStatus.Active);
+    game.slots.filter(s => s.status === SlotStatus.waitingForSubstitute).forEach(s => s.status = SlotStatus.active);
     await game.save();
     this.events.gameChanges.next({ game });
     this.events.substituteRequestsChange.next();
@@ -76,7 +77,7 @@ export class GameRuntimeService {
     return game;
   }
 
-  async replacePlayer(gameId: string, replaceeId: string, replacementSlot: GamePlayer) {
+  async replacePlayer(gameId: string, replaceeId: string, replacementSlot: GameSlot) {
     const game = await this.gamesService.getById(gameId);
     if (!game) {
       throw new Error('no such game');

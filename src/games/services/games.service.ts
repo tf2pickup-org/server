@@ -12,6 +12,8 @@ import { ObjectId } from 'mongodb';
 import { shuffle } from 'lodash';
 import { Events } from '@/events/events';
 import { SlotStatus } from '../models/slot-status';
+import { Tf2ClassName } from '@/shared/models/tf2-class-name';
+import { GameState } from '../models/game-state';
 
 interface GameSortOptions {
   launchedAt: 1 | -1;
@@ -75,9 +77,9 @@ export class GamesService {
     return await this.gameModel.countDocuments(criteria);
   }
 
-  async getPlayerPlayedClassCount(playerId: string): Promise<{ [gameClass: string]: number }> {
+  async getPlayerPlayedClassCount(playerId: string): Promise<{ [gameClass in Tf2ClassName]?: number }> {
     // fixme refactor this to aggregate
-    const allGames = await this.gameModel.find({ 'slots.player': new ObjectId(playerId), state: 'ended' });
+    const allGames = await this.gameModel.find({ 'slots.player': new ObjectId(playerId), state: GameState.ended });
     return this.queueConfigService.queueConfig.classes
       .map(cls => cls.name)
       .reduce((prev, gameClass) => {
@@ -93,7 +95,7 @@ export class GamesService {
       state: /launching|started/,
       slots: {
         $elemMatch: {
-          status: { $in: [ SlotStatus.Active, SlotStatus.WaitingForSubstitute ] },
+          status: { $in: [ SlotStatus.active, SlotStatus.waitingForSubstitute ] },
           player: playerId,
         },
       },
@@ -116,7 +118,6 @@ export class GamesService {
       map,
       slots,
       assignedSkills,
-      state: 'launching',
     });
 
     this.logger.debug(`game #${game.number} created`);
@@ -158,15 +159,15 @@ export class GamesService {
   async getGamesWithSubstitutionRequests(): Promise<DocumentType<Game>[]> {
     return this.gameModel
       .find({
-        'state': { $in: ['launching', 'started'] },
-        'slots.status': SlotStatus.WaitingForSubstitute,
+        'state': { $in: [ GameState.launching, GameState.started ] },
+        'slots.status': SlotStatus.waitingForSubstitute,
       });
   }
 
   async getOrphanedGames(): Promise<DocumentType<Game>[]> {
     return this.gameModel
       .find({
-        state: 'launching',
+        state: GameState.launching,
         gameServer: { $exists: false },
       });
   }

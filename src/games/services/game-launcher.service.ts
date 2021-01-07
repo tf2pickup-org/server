@@ -5,6 +5,7 @@ import { ServerConfiguratorService } from './server-configurator.service';
 import { Environment } from '@/environment/environment';
 import { Cron } from '@nestjs/schedule';
 import { Events } from '@/events/events';
+import { GameState } from '../models/game-state';
 
 /**
  * This service is responsible for launching a single game.
@@ -37,7 +38,7 @@ export class GameLauncherService {
       throw new Error('no such game');
     }
 
-    if (game.state === 'ended' || game.state === 'interrupted') {
+    if (game.state === GameState.ended || game.state === GameState.interrupted) {
       this.logger.warn(`trying to launch game #${game.number} that has already been ended`);
     }
 

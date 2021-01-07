@@ -14,7 +14,7 @@ export class QueueAnnouncementsService {
     const games = await this.gamesService.getGamesWithSubstitutionRequests();
     return games.flatMap(game => {
       return game.slots.flatMap(slot => {
-        if (slot.status !== SlotStatus.WaitingForSubstitute) {
+        if (slot.status !== SlotStatus.waitingForSubstitute) {
           return [];
         }
 

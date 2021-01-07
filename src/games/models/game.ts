@@ -1,9 +1,8 @@
 import { prop, Ref } from '@typegoose/typegoose';
-import { GamePlayer } from './game-player';
+import { GameSlot } from './game-slot';
 import { GameServer } from '@/game-servers/models/game-server';
 import { ObjectId } from 'mongodb';
-
-type GameState = 'launching' | 'started' | 'ended' | 'interrupted';
+import { GameState } from './game-state';
 
 export class Game {
   id: string;
@@ -14,8 +13,8 @@ export class Game {
   @prop({ required: true, unique: true })
   number!: number;
 
-  @prop({ type: () => [GamePlayer], required: true })
-  slots!: GamePlayer[];
+  @prop({ type: () => [GameSlot], required: true })
+  slots!: GameSlot[];
 
   @prop({ type: Number })
   assignedSkills?: Map<string, number>;
@@ -23,7 +22,7 @@ export class Game {
   @prop({ required: true })
   map!: string;
 
-  @prop({ default: 'launching', index: true })
+  @prop({ index: true, enum: GameState, default: GameState.launching })
   state?: GameState;
 
   @prop()

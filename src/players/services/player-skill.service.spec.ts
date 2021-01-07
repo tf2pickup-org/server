@@ -15,6 +15,7 @@ import { Player } from '../models/player';
 import { DiscordService } from '@/discord/services/discord.service';
 import { Environment } from '@/environment/environment';
 import { Events } from '@/events/events';
+import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 
 jest.mock('./players.service');
 jest.mock('./future-player-skill.service');
@@ -105,7 +106,7 @@ describe('PlayerSkillService', () => {
         newPlayer = await playersService._createOne();
       });
 
-      it('should not update player\'s skill', async () => new Promise(resolve => {
+      it('should not update player\'s skill', async () => new Promise<void>(resolve => {
         // @ts-expect-error
         playersService.playerRegistered.next(newPlayer.id.toString());
         setTimeout(async () => {
@@ -121,7 +122,7 @@ describe('PlayerSkillService', () => {
         futurePlayerSkillService.findSkill = () => Promise.resolve({ steamId: mockPlayer.steamId, skill: new Map([['soldier', 2]]) });
       });
 
-      it('should update player\'s skill', async () => new Promise(resolve => {
+      it('should update player\'s skill', async () => new Promise<void>(resolve => {
         // @ts-expect-error
         playersService.playerRegistered.next(mockPlayer.id.toString());
         setTimeout(async () => {
@@ -149,30 +150,30 @@ describe('PlayerSkillService', () => {
   describe('#setPlayerSkill()', () => {
     describe('when changing player skill', () => {
       it('should update player skill', async () => {
-        const ret = await service.setPlayerSkill(mockPlayer.id, new Map([['soldier', 2]]));
+        const ret = await service.setPlayerSkill(mockPlayer.id, new Map([[Tf2ClassName.soldier, 2]]));
         expect(ret.toObject()).toMatchObject({
-          skill: new Map([['soldier', 2]]),
+          skill: new Map([[Tf2ClassName.soldier, 2]]),
         });
       });
 
       it('should notify admins on discord', async () => {
         const spy = jest.spyOn(discordService.getAdminsChannel(), 'send');
-        await service.setPlayerSkill(mockPlayer.id, new Map([['soldier', 2]]));
+        await service.setPlayerSkill(mockPlayer.id, new Map([[Tf2ClassName.soldier, 2]]));
         expect(spy).toHaveBeenCalled();
       });
     });
 
     describe('when not changing player skill', () => {
       it('should return the original skill', async () => {
-        const ret = await service.setPlayerSkill(mockPlayer.id, new Map([['soldier', 4]]));
+        const ret = await service.setPlayerSkill(mockPlayer.id, new Map([[Tf2ClassName.soldier, 4]]));
         expect(ret.toObject()).toMatchObject({
-          skill: new Map([['soldier', 4]]),
+          skill: new Map([[Tf2ClassName.soldier, 4]]),
         });
       });
 
       it('should not notify admins on discord', async () => {
         const spy = jest.spyOn(discordService.getAdminsChannel(), 'send');
-        await service.setPlayerSkill(mockPlayer.id, new Map([['soldier', 4]]));
+        await service.setPlayerSkill(mockPlayer.id, new Map([[Tf2ClassName.soldier, 4]]));
         expect(spy).not.toHaveBeenCalled();
       });
     });
@@ -187,21 +188,21 @@ describe('PlayerSkillService', () => {
 
       it('should not notify admins on discord', async () => {
         const spy = jest.spyOn(discordService.getAdminsChannel(), 'send');
-        await service.setPlayerSkill(newPlayer.id, new Map([['soldier', 1]]));
+        await service.setPlayerSkill(newPlayer.id, new Map([[Tf2ClassName.soldier, 1]]));
         expect(spy).not.toHaveBeenCalled();
       });
     });
 
     describe('when there is no such player', () => {
       it('should fail', async () => {
-        await expect(service.setPlayerSkill(new ObjectId().toString(), new Map([['scout', 1]]))).rejects.toThrowError('no such player');
+        await expect(service.setPlayerSkill(new ObjectId().toString(), new Map([[Tf2ClassName.scout, 1]]))).rejects.toThrowError('no such player');
       });
     });
 
     describe('when the admin id is provided', () => {
       describe('and the provided admin does not exist', () => {
         it('should reject', async () => {
-          await expect(service.setPlayerSkill(mockPlayer.id, new Map([['soldier', 4]]), new ObjectId().toString()))
+          await expect(service.setPlayerSkill(mockPlayer.id, new Map([[Tf2ClassName.soldier, 4]]), new ObjectId().toString()))
             .rejects.toThrowError();
         });
       });

@@ -13,13 +13,13 @@ class GamesServiceStub {
         slots: [
           {
             gameClass: 'soldier',
-            team: Tf2Team.Blu,
-            status: SlotStatus.WaitingForSubstitute,
+            team: Tf2Team.blu,
+            status: SlotStatus.waitingForSubstitute,
           },
           {
             gameClass: 'soldier',
-            team: Tf2Team.Red,
-            status: SlotStatus.Active,
+            team: Tf2Team.red,
+            status: SlotStatus.active,
           },
         ],
       },

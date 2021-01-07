@@ -19,6 +19,7 @@ import { standardSchemaOptions } from '@/utils/standard-schema-options';
 import { removeGameAssignedSkills } from '@/utils/tojson-transform';
 import { Events } from '@/events/events';
 import { SlotStatus } from '../models/slot-status';
+import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 
 jest.mock('./games.service');
 jest.mock('@/game-servers/services/game-servers.service');
@@ -196,13 +197,13 @@ describe('GameRuntimeService', () => {
 
     describe('if one of the players is waiting to be substituted', () => {
       beforeEach(async () => {
-        mockGame.slots[0].status = SlotStatus.WaitingForSubstitute;
+        mockGame.slots[0].status = SlotStatus.waitingForSubstitute;
         await mockGame.save();
       });
 
       it('should set his status back to active', async () => {
         const ret = await service.forceEnd(mockGame.id);
-        expect(ret.slots[0].status).toEqual(SlotStatus.Active);
+        expect(ret.slots[0].status).toEqual(SlotStatus.active);
       });
     });
   });
@@ -251,8 +252,8 @@ describe('GameRuntimeService', () => {
         const spy = jest.spyOn(rcon, 'end');
         await service.replacePlayer(mockGame.id, mockPlayers[0].id, {
           player: new ObjectId(),
-          team: Tf2Team.Red,
-          gameClass: 'soldier',
+          team: Tf2Team.red,
+          gameClass: Tf2ClassName.soldier,
         });
         expect(spy).toHaveBeenCalled();
       });
@@ -262,8 +263,8 @@ describe('GameRuntimeService', () => {
       const spy = jest.spyOn(rcon, 'end');
       await service.replacePlayer(mockGame.id, mockPlayers[0].id, {
         player: new ObjectId(),
-        team: Tf2Team.Red,
-        gameClass: 'soldier',
+        team: Tf2Team.red,
+        gameClass: Tf2ClassName.soldier,
       });
       expect(spy).toHaveBeenCalled();
     });

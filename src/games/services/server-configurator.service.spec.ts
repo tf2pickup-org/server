@@ -11,6 +11,7 @@ import { Tf2Team } from '../models/tf2-team';
 import { Game } from '../models/game';
 import { ObjectId } from 'mongodb';
 import { SlotStatus } from '../models/slot-status';
+import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 
 class EnvironmentStub {
   logRelayAddress = 'FAKE_RELAY_ADDRESS';
@@ -88,16 +89,16 @@ describe('ServerConfiguratorService', () => {
         {
           // @ts-expect-error
           player: 'PLAYER_1',
-          team: Tf2Team.Blu,
-          gameClass: 'soldier',
-          status: SlotStatus.Active,
+          team: Tf2Team.blu,
+          gameClass: Tf2ClassName.soldier,
+          status: SlotStatus.active,
         },
         {
           // @ts-expect-error
           player: 'PLAYER_2',
-          team: Tf2Team.Red,
-          gameClass: 'soldier',
-          status: SlotStatus.Active,
+          team: Tf2Team.red,
+          gameClass: Tf2ClassName.soldier,
+          status: SlotStatus.active,
         },
       ];
       game.map = 'cp_badlands';
@@ -117,8 +118,8 @@ describe('ServerConfiguratorService', () => {
       expect(spy).toHaveBeenCalledWith(changelevel('cp_badlands'));
       expect(spy).toHaveBeenCalledWith(execConfig('etf2l_6v6_5cp'));
       expect(spy).toHaveBeenCalledWith(expect.stringMatching(/^sv_password\s.+$/));
-      expect(spy).toHaveBeenCalledWith(addGamePlayer('PLAYER_1_STEAMID', 'PLAYER_1_NAME', Tf2Team.Blu, 'soldier'));
-      expect(spy).toHaveBeenCalledWith(addGamePlayer('PLAYER_2_STEAMID', 'PLAYER_2_NAME', Tf2Team.Red, 'soldier'));
+      expect(spy).toHaveBeenCalledWith(addGamePlayer('PLAYER_1_STEAMID', 'PLAYER_1_NAME', Tf2Team.blu, 'soldier'));
+      expect(spy).toHaveBeenCalledWith(addGamePlayer('PLAYER_2_STEAMID', 'PLAYER_2_NAME', Tf2Team.red, 'soldier'));
       expect(spy).toHaveBeenCalledWith(enablePlayerWhitelist());
       expect(spy).toHaveBeenCalledWith(tvPort());
       expect(spy).toHaveBeenCalledWith(tvPassword());
@@ -154,16 +155,16 @@ describe('ServerConfiguratorService', () => {
           {
             // @ts-expect-error
             player: 'PLAYER_1',
-            team: Tf2Team.Blu,
-            gameClass: 'soldier',
-            status: SlotStatus.Active,
+            team: Tf2Team.blu,
+            gameClass: Tf2ClassName.soldier,
+            status: SlotStatus.active,
           },
           {
             // @ts-expect-error
             player: 'PLAYER_2',
-            team: Tf2Team.Red,
-            gameClass: 'soldier',
-            status: SlotStatus.Replaced,
+            team: Tf2Team.red,
+            gameClass: Tf2ClassName.soldier,
+            status: SlotStatus.replaced,
           },
         ];
       });
@@ -172,8 +173,8 @@ describe('ServerConfiguratorService', () => {
         const spy = jest.spyOn(rcon, 'send');
         await service.configureServer(gameServer as any, game);
 
-        expect(spy).toHaveBeenCalledWith(addGamePlayer('PLAYER_1_STEAMID', 'PLAYER_1_NAME', Tf2Team.Blu, 'soldier'));
-        expect(spy).not.toHaveBeenCalledWith(addGamePlayer('PLAYER_2_STEAMID', 'PLAYER_2_NAME', Tf2Team.Red, 'soldier'));
+        expect(spy).toHaveBeenCalledWith(addGamePlayer('PLAYER_1_STEAMID', 'PLAYER_1_NAME', Tf2Team.blu, 'soldier'));
+        expect(spy).not.toHaveBeenCalledWith(addGamePlayer('PLAYER_2_STEAMID', 'PLAYER_2_NAME', Tf2Team.red, 'soldier'));
       });
     });
 
@@ -188,7 +189,7 @@ describe('ServerConfiguratorService', () => {
       const spy = jest.spyOn(rcon, 'send');
 
       await service.configureServer(gameServer as any, game as any);
-      expect(spy).toHaveBeenCalledWith(addGamePlayer('PLAYER_1_STEAMID', 'maly', Tf2Team.Blu, 'soldier'));
+      expect(spy).toHaveBeenCalledWith(addGamePlayer('PLAYER_1_STEAMID', 'maly', Tf2Team.blu, 'soldier'));
     });
 
     it('should close the rcon connection even though an RCON command failed', async () => {

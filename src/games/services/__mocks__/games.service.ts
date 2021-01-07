@@ -5,6 +5,7 @@ import { Game } from '@/games/models/game';
 import { ReturnModelType } from '@typegoose/typegoose';
 import { Player } from '@/players/models/player';
 import { ObjectId } from 'mongodb';
+import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 
 @Injectable()
 export class GamesService {
@@ -34,9 +35,8 @@ export class GamesService {
       slots: players?.map(p => ({
         player: new ObjectId(p.id),
         team: teams[`${(lastTeamId++) % 2}`],
-        gameClass: 'soldier',
+        gameClass: Tf2ClassName.soldier,
       })),
-      state: 'launching',
     });
   }
 

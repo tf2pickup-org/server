@@ -1,5 +1,5 @@
 export enum SlotStatus {
-  Active = 'active',
-  WaitingForSubstitute = 'waiting for substitute',
-  Replaced = 'replaced',
+  active = 'active',
+  waitingForSubstitute = 'waiting for substitute',
+  replaced = 'replaced',
 }

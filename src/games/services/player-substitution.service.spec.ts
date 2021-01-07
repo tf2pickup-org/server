@@ -18,6 +18,7 @@ import { Events } from '@/events/events';
 import { standardSchemaOptions } from '@/utils/standard-schema-options';
 import { removeGameAssignedSkills } from '@/utils/tojson-transform';
 import { SlotStatus } from '../models/slot-status';
+import { GameState } from '../models/game-state';
 
 jest.mock('@/discord/services/discord.service');
 jest.mock('@/players/services/players.service');
@@ -133,7 +134,7 @@ describe('PlayerSubstitutionService', () => {
       const game = await service.substitutePlayer(mockGame.id, player1.id);
       expect(game.id).toEqual(mockGame.id);
       const slot = game.findPlayerSlot(player1.id);
-      expect(slot.status).toEqual(SlotStatus.WaitingForSubstitute);
+      expect(slot.status).toEqual(SlotStatus.waitingForSubstitute);
     });
 
     it('should emit the gameChanges event', async () => new Promise<void>(resolve => {
@@ -148,7 +149,7 @@ describe('PlayerSubstitutionService', () => {
     describe('when the game has already ended', () => {
       beforeEach(async () => {
         const game = await gamesService.getById(mockGame.id);
-        game.state = 'ended';
+        game.state = GameState.ended;
         await game.save();
       });
 
@@ -213,7 +214,7 @@ describe('PlayerSubstitutionService', () => {
     it('should update the player status', async () => {
       const game = await service.cancelSubstitutionRequest(mockGame.id, player1.id);
       const slot = game.findPlayerSlot(player1.id);
-      expect(slot.status).toEqual(SlotStatus.Active);
+      expect(slot.status).toEqual(SlotStatus.active);
     });
 
     it('should emit the gameChanges event', async () => new Promise<void>(resolve => {
@@ -228,7 +229,7 @@ describe('PlayerSubstitutionService', () => {
     describe('when the game is no longer running', () => {
       beforeEach(async () => {
         const game = await gamesService.getById(mockGame.id);
-        game.state = 'ended';
+        game.state = GameState.ended;
         await game.save();
       });
 
@@ -267,10 +268,10 @@ describe('PlayerSubstitutionService', () => {
       const game = await service.replacePlayer(mockGame.id, player1.id, player3.id);
       expect(game.id).toEqual(mockGame.id);
       const replaceeSlot = game.findPlayerSlot(player1.id);
-      expect(replaceeSlot.status).toEqual(SlotStatus.Replaced);
+      expect(replaceeSlot.status).toEqual(SlotStatus.replaced);
       const replacementSlot = game.findPlayerSlot(player3.id);
       expect(replacementSlot).toBeTruthy();
-      expect(replacementSlot.status).toEqual(SlotStatus.Active);
+      expect(replacementSlot.status).toEqual(SlotStatus.active);
     });
 
     it('should emit the gameChanges event', async () => new Promise<void>(resolve => {
@@ -316,7 +317,7 @@ describe('PlayerSubstitutionService', () => {
         const game = await service.replacePlayer(mockGame.id, player1.id, player1.id);
         expect(game.id).toEqual(mockGame.id);
         const slot = game.findPlayerSlot(player1.id);
-        expect(slot.status).toBe(SlotStatus.Active);
+        expect(slot.status).toBe(SlotStatus.active);
         expect(game.slots.length).toBe(2);
       });
 

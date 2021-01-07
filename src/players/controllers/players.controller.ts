@@ -1,6 +1,5 @@
 import { Controller, Get, Param, NotFoundException, Patch, Body, BadRequestException, ParseIntPipe, Query, Put, Post, UsePipes, ValidationPipe,
-  HttpCode, 
-  Header} from '@nestjs/common';
+  HttpCode, Header } from '@nestjs/common';
 import { PlayersService } from '../services/players.service';
 import { ObjectIdValidationPipe } from '@/shared/pipes/object-id-validation.pipe';
 import { Player } from '../models/player';
@@ -10,6 +9,7 @@ import { PlayerSkillService } from '../services/player-skill.service';
 import { PlayerBansService } from '../services/player-bans.service';
 import { PlayerBan } from '../models/player-ban';
 import { User } from '@/auth/decorators/user.decorator';
+import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 
 @Controller('players')
 export class PlayersController {
@@ -97,10 +97,10 @@ export class PlayersController {
   // todo validate skill
   async setPlayerSkill(
     @Param('id', ObjectIdValidationPipe) playerId: string,
-    @Body() newSkill: Record<string, number>,
+    @Body() newSkill: { [className in Tf2ClassName]?: number },
     @User() user: Player,
   ) {
-    return (await this.playerSkillService.setPlayerSkill(playerId, new Map(Object.entries(newSkill)), user.id))?.skill;
+    return (await this.playerSkillService.setPlayerSkill(playerId, new Map(Object.entries(newSkill)) as Map<Tf2ClassName, number>, user.id))?.skill;
   }
 
   @Get(':id/bans')

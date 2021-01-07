@@ -3,8 +3,9 @@ import { PlayerConnectionStatus } from './player-connection-status';
 import { Tf2Team } from './tf2-team';
 import { Player } from '@/players/models/player';
 import { SlotStatus } from './slot-status';
+import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 
-export class GamePlayer {
+export class GameSlot {
 
   @prop({ required: true, ref: Player, index: true })
   player!: Ref<Player>;
@@ -12,13 +13,13 @@ export class GamePlayer {
   @prop({ required: true, enum: Tf2Team })
   team!: Tf2Team;
 
-  @prop({ required: true })
-  gameClass!: string;
+  @prop({ required: true, enum: Tf2ClassName })
+  gameClass!: Tf2ClassName;
 
-  @prop({ index: true, enum: SlotStatus, default: SlotStatus.Active })
+  @prop({ index: true, enum: SlotStatus, default: SlotStatus.active })
   status?: SlotStatus;
 
-  @prop({ default: 'offline' })
+  @prop({ enum: PlayerConnectionStatus, default: PlayerConnectionStatus.offline })
   connectionStatus?: PlayerConnectionStatus;
 
 }
