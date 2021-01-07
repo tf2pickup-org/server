@@ -1,3 +1,10 @@
+## [3.3.4](https://github.com/tf2pickup-pl/server/compare/3.3.3...3.3.4) (2021-01-07)
+
+
+### Bug Fixes
+
+* handle player subs properly ([#776](https://github.com/tf2pickup-pl/server/issues/776)) ([3075d4e](https://github.com/tf2pickup-pl/server/commit/3075d4e6fd39559a9cfc7574be867d00fd6ca303))
+
 ## [3.3.3](https://github.com/tf2pickup-pl/server/compare/3.3.2...3.3.3) (2021-01-05)
 
 
