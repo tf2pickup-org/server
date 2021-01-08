@@ -1,4 +1,4 @@
-import { Module, HttpModule, forwardRef } from '@nestjs/common';
+import { Module, HttpModule, forwardRef, CacheModule } from '@nestjs/common';
 import { PlayersService } from './services/players.service';
 import { Etf2lProfileService } from './services/etf2l-profile.service';
 import { TypegooseModule } from 'nestjs-typegoose';
@@ -28,6 +28,7 @@ import { FuturePlayerSkill } from './models/future-player-skill';
       standardSchemaOptions(PlayerSkill),
       standardSchemaOptions(FuturePlayerSkill),
     ]),
+    CacheModule.register(),
 
     forwardRef(() => GamesModule),
     forwardRef(() => QueueModule),
