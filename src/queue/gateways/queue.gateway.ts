@@ -8,6 +8,8 @@ import { QueueAnnouncementsService } from '../services/queue-announcements.servi
 import { FriendsService } from '../services/friends.service';
 import { Events } from '@/events/events';
 import { distinctUntilChanged } from 'rxjs/operators';
+import { PopulatePlayers } from '../decorators/populate-players.decorator';
+import { PlayerPopulatorService } from '../services/player-populator.service';
 
 @WebSocketGateway()
 export class QueueGateway implements OnGatewayInit, OnModuleInit {
@@ -20,12 +22,13 @@ export class QueueGateway implements OnGatewayInit, OnModuleInit {
     private queueAnnouncementsService: QueueAnnouncementsService,
     private friendsService: FriendsService,
     private events: Events,
+    private playerPopulatorService: PlayerPopulatorService,
   ) { }
 
   onModuleInit() {
     this.events.queueSlotsChange
       .pipe(distinctUntilChanged())
-      .subscribe(({ slots }) => this.socket.emit('queue slots update', slots));
+      .subscribe(async ({ slots }) => this.socket.emit('queue slots update', await this.playerPopulatorService.populatePlayers(slots)));
     this.events.queueStateChange
       .pipe(distinctUntilChanged())
       .subscribe(({ state }) => this.socket.emit('queue state update', state));
@@ -42,18 +45,21 @@ export class QueueGateway implements OnGatewayInit, OnModuleInit {
   }
 
   @WsAuthorized()
+  @PopulatePlayers()
   @SubscribeMessage('join queue')
   async joinQueue(client: any, payload: { slotId: number }) {
     return await this.queueService.join(payload.slotId, client.request.user.id);
   }
 
   @WsAuthorized()
+  @PopulatePlayers()
   @SubscribeMessage('leave queue')
   leaveQueue(client: any) {
     return this.queueService.leave(client.request.user.id);
   }
 
   @WsAuthorized()
+  @PopulatePlayers()
   @SubscribeMessage('player ready')
   playerReady(client: any) {
     return this.queueService.readyUp(client.request.user.id);

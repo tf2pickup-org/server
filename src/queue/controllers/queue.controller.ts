@@ -4,6 +4,8 @@ import { QueueService } from '../services/queue.service';
 import { MapVoteService } from '../services/map-vote.service';
 import { QueueAnnouncementsService } from '../services/queue-announcements.service';
 import { FriendsService } from '../services/friends.service';
+import { PopulatePlayers } from '../decorators/populate-players.decorator';
+import { PlayerPopulatorService } from '../services/player-populator.service';
 
 @Controller('queue')
 export class QueueController {
@@ -14,13 +16,14 @@ export class QueueController {
     private mapVoteService: MapVoteService,
     private queueAnnouncementsService: QueueAnnouncementsService,
     private friendsService: FriendsService,
+    private playerPopulatorService: PlayerPopulatorService,
   ) { }
 
   @Get()
   async getQueue() {
     return {
       config: this.queueConfigService.queueConfig,
-      slots: this.queueService.slots,
+      slots: await this.playerPopulatorService.populatePlayers(this.getQueueSlots()),
       state: this.queueService.state,
       mapVoteResults: this.mapVoteService.results,
       substituteRequests: await this.queueAnnouncementsService.substituteRequests(),
@@ -38,6 +41,7 @@ export class QueueController {
     return this.queueService.state;
   }
 
+  @PopulatePlayers()
   @Get('slots')
   getQueueSlots() {
     return this.queueService.slots;

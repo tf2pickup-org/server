@@ -15,6 +15,7 @@ import { Environment } from '@/environment/environment';
 import { join } from 'path';
 import { readFile } from 'fs';
 import { promisify } from 'util';
+import { PlayerPopulatorService } from './services/player-populator.service';
 
 @Module({
   imports: [
@@ -39,6 +40,7 @@ import { promisify } from 'util';
       },
       inject: [ Environment ],
     },
+    PlayerPopulatorService,
   ],
   exports: [
     QueueService,

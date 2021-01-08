@@ -11,7 +11,6 @@ import { TypegooseModule } from 'nestjs-typegoose';
 import { ObjectId } from 'mongodb';
 import { DocumentType } from '@typegoose/typegoose';
 import { Game } from '@/games/models/game';
-import { QueueSlot } from '../queue-slot';
 import { Events } from '@/events/events';
 
 jest.mock('@/players/services/players.service');
