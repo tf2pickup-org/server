@@ -8,7 +8,7 @@ import { PlayerStats } from '../models/player-stats';
 import { PlayerSkillService } from '../services/player-skill.service';
 import { PlayerSkill } from '../models/player-skill';
 import { PlayerBansService } from '../services/player-bans.service';
-import { NotFoundException, BadRequestException } from '@nestjs/common';
+import { NotFoundException, BadRequestException, CacheModule } from '@nestjs/common';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 
 class PlayersServiceStub {
@@ -116,6 +116,9 @@ describe('Players Controller', () => {
         { provide: PlayerBansService, useClass: PlayerBansServiceStub },
       ],
       controllers: [PlayersController],
+      imports: [
+        CacheModule.register(),
+      ],
     }).compile();
 
     controller = module.get<PlayersController>(PlayersController);
@@ -243,13 +246,13 @@ describe('Players Controller', () => {
 
     it('should add player ban', async () => {
       const spy = jest.spyOn(playerBansService, 'addPlayerBan');
-      const ret = await controller.addPlayerBan('FAKE_ID', ban as any, { id: '5d448875b963ff7e00c6b6b3' } as any);
+      const ret = await controller.addPlayerBan(ban as any, { id: '5d448875b963ff7e00c6b6b3' } as any);
       expect(spy).toHaveBeenCalledWith(ban);
       expect(ret).toEqual(ban as any);
     });
 
     it('should fail if the authorized user id is not the same as admin\'s', async () => {
-      await expect(controller.addPlayerBan('FAKE_ID', ban as any, { id: 'SOME_ID' } as any))
+      await expect(controller.addPlayerBan(ban as any, { id: 'SOME_ID' } as any))
         .rejects.toThrow(BadRequestException);
     });
   });

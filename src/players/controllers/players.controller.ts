@@ -1,5 +1,5 @@
 import { Controller, Get, Param, NotFoundException, Patch, Body, BadRequestException, ParseIntPipe, Query, Put, Post, UsePipes, ValidationPipe,
-  HttpCode, Header } from '@nestjs/common';
+  HttpCode, Header, UseInterceptors, CacheInterceptor, CacheTTL } from '@nestjs/common';
 import { PlayersService } from '../services/players.service';
 import { ObjectIdValidationPipe } from '@/shared/pipes/object-id-validation.pipe';
 import { Player } from '../models/player';
@@ -12,6 +12,7 @@ import { User } from '@/auth/decorators/user.decorator';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 
 @Controller('players')
+@UseInterceptors(CacheInterceptor)
 export class PlayersController {
 
   constructor(
@@ -70,6 +71,7 @@ export class PlayersController {
     return { results, itemCount };
   }
 
+  @CacheTTL(12 * 60 * 60)
   @Get(':id/stats')
   async getPlayerStats(@Param('id', ObjectIdValidationPipe) playerId: string) {
     return await this.playersService.getPlayerStats(playerId);
@@ -112,7 +114,7 @@ export class PlayersController {
   @Post(':id/bans')
   @Auth('admin', 'super-user')
   @UsePipes(ValidationPipe)
-  async addPlayerBan(@Param('id', ObjectIdValidationPipe) playerId: string, @Body() playerBan: PlayerBan, @User() user: Player) {
+  async addPlayerBan(@Body() playerBan: PlayerBan, @User() user: Player) {
     if (playerBan.admin.toString() !== user.id) {
       throw new BadRequestException('the admin field must be the same as authorized user\'s id');
     }
