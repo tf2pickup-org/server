@@ -7,12 +7,14 @@ import { FriendsService } from '../services/friends.service';
 import { Events } from '@/events/events';
 import { Socket } from 'socket.io';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
+import { PlayerPopulatorService } from '../services/player-populator.service';
 
 jest.mock('../services/queue.service');
 jest.mock('socket.io');
 jest.mock('../services/map-vote.service');
 jest.mock('../services/queue-announcements.service');
 jest.mock('../services/friends.service');
+jest.mock('../services/player-populator.service');
 
 const mockSubstituteRequests = [{ gameId: 'FAKE_GAME_ID', gameNumber: 5, gameClass: Tf2ClassName.scout, team: 'BLU' }];
 
@@ -24,6 +26,7 @@ describe('QueueGateway', () => {
   let queueAnnouncementsService: jest.Mocked<QueueAnnouncementsService>;
   let friendsService: jest.Mocked<FriendsService>;
   let events: Events;
+  let playerPopulatorService: jest.Mocked<PlayerPopulatorService>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -34,6 +37,7 @@ describe('QueueGateway', () => {
         MapVoteService,
         QueueAnnouncementsService,
         FriendsService,
+        PlayerPopulatorService,
       ],
     }).compile();
 
@@ -43,6 +47,7 @@ describe('QueueGateway', () => {
     queueAnnouncementsService = module.get(QueueAnnouncementsService);
     friendsService = module.get(FriendsService);
     events = module.get(Events);
+    playerPopulatorService = module.get(PlayerPopulatorService);
   });
 
   beforeEach(() => {
@@ -106,11 +111,16 @@ describe('QueueGateway', () => {
 
   describe('when the queueSlotsChange event is fired', () => {
     beforeEach(() => {
+      playerPopulatorService.populatePlayers.mockResolvedValue([
+        { id: 5, gameClass: Tf2ClassName.soldier, ready: true, playerId: 'FAKE_PLAYER_ID', player: { id: 'FAKE_PLAYER_ID' } },
+      ]);
       events.queueSlotsChange.next({ slots: [ { id: 0, playerId: 'FAKE_PLAYER_ID', ready: true, gameClass: Tf2ClassName.soldier } ] });
     });
 
     it('should emit the event over the socket', () => {
-      expect(socket.emit).toHaveBeenCalledWith('queue slots update', [ { id: 0, playerId: 'FAKE_PLAYER_ID', ready: true, gameClass: Tf2ClassName.soldier } ]);
+      expect(socket.emit).toHaveBeenCalledWith('queue slots update', [
+        { id: 5, gameClass: Tf2ClassName.soldier, ready: true, playerId: 'FAKE_PLAYER_ID', player: { id: 'FAKE_PLAYER_ID' } },
+      ]);
     });
   });
 

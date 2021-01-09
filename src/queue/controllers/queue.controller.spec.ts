@@ -5,53 +5,34 @@ import { QueueService } from '../services/queue.service';
 import { MapVoteService } from '../services/map-vote.service';
 import { QueueAnnouncementsService } from '../services/queue-announcements.service';
 import { FriendsService } from '../services/friends.service';
+import { PlayerPopulatorService } from '../services/player-populator.service';
+import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 
-class QueueConfigServiceStub {
-  queueConfig = { some_param: 'some_value' };
-}
-
-class QueueServiceStub {
-  slots = [ { id: 0, playerId: 'FAKE_ID' }, { id: 1, playerId: null } ];
-  state = 'testing';
-}
-
-class MapVoteServiceStub {
-  results = [ 'some', 'results' ];
-}
-
-class QueueAnnouncementsServiceStub {
-  subRequests = [
-    {
-      gameId: '5e1fb93d9cacb6d6e08bc6bf',
-      gameNumber: 514,
-      gameClass: 'soldier',
-      team: 'BLU',
-    },
-  ];
-
-  substituteRequests() { return this.subRequests; }
-}
-
-class FriendsServiceStub {
-  friendships = [{ sourcePlayerId: 'FAKE_MEDIC', targetPlayerId: 'FAKE_DM_CLASS' }];
-}
+jest.mock('../services/queue-config.service');
+jest.mock('../services/queue.service');
+jest.mock('../services/map-vote.service');
+jest.mock('../services/player-populator.service');
+jest.mock('../services/queue-announcements.service');
+jest.mock('../services/friends.service');
 
 describe('Queue Controller', () => {
   let controller: QueueController;
-  let queueConfigService: QueueConfigServiceStub;
-  let queueService: QueueServiceStub;
-  let mapVoteService: MapVoteServiceStub;
-  let queueAnnouncementsService: QueueAnnouncementsServiceStub;
-  let friendsService: FriendsServiceStub;
+  let queueConfigService: jest.Mocked<QueueConfigService>;
+  let queueService: jest.Mocked<QueueService>;
+  let mapVoteService: jest.Mocked<MapVoteService>;
+  let queueAnnouncementsService: jest.Mocked<QueueAnnouncementsService>;
+  let friendsService: jest.Mock<FriendsService>;
+  let playerPopulatorService: jest.Mocked<PlayerPopulatorService>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        { provide: QueueConfigService, useClass: QueueConfigServiceStub },
-        { provide: QueueService, useClass: QueueServiceStub },
-        { provide: MapVoteService, useClass: MapVoteServiceStub },
-        { provide: QueueAnnouncementsService, useClass: QueueAnnouncementsServiceStub },
-        { provide: FriendsService, useClass: FriendsServiceStub },
+        QueueConfigService,
+        QueueService,
+        MapVoteService,
+        QueueAnnouncementsService,
+        FriendsService,
+        PlayerPopulatorService,
       ],
       controllers: [QueueController],
     }).compile();
@@ -62,6 +43,38 @@ describe('Queue Controller', () => {
     mapVoteService = module.get(MapVoteService);
     queueAnnouncementsService = module.get(QueueAnnouncementsService);
     friendsService = module.get(FriendsService);
+    playerPopulatorService = module.get(PlayerPopulatorService);
+  });
+
+  beforeEach(() => {
+    // @ts-expect-error
+    queueConfigService.queueConfig = { some_param: 'some_value' };
+
+    queueService.slots = [
+      { id: 0, gameClass: Tf2ClassName.soldier, ready: false, playerId: 'FAKE_ID' },
+      { id: 1, gameClass: Tf2ClassName.soldier, ready: false, playerId: null },
+    ];
+    queueService.state = 'waiting';
+
+    queueAnnouncementsService.substituteRequests.mockResolvedValue([
+      {
+        gameId: 'FAKE_GAME_ID',
+        gameNumber: 514,
+        gameClass: Tf2ClassName.soldier,
+        team: 'BLU',
+      },
+    ]);
+
+    // @ts-expect-error
+    friendsService.friendships = [{ sourcePlayerId: 'FAKE_MEDIC', targetPlayerId: 'FAKE_DM_CLASS' }];
+
+    // @ts-expect-error
+    mapVoteService.results = [];
+
+    playerPopulatorService.populatePlayers.mockResolvedValue([
+      { id: 0, gameClass: Tf2ClassName.soldier, ready: false, playerId: 'FAKE_ID', player: { id: 'FAKE_ID' } },
+      { id: 1, gameClass: Tf2ClassName.soldier, ready: false, playerId: null, player: null },
+    ])
   });
 
   it('should be defined', () => {
@@ -71,20 +84,20 @@ describe('Queue Controller', () => {
   describe('#getQueue()', () => {
     it('should return current queue data', async () => {
       const ret = await controller.getQueue();
-      expect(ret).toEqual({
-        config: queueConfigService.queueConfig,
-        slots: queueService.slots,
-        state: queueService.state,
-        mapVoteResults: mapVoteService.results,
-        substituteRequests: queueAnnouncementsService.subRequests,
-        friendships: friendsService.friendships,
-      } as any);
+      expect(ret).toMatchObject({
+        config: expect.any(Object),
+        slots: expect.any(Array),
+        state: 'waiting',
+        mapVoteResults: expect.any(Array),
+        substituteRequests: expect.any(Array),
+        friendships: expect.any(Array),
+      });
     });
   });
 
   describe('#getQueueConfig()', () => {
     it('should return queue config', () => {
-      expect(controller.getQueueConfig()).toEqual(queueConfigService.queueConfig as any);
+      expect(controller.getQueueConfig()).toEqual(queueConfigService.queueConfig);
     });
   });
 
@@ -96,25 +109,35 @@ describe('Queue Controller', () => {
 
   describe('#getQueueSlots()', () => {
     it('should return queue slots', () => {
-      expect(controller.getQueueSlots()).toEqual(queueService.slots as any);
+      expect(controller.getQueueSlots()).toEqual([
+        { id: 0, gameClass: Tf2ClassName.soldier, ready: false, playerId: 'FAKE_ID' },
+        { id: 1, gameClass: Tf2ClassName.soldier, ready: false, playerId: null },
+      ]);
     });
   });
 
   describe('#getMapVoteResults()', () => {
     it('should return map vote results', () => {
-      expect(controller.getMapVoteResults()).toEqual(mapVoteService.results as any);
+      expect(controller.getMapVoteResults()).toEqual(mapVoteService.results);
     });
   });
 
   describe('#getSubstituteRequests()', () => {
     it('should return substitute requests', async () => {
-      expect(await controller.getSubstituteRequests()).toEqual(queueAnnouncementsService.subRequests);
+      expect(await controller.getSubstituteRequests()).toEqual([
+        {
+          gameId: 'FAKE_GAME_ID',
+          gameNumber: 514,
+          gameClass: Tf2ClassName.soldier,
+          team: 'BLU',
+        },
+      ]);
     });
   });
 
   describe('#getFriendships()', () => {
     it('should return the frienships', () => {
-      expect(controller.getFriendships()).toEqual(friendsService.friendships);
+      expect(controller.getFriendships()).toEqual([{ sourcePlayerId: 'FAKE_MEDIC', targetPlayerId: 'FAKE_DM_CLASS' }]);
     });
   });
 });
