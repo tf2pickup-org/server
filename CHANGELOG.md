@@ -1,3 +1,16 @@
+# [3.4.0](https://github.com/tf2pickup-pl/server/compare/3.3.4...3.4.0) (2021-01-09)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @nestjs/mongoose to v7.2.1 ([#778](https://github.com/tf2pickup-pl/server/issues/778)) ([6c76120](https://github.com/tf2pickup-pl/server/commit/6c76120dcfbf7f79c847b462b9593440369d3f21))
+
+
+### Features
+
+* **queue:** populate queue slot players ([#780](https://github.com/tf2pickup-pl/server/issues/780)) ([cdf76d8](https://github.com/tf2pickup-pl/server/commit/cdf76d8a14ffad818cedd7382def6e4c0ef4da41))
+* add caching support for PlayersModule ([#781](https://github.com/tf2pickup-pl/server/issues/781)) ([c283e22](https://github.com/tf2pickup-pl/server/commit/c283e22b6da55c0a9cb8d80e2fb5cdc16185d819))
+
 ## [3.3.4](https://github.com/tf2pickup-pl/server/compare/3.3.3...3.3.4) (2021-01-07)
 
 
