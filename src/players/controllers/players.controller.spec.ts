@@ -8,9 +8,8 @@ import { PlayerStats } from '../models/player-stats';
 import { PlayerSkillService } from '../services/player-skill.service';
 import { PlayerSkill } from '../models/player-skill';
 import { PlayerBansService } from '../services/player-bans.service';
-import { NotFoundException, BadRequestException } from '@nestjs/common';
+import { NotFoundException, BadRequestException, CacheModule } from '@nestjs/common';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
-import { PlayerBan } from '../models/player-ban';
 
 class PlayersServiceStub {
   player: Player = {
@@ -117,6 +116,9 @@ describe('Players Controller', () => {
         { provide: PlayerBansService, useClass: PlayerBansServiceStub },
       ],
       controllers: [PlayersController],
+      imports: [
+        CacheModule.register(),
+      ],
     }).compile();
 
     controller = module.get<PlayersController>(PlayersController);
