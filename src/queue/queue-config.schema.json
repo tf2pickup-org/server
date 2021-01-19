@@ -1,0 +1,41 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "Queue configuration",
+  "type": "object",
+  "properties": {
+    "teamCount": {
+      "type": "integer",
+      "minimum": 2,
+      "maximum": 2
+    },
+    "classes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "enum": [
+              "scout",
+              "soldier",
+              "pyro",
+              "demoman",
+              "heavy",
+              "engineer",
+              "medic",
+              "sniper",
+              "spy"
+            ]
+          },
+          "count": {
+            "type": "integer",
+            "minimum": 1
+          }
+        }
+      }
+    },
+    "whitelistId": {
+      "type": "string"
+    }
+  },
+  "additionalItems": false
+}
