@@ -85,9 +85,9 @@ describe('ServerConfiguratorService', () => {
   });
 
   beforeEach(() => {
-    mapPoolService.maps = [
+    mapPoolService.getMaps.mockResolvedValue([
       { name: 'cp_badlands', execConfig: 'etf2l_6v6_5cp' },
-    ];
+    ]);
   });
 
   it('should be defined', () => {

@@ -49,7 +49,8 @@ export class ServerConfiguratorService {
       // source servers need a moment after the map has been changed
       await wait();
 
-      const config = this.mapPoolService.maps.find(m => m.name === game.map)?.execConfig;
+      const maps = await this.mapPoolService.getMaps();
+      const config = maps.find(m => m.name === game.map)?.execConfig;
       if (config) {
         this.logger.debug(`[${server.name}] executing ${config}...`);
         await rcon.send(execConfig(config));

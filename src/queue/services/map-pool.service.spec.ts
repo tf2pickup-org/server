@@ -6,6 +6,7 @@ import { MapPoolService } from './map-pool.service';
 import { Map } from '../models/map';
 import { typegooseTestingModule } from '@/utils/testing-typegoose-module';
 import { getModelToken, TypegooseModule } from 'nestjs-typegoose';
+import { skip } from 'rxjs/operators';
 
 describe('MapPoolService', () => {
   let service: MapPoolService;
@@ -59,9 +60,9 @@ describe('MapPoolService', () => {
         expect(await mapModel.countDocuments()).toBeGreaterThan(0);
       });
 
-      it('should set the maps property', async () => {
+      it('should list the maps', async () => {
         await service.onModuleInit();
-        expect(service.maps).toMatchObject([ { name: 'cp_badlands', cooldown: 0 } ]);
+        expect(await service.getMaps()).toMatchObject([ { name: 'cp_badlands', cooldown: 0 } ]);
       });
 
       it('should emit an event', async () => new Promise<void>(resolve => {
@@ -73,5 +74,42 @@ describe('MapPoolService', () => {
         service.onModuleInit();
       }));
     });
+  });
+
+  describe('#addMap()', () => {
+    it('should add the map', async () => {
+      const map = await service.addMap({ name: 'cp_obscure_final' });
+      expect(map).toMatchObject({ name: 'cp_obscure_final', cooldown: 0 });
+      expect(await service.getMaps()).toEqual(expect.arrayContaining([ expect.objectContaining({ name: 'cp_obscure_final' }) ]));
+    });
+
+    it('should emit the event', async () => new Promise<void>(resolve => {
+      events.mapPoolChange.subscribe(({ maps }) => {
+        expect(maps.find(m => m.name === 'cp_obscure_final')).toBeTruthy();
+        resolve();
+      });
+
+      service.addMap({ name: 'cp_obscure_final' });
+    }));
+  });
+
+  describe('#removeMap()', () => {
+    beforeEach(async () => {
+      await service.addMap({ name: 'cp_obscure_final' });
+    });
+
+    it('should remove the map', async () => {
+      const map = await service.removeMap('cp_obscure_final');
+      expect(map).toMatchObject({ name: 'cp_obscure_final' });
+    });
+
+    it('should emit the event', async () => new Promise<void>(resolve => {
+      events.mapPoolChange.pipe(skip(1)).subscribe(({ maps }) => {
+        expect(maps.find(m => m.name === 'cp_obscure_final')).toBe(undefined);
+        resolve();
+      });
+
+      service.removeMap('cp_obscure_final');
+    }));
   });
 });

@@ -12,14 +12,11 @@ export class MapPoolService implements OnModuleInit {
 
   private logger = new Logger(MapPoolService.name);
 
-  maps: Map[] = defaultMapPool.maps;
-
   constructor(
     @InjectModel(Map) private mapModel: ReturnModelType<typeof Map>,
     private events: Events,
   ) {
     new Validator().validate(defaultMapPool, mapPoolSchema, { throwError: true });
-    // this.events.mapPoolChange.next({ maps: this.maps });
   }
 
   async onModuleInit() {
@@ -29,8 +26,28 @@ export class MapPoolService implements OnModuleInit {
       await this.mapModel.insertMany(defaultMapPool.maps);
     }
 
-    this.maps = await this.mapModel.find();
-    this.events.mapPoolChange.next({ maps: this.maps });
+    this.refreshMaps();
+  }
+
+  async getMaps(): Promise<Map[]> {
+    return this.mapModel.find();
+  }
+
+  async addMap(map: Map) {
+    const ret = await this.mapModel.create(map);
+    this.refreshMaps();
+    return ret;
+  }
+
+  async removeMap(mapName: string) {
+    const ret = await this.mapModel.findOneAndRemove({ name: mapName });
+    this.refreshMaps();
+    return ret;
+  }
+
+  private async refreshMaps() {
+    const maps = await this.getMaps();
+    this.events.mapPoolChange.next({ maps });
   }
 
 }
