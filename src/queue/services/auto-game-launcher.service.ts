@@ -31,7 +31,7 @@ export class AutoGameLauncherService {
 
   private async launchGame() {
     const friends = this.friendsService.friendships.map(f => [ f.sourcePlayerId, f.targetPlayerId ]);
-    const game = await this.gamesService.create(this.queueService.slots, this.mapVoteService.getWinner(), friends);
+    const game = await this.gamesService.create(this.queueService.slots, await this.mapVoteService.getWinner(), friends);
     this.queueService.reset();
     await this.gamesService.launch(game.id);
   }

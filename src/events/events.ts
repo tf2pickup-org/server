@@ -1,6 +1,7 @@
 import { Game } from '@/games/models/game';
 import { Player } from '@/players/models/player';
 import { PlayerBan } from '@/players/models/player-ban';
+import { Map } from '@/queue/models/map';
 import { Injectable, Logger } from '@nestjs/common';
 import { Subject } from 'rxjs';
 import { MapVoteResult } from '../queue/map-vote-result';
@@ -27,6 +28,8 @@ export class Events {
   readonly queueStateChange = new Subject<{ state: QueueState }>();
   readonly queueFriendshipsChange = new Subject<{ friendships: Friendship[] }>();
   readonly mapVotesChange = new Subject<{ results: MapVoteResult[] }>();
+
+  readonly mapPoolChange = new Subject<{ maps: Map[] }>();
 
   readonly gameCreated = new Subject<{ game: Game }>();
   readonly gameChanges = new Subject<{ game: Game }>();
