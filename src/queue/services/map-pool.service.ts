@@ -33,13 +33,13 @@ export class MapPoolService implements OnModuleInit {
     return this.mapModel.find();
   }
 
-  async addMap(map: Map) {
+  async addMap(map: Map): Promise<Map> {
     const ret = await this.mapModel.create(map);
     this.refreshMaps();
     return ret;
   }
 
-  async removeMap(mapName: string) {
+  async removeMap(mapName: string): Promise<Map> {
     const ret = await this.mapModel.findOneAndRemove({ name: mapName });
     this.refreshMaps();
     return ret;

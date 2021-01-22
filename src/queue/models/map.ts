@@ -1,10 +1,14 @@
 import { prop } from '@typegoose/typegoose';
+import { IsOptional, IsString } from 'class-validator';
 
 export class Map {
 
+  @IsString()
   @prop({ required: true, unique: true })
   name!: string;
 
+  @IsString()
+  @IsOptional()
   @prop()
   execConfig?: string;
 

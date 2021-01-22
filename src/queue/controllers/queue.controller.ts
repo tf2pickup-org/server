@@ -1,4 +1,4 @@
-import { Controller, Get } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, UsePipes, ValidationPipe } from '@nestjs/common';
 import { QueueConfigService } from '../services/queue-config.service';
 import { QueueService } from '../services/queue.service';
 import { MapVoteService } from '../services/map-vote.service';
@@ -6,6 +6,9 @@ import { QueueAnnouncementsService } from '../services/queue-announcements.servi
 import { FriendsService } from '../services/friends.service';
 import { PopulatePlayers } from '../decorators/populate-players.decorator';
 import { PlayerPopulatorService } from '../services/player-populator.service';
+import { MapPoolService } from '../services/map-pool.service';
+import { Auth } from '@/auth/decorators/auth.decorator';
+import { Map } from '../models/map';
 
 @Controller('queue')
 export class QueueController {
@@ -17,6 +20,7 @@ export class QueueController {
     private queueAnnouncementsService: QueueAnnouncementsService,
     private friendsService: FriendsService,
     private playerPopulatorService: PlayerPopulatorService,
+    private mapPoolService: MapPoolService,
   ) { }
 
   @Get()
@@ -60,6 +64,24 @@ export class QueueController {
   @Get('friendships')
   getFriendships() {
     return this.friendsService.friendships;
+  }
+
+  @Get('maps')
+  async getMaps() {
+    return await this.mapPoolService.getMaps();
+  }
+
+  @Post('maps')
+  @Auth('super-user', 'admin')
+  @UsePipes(ValidationPipe)
+  async addMap(@Body() map: Map) {
+    return await this.mapPoolService.addMap(map);
+  }
+
+  @Delete('maps/:name')
+  @Auth('super-user', 'admin')
+  async deleteMap(@Param('name') name: string) {
+    return await this.mapPoolService.removeMap(name);
   }
 
 }
