@@ -60,7 +60,7 @@
   },
   "devDependencies": {
     "@nestjs/cli": "7.5.4",
-    "@nestjs/schematics": "7.2.6",
+    "@nestjs/schematics": "7.2.7",
     "@nestjs/testing": "7.6.5",
     "@release-it/conventional-changelog": "2.0.0",
     "@types/cache-manager": "3.4.0",
