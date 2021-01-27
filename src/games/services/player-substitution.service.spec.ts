@@ -30,6 +30,7 @@ jest.mock('@/queue/services/queue.service');
 
 const environment = {
   clientUrl: 'FAKE_CLIENT_URL',
+  discordQueueNotificationsMentionRole: 'TF2 gamers',
 };
 
 describe('PlayerSubstitutionService', () => {
@@ -161,7 +162,8 @@ describe('PlayerSubstitutionService', () => {
     it('should notify on discord', async () => {
       const spy = jest.spyOn(discordService.getPlayersChannel(), 'send');
       await service.substitutePlayer(mockGame.id, player1.id);
-      expect(spy).toHaveBeenCalled();
+      expect(spy).toHaveBeenCalledWith('&<TF2 gamers>');
+      expect(spy).toHaveBeenCalledWith({ embed: expect.any(Object) });
     });
 
     // eslint-disable-next-line jest/expect-expect
