@@ -30,8 +30,6 @@ export class SteamStrategy extends PassportStrategy(steam.Strategy) {
         large: profile.photos[2]?.value,
       };
 
-      // TODO 3.0: remove
-      player.avatarUrl = profile.photos[0]?.value;
       await player.save();
       return player.toJSON();
     } else {

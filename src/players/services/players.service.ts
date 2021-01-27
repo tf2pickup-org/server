@@ -97,8 +97,6 @@ export class PlayersService implements OnModuleInit {
     const player = await this.playerModel.create({
       steamId: steamProfile.id,
       name,
-      // TODO 3.0: remove
-      avatarUrl: steamProfile.photos[0].value,
       avatar,
       role: this.environment.superUser === steamProfile.id ? 'super-user' : null,
       etf2lProfileId: etf2lProfile?.id,

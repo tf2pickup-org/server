@@ -16,10 +16,6 @@ export class Player {
   @prop({ default: () => new Date() })
   joinedAt?: Date;
 
-  // TODO 3.0: remove
-  @prop()
-  avatarUrl?: string; // deprecated
-
   @prop()
   avatar?: PlayerAvatar;
 

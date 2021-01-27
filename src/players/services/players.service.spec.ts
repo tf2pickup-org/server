@@ -277,7 +277,6 @@ describe('PlayersService', () => {
       expect(ret.toObject()).toMatchObject({
         steamId: 'FAKE_STEAM_ID_2',
         name: 'maly',
-        avatarUrl: 'FAKE_SMALL_AVATAR_URL',
         avatar: {
           small: 'FAKE_SMALL_AVATAR_URL',
           medium: 'FAKE_MEDIUM_AVATAR_URL',
