@@ -45,6 +45,13 @@ export class MapPoolService implements OnModuleInit {
     return ret;
   }
 
+  async setMaps(maps: Map[]): Promise<Map[]> {
+    await this.mapModel.deleteMany({ });
+    const ret = await this.mapModel.insertMany(maps);
+    this.refreshMaps();
+    return ret;
+  }
+
   private async refreshMaps() {
     const maps = await this.getMaps();
     this.events.mapPoolChange.next({ maps });

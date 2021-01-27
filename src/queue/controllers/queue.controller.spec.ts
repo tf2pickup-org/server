@@ -180,4 +180,16 @@ describe('Queue Controller', () => {
       expect(mapPoolService.removeMap).toHaveBeenCalledWith('cp_badlands');
     });
   });
+
+  describe('#setMaps()', () => {
+    beforeEach(() => {
+      mapPoolService.setMaps.mockResolvedValue([{ name: 'cp_badlands' }, { name: 'cp_process_final', execConfig: 'etf2l_6v6_5cp' }]);
+    });
+
+    it('should set the maps', async () => {
+      const ret = await controller.setMaps([{ name: 'cp_badlands' }, { name: 'cp_process_final', execConfig: 'etf2l_6v6_5cp' }]);
+      expect(ret).toEqual([{ name: 'cp_badlands' }, { name: 'cp_process_final', execConfig: 'etf2l_6v6_5cp' }]);
+      expect(mapPoolService.setMaps).toHaveBeenCalledWith([{ name: 'cp_badlands' }, { name: 'cp_process_final', execConfig: 'etf2l_6v6_5cp' }]);
+    });
+  });
 });

@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, UsePipes, ValidationPipe } from '@nestjs/common';
 import { QueueConfigService } from '../services/queue-config.service';
 import { QueueService } from '../services/queue.service';
 import { MapVoteService } from '../services/map-vote.service';
@@ -82,6 +82,13 @@ export class QueueController {
   @Auth('super-user', 'admin')
   async deleteMap(@Param('name') name: string) {
     return await this.mapPoolService.removeMap(name);
+  }
+
+  @Put('maps')
+  @Auth('super-user', 'admin')
+  @UsePipes(ValidationPipe)
+  async setMaps(@Body() maps: Map[]) {
+    return await this.mapPoolService.setMaps(maps);
   }
 
 }

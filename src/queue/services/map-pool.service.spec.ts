@@ -112,4 +112,32 @@ describe('MapPoolService', () => {
       service.removeMap('cp_obscure_final');
     }));
   });
+
+  describe('#setMaps()', () => {
+    it('should set all maps at once', async () => {
+      const maps = await service.setMaps([
+        { name: 'cp_badlands' },
+        { name: 'cp_obscure_final' },
+      ]);
+      expect(await service.setMaps(maps)).toEqual([
+        expect.objectContaining({ name: 'cp_badlands' }),
+        expect.objectContaining({ name: 'cp_obscure_final' }),
+      ]);
+    });
+
+    it('should emit the event', async () => new Promise<void>(resolve => {
+      events.mapPoolChange.subscribe(({ maps }) => {
+        expect(maps).toEqual([
+          expect.objectContaining({ name: 'cp_badlands' }),
+          expect.objectContaining({ name: 'cp_obscure_final' }),
+        ]);
+        resolve();
+      });
+
+      service.setMaps([
+        { name: 'cp_badlands' },
+        { name: 'cp_obscure_final' },
+      ]);
+    }));
+  });
 });
