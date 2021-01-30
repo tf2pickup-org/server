@@ -16,9 +16,17 @@ import { join } from 'path';
 import { readFile } from 'fs';
 import { promisify } from 'util';
 import { PlayerPopulatorService } from './services/player-populator.service';
+import { MapPoolService } from './services/map-pool.service';
+import { TypegooseModule } from 'nestjs-typegoose';
+import { standardSchemaOptions } from '@/utils/standard-schema-options';
+import { Map } from './models/map';
 
 @Module({
   imports: [
+    TypegooseModule.forFeature([
+      standardSchemaOptions(Map),
+    ]),
+
     forwardRef(() => PlayersModule),
     forwardRef(() => GamesModule),
     DiscordModule,
@@ -41,12 +49,14 @@ import { PlayerPopulatorService } from './services/player-populator.service';
       inject: [ Environment ],
     },
     PlayerPopulatorService,
+    MapPoolService,
   ],
   exports: [
     QueueService,
     QueueConfigService,
     MapVoteService,
     QueueGateway,
+    MapPoolService,
   ],
   controllers: [
     QueueController,

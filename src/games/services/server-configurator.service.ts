@@ -12,6 +12,9 @@ import { deburr } from 'lodash';
 import { extractConVarValue } from '../utils/extract-con-var-value';
 import { Rcon } from 'rcon-client/lib';
 import { isRefType } from '@typegoose/typegoose';
+import { MapPoolService } from '@/queue/services/map-pool.service';
+
+const wait = () => new Promise(resolve => setTimeout(resolve, 10 * 1000));
 
 @Injectable()
 export class ServerConfiguratorService {
@@ -23,6 +26,7 @@ export class ServerConfiguratorService {
     @Inject(forwardRef(() => PlayersService)) private playersService: PlayersService,
     private queueConfigService: QueueConfigService,
     private rconFactoryService: RconFactoryService,
+    private mapPoolService: MapPoolService,
   ) { }
 
   async configureServer(server: GameServer, game: Game) {
@@ -43,22 +47,14 @@ export class ServerConfiguratorService {
       await rcon.send(changelevel(game.map));
 
       // source servers need a moment after the map has been changed
-      await new Promise(resolve => setTimeout(resolve, 10 * 1000));
+      await wait();
 
-      const configName = this.queueConfigService.queueConfig.maps.find(m => m.name === game.map)?.configName;
-      const config = this.queueConfigService.queueConfig.configs[configName];
+      const maps = await this.mapPoolService.getMaps();
+      const config = maps.find(m => m.name === game.map)?.execConfig;
       if (config) {
         this.logger.debug(`[${server.name}] executing ${config}...`);
         await rcon.send(execConfig(config));
-        await new Promise(resolve => setTimeout(resolve, 10 * 1000));
-      }
-
-      if (this.queueConfigService.queueConfig.execConfigs) {
-        for (const c of this.queueConfigService.queueConfig.execConfigs) {
-          this.logger.debug(`[${server.name}] executing ${c}...`);
-          await rcon.send(execConfig(c));
-          await new Promise(resolve => setTimeout(resolve, 10 * 1000));
-        }
+        await wait();
       }
 
       if (this.queueConfigService.queueConfig.whitelistId) {
@@ -67,7 +63,7 @@ export class ServerConfiguratorService {
       }
 
       const password = generate({ length: 10, numbers: true, uppercase: true });
-      this.logger.debug(`[${server.name}] settings password to ${password}...`);
+      this.logger.debug(`[${server.name}] setting password to ${password}...`);
       await rcon.send(setPassword(password));
 
       for (const slot of game.activeSlots()) {

@@ -1,56 +1,58 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { MapVoteService } from './map-vote.service';
-import { QueueConfigService } from './queue-config.service';
 import { QueueService } from './queue.service';
 import { Events } from '@/events/events';
+import { typegooseTestingModule } from '@/utils/testing-typegoose-module';
+import { MongoMemoryServer } from 'mongodb-memory-server';
+import { getModelToken, TypegooseModule } from 'nestjs-typegoose';
+import { Map } from '../models/map';
+import { ReturnModelType } from '@typegoose/typegoose';
+import { skip } from 'rxjs/operators';
 
 jest.mock('./queue.service');
 
-class QueueConfigServiceStub {
-  queueConfig = {
-    maps: [
-      {
-        'name': 'cp_badlands',
-        'configName': '5cp'
-      },
-      {
-        'name': 'cp_process_final',
-        'configName': '5cp'
-      },
-      {
-        'name': 'cp_snakewater_final1',
-        'configName': '5cp'
-      },
-    ],
-  };
-}
-
 describe('MapVoteService', () => {
+  let mongod: MongoMemoryServer;
   let service: MapVoteService;
-  let queueConfigService: QueueConfigServiceStub;
-  let queueService: QueueService;
+  let mapModel: ReturnModelType<typeof Map>;
+  let queueService: jest.Mocked<QueueService>;
   let events: Events;
+
+  beforeAll(() => mongod = new MongoMemoryServer());
+  afterAll(async () => await mongod.stop());
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
+      imports: [
+        typegooseTestingModule(mongod),
+        TypegooseModule.forFeature([Map]),
+      ],
       providers: [
         MapVoteService,
-        { provide: QueueConfigService, useClass: QueueConfigServiceStub },
-        { provide: QueueService, useClass: QueueService },
+        QueueService,
         Events,
       ],
     }).compile();
 
     service = module.get<MapVoteService>(MapVoteService);
-    queueConfigService = module.get(QueueConfigService);
+    mapModel = module.get(getModelToken('Map'));
     queueService = module.get(QueueService);
     events = module.get(Events);
-
-    service.onModuleInit();
   });
 
-  beforeEach(() => {
-    queueService.isInQueue = () => true;
+  beforeEach(async () => {
+    await mapModel.insertMany([
+       { name: 'cp_badlands' },
+       { name: 'cp_process_final' },
+       { name: 'cp_snakewater_final1' },
+    ]);
+    queueService.isInQueue.mockReturnValue(true);
+  });
+
+  beforeEach(async () => await service.onModuleInit());
+
+  afterEach(async () => {
+    await mapModel.deleteMany({ });
   });
 
   it('should be defined', () => {
@@ -58,7 +60,6 @@ describe('MapVoteService', () => {
   });
 
   it('should reset all votes initially', () => {
-    expect(service.mapOptions.every(m => queueConfigService.queueConfig.maps.map(n => n.name).includes(m))).toBe(true);
     expect(service.results.every(r => r.voteCount === 0)).toBe(true);
   });
 
@@ -79,7 +80,7 @@ describe('MapVoteService', () => {
 
     describe('when the player is not in the queue', () => {
       beforeEach(() => {
-        queueService.isInQueue = () => false;
+        queueService.isInQueue.mockReturnValue(false);
       });
 
       it('should deny', () => {
@@ -94,7 +95,7 @@ describe('MapVoteService', () => {
       expect(service.voteCountForMap('cp_badlands')).toEqual(0);
     });
 
-    it('should emit the mapVotesChange event', async () => new Promise(resolve => {
+    it('should emit the mapVotesChange event', async () => new Promise<void>(resolve => {
       events.mapVotesChange.subscribe(({ results }) => {
         expect(results.length).toEqual(3);
         expect(results.find(r => r.map === 'cp_badlands').voteCount).toEqual(1);
@@ -106,27 +107,60 @@ describe('MapVoteService', () => {
   });
 
   describe('#getWinner()', () => {
-    it('should return the map with the most votes', () => {
+    it('should return the map with the most votes', async () => {
       service.voteForMap('FAKE_ID', 'cp_badlands');
-      expect(service.getWinner()).toEqual('cp_badlands');
+      expect(await service.getWinner()).toEqual('cp_badlands');
     });
 
-    it('should return one of two most-voted maps', () => {
+    it('should return one of two most-voted maps', async () => {
       service.voteForMap('FAKE_ID_1', 'cp_badlands');
       service.voteForMap('FAKE_ID_2', 'cp_process_final');
-      expect(service.getWinner()).toMatch(/cp_badlands|cp_process_final/);
+      expect(await service.getWinner()).toMatch(/cp_badlands|cp_process_final/);
     });
 
-    it('should eventually reset the vote', async () => new Promise(resolve => {
-      service.voteForMap('FAKE_ID_1', 'cp_badlands');
-      service.voteForMap('FAKE_ID_2', 'cp_process_final');
-
-      const map = service.getWinner();
-      setImmediate(() => {
-        expect(service.results.every(r => r.voteCount === 0)).toBe(true);
-        expect(service.mapOptions.every(m => m !== map)).toBe(true);
+    it('should eventually reset the vote', async () => new Promise<void>(resolve => {
+      events.mapVotesChange.pipe(skip(1)).subscribe(({ results }) => {
+        expect(results.every(r => r.voteCount === 0)).toBe(true);
+        expect(service.mapOptions.every(m => m !== 'cp_badlands')).toBe(true);
         resolve();
       });
+
+      service.voteForMap('FAKE_ID_1', 'cp_badlands');
+      service.getWinner();
     }));
+
+    describe('when a map is chosen', () => {
+      beforeEach(async () => {
+        service.voteForMap('FAKE_ID', 'cp_badlands');
+        await service.getWinner();
+      });
+
+      it('should set the cooldown', async () => {
+        const map = await mapModel.findOne({ name: 'cp_badlands' });
+        expect(map.cooldown).toEqual(2);
+      });
+
+      describe('and when another map is chosen', () => {
+        beforeEach(async () => {
+          service.voteForMap('FAKE_ID', 'cp_process_final');
+          await service.getWinner();
+        });
+
+        it('should decrease the cooldown by 1', async () => {
+          const map = await mapModel.findOne({ name: 'cp_badlands' });
+          expect(map.cooldown).toEqual(1);
+        });
+      });
+    });
+  });
+
+  it('should reset the votes when map pool changes', async () => {
+    service.voteForMap('FAKE_ID', 'cp_badlands');
+    await mapModel.create({ name: 'cp_gullywash_final1' });
+    const maps = await mapModel.find();
+    events.mapPoolChange.next({ maps });
+
+    await new Promise(resolve => setTimeout(resolve, 100));
+    expect(service.results.every(r => r.voteCount === 0)).toBe(true);
   });
 });

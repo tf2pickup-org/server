@@ -1,11 +1,13 @@
-import { Injectable, OnModuleInit, Inject, forwardRef } from '@nestjs/common';
-import { QueueConfigService } from './queue-config.service';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { QueueService } from './queue.service';
 import { maxBy, shuffle } from 'lodash';
 import { BehaviorSubject } from 'rxjs';
 import { MapVoteResult } from '../map-vote-result';
 import { mapCooldown } from '@configs/queue';
 import { Events } from '@/events/events';
+import { Map } from '../models/map';
+import { ReturnModelType } from '@typegoose/typegoose';
+import { InjectModel } from 'nestjs-typegoose';
 
 interface MapVote {
   playerId: string;
@@ -15,8 +17,8 @@ interface MapVote {
 @Injectable()
 export class MapVoteService implements OnModuleInit {
 
+  private readonly logger = new Logger(MapVoteService.name);
   private readonly _results = new BehaviorSubject<MapVoteResult[]>([]);
-  private readonly mapPool = this.queueConfigService.queueConfig.maps.map(m => ({ map: m.name, cooldown: 0 }));
 
   // available options to vote for
   public mapOptions: string[];
@@ -29,16 +31,17 @@ export class MapVoteService implements OnModuleInit {
   private votes: MapVote[];
 
   constructor(
-    private queueConfigService: QueueConfigService,
-    @Inject(forwardRef(() => QueueService)) private queueService: QueueService,
+    @InjectModel(Map) private mapModel: ReturnModelType<typeof Map>,
+    private queueService: QueueService,
     private events: Events,
-  ) {
-    this.reset();
-  }
+  ) { }
 
-  onModuleInit() {
-    this.events.playerLeavesQueue.subscribe(({ playerId }) => this.resetPlayerVote(playerId));
+  async onModuleInit() {
     this._results.subscribe(results => this.events.mapVotesChange.next({ results }));
+
+    this.events.playerLeavesQueue.subscribe(({ playerId }) => this.resetPlayerVote(playerId));
+    this.events.mapPoolChange.subscribe(() => this.reset());
+    await this.reset();
   }
 
   voteCountForMap(map: string): number {
@@ -69,24 +72,23 @@ export class MapVoteService implements OnModuleInit {
   /**
    * Decides the winner and resets the vote.
    */
-  getWinner() {
+  async getWinner() {
     const maxVotes = maxBy(this.results, r => r.voteCount).voteCount;
     const mapsWithMaxVotes = this.results.filter(m => m.voteCount === maxVotes);
     const map = mapsWithMaxVotes[Math.floor(Math.random() * mapsWithMaxVotes.length)].map;
-    this.mapPool.find(m => m.map === map).cooldown = mapCooldown;
+    await this.mapModel.updateMany({ cooldown: { $gt: 0 } }, { $inc: { cooldown: -1 } });
+    await this.mapModel.updateOne({ name: map }, { cooldown: mapCooldown });
     setImmediate(() => this.reset());
     return map;
   }
 
-  private reset() {
-    this.mapOptions = shuffle(
-      this.mapPool
-        .filter(m => m.cooldown <= 0)
-        .map(m => m.map)
-    ).slice(0, this.mapVoteOptionCount);
+  private async reset() {
+    this.mapOptions = shuffle(await this.mapModel.find({ cooldown: { $lte: 0 } }).exec())
+      .slice(0, this.mapVoteOptionCount)
+      .map(m => m.name);
+    this.logger.debug(`Map options: ${this.mapOptions.join(',')}`);
     this.votes = [];
     this._results.next(this.getResults());
-    this.mapPool.forEach(p => p.cooldown -= 1);
   }
 
   private resetPlayerVote(playerId: string) {

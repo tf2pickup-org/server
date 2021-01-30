@@ -18,35 +18,5 @@
       "count": 1
     }
   ],
-  "maps": [
-    {
-      "name": "cp_process_final",
-      "configName": "5cp"
-    },
-    {
-      "name": "cp_snakewater_final1",
-      "configName": "5cp"
-    },
-    {
-      "name": "cp_sunshine",
-      "configName": "5cp"
-    },
-    {
-      "name": "cp_granary_pro_rc8",
-      "configName": "5cp"
-    },
-    {
-      "name": "cp_gullywash_final1",
-      "configName": "5cp"
-    },
-    {
-      "name": "cp_metalworks",
-      "configName": "5cp"
-    }
-  ],
-  "configs": {
-    "5cp": "etf2l_6v6_5cp",
-    "koth": "etf2l_6v6_koth"
-  },
   "whitelistId": "10824"
 }
