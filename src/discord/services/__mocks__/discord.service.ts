@@ -24,7 +24,10 @@ export class DiscordService {
   }
 
   findRole(role: string) {
-    return `&<${role}>`;
+    return {
+      mentionable: true,
+      toString: () => `&<${role}>`,
+    };
   }
 
 }

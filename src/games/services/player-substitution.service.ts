@@ -58,15 +58,23 @@ export class PlayerSubstitutionService {
     this.events.gameChanges.next({ game: game.toJSON() });
     this.events.substituteRequestsChange.next();
 
-    const message = await this.discordService.getPlayersChannel()?.send({
-      embed:substituteRequest({
-        gameNumber: game.number,
-        gameClass: slot.gameClass,
-        team: slot.team.toUpperCase(),
-        gameUrl: `${this.environment.clientUrl}/game/${game.id}`,
-      }),
-    });
-    this.discordNotifications.set(playerId, message);
+    const channel = this.discordService.getPlayersChannel();
+    if (channel) {
+      const roleToMention = this.discordService.findRole(this.environment.discordQueueNotificationsMentionRole);
+      if (roleToMention?.mentionable) {
+        await channel?.send(`${roleToMention}`);
+      }
+  
+      const message = await channel.send({
+        embed: substituteRequest({
+          gameNumber: game.number,
+          gameClass: slot.gameClass,
+          team: slot.team.toUpperCase(),
+          gameUrl: `${this.environment.clientUrl}/game/${game.id}`,
+        }),
+      });
+      this.discordNotifications.set(playerId, message);
+    }
 
     return game;
   }
