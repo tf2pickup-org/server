@@ -146,7 +146,7 @@ describe('PlayersService', () => {
     it('should retrieve all players from the database', async () => {
       const ret = await service.getAll();
       expect(ret.length).toEqual(1);
-      expect(ret[0].toObject()).toEqual(mockPlayer.toObject());
+      expect(ret[0]).toEqual(mockPlayer.toObject());
     });
 
     describe('when the bot user is created', () => {
@@ -164,7 +164,7 @@ describe('PlayersService', () => {
   describe('#getById()', () => {
     it('should retrieve the player from the database', async () => {
       const player = await service.getById(mockPlayer.id);
-      expect(player.toObject()).toEqual(mockPlayer.toObject());
+      expect(player).toEqual(mockPlayer.toObject());
     });
   });
 
@@ -271,7 +271,7 @@ describe('PlayersService', () => {
 
     it('should create new player', async () => {
       const ret = await service.createPlayer(mockSteamProfile);
-      expect(ret.toObject()).toMatchObject({
+      expect(ret).toMatchObject({
         steamId: 'FAKE_STEAM_ID_2',
         name: 'maly',
         avatar: {
@@ -366,12 +366,8 @@ describe('PlayersService', () => {
     };
 
     describe('when the given user does not exist', () => {
-      beforeEach(() => {
-        jest.spyOn(service, 'getById').mockResolvedValue(null);
-      });
-
       it('should throw an error', async () => {
-        await expect(service.registerTwitchAccount('FAKE_ID', {
+        await expect(service.registerTwitchAccount(new ObjectId().toString(), {
           userId: 'FAKE_TWITCH_TV_USER_ID',
           login: 'FAKE_TWITCH_TV_LOGIN',
         })).rejects.toThrowError('no such player');
@@ -389,7 +385,7 @@ describe('PlayersService', () => {
       const spy = jest.spyOn(socket, 'emit');
 
       await service.registerTwitchAccount(mockPlayer.id, twitchTvUser);
-      expect(spy).toHaveBeenCalledWith('profile update', { twitchTvUser });
+      expect(spy).toHaveBeenCalledWith('profile update', { twitchTvUser: expect.objectContaining(twitchTvUser) });
     });
   });
 
@@ -452,8 +448,8 @@ describe('PlayersService', () => {
       expect(spy).toHaveBeenCalledWith('profile update', { name: 'NEW_NAME' });
     });
 
-    it('should return null if the given player does not exist', async () => {
-      expect(await service.updatePlayer(new ObjectId().toString(), { }, admin.id)).toBeNull();
+    it('should throw an error if the given player does not exist', async () => {
+      await expect(service.updatePlayer(new ObjectId().toString(), { }, admin.id)).rejects.toThrowError('no such player');
     });
 
     it('should notify admins on Discord', async () => {
@@ -476,8 +472,7 @@ describe('PlayersService', () => {
     });
 
     it('should fail if the given user doesn\'t exist', async () => {
-      jest.spyOn(service, 'getById').mockResolvedValue(null);
-      await expect(service.acceptTerms('FAKE_ID')).rejects.toThrowError('no such player');
+      await expect(service.acceptTerms(new ObjectId().toString())).rejects.toThrowError('no such player');
     });
   });
 

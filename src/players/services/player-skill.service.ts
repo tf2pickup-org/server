@@ -49,7 +49,7 @@ export class PlayerSkillService implements OnModuleInit {
   }
 
   async setPlayerSkill(playerId: string, skill: PlayerSkill['skill'], adminId?: string): Promise<DocumentType<PlayerSkill>> {
-    let admin: DocumentType<Player>;
+    let admin: Player;
     if (adminId) {
       admin = await this.playersService.getById(adminId);
       if (!admin) {
@@ -98,7 +98,7 @@ export class PlayerSkillService implements OnModuleInit {
     const rows = [
       [ 'etf2lProfileId', ...gameClasses ].join(','),
       ...(await Promise.all(players.map(async p => {
-        const skill = await this.getPlayerSkill(p.id);
+        const skill = await this.getPlayerSkill(p._id);
         return skill ? [ p.etf2lProfileId, ...gameClasses.map(gc => skill.skill.get(gc)) ] : null;
       })))
       .filter(entry => !!entry)

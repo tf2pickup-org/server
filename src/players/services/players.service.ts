@@ -17,6 +17,7 @@ import { ObjectId } from 'mongodb';
 import { minimumTf2InGameHours, requireEtf2lAccount } from '@configs/players';
 import { PlayerAvatar } from '../models/player-avatar';
 import { Events } from '@/events/events';
+import { deepDiff } from '@/utils/deep-diff';
 
 type ForceCreatePlayerOptions = Pick<Player, 'steamId' | 'name'>;
 
@@ -46,12 +47,12 @@ export class PlayersService implements OnModuleInit {
     }
   }
 
-  async getAll(): Promise<DocumentType<Player>[]> {
-    return await this.playerModel.find({ role: { $ne: 'bot' } });
+  async getAll(): Promise<Player[]> {
+    return await this.playerModel.find({ role: { $ne: 'bot' } }).lean().exec();
   }
 
-  async getById(id: string | ObjectId): Promise<DocumentType<Player>> {
-    return await this.playerModel.findById(id);
+  async getById(id: string | ObjectId): Promise<Player> {
+    return await this.playerModel.findById(id).lean().exec();
   }
 
   async findBySteamId(steamId: string) {
@@ -70,7 +71,7 @@ export class PlayersService implements OnModuleInit {
     return this.playerModel.findOne({ name: this.environment.botName });
   }
 
-  async createPlayer(steamProfile: SteamProfile): Promise<DocumentType<Player>> {
+  async createPlayer(steamProfile: SteamProfile): Promise<Player> {
     await this.verifyTf2InGameHours(steamProfile.id);
 
     let etf2lProfile: Etf2lProfile;
@@ -144,57 +145,39 @@ export class PlayersService implements OnModuleInit {
   }
 
   async registerTwitchAccount(playerId: string, twitchTvUser: TwitchTvUser) {
-    const player = await this.getById(playerId);
-    if (!player) {
-      throw new Error('no such player');
-    }
-
-    player.twitchTvUser = twitchTvUser;
-    await player.save();
-
-    this.onlinePlayersService.getSocketsForPlayer(playerId).forEach(socket => {
-      socket.emit('profile update', { twitchTvUser });
-    });
-
-    return player;
+    return await this.updatePlayer(playerId, { twitchTvUser });
   }
 
   async getUsersWithTwitchTvAccount() {
     return await this.playerModel.find({ twitchTvUser: { $exists: true } });
   }
 
-  async updatePlayer(playerId: string, update: Partial<Player>, adminId: string): Promise<DocumentType<Player>> {
-    const admin = await this.getById(adminId);
-    if (!admin)  {
-      throw new Error('admin does not exist');
-    }
+  async updatePlayer(playerId: string, update: Partial<Player>, adminId?: string): Promise<Player> {
+    const oldPlayer = await this.getById(playerId);
+    if (oldPlayer) {
+      const newPlayer = await this.playerModel.findOneAndUpdate({ _id: playerId }, update, { new: true }).lean().exec();
 
-    const player = await this.getById(playerId);
-    if (player) {
-      if (update.name && player.name !== update.name) {
-        const oldName = player.name;
-        player.name = update.name;
+      if (adminId && update.name && oldPlayer.name !== newPlayer.name) {
+        const admin = await this.getById(adminId);
+        if (!admin)  {
+          throw new Error('admin does not exist');
+        }
 
         this.discordService.getAdminsChannel()?.send({
           embed: playerNameChanged({
-            oldName,
-            newName: player.name,
-            profileUrl: `${this.environment.clientUrl}/player/${player.id}`,
+            oldName: oldPlayer.name,
+            newName: newPlayer.name,
+            profileUrl: `${this.environment.clientUrl}/player/${newPlayer._id}`,
             adminResponsible: admin.name,
           }),
         });
       }
 
-      if (update.role !== undefined) {
-        player.role = update.role;
-      }
+      this.onlinePlayersService.getSocketsForPlayer(playerId).forEach(socket => socket.emit('profile update', deepDiff(newPlayer, oldPlayer)));
 
-      await player.save();
-      this.onlinePlayersService.getSocketsForPlayer(playerId).forEach(socket => socket.emit('profile update', { name: player.name }));
-
-      return player;
+      return newPlayer;
     } else {
-      return null;
+      throw new Error('no such player');
     }
   }
 
@@ -202,15 +185,8 @@ export class PlayersService implements OnModuleInit {
    * Player accepts the rules.
    * Without accepting the rules, player cannot join the queue nor any game.
    */
-  async acceptTerms(playerId: string): Promise<DocumentType<Player>> {
-    const player = await this.getById(playerId);
-    if (!player) {
-      throw new Error('no such player');
-    }
-
-    player.hasAcceptedRules = true;
-    await player.save();
-    return player;
+  async acceptTerms(playerId: string): Promise<Player> {
+    return await this.updatePlayer(playerId, { hasAcceptedRules: true });
   }
 
   async getPlayerStats(playerId: string): Promise<PlayerStats> {

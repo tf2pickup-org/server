@@ -8,6 +8,7 @@ import { Events } from '@/events/events';
 import { Socket } from 'socket.io';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { PlayerPopulatorService } from '../services/player-populator.service';
+import { Player } from '@/players/models/player';
 
 jest.mock('../services/queue.service');
 jest.mock('socket.io');
@@ -112,7 +113,7 @@ describe('QueueGateway', () => {
   describe('when the queueSlotsChange event is fired', () => {
     beforeEach(() => {
       playerPopulatorService.populatePlayers.mockResolvedValue([
-        { id: 5, gameClass: Tf2ClassName.soldier, ready: true, playerId: 'FAKE_PLAYER_ID', player: { id: 'FAKE_PLAYER_ID' } },
+        { id: 5, gameClass: Tf2ClassName.soldier, ready: true, playerId: 'FAKE_PLAYER_ID', player: { id: 'FAKE_PLAYER_ID' } as Player },
       ]);
       events.queueSlotsChange.next({ slots: [ { id: 0, playerId: 'FAKE_PLAYER_ID', ready: true, gameClass: Tf2ClassName.soldier } ] });
     });

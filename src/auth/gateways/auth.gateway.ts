@@ -25,7 +25,7 @@ export class AuthGateway implements OnModuleInit {
         try {
           const player = await this.playersService.getById(payload.id);
           if (player) {
-            return done(null, player.toJSON());
+            return done(null, player);
           } else {
             return done(null, false);
           }

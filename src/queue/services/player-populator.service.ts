@@ -10,7 +10,7 @@ export class PlayerPopulatorService {
   ) { }
 
   async populatePlayer(slot: QueueSlot) {
-    return { ...slot, player: slot.playerId ? (await this.playersService.getById(slot.playerId)).toJSON() : null };
+    return { ...slot, player: slot.playerId ? (await this.playersService.getById(slot.playerId)) : null };
   }
 
   async populatePlayers(slots: QueueSlot[]) {

@@ -15,11 +15,11 @@ export class PlayersService {
   ) { }
 
   async getById(id: string) {
-    return await this.playerModel.findById(id);
+    return await this.playerModel.findById(id).lean().exec();
   }
 
   async getAll() {
-    return await this.playerModel.find();
+    return await this.playerModel.find().lean().exec();
   }
 
   async findBySteamId(steamId: string) {

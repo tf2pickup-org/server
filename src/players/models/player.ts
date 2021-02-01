@@ -7,6 +7,7 @@ import { TwitchTvUser } from './twitch-tv-user';
 @index({ steamId: 'hashed' })
 export class Player {
   id?: string;
+  _id?: string;
 
   @IsString()
   @prop({ required: true, unique: true, trim: true })
