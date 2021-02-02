@@ -1,8 +1,8 @@
 import { prop, Ref } from '@typegoose/typegoose';
 import { GameSlot } from './game-slot';
 import { GameServer } from '@/game-servers/models/game-server';
-import { ObjectId } from 'mongodb';
 import { GameState } from './game-state';
+import { ObjectId } from 'mongodb';
 
 export class Game {
   id: string;
@@ -49,9 +49,8 @@ export class Game {
   @prop()
   stvConnectString?: string;
 
-  findPlayerSlot(playerId: string | ObjectId) {
-    const _playerId = new ObjectId(playerId);
-    return this.slots.find(s => _playerId.equals(s.player as ObjectId));
+  findPlayerSlot(playerId: string) {
+    return this.slots.find(s => s.player.toString() === `${playerId}`);
   }
 
   activeSlots() {

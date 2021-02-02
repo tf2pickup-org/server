@@ -85,12 +85,12 @@ describe('Profile Controller', () => {
   describe('#acceptTerms', () => {
     it('should call players service', async () => {
       const spy = jest.spyOn(playersService, 'acceptTerms');
-      await controller.acceptTerms({ id: 'FAKE_ID' } as Player, '');
+      await controller.acceptTerms({ _id: 'FAKE_ID' } as Player, '');
       expect(spy).toHaveBeenCalledWith('FAKE_ID');
     });
 
     it('should reject invalid requests', async () => {
-      await expect(controller.acceptTerms({ id: 'FAKE_ID' } as Player, undefined)).rejects.toThrow(BadRequestException);
+      await expect(controller.acceptTerms({ _id: 'FAKE_ID' } as Player, undefined)).rejects.toThrow(BadRequestException);
     });
   });
 });

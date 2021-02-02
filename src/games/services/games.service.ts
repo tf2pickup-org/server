@@ -112,7 +112,7 @@ export class GamesService {
     const players: PlayerSlot[] = await Promise.all(queueSlots.map(slot => this.queueSlotToPlayerSlot(slot)));
     const assignedSkills = players.reduce((prev, curr) => { prev[curr.playerId] = curr.skill; return prev; }, { });
     const slots = pickTeams(shuffle(players), { friends })
-      .map(s => ({ ...s, player: new ObjectId(s.playerId) }));
+      .map(s => ({ ...s, player: s.playerId }));
     const gameNo = await this.getNextGameNumber();
 
     const game = await this.gameModel.create({

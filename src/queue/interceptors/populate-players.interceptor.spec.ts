@@ -21,10 +21,10 @@ describe('PopulatePlayersInterceptor', () => {
     interceptor = new PopulatePlayersInterceptor(playerPopulatorService);
 
     playerPopulatorService.populatePlayer.mockResolvedValue(
-      { id: 2, gameClass: Tf2ClassName.soldier, ready: false, playerId: 'FAKE_PLAYER_ID', player: { id: 'FAKE_PLAYER_ID' } as Player, }
+      { id: 2, gameClass: Tf2ClassName.soldier, ready: false, playerId: 'FAKE_PLAYER_ID', player: { _id: 'FAKE_PLAYER_ID' } as Player, }
     );
     playerPopulatorService.populatePlayers.mockResolvedValue([
-      { id: 2, gameClass: Tf2ClassName.soldier, ready: false, playerId: 'FAKE_PLAYER_ID', player: { id: 'FAKE_PLAYER_ID' } as Player, }
+      { id: 2, gameClass: Tf2ClassName.soldier, ready: false, playerId: 'FAKE_PLAYER_ID', player: { _id: 'FAKE_PLAYER_ID' } as Player, }
     ]);
   });
 
@@ -38,7 +38,7 @@ describe('PopulatePlayersInterceptor', () => {
     };
 
     interceptor.intercept(null, next).subscribe(data => {
-      expect(data).toEqual({ id: 2, gameClass: Tf2ClassName.soldier, ready: false, playerId: 'FAKE_PLAYER_ID', player: { id: 'FAKE_PLAYER_ID' } });
+      expect(data).toEqual({ id: 2, gameClass: Tf2ClassName.soldier, ready: false, playerId: 'FAKE_PLAYER_ID', player: { _id: 'FAKE_PLAYER_ID' } });
       resolve();
     });
   }));
@@ -50,7 +50,7 @@ describe('PopulatePlayersInterceptor', () => {
 
     interceptor.intercept(null, next).subscribe(data => {
       expect(data).toEqual([
-        { id: 2, gameClass: Tf2ClassName.soldier, ready: false, playerId: 'FAKE_PLAYER_ID', player: { id: 'FAKE_PLAYER_ID' }, },
+        { id: 2, gameClass: Tf2ClassName.soldier, ready: false, playerId: 'FAKE_PLAYER_ID', player: { _id: 'FAKE_PLAYER_ID' }, },
       ]);
       resolve();
     });

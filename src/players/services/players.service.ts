@@ -1,7 +1,7 @@
 import { Injectable, Logger, Inject, forwardRef, OnModuleInit } from '@nestjs/common';
 import { Environment } from '@/environment/environment';
 import { Player } from '../models/player';
-import { DocumentType, ReturnModelType } from '@typegoose/typegoose';
+import { ReturnModelType } from '@typegoose/typegoose';
 import { SteamProfile } from '../models/steam-profile';
 import { Etf2lProfileService } from './etf2l-profile.service';
 import { InjectModel } from 'nestjs-typegoose';
@@ -55,20 +55,20 @@ export class PlayersService implements OnModuleInit {
     return await this.playerModel.findById(id).lean().exec();
   }
 
-  async findBySteamId(steamId: string) {
-    return await this.playerModel.findOne({ steamId });
+  async findBySteamId(steamId: string): Promise<Player> {
+    return await this.playerModel.findOne({ steamId }).lean().exec();
   }
 
-  async findByEtf2lProfileId(etf2lProfileId: number) {
-    return await this.playerModel.findOne({ etf2lProfileId });
+  async findByEtf2lProfileId(etf2lProfileId: number): Promise<Player> {
+    return await this.playerModel.findOne({ etf2lProfileId }).lean().exec();
   }
 
-  async findByTwitchUserId(twitchTvUserId: string) {
-    return await this.playerModel.findOne({ 'twitchTvUser.userId': twitchTvUserId });
+  async findByTwitchUserId(twitchTvUserId: string): Promise<Player> {
+    return await this.playerModel.findOne({ 'twitchTvUser.userId': twitchTvUserId }).lean().exec();
   }
 
-  async findBot() {
-    return this.playerModel.findOne({ name: this.environment.botName });
+  async findBot(): Promise<Player> {
+    return this.playerModel.findOne({ name: this.environment.botName }).lean().exec();
   }
 
   async createPlayer(steamProfile: SteamProfile): Promise<Player> {
@@ -148,8 +148,8 @@ export class PlayersService implements OnModuleInit {
     return await this.updatePlayer(playerId, { twitchTvUser });
   }
 
-  async getUsersWithTwitchTvAccount() {
-    return await this.playerModel.find({ twitchTvUser: { $exists: true } });
+  async getUsersWithTwitchTvAccount(): Promise<Player[]> {
+    return await this.playerModel.find({ twitchTvUser: { $exists: true } }).lean().exec();
   }
 
   async updatePlayer(playerId: string, update: Partial<Player>, adminId?: string): Promise<Player> {

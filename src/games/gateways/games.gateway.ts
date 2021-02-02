@@ -4,6 +4,7 @@ import { WsAuthorized } from '@/auth/decorators/ws-authorized.decorator';
 import { PlayerSubstitutionService } from '../services/player-substitution.service';
 import { Inject, forwardRef, OnModuleInit } from '@nestjs/common';
 import { Events } from '@/events/events';
+import { AuthorizedWsClient } from '@/auth/ws-client';
 
 @WebSocketGateway()
 export class GamesGateway implements OnGatewayInit, OnModuleInit {
@@ -17,8 +18,8 @@ export class GamesGateway implements OnGatewayInit, OnModuleInit {
 
   @WsAuthorized()
   @SubscribeMessage('replace player')
-  async replacePlayer(client: any, payload: { gameId: string, replaceeId: string }) {
-    return await this.playerSubstitutionService.replacePlayer(payload.gameId, payload.replaceeId, client.request.user.id);
+  async replacePlayer(client: AuthorizedWsClient, payload: { gameId: string, replaceeId: string }) {
+    return await this.playerSubstitutionService.replacePlayer(payload.gameId, payload.replaceeId, client.request.user._id);
   }
 
   afterInit(socket: Socket) {

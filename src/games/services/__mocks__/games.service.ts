@@ -4,7 +4,6 @@ import { InjectModel } from 'nestjs-typegoose';
 import { Game } from '@/games/models/game';
 import { ReturnModelType } from '@typegoose/typegoose';
 import { Player } from '@/players/models/player';
-import { ObjectId } from 'mongodb';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 
 @Injectable()
@@ -33,7 +32,7 @@ export class GamesService {
       number: ++this.lastGameId,
       map: 'cp_badlands',
       slots: players?.map(p => ({
-        player: new ObjectId(p.id),
+        player: p._id,
         team: teams[`${(lastTeamId++) % 2}`],
         gameClass: Tf2ClassName.soldier,
       })),

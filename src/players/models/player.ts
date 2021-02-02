@@ -3,11 +3,11 @@ import { IsString, Matches } from 'class-validator';
 import { PlayerAvatar } from './player-avatar';
 import { PlayerRole } from './player-role';
 import { TwitchTvUser } from './twitch-tv-user';
+import { ObjectId } from 'mongodb';
 
 @index({ steamId: 'hashed' })
 export class Player {
-  id?: string;
-  _id?: string;
+  _id?: ObjectId;
 
   @IsString()
   @prop({ required: true, unique: true, trim: true })

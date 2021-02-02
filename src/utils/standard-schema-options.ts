@@ -11,6 +11,7 @@ export function standardSchemaOptions(cls: any, ...transform: TransformFn[]) {
   return {
     typegooseClass: cls,
     schemaOptions: {
+      versionKey: false,
       toJSON: {
         versionKey: false,
         transform: chain(renameId, ...transform),

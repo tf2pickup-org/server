@@ -10,6 +10,7 @@ import { PlayerBansService } from '../services/player-bans.service';
 import { PlayerBan } from '../models/player-ban';
 import { User } from '@/auth/decorators/user.decorator';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
+import { RenameUnderscoreIdToId } from '@/shared/decorators/rename-underscore-id-to-id.decorator';
 
 @Controller('players')
 @UseInterceptors(CacheInterceptor)
@@ -23,14 +24,17 @@ export class PlayersController {
   ) { }
 
   @Get()
+  @RenameUnderscoreIdToId()
   async getAllPlayers() {
     return await this.playersService.getAll();
   }
 
   @Get(':id')
+  @RenameUnderscoreIdToId()
   async getPlayer(@Param('id', ObjectIdValidationPipe) playerId: string) {
     const player = await this.playersService.getById(playerId);
     if (player) {
+      console.log(player);
       return player;
     } else {
       throw new NotFoundException();
@@ -46,14 +50,23 @@ export class PlayersController {
 
   @Patch(':id')
   @Auth('admin', 'super-user')
-  async updatePlayer(@Param('id', ObjectIdValidationPipe) playerId: string, @Body() player: Partial<Player>, @User() user: Player) {
-    return await this.playersService.updatePlayer(playerId, player, user.id);
+  @RenameUnderscoreIdToId()
+  async updatePlayer(
+    @Param('id', ObjectIdValidationPipe) playerId: string,
+    @Body() player: Partial<Player>,
+    @User() user: Player,
+  ) {
+    return await this.playersService.updatePlayer(playerId, player, user._id);
   }
 
   @Get(':id/games')
   @Header('Warning', '299 - "Deprecated API"')
-  async getPlayerGames(@Param('id', ObjectIdValidationPipe) playerId: string, @Query('limit', ParseIntPipe) limit = 10,
-                       @Query('offset', ParseIntPipe) offset = 0, @Query('sort') sort = '-launched_at') {
+  async getPlayerGames(
+    @Param('id', ObjectIdValidationPipe) playerId: string,
+    @Query('limit', ParseIntPipe) limit = 10,
+    @Query('offset', ParseIntPipe) offset = 0,
+    @Query('sort') sort = '-launched_at',
+  ) {
     let sortParam: { launchedAt: 1 | -1 };
     switch (sort) {
       case '-launched_at':
@@ -109,7 +122,7 @@ export class PlayersController {
     @Body() newSkill: { [className in Tf2ClassName]?: number },
     @User() user: Player,
   ) {
-    return (await this.playerSkillService.setPlayerSkill(playerId, new Map(Object.entries(newSkill)) as Map<Tf2ClassName, number>, user.id))?.skill;
+    return (await this.playerSkillService.setPlayerSkill(playerId, new Map(Object.entries(newSkill)) as Map<Tf2ClassName, number>, user._id))?.skill;
   }
 
   @Get(':id/bans')
@@ -122,7 +135,7 @@ export class PlayersController {
   @Auth('admin', 'super-user')
   @UsePipes(ValidationPipe)
   async addPlayerBan(@Body() playerBan: PlayerBan, @User() user: Player) {
-    if (playerBan.admin.toString() !== user.id) {
+    if (playerBan.admin !== user._id.toString()) {
       throw new BadRequestException('the admin field must be the same as authorized user\'s id');
     }
     return await this.playerBansService.addPlayerBan(playerBan);
@@ -131,8 +144,12 @@ export class PlayersController {
   @Post(':playerId/bans/:banId')
   @Auth('admin', 'super-user')
   @HttpCode(200)
-  async updatePlayerBan(@Param('playerId', ObjectIdValidationPipe) playerId: string, @Param('banId', ObjectIdValidationPipe) banId: string,
-                        @Query('revoke') revoke: any, @User() user: Player) {
+  async updatePlayerBan(
+    @Param('playerId', ObjectIdValidationPipe) playerId: string,
+    @Param('banId', ObjectIdValidationPipe) banId: string,
+    @Query('revoke') revoke: any,
+    @User() user: Player,
+  ) {
     const player = await this.playersService.getById(playerId);
     if (!player) {
       throw new NotFoundException('player not found');
@@ -148,7 +165,7 @@ export class PlayersController {
     }
 
     if (revoke !== undefined) {
-      return this.playerBansService.revokeBan(banId, user.id);
+      return this.playerBansService.revokeBan(banId, user._id);
     }
   }
 

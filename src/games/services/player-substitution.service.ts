@@ -129,9 +129,7 @@ export class PlayerSubstitutionService {
       throw new Error('no such game');
     }
 
-    const _replaceeId = new ObjectId(replaceeId);
-    const slot = game.slots.find(slot => slot.status === SlotStatus.waitingForSubstitute && _replaceeId.equals(slot.player as ObjectId));
-
+    const slot = game.slots.find(slot => slot.status === SlotStatus.waitingForSubstitute && `${replaceeId}` === slot.player.toString());
     if (!slot) {
       throw new Error('no such slot');
     }

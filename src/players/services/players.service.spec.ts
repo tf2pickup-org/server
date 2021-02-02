@@ -171,14 +171,14 @@ describe('PlayersService', () => {
   describe('#findBySteamId()', () => {
     it('should query playerModel', async () => {
       const player = await service.findBySteamId('FAKE_STEAM_ID');
-      expect(player.toObject()).toEqual(mockPlayer.toObject());
+      expect(player).toEqual(mockPlayer.toObject());
     });
   });
 
   describe('#findByEtf2lProfileId()', () => {
     it('should query playerModel', async () => {
       const player = await service.findByEtf2lProfileId(123456);
-      expect(player.toObject()).toEqual(mockPlayer.toObject());
+      expect(player).toEqual(mockPlayer.toObject());
     });
   });
 
@@ -194,7 +194,7 @@ describe('PlayersService', () => {
 
     it('should query playerModel', async () => {
       const player = await service.findByTwitchUserId('FAKE_TWITCH_TV_USER_ID');
-      expect(player.toObject()).toEqual(expect.objectContaining({
+      expect(player).toEqual(expect.objectContaining({
         twitchTvUser: expect.objectContaining({
           userId: 'FAKE_TWITCH_TV_USER_ID',
         }),

@@ -13,7 +13,7 @@ import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 
 class PlayersServiceStub {
   player: Player = {
-    id: 'FAKE_ID',
+    _id: 'FAKE_ID',
     name: 'FAKE_PLAYER_NAME',
     steamId: 'FAKE_STEAM_ID',
     hasAcceptedRules: true,
@@ -167,7 +167,7 @@ describe('Players Controller', () => {
   describe('#updatePlayer()', () => {
     it('should update the player', async () => {
       const spy = jest.spyOn(playersService, 'updatePlayer');
-      const ret = await controller.updatePlayer('FAKE_ID', { name: 'FAKE_NEW_NAME' }, { id: 'FAKE_ADMIN_ID' } as any);
+      const ret = await controller.updatePlayer('FAKE_ID', { name: 'FAKE_NEW_NAME' }, { _id: 'FAKE_ADMIN_ID' } as Player);
       expect(spy).toHaveBeenCalledWith('FAKE_ID', { name: 'FAKE_NEW_NAME' }, 'FAKE_ADMIN_ID');
       expect(ret).toEqual(playersService.player as any);
     });
@@ -228,7 +228,7 @@ describe('Players Controller', () => {
     it('should set player skill', async () => {
       const skill = { soldier: 1, medic: 2 };
       const spy = jest.spyOn(playerSkillService, 'setPlayerSkill');
-      const ret = await controller.setPlayerSkill('FAKE_ID', skill, { id: 'FAKE_ADMIN_ID' } as any);
+      const ret = await controller.setPlayerSkill('FAKE_ID', skill, { _id: 'FAKE_ADMIN_ID' } as Player);
       expect(spy).toHaveBeenCalledWith('FAKE_ID', new Map([['soldier', 1], ['medic', 2]]), 'FAKE_ADMIN_ID');
       expect(ret).toEqual(playerSkillService.skill.skill);
     });
@@ -239,7 +239,7 @@ describe('Players Controller', () => {
       const spy = jest.spyOn(playerBansService, 'getPlayerBans');
       const ret = await controller.getPlayerBans('FAKE_ID');
       expect(spy).toHaveBeenCalledWith('FAKE_ID');
-      expect(ret).toEqual(playerBansService.bans as any);
+      expect(ret).toEqual(playerBansService.bans);
     });
   });
 
@@ -255,13 +255,13 @@ describe('Players Controller', () => {
 
     it('should add player ban', async () => {
       const spy = jest.spyOn(playerBansService, 'addPlayerBan');
-      const ret = await controller.addPlayerBan(ban as any, { id: '5d448875b963ff7e00c6b6b3' } as any);
+      const ret = await controller.addPlayerBan(ban as any, { _id: '5d448875b963ff7e00c6b6b3' } as Player);
       expect(spy).toHaveBeenCalledWith(ban);
       expect(ret).toEqual(ban as any);
     });
 
     it('should fail if the authorized user id is not the same as admin\'s', async () => {
-      await expect(controller.addPlayerBan(ban as any, { id: 'SOME_ID' } as any))
+      await expect(controller.addPlayerBan(ban as any, { _id: 'SOME_ID' } as Player))
         .rejects.toThrow(BadRequestException);
     });
   });
