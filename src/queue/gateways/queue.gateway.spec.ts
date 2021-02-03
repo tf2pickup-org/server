@@ -10,6 +10,7 @@ import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { PlayerPopulatorService } from '../services/player-populator.service';
 import { Player } from '@/players/models/player';
 import { AuthorizedWsClient } from '@/auth/ws-client';
+import { ObjectId } from 'mongodb';
 
 jest.mock('../services/queue.service');
 jest.mock('socket.io');
@@ -29,6 +30,7 @@ describe('QueueGateway', () => {
   let friendsService: jest.Mocked<FriendsService>;
   let events: Events;
   let playerPopulatorService: jest.Mocked<PlayerPopulatorService>;
+  let playerId: ObjectId;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -53,9 +55,10 @@ describe('QueueGateway', () => {
   });
 
   beforeEach(() => {
-    queueService.join.mockResolvedValue([{ id: 5, playerId: 'FAKE_PLAYER_ID', gameClass: Tf2ClassName.scout, ready: false }]);
-    queueService.leave.mockReturnValue({ id: 0, playerId: 'FAKE_PLAYER_ID', gameClass: Tf2ClassName.scout, ready: false });
-    queueService.readyUp.mockReturnValue({ id: 0, playerId: 'FAKE_PLAYER_ID', gameClass: Tf2ClassName.scout, ready: true });
+    playerId = new ObjectId();
+    queueService.join.mockResolvedValue([{ id: 5, playerId: playerId.toString(), gameClass: Tf2ClassName.scout, ready: false }]);
+    queueService.leave.mockReturnValue({ id: 0, playerId: playerId.toString(), gameClass: Tf2ClassName.scout, ready: false });
+    queueService.readyUp.mockReturnValue({ id: 0, playerId: playerId.toString(), gameClass: Tf2ClassName.scout, ready: true });
     queueAnnouncementsService.substituteRequests.mockResolvedValue(mockSubstituteRequests);
 
     socket = {
@@ -74,39 +77,39 @@ describe('QueueGateway', () => {
 
   describe('#joinQueue()', () => {
     it('should join the queue', async () => {
-      const ret = await gateway.joinQueue({ request: { user: { _id: 'FAKE_PLAYER_ID' } } } as AuthorizedWsClient, { slotId: 5 });
-      expect(queueService.join).toHaveBeenCalledWith(5, 'FAKE_PLAYER_ID');
-      expect(ret).toEqual([ { id: 5, playerId: 'FAKE_PLAYER_ID', gameClass: Tf2ClassName.scout, ready: false } ]);
+      const ret = await gateway.joinQueue({ request: { user: { _id: playerId } } } as AuthorizedWsClient, { slotId: 5 });
+      expect(queueService.join).toHaveBeenCalledWith(5, playerId.toString());
+      expect(ret).toEqual([ { id: 5, playerId: playerId.toString(), gameClass: Tf2ClassName.scout, ready: false } ]);
     });
   });
 
   describe('#leaveQueue()', () => {
     it('should leave the queue', () => {
-      const ret = gateway.leaveQueue({ request: { user: { _id: 'FAKE_PLAYER_ID' } } } as AuthorizedWsClient);
-      expect(queueService.leave).toHaveBeenCalledWith('FAKE_PLAYER_ID');
-      expect(ret).toEqual({ id: 0, playerId: 'FAKE_PLAYER_ID', gameClass: Tf2ClassName.scout, ready: false });
+      const ret = gateway.leaveQueue({ request: { user: { _id: playerId } } } as AuthorizedWsClient);
+      expect(queueService.leave).toHaveBeenCalledWith(playerId.toString());
+      expect(ret).toEqual({ id: 0, playerId: playerId.toString(), gameClass: Tf2ClassName.scout, ready: false });
     });
   });
 
   describe('#playerReady()', () => {
     it('should ready up the player', () => {
-      const ret = gateway.playerReady({ request: { user: { _id: 'FAKE_PLAYER_ID' } } } as AuthorizedWsClient);
-      expect(queueService.readyUp).toHaveBeenCalledWith('FAKE_PLAYER_ID');
-      expect(ret).toEqual({ id: 0, playerId: 'FAKE_PLAYER_ID', gameClass: Tf2ClassName.scout, ready: true });
+      const ret = gateway.playerReady({ request: { user: { _id: playerId } } } as AuthorizedWsClient);
+      expect(queueService.readyUp).toHaveBeenCalledWith(playerId.toString());
+      expect(ret).toEqual({ id: 0, playerId: playerId.toString(), gameClass: Tf2ClassName.scout, ready: true });
     });
   });
 
   describe('#markFriend()', () => {
     it('should mark friend', async () => {
-      gateway.markFriend({ request: { user: { _id: 'FAKE_PLAYER_ID' } } } as AuthorizedWsClient, { friendPlayerId: 'FAKE_FRIEND_ID' });
-      expect(friendsService.markFriend).toHaveBeenCalledWith('FAKE_PLAYER_ID', 'FAKE_FRIEND_ID');
+      gateway.markFriend({ request: { user: { _id: playerId } } } as AuthorizedWsClient, { friendPlayerId: 'FAKE_FRIEND_ID' });
+      expect(friendsService.markFriend).toHaveBeenCalledWith(playerId.toString(), 'FAKE_FRIEND_ID');
     });
   });
 
   describe('#voteForMap()', () => {
     it('should vote for the map', () => {
-      const ret = gateway.voteForMap({ request: { user: { _id: 'FAKE_PLAYER_ID' } } } as AuthorizedWsClient, { map: 'cp_badlands' });
-      expect(mapVoteService.voteForMap).toHaveBeenCalledWith('FAKE_PLAYER_ID', 'cp_badlands');
+      const ret = gateway.voteForMap({ request: { user: { _id: playerId } } } as AuthorizedWsClient, { map: 'cp_badlands' });
+      expect(mapVoteService.voteForMap).toHaveBeenCalledWith(playerId.toString(), 'cp_badlands');
       expect(ret).toEqual('cp_badlands');
     });
   });
@@ -114,14 +117,14 @@ describe('QueueGateway', () => {
   describe('when the queueSlotsChange event is fired', () => {
     beforeEach(() => {
       playerPopulatorService.populatePlayers.mockResolvedValue([
-        { id: 5, gameClass: Tf2ClassName.soldier, ready: true, playerId: 'FAKE_PLAYER_ID', player: { _id: 'FAKE_PLAYER_ID' } as Player },
+        { id: 5, gameClass: Tf2ClassName.soldier, ready: true, playerId: playerId.toString(), player: { _id: playerId } as Player },
       ]);
-      events.queueSlotsChange.next({ slots: [ { id: 0, playerId: 'FAKE_PLAYER_ID', ready: true, gameClass: Tf2ClassName.soldier } ] });
+      events.queueSlotsChange.next({ slots: [ { id: 0, playerId: playerId.toString(), ready: true, gameClass: Tf2ClassName.soldier } ] });
     });
 
     it('should emit the event over the socket', () => {
       expect(socket.emit).toHaveBeenCalledWith('queue slots update', [
-        { id: 5, gameClass: Tf2ClassName.soldier, ready: true, playerId: 'FAKE_PLAYER_ID', player: { _id: 'FAKE_PLAYER_ID' } },
+        { id: 5, gameClass: Tf2ClassName.soldier, ready: true, playerId: playerId.toString(), player: { _id: playerId } },
       ]);
     });
   });

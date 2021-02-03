@@ -171,7 +171,7 @@ describe('PlayerBansService', () => {
         end.setHours(end.getHours() + 1);
 
         invalidBan = {
-          player: new ObjectId().toString(),
+          player: new ObjectId(),
           admin,
           start: new Date(),
           end,

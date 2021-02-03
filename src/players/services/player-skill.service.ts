@@ -35,7 +35,7 @@ export class PlayerSkillService implements OnModuleInit {
     this.events.playerRegisters.subscribe(async ({ player }) => {
       const futureSkill = await this.futurePlayerSkillService.findSkill(player.steamId);
       if (futureSkill) {
-        await this.setPlayerSkill(player._id, futureSkill.skill);
+        await this.setPlayerSkill(player._id.toString(), futureSkill.skill);
       }
     });
   }
@@ -98,7 +98,7 @@ export class PlayerSkillService implements OnModuleInit {
     const rows = [
       [ 'etf2lProfileId', ...gameClasses ].join(','),
       ...(await Promise.all(players.map(async p => {
-        const skill = await this.getPlayerSkill(p._id);
+        const skill = await this.getPlayerSkill(p._id.toString());
         return skill ? [ p.etf2lProfileId, ...gameClasses.map(gc => skill.skill.get(gc)) ] : null;
       })))
       .filter(entry => !!entry)
@@ -140,7 +140,7 @@ export class PlayerSkillService implements OnModuleInit {
       try {
         const player = await this.playersService.findByEtf2lProfileId(parseInt(etf2lProfileId, 10));
         if (player) {
-          await this.setPlayerSkill(player._id, skill);
+          await this.setPlayerSkill(player._id.toString(), skill);
         } else {
           const etf2lProfile = await this.etf2lProfileService.fetchPlayerInfo(etf2lProfileId);
           await this.futurePlayerSkillService.registerSkill(etf2lProfile.steam.id64, skill);

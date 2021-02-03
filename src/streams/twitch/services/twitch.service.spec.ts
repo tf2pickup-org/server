@@ -7,10 +7,11 @@ import { of } from 'rxjs';
 import { TwitchGateway } from '../gateways/twitch.gateway';
 import { TwitchAuthService } from './twitch-auth.service';
 import { PlayerBansService } from '@/players/services/player-bans.service';
+import { ObjectId } from 'mongodb';
 
 class PlayersServiceStub {
   twitchUser = {
-    id: 'FAKE_USER_ID',
+    _id: new ObjectId(),
     twitchTvUser: {
       userId: 'FAKE_TWITCH_TV_USER_ID',
       login: 'FAKE_TWITCH_TV_LOGIN',

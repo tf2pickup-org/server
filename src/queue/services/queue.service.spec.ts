@@ -384,7 +384,7 @@ describe('QueueService', () => {
         events.playerBanAdded.next({
           ban: {
             player: player.id,
-            admin: new ObjectId().toString(),
+            admin: new ObjectId(),
             start: new Date(),
             end: new Date(),
             reason: 'unit testing',

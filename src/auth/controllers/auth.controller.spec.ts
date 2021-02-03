@@ -5,6 +5,7 @@ import { HttpAdapterHost } from '@nestjs/core';
 import { AuthService } from '../services/auth.service';
 import { BadRequestException } from '@nestjs/common/exceptions/bad-request.exception';
 import { Player } from '@/players/models/player';
+import { ObjectId } from 'mongodb';
 
 class EnvironmentStub {
   clientUrl = '';
@@ -73,9 +74,10 @@ describe('Auth Controller', () => {
 
   describe('#refreshWsToken()', () => {
     it('should generate ws token', async () => {
+      const userId = new ObjectId();
       const spy = jest.spyOn(authService, 'generateJwtToken').mockImplementation(() => 'FAKE_WS_TOKEN');
-      const result = await controller.refreshWsToken({ _id: 'FAKE_USER_ID' } as Player);
-      expect(spy).toHaveBeenCalledWith('ws', 'FAKE_USER_ID');
+      const result = await controller.refreshWsToken({ _id: userId } as Player);
+      expect(spy).toHaveBeenCalledWith('ws', userId.toString());
       expect(result).toEqual({ wsToken: 'FAKE_WS_TOKEN' });
     });
   });

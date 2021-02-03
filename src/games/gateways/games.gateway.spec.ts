@@ -54,11 +54,12 @@ describe('GamesGateway', () => {
 
   describe('#replacePlayer()', () => {
     it('should replace the player', async () => {
+      const replacementId = new ObjectId();
       const ret = await gateway.replacePlayer(
-        { request: { user: { _id: 'FAKE_REPLACEMENT_ID' as ObjectId, logged_in: true } } } as AuthorizedWsClient,
+        { request: { user: { _id: replacementId, logged_in: true } } } as AuthorizedWsClient,
         { gameId: 'FAKE_GAME_ID', replaceeId: 'FAKE_REPLACEE_ID' },
       );
-      expect(playerSubstitutionService.replacePlayer).toHaveBeenCalledWith('FAKE_GAME_ID', 'FAKE_REPLACEE_ID', 'FAKE_REPLACEMENT_ID');
+      expect(playerSubstitutionService.replacePlayer).toHaveBeenCalledWith('FAKE_GAME_ID', 'FAKE_REPLACEE_ID', replacementId.toString());
       expect(ret).toEqual(mockGame as any);
     });
   });

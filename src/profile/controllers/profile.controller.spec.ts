@@ -9,6 +9,7 @@ import { BadRequestException } from '@nestjs/common';
 import { PlayerPreferencesService } from '@/player-preferences/services/player-preferences.service';
 
 jest.mock('@/player-preferences/services/player-preferences.service');
+import { ObjectId } from 'mongodb';
 
 class PlayersServiceStub {
   acceptTerms(playerId: string) { return null; }
@@ -59,7 +60,7 @@ describe('Profile Controller', () => {
 
   describe('#getProfile()', () => {
     it('should return the logged-in user\'s profile', async () => {
-      const profile = { id: 'FAKE_ID', name: 'FAKE_USER_NAME', steamId: 'FAKE_STEAM_ID', hasAcceptedRules: false, activeGameId: null, bans: [],
+      const profile = { _id: new ObjectId(), name: 'FAKE_USER_NAME', steamId: 'FAKE_STEAM_ID', hasAcceptedRules: false, activeGameId: null, bans: [],
         mapVote: 'cp_badlands', preferences: new Map([['sound-volume', '0.5']]) };
       expect(await controller.getProfile(profile)).toEqual(profile as any);
     });
@@ -67,7 +68,7 @@ describe('Profile Controller', () => {
 
   describe('#getPreferences()', () => {
     it('should return the user\'s preferences', async () => {
-      const ret = await controller.getPreferences({ id: 'FAKE_USER_ID' } as Player);
+      const ret = await controller.getPreferences({ _id: new ObjectId() } as Player);
       expect(ret.size).toEqual(1);
       expect(ret.get('sound-volume')).toEqual('0.5');
     });
@@ -75,22 +76,24 @@ describe('Profile Controller', () => {
 
   describe('#savePreferences()', () => {
     it('should update user\'s preferences', async () => {
-      const ret = await controller.savePreferences({ id: 'FAKE_USER_ID' } as Player, { 'sound-volume': '0.9' });
+      const playerId = new ObjectId();
+      const ret = await controller.savePreferences({ _id: playerId } as Player, { 'sound-volume': '0.9' });
       expect(ret.size).toEqual(1);
       expect(ret.get('sound-volume')).toEqual('0.9');
-      expect(playerPreferencesService.updatePlayerPreferences).toHaveBeenCalledWith('FAKE_USER_ID', new Map([['sound-volume', '0.9']]));
+      expect(playerPreferencesService.updatePlayerPreferences).toHaveBeenCalledWith(playerId.toString(), new Map([['sound-volume', '0.9']]));
     });
   });
 
   describe('#acceptTerms', () => {
     it('should call players service', async () => {
       const spy = jest.spyOn(playersService, 'acceptTerms');
-      await controller.acceptTerms({ _id: 'FAKE_ID' } as Player, '');
-      expect(spy).toHaveBeenCalledWith('FAKE_ID');
+      const _id = new ObjectId();
+      await controller.acceptTerms({ _id } as Player, '');
+      expect(spy).toHaveBeenCalledWith(_id.toString());
     });
 
     it('should reject invalid requests', async () => {
-      await expect(controller.acceptTerms({ _id: 'FAKE_ID' } as Player, undefined)).rejects.toThrow(BadRequestException);
+      await expect(controller.acceptTerms({ _id: new ObjectId() } as Player, undefined)).rejects.toThrow(BadRequestException);
     });
   });
 });

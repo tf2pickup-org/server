@@ -58,7 +58,7 @@ export class AuthController {
   @Get('wstoken')
   @Auth()
   async refreshWsToken(@User() user: Player) {
-    const wsToken = await this.authService.generateJwtToken('ws', user._id);
+    const wsToken = await this.authService.generateJwtToken('ws', user._id.toString());
     return { wsToken };
   }
 

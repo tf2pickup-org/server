@@ -286,7 +286,11 @@ describe('PlayerSubstitutionService', () => {
 
     it('should replace the player in-game', async () => new Promise<void>(resolve => {
       setTimeout(() => {
-        expect(gameRuntimeService.replacePlayer).toHaveBeenCalledWith(mockGame.id, player1._id.toString(), expect.objectContaining({ player: player3._id.toString() }));
+        expect(gameRuntimeService.replacePlayer).toHaveBeenCalledWith(
+          mockGame.id,
+          player1._id.toString(),
+          expect.objectContaining({ gameClass: 'soldier', team: 'red' }),
+        );
         resolve();
       }, 100);
       service.replacePlayer(mockGame.id, player1._id.toString(), player3._id.toString());

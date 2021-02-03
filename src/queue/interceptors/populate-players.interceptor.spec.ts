@@ -4,11 +4,13 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { of } from 'rxjs';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { Player } from '@/players/models/player';
+import { ObjectId } from 'mongodb';
 
 jest.mock('../services/player-populator.service');
 
 describe('PopulatePlayersInterceptor', () => {
   let interceptor: PopulatePlayersInterceptor;
+  let playerId: ObjectId;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -20,11 +22,13 @@ describe('PopulatePlayersInterceptor', () => {
     const playerPopulatorService = module.get(PlayerPopulatorService) as jest.Mocked<PlayerPopulatorService>;
     interceptor = new PopulatePlayersInterceptor(playerPopulatorService);
 
+    playerId = new ObjectId();
+
     playerPopulatorService.populatePlayer.mockResolvedValue(
-      { id: 2, gameClass: Tf2ClassName.soldier, ready: false, playerId: 'FAKE_PLAYER_ID', player: { _id: 'FAKE_PLAYER_ID' } as Player, }
+      { id: 2, gameClass: Tf2ClassName.soldier, ready: false, playerId: playerId.toString(), player: { _id: playerId } as Player, }
     );
     playerPopulatorService.populatePlayers.mockResolvedValue([
-      { id: 2, gameClass: Tf2ClassName.soldier, ready: false, playerId: 'FAKE_PLAYER_ID', player: { _id: 'FAKE_PLAYER_ID' } as Player, }
+      { id: 2, gameClass: Tf2ClassName.soldier, ready: false, playerId: playerId.toString(), player: { _id: playerId } as Player, }
     ]);
   });
 
@@ -34,23 +38,23 @@ describe('PopulatePlayersInterceptor', () => {
 
   it('should resolve for single slot', async () => new Promise<void>(resolve => {
     const next = {
-      handle: () => of({ id: 2, gameClass: Tf2ClassName.soldier, ready: false, playerId: 'FAKE_PLAYER_ID' }),
+      handle: () => of({ id: 2, gameClass: Tf2ClassName.soldier, ready: false, playerId: playerId.toString() }),
     };
 
     interceptor.intercept(null, next).subscribe(data => {
-      expect(data).toEqual({ id: 2, gameClass: Tf2ClassName.soldier, ready: false, playerId: 'FAKE_PLAYER_ID', player: { _id: 'FAKE_PLAYER_ID' } });
+      expect(data).toEqual({ id: 2, gameClass: Tf2ClassName.soldier, ready: false, playerId: playerId.toString(), player: { _id: playerId } });
       resolve();
     });
   }));
 
   it('should resolve for slots array', async () => new Promise<void>(resolve => {
     const next = {
-      handle: () => of([ { id: 2, gameClass: Tf2ClassName.soldier, ready: false, playerId: 'FAKE_PLAYER_ID' } ]),
+      handle: () => of([ { id: 2, gameClass: Tf2ClassName.soldier, ready: false, playerId: playerId.toString() } ]),
     };
 
     interceptor.intercept(null, next).subscribe(data => {
       expect(data).toEqual([
-        { id: 2, gameClass: Tf2ClassName.soldier, ready: false, playerId: 'FAKE_PLAYER_ID', player: { _id: 'FAKE_PLAYER_ID' }, },
+        { id: 2, gameClass: Tf2ClassName.soldier, ready: false, playerId: playerId.toString(), player: { _id: playerId }, },
       ]);
       resolve();
     });
