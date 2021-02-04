@@ -10,10 +10,11 @@ import { PlayerSkill } from '../models/player-skill';
 import { PlayerBansService } from '../services/player-bans.service';
 import { NotFoundException, BadRequestException, CacheModule } from '@nestjs/common';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
+import { ObjectId } from 'mongodb';
 
 class PlayersServiceStub {
   player: Player = {
-    _id: 'FAKE_ID',
+    _id: new ObjectId(),
     name: 'FAKE_PLAYER_NAME',
     steamId: 'FAKE_STEAM_ID',
     hasAcceptedRules: true,
@@ -166,9 +167,10 @@ describe('Players Controller', () => {
 
   describe('#updatePlayer()', () => {
     it('should update the player', async () => {
+      const adminId = new ObjectId();
       const spy = jest.spyOn(playersService, 'updatePlayer');
-      const ret = await controller.updatePlayer('FAKE_ID', { name: 'FAKE_NEW_NAME' }, { _id: 'FAKE_ADMIN_ID' } as Player);
-      expect(spy).toHaveBeenCalledWith('FAKE_ID', { name: 'FAKE_NEW_NAME' }, 'FAKE_ADMIN_ID');
+      const ret = await controller.updatePlayer('FAKE_ID', { name: 'FAKE_NEW_NAME' }, { _id: adminId } as Player);
+      expect(spy).toHaveBeenCalledWith('FAKE_ID', { name: 'FAKE_NEW_NAME' }, adminId.toString());
       expect(ret).toEqual(playersService.player as any);
     });
   });
@@ -226,10 +228,11 @@ describe('Players Controller', () => {
 
   describe('#setPlayerSkill()', () => {
     it('should set player skill', async () => {
+      const adminId = new ObjectId();
       const skill = { soldier: 1, medic: 2 };
       const spy = jest.spyOn(playerSkillService, 'setPlayerSkill');
-      const ret = await controller.setPlayerSkill('FAKE_ID', skill, { _id: 'FAKE_ADMIN_ID' } as Player);
-      expect(spy).toHaveBeenCalledWith('FAKE_ID', new Map([['soldier', 1], ['medic', 2]]), 'FAKE_ADMIN_ID');
+      const ret = await controller.setPlayerSkill('FAKE_ID', skill, { _id: adminId } as Player);
+      expect(spy).toHaveBeenCalledWith('FAKE_ID', new Map([['soldier', 1], ['medic', 2]]), adminId.toString());
       expect(ret).toEqual(playerSkillService.skill.skill);
     });
   });
@@ -244,24 +247,26 @@ describe('Players Controller', () => {
   });
 
   describe('#addPlayerBan()', () => {
+    const playerId = new ObjectId();
+    const adminId = new ObjectId();
+
     const ban = {
-      player: '5d448875b963ff7e00c6b6b3',
-      admin: '5d448875b963ff7e00c6b6b3',
+      player: playerId.toString(),
+      admin: adminId.toString(),
       start: '2019-12-16T00:23:55.000Z',
       end: '2019-12-17T01:51:49.183Z',
       reason: 'dupa',
-      id: '5df833c256e77d8768130f9a',
     };
 
     it('should add player ban', async () => {
       const spy = jest.spyOn(playerBansService, 'addPlayerBan');
-      const ret = await controller.addPlayerBan(ban as any, { _id: '5d448875b963ff7e00c6b6b3' } as Player);
+      const ret = await controller.addPlayerBan(ban as any, { _id: adminId } as Player);
       expect(spy).toHaveBeenCalledWith(ban);
       expect(ret).toEqual(ban as any);
     });
 
     it('should fail if the authorized user id is not the same as admin\'s', async () => {
-      await expect(controller.addPlayerBan(ban as any, { _id: 'SOME_ID' } as Player))
+      await expect(controller.addPlayerBan(ban as any, { _id: new ObjectId() } as Player))
         .rejects.toThrow(BadRequestException);
     });
   });

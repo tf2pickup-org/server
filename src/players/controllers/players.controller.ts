@@ -34,7 +34,6 @@ export class PlayersController {
   async getPlayer(@Param('id', ObjectIdValidationPipe) playerId: string) {
     const player = await this.playersService.getById(playerId);
     if (player) {
-      console.log(player);
       return player;
     } else {
       throw new NotFoundException();
