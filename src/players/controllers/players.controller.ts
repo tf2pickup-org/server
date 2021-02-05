@@ -37,6 +37,13 @@ export class PlayersController {
     }
   }
 
+  @Post()
+  @Auth('admin', 'super-user')
+  @UsePipes(ValidationPipe)
+  async forceCreatePlayer(@Body() player: Player) {
+    return await this.playersService.forceCreatePlayer(player);
+  }
+
   @Patch(':id')
   @Auth('admin', 'super-user')
   async updatePlayer(@Param('id', ObjectIdValidationPipe) playerId: string, @Body() player: Partial<Player>, @User() user: Player) {
