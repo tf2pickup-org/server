@@ -17,10 +17,10 @@ import validationSchema from './environment-validation-schema';
 import { ScheduleModule } from '@nestjs/schedule';
 import { DocumentsModule } from './documents/documents.module';
 import { ConsoleModule } from 'nestjs-console';
-import { TwitchModule } from './twitch/twitch.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { EventsModule } from './events/events.module';
+import { StreamsModule } from './streams/streams.module';
 
 function createMongodbUri(environment: Environment) {
   let credentials = '';
@@ -70,8 +70,8 @@ function createMongodbUri(environment: Environment) {
     SharedModule,
     DiscordModule,
     DocumentsModule,
-    TwitchModule,
     EventsModule,
+    StreamsModule.configure(),
   ],
   controllers: [
     AppController,
