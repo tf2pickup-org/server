@@ -5,18 +5,5 @@
       "name": "soldier",
       "count": 1
     }
-  ],
-  "maps": [
-    {
-      "name": "cp_process_final",
-      "configName": "5cp"
-    },
-    {
-      "name": "cp_gullywash_final1",
-      "configName": "5cp"
-    }
-  ],
-  "configs": {
-    "5cp": "etf2l_6v6_5cp"
-  }
+  ]
 }

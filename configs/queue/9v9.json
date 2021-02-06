@@ -38,40 +38,5 @@
       "count": 1
     }
   ],
-  "maps": [
-    {
-      "name": "koth_product_rcx",
-      "configName": "koth"
-    },
-    {
-      "name": "koth_ashville_rc2c",
-      "configName": "koth"
-    },
-    {
-      "name": "koth_coalplant_b8",
-      "configName": "koth"
-    },
-    {
-      "name": "koth_lakeside_r",
-      "configName": "koth"
-    },
-    {
-      "name": "koth_warmtic_b6",
-      "configName": "koth"
-    },
-    {
-      "name": "pl_prowater_b11",
-      "configName": "stopwatch"
-    },
-    {
-      "name": "pl_upward",
-      "configName": "stopwatch"
-    }
-  ],
-  "configs": {
-    "koth": "etf2l_9v9_koth",
-    "stopwatch": "etf2l_9v9_stopwatch",
-    "5cp": "etf2l_9v9_5cp"
-  },
   "whitelistId": "10827"
 }
