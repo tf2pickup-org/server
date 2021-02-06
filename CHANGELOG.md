@@ -1,3 +1,37 @@
+# [3.5.0](https://github.com/tf2pickup-pl/server/compare/3.4.0...3.5.0) (2021-02-06)
+
+
+### Bug Fixes
+
+* update queue configs ([9382f43](https://github.com/tf2pickup-pl/server/commit/9382f43005e9cfb2ff7bc9d95208f7e043762bcd))
+* **deps:** update dependency @nestjs/config to v0.6.2 ([#803](https://github.com/tf2pickup-pl/server/issues/803)) ([f8fdbda](https://github.com/tf2pickup-pl/server/commit/f8fdbda3b96ca2d36da3bf36080b50b95dfcc66a))
+* **deps:** update dependency @nestjs/mongoose to v7.2.3 ([#826](https://github.com/tf2pickup-pl/server/issues/826)) ([c3eee2b](https://github.com/tf2pickup-pl/server/commit/c3eee2bc639d22e55f8e18478d6c798c3714c1f3))
+* get rid of avatarUrl ([#813](https://github.com/tf2pickup-pl/server/issues/813)) ([927cbc3](https://github.com/tf2pickup-pl/server/commit/927cbc343497754fb383eff346d4dad62c826c12))
+* **deps:** update dependency @nestjs/config to v0.6.3 ([#818](https://github.com/tf2pickup-pl/server/issues/818)) ([7e57792](https://github.com/tf2pickup-pl/server/commit/7e577926ba972a6f1549cc7f6291019f4cf97ead))
+* **deps:** update dependency @nestjs/mongoose to v7.2.2 ([#791](https://github.com/tf2pickup-pl/server/issues/791)) ([510741e](https://github.com/tf2pickup-pl/server/commit/510741e3df1102ccbff04b4f5d721de7a17597bb))
+* **deps:** update dependency @nestjs/schedule to v0.4.2 ([#804](https://github.com/tf2pickup-pl/server/issues/804)) ([2532926](https://github.com/tf2pickup-pl/server/commit/253292620828b15d29e3cc62fdb6830104257506))
+* **deps:** update dependency @typegoose/typegoose to v7.4.7 ([#786](https://github.com/tf2pickup-pl/server/issues/786)) ([3e469d3](https://github.com/tf2pickup-pl/server/commit/3e469d3292e87b3fbecd4d4968de91ec82e763b2))
+* **deps:** update dependency @typegoose/typegoose to v7.4.8 ([#798](https://github.com/tf2pickup-pl/server/issues/798)) ([9570226](https://github.com/tf2pickup-pl/server/commit/9570226731460afa38b3e560176ac8fcd72a8684))
+* **deps:** update dependency class-transformer to v0.3.2 ([#790](https://github.com/tf2pickup-pl/server/issues/790)) ([9c1790d](https://github.com/tf2pickup-pl/server/commit/9c1790d1cc018e28cd4e4c9a7ecd1717d2f621a5))
+* **deps:** update dependency class-validator to v0.13.0 ([#783](https://github.com/tf2pickup-pl/server/issues/783)) ([991938c](https://github.com/tf2pickup-pl/server/commit/991938c7be4b32d662c1af94bcbfa8c7db6de8d2))
+* **deps:** update dependency class-validator to v0.13.1 ([#789](https://github.com/tf2pickup-pl/server/issues/789)) ([7f76609](https://github.com/tf2pickup-pl/server/commit/7f7660919a25221bce783ade1813cc4f4580abe9))
+* **deps:** update dependency commander to v7 ([#793](https://github.com/tf2pickup-pl/server/issues/793)) ([f47e4e7](https://github.com/tf2pickup-pl/server/commit/f47e4e744d82c77675e2169d1e78f922eb22115b))
+* **deps:** update dependency generate-password to v1.6.0 ([#792](https://github.com/tf2pickup-pl/server/issues/792)) ([5f1feb9](https://github.com/tf2pickup-pl/server/commit/5f1feb94e29101955c720b2b8019188b94a231c8))
+* **deps:** update dependency helmet to v4.4.1 ([#796](https://github.com/tf2pickup-pl/server/issues/796)) ([9384112](https://github.com/tf2pickup-pl/server/commit/9384112a75bbe35457b4d3d790988142d01921cf))
+* **deps:** update nest monorepo to v7.6.11 ([#821](https://github.com/tf2pickup-pl/server/issues/821)) ([d0e165b](https://github.com/tf2pickup-pl/server/commit/d0e165b4ad258c807dffdb7c4f36a552a7b2e485))
+* **deps:** update nest monorepo to v7.6.6 ([#810](https://github.com/tf2pickup-pl/server/issues/810)) ([a3824a8](https://github.com/tf2pickup-pl/server/commit/a3824a8adc325ee14583fade09e1acbbdc37b0a9))
+* **deps:** update nest monorepo to v7.6.7 ([#811](https://github.com/tf2pickup-pl/server/issues/811)) ([2bdcb1e](https://github.com/tf2pickup-pl/server/commit/2bdcb1e6f96a8b3032b87bd17d8bbbcec86449d2))
+* **deps:** update nest monorepo to v7.6.8 ([#816](https://github.com/tf2pickup-pl/server/issues/816)) ([447db41](https://github.com/tf2pickup-pl/server/commit/447db41dd633d61c3dc2db0b8cca29cfcebc8863))
+* **deps:** update nest monorepo to v7.6.9 ([#819](https://github.com/tf2pickup-pl/server/issues/819)) ([8e1b221](https://github.com/tf2pickup-pl/server/commit/8e1b22194bc561c029675f1c709c7463906c95da))
+* mention players when a sub is needed ([#812](https://github.com/tf2pickup-pl/server/issues/812)) ([f168be5](https://github.com/tf2pickup-pl/server/commit/f168be5160450aac1277a0a72e821b330c415b78))
+
+
+### Features
+
+* dynamic map pool ([#805](https://github.com/tf2pickup-pl/server/issues/805)) ([f88097c](https://github.com/tf2pickup-pl/server/commit/f88097c2829711fd6dfe80404569e15c753afb52))
+* force create player account ([#828](https://github.com/tf2pickup-pl/server/issues/828)) ([0cf5562](https://github.com/tf2pickup-pl/server/commit/0cf5562873e7c455af7596b8db4a365a768a0b89))
+* make TwitchModule optional ([#827](https://github.com/tf2pickup-pl/server/issues/827)) ([d5c01f0](https://github.com/tf2pickup-pl/server/commit/d5c01f01976fc0f30efcf3509086b21ffa589dc1))
+
 # [3.4.0](https://github.com/tf2pickup-pl/server/compare/3.3.4...3.4.0) (2021-01-09)
 
 
