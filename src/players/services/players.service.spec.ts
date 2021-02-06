@@ -23,26 +23,11 @@ import { minimumTf2InGameHours } from '@configs/players';
 import { Events } from '@/events/events';
 
 jest.mock('@/discord/services/discord.service');
+jest.mock('./etf2l-profile.service');
 
 class EnvironmentStub {
   superUser = null;
   botName = 'FAKE_BOT_NAME';
-}
-
-class Etf2lProfileServiceStub {
-  fetchPlayerInfo(steamId: string): Promise<Etf2lProfile> {
-    return Promise.resolve({
-      // http://api.etf2l.org/player/112758
-      bans: null,
-      classes: [
-        'Soldier',
-        'Medic',
-      ],
-      country: 'Poland',
-      id: 112758,
-      name: 'maly',
-    });
-  }
 }
 
 class GamesServiceStub {
@@ -71,7 +56,7 @@ describe('PlayersService', () => {
   let playerModel: ReturnModelType<typeof Player>;
   let mockPlayer: DocumentType<Player>;
   let environment: EnvironmentStub;
-  let etf2lProfileService: Etf2lProfileServiceStub;
+  let etf2lProfileService: jest.Mocked<Etf2lProfileService>;
   let gamesService: GamesServiceStub;
   let onlinePlayersService: OnlinePlayersServiceStub;
   let steamApiService: SteamApiServiceStub;
@@ -90,7 +75,7 @@ describe('PlayersService', () => {
       providers: [
         PlayersService,
         { provide: Environment, useClass: EnvironmentStub },
-        { provide: Etf2lProfileService, useClass: Etf2lProfileServiceStub },
+        Etf2lProfileService,
         { provide: GamesService, useClass: GamesServiceStub },
         { provide: OnlinePlayersService, useClass: OnlinePlayersServiceStub },
         { provide: SteamApiService, useClass: SteamApiServiceStub },
@@ -116,6 +101,18 @@ describe('PlayersService', () => {
       steamId: 'FAKE_STEAM_ID',
       etf2lProfileId: 123456,
       hasAcceptedRules: true,
+    });
+
+    etf2lProfileService.fetchPlayerInfo.mockResolvedValue({
+      // http://api.etf2l.org/player/112758
+      bans: null,
+      classes: [
+        'Soldier',
+        'Medic',
+      ],
+      country: 'Poland',
+      id: 112758,
+      name: 'maly',
     });
   });
 
@@ -235,7 +232,7 @@ describe('PlayersService', () => {
 
     describe('when an ETFL2 profile doesn\'t exist', () => {
       beforeEach(() => {
-        jest.spyOn(etf2lProfileService, 'fetchPlayerInfo').mockRejectedValue(new Error('no etf2l profile'));
+        etf2lProfileService.fetchPlayerInfo.mockRejectedValue(new Error('no etf2l profile'));
       });
 
       it('should deny creating tf2pickup.pl profile', async () => {
@@ -264,7 +261,7 @@ describe('PlayersService', () => {
       };
 
       beforeEach(() => {
-        jest.spyOn(etf2lProfileService, 'fetchPlayerInfo').mockResolvedValue(blacklistedProfile);
+        etf2lProfileService.fetchPlayerInfo.mockResolvedValue(blacklistedProfile);
       });
 
       it('should deny creating tf2pickup.pl profile', async () => {
@@ -344,6 +341,21 @@ describe('PlayersService', () => {
           await expect(service.createPlayer(mockSteamProfile)).resolves.toBeTruthy();
         });
       });
+    });
+  });
+
+  describe('#forceCreatePlayer()', () => {
+    it('should create player', async () => {
+      const player = await service.forceCreatePlayer({ name: 'FAKE_FORCE_PLAYER_NAME', steamId: 'FAKE_FORCE_STEAM_ID' });
+      expect(player.toObject()).toMatchObject({ name: 'FAKE_FORCE_PLAYER_NAME', steamId: 'FAKE_FORCE_STEAM_ID' });
+      expect(await playerModel.findById(player.id)).toBeTruthy();
+    });
+
+    describe('when the player has ETF2L account', () => {
+      it('should automatically assign ETF2L id', async () => {
+        const player = await service.forceCreatePlayer({ name: 'FAKE_FORCE_PLAYER_NAME', steamId: 'FAKE_FORCE_STEAM_ID' });
+        expect(player.etf2lProfileId).toEqual(112758);
+      })
     });
   });
 

@@ -18,6 +18,8 @@ import { minimumTf2InGameHours, requireEtf2lAccount } from '@configs/players';
 import { PlayerAvatar } from '../models/player-avatar';
 import { Events } from '@/events/events';
 
+type ForceCreatePlayerOptions = Pick<Player, 'steamId' | 'name'>;
+
 @Injectable()
 export class PlayersService implements OnModuleInit {
 
@@ -113,6 +115,31 @@ export class PlayersService implements OnModuleInit {
       }),
     });
 
+    return player;
+  }
+
+  /**
+   * Create player account, omitting all checks.
+   */
+  async forceCreatePlayer(playerData: ForceCreatePlayerOptions): Promise<DocumentType<Player>> {
+    let etf2lProfile: Etf2lProfile;
+    try {
+      etf2lProfile = await this.etf2lProfileService.fetchPlayerInfo(playerData.steamId);
+    // eslint-disable-next-line no-empty
+    } catch (error) { }
+
+    const player = await this.playerModel.create({
+      etf2lProfileId: etf2lProfile?.id,
+      ...playerData,
+    });
+    this.logger.verbose(`created new player (name: ${player.name})`);
+    this.events.playerRegisters.next({ player });
+    this.discordService.getAdminsChannel()?.send({
+      embed: newPlayer({
+        name: player.name,
+        profileUrl: `${this.environment.clientUrl}/player/${player.id}`,
+      }),
+    });
     return player;
   }
 

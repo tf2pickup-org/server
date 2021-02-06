@@ -30,6 +30,7 @@ class PlayersServiceStub {
   };
   getAll() { return new Promise(resolve => resolve([ this.player ])); }
   getById(id: string) { return new Promise(resolve => resolve(this.player)); }
+  forceCreatePlayer(player: Player) { return new Promise(resolve => resolve(player)); }
   updatePlayer(playerId: string, update: Partial<Player>) { return new Promise(resolve => resolve(this.player)); }
   getPlayerStats(playerId: string) { return new Promise(resolve => resolve(this.stats)); }
 }
@@ -152,6 +153,14 @@ describe('Players Controller', () => {
     it('should return 404', async () => {
       jest.spyOn(playersService, 'getById').mockResolvedValue(null);
       await expect(controller.getPlayer('FAKE_ID')).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  describe('#forceCreatePlayer()', () => {
+    it('should call the service', async () => {
+      const spy = jest.spyOn(playersService, 'forceCreatePlayer');
+      await controller.forceCreatePlayer({ name: 'FAKE_PLAYER_NAME', steamId: 'FAKE_PLAYER_STEAM_ID' });
+      expect(spy).toHaveBeenCalledWith({ name: 'FAKE_PLAYER_NAME', steamId: 'FAKE_PLAYER_STEAM_ID' });
     });
   });
 

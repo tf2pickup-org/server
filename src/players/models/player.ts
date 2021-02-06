@@ -1,15 +1,18 @@
 import { prop, index } from '@typegoose/typegoose';
+import { IsString, Matches } from 'class-validator';
 import { PlayerAvatar } from './player-avatar';
 import { PlayerRole } from './player-role';
 import { TwitchTvUser } from './twitch-tv-user';
 
 @index({ steamId: 'hashed' })
 export class Player {
-  id: string;
+  id?: string;
 
+  @IsString()
   @prop({ required: true, unique: true, trim: true })
   name!: string;
 
+  @Matches(/^\d{17}$/)
   @prop({ unique: true })
   steamId?: string;
 
