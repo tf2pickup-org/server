@@ -6,8 +6,6 @@ import { GamesModule } from '@/games/games.module';
 import { MapVoteService } from './services/map-vote.service';
 import { QueueGateway } from './gateways/queue.gateway';
 import { QueueController } from './controllers/queue.controller';
-import { QueueNotificationsService } from './services/queue-notifications.service';
-import { DiscordModule } from '@/discord/discord.module';
 import { AutoGameLauncherService } from './services/auto-game-launcher.service';
 import { QueueAnnouncementsService } from './services/queue-announcements.service';
 import { FriendsService } from './services/friends.service';
@@ -29,14 +27,12 @@ import { Map } from './models/map';
 
     forwardRef(() => PlayersModule),
     forwardRef(() => GamesModule),
-    DiscordModule,
   ],
   providers: [
     QueueService,
     QueueConfigService,
     MapVoteService,
     QueueGateway,
-    QueueNotificationsService,
     AutoGameLauncherService,
     QueueAnnouncementsService,
     FriendsService,

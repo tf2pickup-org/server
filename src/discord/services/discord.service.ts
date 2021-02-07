@@ -75,7 +75,8 @@ export class DiscordService implements OnModuleInit {
     }
 
     if (installedEmojis.length > 0) {
-      this.getAdminsChannel()?.send(`Installed emoji(s): ${installedEmojis.map(e => e.toString()).join(' ')}`);
+      this.getAdminsChannel()?.send(`The following emoji${installedEmojis.length > 1 ? 's have' : ' has'}` +
+        ` been installed: ${installedEmojis.map(e => e.toString()).join(' ')}`);
     }
   }
 
