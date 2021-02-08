@@ -2,7 +2,6 @@ import { prop, Ref } from '@typegoose/typegoose';
 import { GameSlot } from './game-slot';
 import { GameServer } from '@/game-servers/models/game-server';
 import { GameState } from './game-state';
-import { ObjectId } from 'mongodb';
 
 export class Game {
   id: string;
