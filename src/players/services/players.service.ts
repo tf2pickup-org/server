@@ -116,13 +116,13 @@ export class PlayersService implements OnModuleInit {
       }),
     });
 
-    return player;
+    return player.toObject();
   }
 
   /**
    * Create player account, omitting all checks.
    */
-  async forceCreatePlayer(playerData: ForceCreatePlayerOptions): Promise<DocumentType<Player>> {
+  async forceCreatePlayer(playerData: ForceCreatePlayerOptions): Promise<Player> {
     let etf2lProfile: Etf2lProfile;
     try {
       etf2lProfile = await this.etf2lProfileService.fetchPlayerInfo(playerData.steamId);
@@ -141,7 +141,7 @@ export class PlayersService implements OnModuleInit {
         profileUrl: `${this.environment.clientUrl}/player/${player.id}`,
       }),
     });
-    return player;
+    return player.toObject();
   }
 
   async registerTwitchAccount(playerId: string, twitchTvUser: TwitchTvUser) {

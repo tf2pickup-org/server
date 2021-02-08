@@ -22,7 +22,7 @@ export class AuthController {
     // would screw up some request params, resulting in OpenID throwing an error.
     // https://github.com/liamcurry/passport-steam/issues/57
     this.adapterHost.httpAdapter?.get('/auth/steam/return', (req, res, next) => {
-      return authenticate('steam', async (error, user) => {
+      return authenticate('steam', async (error, user: Player) => {
         const url = req.cookies?.[redirectUrlCookieName] || this.environment.clientUrl;
 
         if (error) {
@@ -34,8 +34,8 @@ export class AuthController {
           return res.sendStatus(401);
         }
 
-        const refreshToken = await this.authService.generateJwtToken('refresh', user.id);
-        const authToken = await this.authService.generateJwtToken('auth', user.id);
+        const refreshToken = await this.authService.generateJwtToken('refresh', user._id.toString());
+        const authToken = await this.authService.generateJwtToken('auth', user._id.toString());
         return res.redirect(`${url}?refresh_token=${refreshToken}&auth_token=${authToken}`);
       })(req, res, next);
     });

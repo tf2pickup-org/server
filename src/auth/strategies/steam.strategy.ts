@@ -30,7 +30,6 @@ export class SteamStrategy extends PassportStrategy(steam.Strategy) {
           medium: profile.photos[1]?.value,
           large: profile.photos[2]?.value,
         },
-        avatarUrl: profile.photos[0]?.value,
       });
     } else {
       return await this.playerService.createPlayer(profile);

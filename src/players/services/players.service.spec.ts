@@ -347,8 +347,8 @@ describe('PlayersService', () => {
   describe('#forceCreatePlayer()', () => {
     it('should create player', async () => {
       const player = await service.forceCreatePlayer({ name: 'FAKE_FORCE_PLAYER_NAME', steamId: 'FAKE_FORCE_STEAM_ID' });
-      expect(player.toObject()).toMatchObject({ name: 'FAKE_FORCE_PLAYER_NAME', steamId: 'FAKE_FORCE_STEAM_ID' });
-      expect(await playerModel.findById(player.id)).toBeTruthy();
+      expect(player).toMatchObject({ name: 'FAKE_FORCE_PLAYER_NAME', steamId: 'FAKE_FORCE_STEAM_ID' });
+      expect(await playerModel.findById(player._id)).toBeTruthy();
     });
 
     describe('when the player has ETF2L account', () => {
