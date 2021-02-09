@@ -4,7 +4,7 @@ import { PlayersService } from '@/players/services/players.service';
 import { QueueSlot } from '@/queue/queue-slot';
 import { QueueConfigService } from '@/queue/services/queue-config.service';
 import { QueueService } from '@/queue/services/queue.service';
-import { iconUrlPath } from '@configs/discord';
+import { iconUrlPath, promptPlayerThresholdRatio } from '@configs/discord';
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { Message } from 'discord.js';
@@ -14,6 +14,7 @@ import { DiscordService } from './discord.service';
 @Injectable()
 export class QueuePromptsService implements OnModuleInit {
 
+  private readonly playerThreshold = this.queueService.requiredPlayerCount * promptPlayerThresholdRatio;
   private message?: Message;
 
   constructor(
@@ -23,7 +24,9 @@ export class QueuePromptsService implements OnModuleInit {
     private queueService: QueueService,
     private playersService: PlayersService,
     private queueConfigService: QueueConfigService,
-  ) { }
+  ) {
+    console.log(this.playerThreshold);
+  }
 
   onModuleInit() {
     this.events.queueSlotsChange.subscribe(({ slots }) => this.refreshPrompt(slots));
@@ -44,7 +47,9 @@ export class QueuePromptsService implements OnModuleInit {
     if (this.message) {
       this.message.edit({ embed });
     } else {
-      this.message = await this.discordService.getPlayersChannel()?.send({ embed });
+      if (this.playerThresholdMet()) {
+        this.message = await this.discordService.getPlayersChannel()?.send({ embed });
+      }
     }
   }
 
@@ -63,10 +68,14 @@ export class QueuePromptsService implements OnModuleInit {
       }));
   }
 
+  private playerThresholdMet() {
+    return this.queueService.playerCount >= this.playerThreshold;
+  }
+
   @Cron(CronExpression.EVERY_5_MINUTES)
   async ensurePromptIsVisible() {
     const messages = await this.discordService.getPlayersChannel().messages.fetch({ limit: 1 });
-    if (messages?.first()?.id !== this.message?.id) {
+    if (messages?.first()?.id !== this.message?.id && this.playerThresholdMet()) {
       await this.message?.delete();
       delete this.message;
       this.refreshPrompt(this.queueService.slots);

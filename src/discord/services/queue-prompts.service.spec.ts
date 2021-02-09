@@ -7,11 +7,17 @@ import { QueueService } from '@/queue/services/queue.service';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { typegooseTestingModule } from '@/utils/testing-typegoose-module';
 import { Test, TestingModule } from '@nestjs/testing';
-import { Message, TextChannel } from 'discord.js';
+import { Message } from 'discord.js';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { TypegooseModule } from 'nestjs-typegoose';
 import { DiscordService } from './discord.service';
 import { QueuePromptsService } from './queue-prompts.service';
+
+jest.mock('@configs/discord', () => ({
+  iconUrlPath: '',
+  promptPlayerThresholdRatio: 0.1,
+}));
+import { promptPlayerThresholdRatio } from '@configs/discord';
 
 jest.mock('./discord.service');
 jest.mock('@/queue/services/queue.service');
