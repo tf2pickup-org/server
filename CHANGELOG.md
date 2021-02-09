@@ -1,3 +1,10 @@
+# [3.6.0](https://github.com/tf2pickup-pl/server/compare/3.5.0...3.6.0) (2021-02-09)
+
+
+### Features
+
+* rich discord prompts ([#832](https://github.com/tf2pickup-pl/server/issues/832)) ([3fc4a52](https://github.com/tf2pickup-pl/server/commit/3fc4a5253398a887e44a5f76817095942858adde))
+
 # [3.5.0](https://github.com/tf2pickup-pl/server/compare/3.4.0...3.5.0) (2021-02-06)
 
 
