@@ -1,3 +1,10 @@
+## [3.6.1](https://github.com/tf2pickup-pl/server/compare/3.6.0...3.6.1) (2021-02-09)
+
+
+### Bug Fixes
+
+* player treshold setting ([#834](https://github.com/tf2pickup-pl/server/issues/834)) ([ce92507](https://github.com/tf2pickup-pl/server/commit/ce9250725cd760b39e6bff6b08f10af7a66fe303))
+
 # [3.6.0](https://github.com/tf2pickup-pl/server/compare/3.5.0...3.6.0) (2021-02-09)
 
 
