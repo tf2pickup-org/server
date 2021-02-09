@@ -1,3 +1,9 @@
+jest.mock('@configs/discord', () => ({
+  iconUrlPath: '',
+  promptPlayerThresholdRatio: 0.1,
+}));
+import { promptPlayerThresholdRatio } from '@configs/discord';
+
 import { Environment } from '@/environment/environment';
 import { Events } from '@/events/events';
 import { Player } from '@/players/models/player';
@@ -12,12 +18,6 @@ import { MongoMemoryServer } from 'mongodb-memory-server';
 import { TypegooseModule } from 'nestjs-typegoose';
 import { DiscordService } from './discord.service';
 import { QueuePromptsService } from './queue-prompts.service';
-
-jest.mock('@configs/discord', () => ({
-  iconUrlPath: '',
-  promptPlayerThresholdRatio: 0.1,
-}));
-import { promptPlayerThresholdRatio } from '@configs/discord';
 
 jest.mock('./discord.service');
 jest.mock('@/queue/services/queue.service');
@@ -35,11 +35,30 @@ describe('QueuePromptsService', () => {
   let queueService: jest.Mocked<QueueService>;
   let playersService: PlayersService;
   let discordService: DiscordService;
-  let queueConfigService: jest.Mocked<QueueConfigService>;
   let players: Player[];
 
   beforeAll(() => mongod = new MongoMemoryServer());
   afterAll(async () => await mongod.stop());
+
+  beforeEach(() => {
+    (QueueService as jest.MockedClass<typeof QueueService>).mockImplementation(() => ({
+      slots: [],
+      requiredPlayerCount: 12,
+    } as any));
+
+    (QueueConfigService as jest.MockedClass<typeof QueueConfigService>).mockImplementation(() => ({
+      queueConfig: {
+        teamCount: 2,
+        classes: [
+          { name: Tf2ClassName.scout, count: 2 },
+          { name: Tf2ClassName.soldier, count: 2 },
+          { name: Tf2ClassName.demoman, count: 1 },
+          { name: Tf2ClassName.medic, count: 1 },
+        ],
+        whitelistId: '12345',
+      },
+    } as any));
+  });
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -63,12 +82,9 @@ describe('QueuePromptsService', () => {
     queueService = module.get(QueueService);
     playersService = module.get(PlayersService);
     discordService = module.get(DiscordService);
-    queueConfigService = module.get(QueueConfigService);
   });
 
   beforeEach(async () => {
-    // @ts-ignore
-    queueService.requiredPlayerCount = 12;
     // @ts-ignore
     queueService.playerCount = 3;
 
@@ -95,17 +111,6 @@ describe('QueuePromptsService', () => {
       { id: 10, gameClass: Tf2ClassName.medic, playerId: players[2].id, ready: false },
       { id: 11, gameClass: Tf2ClassName.medic, playerId: null, ready: false },
     ];
-
-    queueConfigService.queueConfig = {
-      teamCount: 2,
-      classes: [
-        { name: Tf2ClassName.scout, count: 2 },
-        { name: Tf2ClassName.soldier, count: 2 },
-        { name: Tf2ClassName.demoman, count: 1 },
-        { name: Tf2ClassName.medic, count: 1 },
-      ],
-      whitelistId: '12345',
-    };
   });
 
   beforeEach(() => {
