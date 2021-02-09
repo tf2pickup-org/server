@@ -40,6 +40,15 @@ export class Guild {
       [ 'pickups', pickupsRole ],
     ]),
   };
+
+  emojis = {
+    cache: new Collection([ ]),
+    create: jest.fn().mockImplementation((attachment, name) => {
+      const emoji = { name, toString: () => `<emoji:${name}>` };
+      this.emojis.cache.set(name, emoji);
+      return Promise.resolve(emoji);
+    }),
+  };
 }
 
 export class Client extends EventEmitter {

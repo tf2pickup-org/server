@@ -12,12 +12,16 @@ interface QueuePreviewGameClassData {
 interface QueuePreviewOptions {
   iconUrl: string;
   clientName: string;
+  clientUrl: string;
+  playerCount: number;
+  requiredPlayerCount: number;
   gameClassData: QueuePreviewGameClassData[];
 }
 
 export const queuePreview = (options: QueuePreviewOptions): MessageEmbedOptions => ({
   color: Colors.QueuePreview,
-  title: `Join ${options.clientName} to play the next game!`,
+  title: `**${options.playerCount}/${options.requiredPlayerCount} players in the queue!**`,
+  description: `Join [${options.clientName}](${options.clientUrl}) to play the next game!`,
   thumbnail: {
     url: options.iconUrl,
   },

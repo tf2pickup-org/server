@@ -6,6 +6,7 @@ import { QueueConfigService } from '@/queue/services/queue-config.service';
 import { QueueService } from '@/queue/services/queue.service';
 import { iconUrlPath } from '@configs/discord';
 import { Injectable, OnModuleInit } from '@nestjs/common';
+import { Cron, CronExpression } from '@nestjs/schedule';
 import { Message } from 'discord.js';
 import { queuePreview } from '../notifications';
 import { DiscordService } from './discord.service';
@@ -25,34 +26,31 @@ export class QueuePromptsService implements OnModuleInit {
   ) { }
 
   onModuleInit() {
-    this.events.queueSlotsChange.subscribe(({ slots }) => this.sendPrompt(slots, { pingPlayers: false }));
+    this.events.queueSlotsChange.subscribe(({ slots }) => this.refreshPrompt(slots));
   }
 
-  private async sendPrompt(slots: QueueSlot[], options: { pingPlayers: boolean }) {
+  private async refreshPrompt(slots: QueueSlot[]) {
     const clientName = new URL(this.environment.clientUrl).hostname;
-    const role = this.discordService.findRole(this.environment.discordQueueNotificationsMentionRole);
-    const message = `**${this.queueService.playerCount}/${this.queueService.requiredPlayerCount} players in the queue!**`;
-    const content = role.mentionable ? `${role} ${message}` : message;
 
     const embed = queuePreview({
       iconUrl: `${this.environment.clientUrl}/${iconUrlPath}`,
       clientName,
+      clientUrl: this.environment.clientUrl,
+      playerCount: this.queueService.playerCount,
+      requiredPlayerCount: this.queueService.requiredPlayerCount,
       gameClassData: await this.slotsToGameClassData(slots),
     });
 
-    if (this.message && !options.pingPlayers) {
-      this.message.edit(content, { embed });
+    if (this.message) {
+      this.message.edit({ embed });
     } else {
-      if (this.message) {
-        this.message.delete();
-      }
-
-      this.message = await this.discordService.getPlayersChannel()?.send(content, { embed });
+      this.message = await this.discordService.getPlayersChannel()?.send({ embed });
     }
   }
 
   private async slotsToGameClassData(slots: QueueSlot[]) {
     const playerData = await Promise.all(slots
+      .filter(slot => !!slot.playerId)
       .map(slot => this.playersService.getById(slot.playerId).then(player => ({ name: player.name, gameClass: slot.gameClass })))
     );
 
@@ -63,6 +61,16 @@ export class QueuePromptsService implements OnModuleInit {
         playersRequired: gameClass.count * this.queueConfigService.queueConfig.teamCount,
         players: playerData.filter(p => p.gameClass === gameClass.name),
       }));
+  }
+
+  @Cron(CronExpression.EVERY_5_MINUTES)
+  async ensurePromptIsVisible() {
+    const messages = await this.discordService.getPlayersChannel().messages.fetch({ limit: 1 });
+    if (messages?.first()?.id !== this.message?.id) {
+      await this.message?.delete();
+      delete this.message;
+      this.refreshPrompt(this.queueService.slots);
+    }
   }
 
 }

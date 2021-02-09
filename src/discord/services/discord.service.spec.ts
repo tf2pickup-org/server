@@ -39,7 +39,7 @@ describe('DiscordService', () => {
       expect(spy).toHaveBeenCalledWith('FAKE_DISCORD_BOT_TOKEN');
     });
 
-    it('should send notification', async () => new Promise(resolve => {
+    it('should send notification', async () => new Promise<void>(resolve => {
       const spy = jest.spyOn(adminChannel, 'send');
       service.onModuleInit();
       client.emit('ready');
