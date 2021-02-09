@@ -14,7 +14,7 @@ import { DiscordService } from './discord.service';
 @Injectable()
 export class QueuePromptsService implements OnModuleInit {
 
-  private readonly playerThreshold = this.queueService.requiredPlayerCount * promptPlayerThresholdRatio;
+  private requiredPlayerCount = 0;
   private message?: Message;
 
   constructor(
@@ -24,15 +24,14 @@ export class QueuePromptsService implements OnModuleInit {
     private queueService: QueueService,
     private playersService: PlayersService,
     private queueConfigService: QueueConfigService,
-  ) {
-    console.log(this.playerThreshold);
-  }
+  ) { }
 
   onModuleInit() {
-    this.events.queueSlotsChange.subscribe(({ slots }) => this.refreshPrompt(slots));
+    this.events.queueSlotsChange.subscribe(() => this.refreshPrompt(this.queueService.slots));
   }
 
   private async refreshPrompt(slots: QueueSlot[]) {
+    this.requiredPlayerCount = slots.length;
     const clientName = new URL(this.environment.clientUrl).hostname;
 
     const embed = queuePreview({
@@ -69,7 +68,9 @@ export class QueuePromptsService implements OnModuleInit {
   }
 
   private playerThresholdMet() {
-    return this.queueService.playerCount >= this.playerThreshold;
+    console.log(this.queueService.playerCount);
+    console.log(this.requiredPlayerCount * promptPlayerThresholdRatio);
+    return this.queueService.playerCount >= (this.requiredPlayerCount * promptPlayerThresholdRatio);
   }
 
   @Cron(CronExpression.EVERY_5_MINUTES)
