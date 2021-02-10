@@ -1,6 +1,6 @@
 'use strict';
 
-const dns = jest.genMockFromModule('dns');
+const dns = jest.createMockFromModule('dns');
 
 function resolve(hostname, callback) {
   callback(null, ['1.2.3.4']);
