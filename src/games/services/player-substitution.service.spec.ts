@@ -162,8 +162,7 @@ describe('PlayerSubstitutionService', () => {
     it('should notify on discord', async () => {
       const spy = jest.spyOn(discordService.getPlayersChannel(), 'send');
       await service.substitutePlayer(mockGame.id, player1.id);
-      expect(spy).toHaveBeenCalledWith('&<TF2 gamers>');
-      expect(spy).toHaveBeenCalledWith({ embed: expect.any(Object) });
+      expect(spy).toHaveBeenCalledWith('&<TF2 gamers>', { embed: expect.any(Object) });
     });
 
     // eslint-disable-next-line jest/expect-expect
