@@ -1,3 +1,13 @@
+## [3.6.2](https://github.com/tf2pickup-pl/server/compare/3.6.1...3.6.2) (2021-02-10)
+
+
+### Bug Fixes
+
+* cleaner discord queue prompts ([#836](https://github.com/tf2pickup-pl/server/issues/836)) ([ba6919c](https://github.com/tf2pickup-pl/server/commit/ba6919ce21a143e27feb6f06910311f2e1e05b40))
+* ping players with sub request embed in one message ([#838](https://github.com/tf2pickup-pl/server/issues/838)) ([2b9e23d](https://github.com/tf2pickup-pl/server/commit/2b9e23d360c4b7d1ae7c2e17b145796331be3e8f))
+* support game servers without a domain ([#837](https://github.com/tf2pickup-pl/server/issues/837)) ([2a6ee16](https://github.com/tf2pickup-pl/server/commit/2a6ee1663826b18d7c6da4ac19fa0ae8035403a9))
+* **deps:** update nest monorepo to v7.6.12 ([#835](https://github.com/tf2pickup-pl/server/issues/835)) ([84795b9](https://github.com/tf2pickup-pl/server/commit/84795b9400a591b62cf0eaccc52a652ddc9141cc))
+
 ## [3.6.1](https://github.com/tf2pickup-pl/server/compare/3.6.0...3.6.1) (2021-02-09)
 
 
