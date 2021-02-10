@@ -98,17 +98,17 @@ describe('QueuePromptsService', () => {
     ];
 
     queueService.slots = [
-      { id: 0, gameClass: Tf2ClassName.scout, playerId: players[0].id, ready: false },
+      { id: 0, gameClass: Tf2ClassName.scout, playerId: players[0]._id.toString(), ready: false },
       { id: 1, gameClass: Tf2ClassName.scout, playerId: null, ready: false },
       { id: 2, gameClass: Tf2ClassName.scout, playerId: null, ready: false },
       { id: 3, gameClass: Tf2ClassName.scout, playerId: null, ready: false },
       { id: 4, gameClass: Tf2ClassName.soldier, playerId: null, ready: false },
-      { id: 5, gameClass: Tf2ClassName.soldier, playerId: players[1].id, ready: false },
+      { id: 5, gameClass: Tf2ClassName.soldier, playerId: players[1]._id.toString(), ready: false },
       { id: 6, gameClass: Tf2ClassName.soldier, playerId: null, ready: false },
       { id: 7, gameClass: Tf2ClassName.soldier, playerId: null, ready: false },
       { id: 8, gameClass: Tf2ClassName.demoman, playerId: null, ready: false },
       { id: 9, gameClass: Tf2ClassName.demoman, playerId: null, ready: false },
-      { id: 10, gameClass: Tf2ClassName.medic, playerId: players[2].id, ready: false },
+      { id: 10, gameClass: Tf2ClassName.medic, playerId: players[2]._id.toString(), ready: false },
       { id: 11, gameClass: Tf2ClassName.medic, playerId: null, ready: false },
     ];
   });
@@ -167,13 +167,13 @@ describe('QueuePromptsService', () => {
     describe('when slots change again', () => {
       beforeEach(async () => new Promise<void>(resolve => {
         queueService.slots = [
-          { id: 0, gameClass: Tf2ClassName.scout, playerId: players[0].id, ready: false },
+          { id: 0, gameClass: Tf2ClassName.scout, playerId: players[0]._id.toString(), ready: false },
           { id: 1, gameClass: Tf2ClassName.scout, playerId: null, ready: false },
           { id: 2, gameClass: Tf2ClassName.scout, playerId: null, ready: false },
           { id: 3, gameClass: Tf2ClassName.scout, playerId: null, ready: false },
           { id: 4, gameClass: Tf2ClassName.soldier, playerId: null, ready: false },
-          { id: 5, gameClass: Tf2ClassName.soldier, playerId: players[1].id, ready: false },
-          { id: 6, gameClass: Tf2ClassName.soldier, playerId: players[2].id, ready: false },
+          { id: 5, gameClass: Tf2ClassName.soldier, playerId: players[1]._id.toString(), ready: false },
+          { id: 6, gameClass: Tf2ClassName.soldier, playerId: players[2]._id.toString(), ready: false },
           { id: 7, gameClass: Tf2ClassName.soldier, playerId: null, ready: false },
           { id: 8, gameClass: Tf2ClassName.demoman, playerId: null, ready: false },
           { id: 9, gameClass: Tf2ClassName.demoman, playerId: null, ready: false },
