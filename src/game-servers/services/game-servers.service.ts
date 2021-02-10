@@ -27,9 +27,13 @@ export class GameServersService {
   }
 
   async addGameServer(gameServer: GameServer): Promise<DocumentType<GameServer>> {
-    const resolvedIpAddresses = await resolve(gameServer.address);
-    this.logger.verbose(`resolved addresses for ${gameServer.address}: ${resolvedIpAddresses}`);
-    gameServer.resolvedIpAddresses = resolvedIpAddresses;
+    if (/^(?!0)(?!.*\.$)((1?\d?\d|25[0-5]|2[0-4]\d)(\.|$)){4}$/.test(gameServer.address)) { // raw ip address was given
+      gameServer.resolvedIpAddresses = [ gameServer.address ];
+    } else {
+      const resolvedIpAddresses = await resolve(gameServer.address);
+      this.logger.verbose(`resolved addresses for ${gameServer.address}: ${resolvedIpAddresses}`);
+      gameServer.resolvedIpAddresses = resolvedIpAddresses;
+    }
 
     if (!gameServer.mumbleChannelName) {
       const latestServer = await this.gameServerModel.findOne({ mumbleChannelName: { $ne: null } }).sort({ createdAt: -1 }).exec();
