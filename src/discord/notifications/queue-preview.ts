@@ -28,7 +28,7 @@ export const queuePreview = (options: QueuePreviewOptions): MessageEmbedOptions 
   fields: options.gameClassData.map(gameClassData => ({
     name: `${gameClassData.emoji} ${gameClassData.gameClass} (${gameClassData.players.length}/${gameClassData.playersRequired})`,
     value: gameClassData.players.length > 0 ? gameClassData.players
-      .map(player => `${gameClassData.emoji} ${player.name}`)
+      .map(player => `\u2000\u25CF\u2000${player.name}`)
       .join('\n') : '\u200B',
     inline: true,
   })),
