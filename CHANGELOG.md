@@ -1,3 +1,10 @@
+## [3.6.3](https://github.com/tf2pickup-pl/server/compare/3.6.2...3.6.3) (2021-02-11)
+
+
+### Bug Fixes
+
+* handle setting initial skill of a player ([#840](https://github.com/tf2pickup-pl/server/issues/840)) ([68794c9](https://github.com/tf2pickup-pl/server/commit/68794c9e364876594526f5086806d984cbe99d97))
+
 ## [3.6.2](https://github.com/tf2pickup-pl/server/compare/3.6.1...3.6.2) (2021-02-10)
 
 
