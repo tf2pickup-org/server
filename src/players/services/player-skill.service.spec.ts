@@ -205,13 +205,18 @@ describe('PlayerSkillService', () => {
       it('should notify admins on discord', async () => {
         const spy = jest.spyOn(discordService.getAdminsChannel(), 'send');
         await service.setPlayerSkill(newPlayer.id, new Map([[Tf2ClassName.soldier, 2]]));
-        expect(spy).toHaveBeenCalledWith({ embed: skillChanged({
-          playerName: 'fake_player_2',
-          oldSkill: new Map(),
-          newSkill: new Map(([[Tf2ClassName.soldier, 2]])),
-          playerProfileUrl: `FAKE_CLIENT_URL/player/${newPlayer.id}`,
-          adminResponsible: undefined,
-        }) });
+        expect(spy).toHaveBeenCalledWith({
+          embed: {
+            ...skillChanged({
+              playerName: 'fake_player_2',
+              oldSkill: new Map(),
+              newSkill: new Map(([[Tf2ClassName.soldier, 2]])),
+              playerProfileUrl: `FAKE_CLIENT_URL/player/${newPlayer.id}`,
+              adminResponsible: undefined,
+            }),
+            timestamp: expect.any(Date),
+          },
+        });
       });
     });
 
