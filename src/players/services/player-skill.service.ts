@@ -62,7 +62,7 @@ export class PlayerSkillService implements OnModuleInit {
       throw new Error('no such player');
     }
 
-    const oldSkill = await this.playerSkillModel.findOne({ player: playerId });
+    const oldSkill = await this.playerSkillModel.findOne({ player: playerId }) || { skill: new Map() };
     const ret = await this.playerSkillModel.findOneAndUpdate({ player: playerId }, { skill }, { new: true, upsert: true });
 
     for (const [key, value] of ret.skill) {
