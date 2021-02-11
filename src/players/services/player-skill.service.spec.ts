@@ -16,6 +16,7 @@ import { DiscordService } from '@/discord/services/discord.service';
 import { Environment } from '@/environment/environment';
 import { Events } from '@/events/events';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
+import { skillChanged } from '@/discord/notifications';
 
 jest.mock('./players.service');
 jest.mock('./future-player-skill.service');
@@ -190,6 +191,27 @@ describe('PlayerSkillService', () => {
         const spy = jest.spyOn(discordService.getAdminsChannel(), 'send');
         await service.setPlayerSkill(newPlayer.id, new Map([[Tf2ClassName.soldier, 1]]));
         expect(spy).not.toHaveBeenCalled();
+      });
+    });
+
+    describe('when initializing player skill', () => {
+      let newPlayer: DocumentType<Player>;
+
+      beforeEach(async () => {
+        // @ts-expect-error
+        newPlayer = await playersService._createOne();
+      });
+
+      it('should notify admins on discord', async () => {
+        const spy = jest.spyOn(discordService.getAdminsChannel(), 'send');
+        await service.setPlayerSkill(newPlayer.id, new Map([[Tf2ClassName.soldier, 2]]));
+        expect(spy).toHaveBeenCalledWith({ embed: skillChanged({
+          playerName: 'fake_player_2',
+          oldSkill: new Map(),
+          newSkill: new Map(([[Tf2ClassName.soldier, 2]])),
+          playerProfileUrl: `FAKE_CLIENT_URL/player/${newPlayer.id}`,
+          adminResponsible: undefined,
+        }) });
       });
     });
 
