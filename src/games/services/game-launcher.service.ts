@@ -42,16 +42,10 @@ export class GameLauncherService {
       this.logger.warn(`trying to launch game #${game.number} that has already been ended`);
     }
 
-    const gameServer = await this.gameServersService.findFreeGameServer();
-    if (gameServer) {
-      this.logger.verbose(`using server ${gameServer.name} for game #${game.number}`);
-
+    try {
       // step 1: obtain a free server
-      gameServer.game = game._id;
-      await gameServer.save();
-      game.gameServer = gameServer._id;
-      await game.save();
-      this.events.gameChanges.next({ game: game.toJSON() });
+      const gameServer = await this.gameServersService.assignFreeGameServer(game);
+      this.logger.verbose(`using server ${gameServer.name} for game #${game.number}`);
 
       // step 2: set mumble url
       const mumbleUrl = `mumble://${this.environment.mumbleServerUrl}/${this.environment.mumbleChannelName}/${gameServer.mumbleChannelName}`;
@@ -68,10 +62,8 @@ export class GameLauncherService {
       this.events.gameChanges.next({ game: game.toJSON() });
 
       this.logger.verbose(`game #${game.number} initialized`);
-      return game;
-    } else {
-      this.logger.warn(`no free servers available at this time`);
-      // the game will be launched once there are game servers available
+    } catch (error) {
+      this.logger.error(`Error launching game #${game.number}: ${error}`);
     }
   }
 
