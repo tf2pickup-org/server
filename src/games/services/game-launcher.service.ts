@@ -6,6 +6,10 @@ import { Environment } from '@/environment/environment';
 import { Cron } from '@nestjs/schedule';
 import { Events } from '@/events/events';
 import { GameState } from '../models/game-state';
+import { DocumentType } from '@typegoose/typegoose';
+import { Game } from '../models/game';
+import { Mutex } from 'async-mutex';
+import { GameServer } from '@/game-servers/models/game-server';
 
 /**
  * This service is responsible for launching a single game.
@@ -17,6 +21,7 @@ import { GameState } from '../models/game-state';
 export class GameLauncherService {
 
   private logger = new Logger(GameLauncherService.name);
+  private mutex = new Mutex();
 
   constructor(
     @Inject(forwardRef(() => GamesService)) private gamesService: GamesService,
@@ -42,16 +47,9 @@ export class GameLauncherService {
       this.logger.warn(`trying to launch game #${game.number} that has already been ended`);
     }
 
-    const gameServer = await this.gameServersService.findFreeGameServer();
-    if (gameServer) {
-      this.logger.verbose(`using server ${gameServer.name} for game #${game.number}`);
-
+    try {
       // step 1: obtain a free server
-      gameServer.game = game._id;
-      await gameServer.save();
-      game.gameServer = gameServer._id;
-      await game.save();
-      this.events.gameChanges.next({ game: game.toJSON() });
+      const gameServer = await this.assignFreeServer(game);
 
       // step 2: set mumble url
       const mumbleUrl = `mumble://${this.environment.mumbleServerUrl}/${this.environment.mumbleChannelName}/${gameServer.mumbleChannelName}`;
@@ -69,9 +67,8 @@ export class GameLauncherService {
 
       this.logger.verbose(`game #${game.number} initialized`);
       return game;
-    } else {
-      this.logger.warn(`no free servers available at this time`);
-      // the game will be launched once there are game servers available
+    } catch (error) {
+      this.logger.error(`Error launching game #${game.number}: ${error}`);
     }
   }
 
@@ -82,6 +79,26 @@ export class GameLauncherService {
       this.logger.verbose(`launching game #${game.number}...`);
       this.launch(game.id);
     }
+  }
+
+  private async assignFreeServer(game: DocumentType<Game>): Promise<DocumentType<GameServer>> {
+    return new Promise<DocumentType<GameServer>>((resolve, reject) => {
+      this.mutex.runExclusive(async () => {
+        const gameServer = await this.gameServersService.findFreeGameServer();
+        if (gameServer) {
+          this.logger.verbose(`using server ${gameServer.name} for game #${game.number}`);
+
+          gameServer.game = game._id;
+          await gameServer.save();
+          game.gameServer = gameServer._id;
+          await game.save();
+          this.events.gameChanges.next({ game: game.toJSON() });
+          return gameServer;
+        } else {
+          throw new Error('no free game server');
+        }
+      }).then(resolve).catch(reject);
+    });
   }
 
 }
