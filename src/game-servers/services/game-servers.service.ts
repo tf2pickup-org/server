@@ -78,9 +78,9 @@ export class GameServersService {
           throw new Error('no free game server available');
         }
 
-        gameServer.game = game;
+        gameServer.game = game._id;
         await gameServer.save();
-        game.gameServer = gameServer;
+        game.gameServer = gameServer._id;
         await game.save();
         this.events.gameChanges.next({ game: game.toJSON() });
         return gameServer;

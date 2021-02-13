@@ -5,6 +5,10 @@ import { GameServersService } from '@/game-servers/services/game-servers.service
 import { ServerConfiguratorService } from './server-configurator.service';
 import { Environment } from '@/environment/environment';
 import { Events } from '@/events/events';
+import { DocumentType } from '@typegoose/typegoose';
+import { GameServer } from '@/game-servers/models/game-server';
+
+jest.mock('@/game-servers/services/game-servers.service');
 
 const mockGame = {
   id: 'FAKE_GAME_ID',
@@ -30,11 +34,6 @@ const mockGameServer = {
   save: () => null,
 };
 
-class GameServersServiceStub {
-  findFreeGameServer() { return new Promise(resolve => resolve(mockGameServer)); }
-  takeServer(gameServerId: string) { return null; }
-}
-
 class ServerConfiguratorServiceStub {
   configureServer(server: any, game: any) { return new Promise(resolve => resolve({
     connectString: 'FAKE_CONNECT_STRING',
@@ -50,7 +49,7 @@ class EnvironmentStub {
 describe('GameLauncherService', () => {
   let service: GameLauncherService;
   let gamesService: GamesServiceStub;
-  let gameServersService: GameServersServiceStub;
+  let gameServersService: jest.Mocked<GameServersService>;
   let serverConfiguratorService: ServerConfiguratorServiceStub;
 
   beforeEach(async () => {
@@ -58,7 +57,7 @@ describe('GameLauncherService', () => {
       providers: [
         GameLauncherService,
         { provide: GamesService, useClass: GamesServiceStub },
-        { provide: GameServersService, useClass: GameServersServiceStub },
+        GameServersService,
         { provide: ServerConfiguratorService, useClass: ServerConfiguratorServiceStub },
         { provide: Environment, useClass: EnvironmentStub },
         Events,
@@ -71,25 +70,23 @@ describe('GameLauncherService', () => {
     serverConfiguratorService = module.get(ServerConfiguratorService);
   });
 
+  beforeEach(() => {
+    gameServersService.assignFreeGameServer.mockResolvedValue(mockGameServer as DocumentType<GameServer>);
+  });
+
   it('should be defined', () => {
     expect(service).toBeDefined();
   });
 
   describe('#launch()', () => {
-    it('should throw an error if the given game does not exist', async () => {
-      jest.spyOn(gamesService, 'getById').mockResolvedValue(null);
-      await expect(service.launch('FAKE_GAME_ID')).rejects.toThrowError('no such game');
-    });
+    describe('when the game does not exist', async () => {
+      beforeEach(() => {
+        jest.spyOn(gamesService, 'getById').mockResolvedValue(null);
+      });
 
-    it('should find a free server', async () => {
-      const spy = jest.spyOn(gameServersService, 'findFreeGameServer');
-      await service.launch('FAKE_GAME_ID');
-      expect(spy).toHaveBeenCalled();
-    });
-
-    it('should take the game server', async () => {
-      await service.launch('FAKE_GAME_ID');
-      expect(mockGameServer.game).toEqual(mockGame.id);
+      it('should throw', async () => {
+        await expect(service.launch('FAKE_GAME_ID')).rejects.toThrowError('no such game');
+      });
     });
 
     it('should configure the game server', async () => {

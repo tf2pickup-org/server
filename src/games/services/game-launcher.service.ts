@@ -62,6 +62,7 @@ export class GameLauncherService {
       this.events.gameChanges.next({ game: game.toJSON() });
 
       this.logger.verbose(`game #${game.number} initialized`);
+      return game;
     } catch (error) {
       this.logger.error(`Error launching game #${game.number}: ${error}`);
     }
