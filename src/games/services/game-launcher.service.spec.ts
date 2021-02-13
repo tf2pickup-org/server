@@ -79,7 +79,7 @@ describe('GameLauncherService', () => {
   });
 
   describe('#launch()', () => {
-    describe('when the game does not exist', async () => {
+    describe('when the game does not exist', () => {
       beforeEach(() => {
         jest.spyOn(gamesService, 'getById').mockResolvedValue(null);
       });
