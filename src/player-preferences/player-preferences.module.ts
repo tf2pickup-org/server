@@ -10,5 +10,8 @@ import { PlayerPreferencesService } from './services/player-preferences.service'
   providers: [
     PlayerPreferencesService,
   ],
+  exports: [
+    PlayerPreferencesService,
+  ],
 })
 export class PlayerPreferencesModule {}

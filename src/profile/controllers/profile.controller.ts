@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Query, HttpCode, BadRequestException } from '@nestjs/common';
+import { Controller, Get, Post, Query, HttpCode, BadRequestException, Body, Put } from '@nestjs/common';
 import { Auth } from '@/auth/decorators/auth.decorator';
 import { User } from '@/auth/decorators/user.decorator';
 import { Player } from '@/players/models/player';
@@ -6,6 +6,7 @@ import { PlayersService } from '@/players/services/players.service';
 import { GamesService } from '@/games/services/games.service';
 import { PlayerBansService } from '@/players/services/player-bans.service';
 import { MapVoteService } from '@/queue/services/map-vote.service';
+import { PlayerPreferencesService } from '@/player-preferences/services/player-preferences.service';
 
 @Controller('profile')
 export class ProfileController {
@@ -15,6 +16,7 @@ export class ProfileController {
     private gamesService: GamesService,
     private playerBansService: PlayerBansService,
     private mapVoteService: MapVoteService,
+    private playerPreferencesService: PlayerPreferencesService,
   ) { }
 
   @Auth()
@@ -23,7 +25,20 @@ export class ProfileController {
     const activeGameId = (await this.gamesService.getPlayerActiveGame(user.id))?.id ?? null;
     const bans = await this.playerBansService.getPlayerActiveBans(user.id);
     const mapVote = this.mapVoteService.playerVote(user.id);
-    return { ...user, activeGameId, bans, mapVote };
+    const preferences = await this.playerPreferencesService.getPlayerPreferences(user.id);
+    return { ...user, activeGameId, bans, mapVote, preferences };
+  }
+
+  @Auth()
+  @Get('/preferences')
+  async getPreferences(@User() user: Player) {
+    return this.playerPreferencesService.getPlayerPreferences(user.id);
+  }
+
+  @Auth()
+  @Put('/preferences')
+  async savePreferences(@User() user: Player, @Body() preferences: { [key: string]: string }) {
+    return this.playerPreferencesService.updatePlayerPreferences(user.id, new Map(Object.entries(preferences)));
   }
 
   @Auth()
