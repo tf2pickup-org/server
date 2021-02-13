@@ -6,6 +6,9 @@ import { resolve as resolveCb } from 'dns';
 import { promisify } from 'util';
 import { isServerOnline } from '../utils/is-server-online';
 import { Cron } from '@nestjs/schedule';
+import { Mutex } from 'async-mutex';
+import { Game } from '@/games/models/game';
+import { Events } from '@/events/events';
 
 const resolve = promisify(resolveCb);
 
@@ -13,9 +16,11 @@ const resolve = promisify(resolveCb);
 export class GameServersService {
 
   private readonly logger = new Logger(GameServersService.name);
+  private readonly mutex = new Mutex();
 
   constructor(
     @InjectModel(GameServer) private gameServerModel: ReturnModelType<typeof GameServer>,
+    private events: Events,
   ) { }
 
   async getAllGameServers() {
@@ -63,6 +68,24 @@ export class GameServersService {
 
   async findFreeGameServer(): Promise<DocumentType<GameServer>> {
     return await this.gameServerModel.findOne({ isOnline: true, game: { $exists: false } });
+  }
+
+  async assignFreeGameServer(game: DocumentType<Game>): Promise<DocumentType<GameServer>> {
+    return new Promise<DocumentType<GameServer>>((resolve, reject) => {
+      this.mutex.runExclusive(async () => {
+        const gameServer = await this.findFreeGameServer();
+        if (!gameServer) {
+          throw new Error('no free game server available');
+        }
+
+        gameServer.game = game._id;
+        await gameServer.save();
+        game.gameServer = gameServer._id;
+        await game.save();
+        this.events.gameChanges.next({ game: game.toJSON() });
+        return gameServer;
+      }).then(resolve).catch(reject);
+    });
   }
 
   async releaseServer(gameServerId: string): Promise<DocumentType<GameServer>>  {

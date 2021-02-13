@@ -7,6 +7,8 @@ import { ObjectId } from 'mongodb';
 import { typegooseTestingModule } from '@/utils/testing-typegoose-module';
 import * as isServerOnline from '../utils/is-server-online';
 import { MongoMemoryServer } from 'mongodb-memory-server';
+import { Events } from '@/events/events';
+import { Game } from '@/games/models/game';
 
 jest.mock('dns');
 
@@ -14,6 +16,7 @@ describe('GameServersService', () => {
   let service: GameServersService;
   let mongod: MongoMemoryServer;
   let gameServerModel: ReturnModelType<typeof GameServer>;
+  let gameModel: ReturnModelType<typeof Game>;
   let testGameServer: DocumentType<GameServer>;
 
   beforeAll(() => mongod = new MongoMemoryServer());
@@ -23,15 +26,17 @@ describe('GameServersService', () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [
         typegooseTestingModule(mongod),
-        TypegooseModule.forFeature([GameServer]),
+        TypegooseModule.forFeature([GameServer, Game]),
       ],
       providers: [
         GameServersService,
+        Events,
       ],
     }).compile();
 
     service = module.get<GameServersService>(GameServersService);
-    gameServerModel = module.get(getModelToken('GameServer'));
+    gameServerModel = module.get(getModelToken(GameServer.name));
+    gameModel = module.get(getModelToken(Game.name));
   });
 
   beforeEach(async () => {
@@ -44,7 +49,10 @@ describe('GameServersService', () => {
     });
   });
 
-  afterEach(async () => await gameServerModel.deleteMany({ }));
+  afterEach(async () => {
+    await gameServerModel.deleteMany({ });
+    await gameModel.deleteMany({ });
+  });
 
   it('should be defined', () => {
     expect(service).toBeDefined();
@@ -188,6 +196,34 @@ describe('GameServersService', () => {
 
       it('should return this game server', async () => {
         expect((await service.findFreeGameServer()).id).toEqual(testGameServer.id);
+      });
+    });
+  });
+
+  describe('#assignFreeGameServer()', () => {
+    let game: DocumentType<Game>;
+
+    beforeEach(async () => {
+      game = await gameModel.create({ number: 1, map: 'cp_badlands', slots: [] });
+
+      testGameServer.isOnline = true;
+      await testGameServer.save();
+    });
+
+    it('should assign the server', async () => {
+      const gameServer = await service.assignFreeGameServer(game);
+      expect(gameServer.game.toString()).toEqual(game.id);
+      expect(game.gameServer.toString()).toEqual(gameServer.id);
+    });
+
+    describe('when there are no free game servers', () => {
+      beforeEach(async () => {
+        const game2 = await gameModel.create({ number: 2, map: 'cp_badlands', slots: [] });
+        await service.assignFreeGameServer(game2);
+      });
+
+      it('should throw', async () => {
+        await expect(service.assignFreeGameServer(game)).rejects.toThrowError();
       });
     });
   });
