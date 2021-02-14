@@ -22,6 +22,7 @@ import { join } from 'path';
 import { EventsModule } from './events/events.module';
 import { StreamsModule } from './streams/streams.module';
 import { PlayerPreferencesModule } from './player-preferences/player-preferences.module';
+import { ConfigurationModule } from './configuration/configuration.module';
 
 function createMongodbUri(environment: Environment) {
   let credentials = '';
@@ -74,6 +75,7 @@ function createMongodbUri(environment: Environment) {
     EventsModule,
     StreamsModule.configure(),
     PlayerPreferencesModule,
+    ConfigurationModule,
   ],
   controllers: [
     AppController,
