@@ -1,3 +1,16 @@
+# [3.7.0](https://github.com/tf2pickup-pl/server/compare/3.6.3...3.7.0) (2021-02-14)
+
+
+### Bug Fixes
+
+* **deps:** pin dependency async-mutex to 0.3.0 ([#846](https://github.com/tf2pickup-pl/server/issues/846)) ([214b07c](https://github.com/tf2pickup-pl/server/commit/214b07c5352a0a422b7bb8354ea185a77a8858f7))
+* pick free game server without race condition ([#845](https://github.com/tf2pickup-pl/server/issues/845)) ([a5fafc5](https://github.com/tf2pickup-pl/server/commit/a5fafc5914bd1fe93cc0e271d864ab5dec2df289))
+
+
+### Features
+
+* player preferences ([#847](https://github.com/tf2pickup-pl/server/issues/847)) ([28ffa6f](https://github.com/tf2pickup-pl/server/commit/28ffa6fdae5a9479d70f51643fcefd5cd1729fe9))
+
 ## [3.6.3](https://github.com/tf2pickup-pl/server/compare/3.6.2...3.6.3) (2021-02-11)
 
 
