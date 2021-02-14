@@ -126,7 +126,7 @@ describe('ServerConfiguratorService', () => {
       rcon = new RconStub();
       rconFactoryService.createRcon.mockResolvedValue(rcon as unknown as Rcon);
       jest.useFakeTimers();
-      jest.spyOn(global, 'setTimeout').mockImplementation((cb: Function) => { cb(); return null; });
+      jest.spyOn(global, 'setTimeout').mockImplementation((cb: () => void) => { cb(); return null; });
     });
 
     afterEach(async () => {
@@ -198,7 +198,7 @@ describe('ServerConfiguratorService', () => {
         player1.name = 'mąły';
         await player1.save();
         jest.useFakeTimers();
-        jest.spyOn(global, 'setTimeout').mockImplementation((cb: Function) => { cb(); return null; });
+        jest.spyOn(global, 'setTimeout').mockImplementation((cb: () => void) => { cb(); return null; });
       });
 
       it('should deburr player nicknames', async () => {
