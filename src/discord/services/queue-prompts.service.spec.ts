@@ -127,10 +127,10 @@ describe('QueuePromptsService', () => {
   });
 
   describe('when slots change', () => {
-    beforeEach(async () => {
+    beforeEach(async () => new Promise<void>(resolve => {
       events.queueSlotsChange.next({ slots: queueService.slots });
-      await new Promise(resolve => setTimeout(resolve, 100));
-    });
+      setTimeout(resolve, 3500);
+    }));
 
     it('should send a new prompt', () => {
       const channel = discordService.getPlayersChannel();
@@ -165,7 +165,7 @@ describe('QueuePromptsService', () => {
     });
 
     describe('when slots change again', () => {
-      beforeEach(async () => {
+      beforeEach(async () => new Promise<void>(resolve => {
         queueService.slots = [
           { id: 0, gameClass: Tf2ClassName.scout, playerId: players[0].id, ready: false },
           { id: 1, gameClass: Tf2ClassName.scout, playerId: null, ready: false },
@@ -181,8 +181,8 @@ describe('QueuePromptsService', () => {
           { id: 11, gameClass: Tf2ClassName.medic, playerId: null, ready: false },
         ];
         events.queueSlotsChange.next({ slots: queueService.slots });
-        await new Promise(resolve => setTimeout(resolve, 100));
-      });
+        setTimeout(resolve, 3500);
+      }));
 
       it('should edit the previous embed', () => {
         expect((discordService as any)._lastMessage.edit).toHaveBeenCalledWith({
