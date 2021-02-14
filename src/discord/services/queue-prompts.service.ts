@@ -8,6 +8,7 @@ import { iconUrlPath, promptPlayerThresholdRatio } from '@configs/discord';
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { Message } from 'discord.js';
+import { debounceTime } from 'rxjs/operators';
 import { queuePreview } from '../notifications';
 import { DiscordService } from './discord.service';
 
@@ -27,7 +28,9 @@ export class QueuePromptsService implements OnModuleInit {
   ) { }
 
   onModuleInit() {
-    this.events.queueSlotsChange.subscribe(() => this.refreshPrompt(this.queueService.slots));
+    this.events.queueSlotsChange.pipe(
+      debounceTime(3000),
+    ).subscribe(() => this.refreshPrompt(this.queueService.slots));
   }
 
   private async refreshPrompt(slots: QueueSlot[]) {
