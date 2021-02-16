@@ -1,3 +1,4 @@
+import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { typegooseTestingModule } from '@/utils/testing-typegoose-module';
 import { Test, TestingModule } from '@nestjs/testing';
 import { MongoMemoryServer } from 'mongodb-memory-server';
@@ -51,7 +52,7 @@ describe('ConfigurationService', () => {
 
     beforeEach(() => {
       configuration = {
-        defaultPlayerSkill: 3,
+        defaultPlayerSkill: new Map([[Tf2ClassName.soldier, 3]]),
         whitelistId: '12345',
       };
     });

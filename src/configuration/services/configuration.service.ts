@@ -21,7 +21,8 @@ export class ConfigurationService implements OnModuleInit {
   }
 
   async setConfiguration(configuration: Configuration): Promise<Configuration> {
-    return this.configurationModel.create(configuration);
+    await this.configurationModel.create(configuration);
+    return this.getConfiguration();
   }
 
 }

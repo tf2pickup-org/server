@@ -1,3 +1,4 @@
+import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Configuration } from '../models/configuration';
 import { ConfigurationService } from '../services/configuration.service';
@@ -26,7 +27,7 @@ describe('ConfigurationController', () => {
   });
 
   describe('#getConfiguration()', () => {
-    const configuration: Configuration = { defaultPlayerSkill: 3 };
+    const configuration: Configuration = { defaultPlayerSkill: new Map([[Tf2ClassName.soldier, 3]]) };
 
     beforeEach(() => {
       configurationService.getConfiguration.mockResolvedValue(configuration);
@@ -38,7 +39,7 @@ describe('ConfigurationController', () => {
   });
 
   describe('#setConfiguration()', () => {
-    const configuration: Configuration = { defaultPlayerSkill: 2, whitelistId: '12345' };
+    const configuration: Configuration = { defaultPlayerSkill: new Map([[Tf2ClassName.soldier, 2]]), whitelistId: '12345' };
 
     beforeEach(() => {
       configurationService.setConfiguration.mockImplementation(configuration => Promise.resolve(configuration));
