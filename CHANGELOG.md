@@ -1,3 +1,12 @@
+## [3.7.1](https://github.com/tf2pickup-pl/server/compare/3.7.0...3.7.1) (2021-02-16)
+
+
+### Bug Fixes
+
+* **deps:** update dependency class-transformer to v0.4.0 ([#849](https://github.com/tf2pickup-pl/server/issues/849)) ([2c95eea](https://github.com/tf2pickup-pl/server/commit/2c95eeaa9c43b7644a65563004f628dac7e8ef38))
+* **deps:** update dependency commander to v7.1.0 ([#851](https://github.com/tf2pickup-pl/server/issues/851)) ([566dac7](https://github.com/tf2pickup-pl/server/commit/566dac7c9ae6c41b9a86133582a40327d685d2fd))
+* debounceTime queue slots when sending discord prompts ([#848](https://github.com/tf2pickup-pl/server/issues/848)) ([f0b31de](https://github.com/tf2pickup-pl/server/commit/f0b31de0385fe620947bd35a5a78063d58e786ba))
+
 # [3.7.0](https://github.com/tf2pickup-pl/server/compare/3.6.3...3.7.0) (2021-02-14)
 
 
