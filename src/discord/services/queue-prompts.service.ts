@@ -71,8 +71,6 @@ export class QueuePromptsService implements OnModuleInit {
   }
 
   private playerThresholdMet() {
-    console.log(this.queueService.playerCount);
-    console.log(this.requiredPlayerCount * promptPlayerThresholdRatio);
     return this.queueService.playerCount >= (this.requiredPlayerCount * promptPlayerThresholdRatio);
   }
 
