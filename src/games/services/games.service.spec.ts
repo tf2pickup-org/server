@@ -17,10 +17,12 @@ import { Events } from '@/events/events';
 import { SlotStatus } from '../models/slot-status';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { GameState } from '../models/game-state';
+import { ConfigurationService } from '@/configuration/services/configuration.service';
 
 jest.mock('@/players/services/players.service');
 jest.mock('@/players/services/player-skill.service');
 jest.mock('./game-launcher.service');
+jest.mock('@/configuration/services/configuration.service');
 
 class QueueConfigServiceStub {
   queueConfig = {
@@ -31,7 +33,6 @@ class QueueConfigServiceStub {
       { name: 'medic', count: 1 },
     ],
     teamCount: 2,
-    maps: ['fake_map_1', 'fake_map_2'],
     readyUpTimeout: 1000,
     queueReadyTimeout: 2000,
   };
@@ -44,6 +45,8 @@ describe('GamesService', () => {
   let gameLauncherService: GameLauncherService;
   let playersService: PlayersService;
   let events: Events;
+  let playerSkillService: jest.Mocked<PlayerSkillService>;
+  let configurationService: jest.Mocked<ConfigurationService>;
 
   beforeAll(() => mongod = new MongoMemoryServer());
   afterAll(async () => await mongod.stop());
@@ -61,6 +64,7 @@ describe('GamesService', () => {
         { provide: QueueConfigService, useClass: QueueConfigServiceStub },
         GameLauncherService,
         Events,
+        ConfigurationService,
       ],
     }).compile();
 
@@ -69,6 +73,8 @@ describe('GamesService', () => {
     gameLauncherService = module.get(GameLauncherService);
     playersService = module.get(PlayersService);
     events = module.get(Events);
+    playerSkillService = module.get(PlayerSkillService);
+    configurationService = module.get(ConfigurationService);
   });
 
   afterEach(async () => {
@@ -245,30 +251,39 @@ describe('GamesService', () => {
     beforeEach(async () => {
       slots = [
         // @ts-expect-error
-        { id: 0, gameClass: 'scout', playerId: (await playersService._createOne())._id, ready: true, friend: null },
+        { id: 0, gameClass: Tf2ClassName.scout, playerId: (await playersService._createOne())._id, ready: true, friend: null },
         // @ts-expect-error
-        { id: 1, gameClass: 'scout', playerId: (await playersService._createOne())._id, ready: true, friend: null },
+        { id: 1, gameClass: Tf2ClassName.scout, playerId: (await playersService._createOne())._id, ready: true, friend: null },
         // @ts-expect-error
-        { id: 2, gameClass: 'scout', playerId: (await playersService._createOne())._id, ready: true, friend: null },
+        { id: 2, gameClass: Tf2ClassName.scout, playerId: (await playersService._createOne())._id, ready: true, friend: null },
         // @ts-expect-error
-        { id: 3, gameClass: 'scout', playerId: (await playersService._createOne())._id, ready: true, friend: null },
+        { id: 3, gameClass: Tf2ClassName.scout, playerId: (await playersService._createOne())._id, ready: true, friend: null },
         // @ts-expect-error
-        { id: 4, gameClass: 'soldier', playerId: (await playersService._createOne())._id, ready: true, friend: null },
+        { id: 4, gameClass: Tf2ClassName.soldier, playerId: (await playersService._createOne())._id, ready: true, friend: null },
         // @ts-expect-error
-        { id: 5, gameClass: 'soldier', playerId: (await playersService._createOne())._id, ready: true, friend: null },
+        { id: 5, gameClass: Tf2ClassName.soldier, playerId: (await playersService._createOne())._id, ready: true, friend: null },
         // @ts-expect-error
-        { id: 6, gameClass: 'soldier', playerId: (await playersService._createOne())._id, ready: true, friend: null },
+        { id: 6, gameClass: Tf2ClassName.soldier, playerId: (await playersService._createOne())._id, ready: true, friend: null },
         // @ts-expect-error
-        { id: 7, gameClass: 'soldier', playerId: (await playersService._createOne())._id, ready: true, friend: null },
+        { id: 7, gameClass: Tf2ClassName.soldier, playerId: (await playersService._createOne())._id, ready: true, friend: null },
         // @ts-expect-error
-        { id: 8, gameClass: 'demoman', playerId: (await playersService._createOne())._id, ready: true, friend: null },
+        { id: 8, gameClass: Tf2ClassName.demoman, playerId: (await playersService._createOne())._id, ready: true, friend: null },
         // @ts-expect-error
-        { id: 9, gameClass: 'demoman', playerId: (await playersService._createOne())._id, ready: true, friend: null },
+        { id: 9, gameClass: Tf2ClassName.demoman, playerId: (await playersService._createOne())._id, ready: true, friend: null },
         // @ts-expect-error
-        { id: 10, gameClass: 'medic', playerId: (await playersService._createOne())._id, ready: true, friend: null },
+        { id: 10, gameClass: Tf2ClassName.medic, playerId: (await playersService._createOne())._id, ready: true, friend: null },
         // @ts-expect-error
-        { id: 11, gameClass: 'medic', playerId: (await playersService._createOne())._id, ready: true, friend: null },
+        { id: 11, gameClass: Tf2ClassName.medic, playerId: (await playersService._createOne())._id, ready: true, friend: null },
       ] as any;
+
+      configurationService.getConfiguration.mockResolvedValue({
+        defaultPlayerSkill: new Map([
+          [Tf2ClassName.scout, 2],
+          [Tf2ClassName.soldier, 3],
+          [Tf2ClassName.demoman, 4],
+          [Tf2ClassName.medic, 5],
+        ]),
+      });
     });
 
     describe('when the queue is not full', () => {
@@ -302,6 +317,40 @@ describe('GamesService', () => {
 
       service.create(slots, 'cp_fake');
     }));
+
+    describe('when skill for a player is defined', () => {
+      beforeEach(() => {
+        playerSkillService.getPlayerSkill.mockImplementation(playerId => {
+          if (playerId === slots[0].playerId) {
+            return Promise.resolve({ skill: new Map([[Tf2ClassName.scout, 9]]) });
+          } else {
+            return Promise.resolve(null);
+          }
+        })
+      });
+
+      it('should record the given skill', async () => {
+        const game = await service.create(slots, 'cp_fake');
+        expect(game.assignedSkills.get(slots[0].playerId.toString())).toEqual(9);
+      });
+    });
+
+    describe('when skill for the player is not defined', () => {
+      it('should assign default skill', async () => {
+        const game = await service.create(slots, 'cp_fale');
+        const scouts = game.slots.filter(s => s.gameClass === Tf2ClassName.scout);
+        expect(scouts.every(s => game.assignedSkills.get(s.player.toString()) === 2)).toBe(true);
+        const soldiers = game.slots.filter(s => s.gameClass === Tf2ClassName.soldier);
+        expect(soldiers.every(s => game.assignedSkills.get(s.player.toString()) === 3)).toBe(true);
+      });
+    });
+
+    it('should assing the very next number', async () => {
+      const game1 = await service.create(slots, 'cp_fake_rc1');
+      expect(game1.number).toEqual(1);
+      const game2 = await service.create(slots, 'cp_fake_rc2');
+      expect(game2.number).toEqual(2);
+    });
   });
 
   describe('#launch()', () => {

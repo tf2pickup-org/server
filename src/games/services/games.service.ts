@@ -14,6 +14,7 @@ import { Events } from '@/events/events';
 import { SlotStatus } from '../models/slot-status';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { GameState } from '../models/game-state';
+import { ConfigurationService } from '@/configuration/services/configuration.service';
 
 interface GameSortOptions {
   launchedAt: 1 | -1;
@@ -35,6 +36,7 @@ export class GamesService {
     private queueConfigService: QueueConfigService,
     @Inject(forwardRef(() => GameLauncherService)) private gameLauncherService: GameLauncherService,
     private events: Events,
+    private configurationService: ConfigurationService,
   ) { }
 
   async getGameCount(): Promise<number> {
@@ -184,7 +186,8 @@ export class GamesService {
       const skillForClass = skill.skill.get(gameClass);
       return { playerId, gameClass, skill: skillForClass };
     } else {
-      return { playerId, gameClass, skill: 1 };
+      const configuration = await this.configurationService.getConfiguration();
+      return { playerId, gameClass, skill: configuration.defaultPlayerSkill.get(gameClass) };
     }
   }
 
