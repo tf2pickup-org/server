@@ -22,5 +22,8 @@ import { ConfigurationController } from './controllers/configuration.controller'
   controllers: [
     ConfigurationController,
   ],
+  exports: [
+    ConfigurationService,
+  ],
 })
 export class ConfigurationModule { }

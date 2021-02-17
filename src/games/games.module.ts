@@ -20,6 +20,7 @@ import { PlayerSubstitutionService } from './services/player-substitution.servic
 import { DiscordModule } from '@/discord/discord.module';
 import { LogReceiver } from 'srcds-log-receiver';
 import { Environment } from '@/environment/environment';
+import { ConfigurationModule } from '@/configuration/configuration.module';
 
 const logReceiverProvider = {
   provide: LogReceiver,
@@ -37,6 +38,7 @@ const logReceiverProvider = {
     forwardRef(() => PlayersModule),
     QueueModule,
     DiscordModule,
+    ConfigurationModule,
   ],
   providers: [
     GamesService,
