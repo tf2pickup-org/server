@@ -18,10 +18,12 @@ import { getModelToken, TypegooseModule } from 'nestjs-typegoose';
 import { Player } from '@/players/models/player';
 import { ReturnModelType, DocumentType } from '@typegoose/typegoose';
 import { Rcon } from 'rcon-client/lib';
+import { ConfigurationService } from '@/configuration/services/configuration.service';
 
 jest.mock('@/queue/services/map-pool.service');
 jest.mock('@/players/services/players.service');
 jest.mock('./rcon-factory.service');
+jest.mock('@/configuration/services/configuration.service');
 
 class EnvironmentStub {
   logRelayAddress = 'FAKE_RELAY_ADDRESS';
@@ -56,6 +58,7 @@ describe('ServerConfiguratorService', () => {
   let playersService: jest.Mocked<PlayersService>;
   let queueConfigService: QueueConfigServiceStub;
   let mapPoolService: jest.Mocked<MapPoolService>;
+  let confiugurationService: jest.Mocked<ConfigurationService>;
 
   beforeAll(() => mongod = new MongoMemoryServer());
   afterAll(async () => await mongod.stop());
@@ -73,6 +76,7 @@ describe('ServerConfiguratorService', () => {
         { provide: QueueConfigService, useClass: QueueConfigServiceStub },
         RconFactoryService,
         MapPoolService,
+        ConfigurationService,
       ],
     }).compile();
 
@@ -82,12 +86,14 @@ describe('ServerConfiguratorService', () => {
     playersService = module.get(PlayersService);
     queueConfigService = module.get(QueueConfigService);
     mapPoolService = module.get(MapPoolService);
+    confiugurationService = module.get(ConfigurationService);
   });
 
   beforeEach(() => {
     mapPoolService.getMaps.mockResolvedValue([
       { name: 'cp_badlands', execConfig: 'etf2l_6v6_5cp' },
     ]);
+    confiugurationService.getConfiguration.mockResolvedValue({ });
   });
 
   it('should be defined', () => {
@@ -152,7 +158,9 @@ describe('ServerConfiguratorService', () => {
 
     describe('when the whitelistId is set', () => {
       beforeEach(() => {
-        queueConfigService.queueConfig.whitelistId = 'FAKE_WHITELIST_ID';
+        confiugurationService.getConfiguration.mockResolvedValue({
+          whitelistId: 'FAKE_WHITELIST_ID',
+        });
       });
 
       it('should set the whitelist', async () => {

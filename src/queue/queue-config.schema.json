@@ -32,9 +32,6 @@
           }
         }
       }
-    },
-    "whitelistId": {
-      "type": "string"
     }
   },
   "additionalItems": false
