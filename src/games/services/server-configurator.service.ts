@@ -13,6 +13,7 @@ import { extractConVarValue } from '../utils/extract-con-var-value';
 import { Rcon } from 'rcon-client/lib';
 import { isRefType } from '@typegoose/typegoose';
 import { MapPoolService } from '@/queue/services/map-pool.service';
+import { ConfigurationService } from '@/configuration/services/configuration.service';
 
 const wait = () => new Promise(resolve => setTimeout(resolve, 10 * 1000));
 
@@ -27,11 +28,13 @@ export class ServerConfiguratorService {
     private queueConfigService: QueueConfigService,
     private rconFactoryService: RconFactoryService,
     private mapPoolService: MapPoolService,
+    private configurationService: ConfigurationService,
   ) { }
 
   async configureServer(server: GameServer, game: Game) {
     this.logger.verbose(`configuring server ${server.name}...`);
     this.logger.debug(`[${server.name}] using rcon password ${server.rconPassword}`);
+    const whitelistId = (await this.configurationService.getConfiguration()).whitelistId;
 
     let rcon: Rcon;
     try {
@@ -57,9 +60,9 @@ export class ServerConfiguratorService {
         await wait();
       }
 
-      if (this.queueConfigService.queueConfig.whitelistId) {
-        this.logger.debug(`[${server.name}] setting whitelist ${this.queueConfigService.queueConfig.whitelistId}...`);
-        await rcon.send(tftrueWhitelistId(this.queueConfigService.queueConfig.whitelistId));
+      if (whitelistId) {
+        this.logger.debug(`[${server.name}] setting whitelist ${whitelistId}...`);
+        await rcon.send(tftrueWhitelistId(whitelistId));
       }
 
       const password = generate({ length: 10, numbers: true, uppercase: true });
