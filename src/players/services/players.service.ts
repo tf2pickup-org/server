@@ -11,8 +11,6 @@ import { Etf2lProfile } from '../models/etf2l-profile';
 import { OnlinePlayersService } from './online-players.service';
 import { SteamApiService } from './steam-api.service';
 import { TwitchTvUser } from '../models/twitch-tv-user';
-import { DiscordService } from '@/discord/services/discord.service';
-import { newPlayer, playerNameChanged } from '@/discord/notifications';
 import { ObjectId } from 'mongodb';
 import { minimumTf2InGameHours, requireEtf2lAccount } from '@configs/players';
 import { PlayerAvatar } from '../models/player-avatar';
@@ -32,7 +30,6 @@ export class PlayersService implements OnModuleInit {
     @Inject(forwardRef(() => GamesService)) private gamesService: GamesService,
     private onlinePlayersService: OnlinePlayersService,
     private steamApiService: SteamApiService,
-    private discordService: DiscordService,
     private events: Events,
   ) { }
 
@@ -107,14 +104,6 @@ export class PlayersService implements OnModuleInit {
 
     this.logger.verbose(`created new player (name: ${player?.name})`);
     this.events.playerRegisters.next({ player });
-
-    this.discordService.getAdminsChannel()?.send({
-      embed: newPlayer({
-        name: player.name,
-        profileUrl: `${this.environment.clientUrl}/player/${player.id}`,
-      }),
-    });
-
     return player;
   }
 
@@ -134,12 +123,6 @@ export class PlayersService implements OnModuleInit {
     });
     this.logger.verbose(`created new player (name: ${player.name})`);
     this.events.playerRegisters.next({ player });
-    this.discordService.getAdminsChannel()?.send({
-      embed: newPlayer({
-        name: player.name,
-        profileUrl: `${this.environment.clientUrl}/player/${player.id}`,
-      }),
-    });
     return player;
   }
 
@@ -163,39 +146,16 @@ export class PlayersService implements OnModuleInit {
     return await this.playerModel.find({ twitchTvUser: { $exists: true } });
   }
 
-  async updatePlayer(playerId: string, update: Partial<Player>, adminId: string): Promise<DocumentType<Player>> {
-    const admin = await this.getById(adminId);
-    if (!admin)  {
-      throw new Error('admin does not exist');
+  async updatePlayer(playerId: string, update: Partial<Player>, adminId?: string): Promise<Player> {
+    const oldPlayer = await this.playerModel.findById(playerId).lean().exec();
+    if (!oldPlayer) {
+      throw new Error('no such player');
     }
 
-    const player = await this.getById(playerId);
-    if (player) {
-      if (update.name && player.name !== update.name) {
-        const oldName = player.name;
-        player.name = update.name;
-
-        this.discordService.getAdminsChannel()?.send({
-          embed: playerNameChanged({
-            oldName,
-            newName: player.name,
-            profileUrl: `${this.environment.clientUrl}/player/${player.id}`,
-            adminResponsible: admin.name,
-          }),
-        });
-      }
-
-      if (update.role !== undefined) {
-        player.role = update.role;
-      }
-
-      await player.save();
-      this.onlinePlayersService.getSocketsForPlayer(playerId).forEach(socket => socket.emit('profile update', { name: player.name }));
-
-      return player;
-    } else {
-      return null;
-    }
+    const newPlayer = await this.playerModel.findOneAndUpdate({ _id: playerId }, update, { new: true }).lean().exec();
+    this.onlinePlayersService.getSocketsForPlayer(playerId).forEach(socket => socket.emit('profile update', { ...newPlayer }));
+    this.events.playerUpdates.next({ oldPlayer, newPlayer, adminId });
+    return newPlayer;
   }
 
   /**
