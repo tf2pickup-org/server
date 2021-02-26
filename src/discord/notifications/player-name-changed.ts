@@ -10,7 +10,7 @@ interface PlayerNameChangedFields {
 
 export function playerNameChanged(fields: PlayerNameChangedFields): MessageEmbedOptions {
   return {
-    color: Colors.PlayerNameChanged,
+    color: Colors.PlayerProfileUpdated,
     title: `Player name changed by ${fields.adminResponsible}`,
     fields: [
       {

@@ -13,7 +13,6 @@ import { GamesModule } from '@/games/games.module';
 import { OnlinePlayersService } from './services/online-players.service';
 import { PlayersGateway } from './gateways/players.gateway';
 import { HallOfFameController } from './controllers/hall-of-fame.controller';
-import { DiscordModule } from '@/discord/discord.module';
 import { SteamApiService } from './services/steam-api.service';
 import { QueueModule } from '@/queue/queue.module';
 import { FuturePlayerSkillService } from './services/future-player-skill.service';
@@ -32,7 +31,6 @@ import { FuturePlayerSkill } from './models/future-player-skill';
 
     forwardRef(() => GamesModule),
     forwardRef(() => QueueModule),
-    DiscordModule,
   ],
   providers: [
     PlayersService,

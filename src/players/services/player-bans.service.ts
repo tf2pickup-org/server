@@ -4,10 +4,8 @@ import { PlayerBan } from '../models/player-ban';
 import { ReturnModelType, DocumentType } from '@typegoose/typegoose';
 import { merge } from 'rxjs';
 import { OnlinePlayersService } from './online-players.service';
-import { playerBanAdded, playerBanRevoked } from '@/discord/notifications';
 import { PlayersService } from './players.service';
 import { Environment } from '@/environment/environment';
-import { DiscordService } from '@/discord/services/discord.service';
 import { Events } from '@/events/events';
 
 @Injectable()
@@ -18,7 +16,6 @@ export class PlayerBansService implements OnModuleInit {
   constructor(
     @InjectModel(PlayerBan) private playerBanModel: ReturnModelType<typeof PlayerBan>,
     private onlinePlayersService: OnlinePlayersService,
-    private discordService: DiscordService,
     @Inject(forwardRef(() => PlayersService)) private playersService: PlayersService,
     private environment: Environment,
     private events: Events,
@@ -67,20 +64,8 @@ export class PlayerBansService implements OnModuleInit {
     }
 
     const addedBan = await this.playerBanModel.create(playerBan);
-
     this.logger.verbose(`ban added for player ${player.id} (reason: ${playerBan.reason})`);
     this.events.playerBanAdded.next({ ban: addedBan });
-
-    this.discordService.getAdminsChannel()?.send({
-      embed: playerBanAdded({
-        admin: admin.name,
-        player: player.name,
-        reason: addedBan.reason,
-        ends: addedBan.end,
-        playerProfileUrl: `${this.environment.clientUrl}/player/${player.id}`,
-      }),
-    });
-
     return addedBan;
   }
 
@@ -101,16 +86,6 @@ export class PlayerBansService implements OnModuleInit {
     const player = await this.playersService.getById(ban.player.toString());
     this.logger.verbose(`ban revoked for player ${player.id}`);
     this.events.playerBanRevoked.next({ ban });
-
-    this.discordService.getAdminsChannel()?.send({
-      embed: playerBanRevoked({
-        player: player.name,
-        reason: ban.reason,
-        playerProfileUrl: `${this.environment.clientUrl}/player/${player.id}`,
-        adminResponsible: admin.name,
-      }),
-    });
-
     return ban;
   }
 

@@ -18,6 +18,7 @@ export class Events {
   private logger = new Logger(Events.name);
 
   readonly playerRegisters = new Subject<{ player: Player }>();
+  readonly playerUpdates = new Subject<{ oldPlayer: Player, newPlayer: Player, adminId?: string }>();
   readonly playerDisconnects = new Subject<{ playerId: string }>();
   readonly playerBanAdded = new Subject<{ ban: PlayerBan }>();
   readonly playerBanRevoked = new Subject<{ ban: PlayerBan }>();

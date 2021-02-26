@@ -10,11 +10,9 @@ import { MongoMemoryServer } from 'mongodb-memory-server';
 import { Environment } from '@/environment/environment';
 import { PlayersService } from './players.service';
 import { Player } from '../models/player';
-import { DiscordService } from '@/discord/services/discord.service';
 import { Events } from '@/events/events';
 
 jest.mock('./players.service');
-jest.mock('@/discord/services/discord.service');
 
 class OnlinePlayersServiceStub {
   getSocketsForPlayer(playerId: string) { return []; }
@@ -27,7 +25,6 @@ const environment = {
 describe('PlayerBansService', () => {
   let service: PlayerBansService;
   let mongod: MongoMemoryServer;
-  let discordService: DiscordService;
   let playerBanModel: ReturnModelType<typeof PlayerBan>;
   let mockPlayerBan: DocumentType<PlayerBan>;
   let onlinePlayersService: OnlinePlayersServiceStub;
@@ -48,7 +45,6 @@ describe('PlayerBansService', () => {
       providers: [
         PlayerBansService,
         { provide: OnlinePlayersService, useClass: OnlinePlayersServiceStub },
-        DiscordService,
         { provide: Environment, useValue: environment },
         PlayersService,
         Events,
@@ -56,7 +52,6 @@ describe('PlayerBansService', () => {
     }).compile();
 
     service = module.get<PlayerBansService>(PlayerBansService);
-    discordService = module.get(DiscordService);
     playerBanModel = module.get(getModelToken('PlayerBan'));
     onlinePlayersService = module.get(OnlinePlayersService);
     playersService = module.get(PlayersService);
@@ -143,12 +138,6 @@ describe('PlayerBansService', () => {
         service.addPlayerBan(newBan);
       }));
 
-      it('should notify on discord', async () => {
-        const spy = jest.spyOn(discordService.getAdminsChannel(), 'send');
-        await service.addPlayerBan(newBan);
-        expect(spy).toHaveBeenCalled();
-      });
-
       it('should emit profile update event on player\'s socket', async () => new Promise<void>(resolve => {
         const socket = {
           emit: (eventName: string, update: any) => {
@@ -199,12 +188,6 @@ describe('PlayerBansService', () => {
 
       service.revokeBan(mockPlayerBan.id, admin.id);
     }));
-
-    it('should send discord notification', async () => {
-      const spy = jest.spyOn(discordService.getAdminsChannel(), 'send');
-      const ban = await service.revokeBan(mockPlayerBan.id, admin.id);
-      expect(spy).toHaveBeenCalled();
-    });
 
     describe('when attempting to revoke an already expired ban', () => {
       beforeEach(async () => {
