@@ -144,7 +144,8 @@ describe('PlayerSkillService', () => {
   describe('#getPlayerSkill()', () => {
     it('should retrieve player skill', async () => {
       const ret = await service.getPlayerSkill(mockPlayer.id);
-      expect(ret.toObject()).toEqual(mockPlayerSkill.toObject());
+      expect(ret.size).toEqual(1);
+      expect(ret.get(Tf2ClassName.soldier)).toEqual(4);
     });
   });
 
@@ -152,99 +153,14 @@ describe('PlayerSkillService', () => {
     describe('when changing player skill', () => {
       it('should update player skill', async () => {
         const ret = await service.setPlayerSkill(mockPlayer.id, new Map([[Tf2ClassName.soldier, 2]]));
-        expect(ret.toObject()).toMatchObject({
-          skill: new Map([[Tf2ClassName.soldier, 2]]),
-        });
-      });
-
-      it('should notify admins on discord', async () => {
-        const spy = jest.spyOn(discordService.getAdminsChannel(), 'send');
-        await service.setPlayerSkill(mockPlayer.id, new Map([[Tf2ClassName.soldier, 2]]));
-        expect(spy).toHaveBeenCalled();
-      });
-    });
-
-    describe('when not changing player skill', () => {
-      it('should return the original skill', async () => {
-        const ret = await service.setPlayerSkill(mockPlayer.id, new Map([[Tf2ClassName.soldier, 4]]));
-        expect(ret.toObject()).toMatchObject({
-          skill: new Map([[Tf2ClassName.soldier, 4]]),
-        });
-      });
-
-      it('should not notify admins on discord', async () => {
-        const spy = jest.spyOn(discordService.getAdminsChannel(), 'send');
-        await service.setPlayerSkill(mockPlayer.id, new Map([[Tf2ClassName.soldier, 4]]));
-        expect(spy).not.toHaveBeenCalled();
-      });
-    });
-
-    describe('when initializing player skill with ones', () => {
-      let newPlayer: DocumentType<Player>;
-
-      beforeEach(async () => {
-        // @ts-expect-error
-        newPlayer = await playersService._createOne();
-      });
-
-      it('should not notify admins on discord', async () => {
-        const spy = jest.spyOn(discordService.getAdminsChannel(), 'send');
-        await service.setPlayerSkill(newPlayer.id, new Map([[Tf2ClassName.soldier, 1]]));
-        expect(spy).not.toHaveBeenCalled();
-      });
-    });
-
-    describe('when initializing player skill', () => {
-      let newPlayer: DocumentType<Player>;
-
-      beforeEach(async () => {
-        // @ts-expect-error
-        newPlayer = await playersService._createOne();
-      });
-
-      it('should notify admins on discord', async () => {
-        const spy = jest.spyOn(discordService.getAdminsChannel(), 'send');
-        await service.setPlayerSkill(newPlayer.id, new Map([[Tf2ClassName.soldier, 2]]));
-        expect(spy).toHaveBeenCalledWith({
-          embed: {
-            ...skillChanged({
-              playerName: 'fake_player_2',
-              oldSkill: new Map(),
-              newSkill: new Map(([[Tf2ClassName.soldier, 2]])),
-              playerProfileUrl: `FAKE_CLIENT_URL/player/${newPlayer.id}`,
-              adminResponsible: undefined,
-            }),
-            timestamp: expect.any(Date),
-          },
-        });
+        expect(ret.size).toEqual(1);
+        expect(ret.get(Tf2ClassName.soldier)).toEqual(2);
       });
     });
 
     describe('when there is no such player', () => {
       it('should fail', async () => {
         await expect(service.setPlayerSkill(new ObjectId().toString(), new Map([[Tf2ClassName.scout, 1]]))).rejects.toThrowError('no such player');
-      });
-    });
-
-    describe('when the admin id is provided', () => {
-      describe('and the provided admin does not exist', () => {
-        it('should reject', async () => {
-          await expect(service.setPlayerSkill(mockPlayer.id, new Map([[Tf2ClassName.soldier, 4]]), new ObjectId().toString()))
-            .rejects.toThrowError();
-        });
-      });
-    });
-  });
-
-  describe('#exportPlayerSkills()', () => {
-    describe('with players in the database', () => {
-      it('should save all players\' skill to a csv file', async () => {
-        const spy = jest.spyOn(fs, 'writeFileSync').mockImplementation();
-        await service.exportPlayerSkills();
-        expect(spy).toHaveBeenCalledWith(
-          expect.stringMatching(/^player-skills-.+\.csv$/),
-          `etf2lProfileId,soldier\n${mockPlayer.etf2lProfileId},4`,
-        );
       });
     });
   });

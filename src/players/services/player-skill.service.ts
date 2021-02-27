@@ -4,9 +4,8 @@ import { PlayerSkill } from '../models/player-skill';
 import { ReturnModelType, DocumentType } from '@typegoose/typegoose';
 import { PlayersService } from './players.service';
 import { Console, Command, createSpinner } from 'nestjs-console';
-import { writeFileSync, createReadStream } from 'fs';
+import { createReadStream } from 'fs';
 import { QueueConfigService } from '@/queue/services/queue-config.service';
-import moment = require('moment');
 import { FuturePlayerSkillService } from './future-player-skill.service';
 import { createInterface } from 'readline';
 import { Etf2lProfileService } from './etf2l-profile.service';
@@ -15,6 +14,8 @@ import { skillChanged } from '@/discord/notifications';
 import { Environment } from '@/environment/environment';
 import { Player } from '../models/player';
 import { Events } from '@/events/events';
+
+export type PlayerSkillType = PlayerSkill['skill'];
 
 @Injectable()
 @Console()
@@ -40,15 +41,15 @@ export class PlayerSkillService implements OnModuleInit {
     });
   }
 
-  async getAll(): Promise<DocumentType<PlayerSkill>[]> {
+  async getAll(): Promise<PlayerSkill[]> {
     return await this.playerSkillModel.find({ });
   }
 
-  async getPlayerSkill(playerId: string): Promise<DocumentType<PlayerSkill>> {
-    return await this.playerSkillModel.findOne({ player: playerId });
+  async getPlayerSkill(playerId: string): Promise<PlayerSkillType> {
+    return (await this.playerSkillModel.findOne({ player: playerId })).skill;
   }
 
-  async setPlayerSkill(playerId: string, skill: PlayerSkill['skill'], adminId?: string): Promise<DocumentType<PlayerSkill>> {
+  async setPlayerSkill(playerId: string, skill: PlayerSkillType, adminId?: string): Promise<PlayerSkillType> {
     let admin: DocumentType<Player>;
     if (adminId) {
       admin = await this.playersService.getById(adminId);
@@ -62,52 +63,20 @@ export class PlayerSkillService implements OnModuleInit {
       throw new Error('no such player');
     }
 
-    const oldSkill = await this.playerSkillModel.findOne({ player: playerId }) || { skill: new Map() };
-    const ret = await this.playerSkillModel.findOneAndUpdate({ player: playerId }, { skill }, { new: true, upsert: true });
+    const oldSkill = (await this.playerSkillModel.findOne({ player: playerId }))?.skill || new Map();
+    const newSkill = (await this.playerSkillModel.findOneAndUpdate({ player: playerId }, { skill }, { new: true, upsert: true })).skill;
 
-    for (const [key, value] of ret.skill) {
-      const old = oldSkill?.skill.get(key) ?? 1;
-      if (value !== old) {
-        this.discordService.getAdminsChannel()?.send({
-          embed: skillChanged({
-            playerName: player.name,
-            oldSkill: oldSkill.skill,
-            newSkill: skill,
-            playerProfileUrl: `${this.environment.clientUrl}/player/${player.id}`,
-            adminResponsible: admin?.name,
-          }),
-        });
-        break;
-      }
-    }
+    this.discordService.getAdminsChannel()?.send({
+      embed: skillChanged({
+        playerName: player.name,
+        oldSkill,
+        newSkill,
+        playerProfileUrl: `${this.environment.clientUrl}/player/${player.id}`,
+        adminResponsible: admin?.name,
+      }),
+    });
 
-    return ret;
-  }
-
-  @Command({
-    command: 'export-skills',
-    description: 'Export skills of all players',
-  })
-  async exportPlayerSkills() {
-    const spinner = createSpinner();
-    spinner.start('Exporting player skills');
-
-    // etf2l_profileid,scout,soldier,pyro,demoman,heavyweapons,engineer,medic,sniper,spy
-    const gameClasses = this.queueConfigService.queueConfig.classes.map(c => c.name);
-    const players = await this.playersService.getAll();
-    const rows = [
-      [ 'etf2lProfileId', ...gameClasses ].join(','),
-      ...(await Promise.all(players.map(async p => {
-        const skill = await this.getPlayerSkill(p.id);
-        return skill ? [ p.etf2lProfileId, ...gameClasses.map(gc => skill.skill.get(gc)) ] : null;
-      })))
-      .filter(entry => !!entry)
-      .map(row => row.join(',')),
-    ];
-
-    const fileName = `player-skills-${moment().format('YYYYMMDDHHmmss')}.csv`;
-    writeFileSync(fileName, rows.join('\n'));
-    spinner.succeed(`${fileName} saved.`);
+    return newSkill;
   }
 
   @Command({
