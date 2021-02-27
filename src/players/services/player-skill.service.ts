@@ -1,7 +1,7 @@
 import { Injectable, Inject, forwardRef, OnModuleInit } from '@nestjs/common';
 import { InjectModel } from 'nestjs-typegoose';
 import { PlayerSkill } from '../models/player-skill';
-import { ReturnModelType, DocumentType } from '@typegoose/typegoose';
+import { ReturnModelType } from '@typegoose/typegoose';
 import { PlayersService } from './players.service';
 import { Console, Command, createSpinner } from 'nestjs-console';
 import { createReadStream } from 'fs';
@@ -9,10 +9,6 @@ import { QueueConfigService } from '@/queue/services/queue-config.service';
 import { FuturePlayerSkillService } from './future-player-skill.service';
 import { createInterface } from 'readline';
 import { Etf2lProfileService } from './etf2l-profile.service';
-import { DiscordService } from '@/discord/services/discord.service';
-import { skillChanged } from '@/discord/notifications';
-import { Environment } from '@/environment/environment';
-import { Player } from '../models/player';
 import { Events } from '@/events/events';
 
 export type PlayerSkillType = PlayerSkill['skill'];
@@ -27,8 +23,6 @@ export class PlayerSkillService implements OnModuleInit {
     private queueConfigService: QueueConfigService,
     private futurePlayerSkillService: FuturePlayerSkillService,
     private etf2lProfileService: Etf2lProfileService,
-    private discordService: DiscordService,
-    private environment: Environment,
     private events: Events,
   ) { }
 
@@ -50,14 +44,6 @@ export class PlayerSkillService implements OnModuleInit {
   }
 
   async setPlayerSkill(playerId: string, skill: PlayerSkillType, adminId?: string): Promise<PlayerSkillType> {
-    let admin: DocumentType<Player>;
-    if (adminId) {
-      admin = await this.playersService.getById(adminId);
-      if (!admin) {
-        throw new Error('invalid admin');
-      }
-    }
-
     const player = await this.playersService.getById(playerId);
     if (!player) {
       throw new Error('no such player');
@@ -65,19 +51,7 @@ export class PlayerSkillService implements OnModuleInit {
 
     const oldSkill = (await this.playerSkillModel.findOne({ player: playerId }))?.skill || new Map();
     const newSkill = (await this.playerSkillModel.findOneAndUpdate({ player: playerId }, { skill }, { new: true, upsert: true })).skill;
-
     this.events.playerSkillChanged.next({ playerId, oldSkill, newSkill, adminId });
-
-    this.discordService.getAdminsChannel()?.send({
-      embed: skillChanged({
-        playerName: player.name,
-        oldSkill,
-        newSkill,
-        playerProfileUrl: `${this.environment.clientUrl}/player/${player.id}`,
-        adminResponsible: admin?.name,
-      }),
-    });
-
     return newSkill;
   }
 

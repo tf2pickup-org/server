@@ -2,6 +2,7 @@ import { Environment } from '@/environment/environment';
 import { Events } from '@/events/events';
 import { Player } from '@/players/models/player';
 import { PlayersService } from '@/players/services/players.service';
+import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { typegooseTestingModule } from '@/utils/testing-typegoose-module';
 import { Test, TestingModule } from '@nestjs/testing';
 import { MongoMemoryServer } from 'mongodb-memory-server';
@@ -144,6 +145,30 @@ describe('AdminNotificationsService', () => {
       });
 
       events.playerBanRevoked.next({ ban: { player, admin, start: new Date(), end: new Date(), reason: 'FAKE_BAN' } });
+    }));
+  });
+
+  describe('when the playerSkillChanged event emits', () => {
+    let admin: Player;
+    let player: Player;
+
+    beforeEach(async () => {
+      // @ts-expect-error
+      player = await playersService._createOne();
+      // @ts-expect-error
+      admin = await playersService._createOne();
+    });
+
+    it('should send a message', async () => new Promise<void>(resolve => {
+      sentMessages.subscribe(message => {
+        expect(message.embed).toBeTruthy();
+        expect(message.embed.title).toEqual('Player skill updated');
+        resolve();
+      });
+
+      const oldSkill = new Map([[Tf2ClassName.soldier, 2]]);
+      const newSkill = new Map([[Tf2ClassName.soldier, 4]]);
+      events.playerSkillChanged.next({ playerId: player.id, oldSkill, newSkill, adminId: admin.id });
     }));
   });
 });
