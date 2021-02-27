@@ -95,7 +95,7 @@ export class PlayersController {
   async getPlayerSkill(@Param('id', ObjectIdValidationPipe) playerId: string) {
     const skill = await this.playerSkillService.getPlayerSkill(playerId);
     if (skill) {
-      return skill.skill;
+      return skill;
     } else {
       throw new NotFoundException();
     }
@@ -109,13 +109,14 @@ export class PlayersController {
     @Body() newSkill: { [className in Tf2ClassName]?: number },
     @User() user: Player,
   ) {
-    return (await this.playerSkillService.setPlayerSkill(playerId, new Map(Object.entries(newSkill)) as Map<Tf2ClassName, number>, user.id))?.skill;
+    const newSkillAsMap = new Map(Object.entries(newSkill)) as Map<Tf2ClassName, number>;
+    return this.playerSkillService.setPlayerSkill(playerId, newSkillAsMap, user.id);
   }
 
   @Get(':id/bans')
   @Auth('admin', 'super-user')
   async getPlayerBans(@Param('id', ObjectIdValidationPipe) playerId: string) {
-    return await this.playerBansService.getPlayerBans(playerId);
+    return this.playerBansService.getPlayerBans(playerId);
   }
 
   @Post(':id/bans')

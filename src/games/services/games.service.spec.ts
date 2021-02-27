@@ -322,7 +322,7 @@ describe('GamesService', () => {
       beforeEach(() => {
         playerSkillService.getPlayerSkill.mockImplementation(playerId => {
           if (playerId === slots[0].playerId) {
-            return Promise.resolve({ skill: new Map([[Tf2ClassName.scout, 9]]) });
+            return Promise.resolve(new Map([[Tf2ClassName.scout, 9]]));
           } else {
             return Promise.resolve(null);
           }

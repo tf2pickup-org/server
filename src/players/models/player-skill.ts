@@ -4,7 +4,7 @@ import { Player } from './player';
 
 export class PlayerSkill {
 
-  @prop({ ref: () => Player })
+  @prop({ ref: () => Player, unique: true })
   player?: Ref<Player>;
 
   @prop({ type: Number })
