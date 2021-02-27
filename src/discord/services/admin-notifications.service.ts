@@ -7,8 +7,7 @@ import { PlayersService } from '@/players/services/players.service';
 import { iconUrlPath } from '@configs/discord';
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { isRefType } from '@typegoose/typegoose';
-import { newPlayer, playerBanAdded, playerBanRevoked, playerSkillChanged } from '../notifications';
-import { playerProfileUpdated } from '../notifications/player-profile-updated';
+import { newPlayer, playerBanAdded, playerBanRevoked, playerSkillChanged, playerProfileUpdated } from '../notifications';
 import { DiscordService } from './discord.service';
 
 @Injectable()
