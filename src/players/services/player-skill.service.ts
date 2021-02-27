@@ -66,6 +66,8 @@ export class PlayerSkillService implements OnModuleInit {
     const oldSkill = (await this.playerSkillModel.findOne({ player: playerId }))?.skill || new Map();
     const newSkill = (await this.playerSkillModel.findOneAndUpdate({ player: playerId }, { skill }, { new: true, upsert: true })).skill;
 
+    this.events.playerSkillChanged.next({ playerId, oldSkill, newSkill, adminId });
+
     this.discordService.getAdminsChannel()?.send({
       embed: skillChanged({
         playerName: player.name,

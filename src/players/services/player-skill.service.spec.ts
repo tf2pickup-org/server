@@ -150,13 +150,23 @@ describe('PlayerSkillService', () => {
   });
 
   describe('#setPlayerSkill()', () => {
-    describe('when changing player skill', () => {
-      it('should update player skill', async () => {
-        const ret = await service.setPlayerSkill(mockPlayer.id, new Map([[Tf2ClassName.soldier, 2]]));
-        expect(ret.size).toEqual(1);
-        expect(ret.get(Tf2ClassName.soldier)).toEqual(2);
-      });
+    it('should update player skill', async () => {
+      const ret = await service.setPlayerSkill(mockPlayer.id, new Map([[Tf2ClassName.soldier, 2]]));
+      expect(ret.size).toEqual(1);
+      expect(ret.get(Tf2ClassName.soldier)).toEqual(2);
     });
+
+    it('should emit the playerSkillChanged event', async () => new Promise<void>(resolve => {
+      events.playerSkillChanged.subscribe(({ playerId, oldSkill, newSkill, adminId }) => {
+        expect(playerId).toEqual(mockPlayer.id);
+        expect(oldSkill.get(Tf2ClassName.soldier)).toEqual(4);
+        expect(newSkill.get(Tf2ClassName.soldier)).toEqual(2);
+        expect(adminId).toBeUndefined();
+        resolve();
+      });
+
+      service.setPlayerSkill(mockPlayer.id, new Map([[Tf2ClassName.soldier, 2]]));
+    }));
 
     describe('when there is no such player', () => {
       it('should fail', async () => {
