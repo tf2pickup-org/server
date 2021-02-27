@@ -183,7 +183,7 @@ export class GamesService {
 
     const skill = await this.playerSkillService.getPlayerSkill(playerId);
     if (skill) {
-      const skillForClass = skill.skill.get(gameClass);
+      const skillForClass = skill.get(gameClass);
       return { playerId, gameClass, skill: skillForClass };
     } else {
       const configuration = await this.configurationService.getConfiguration();
