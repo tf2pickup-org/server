@@ -2,12 +2,12 @@ import { Environment } from '@/environment/environment';
 import { Events } from '@/events/events';
 import { Player } from '@/players/models/player';
 import { PlayerBan } from '@/players/models/player-ban';
+import { PlayerSkillType } from '@/players/services/player-skill.service';
 import { PlayersService } from '@/players/services/players.service';
 import { iconUrlPath } from '@configs/discord';
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { isRefType } from '@typegoose/typegoose';
-import { newPlayer, playerBanAdded, playerBanRevoked } from '../notifications';
-import { playerProfileUpdated } from '../notifications/player-profile-updated';
+import { newPlayer, playerBanAdded, playerBanRevoked, playerSkillChanged, playerProfileUpdated } from '../notifications';
 import { DiscordService } from './discord.service';
 
 @Injectable()
@@ -25,6 +25,8 @@ export class AdminNotificationsService implements OnModuleInit {
     this.events.playerUpdates.subscribe(({ oldPlayer, newPlayer, adminId }) => this.onPlayerUpdates(oldPlayer, newPlayer, adminId));
     this.events.playerBanAdded.subscribe(({ ban }) => this.onPlayerBanAdded(ban));
     this.events.playerBanRevoked.subscribe(({ ban }) => this.onPlayerBanRevoked(ban));
+    this.events.playerSkillChanged.subscribe(({ playerId, oldSkill, newSkill, adminId }) =>
+      this.onPlayerSkillChanged(playerId, oldSkill, newSkill, adminId));
   }
 
   private onPlayerRegisters(player: Player) {
@@ -119,6 +121,36 @@ export class AdminNotificationsService implements OnModuleInit {
           iconUrl: `${this.environment.clientUrl}/${iconUrlPath}`,
         },
         reason: ban.reason,
+      }),
+    });
+  }
+
+  private async onPlayerSkillChanged(playerId: string, oldSkill: PlayerSkillType, newSkill: PlayerSkillType, adminId: string) {
+    if (!adminId) {
+      return;
+    }
+
+    const player = await this.playersService.getById(playerId);
+    const admin = await this.playersService.getById(adminId);
+
+    this.discordService.getAdminsChannel()?.send({
+      embed: playerSkillChanged({
+        admin: {
+          name: admin.name,
+          profileUrl: `${this.environment.clientUrl}/player/${admin.id}`,
+          avatarUrl: admin.avatar?.small,
+        },
+        player: {
+          name: player.name,
+          profileUrl: `${this.environment.clientUrl}/player/${player.id}`,
+          avatarUrl: player.avatar?.medium,
+        },
+        client: {
+          name: new URL(this.environment.clientUrl).hostname,
+          iconUrl: `${this.environment.clientUrl}/${iconUrlPath}`,
+        },
+        oldSkill,
+        newSkill,
       }),
     });
   }

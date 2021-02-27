@@ -16,12 +16,10 @@ import { DiscordService } from '@/discord/services/discord.service';
 import { Environment } from '@/environment/environment';
 import { Events } from '@/events/events';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
-import { skillChanged } from '@/discord/notifications';
 
 jest.mock('./players.service');
 jest.mock('./future-player-skill.service');
 jest.mock('./etf2l-profile.service');
-jest.mock('@/discord/services/discord.service');
 
 class QueueConfigServiceStub {
   queueConfig = {
@@ -43,7 +41,6 @@ describe('PlayerSkillService', () => {
   let mockPlayerSkill: DocumentType<PlayerSkill>;
   let playersService: PlayersService;
   let futurePlayerSkillService: FuturePlayerSkillService;
-  let discordService: DiscordService;
   let events: Events;
 
   beforeAll(() => mongod = new MongoMemoryServer());
@@ -71,7 +68,6 @@ describe('PlayerSkillService', () => {
     playerSkillModel = module.get(getModelToken('PlayerSkill'));
     playersService = module.get(PlayersService);
     futurePlayerSkillService = module.get(FuturePlayerSkillService);
-    discordService = module.get(DiscordService);
     events = module.get(Events);
 
     service.onModuleInit();
