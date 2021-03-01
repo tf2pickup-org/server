@@ -37,7 +37,7 @@
     "class-validator": "0.13.1",
     "commander": "7.1.0",
     "discord.js": "12.5.1",
-    "gamedig": "2.0.20",
+    "gamedig": "2.0.28",
     "generate-password": "1.6.0",
     "helmet": "4.4.1",
     "jsonschema": "1.4.0",
