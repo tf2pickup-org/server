@@ -102,6 +102,16 @@ describe('AdminNotificationsService', () => {
 
       events.playerUpdates.next({ oldPlayer: player, newPlayer: { ...player, name: 'NEW_PLAYER_NAME' }, adminId: admin.id });
     }));
+
+    describe('when the update doesn\'t change anything', () => {
+      it('should not send any messages', async () => new Promise<void>(resolve => {
+        events.playerUpdates.next({ oldPlayer: player, newPlayer: player, adminId: admin.id });
+        setTimeout(() => {
+          expect(sendSpy).not.toHaveBeenCalled();
+          resolve();
+        }, 1000);
+      }));
+    });
   });
 
   describe('when the playerBanAdded event emits', () => {
@@ -170,5 +180,16 @@ describe('AdminNotificationsService', () => {
       const newSkill = new Map([[Tf2ClassName.soldier, 4]]);
       events.playerSkillChanged.next({ playerId: player.id, oldSkill, newSkill, adminId: admin.id });
     }));
+
+    describe('when the skill doesn\'t really change', () => {
+      it('should not send any message', async () => new Promise<void>(resolve => {
+        const oldSkill = new Map([[Tf2ClassName.soldier, 2]]);
+        events.playerSkillChanged.next({ playerId: player.id, oldSkill, newSkill: oldSkill, adminId: admin.id });
+        setTimeout(() => {
+          expect(sendSpy).not.toHaveBeenCalled();
+          resolve();
+        }, 1000);
+      }));
+    });
   });
 });

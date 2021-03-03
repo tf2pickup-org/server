@@ -10,6 +10,21 @@ import { isRefType } from '@typegoose/typegoose';
 import { newPlayer, playerBanAdded, playerBanRevoked, playerSkillChanged, playerProfileUpdated } from '../notifications';
 import { DiscordService } from './discord.service';
 
+const playerSkillEqual = (oldSkill: PlayerSkillType, newSkill: PlayerSkillType) => {
+  if (oldSkill.size !== newSkill.size) {
+    return false;
+  }
+
+  for (const [key, value] of oldSkill) {
+    const currentSkill = newSkill.get(key);
+    if (currentSkill !== value || (currentSkill === undefined && !newSkill.has(key))) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
 @Injectable()
 export class AdminNotificationsService implements OnModuleInit {
 
@@ -51,6 +66,10 @@ export class AdminNotificationsService implements OnModuleInit {
     }
     if (oldPlayer.role !== newPlayer.role) {
       changes.role = { old: oldPlayer.role, new: newPlayer.role };
+    }
+
+    if (Object.keys(changes).length === 0) {
+      return; // skip empty notification
     }
 
     this.discordService.getAdminsChannel()?.send({
@@ -127,6 +146,10 @@ export class AdminNotificationsService implements OnModuleInit {
 
   private async onPlayerSkillChanged(playerId: string, oldSkill: PlayerSkillType, newSkill: PlayerSkillType, adminId: string) {
     if (!adminId) {
+      return;
+    }
+
+    if (playerSkillEqual(oldSkill, newSkill)) {
       return;
     }
 
