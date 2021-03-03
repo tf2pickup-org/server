@@ -23,7 +23,7 @@ interface PlayerBanAddedOptions {
 
 export const playerBanAdded = (options: PlayerBanAddedOptions) => new MessageEmbed()
   .setColor(Colors.PlayerBanAdded)
-  .setAuthor(options.admin.name, options.admin.name, options.admin.profileUrl)
+  .setAuthor(options.admin.name, options.admin.avatarUrl, options.admin.profileUrl)
   .setTitle('Player ban added')
   .setThumbnail(options.player.avatarUrl)
   .setDescription([

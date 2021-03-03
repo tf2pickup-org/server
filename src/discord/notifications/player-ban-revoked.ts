@@ -21,7 +21,7 @@ interface PlayerBanRevokedOptions {
 
 export const playerBanRevoked = (options: PlayerBanRevokedOptions) => new MessageEmbed()
   .setColor(Colors.PlayerBanRevoked)
-  .setAuthor(options.admin.name, options.admin.name, options.admin.profileUrl)
+  .setAuthor(options.admin.name, options.admin.avatarUrl, options.admin.profileUrl)
   .setTitle('Player ban revoked')
   .setThumbnail(options.player.avatarUrl)
   .setDescription([
