@@ -30,7 +30,7 @@ const generateChangesText = (oldSkill: PlayerSkillType, newSkill: PlayerSkillTyp
 
 export const playerSkillChanged = (options: PlayerSkillChangedOptions) => new MessageEmbed()
   .setColor(Colors.SkillChanged)
-  .setAuthor(options.admin.name, options.admin.name, options.admin.profileUrl)
+  .setAuthor(options.admin.name, options.admin.avatarUrl, options.admin.profileUrl)
   .setTitle('Player skill updated')
   .setThumbnail(options.player.avatarUrl)
   .setDescription(`Player: **[${options.player.name}](${options.player.profileUrl})**\n${generateChangesText(options.oldSkill, options.newSkill)}`)
