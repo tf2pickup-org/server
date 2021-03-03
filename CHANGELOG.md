@@ -1,3 +1,11 @@
+## [3.8.2](https://github.com/tf2pickup-pl/server/compare/3.8.1...3.8.2) (2021-03-03)
+
+
+### Bug Fixes
+
+* fix player updated notification profile link ([#882](https://github.com/tf2pickup-pl/server/issues/882)) ([32d3d44](https://github.com/tf2pickup-pl/server/commit/32d3d44f8d98c52eb23a042d86f2619dda1ee4c1))
+* skip empty admin notifications ([#883](https://github.com/tf2pickup-pl/server/issues/883)) ([2a4fddc](https://github.com/tf2pickup-pl/server/commit/2a4fddc4c56315a81139413485d66618f05a5b1f))
+
 ## [3.8.1](https://github.com/tf2pickup-pl/server/compare/3.8.0...3.8.1) (2021-03-03)
 
 
