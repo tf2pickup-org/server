@@ -1,3 +1,10 @@
+## [3.8.1](https://github.com/tf2pickup-pl/server/compare/3.8.0...3.8.1) (2021-03-03)
+
+
+### Bug Fixes
+
+* fix discord embeds author avatar URL ([#881](https://github.com/tf2pickup-pl/server/issues/881)) ([6a82b76](https://github.com/tf2pickup-pl/server/commit/6a82b76bbddf77a024508be7723386919a2f80c0))
+
 # [3.8.0](https://github.com/tf2pickup-pl/server/compare/3.7.1...3.8.0) (2021-03-03)
 
 
