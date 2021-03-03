@@ -147,13 +147,13 @@ export class PlayersService implements OnModuleInit {
   }
 
   async updatePlayer(playerId: string, update: Partial<Player>, adminId?: string): Promise<Player> {
-    const oldPlayer = await this.playerModel.findById(playerId).lean().exec();
+    const oldPlayer = await this.playerModel.findById(playerId);
     if (!oldPlayer) {
       throw new Error('no such player');
     }
 
-    const newPlayer = await this.playerModel.findOneAndUpdate({ _id: playerId }, update, { new: true }).lean().exec();
-    this.onlinePlayersService.getSocketsForPlayer(playerId).forEach(socket => socket.emit('profile update', { ...newPlayer }));
+    const newPlayer = await this.playerModel.findOneAndUpdate({ _id: playerId }, update, { new: true });
+    this.onlinePlayersService.getSocketsForPlayer(playerId).forEach(socket => socket.emit('profile update', newPlayer.toJSON()));
     this.events.playerUpdates.next({ oldPlayer, newPlayer, adminId });
     return newPlayer;
   }
