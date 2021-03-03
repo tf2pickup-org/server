@@ -1,3 +1,24 @@
+# [3.8.0](https://github.com/tf2pickup-pl/server/compare/3.7.1...3.8.0) (2021-03-03)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @nestjs/mongoose to v7.2.4 ([#873](https://github.com/tf2pickup-pl/server/issues/873)) ([0017387](https://github.com/tf2pickup-pl/server/commit/0017387c083ea4f6a798fd028398f8cc40658e23))
+* **deps:** update dependency @typegoose/typegoose to v7.5.0 ([#879](https://github.com/tf2pickup-pl/server/issues/879)) ([b92efe8](https://github.com/tf2pickup-pl/server/commit/b92efe8d8989ad7895d7c1f3c95c2570909210b1))
+* **deps:** update dependency async-mutex to v0.3.1 ([#866](https://github.com/tf2pickup-pl/server/issues/866)) ([6efc8b5](https://github.com/tf2pickup-pl/server/commit/6efc8b51e53a323cb5dbe49778631391deb86167))
+* **deps:** update dependency gamedig to v3 ([#871](https://github.com/tf2pickup-pl/server/issues/871)) ([2b61478](https://github.com/tf2pickup-pl/server/commit/2b6147852fe96d1ba0131b8efda4a0d292a1f9ea))
+* get rid of circular dependencies ([#878](https://github.com/tf2pickup-pl/server/issues/878)) ([3b4c1d6](https://github.com/tf2pickup-pl/server/commit/3b4c1d62f43a5ab77ce2b9cef2ba7a20e606c3af))
+* **deps:** update dependency lodash to v4.17.21 ([#862](https://github.com/tf2pickup-pl/server/issues/862)) ([7bdac74](https://github.com/tf2pickup-pl/server/commit/7bdac746b2b6a21c263361d1c83e6afdb558756b))
+* **deps:** update dependency rxjs to v6.6.6 ([#870](https://github.com/tf2pickup-pl/server/issues/870)) ([f9789ce](https://github.com/tf2pickup-pl/server/commit/f9789ce9b17c486fb839ed7a37c82cd271304b42))
+* **deps:** update nest monorepo to v7.6.13 ([#864](https://github.com/tf2pickup-pl/server/issues/864)) ([4985bc8](https://github.com/tf2pickup-pl/server/commit/4985bc8237087c4092cf934ed0bd536aa62f71af))
+
+
+### Features
+
+* configurable default player skill ([#855](https://github.com/tf2pickup-pl/server/issues/855)) ([59e57af](https://github.com/tf2pickup-pl/server/commit/59e57afa62f4ab8b6993a9552f89192e198af7f9))
+* configurable whitelist id ([#863](https://github.com/tf2pickup-pl/server/issues/863)) ([931e04a](https://github.com/tf2pickup-pl/server/commit/931e04a2f7996b433b5519c688afd923d91b9574))
+* dynamic configuration ([#853](https://github.com/tf2pickup-pl/server/issues/853)) ([52de626](https://github.com/tf2pickup-pl/server/commit/52de62646513aed0c53827a5cae01e9a52060015))
+
 ## [3.7.1](https://github.com/tf2pickup-pl/server/compare/3.7.0...3.7.1) (2021-02-16)
 
 
