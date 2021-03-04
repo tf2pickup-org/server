@@ -1,55 +1,73 @@
+import { typegooseTestingModule } from '@/utils/testing-typegoose-module';
 import { Test, TestingModule } from '@nestjs/testing';
+import { MongoMemoryServer } from 'mongodb-memory-server';
+import { getModelToken, TypegooseModule } from 'nestjs-typegoose';
 import { DocumentsService } from './documents.service';
-import { HttpService } from '@nestjs/common';
-import { of, throwError } from 'rxjs';
-
-class HttpServiceStub {
-  get(url: string) {
-    return of({
-      status: 200,
-      statusText: 'OK',
-      data: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris in.',
-    });
-  }
-}
+import { Document } from '../models/document';
+import { mongoose, ReturnModelType } from '@typegoose/typegoose';
 
 describe('DocumentsService', () => {
   let service: DocumentsService;
-  let httpService: HttpServiceStub;
+  let mongod: MongoMemoryServer;
+  let documentModel: ReturnModelType<typeof Document>;
+
+  beforeAll(() => mongod = new MongoMemoryServer());
+  afterAll(async () => await mongod.stop());
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
+      imports: [
+        typegooseTestingModule(mongod),
+        TypegooseModule.forFeature([Document]),
+      ],
       providers: [
         DocumentsService,
-        { provide: HttpService, useClass: HttpServiceStub },
       ],
     }).compile();
 
     service = module.get<DocumentsService>(DocumentsService);
-    httpService = module.get(HttpService);
+    documentModel = module.get(getModelToken(Document.name));
   });
+
+  afterEach(async () => await documentModel.deleteMany({ }));
 
   it('should be defined', () => {
     expect(service).toBeDefined();
   });
 
-  describe('fetchDocument()', () => {
-    it('should return the document content', async () => {
-      const ret = await service.fetchDocument('README.md');
-      expect(ret).toEqual('Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris in.');
-    });
-
-    describe('when errored with 404', () => {
-      beforeEach(() => {
-        jest.spyOn(httpService, 'get').mockReturnValue(throwError({
-          message: 'Request failed with status code 404',
-          name: 'Error',
-        }));
+  describe('#getDocument()', () => {
+    describe('when a given document exists', () => {
+      beforeEach(async () => {
+        await documentModel.create({ name: 'test', language: 'en', body: 'just testing' });
       });
 
-      it('should return undefined', async () => {
-        await expect(service.fetchDocument('some random document')).resolves.toBe(undefined);
+      it('should return the document', async () => {
+        const ret = await service.getDocument('test', 'en');
+        expect(ret).toBeTruthy();
+        expect(ret.name).toEqual('test');
+        expect(ret.language).toEqual('en');
+        expect(ret.body).toEqual('just testing');
+      });
+    });
+
+    describe('when the given document does not exist', () => {
+      it('should throw an error', async () => {
+        await expect(service.getDocument('test')).rejects.toThrow(mongoose.Error.DocumentNotFoundError);
       });
     });
   });
+
+  describe('#saveDocument', () => {
+    it('should save the document', async () => {
+      const ret = await service.saveDocument('test', 'en', 'just testing');
+      expect(ret).toBeTruthy();
+      expect(ret.name).toEqual('test');
+      expect(ret.language).toEqual('en');
+      expect(ret.body).toEqual('just testing');
+
+      const doc = await documentModel.findOne({ name: 'test', language: 'en' });
+      expect(doc).toMatchObject(ret);
+    });
+  });
+
 });
