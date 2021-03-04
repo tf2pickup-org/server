@@ -143,6 +143,13 @@ describe('PlayerSkillService', () => {
       expect(ret.size).toEqual(1);
       expect(ret.get(Tf2ClassName.soldier)).toEqual(4);
     });
+
+    describe('when the given player has no skill assigned', () => {
+      it('should return null', async () => {
+        const ret = await service.getPlayerSkill(new ObjectId().toString());
+        expect(ret).toBeUndefined();
+      });
+    });
   });
 
   describe('#setPlayerSkill()', () => {
