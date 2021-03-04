@@ -7,7 +7,7 @@ import { SteamProfile } from '../models/steam-profile';
 import { GamesService } from '@/games/services/games.service';
 import { OnlinePlayersService } from './online-players.service';
 import { Etf2lProfile } from '../models/etf2l-profile';
-import { ReturnModelType, DocumentType } from '@typegoose/typegoose';
+import { ReturnModelType, DocumentType, mongoose } from '@typegoose/typegoose';
 import { Player } from '../models/player';
 import { typegooseTestingModule } from '@/utils/testing-typegoose-module';
 import { MongoMemoryServer } from 'mongodb-memory-server';
@@ -142,7 +142,7 @@ describe('PlayersService', () => {
     it('should retrieve all players from the database', async () => {
       const ret = await service.getAll();
       expect(ret.length).toEqual(1);
-      expect(ret[0].toObject()).toEqual(mockPlayer.toObject());
+      expect(ret[0].id).toEqual(mockPlayer.id.toString());
     });
 
     describe('when the bot user is created', () => {
@@ -160,21 +160,21 @@ describe('PlayersService', () => {
   describe('#getById()', () => {
     it('should retrieve the player from the database', async () => {
       const player = await service.getById(mockPlayer.id);
-      expect(player.toObject()).toEqual(mockPlayer.toObject());
+      expect(player.id).toEqual(mockPlayer.id.toString());
     });
   });
 
   describe('#findBySteamId()', () => {
     it('should query playerModel', async () => {
       const player = await service.findBySteamId('FAKE_STEAM_ID');
-      expect(player.toObject()).toEqual(mockPlayer.toObject());
+      expect(player.id).toEqual(mockPlayer.id.toString());
     });
   });
 
   describe('#findByEtf2lProfileId()', () => {
     it('should query playerModel', async () => {
       const player = await service.findByEtf2lProfileId(123456);
-      expect(player.toObject()).toEqual(mockPlayer.toObject());
+      expect(player.id).toEqual(mockPlayer.id.toString());
     });
   });
 
@@ -190,7 +190,7 @@ describe('PlayersService', () => {
 
     it('should query playerModel', async () => {
       const player = await service.findByTwitchUserId('FAKE_TWITCH_TV_USER_ID');
-      expect(player.toObject()).toEqual(expect.objectContaining({
+      expect(player).toEqual(expect.objectContaining({
         twitchTvUser: expect.objectContaining({
           userId: 'FAKE_TWITCH_TV_USER_ID',
         }),
@@ -267,7 +267,7 @@ describe('PlayersService', () => {
 
     it('should create new player', async () => {
       const ret = await service.createPlayer(mockSteamProfile);
-      expect(ret.toObject()).toMatchObject({
+      expect(ret).toMatchObject({
         steamId: 'FAKE_STEAM_ID_2',
         name: 'maly',
         avatar: {
@@ -337,8 +337,8 @@ describe('PlayersService', () => {
   describe('#forceCreatePlayer()', () => {
     it('should create player', async () => {
       const player = await service.forceCreatePlayer({ name: 'FAKE_FORCE_PLAYER_NAME', steamId: 'FAKE_FORCE_STEAM_ID' });
-      expect(player.toObject()).toMatchObject({ name: 'FAKE_FORCE_PLAYER_NAME', steamId: 'FAKE_FORCE_STEAM_ID' });
-      expect(await playerModel.findById(player.id)).toBeTruthy();
+      expect(player).toMatchObject({ name: 'FAKE_FORCE_PLAYER_NAME', steamId: 'FAKE_FORCE_STEAM_ID' });
+      expect(await playerModel.findById(player._id)).toBeTruthy();
     });
 
     describe('when the player has ETF2L account', () => {
@@ -356,15 +356,11 @@ describe('PlayersService', () => {
     };
 
     describe('when the given user does not exist', () => {
-      beforeEach(() => {
-        jest.spyOn(service, 'getById').mockResolvedValue(null);
-      });
-
       it('should throw an error', async () => {
-        await expect(service.registerTwitchAccount('FAKE_ID', {
+        await expect(service.registerTwitchAccount(new ObjectId().toString(), {
           userId: 'FAKE_TWITCH_TV_USER_ID',
           login: 'FAKE_TWITCH_TV_LOGIN',
-        })).rejects.toThrowError('no such player');
+        })).rejects.toThrow(mongoose.Error.DocumentNotFoundError);
       });
     });
 
@@ -379,7 +375,7 @@ describe('PlayersService', () => {
       const spy = jest.spyOn(socket, 'emit');
 
       await service.registerTwitchAccount(mockPlayer.id, twitchTvUser);
-      expect(spy).toHaveBeenCalledWith('profile update', { twitchTvUser });
+      expect(spy).toHaveBeenCalledWith('profile update', expect.objectContaining({ twitchTvUser }));
     });
   });
 
@@ -448,8 +444,7 @@ describe('PlayersService', () => {
     });
 
     it('should fail if the given user doesn\'t exist', async () => {
-      jest.spyOn(service, 'getById').mockResolvedValue(null);
-      await expect(service.acceptTerms('FAKE_ID')).rejects.toThrowError('no such player');
+      await expect(service.acceptTerms(new ObjectId().toString())).rejects.toThrow(mongoose.Error.DocumentNotFoundError);
     });
   });
 

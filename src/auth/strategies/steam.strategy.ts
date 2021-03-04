@@ -24,17 +24,16 @@ export class SteamStrategy extends PassportStrategy(steam.Strategy) {
   async validate(identifier: any, profile: SteamProfile) {
     const player = await this.playerService.findBySteamId(profile.id);
     if (player) {
-      player.avatar = {
-        small: profile.photos[0]?.value,
-        medium: profile.photos[1]?.value,
-        large: profile.photos[2]?.value,
-      };
+      return await this.playerService.updatePlayer(player._id, {
+        avatar: {
+          small: profile.photos[0]?.value,
+          medium: profile.photos[1]?.value,
+          large: profile.photos[2]?.value,
+        },
+      });
 
-      await player.save();
-      return player.toJSON();
     } else {
-      const newPlayer = await this.playerService.createPlayer(profile);
-      return newPlayer.toJSON();
+      return await this.playerService.createPlayer(profile);
     }
   }
 

@@ -131,7 +131,7 @@ describe('PlayerBansService', () => {
 
       it('should emit the playerBanAdded event', async () => new Promise<void>(resolve => {
         events.playerBanAdded.subscribe(({ ban }) => {
-          expect(ban.player.toString()).toEqual(player.id);
+          expect(ban.player.toString()).toEqual(player.id.toString());
           resolve();
         });
 
@@ -160,7 +160,7 @@ describe('PlayerBansService', () => {
         end.setHours(end.getHours() + 1);
 
         invalidBan = {
-          player: new ObjectId(),
+          player: new ObjectId().toHexString(),
           admin,
           start: new Date(),
           end,
@@ -182,7 +182,7 @@ describe('PlayerBansService', () => {
 
     it('should emit the playerBanRevoked event', async () => new Promise<void>(resolve => {
       events.playerBanRevoked.subscribe(({ ban }) => {
-        expect(ban.player.toString()).toEqual(player.id);
+        expect(ban.player.toString()).toEqual(player.id.toString());
         resolve();
       });
 

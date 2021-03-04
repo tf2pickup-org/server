@@ -8,7 +8,7 @@ import { QueueService } from '@/queue/services/queue.service';
 import { DiscordService } from '@/discord/services/discord.service';
 import { Environment } from '@/environment/environment';
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import { DocumentType } from '@typegoose/typegoose';
+import { DocumentType, mongoose } from '@typegoose/typegoose';
 import { Player } from '@/players/models/player';
 import { ObjectId } from 'mongodb';
 import { typegooseTestingModule } from '@/utils/testing-typegoose-module';
@@ -359,7 +359,7 @@ describe('PlayerSubstitutionService', () => {
 
     it('should reject if the replacement player does not exist', async () => {
       await expect(service.replacePlayer(mockGame.id, player1.id, new ObjectId().toString())).rejects
-        .toThrowError('no such player');
+        .toThrow(mongoose.Error.DocumentNotFoundError);
     });
 
     it('should kick the replacement player from the queue', async () => {
@@ -384,10 +384,9 @@ describe('PlayerSubstitutionService', () => {
         await service.substitutePlayer(mockGame.id, player2.id);
       });
 
-      it('player1 should be able to take player2\' slot', async () => {
+      it('player1 should be able to take player2\'s slot', async () => {
         const game = await service.replacePlayer(mockGame.id, player2.id, player1.id);
-        const _player1Id = new ObjectId(player1.id);
-        expect(game.slots.filter(s => _player1Id.equals(s.player as ObjectId)).length).toEqual(2);
+        expect(game.slots.filter(s => s.player.toString().localeCompare(player1.id) == 0).length).toEqual(2);
       })
     });
   });

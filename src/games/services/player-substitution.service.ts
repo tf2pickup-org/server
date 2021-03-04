@@ -8,7 +8,6 @@ import { DiscordService } from '@/discord/services/discord.service';
 import { substituteRequest } from '@/discord/notifications';
 import { Environment } from '@/environment/environment';
 import { Message } from 'discord.js';
-import { ObjectId } from 'mongodb';
 import { Events } from '@/events/events';
 import { SlotStatus } from '../models/slot-status';
 
@@ -116,9 +115,6 @@ export class PlayerSubstitutionService {
 
   async replacePlayer(gameId: string, replaceeId: string, replacementId: string) {
     const replacement = await this.playersService.getById(replacementId);
-    if (!replacement) {
-      throw new Error('no such player');
-    }
 
     if ((await this.playerBansService.getPlayerActiveBans(replacementId)).length > 0) {
       throw new Error('player is banned');
@@ -129,11 +125,9 @@ export class PlayerSubstitutionService {
       throw new Error('no such game');
     }
 
-    const _replaceeId = new ObjectId(replaceeId);
-    const slot = game.slots.find(slot => slot.status === SlotStatus.waitingForSubstitute && _replaceeId.equals(slot.player as ObjectId));
-
+    const slot = game.slots.find(slot => slot.status === SlotStatus.waitingForSubstitute && slot.player.toString().localeCompare(replaceeId) === 0);
     if (!slot) {
-      throw new Error('no such slot');
+      throw new Error(`no such slot (playerId: ${replaceeId})`);
     }
 
     if (replaceeId === replacementId) {
@@ -151,7 +145,7 @@ export class PlayerSubstitutionService {
     }
     // create new slot of the replacement player
     const replacementSlot = {
-      player: new ObjectId(replacementId),
+      player: replacementId,
       team: slot.team,
       gameClass: slot.gameClass,
     };

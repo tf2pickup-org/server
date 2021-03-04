@@ -8,6 +8,7 @@ import { TypegooseModule } from 'nestjs-typegoose';
 import { QueueSlot } from '../queue-slot';
 import { PlayerPopulatorService } from './player-populator.service';
 import { DocumentType } from '@typegoose/typegoose';
+import { plainToClass } from 'class-transformer';
 
 jest.mock('@/players/services/players.service');
 
@@ -60,8 +61,8 @@ describe('PlayerPopulatorService', () => {
 
     describe('when the playerId is defined', () => {
       it('should populate the player', async () => {
-        const slot: QueueSlot = { id: 3, gameClass: Tf2ClassName.soldier, ready: false, playerId: mockPlayer.id.toString() };
-        expect(await service.populatePlayer(slot)).toEqual({ ...slot, player: mockPlayer.toJSON() });
+        const slot: QueueSlot = { id: 3, gameClass: Tf2ClassName.soldier, ready: false, playerId: mockPlayer.id };
+        expect(await service.populatePlayer(slot)).toEqual({ ...slot, player: plainToClass(Player, mockPlayer.toObject()) });
       });
     });
   });
@@ -70,12 +71,12 @@ describe('PlayerPopulatorService', () => {
     it('should populate players in the array', async () => {
       const slots: QueueSlot[] = [
         { id: 0, gameClass: Tf2ClassName.soldier, ready: false, playerId: null },
-        { id: 1, gameClass: Tf2ClassName.soldier, ready: false, playerId: mockPlayer.id.toString() },
+        { id: 1, gameClass: Tf2ClassName.soldier, ready: false, playerId: mockPlayer.id },
       ];
 
       expect(await service.populatePlayers(slots)).toEqual([
         { id: 0, gameClass: Tf2ClassName.soldier, ready: false, playerId: null, player: null },
-        { id: 1, gameClass: Tf2ClassName.soldier, ready: false, playerId: mockPlayer.id.toString(), player: mockPlayer.toJSON() },
+        { id: 1, gameClass: Tf2ClassName.soldier, ready: false, playerId: mockPlayer.id, player: plainToClass(Player, mockPlayer.toObject()) },
       ]);
     });
   });

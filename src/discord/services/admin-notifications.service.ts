@@ -48,7 +48,7 @@ export class AdminNotificationsService implements OnModuleInit {
     this.discordService.getAdminsChannel()?.send({
       embed: newPlayer({
         name: player.name,
-        profileUrl: `${this.environment.clientUrl}/player/${player.id}`,
+        profileUrl: `${this.environment.clientUrl}/player/${player._id}`,
       }),
     });
   }
@@ -76,12 +76,12 @@ export class AdminNotificationsService implements OnModuleInit {
       embed: playerProfileUpdated({
         player: {
           name: oldPlayer.name,
-          profileUrl: `${this.environment.clientUrl}/player/${oldPlayer.id}`,
+          profileUrl: `${this.environment.clientUrl}/player/${oldPlayer._id}`,
           avatarUrl: newPlayer.avatar?.medium,
         },
         admin: {
           name: admin.name,
-          profileUrl: `${this.environment.clientUrl}/player/${admin.id}`,
+          profileUrl: `${this.environment.clientUrl}/player/${admin._id}`,
           avatarUrl: admin.avatar?.small,
         },
         client: {
@@ -101,12 +101,12 @@ export class AdminNotificationsService implements OnModuleInit {
       embed: playerBanAdded({
         admin: {
           name: admin.name,
-          profileUrl: `${this.environment.clientUrl}/player/${admin.id}`,
+          profileUrl: `${this.environment.clientUrl}/player/${admin._id}`,
           avatarUrl: admin.avatar?.small,
         },
         player: {
           name: player.name,
-          profileUrl: `${this.environment.clientUrl}/player/${player.id}`,
+          profileUrl: `${this.environment.clientUrl}/player/${player._id}`,
           avatarUrl: player.avatar?.medium,
         },
         client: {
@@ -127,12 +127,12 @@ export class AdminNotificationsService implements OnModuleInit {
       embed: playerBanRevoked({
         admin: {
           name: admin.name,
-          profileUrl: `${this.environment.clientUrl}/player/${admin.id}`,
+          profileUrl: `${this.environment.clientUrl}/player/${admin._id}`,
           avatarUrl: admin.avatar?.small,
         },
         player: {
           name: player.name,
-          profileUrl: `${this.environment.clientUrl}/player/${player.id}`,
+          profileUrl: `${this.environment.clientUrl}/player/${player._id}`,
           avatarUrl: player.avatar?.medium,
         },
         client: {
@@ -160,12 +160,12 @@ export class AdminNotificationsService implements OnModuleInit {
       embed: playerSkillChanged({
         admin: {
           name: admin.name,
-          profileUrl: `${this.environment.clientUrl}/player/${admin.id}`,
+          profileUrl: `${this.environment.clientUrl}/player/${admin._id}`,
           avatarUrl: admin.avatar?.small,
         },
         player: {
           name: player.name,
-          profileUrl: `${this.environment.clientUrl}/player/${player.id}`,
+          profileUrl: `${this.environment.clientUrl}/player/${player._id}`,
           avatarUrl: player.avatar?.medium,
         },
         client: {

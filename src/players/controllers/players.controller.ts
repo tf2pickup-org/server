@@ -1,5 +1,5 @@
 import { Controller, Get, Param, NotFoundException, Patch, Body, BadRequestException, ParseIntPipe, Query, Put, Post, UsePipes, ValidationPipe,
-  HttpCode, Header, UseInterceptors, CacheInterceptor, CacheTTL } from '@nestjs/common';
+  HttpCode, Header, UseInterceptors, CacheInterceptor, CacheTTL, ClassSerializerInterceptor, UseFilters } from '@nestjs/common';
 import { PlayersService } from '../services/players.service';
 import { ObjectIdValidationPipe } from '@/shared/pipes/object-id-validation.pipe';
 import { Player } from '../models/player';
@@ -10,6 +10,7 @@ import { PlayerBansService } from '../services/player-bans.service';
 import { PlayerBan } from '../models/player-ban';
 import { User } from '@/auth/decorators/user.decorator';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
+import { DocumentNotFoundFilter } from '@/shared/filters/document-not-found.filter';
 
 @Controller('players')
 @UseInterceptors(CacheInterceptor)
@@ -23,11 +24,14 @@ export class PlayersController {
   ) { }
 
   @Get()
+  @UseInterceptors(ClassSerializerInterceptor)
   async getAllPlayers() {
     return await this.playersService.getAll();
   }
 
   @Get(':id')
+  @UseInterceptors(ClassSerializerInterceptor)
+  @UseFilters(DocumentNotFoundFilter)
   async getPlayer(@Param('id', ObjectIdValidationPipe) playerId: string) {
     const player = await this.playersService.getById(playerId);
     if (player) {
@@ -40,12 +44,14 @@ export class PlayersController {
   @Post()
   @Auth('admin', 'super-user')
   @UsePipes(ValidationPipe)
+  @UseInterceptors(ClassSerializerInterceptor)
   async forceCreatePlayer(@Body() player: Player) {
     return await this.playersService.forceCreatePlayer(player);
   }
 
   @Patch(':id')
   @Auth('admin', 'super-user')
+  @UseInterceptors(ClassSerializerInterceptor)
   async updatePlayer(@Param('id', ObjectIdValidationPipe) playerId: string, @Body() player: Partial<Player>, @User() user: Player) {
     return await this.playersService.updatePlayer(playerId, player, user.id);
   }
@@ -110,7 +116,7 @@ export class PlayersController {
     @User() user: Player,
   ) {
     const newSkillAsMap = new Map(Object.entries(newSkill)) as Map<Tf2ClassName, number>;
-    return this.playerSkillService.setPlayerSkill(playerId, newSkillAsMap, user.id);
+    return this.playerSkillService.setPlayerSkill(playerId, newSkillAsMap, user._id);
   }
 
   @Get(':id/bans')
@@ -123,7 +129,7 @@ export class PlayersController {
   @Auth('admin', 'super-user')
   @UsePipes(ValidationPipe)
   async addPlayerBan(@Body() playerBan: PlayerBan, @User() user: Player) {
-    if (playerBan.admin.toString() !== user.id) {
+    if (playerBan.admin.toString() !== user._id) {
       throw new BadRequestException('the admin field must be the same as authorized user\'s id');
     }
     return await this.playerBansService.addPlayerBan(playerBan);
@@ -149,7 +155,7 @@ export class PlayersController {
     }
 
     if (revoke !== undefined) {
-      return this.playerBansService.revokeBan(banId, user.id);
+      return this.playerBansService.revokeBan(banId, user._id);
     }
   }
 

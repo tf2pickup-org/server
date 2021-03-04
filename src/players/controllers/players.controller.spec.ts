@@ -10,14 +10,16 @@ import { PlayerSkill } from '../models/player-skill';
 import { PlayerBansService } from '../services/player-bans.service';
 import { NotFoundException, BadRequestException, CacheModule } from '@nestjs/common';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
+import { plainToClass } from 'class-transformer';
+import { PlayerBan } from '../models/player-ban';
 
 class PlayersServiceStub {
-  player: Player = {
-    id: 'FAKE_ID',
+  player = plainToClass(Player, {
+    _id: 'FAKE_ID',
     name: 'FAKE_PLAYER_NAME',
     steamId: 'FAKE_STEAM_ID',
     hasAcceptedRules: true,
-  };
+  });
   stats: PlayerStats = {
     player: 'FAKE_ID',
     gamesPlayed: 220,
@@ -159,8 +161,8 @@ describe('Players Controller', () => {
   describe('#forceCreatePlayer()', () => {
     it('should call the service', async () => {
       const spy = jest.spyOn(playersService, 'forceCreatePlayer');
-      await controller.forceCreatePlayer({ name: 'FAKE_PLAYER_NAME', steamId: 'FAKE_PLAYER_STEAM_ID' });
-      expect(spy).toHaveBeenCalledWith({ name: 'FAKE_PLAYER_NAME', steamId: 'FAKE_PLAYER_STEAM_ID' });
+      await controller.forceCreatePlayer({ id: 'FAKE_PLAYER_ID', name: 'FAKE_PLAYER_NAME', steamId: 'FAKE_PLAYER_STEAM_ID' } as Player);
+      expect(spy).toHaveBeenCalledWith(expect.objectContaining({ name: 'FAKE_PLAYER_NAME', steamId: 'FAKE_PLAYER_STEAM_ID' }));
     });
   });
 
@@ -228,7 +230,7 @@ describe('Players Controller', () => {
     it('should set player skill', async () => {
       const skill = { soldier: 1, medic: 2 };
       const spy = jest.spyOn(playerSkillService, 'setPlayerSkill');
-      const ret = await controller.setPlayerSkill('FAKE_ID', skill, { id: 'FAKE_ADMIN_ID' } as any);
+      const ret = await controller.setPlayerSkill('FAKE_ID', skill, { _id: 'FAKE_ADMIN_ID' } as any);
       expect(spy).toHaveBeenCalledWith('FAKE_ID', new Map([['soldier', 1], ['medic', 2]]), 'FAKE_ADMIN_ID');
       expect(ret).toEqual(playerSkillService.skill);
     });
@@ -247,15 +249,15 @@ describe('Players Controller', () => {
     const ban = {
       player: '5d448875b963ff7e00c6b6b3',
       admin: '5d448875b963ff7e00c6b6b3',
-      start: '2019-12-16T00:23:55.000Z',
-      end: '2019-12-17T01:51:49.183Z',
+      start: new Date('2019-12-16T00:23:55.000Z'),
+      end: new Date('2019-12-17T01:51:49.183Z'),
       reason: 'dupa',
       id: '5df833c256e77d8768130f9a',
     };
 
     it('should add player ban', async () => {
       const spy = jest.spyOn(playerBansService, 'addPlayerBan');
-      const ret = await controller.addPlayerBan(ban as any, { id: '5d448875b963ff7e00c6b6b3' } as any);
+      const ret = await controller.addPlayerBan(ban as PlayerBan, { _id: '5d448875b963ff7e00c6b6b3' } as Player);
       expect(spy).toHaveBeenCalledWith(ban);
       expect(ret).toEqual(ban as any);
     });

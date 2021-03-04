@@ -6,21 +6,21 @@ export class PlayerBan {
 
   @IsMongoId()
   @prop({ ref: () => Player, required: true })
-  public player!: Ref<Player>;
+  player!: Ref<Player>;
 
   @IsMongoId()
   @prop({ ref: () => Player, required: true })
-  public admin!: Ref<Player>;
+  admin!: Ref<Player>;
 
   @IsNotEmpty()
   @prop({ required: true, default: () => Date.now() })
-  public start!: Date;
+  start!: Date;
 
   @IsNotEmpty()
   @prop({ required: true })
-  public end!: Date;
+  end!: Date;
 
   @IsString()
   @prop()
-  public reason?: string;
+  reason?: string;
 }

@@ -1,7 +1,7 @@
 import { Injectable, Logger, Inject, forwardRef, OnModuleInit } from '@nestjs/common';
 import { Environment } from '@/environment/environment';
 import { Player } from '../models/player';
-import { DocumentType, ReturnModelType } from '@typegoose/typegoose';
+import { mongoose, ReturnModelType } from '@typegoose/typegoose';
 import { SteamProfile } from '../models/steam-profile';
 import { Etf2lProfileService } from './etf2l-profile.service';
 import { InjectModel } from 'nestjs-typegoose';
@@ -15,6 +15,7 @@ import { ObjectId } from 'mongodb';
 import { minimumTf2InGameHours, requireEtf2lAccount } from '@configs/players';
 import { PlayerAvatar } from '../models/player-avatar';
 import { Events } from '@/events/events';
+import { classToPlain, plainToClass } from 'class-transformer';
 
 type ForceCreatePlayerOptions = Pick<Player, 'steamId' | 'name'>;
 
@@ -34,40 +35,46 @@ export class PlayersService implements OnModuleInit {
   ) { }
 
   async onModuleInit() {
-    const bot = await this.findBot();
-    if (bot === null) {
-      await this.playerModel.create({
-        name: this.environment.botName,
-        role: 'bot',
-      })
+    try {
+      await this.findBot();
+    } catch (error) {
+      if (error instanceof mongoose.Error.DocumentNotFoundError) {
+        await this.playerModel.create({
+          name: this.environment.botName,
+          role: 'bot',
+        });
+      } else {
+        throw error;
+      }
     }
   }
 
-  async getAll(): Promise<DocumentType<Player>[]> {
-    return await this.playerModel.find({ role: { $ne: 'bot' } });
+  async getAll(): Promise<Player[]> {
+    const pojo = await this.playerModel.find({ role: { $ne: 'bot' } }).lean().exec();
+    return plainToClass(Player, pojo);
   }
 
-  async getById(id: string | ObjectId): Promise<DocumentType<Player>> {
-    return await this.playerModel.findById(id);
+  async getById(id: string | ObjectId): Promise<Player> {
+    return plainToClass(Player, await this.playerModel.findById(id).orFail().lean().exec());
   }
 
-  async findBySteamId(steamId: string) {
-    return await this.playerModel.findOne({ steamId });
+  async findBySteamId(steamId: string): Promise<Player> {
+    return plainToClass(Player, await this.playerModel.findOne({ steamId }).orFail().lean().exec());
   }
 
-  async findByEtf2lProfileId(etf2lProfileId: number) {
-    return await this.playerModel.findOne({ etf2lProfileId });
+  async findByEtf2lProfileId(etf2lProfileId: number): Promise<Player> {
+    return plainToClass(Player, await this.playerModel.findOne({ etf2lProfileId }).orFail().lean().exec());
   }
 
-  async findByTwitchUserId(twitchTvUserId: string) {
-    return await this.playerModel.findOne({ 'twitchTvUser.userId': twitchTvUserId });
+  async findByTwitchUserId(twitchTvUserId: string): Promise<Player> {
+    return plainToClass(Player, await this.playerModel.findOne({ 'twitchTvUser.userId': twitchTvUserId }).orFail().lean().exec());
   }
 
-  async findBot() {
-    return this.playerModel.findOne({ name: this.environment.botName });
+  async findBot(): Promise<Player> {
+    return plainToClass(Player, this.playerModel.findOne({ name: this.environment.botName }).orFail().lean().exec());
   }
 
-  async createPlayer(steamProfile: SteamProfile): Promise<DocumentType<Player>> {
+  async createPlayer(steamProfile: SteamProfile): Promise<Player> {
     await this.verifyTf2InGameHours(steamProfile.id);
 
     let etf2lProfile: Etf2lProfile;
@@ -93,15 +100,16 @@ export class PlayersService implements OnModuleInit {
       large: steamProfile.photos[2].value,
     };
 
-    const player = await this.playerModel.create({
+    const id = (await this.playerModel.create({
       steamId: steamProfile.id,
       name,
       avatar,
       role: this.environment.superUser === steamProfile.id ? 'super-user' : null,
       etf2lProfileId: etf2lProfile?.id,
       hasAcceptedRules: false,
-    });
+    }))._id;
 
+    const player = await this.getById(id);
     this.logger.verbose(`created new player (name: ${player?.name})`);
     this.events.playerRegisters.next({ player });
     return player;
@@ -110,50 +118,35 @@ export class PlayersService implements OnModuleInit {
   /**
    * Create player account, omitting all checks.
    */
-  async forceCreatePlayer(playerData: ForceCreatePlayerOptions): Promise<DocumentType<Player>> {
+  async forceCreatePlayer(playerData: ForceCreatePlayerOptions): Promise<Player> {
     let etf2lProfile: Etf2lProfile;
     try {
       etf2lProfile = await this.etf2lProfileService.fetchPlayerInfo(playerData.steamId);
     // eslint-disable-next-line no-empty
     } catch (error) { }
 
-    const player = await this.playerModel.create({
+    const id = (await this.playerModel.create({
       etf2lProfileId: etf2lProfile?.id,
       ...playerData,
-    });
+    }))._id;
+    const player = await this.getById(id);
     this.logger.verbose(`created new player (name: ${player.name})`);
     this.events.playerRegisters.next({ player });
     return player;
   }
 
-  async registerTwitchAccount(playerId: string, twitchTvUser: TwitchTvUser) {
-    const player = await this.getById(playerId);
-    if (!player) {
-      throw new Error('no such player');
-    }
-
-    player.twitchTvUser = twitchTvUser;
-    await player.save();
-
-    this.onlinePlayersService.getSocketsForPlayer(playerId).forEach(socket => {
-      socket.emit('profile update', { twitchTvUser });
-    });
-
-    return player;
+  async registerTwitchAccount(playerId: string, twitchTvUser: TwitchTvUser): Promise<Player> {
+    return this.updatePlayer(playerId, { twitchTvUser });
   }
 
-  async getUsersWithTwitchTvAccount() {
-    return await this.playerModel.find({ twitchTvUser: { $exists: true } });
+  async getUsersWithTwitchTvAccount(): Promise<Player[]> {
+    return plainToClass(Player, await this.playerModel.find({ twitchTvUser: { $exists: true } }).lean().exec());
   }
 
   async updatePlayer(playerId: string, update: Partial<Player>, adminId?: string): Promise<Player> {
-    const oldPlayer = await this.playerModel.findById(playerId);
-    if (!oldPlayer) {
-      throw new Error('no such player');
-    }
-
-    const newPlayer = await this.playerModel.findOneAndUpdate({ _id: playerId }, update, { new: true });
-    this.onlinePlayersService.getSocketsForPlayer(playerId).forEach(socket => socket.emit('profile update', newPlayer.toJSON()));
+    const oldPlayer = await this.getById(playerId);
+    const newPlayer = plainToClass(Player, await this.playerModel.findOneAndUpdate({ _id: playerId }, update, { new: true }).lean().exec());
+    this.onlinePlayersService.getSocketsForPlayer(playerId).forEach(socket => socket.emit('profile update', classToPlain(newPlayer)));
     this.events.playerUpdates.next({ oldPlayer, newPlayer, adminId });
     return newPlayer;
   }
@@ -162,15 +155,8 @@ export class PlayersService implements OnModuleInit {
    * Player accepts the rules.
    * Without accepting the rules, player cannot join the queue nor any game.
    */
-  async acceptTerms(playerId: string): Promise<DocumentType<Player>> {
-    const player = await this.getById(playerId);
-    if (!player) {
-      throw new Error('no such player');
-    }
-
-    player.hasAcceptedRules = true;
-    await player.save();
-    return player;
+  async acceptTerms(playerId: string): Promise<Player> {
+    return this.updatePlayer(playerId, { hasAcceptedRules: true });
   }
 
   async getPlayerStats(playerId: string): Promise<PlayerStats> {

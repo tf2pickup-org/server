@@ -22,7 +22,7 @@ import { FuturePlayerSkill } from './models/future-player-skill';
   imports: [
     HttpModule,
     TypegooseModule.forFeature([
-      standardSchemaOptions(Player),
+      Player,
       standardSchemaOptions(PlayerBan),
       standardSchemaOptions(PlayerSkill),
       standardSchemaOptions(FuturePlayerSkill),

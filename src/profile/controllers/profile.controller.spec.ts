@@ -67,7 +67,7 @@ describe('Profile Controller', () => {
 
   describe('#getPreferences()', () => {
     it('should return the user\'s preferences', async () => {
-      const ret = await controller.getPreferences({ id: 'FAKE_USER_ID' } as Player);
+      const ret = await controller.getPreferences({ _id: 'FAKE_USER_ID' } as Player);
       expect(ret.size).toEqual(1);
       expect(ret.get('sound-volume')).toEqual('0.5');
     });
@@ -75,7 +75,7 @@ describe('Profile Controller', () => {
 
   describe('#savePreferences()', () => {
     it('should update user\'s preferences', async () => {
-      const ret = await controller.savePreferences({ id: 'FAKE_USER_ID' } as Player, { 'sound-volume': '0.9' });
+      const ret = await controller.savePreferences({ _id: 'FAKE_USER_ID' } as Player, { 'sound-volume': '0.9' });
       expect(ret.size).toEqual(1);
       expect(ret.get('sound-volume')).toEqual('0.9');
       expect(playerPreferencesService.updatePlayerPreferences).toHaveBeenCalledWith('FAKE_USER_ID', new Map([['sound-volume', '0.9']]));
@@ -85,12 +85,12 @@ describe('Profile Controller', () => {
   describe('#acceptTerms', () => {
     it('should call players service', async () => {
       const spy = jest.spyOn(playersService, 'acceptTerms');
-      await controller.acceptTerms({ id: 'FAKE_ID' } as Player, '');
+      await controller.acceptTerms({ _id: 'FAKE_ID' } as Player, '');
       expect(spy).toHaveBeenCalledWith('FAKE_ID');
     });
 
     it('should reject invalid requests', async () => {
-      await expect(controller.acceptTerms({ id: 'FAKE_ID' } as Player, undefined)).rejects.toThrow(BadRequestException);
+      await expect(controller.acceptTerms({ _id: 'FAKE_ID' } as Player, undefined)).rejects.toThrow(BadRequestException);
     });
   });
 });
