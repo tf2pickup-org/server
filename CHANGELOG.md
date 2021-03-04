@@ -1,3 +1,10 @@
+## [3.8.3](https://github.com/tf2pickup-pl/server/compare/3.8.2...3.8.3) (2021-03-04)
+
+
+### Bug Fixes
+
+* fix crash when querying unassigned skill ([#887](https://github.com/tf2pickup-pl/server/issues/887)) ([4430ce6](https://github.com/tf2pickup-pl/server/commit/4430ce67229957d57785a6c826756a266ce2721b))
+
 ## [3.8.2](https://github.com/tf2pickup-pl/server/compare/3.8.1...3.8.2) (2021-03-03)
 
 
