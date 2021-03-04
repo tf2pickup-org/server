@@ -40,7 +40,7 @@ export class PlayerSkillService implements OnModuleInit {
   }
 
   async getPlayerSkill(playerId: string): Promise<PlayerSkillType> {
-    return (await this.playerSkillModel.findOne({ player: playerId })).skill;
+    return (await this.playerSkillModel.findOne({ player: playerId }))?.skill;
   }
 
   async setPlayerSkill(playerId: string, skill: PlayerSkillType, adminId?: string): Promise<PlayerSkillType> {
