@@ -1,6 +1,5 @@
 import { Auth } from '@/auth/decorators/auth.decorator';
-import { OmitProps } from '@/shared/decorators/omit-props.decorator';
-import { Body, Controller, Get, Put } from '@nestjs/common';
+import { Body, ClassSerializerInterceptor, Controller, Get, Put, UseInterceptors } from '@nestjs/common';
 import { Configuration } from '../models/configuration';
 import { ConfigurationService } from '../services/configuration.service';
 
@@ -12,14 +11,14 @@ export class ConfigurationController {
   ) { }
 
   @Get()
-  @OmitProps('__v', '_id')
+  @UseInterceptors(ClassSerializerInterceptor)
   async getConfiguration() {
     return this.configurationService.getConfiguration();
   }
 
   @Put()
   @Auth('admin', 'super-user')
-  @OmitProps('__v', '_id')
+  @UseInterceptors(ClassSerializerInterceptor)
   async setConfiguration(@Body() configuration: Configuration) {
     return this.configurationService.setConfiguration(configuration);
   }
