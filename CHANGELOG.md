@@ -1,3 +1,10 @@
+## [3.8.4](https://github.com/tf2pickup-pl/server/compare/3.8.3...3.8.4) (2021-03-05)
+
+
+### Bug Fixes
+
+* make default player skill query valid ([#888](https://github.com/tf2pickup-pl/server/issues/888)) ([e48bb36](https://github.com/tf2pickup-pl/server/commit/e48bb36a26a78ed01d1d323ea175b81606dbfd5d))
+
 ## [3.8.3](https://github.com/tf2pickup-pl/server/compare/3.8.2...3.8.3) (2021-03-04)
 
 
