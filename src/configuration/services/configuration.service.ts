@@ -1,5 +1,6 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { ReturnModelType } from '@typegoose/typegoose';
+import { plainToClass } from 'class-transformer';
 import { InjectModel } from 'nestjs-typegoose';
 import { Configuration } from '../models/configuration';
 
@@ -11,13 +12,15 @@ export class ConfigurationService implements OnModuleInit {
   ) { }
 
   async onModuleInit() {
-    if (await this.configurationModel.findOne().lean().exec() === null) {
+    try {
+      await this.configurationModel.findOne().orFail().lean().exec()
+    } catch (e) {
       await this.configurationModel.create({ });
     }
   }
 
   async getConfiguration(): Promise<Configuration> {
-    return this.configurationModel.findOne().lean().exec();
+    return plainToClass(Configuration, await this.configurationModel.findOne().lean().exec());
   }
 
   async setConfiguration(configuration: Configuration): Promise<Configuration> {

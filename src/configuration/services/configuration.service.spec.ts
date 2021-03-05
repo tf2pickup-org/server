@@ -43,7 +43,9 @@ describe('ConfigurationService', () => {
 
   describe('#getConfiguration()', () => {
     it('should return the default configuration', async () => {
-      expect(await service.getConfiguration()).toBeTruthy();
+      const configuration = await service.getConfiguration();
+      expect(configuration).toBeTruthy();
+      expect(configuration.defaultPlayerSkill.size).toEqual(9);
     });
   });
 
