@@ -1,18 +1,14 @@
-import { prop } from "@typegoose/typegoose";
-import { Exclude, Expose } from "class-transformer";
+import { MongooseDocument } from '@/utils/mongoose-document';
+import { prop } from '@typegoose/typegoose';
 
-@Exclude()
-export class PlayerAvatar {
+export class PlayerAvatar extends MongooseDocument {
 
-  @Expose()
   @prop()
   small: string; // 32x32 px
 
-  @Expose()
   @prop()
   medium: string; // 64x64 px
 
-  @Expose()
   @prop()
   large: string; // 184x184 px
 

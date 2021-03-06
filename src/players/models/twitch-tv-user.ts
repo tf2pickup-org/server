@@ -1,22 +1,17 @@
+import { MongooseDocument } from '@/utils/mongoose-document';
 import { prop } from '@typegoose/typegoose';
-import { Exclude, Expose } from 'class-transformer';
 
-@Exclude()
-export class TwitchTvUser {
+export class TwitchTvUser extends MongooseDocument {
 
-  @Expose()
   @prop({ required: true })
   userId!: string;
 
-  @Expose()
   @prop({ required: true })
   login!: string;
 
-  @Expose()
   @prop()
   displayName?: string;
 
-  @Expose()
   @prop()
   profileImageUrl?: string;
 
