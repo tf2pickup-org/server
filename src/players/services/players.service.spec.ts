@@ -3,10 +3,10 @@ import { PlayersService } from './players.service';
 import { Environment } from '@/environment/environment';
 import { Etf2lProfileService } from './etf2l-profile.service';
 import { getModelToken, TypegooseModule } from 'nestjs-typegoose';
-import { SteamProfile } from '../models/steam-profile';
+import { SteamProfile } from '../steam-profile';
 import { GamesService } from '@/games/services/games.service';
 import { OnlinePlayersService } from './online-players.service';
-import { Etf2lProfile } from '../models/etf2l-profile';
+import { Etf2lProfile } from '../etf2l-profile';
 import { ReturnModelType, DocumentType, mongoose } from '@typegoose/typegoose';
 import { Player } from '../models/player';
 import { typegooseTestingModule } from '@/utils/testing-typegoose-module';
@@ -20,6 +20,7 @@ jest.mock('@configs/players', () => ({
 }));
 import { minimumTf2InGameHours } from '@configs/players';
 import { Events } from '@/events/events';
+import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 
 jest.mock('@/discord/services/discord.service');
 jest.mock('./etf2l-profile.service');
@@ -454,7 +455,12 @@ describe('PlayersService', () => {
       expect(ret).toEqual({
         player: 'FAKE_ID',
         gamesPlayed: 220,
-        classesPlayed: gamesService.classCount,
+        classesPlayed: new Map([
+          [ Tf2ClassName.scout, 19 ],
+          [ Tf2ClassName.soldier, 102 ],
+          [ Tf2ClassName.demoman, 0 ],
+          [ Tf2ClassName.medic, 92 ],
+        ]),
       });
     });
   });

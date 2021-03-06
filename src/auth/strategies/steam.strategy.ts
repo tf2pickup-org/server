@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import steam = require('passport-steam');
 import { PlayersService } from '@/players/services/players.service';
 import { Environment } from '@/environment/environment';
-import { SteamProfile } from 'src/players/models/steam-profile';
+import { SteamProfile } from '@/players/steam-profile';
 import { PassportStrategy } from '@nestjs/passport';
 
 @Injectable()

@@ -1,5 +1,5 @@
 import { Injectable, HttpService } from '@nestjs/common';
-import { Etf2lProfile } from '../models/etf2l-profile';
+import { Etf2lProfile } from '../etf2l-profile';
 import { switchMap, catchError } from 'rxjs/operators';
 import { of, throwError } from 'rxjs';
 

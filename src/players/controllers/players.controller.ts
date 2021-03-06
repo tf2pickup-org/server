@@ -11,6 +11,7 @@ import { PlayerBan } from '../models/player-ban';
 import { User } from '@/auth/decorators/user.decorator';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { DocumentNotFoundFilter } from '@/shared/filters/document-not-found.filter';
+import { PlayerStats } from '../dto/player-stats';
 
 @Controller('players')
 @UseInterceptors(CacheInterceptor)
@@ -86,7 +87,8 @@ export class PlayersController {
 
   @CacheTTL(12 * 60 * 60)
   @Get(':id/stats')
-  async getPlayerStats(@Param('id', ObjectIdValidationPipe) playerId: string) {
+  @UseInterceptors(ClassSerializerInterceptor)
+  async getPlayerStats(@Param('id', ObjectIdValidationPipe) playerId: string): Promise<PlayerStats> {
     return await this.playersService.getPlayerStats(playerId);
   }
 

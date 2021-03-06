@@ -80,7 +80,7 @@ export class GamesService {
   }
 
   async getPlayerPlayedClassCount(playerId: string): Promise<{ [gameClass in Tf2ClassName]?: number }> {
-    // fixme refactor this to aggregate
+    // FIXME store this in a separate model to avoid this query
     const allGames = await this.gameModel.find({ 'slots.player': new ObjectId(playerId), state: GameState.ended });
     return this.queueConfigService.queueConfig.classes
       .map(cls => cls.name)

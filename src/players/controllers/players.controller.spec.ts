@@ -4,7 +4,7 @@ import { PlayersService } from '../services/players.service';
 import { Player } from '../models/player';
 import { GamesService } from '@/games/services/games.service';
 import { Game } from '@/games/models/game';
-import { PlayerStats } from '../models/player-stats';
+import { PlayerStats } from '../dto/player-stats';
 import { PlayerSkillService } from '../services/player-skill.service';
 import { PlayerSkill } from '../models/player-skill';
 import { PlayerBansService } from '../services/player-bans.service';
@@ -21,16 +21,16 @@ class PlayersServiceStub {
     steamId: 'FAKE_STEAM_ID',
     hasAcceptedRules: true,
   });
-  stats: PlayerStats = {
+  stats: PlayerStats = new PlayerStats({
     player: 'FAKE_ID',
     gamesPlayed: 220,
-    classesPlayed: {
-      scout: 19,
-      soldier: 102,
-      demoman: 0,
-      medic: 92,
-    },
-  };
+    classesPlayed: new Map([
+      [ Tf2ClassName.scout, 19 ],
+      [ Tf2ClassName.soldier, 102 ],
+      [ Tf2ClassName.demoman, 0 ],
+      [ Tf2ClassName.medic, 92 ],
+    ]),
+  });
   getAll() { return new Promise(resolve => resolve([ this.player ])); }
   getById(id: string) { return new Promise(resolve => resolve(this.player)); }
   forceCreatePlayer(player: Player) { return new Promise(resolve => resolve(player)); }

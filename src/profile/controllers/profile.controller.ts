@@ -7,7 +7,7 @@ import { GamesService } from '@/games/services/games.service';
 import { PlayerBansService } from '@/players/services/player-bans.service';
 import { MapVoteService } from '@/queue/services/map-vote.service';
 import { PlayerPreferencesService } from '@/player-preferences/services/player-preferences.service';
-import { Profile } from '../profile';
+import { Profile } from '../dto/profile';
 
 @Controller('profile')
 export class ProfileController {
