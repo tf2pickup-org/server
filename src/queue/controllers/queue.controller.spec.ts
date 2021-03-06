@@ -8,6 +8,7 @@ import { FriendsService } from '../services/friends.service';
 import { PlayerPopulatorService } from '../services/player-populator.service';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { MapPoolService } from '../services/map-pool.service';
+import { Player } from '@/players/models/player';
 
 jest.mock('../services/queue-config.service');
 jest.mock('../services/queue.service');
@@ -76,7 +77,7 @@ describe('Queue Controller', () => {
     mapVoteService.results = [];
 
     playerPopulatorService.populatePlayers.mockResolvedValue([
-      { id: 0, gameClass: Tf2ClassName.soldier, ready: false, playerId: 'FAKE_ID', player: { id: 'FAKE_ID' } },
+      { id: 0, gameClass: Tf2ClassName.soldier, ready: false, playerId: 'FAKE_ID', player: { id: 'FAKE_ID' } as Player },
       { id: 1, gameClass: Tf2ClassName.soldier, ready: false, playerId: null, player: null },
     ]);
   });
