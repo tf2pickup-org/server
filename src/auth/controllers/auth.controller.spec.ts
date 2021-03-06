@@ -74,7 +74,7 @@ describe('Auth Controller', () => {
   describe('#refreshWsToken()', () => {
     it('should generate ws token', async () => {
       const spy = jest.spyOn(authService, 'generateJwtToken').mockImplementation(() => 'FAKE_WS_TOKEN');
-      const result = await controller.refreshWsToken({ _id: 'FAKE_USER_ID' } as Player);
+      const result = await controller.refreshWsToken({ id: 'FAKE_USER_ID' } as Player);
       expect(spy).toHaveBeenCalledWith('ws', 'FAKE_USER_ID');
       expect(result).toEqual({ wsToken: 'FAKE_WS_TOKEN' });
     });

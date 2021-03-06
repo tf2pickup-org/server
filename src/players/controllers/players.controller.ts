@@ -121,13 +121,15 @@ export class PlayersController {
 
   @Get(':id/bans')
   @Auth('admin', 'super-user')
+  @UseInterceptors(ClassSerializerInterceptor)
   async getPlayerBans(@Param('id', ObjectIdValidationPipe) playerId: string) {
-    return this.playerBansService.getPlayerBans(playerId);
+    return await this.playerBansService.getPlayerBans(playerId);
   }
 
   @Post(':id/bans')
   @Auth('admin', 'super-user')
   @UsePipes(ValidationPipe)
+  @UseInterceptors(ClassSerializerInterceptor)
   async addPlayerBan(@Body() playerBan: PlayerBan, @User() user: Player) {
     if (playerBan.admin.toString() !== user.id) {
       throw new BadRequestException('the admin field must be the same as authorized user\'s id');
@@ -137,6 +139,7 @@ export class PlayersController {
 
   @Post(':playerId/bans/:banId')
   @Auth('admin', 'super-user')
+  @UseInterceptors(ClassSerializerInterceptor)
   @HttpCode(200)
   async updatePlayerBan(@Param('playerId', ObjectIdValidationPipe) playerId: string, @Param('banId', ObjectIdValidationPipe) banId: string,
                         @Query('revoke') revoke: any, @User() user: Player) {

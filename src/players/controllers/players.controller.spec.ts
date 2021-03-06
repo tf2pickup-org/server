@@ -12,6 +12,7 @@ import { NotFoundException, BadRequestException, CacheModule } from '@nestjs/com
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { plainToClass } from 'class-transformer';
 import { PlayerBan } from '../models/player-ban';
+import { mongoose } from '@typegoose/typegoose';
 
 class PlayersServiceStub {
   player = plainToClass(Player, {
@@ -230,7 +231,7 @@ describe('Players Controller', () => {
     it('should set player skill', async () => {
       const skill = { soldier: 1, medic: 2 };
       const spy = jest.spyOn(playerSkillService, 'setPlayerSkill');
-      const ret = await controller.setPlayerSkill('FAKE_ID', skill, { _id: 'FAKE_ADMIN_ID' } as any);
+      const ret = await controller.setPlayerSkill('FAKE_ID', skill, { id: 'FAKE_ADMIN_ID' } as any);
       expect(spy).toHaveBeenCalledWith('FAKE_ID', new Map([['soldier', 1], ['medic', 2]]), 'FAKE_ADMIN_ID');
       expect(ret).toEqual(playerSkillService.skill);
     });
@@ -247,8 +248,8 @@ describe('Players Controller', () => {
 
   describe('#addPlayerBan()', () => {
     const ban = {
-      player: '5d448875b963ff7e00c6b6b3',
-      admin: '5d448875b963ff7e00c6b6b3',
+      player: new mongoose.Types.ObjectId('5d448875b963ff7e00c6b6b3'),
+      admin: new mongoose.Types.ObjectId('5d448875b963ff7e00c6b6b3'),
       start: new Date('2019-12-16T00:23:55.000Z'),
       end: new Date('2019-12-17T01:51:49.183Z'),
       reason: 'dupa',
@@ -257,7 +258,7 @@ describe('Players Controller', () => {
 
     it('should add player ban', async () => {
       const spy = jest.spyOn(playerBansService, 'addPlayerBan');
-      const ret = await controller.addPlayerBan(ban as PlayerBan, { _id: '5d448875b963ff7e00c6b6b3' } as Player);
+      const ret = await controller.addPlayerBan(ban as PlayerBan, { id: '5d448875b963ff7e00c6b6b3' } as Player);
       expect(spy).toHaveBeenCalledWith(ban);
       expect(ret).toEqual(ban as any);
     });
