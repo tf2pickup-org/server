@@ -7,6 +7,7 @@ import { GamesService } from '@/games/services/games.service';
 import { PlayerBansService } from '@/players/services/player-bans.service';
 import { MapVoteService } from '@/queue/services/map-vote.service';
 import { PlayerPreferencesService } from '@/player-preferences/services/player-preferences.service';
+import { Profile } from '../profile';
 
 @Controller('profile')
 export class ProfileController {
@@ -21,24 +22,27 @@ export class ProfileController {
 
   @Get()
   @Auth()
-  async getProfile(@User() user: Player) {
-    const activeGameId = (await this.gamesService.getPlayerActiveGame(user._id))?.id ?? null;
-    const bans = await this.playerBansService.getPlayerActiveBans(user._id);
-    const mapVote = this.mapVoteService.playerVote(user._id);
-    const preferences = await this.playerPreferencesService.getPlayerPreferences(user._id);
-    return { ...user, activeGameId, bans, mapVote, preferences };
+  @UseInterceptors(ClassSerializerInterceptor)
+  async getProfile(@User() user: Player): Promise<Profile> {
+    return new Profile({
+      player: user,
+      activeGameId: (await this.gamesService.getPlayerActiveGame(user.id))?.id ?? null,
+      bans: await this.playerBansService.getPlayerActiveBans(user.id),
+      mapVote: this.mapVoteService.playerVote(user.id),
+      preferences: await this.playerPreferencesService.getPlayerPreferences(user.id),
+    });
   }
 
   @Auth()
   @Get('/preferences')
   async getPreferences(@User() user: Player) {
-    return this.playerPreferencesService.getPlayerPreferences(user._id);
+    return this.playerPreferencesService.getPlayerPreferences(user.id);
   }
 
   @Auth()
   @Put('/preferences')
   async savePreferences(@User() user: Player, @Body() preferences: { [key: string]: string }) {
-    return this.playerPreferencesService.updatePlayerPreferences(user._id, new Map(Object.entries(preferences)));
+    return this.playerPreferencesService.updatePlayerPreferences(user.id, new Map(Object.entries(preferences)));
   }
 
   @Post()
@@ -47,7 +51,7 @@ export class ProfileController {
   @HttpCode(204)
   async acceptTerms(@User() user: Player, @Query('accept_terms') acceptTerms: string) {
     if (acceptTerms !== undefined) {
-      await this.playersService.acceptTerms(user._id);
+      await this.playersService.acceptTerms(user.id);
     } else {
       throw new BadRequestException();
     }

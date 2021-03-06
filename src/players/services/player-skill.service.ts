@@ -30,7 +30,7 @@ export class PlayerSkillService implements OnModuleInit {
     this.events.playerRegisters.subscribe(async ({ player }) => {
       const futureSkill = await this.futurePlayerSkillService.findSkill(player.steamId);
       if (futureSkill) {
-        await this.setPlayerSkill(player._id, futureSkill.skill);
+        await this.setPlayerSkill(player.id, futureSkill.skill);
       }
     });
   }
@@ -80,7 +80,7 @@ export class PlayerSkillService implements OnModuleInit {
       try {
         const player = await this.playersService.findByEtf2lProfileId(parseInt(etf2lProfileId, 10));
         if (player) {
-          await this.setPlayerSkill(player._id, skill);
+          await this.setPlayerSkill(player.id, skill);
         } else {
           const etf2lProfile = await this.etf2lProfileService.fetchPlayerInfo(etf2lProfileId);
           await this.futurePlayerSkillService.registerSkill(etf2lProfile.steam.id64, skill);

@@ -10,6 +10,7 @@ import { Environment } from '@/environment/environment';
 import { Message } from 'discord.js';
 import { Events } from '@/events/events';
 import { SlotStatus } from '../models/slot-status';
+import { mongoose } from '@typegoose/typegoose';
 
 /**
  * A service that handles player substitution logic.
@@ -145,7 +146,7 @@ export class PlayerSubstitutionService {
     }
     // create new slot of the replacement player
     const replacementSlot = {
-      player: replacementId,
+      player: new mongoose.Types.ObjectId(replacementId),
       team: slot.team,
       gameClass: slot.gameClass,
     };

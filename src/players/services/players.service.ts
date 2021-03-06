@@ -50,8 +50,7 @@ export class PlayersService implements OnModuleInit {
   }
 
   async getAll(): Promise<Player[]> {
-    const pojo = await this.playerModel.find({ role: { $ne: 'bot' } }).lean().exec();
-    return plainToClass(Player, pojo);
+    return plainToClass(Player, await this.playerModel.find({ role: { $ne: 'bot' } }).lean().exec());
   }
 
   async getById(id: string | ObjectId): Promise<Player> {

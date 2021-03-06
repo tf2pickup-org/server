@@ -116,7 +116,7 @@ export class PlayersController {
     @User() user: Player,
   ) {
     const newSkillAsMap = new Map(Object.entries(newSkill)) as Map<Tf2ClassName, number>;
-    return this.playerSkillService.setPlayerSkill(playerId, newSkillAsMap, user._id);
+    return this.playerSkillService.setPlayerSkill(playerId, newSkillAsMap, user.id);
   }
 
   @Get(':id/bans')
@@ -129,7 +129,7 @@ export class PlayersController {
   @Auth('admin', 'super-user')
   @UsePipes(ValidationPipe)
   async addPlayerBan(@Body() playerBan: PlayerBan, @User() user: Player) {
-    if (playerBan.admin.toString() !== user._id) {
+    if (playerBan.admin.toString() !== user.id) {
       throw new BadRequestException('the admin field must be the same as authorized user\'s id');
     }
     return await this.playerBansService.addPlayerBan(playerBan);
@@ -155,7 +155,7 @@ export class PlayersController {
     }
 
     if (revoke !== undefined) {
-      return this.playerBansService.revokeBan(banId, user._id);
+      return this.playerBansService.revokeBan(banId, user.id);
     }
   }
 

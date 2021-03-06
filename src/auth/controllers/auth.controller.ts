@@ -34,8 +34,8 @@ export class AuthController {
           return res.sendStatus(401);
         }
 
-        const refreshToken = await this.authService.generateJwtToken('refresh', player._id);
-        const authToken = await this.authService.generateJwtToken('auth', player._id);
+        const refreshToken = await this.authService.generateJwtToken('refresh', player.id);
+        const authToken = await this.authService.generateJwtToken('auth', player.id);
         return res.redirect(`${url}?refresh_token=${refreshToken}&auth_token=${authToken}`);
       })(req, res, next);
     });
@@ -58,7 +58,7 @@ export class AuthController {
   @Get('wstoken')
   @Auth()
   async refreshWsToken(@User() user: Player) {
-    const wsToken = await this.authService.generateJwtToken('ws', user._id);
+    const wsToken = await this.authService.generateJwtToken('ws', user.id);
     return { wsToken };
   }
 

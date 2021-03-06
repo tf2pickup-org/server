@@ -49,33 +49,33 @@ export class QueueGateway implements OnGatewayInit, OnModuleInit {
   @PopulatePlayers()
   @SubscribeMessage('join queue')
   async joinQueue(client: AuthorizedWsClient, payload: { slotId: number }) {
-    return await this.queueService.join(payload.slotId, client.request.user._id);
+    return await this.queueService.join(payload.slotId, client.request.user.id);
   }
 
   @WsAuthorized()
   @PopulatePlayers()
   @SubscribeMessage('leave queue')
   leaveQueue(client: AuthorizedWsClient) {
-    return this.queueService.leave(client.request.user._id);
+    return this.queueService.leave(client.request.user.id);
   }
 
   @WsAuthorized()
   @PopulatePlayers()
   @SubscribeMessage('player ready')
   playerReady(client: AuthorizedWsClient) {
-    return this.queueService.readyUp(client.request.user._id);
+    return this.queueService.readyUp(client.request.user.id);
   }
 
   @WsAuthorized()
   @SubscribeMessage('mark friend')
   markFriend(client: AuthorizedWsClient, payload: { friendPlayerId: string }) {
-    return this.friendsService.markFriend(client.request.user._id, payload.friendPlayerId);
+    return this.friendsService.markFriend(client.request.user.id, payload.friendPlayerId);
   }
 
   @WsAuthorized()
   @SubscribeMessage('vote for map')
   voteForMap(client: AuthorizedWsClient, payload: { map: string }) {
-    this.mapVoteService.voteForMap(client.request.user._id, payload.map);
+    this.mapVoteService.voteForMap(client.request.user.id, payload.map);
     return payload.map;
   }
 

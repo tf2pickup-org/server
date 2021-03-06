@@ -64,7 +64,7 @@ export class PlayerBansService implements OnModuleInit {
     }
 
     const addedBan = await this.playerBanModel.create(playerBan);
-    this.logger.verbose(`ban added for player ${player._id} (reason: ${playerBan.reason})`);
+    this.logger.verbose(`ban added for player ${player.id} (reason: ${playerBan.reason})`);
     this.events.playerBanAdded.next({ ban: addedBan });
     return addedBan;
   }
@@ -84,7 +84,7 @@ export class PlayerBansService implements OnModuleInit {
     await ban.save();
 
     const player = await this.playersService.getById(ban.player.toString());
-    this.logger.verbose(`ban revoked for player ${player._id}`);
+    this.logger.verbose(`ban revoked for player ${player.id}`);
     this.events.playerBanRevoked.next({ ban });
     return ban;
   }

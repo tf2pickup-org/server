@@ -22,10 +22,10 @@ export class OnlinePlayersService implements OnModuleInit {
     this.playersGateway.playerConnected.subscribe(socket => {
       if (socket.request.user.logged_in) {
         const player = socket.request.user as Player;
-        const sockets = this.sockets.get(player._id) || [];
+        const sockets = this.sockets.get(player.id) || [];
         if (!sockets.includes(socket)) {
           this.logger.debug(`${player.name} connected`);
-          this.sockets.set(player._id, [ ...sockets, socket ]);
+          this.sockets.set(player.id, [ ...sockets, socket ]);
         }
       }
     });
@@ -34,9 +34,9 @@ export class OnlinePlayersService implements OnModuleInit {
       if (socket.request.user.logged_in) {
         const player = socket.request.user as Player;
         this.logger.debug(`${player.name} disconnected`);
-        const sockets = this.getSocketsForPlayer(player._id);
-        this.sockets.set(player._id, sockets.filter(s => s !== socket));
-        setTimeout(() => this.verifyPlayer(player._id), this.verifyPlayerTimeout);
+        const sockets = this.getSocketsForPlayer(player.id);
+        this.sockets.set(player.id, sockets.filter(s => s !== socket));
+        setTimeout(() => this.verifyPlayer(player.id), this.verifyPlayerTimeout);
       }
     });
   }

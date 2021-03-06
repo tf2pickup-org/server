@@ -3,7 +3,7 @@ import { ReturnModelType } from '@typegoose/typegoose';
 import { InjectModel } from 'nestjs-typegoose';
 import { PlayerPreferences } from '../models/player-preferences';
 
-type PreferencesType = Map<string, string>;
+export type PreferencesType = Map<string, string>;
 
 @Injectable()
 export class PlayerPreferencesService {

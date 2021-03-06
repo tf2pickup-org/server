@@ -24,7 +24,7 @@ export class SteamStrategy extends PassportStrategy(steam.Strategy) {
   async validate(identifier: any, profile: SteamProfile) {
     const player = await this.playerService.findBySteamId(profile.id);
     if (player) {
-      return await this.playerService.updatePlayer(player._id, {
+      return await this.playerService.updatePlayer(player.id, {
         avatar: {
           small: profile.photos[0]?.value,
           medium: profile.photos[1]?.value,

@@ -1,22 +1,26 @@
-import { RemoveVersionKey } from '@/utils/remove-version-key';
-import { prop, index } from '@typegoose/typegoose';
+import { prop, index, mongoose } from '@typegoose/typegoose';
 import { Exclude, Expose, Transform, Type } from 'class-transformer';
 import { IsString, Matches } from 'class-validator';
 import { PlayerAvatar } from './player-avatar';
 import { PlayerRole } from './player-role';
 import { TwitchTvUser } from './twitch-tv-user';
 
-@index({ steamId: 'hashed' })
-export class Player extends RemoveVersionKey {
+abstract class PlayerDocument {
 
   @Exclude({ toPlainOnly: true })
-  @Transform(({ value }) => value.toString())
-  _id?: string;
+  __v?: number;
+
+  @Exclude({ toPlainOnly: true })
+  _id?: mongoose.Types.ObjectId;
+
+}
+
+@index({ steamId: 'hashed' })
+export class Player extends PlayerDocument {
 
   @Expose()
-  get id() {
-    return this._id;
-  }
+  @Transform(({ value, obj }) => value ?? obj._id.toString())
+  id?: string;
 
   @IsString()
   @prop({ required: true, unique: true, trim: true })
@@ -36,7 +40,6 @@ export class Player extends RemoveVersionKey {
   @prop()
   role?: PlayerRole;
 
-  @Exclude({ toPlainOnly: true })
   @prop({ default: false })
   hasAcceptedRules?: boolean;
 

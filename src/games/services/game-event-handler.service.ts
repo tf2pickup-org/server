@@ -118,7 +118,7 @@ export class GameEventHandlerService {
       {
         new: true, // return updated document
         arrayFilters: [
-          { 'element.player': { $eq: player._id } },
+          { 'element.player': { $eq: player.id } },
         ],
       }
     );
