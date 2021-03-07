@@ -10,7 +10,7 @@ import { PlayerBansService } from '@/players/services/player-bans.service';
 
 class PlayersServiceStub {
   twitchUser = {
-    _id: 'FAKE_USER_ID',
+    id: 'FAKE_USER_ID',
     twitchTvUser: {
       userId: 'FAKE_TWITCH_TV_USER_ID',
       login: 'FAKE_TWITCH_TV_LOGIN',

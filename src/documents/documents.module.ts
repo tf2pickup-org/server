@@ -1,4 +1,4 @@
-import { Module, HttpModule } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { TypegooseModule } from 'nestjs-typegoose';
 import { DocumentsController } from './controllers/documents.controller';
 import { Document } from './models/document';

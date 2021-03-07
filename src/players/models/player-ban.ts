@@ -11,13 +11,7 @@ export class PlayerBan extends MongooseDocument {
   id?: string;
 
   @IsMongoId()
-  @Transform(({ value }) => {
-    if (isRefType(value)) {
-      return value.toString();
-    } else {
-      return value;
-    }
-  })
+  @Transform(({ value }) => isRefType(value) ? value.toString() : value)
   @prop({ ref: () => Player, required: true })
   player!: Ref<Player>;
 
