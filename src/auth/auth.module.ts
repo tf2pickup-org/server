@@ -1,6 +1,6 @@
 import { Module, NestModule, MiddlewareConsumer } from '@nestjs/common';
 import { AuthService } from './services/auth.service';
-import { PlayersModule } from 'src/players/players.module';
+import { PlayersModule } from '@/players/players.module';
 import { PassportModule } from '@nestjs/passport';
 import { SteamStrategy } from './strategies/steam.strategy';
 import { AuthController } from './controllers/auth.controller';
