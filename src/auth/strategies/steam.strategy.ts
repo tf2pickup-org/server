@@ -4,6 +4,7 @@ import { PlayersService } from '@/players/services/players.service';
 import { Environment } from '@/environment/environment';
 import { SteamProfile } from '@/players/steam-profile';
 import { PassportStrategy } from '@nestjs/passport';
+import { mongoose } from '@typegoose/typegoose';
 
 @Injectable()
 export class SteamStrategy extends PassportStrategy(steam.Strategy) {
@@ -22,8 +23,8 @@ export class SteamStrategy extends PassportStrategy(steam.Strategy) {
   }
 
   async validate(identifier: any, profile: SteamProfile) {
-    const player = await this.playerService.findBySteamId(profile.id);
-    if (player) {
+    try {
+      const player = await this.playerService.findBySteamId(profile.id);
       return await this.playerService.updatePlayer(player.id, {
         avatar: {
           small: profile.photos[0]?.value,
@@ -31,9 +32,12 @@ export class SteamStrategy extends PassportStrategy(steam.Strategy) {
           large: profile.photos[2]?.value,
         },
       });
-
-    } else {
-      return await this.playerService.createPlayer(profile);
+    } catch (error) {
+      if (error instanceof mongoose.Error.DocumentNotFoundError) {
+        return await this.playerService.createPlayer(profile);
+      } else {
+        throw error;
+      }
     }
   }
 
