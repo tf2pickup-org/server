@@ -6,6 +6,7 @@ import { AuthService } from '../services/auth.service';
 import { User } from '../decorators/user.decorator';
 import { Auth } from '../decorators/auth.decorator';
 import { redirectUrlCookieName } from '../middlewares/set-redirect-url-cookie';
+import { Player } from '@/players/models/player';
 
 @Controller('auth')
 export class AuthController {
@@ -21,20 +22,20 @@ export class AuthController {
     // would screw up some request params, resulting in OpenID throwing an error.
     // https://github.com/liamcurry/passport-steam/issues/57
     this.adapterHost.httpAdapter?.get('/auth/steam/return', (req, res, next) => {
-      return authenticate('steam', async (error, user) => {
+      return authenticate('steam', async (error, player: Player) => {
         const url = req.cookies?.[redirectUrlCookieName] || this.environment.clientUrl;
 
         if (error) {
-          this.logger.warn(`Steam login error for ${user}: ${error}`);
+          this.logger.warn(`Steam login error for ${player}: ${error}`);
           return res.redirect(`${url}/auth-error?error=${error.message}`);
         }
 
-        if (!user) {
+        if (!player) {
           return res.sendStatus(401);
         }
 
-        const refreshToken = await this.authService.generateJwtToken('refresh', user.id);
-        const authToken = await this.authService.generateJwtToken('auth', user.id);
+        const refreshToken = await this.authService.generateJwtToken('refresh', player.id);
+        const authToken = await this.authService.generateJwtToken('auth', player.id);
         return res.redirect(`${url}?refresh_token=${refreshToken}&auth_token=${authToken}`);
       })(req, res, next);
     });
@@ -56,7 +57,7 @@ export class AuthController {
 
   @Get('wstoken')
   @Auth()
-  async refreshWsToken(@User() user) {
+  async refreshWsToken(@User() user: Player) {
     const wsToken = await this.authService.generateJwtToken('ws', user.id);
     return { wsToken };
   }

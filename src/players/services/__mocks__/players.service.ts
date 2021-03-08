@@ -3,6 +3,7 @@ import { ReturnModelType } from '@typegoose/typegoose';
 import { Player } from '@/players/models/player';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from 'nestjs-typegoose';
+import { plainToClass } from 'class-transformer';
 
 @Injectable()
 export class PlayersService {
@@ -15,15 +16,15 @@ export class PlayersService {
   ) { }
 
   async getById(id: string) {
-    return await this.playerModel.findById(id);
+    return plainToClass(Player, await this.playerModel.findById(id).orFail().lean().exec());
   }
 
   async getAll() {
-    return await this.playerModel.find();
+    return plainToClass(Player, await this.playerModel.find().lean().exec());
   }
 
   async findBySteamId(steamId: string) {
-    return await this.playerModel.findOne({ steamId });
+    return plainToClass(Player, await this.playerModel.findOne({ steamId }).orFail().lean().exec());
   }
 
   async _reset() {

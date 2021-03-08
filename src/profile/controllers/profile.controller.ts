@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Query, HttpCode, BadRequestException, Body, Put } from '@nestjs/common';
+import { Controller, Get, Post, Query, HttpCode, BadRequestException, Body, Put, UseInterceptors, ClassSerializerInterceptor } from '@nestjs/common';
 import { Auth } from '@/auth/decorators/auth.decorator';
 import { User } from '@/auth/decorators/user.decorator';
 import { Player } from '@/players/models/player';
@@ -7,6 +7,7 @@ import { GamesService } from '@/games/services/games.service';
 import { PlayerBansService } from '@/players/services/player-bans.service';
 import { MapVoteService } from '@/queue/services/map-vote.service';
 import { PlayerPreferencesService } from '@/player-preferences/services/player-preferences.service';
+import { Profile } from '../dto/profile';
 
 @Controller('profile')
 export class ProfileController {
@@ -19,14 +20,17 @@ export class ProfileController {
     private playerPreferencesService: PlayerPreferencesService,
   ) { }
 
-  @Auth()
   @Get()
-  async getProfile(@User() user: Player) {
-    const activeGameId = (await this.gamesService.getPlayerActiveGame(user.id))?.id ?? null;
-    const bans = await this.playerBansService.getPlayerActiveBans(user.id);
-    const mapVote = this.mapVoteService.playerVote(user.id);
-    const preferences = await this.playerPreferencesService.getPlayerPreferences(user.id);
-    return { ...user, activeGameId, bans, mapVote, preferences };
+  @Auth()
+  @UseInterceptors(ClassSerializerInterceptor)
+  async getProfile(@User() user: Player): Promise<Profile> {
+    return new Profile({
+      player: user,
+      activeGameId: (await this.gamesService.getPlayerActiveGame(user.id))?.id ?? null,
+      bans: await this.playerBansService.getPlayerActiveBans(user.id),
+      mapVote: this.mapVoteService.playerVote(user.id),
+      preferences: await this.playerPreferencesService.getPlayerPreferences(user.id),
+    });
   }
 
   @Auth()
@@ -41,8 +45,9 @@ export class ProfileController {
     return this.playerPreferencesService.updatePlayerPreferences(user.id, new Map(Object.entries(preferences)));
   }
 
-  @Auth()
   @Post()
+  @Auth()
+  @UseInterceptors(ClassSerializerInterceptor)
   @HttpCode(204)
   async acceptTerms(@User() user: Player, @Query('accept_terms') acceptTerms: string) {
     if (acceptTerms !== undefined) {

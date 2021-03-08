@@ -37,10 +37,10 @@ describe('OnlinePlayersService', () => {
     expect(service).toBeDefined();
   });
 
-  it('should handle player connections and disconnections properly', async () => new Promise(resolve => {
+  it('should handle player connections and disconnections properly', async () => new Promise<void>(resolve => {
     expect(service.getSocketsForPlayer('FAKE_ID')).toEqual([]);
 
-    const socket = { id: 'asdjklhuger', request: { user: { logged_in: true, id: 'FAKE_ID' } } };
+    const socket = { id: 'FAKE_SOCKET_ID', request: { user: { logged_in: true, id: 'FAKE_ID' } } };
     playersGateway.playerConnected.next(socket);
     expect(service.getSocketsForPlayer('FAKE_ID')).toEqual([ socket ] as any);
 

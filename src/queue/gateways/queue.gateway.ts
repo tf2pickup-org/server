@@ -10,6 +10,7 @@ import { Events } from '@/events/events';
 import { distinctUntilChanged } from 'rxjs/operators';
 import { PopulatePlayers } from '../decorators/populate-players.decorator';
 import { PlayerPopulatorService } from '../services/player-populator.service';
+import { AuthorizedWsClient } from '@/auth/ws-client';
 
 @WebSocketGateway()
 export class QueueGateway implements OnGatewayInit, OnModuleInit {
@@ -47,33 +48,33 @@ export class QueueGateway implements OnGatewayInit, OnModuleInit {
   @WsAuthorized()
   @PopulatePlayers()
   @SubscribeMessage('join queue')
-  async joinQueue(client: any, payload: { slotId: number }) {
+  async joinQueue(client: AuthorizedWsClient, payload: { slotId: number }) {
     return await this.queueService.join(payload.slotId, client.request.user.id);
   }
 
   @WsAuthorized()
   @PopulatePlayers()
   @SubscribeMessage('leave queue')
-  leaveQueue(client: any) {
+  leaveQueue(client: AuthorizedWsClient) {
     return this.queueService.leave(client.request.user.id);
   }
 
   @WsAuthorized()
   @PopulatePlayers()
   @SubscribeMessage('player ready')
-  playerReady(client: any) {
+  playerReady(client: AuthorizedWsClient) {
     return this.queueService.readyUp(client.request.user.id);
   }
 
   @WsAuthorized()
   @SubscribeMessage('mark friend')
-  markFriend(client: any, payload: { friendPlayerId: string }) {
+  markFriend(client: AuthorizedWsClient, payload: { friendPlayerId: string }) {
     return this.friendsService.markFriend(client.request.user.id, payload.friendPlayerId);
   }
 
   @WsAuthorized()
   @SubscribeMessage('vote for map')
-  voteForMap(client: any, payload: { map: string }) {
+  voteForMap(client: AuthorizedWsClient, payload: { map: string }) {
     this.mapVoteService.voteForMap(client.request.user.id, payload.map);
     return payload.map;
   }

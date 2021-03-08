@@ -1,11 +1,16 @@
+import { MongooseDocument } from '@/utils/mongoose-document';
 import { prop, index } from '@typegoose/typegoose';
+import { Expose, Transform, Type } from 'class-transformer';
 import { IsString, Matches } from 'class-validator';
 import { PlayerAvatar } from './player-avatar';
 import { PlayerRole } from './player-role';
 import { TwitchTvUser } from './twitch-tv-user';
 
 @index({ steamId: 'hashed' })
-export class Player {
+export class Player extends MongooseDocument {
+
+  @Expose()
+  @Transform(({ value, obj }) => value ?? obj._id.toString())
   id?: string;
 
   @IsString()
@@ -14,11 +19,12 @@ export class Player {
 
   @Matches(/^\d{17}$/)
   @prop({ unique: true })
-  steamId?: string;
+  steamId?: string; // SteamID64 only
 
   @prop({ default: () => new Date() })
   joinedAt?: Date;
 
+  @Type(() => PlayerAvatar)
   @prop()
   avatar?: PlayerAvatar;
 
@@ -31,6 +37,7 @@ export class Player {
   @prop({ index: true })
   etf2lProfileId?: number;
 
+  @Type(() => TwitchTvUser)
   @prop({ type: TwitchTvUser })
   twitchTvUser?: TwitchTvUser;
 

@@ -59,9 +59,18 @@ describe('Profile Controller', () => {
 
   describe('#getProfile()', () => {
     it('should return the logged-in user\'s profile', async () => {
-      const profile = { id: 'FAKE_ID', name: 'FAKE_USER_NAME', steamId: 'FAKE_STEAM_ID', hasAcceptedRules: false, activeGameId: null, bans: [],
-        mapVote: 'cp_badlands', preferences: new Map([['sound-volume', '0.5']]) };
-      expect(await controller.getProfile(profile)).toEqual(profile as any);
+      const profile = {
+        player: {
+          id: 'FAKE_ID',
+          name: 'FAKE_USER_NAME',
+          steamId: 'FAKE_STEAM_ID',
+          hasAcceptedRules: false,
+        },
+        activeGameId: null,
+        bans: [],
+        mapVote: 'cp_badlands',
+        preferences: new Map([['sound-volume', '0.5']]) };
+      expect(await controller.getProfile(profile.player)).toEqual(profile);
     });
   });
 

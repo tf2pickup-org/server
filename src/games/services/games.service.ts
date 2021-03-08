@@ -80,7 +80,7 @@ export class GamesService {
   }
 
   async getPlayerPlayedClassCount(playerId: string): Promise<{ [gameClass in Tf2ClassName]?: number }> {
-    // fixme refactor this to aggregate
+    // FIXME store player stats in a separate model to avoid this query
     const allGames = await this.gameModel.find({ 'slots.player': new ObjectId(playerId), state: GameState.ended });
     return this.queueConfigService.queueConfig.classes
       .map(cls => cls.name)
@@ -112,7 +112,7 @@ export class GamesService {
     const players: PlayerSlot[] = await Promise.all(queueSlots.map(slot => this.queueSlotToPlayerSlot(slot)));
     const assignedSkills = players.reduce((prev, curr) => { prev[curr.playerId] = curr.skill; return prev; }, { });
     const slots = pickTeams(shuffle(players), { friends })
-      .map(s => ({ ...s, player: new ObjectId(s.playerId) }));
+      .map(s => ({ ...s, player: s.playerId }));
     const gameNo = await this.getNextGameNumber();
 
     const game = await this.gameModel.create({
@@ -137,7 +137,7 @@ export class GamesService {
 
   async getMostActivePlayers() {
     return this.gameModel.aggregate([
-      { $match: { state: 'ended' } },
+      { $match: { state: GameState.ended } },
       { $unwind: '$slots' },
       { $group: { _id: '$slots.player', count: { $sum: 1 } } },
       { $sort: { count: -1 } },
@@ -154,7 +154,7 @@ export class GamesService {
       { $group: { _id: '$slots.player', count: { $sum: 1 } } },
       { $sort: { count: -1 } },
       { $limit: 10 },
-      { $project: { player: '$_id', count: 1, _id: 0 } },
+      { $project: { player: { $toString: '$_id' }, count: 1, _id: 0 } },
     ]);
   }
 

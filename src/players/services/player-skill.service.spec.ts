@@ -8,7 +8,6 @@ import { PlayerSkill } from '../models/player-skill';
 import { ReturnModelType, DocumentType } from '@typegoose/typegoose';
 import { ObjectId } from 'mongodb';
 import { QueueConfigService } from '@/queue/services/queue-config.service';
-import * as fs from 'fs';
 import { FuturePlayerSkillService } from './future-player-skill.service';
 import { Etf2lProfileService } from './etf2l-profile.service';
 import { Player } from '../models/player';
@@ -170,12 +169,6 @@ describe('PlayerSkillService', () => {
 
       service.setPlayerSkill(mockPlayer.id, new Map([[Tf2ClassName.soldier, 2]]));
     }));
-
-    describe('when there is no such player', () => {
-      it('should fail', async () => {
-        await expect(service.setPlayerSkill(new ObjectId().toString(), new Map([[Tf2ClassName.scout, 1]]))).rejects.toThrowError('no such player');
-      });
-    });
   });
 
   describe('#importPlayerSkills()', () => {

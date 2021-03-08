@@ -5,7 +5,7 @@ import { PlayerBan } from '../models/player-ban';
 import { OnlinePlayersService } from './online-players.service';
 import { ObjectId } from 'mongodb';
 import { typegooseTestingModule } from '@/utils/testing-typegoose-module';
-import { ReturnModelType, DocumentType } from '@typegoose/typegoose';
+import { ReturnModelType, DocumentType, mongoose } from '@typegoose/typegoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { Environment } from '@/environment/environment';
 import { PlayersService } from './players.service';
@@ -91,19 +91,27 @@ describe('PlayerBansService', () => {
       const ret = await service.getById(mockPlayerBan.id);
       expect(ret.id).toEqual(mockPlayerBan.id);
     });
+
+    describe('when the given ban does not exist', () => {
+      it('should throw', async () => {
+        await expect(service.getById(new mongoose.Types.ObjectId().toString())).rejects.toThrow(mongoose.Error.DocumentNotFoundError);
+      });
+    });
   });
 
   describe('#getPlayerBans()', () => {
     it('should query model', async () => {
       const ret = await service.getPlayerBans(player.id);
-      expect(ret.map(r => r.toJSON())).toEqual([ mockPlayerBan.toJSON() ]);
+      expect(ret.length).toEqual(1);
+      expect(ret[0].id).toEqual(mockPlayerBan.id);
     });
   });
 
   describe('#getPlayerActiveBans()', () => {
     it('should query model', async () => {
       const ret = await service.getPlayerActiveBans(player.id);
-      expect(ret.map(r => r.toJSON())).toEqual([ mockPlayerBan.toJSON() ]);
+      expect(ret.length).toEqual(1);
+      expect(ret[0].id).toEqual(mockPlayerBan.id);
     });
   });
 
@@ -116,8 +124,8 @@ describe('PlayerBansService', () => {
         end.setHours(end.getHours() + 1);
 
         newBan = {
-          player: player._id,
-          admin: admin._id,
+          player: player.id,
+          admin: admin.id,
           start: new Date(),
           end,
           reason: 'just testing',
@@ -126,12 +134,12 @@ describe('PlayerBansService', () => {
 
       it('should create the ban and return it', async () => {
         const ret = await service.addPlayerBan(newBan);
-        expect(ret.toObject()).toMatchObject(newBan);
+        expect(ret).toMatchObject(newBan);
       });
 
       it('should emit the playerBanAdded event', async () => new Promise<void>(resolve => {
         events.playerBanAdded.subscribe(({ ban }) => {
-          expect(ban.player.toString()).toEqual(player.id);
+          expect(ban.player.toString()).toEqual(player.id.toString());
           resolve();
         });
 
@@ -182,7 +190,7 @@ describe('PlayerBansService', () => {
 
     it('should emit the playerBanRevoked event', async () => new Promise<void>(resolve => {
       events.playerBanRevoked.subscribe(({ ban }) => {
-        expect(ban.player.toString()).toEqual(player.id);
+        expect(ban.player.toString()).toEqual(player.id.toString());
         resolve();
       });
 

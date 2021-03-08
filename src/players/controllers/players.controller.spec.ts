@@ -4,30 +4,33 @@ import { PlayersService } from '../services/players.service';
 import { Player } from '../models/player';
 import { GamesService } from '@/games/services/games.service';
 import { Game } from '@/games/models/game';
-import { PlayerStats } from '../models/player-stats';
+import { PlayerStats } from '../dto/player-stats';
 import { PlayerSkillService } from '../services/player-skill.service';
 import { PlayerSkill } from '../models/player-skill';
 import { PlayerBansService } from '../services/player-bans.service';
 import { NotFoundException, BadRequestException, CacheModule } from '@nestjs/common';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
+import { plainToClass } from 'class-transformer';
+import { PlayerBan } from '../models/player-ban';
+import { mongoose } from '@typegoose/typegoose';
 
 class PlayersServiceStub {
-  player: Player = {
-    id: 'FAKE_ID',
+  player = plainToClass(Player, {
+    _id: 'FAKE_ID',
     name: 'FAKE_PLAYER_NAME',
     steamId: 'FAKE_STEAM_ID',
     hasAcceptedRules: true,
-  };
-  stats: PlayerStats = {
+  });
+  stats: PlayerStats = new PlayerStats({
     player: 'FAKE_ID',
     gamesPlayed: 220,
-    classesPlayed: {
-      scout: 19,
-      soldier: 102,
-      demoman: 0,
-      medic: 92,
-    },
-  };
+    classesPlayed: new Map([
+      [ Tf2ClassName.scout, 19 ],
+      [ Tf2ClassName.soldier, 102 ],
+      [ Tf2ClassName.demoman, 0 ],
+      [ Tf2ClassName.medic, 92 ],
+    ]),
+  });
   getAll() { return new Promise(resolve => resolve([ this.player ])); }
   getById(id: string) { return new Promise(resolve => resolve(this.player)); }
   forceCreatePlayer(player: Player) { return new Promise(resolve => resolve(player)); }
@@ -159,8 +162,8 @@ describe('Players Controller', () => {
   describe('#forceCreatePlayer()', () => {
     it('should call the service', async () => {
       const spy = jest.spyOn(playersService, 'forceCreatePlayer');
-      await controller.forceCreatePlayer({ name: 'FAKE_PLAYER_NAME', steamId: 'FAKE_PLAYER_STEAM_ID' });
-      expect(spy).toHaveBeenCalledWith({ name: 'FAKE_PLAYER_NAME', steamId: 'FAKE_PLAYER_STEAM_ID' });
+      await controller.forceCreatePlayer({ id: 'FAKE_PLAYER_ID', name: 'FAKE_PLAYER_NAME', steamId: 'FAKE_PLAYER_STEAM_ID' } as Player);
+      expect(spy).toHaveBeenCalledWith(expect.objectContaining({ name: 'FAKE_PLAYER_NAME', steamId: 'FAKE_PLAYER_STEAM_ID' }));
     });
   });
 
@@ -245,17 +248,17 @@ describe('Players Controller', () => {
 
   describe('#addPlayerBan()', () => {
     const ban = {
-      player: '5d448875b963ff7e00c6b6b3',
-      admin: '5d448875b963ff7e00c6b6b3',
-      start: '2019-12-16T00:23:55.000Z',
-      end: '2019-12-17T01:51:49.183Z',
+      player: new mongoose.Types.ObjectId('5d448875b963ff7e00c6b6b3'),
+      admin: new mongoose.Types.ObjectId('5d448875b963ff7e00c6b6b3'),
+      start: new Date('2019-12-16T00:23:55.000Z'),
+      end: new Date('2019-12-17T01:51:49.183Z'),
       reason: 'dupa',
       id: '5df833c256e77d8768130f9a',
     };
 
     it('should add player ban', async () => {
       const spy = jest.spyOn(playerBansService, 'addPlayerBan');
-      const ret = await controller.addPlayerBan(ban as any, { id: '5d448875b963ff7e00c6b6b3' } as any);
+      const ret = await controller.addPlayerBan(ban as PlayerBan, { id: '5d448875b963ff7e00c6b6b3' } as Player);
       expect(spy).toHaveBeenCalledWith(ban);
       expect(ret).toEqual(ban as any);
     });

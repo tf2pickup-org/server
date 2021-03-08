@@ -1,6 +1,7 @@
-import { prop } from "@typegoose/typegoose";
+import { MongooseDocument } from '@/utils/mongoose-document';
+import { prop } from '@typegoose/typegoose';
 
-export class PlayerAvatar {
+export class PlayerAvatar extends MongooseDocument {
 
   @prop()
   small: string; // 32x32 px

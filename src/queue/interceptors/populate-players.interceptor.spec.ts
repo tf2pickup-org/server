@@ -3,6 +3,7 @@ import { PlayerPopulatorService } from '../services/player-populator.service';
 import { Test, TestingModule } from '@nestjs/testing';
 import { of } from 'rxjs';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
+import { Player } from '@/players/models/player';
 
 jest.mock('../services/player-populator.service');
 
@@ -20,10 +21,10 @@ describe('PopulatePlayersInterceptor', () => {
     interceptor = new PopulatePlayersInterceptor(playerPopulatorService);
 
     playerPopulatorService.populatePlayer.mockResolvedValue(
-      { id: 2, gameClass: Tf2ClassName.soldier, ready: false, playerId: 'FAKE_PLAYER_ID', player: { id: 'FAKE_PLAYER_ID' }, }
+      { id: 2, gameClass: Tf2ClassName.soldier, ready: false, playerId: 'FAKE_PLAYER_ID', player: { id: 'FAKE_PLAYER_ID' } as Player, }
     );
     playerPopulatorService.populatePlayers.mockResolvedValue([
-      { id: 2, gameClass: Tf2ClassName.soldier, ready: false, playerId: 'FAKE_PLAYER_ID', player: { id: 'FAKE_PLAYER_ID' }, }
+      { id: 2, gameClass: Tf2ClassName.soldier, ready: false, playerId: 'FAKE_PLAYER_ID', player: { id: 'FAKE_PLAYER_ID' } as Player, }
     ]);
   });
 

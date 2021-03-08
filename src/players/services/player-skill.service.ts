@@ -44,11 +44,6 @@ export class PlayerSkillService implements OnModuleInit {
   }
 
   async setPlayerSkill(playerId: string, skill: PlayerSkillType, adminId?: string): Promise<PlayerSkillType> {
-    const player = await this.playersService.getById(playerId);
-    if (!player) {
-      throw new Error('no such player');
-    }
-
     const oldSkill = (await this.playerSkillModel.findOne({ player: playerId }))?.skill || new Map();
     const newSkill = (await this.playerSkillModel.findOneAndUpdate({ player: playerId }, { skill }, { new: true, upsert: true })).skill;
     this.events.playerSkillChanged.next({ playerId, oldSkill, newSkill, adminId });

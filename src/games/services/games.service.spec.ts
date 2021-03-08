@@ -130,10 +130,10 @@ describe('GamesService', () => {
   describe('#getPlayerActiveGame()', () => {
     describe('when a player is active in a game', () => {
       let game: DocumentType<Game>;
-      let playerId: ObjectId;
+      let playerId: string;
 
       beforeEach(async () => {
-        playerId = new ObjectId();
+        playerId = new ObjectId().toString();
         game = await gameModel.create({
           number: 1,
           map: 'cp_badlands',
@@ -150,7 +150,7 @@ describe('GamesService', () => {
       });
 
       it('should return that game', async () => {
-        const ret = await service.getPlayerActiveGame(playerId.toString());
+        const ret = await service.getPlayerActiveGame(playerId);
         expect(ret).toBeTruthy();
         expect(ret.toJSON()).toEqual(game.toJSON());
       });
@@ -158,10 +158,10 @@ describe('GamesService', () => {
 
     describe('when a player is marked as awaitng substitute in a game', () => {
       let game: DocumentType<Game>;
-      let playerId: ObjectId;
+      let playerId: string;
 
       beforeEach(async () => {
-        playerId = new ObjectId();
+        playerId = new ObjectId().toString();
         game = await gameModel.create({
           number: 1,
           map: 'cp_badlands',
@@ -178,19 +178,19 @@ describe('GamesService', () => {
       });
 
       it('should return that game', async () => {
-        const ret = await service.getPlayerActiveGame(playerId.toString());
+        const ret = await service.getPlayerActiveGame(playerId);
         expect(ret).toBeTruthy();
         expect(ret.toJSON()).toEqual(game.toJSON());
       });
     });
 
     describe('when a player has been replaced in a game', () => {
-      let playerId: ObjectId;
-      let player2Id: ObjectId;
+      let playerId: string;
+      let player2Id: string;
 
       beforeEach(async () => {
-        playerId = new ObjectId();
-        player2Id = new ObjectId();
+        playerId = new ObjectId().toString();
+        player2Id = new ObjectId().toString();
 
         await  gameModel.create({
           number: 1,
@@ -214,16 +214,16 @@ describe('GamesService', () => {
       });
 
       it('should not return that game', async () => {
-        const ret = await service.getPlayerActiveGame(playerId.toString());
+        const ret = await service.getPlayerActiveGame(playerId);
         expect(ret).toBeNull();
       });
     });
 
     describe('when a player was active in a game that has already been ended', () => {
-      let playerId: ObjectId;
+      let playerId: string;
 
       beforeEach(async () => {
-        playerId = new ObjectId();
+        playerId = new ObjectId().toString();
         await  gameModel.create({
           number: 1,
           map: 'cp_badlands',
@@ -239,7 +239,7 @@ describe('GamesService', () => {
       });
 
       it('should not return that game', async () => {
-        const ret = await service.getPlayerActiveGame(playerId.toString());
+        const ret = await service.getPlayerActiveGame(playerId);
         expect(ret).toBeNull();
       });
     });
@@ -405,7 +405,7 @@ describe('GamesService', () => {
 
     it('should return the most active players', async () => {
       const ret = await service.getMostActivePlayers();
-      expect(ret).toEqual([{ player: player1.id, count: 2 }, { player: player2.id, count: 1 }]);
+      expect(ret).toEqual([{ player: player1.id.toString(), count: 2 }, { player: player2.id.toString(), count: 1 }]);
     });
   });
 

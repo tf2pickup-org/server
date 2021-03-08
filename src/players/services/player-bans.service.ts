@@ -1,12 +1,13 @@
 import { Injectable, OnModuleInit, Logger, Inject, forwardRef } from '@nestjs/common';
 import { InjectModel } from 'nestjs-typegoose';
 import { PlayerBan } from '../models/player-ban';
-import { ReturnModelType, DocumentType } from '@typegoose/typegoose';
+import { ReturnModelType } from '@typegoose/typegoose';
 import { merge } from 'rxjs';
 import { OnlinePlayersService } from './online-players.service';
 import { PlayersService } from './players.service';
 import { Environment } from '@/environment/environment';
 import { Events } from '@/events/events';
+import { plainToClass } from 'class-transformer';
 
 @Injectable()
 export class PlayerBansService implements OnModuleInit {
@@ -32,61 +33,54 @@ export class PlayerBansService implements OnModuleInit {
     });
   }
 
-  async getById(banId: string): Promise<DocumentType<PlayerBan>> {
-    return await this.playerBanModel.findById(banId);
+  async getById(banId: string): Promise<PlayerBan> {
+    return plainToClass(PlayerBan, await this.playerBanModel.findById(banId).orFail().lean().exec());
   }
 
-  async getPlayerBans(playerId: string) {
-    return await this.playerBanModel.find({ player: playerId }).sort({ start: -1 });
+  async getPlayerBans(playerId: string): Promise<PlayerBan[]> {
+    return plainToClass(PlayerBan, await this.playerBanModel.find({ player: playerId }).sort({ start: -1 }).lean().exec());
   }
 
-  async getPlayerActiveBans(playerId: string) {
-    return await this.playerBanModel.find({
+  async getPlayerActiveBans(playerId: string): Promise<PlayerBan[]> {
+    const plain = await this.playerBanModel.find({
       player: playerId,
       end: {
         $gte: new Date(),
       },
-    });
+    }).lean().exec();
+    return plainToClass(PlayerBan, plain);
   }
 
-  async addPlayerBan(playerBan: PlayerBan): Promise<DocumentType<PlayerBan>> {
+  async addPlayerBan(props: PlayerBan): Promise<PlayerBan> {
     const [ admin, player ] = await Promise.all([
-      await this.playersService.getById(playerBan.admin.toString()),
-      await this.playersService.getById(playerBan.player.toString()),
+      await this.playersService.getById(props.admin.toString()),
+      await this.playersService.getById(props.player.toString()),
     ]);
 
-    if (!admin) {
-      throw new Error('admin does not exist');
-    }
-
-    if (!player) {
-      throw new Error('player does not exist');
-    }
-
-    const addedBan = await this.playerBanModel.create(playerBan);
-    this.logger.verbose(`ban added for player ${player.id} (reason: ${playerBan.reason})`);
+    const { id } = await this.playerBanModel.create(props);
+    const addedBan = await this.getById(id);
+    this.logger.verbose(`ban added for player ${player.id} (reason: ${addedBan.reason})`);
     this.events.playerBanAdded.next({ ban: addedBan });
     return addedBan;
   }
 
-  async revokeBan(banId: string, adminId: string): Promise<DocumentType<PlayerBan>> {
+  async revokeBan(banId: string, adminId: string): Promise<PlayerBan> {
     const admin = await this.playersService.getById(adminId);
-    if (!admin) {
-      throw new Error('this admin does not exist');
-    }
 
-    const ban = await this.playerBanModel.findById(banId);
+    const ban = await this.getById(banId);
     if (ban.end < new Date()) {
       throw new Error('this ban has already expired');
     }
 
-    ban.end = new Date();
-    await ban.save();
-
-    const player = await this.playersService.getById(ban.player.toString());
+    const newBan = await this.updateBan(banId, { end: new Date() });
+    const player = await this.playersService.getById(newBan.player.toString());
     this.logger.verbose(`ban revoked for player ${player.id}`);
-    this.events.playerBanRevoked.next({ ban });
-    return ban;
+    this.events.playerBanRevoked.next({ ban: newBan });
+    return newBan;
+  }
+
+  private async updateBan(banId: string, update: Partial<PlayerBan>): Promise<PlayerBan> {
+    return plainToClass(PlayerBan, await this.playerBanModel.findOneAndUpdate({ _id: banId }, update, { new: true }).orFail().lean().exec());
   }
 
 }
