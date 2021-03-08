@@ -7,7 +7,7 @@ import { LogReceiver } from 'srcds-log-receiver';
 import { MockLogReceiver } from './mock-log-receiver';
 import { PlayersService } from '@/players/services/players.service';
 import { Player } from '@/players/models/player';
-import { SteamProfile } from '@/players/models/steam-profile';
+import { SteamProfile } from '@/players/steam-profile';
 
 jest.mock('@/players/services/steam-api.service', () => ({
   SteamApiService: jest.fn().mockImplementation(() => ({
@@ -68,8 +68,6 @@ describe('PlayersController (e2e)', () => {
           joinedAt: maly.joinedAt.toISOString(),
           hasAcceptedRules: false,
           avatar: {
-            //@ts-expect-error
-            _id: `${maly.avatar._id}`,
             small: 'small_avatar_url',
             medium: 'medium_avatar_url',
             large: 'large_avatar_url',
@@ -91,8 +89,6 @@ describe('PlayersController (e2e)', () => {
         joinedAt: maly.joinedAt.toISOString(),
         hasAcceptedRules: false,
         avatar: {
-          //@ts-expect-error
-          _id: `${maly.avatar._id}`,
           small: 'small_avatar_url',
           medium: 'medium_avatar_url',
           large: 'large_avatar_url',
