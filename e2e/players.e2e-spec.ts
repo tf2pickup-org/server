@@ -66,7 +66,6 @@ describe('PlayersController (e2e)', () => {
           etf2lProfileId: 112758,
           name: 'maly',
           joinedAt: maly.joinedAt.toISOString(),
-          hasAcceptedRules: false,
           avatar: {
             small: 'small_avatar_url',
             medium: 'medium_avatar_url',
@@ -87,7 +86,6 @@ describe('PlayersController (e2e)', () => {
         etf2lProfileId: 112758,
         name: 'maly',
         joinedAt: maly.joinedAt.toISOString(),
-        hasAcceptedRules: false,
         avatar: {
           small: 'small_avatar_url',
           medium: 'medium_avatar_url',

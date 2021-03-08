@@ -64,7 +64,6 @@ describe('Profile Controller', () => {
           id: 'FAKE_ID',
           name: 'FAKE_USER_NAME',
           steamId: 'FAKE_STEAM_ID',
-          hasAcceptedRules: false,
         },
         activeGameId: null,
         bans: [],

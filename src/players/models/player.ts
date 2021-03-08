@@ -1,6 +1,6 @@
 import { MongooseDocument } from '@/utils/mongoose-document';
 import { prop, index } from '@typegoose/typegoose';
-import { Expose, Transform, Type } from 'class-transformer';
+import { Exclude, Expose, Transform, Type } from 'class-transformer';
 import { IsString, Matches } from 'class-validator';
 import { PlayerAvatar } from './player-avatar';
 import { PlayerRole } from './player-role';
@@ -31,6 +31,7 @@ export class Player extends MongooseDocument {
   @prop()
   role?: PlayerRole;
 
+  @Exclude({ toPlainOnly: true })
   @prop({ default: false })
   hasAcceptedRules?: boolean;
 

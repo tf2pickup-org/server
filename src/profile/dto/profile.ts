@@ -19,6 +19,7 @@ export class Profile {
     this.bans = params.bans;
     this.mapVote = params.mapVote;
     this.preferences = params.preferences;
+    this.hasAcceptedRules = params.player.hasAcceptedRules;
   }
 
   @Type(() => Player)
@@ -33,5 +34,7 @@ export class Profile {
 
   @Type(() => String)
   preferences: PreferencesType;
+
+  hasAcceptedRules: boolean;
 
 }
