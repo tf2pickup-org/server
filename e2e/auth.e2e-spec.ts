@@ -3,10 +3,10 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from '@/app.module';
-import { MockLogReceiver } from './mock-log-receiver';
 import { LogReceiver } from 'srcds-log-receiver';
+import { MockLogReceiver } from './mock-log-receiver';
 
-describe('AppController (e2e)', () => {
+describe('AuthController (e2e)', () => {
   let app: INestApplication;
   let mockLogReceiver: MockLogReceiver;
 
@@ -29,9 +29,10 @@ describe('AppController (e2e)', () => {
     await app.close();
   });
 
-  it('GET /', () => {
+  it('/auth/steam', () => {
     return request(app.getHttpServer())
-      .get('/')
-      .expect(200);
+      .get('/auth/steam')
+      .expect(302)
+      .expect('Location', /https:\/\/steamcommunity\.com\/openid\/login/);
   });
 });
