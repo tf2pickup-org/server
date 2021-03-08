@@ -13,6 +13,7 @@
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\"",
     "test": "jest --watch",
     "test:ci": "jest --ci --maxWorkers 4",
+    "test:e2e": "NODE_ENV=test jest --config e2e.jest.config.ts --forceExit --runInBand",
     "console": "ts-node -r tsconfig-paths/register src/console.ts",
     "export-skills": "ts-node -r tsconfig-paths/register src/console.ts -- export-skills",
     "release": "release-it",

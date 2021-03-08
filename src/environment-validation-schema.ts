@@ -2,7 +2,7 @@ import { object, string, number, any } from '@hapi/joi';
 
 export default object({
   NODE_ENV: string()
-    .valid('development', 'production')
+    .valid('development', 'production', 'test')
     .default('development'),
   API_URL: string().required(),
   CLIENT_URL: string().required(),
