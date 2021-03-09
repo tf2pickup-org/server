@@ -9,7 +9,7 @@
     "build": "nest build",
     "postbuild": "copyfiles client/** dist/",
     "dev": "nest start --watch --debug",
-    "prod": "node dist/main",
+    "prod": "node dist/src/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\"",
     "test": "jest --watch",
     "test:ci": "jest --ci --maxWorkers 4",
