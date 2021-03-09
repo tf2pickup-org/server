@@ -79,6 +79,7 @@ describe('QueueService', () => {
   });
 
   afterEach(async () => {
+    service.onModuleDestroy();
     // @ts-expect-error
     await playersService._reset();
   });
