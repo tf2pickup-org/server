@@ -5,7 +5,6 @@ import { ReturnModelType } from '@typegoose/typegoose';
 import { merge } from 'rxjs';
 import { OnlinePlayersService } from './online-players.service';
 import { PlayersService } from './players.service';
-import { Environment } from '@/environment/environment';
 import { Events } from '@/events/events';
 import { plainToClass } from 'class-transformer';
 
@@ -18,7 +17,6 @@ export class PlayerBansService implements OnModuleInit {
     @InjectModel(PlayerBan) private playerBanModel: ReturnModelType<typeof PlayerBan>,
     private onlinePlayersService: OnlinePlayersService,
     @Inject(forwardRef(() => PlayersService)) private playersService: PlayersService,
-    private environment: Environment,
     private events: Events,
   ) { }
 
@@ -52,11 +50,7 @@ export class PlayerBansService implements OnModuleInit {
   }
 
   async addPlayerBan(props: PlayerBan): Promise<PlayerBan> {
-    const [ admin, player ] = await Promise.all([
-      await this.playersService.getById(props.admin.toString()),
-      await this.playersService.getById(props.player.toString()),
-    ]);
-
+    const player = await this.playersService.getById(props.player.toString());
     const { id } = await this.playerBanModel.create(props);
     const addedBan = await this.getById(id);
     this.logger.verbose(`ban added for player ${player.id} (reason: ${addedBan.reason})`);
@@ -65,8 +59,6 @@ export class PlayerBansService implements OnModuleInit {
   }
 
   async revokeBan(banId: string, adminId: string): Promise<PlayerBan> {
-    const admin = await this.playersService.getById(adminId);
-
     const ban = await this.getById(banId);
     if (ban.end < new Date()) {
       throw new Error('this ban has already expired');
@@ -75,7 +67,7 @@ export class PlayerBansService implements OnModuleInit {
     const newBan = await this.updateBan(banId, { end: new Date() });
     const player = await this.playersService.getById(newBan.player.toString());
     this.logger.verbose(`ban revoked for player ${player.id}`);
-    this.events.playerBanRevoked.next({ ban: newBan });
+    this.events.playerBanRevoked.next({ ban: newBan, adminId });
     return newBan;
   }
 

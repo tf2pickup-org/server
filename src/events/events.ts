@@ -29,7 +29,7 @@ export class Events {
   readonly playerUpdates = new Subject<{ oldPlayer: Player, newPlayer: Player, adminId?: string }>();
   readonly playerDisconnects = new Subject<{ playerId: string }>();
   readonly playerBanAdded = new Subject<{ ban: PlayerBan }>();
-  readonly playerBanRevoked = new Subject<{ ban: PlayerBan }>();
+  readonly playerBanRevoked = new Subject<{ ban: PlayerBan, adminId?: string }>();
   readonly playerSkillChanged = new Subject<PlayerSkillChangedEventProps>();
 
   readonly playerJoinsQueue = new Subject<{ playerId: string }>();
