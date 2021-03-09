@@ -7,7 +7,6 @@ import { ObjectId } from 'mongodb';
 import { typegooseTestingModule } from '@/utils/testing-typegoose-module';
 import { ReturnModelType, DocumentType, mongoose } from '@typegoose/typegoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import { Environment } from '@/environment/environment';
 import { PlayersService } from './players.service';
 import { Player } from '../models/player';
 import { Events } from '@/events/events';
@@ -17,10 +16,6 @@ jest.mock('./players.service');
 class OnlinePlayersServiceStub {
   getSocketsForPlayer(playerId: string) { return []; }
 }
-
-const environment = {
-  clientUrl: 'FAKE_CLIENT_URL',
-};
 
 describe('PlayerBansService', () => {
   let service: PlayerBansService;
@@ -45,7 +40,6 @@ describe('PlayerBansService', () => {
       providers: [
         PlayerBansService,
         { provide: OnlinePlayersService, useClass: OnlinePlayersServiceStub },
-        { provide: Environment, useValue: environment },
         PlayersService,
         Events,
       ],
@@ -189,7 +183,8 @@ describe('PlayerBansService', () => {
     });
 
     it('should emit the playerBanRevoked event', async () => new Promise<void>(resolve => {
-      events.playerBanRevoked.subscribe(({ ban }) => {
+      events.playerBanRevoked.subscribe(({ ban, adminId }) => {
+        expect(adminId).toEqual(admin.id);
         expect(ban.player.toString()).toEqual(player.id.toString());
         resolve();
       });
@@ -205,12 +200,6 @@ describe('PlayerBansService', () => {
 
       it('should reject', async () => {
         await expect(service.revokeBan(mockPlayerBan.id, admin.id)).rejects.toThrowError();
-      });
-    });
-
-    describe('when the provided admin does not exist', () => {
-      it('should reject', async () => {
-        await expect(service.revokeBan(mockPlayerBan.id, new ObjectId().toString())).rejects.toThrowError();
       });
     });
   });
