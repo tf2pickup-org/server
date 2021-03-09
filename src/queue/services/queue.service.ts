@@ -1,4 +1,4 @@
-import { Injectable, Logger, Inject, forwardRef, OnModuleInit } from '@nestjs/common';
+import { Injectable, Logger, Inject, forwardRef, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
 import { QueueSlot } from '@/queue/queue-slot';
 import { PlayersService } from '@/players/services/players.service';
 import { QueueConfigService } from './queue-config.service';
@@ -9,13 +9,13 @@ import { readyUpTimeout, readyStateTimeout } from '@configs/queue';
 import { Events } from '@/events/events';
 
 @Injectable()
-export class QueueService implements OnModuleInit {
+export class QueueService implements OnModuleInit, OnModuleDestroy {
 
   slots: QueueSlot[] = [];
   state: QueueState = 'waiting';
 
   private logger = new Logger(QueueService.name);
-  private timer: NodeJS.Timer;
+  private timer?: NodeJS.Timer;
 
   get requiredPlayerCount(): number {
     return this.slots.length;
@@ -43,6 +43,10 @@ export class QueueService implements OnModuleInit {
     this.events.queueStateChange.subscribe(({ state }) => this.onStateChange(state));
     this.events.playerDisconnects.subscribe(({ playerId }) => this.kick(playerId));
     this.events.playerBanAdded.subscribe(({ ban }) => this.kick(ban.player.toString()));
+  }
+
+  onModuleDestroy() {
+    clearTimeout(this.timer);
   }
 
   getSlotById(id: number): QueueSlot {
