@@ -1,15 +1,28 @@
-import { Injectable } from '@nestjs/common';
-import { ReturnModelType } from '@typegoose/typegoose';
+import { Injectable, OnModuleInit } from '@nestjs/common';
+import { mongoose, ReturnModelType } from '@typegoose/typegoose';
 import { plainToClass } from 'class-transformer';
 import { InjectModel } from 'nestjs-typegoose';
 import { Document } from '../models/document';
 
 @Injectable()
-export class DocumentsService {
+export class DocumentsService implements OnModuleInit {
 
   constructor(
     @InjectModel(Document) private documentModel: ReturnModelType<typeof Document>,
   ) { }
+
+  async onModuleInit() {
+    // ensure we have the rules document created
+    try {
+      await this.getDocument('rules');
+    } catch (error) {
+      if (error instanceof mongoose.Error.DocumentNotFoundError) {
+        await this.saveDocument('rules', 'en', '');
+      } else {
+        throw error;
+      }
+    }
+  }
 
   async getDocument(name: string, language = 'en'): Promise<Document> {
     const pojo = await this.documentModel.findOne({ name, language }).orFail().lean().exec();
