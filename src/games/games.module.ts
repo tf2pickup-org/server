@@ -25,7 +25,6 @@ import { ConfigurationModule } from '@/configuration/configuration.module';
 const logReceiverProvider = {
   provide: LogReceiver,
   useFactory: (environment: Environment) => new LogReceiver({
-    address: environment.logRelayAddress,
     port: parseInt(environment.logRelayPort, 10),
   }),
   inject: [ Environment ],
