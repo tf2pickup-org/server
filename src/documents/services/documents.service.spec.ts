@@ -35,6 +35,13 @@ describe('DocumentsService', () => {
     expect(service).toBeDefined();
   });
 
+  describe('#onModuleInit()', () => {
+    it('should create empty rules document', async () => {
+      await service.onModuleInit();
+      expect(await documentModel.findOne({ name: 'rules', language: 'en' })).toBeTruthy();
+    });
+  });
+
   describe('#getDocument()', () => {
     describe('when a given document exists', () => {
       beforeEach(async () => {
