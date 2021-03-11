@@ -1,3 +1,34 @@
+# [4.0.0](https://github.com/tf2pickup-pl/server/compare/3.8.4...4.0.0) (2021-03-11)
+
+
+### Bug Fixes
+
+* create empty rules initially ([#912](https://github.com/tf2pickup-pl/server/issues/912)) ([6d21158](https://github.com/tf2pickup-pl/server/commit/6d2115875a087cc4ff08d5caa98d40820c0675bb))
+* get rid of LogReceiver bind address ([#910](https://github.com/tf2pickup-pl/server/issues/910)) ([69c3e68](https://github.com/tf2pickup-pl/server/commit/69c3e68bf57c8c4127565f9c0d10cf64a5a5c42e))
+* **deps:** update dependency @nestjs/schedule to v0.4.3 ([#908](https://github.com/tf2pickup-pl/server/issues/908)) ([f13fae2](https://github.com/tf2pickup-pl/server/commit/f13fae28428d548b365542edb71461537fa66383))
+* add launch.json ([a1f76ee](https://github.com/tf2pickup-pl/server/commit/a1f76ee6b18d9c49f434f599c51c2cbe6951379e))
+* fix crash when querying unassigned skill ([#887](https://github.com/tf2pickup-pl/server/issues/887)) ([3a94c72](https://github.com/tf2pickup-pl/server/commit/3a94c72d7ce513a6406455bbcea4d4e51235248e))
+* fix player registration ([#898](https://github.com/tf2pickup-pl/server/issues/898)) ([f980e8e](https://github.com/tf2pickup-pl/server/commit/f980e8e1a5424814b16aceab97d060e6009a77ad))
+* move hasAcceptedRules prop to the Profile model ([#901](https://github.com/tf2pickup-pl/server/issues/901)) ([87a1587](https://github.com/tf2pickup-pl/server/commit/87a1587e6c6fa65de4f17a79c90d93c280d17608))
+* **deps:** update dependency cache-manager to v3.4.1 ([#889](https://github.com/tf2pickup-pl/server/issues/889)) ([1792112](https://github.com/tf2pickup-pl/server/commit/17921122c06ba4c6fc61b15e444796b64ac09ecf))
+
+
+### Features
+
+* Docker releases ([#911](https://github.com/tf2pickup-pl/server/issues/911)) ([43ad025](https://github.com/tf2pickup-pl/server/commit/43ad02579c2ebf920a67bd4ea43fdca525cdc7fa))
+* editable documents (#886) ([2408735](https://github.com/tf2pickup-pl/server/commit/240873597a8ae4c8eb6bc831e4a76178bd0c00b8)), closes [#886](https://github.com/tf2pickup-pl/server/issues/886)
+
+
+### Refactors
+
+* better player module models handling (#891) ([13a2051](https://github.com/tf2pickup-pl/server/commit/13a20519d0427977374dec3ed9ca8efc6d77342b)), closes [#891](https://github.com/tf2pickup-pl/server/issues/891)
+
+
+### BREAKING CHANGES
+
+* The Profile API is changed - review the new DTO.
+* The Documents API is rewritten, dropping old functionality.
+
 ## [3.8.4](https://github.com/tf2pickup-pl/server/compare/3.8.3...3.8.4) (2021-03-05)
 
 
