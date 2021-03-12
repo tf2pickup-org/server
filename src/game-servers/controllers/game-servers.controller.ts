@@ -1,8 +1,9 @@
-import { Controller, Get, Param, NotFoundException, Post, Body, UsePipes, ValidationPipe, Delete } from '@nestjs/common';
+import { Controller, Get, Param, Post, Body, UsePipes, ValidationPipe, Delete, UseInterceptors, ClassSerializerInterceptor, UseFilters } from '@nestjs/common';
 import { GameServersService } from '../services/game-servers.service';
 import { ObjectIdValidationPipe } from '@/shared/pipes/object-id-validation.pipe';
 import { Auth } from '@/auth/decorators/auth.decorator';
-import { GameServer } from '../models/game-server';
+import { DocumentNotFoundFilter } from '@/shared/filters/document-not-found.filter';
+import { AddGameServer } from '../dto/add-game-server';
 
 @Controller('game-servers')
 export class GameServersController {
@@ -12,24 +13,23 @@ export class GameServersController {
   ) { }
 
   @Get()
+  @UseInterceptors(ClassSerializerInterceptor)
   async getAllGameServers() {
     return await this.gameServersService.getAllGameServers();
   }
 
   @Get(':id')
+  @UseInterceptors(ClassSerializerInterceptor)
+  @UseFilters(DocumentNotFoundFilter)
   async getGameServer(@Param('id', ObjectIdValidationPipe) gameServerId: string) {
-    const gameServer = await this.gameServersService.getById(gameServerId);
-    if (gameServer) {
-      return gameServer;
-    } else {
-      throw new NotFoundException();
-    }
+    return await this.gameServersService.getById(gameServerId);
   }
 
   @Post()
   @Auth('super-user')
   @UsePipes(ValidationPipe)
-  async addGameServer(@Body() gameServer: GameServer) {
+  @UseInterceptors(ClassSerializerInterceptor)
+  async addGameServer(@Body() gameServer: AddGameServer) {
     return this.gameServersService.addGameServer(gameServer);
   }
 

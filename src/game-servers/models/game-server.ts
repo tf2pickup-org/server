@@ -1,25 +1,27 @@
-import { prop, Ref } from '@typegoose/typegoose';
-import { IsString, IsPort } from 'class-validator';
+import { isRefType, prop, Ref } from '@typegoose/typegoose';
 import { Game } from '@/games/models/game';
+import { MongooseDocument } from '@/utils/mongoose-document';
+import { Exclude, Expose, Transform } from 'class-transformer';
 
-export class GameServer {
+export class GameServer extends MongooseDocument {
+
+  @Expose()
+  @Transform(({ value, obj }) => value ?? obj._id?.toString())
+  id?: string;
 
   @prop({ default: () => new Date() })
   createdAt?: Date;
 
-  @IsString()
   @prop({ required: true, trim: true })
   name!: string;
 
-  @IsString()
   @prop({ required: true, trim: true })
   address!: string;
 
-  @IsPort()
   @prop({ required: true })
   port!: string;
 
-  @IsString()
+  @Exclude({ toPlainOnly: true })
   @prop({ required: true })
   rconPassword!: string;
 
@@ -35,6 +37,7 @@ export class GameServer {
   @prop()
   mumbleChannelName?: string;
 
+  @Transform(({ value }) => isRefType(value) ? value.toString() : value)
   @prop({ ref: () => Game })
   game?: Ref<Game>; // currently running game
 

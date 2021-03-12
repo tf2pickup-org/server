@@ -1,14 +1,15 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from 'nestjs-typegoose';
 import { GameServer } from '../models/game-server';
-import { ReturnModelType, DocumentType } from '@typegoose/typegoose';
+import { ReturnModelType, DocumentType, mongoose } from '@typegoose/typegoose';
 import { resolve as resolveCb } from 'dns';
 import { promisify } from 'util';
 import { isServerOnline } from '../utils/is-server-online';
-import { Cron } from '@nestjs/schedule';
+import { Cron, CronExpression } from '@nestjs/schedule';
 import { Mutex } from 'async-mutex';
 import { Game } from '@/games/models/game';
 import { Events } from '@/events/events';
+import { plainToClass } from 'class-transformer';
 
 const resolve = promisify(resolveCb);
 
@@ -23,38 +24,42 @@ export class GameServersService {
     private events: Events,
   ) { }
 
-  async getAllGameServers() {
-    return await this.gameServerModel.find();
+  async getAllGameServers(): Promise<GameServer[]> {
+    return plainToClass(GameServer, await this.gameServerModel.find().lean().exec());
   }
 
-  async getById(gameServerId: string) {
-    return await this.gameServerModel.findById(gameServerId);
+  async getById(gameServerId: string): Promise<GameServer> {
+    return plainToClass(GameServer, await this.gameServerModel.findById(gameServerId).orFail().lean().exec());
   }
 
-  async addGameServer(gameServer: GameServer): Promise<DocumentType<GameServer>> {
-    if (/^(?!0)(?!.*\.$)((1?\d?\d|25[0-5]|2[0-4]\d)(\.|$)){4}$/.test(gameServer.address)) { // raw ip address was given
-      gameServer.resolvedIpAddresses = [ gameServer.address ];
+  async addGameServer(params: GameServer): Promise<GameServer> {
+    if (/^(?!0)(?!.*\.$)((1?\d?\d|25[0-5]|2[0-4]\d)(\.|$)){4}$/.test(params.address)) { // raw ip address was given
+      params.resolvedIpAddresses = [ params.address ];
     } else {
-      const resolvedIpAddresses = await resolve(gameServer.address);
-      this.logger.verbose(`resolved addresses for ${gameServer.address}: ${resolvedIpAddresses}`);
-      gameServer.resolvedIpAddresses = resolvedIpAddresses;
+      const resolvedIpAddresses = await resolve(params.address);
+      this.logger.verbose(`resolved addresses for ${params.address}: ${resolvedIpAddresses}`);
+      params.resolvedIpAddresses = resolvedIpAddresses;
     }
 
-    if (!gameServer.mumbleChannelName) {
+    if (!params.mumbleChannelName) {
       const latestServer = await this.gameServerModel.findOne({ mumbleChannelName: { $ne: null } }).sort({ createdAt: -1 }).exec();
       if (latestServer) {
         const id = parseInt(latestServer.mumbleChannelName, 10) + 1;
-        gameServer.mumbleChannelName = `${id}`;
+        params.mumbleChannelName = `${id}`;
       } else {
-        gameServer.mumbleChannelName = '1';
+        params.mumbleChannelName = '1';
       }
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { game, ...tmp } = gameServer; // extract game
-    const ret = await this.gameServerModel.create(tmp);
-    this.logger.log(`game server ${ret.id} (${ret.name}) added`);
-    return ret;
+    const { id } = await this.gameServerModel.create(params);
+    const gameServer = await this.getById(id);
+    this.logger.log(`game server ${gameServer.name} added`);
+    return gameServer;
+  }
+
+  async updateGameServer(gameServerId: string, update: Partial<GameServer>): Promise<GameServer> {
+    return plainToClass(GameServer,
+      await this.gameServerModel.findByIdAndUpdate(gameServerId, update, { new: true }).lean().exec());
   }
 
   async removeGameServer(gameServerId: string) {
@@ -66,55 +71,53 @@ export class GameServersService {
     }
   }
 
-  async findFreeGameServer(): Promise<DocumentType<GameServer>> {
-    return await this.gameServerModel.findOne({ isOnline: true, game: { $exists: false } });
+  async findFreeGameServer(): Promise<GameServer> {
+    return plainToClass(GameServer,
+      await this.gameServerModel.findOne({ isOnline: true, game: { $exists: false } }).orFail().lean().exec());
   }
 
-  async assignFreeGameServer(game: DocumentType<Game>): Promise<DocumentType<GameServer>> {
-    return new Promise<DocumentType<GameServer>>((resolve, reject) => {
-      this.mutex.runExclusive(async () => {
-        const gameServer = await this.findFreeGameServer();
-        if (!gameServer) {
-          throw new Error('no free game server available');
-        }
-
-        gameServer.game = game._id;
-        await gameServer.save();
+  async assignFreeGameServer(game: DocumentType<Game>): Promise<GameServer> {
+    return this.mutex.runExclusive(async () => {
+      try {
+        const gameServer = await this.updateGameServer((await this.findFreeGameServer()).id, { game: game._id });
         game.gameServer = gameServer._id;
         await game.save();
         this.events.gameChanges.next({ game: game.toJSON() });
         return gameServer;
-      }).then(resolve).catch(reject);
+      } catch(error) {
+        if (error instanceof mongoose.Error.DocumentNotFoundError) {
+          throw new Error('no free game server available');
+        } else {
+          throw error;
+        }
+      }
     });
   }
 
-  async releaseServer(gameServerId: string): Promise<DocumentType<GameServer>>  {
-    const gameServer = await this.gameServerModel.findByIdAndUpdate(gameServerId, { $unset: { game: 1 } }, { new: true });
-    if (gameServer) {
-      this.logger.debug(`game server ${gameServerId} (${gameServer.name}) marked as free`);
-      return gameServer;
-    } else {
-      throw new Error('no such game server');
-    }
+  async releaseServer(gameServerId: string): Promise<GameServer>  {
+    const gameServer = plainToClass(GameServer,
+      await this.gameServerModel.findByIdAndUpdate(gameServerId, { $unset: { game: 1 } }, { new: true }).orFail().lean().exec());
+
+    this.logger.debug(`game server ${gameServerId} (${gameServer.name}) marked as free`);
+    return gameServer;
   }
 
-  async getGameServerByEventSource(eventSource: { address: string; port: number; }): Promise<DocumentType<GameServer>> {
-    return await this.gameServerModel.findOne({
+  async getGameServerByEventSource(eventSource: { address: string; port: number; }): Promise<GameServer> {
+    return plainToClass(GameServer, await this.gameServerModel.findOne({
       resolvedIpAddresses: eventSource.address,
       port: `${eventSource.port}`,
-    });
+    }));
   }
 
-  @Cron('0 * * * * *') // every minute
+  @Cron(CronExpression.EVERY_MINUTE)
   async checkAllServers() {
     this.logger.debug('checking all servers...');
     const allGameServers = await this.getAllGameServers();
     for (const server of allGameServers) {
       const isOnline = await isServerOnline(server.address, parseInt(server.port, 10));
-      server.isOnline = isOnline;
+      await this.updateGameServer(server.id, { isOnline });
       this.logger.debug(`server ${server.name} is ${isOnline ? 'online' : 'offline'}`);
-      // todo verify rcon password
-      await server.save();
+      // TODO verify rcon password
     }
   }
 

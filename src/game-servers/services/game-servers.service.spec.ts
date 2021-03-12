@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { GameServersService } from './game-servers.service';
 import { TypegooseModule, getModelToken } from 'nestjs-typegoose';
 import { GameServer } from '../models/game-server';
-import { DocumentType, ReturnModelType } from '@typegoose/typegoose';
+import { DocumentType, mongoose, ReturnModelType } from '@typegoose/typegoose';
 import { ObjectId } from 'mongodb';
 import { typegooseTestingModule } from '@/utils/testing-typegoose-module';
 import * as isServerOnline from '../utils/is-server-online';
@@ -62,20 +62,20 @@ describe('GameServersService', () => {
     it('should return all game servers', async () => {
       const ret = await service.getAllGameServers();
       expect(ret.length).toBe(1);
-      expect(ret[0].toJSON()).toEqual(testGameServer.toJSON());
+      expect(ret[0].id).toEqual(testGameServer.id);
     });
   });
 
   describe('#getById()', () => {
     it('should return the requested game server', async () => {
       const ret = await service.getById(testGameServer.id);
-      expect(ret.toJSON()).toEqual(testGameServer.toJSON());
+      expect(ret.id).toEqual(testGameServer.id);
     });
   });
 
   describe('#addGameServer()', () => {
     describe('when there are no mumble channels taken', () => {
-      let gameServer: DocumentType<GameServer>;
+      let gameServer: GameServer;
 
       beforeEach(async () => {
         gameServer = await service.addGameServer({
@@ -92,7 +92,7 @@ describe('GameServersService', () => {
     });
 
     describe('when first mumble channel is taken', () => {
-      let gameServer: DocumentType<GameServer>;
+      let gameServer: GameServer;
 
       beforeEach(async () => {
         testGameServer.mumbleChannelName = '1';
@@ -112,7 +112,7 @@ describe('GameServersService', () => {
     });
 
     describe('when added', () => {
-      let gameServer: DocumentType<GameServer>;
+      let gameServer: GameServer;
 
       beforeEach(async () => {
         gameServer = await service.addGameServer({
@@ -125,7 +125,7 @@ describe('GameServersService', () => {
       });
 
       it('should resolve ip addresses', () => {
-        expect(gameServer.toObject().resolvedIpAddresses).toEqual(['1.2.3.4']);
+        expect(gameServer.resolvedIpAddresses).toEqual(['1.2.3.4']);
       });
 
       it('should save the mumble channel', () => {
@@ -134,7 +134,7 @@ describe('GameServersService', () => {
     });
 
     describe('when the address is a raw IP address', () => {
-      let gameServer: DocumentType<GameServer>;
+      let gameServer: GameServer;
 
       beforeEach(async () => {
         gameServer = await service.addGameServer({
@@ -147,7 +147,7 @@ describe('GameServersService', () => {
       });
 
       it('should store the ip address', () => {
-        expect(gameServer.toObject().resolvedIpAddresses).toEqual(['151.80.108.144']);
+        expect(gameServer.resolvedIpAddresses).toEqual(['151.80.108.144']);
       });
     });
   });
@@ -160,7 +160,7 @@ describe('GameServersService', () => {
 
     it('should fail gracefully', async () => {
       jest.spyOn(gameServerModel, 'deleteOne').mockResolvedValue({ ok: 0 });
-      await expect(service.removeGameServer(testGameServer.id)).rejects.toThrowError('unable to remove game server');
+      await expect(service.removeGameServer(testGameServer.id)).rejects.toThrow();
     });
   });
 
@@ -172,8 +172,8 @@ describe('GameServersService', () => {
         await testGameServer.save();
       });
 
-      it('should return null', async () => {
-        expect(await service.findFreeGameServer()).toBeNull();
+      it('should throw an error', async () => {
+        await expect(service.findFreeGameServer()).rejects.toThrow(mongoose.Error.DocumentNotFoundError);
       });
     });
 
@@ -183,8 +183,8 @@ describe('GameServersService', () => {
         await testGameServer.save();
       });
 
-      it('should return null', async () => {
-        expect(await service.findFreeGameServer()).toBeNull();
+      it('should throw an error', async () => {
+        await expect(service.findFreeGameServer()).rejects.toThrow(mongoose.Error.DocumentNotFoundError);
       });
     });
 
@@ -236,7 +236,7 @@ describe('GameServersService', () => {
 
     describe('when the game server does not exist', () => {
       it('should throw an error', async () => {
-        await expect(service.releaseServer(new ObjectId().toString())).rejects.toThrowError('no such game server');
+        await expect(service.releaseServer(new ObjectId().toString())).rejects.toThrow(mongoose.Error.DocumentNotFoundError);
       });
     });
   });
@@ -244,7 +244,7 @@ describe('GameServersService', () => {
   describe('#getGameServerByEventSource()', () => {
     it('should return the correct server', async () => {
       const server = await service.getGameServerByEventSource({ address: '127.0.0.1', port: 27015 });
-      expect(server.toJSON()).toEqual(testGameServer.toJSON());
+      expect(server.id).toEqual(testGameServer.id);
     });
   });
 
