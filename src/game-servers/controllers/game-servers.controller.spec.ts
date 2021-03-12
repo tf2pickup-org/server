@@ -71,7 +71,7 @@ describe('GameServers Controller', () => {
 
   describe('#removeGameServer()', () => {
     beforeEach(() => {
-      gameServersService.removeGameServer.mockResolvedValue();
+      gameServersService.removeGameServer.mockResolvedValue(mockGameServer);
     });
 
     it('should call the service', async () => {

@@ -41,4 +41,8 @@ export class GameServer extends MongooseDocument {
   @prop({ ref: () => Game })
   game?: Ref<Game>; // currently running game
 
+  @Exclude({ toPlainOnly: true })
+  @prop({ default: false })
+  deleted?: boolean;
+
 }

@@ -64,6 +64,18 @@ describe('GameServersService', () => {
       expect(ret.length).toBe(1);
       expect(ret[0].id).toEqual(testGameServer.id);
     });
+
+    describe('when a server is deleted', () => {
+      beforeEach(async () => {
+        testGameServer.deleted = true;
+        await testGameServer.save();
+      });
+
+      it('should not list deleted server', async () => {
+        const ret = await service.getAllGameServers();
+        expect(ret.length).toBe(0);
+      });
+    });
   });
 
   describe('#getById()', () => {
@@ -153,14 +165,10 @@ describe('GameServersService', () => {
   });
 
   describe('#removeGameServer()', () => {
-    it('should delete the given game server', async () => {
-      await service.removeGameServer(testGameServer.id);
-      expect(await gameServerModel.countDocuments()).toBe(0);
-    });
-
-    it('should fail gracefully', async () => {
-      jest.spyOn(gameServerModel, 'deleteOne').mockResolvedValue({ ok: 0 });
-      await expect(service.removeGameServer(testGameServer.id)).rejects.toThrow();
+    it('should mark the given game server as deleted', async () => {
+      const ret = await service.removeGameServer(testGameServer.id);
+      expect(ret.deleted).toBe(true);
+      expect((await gameServerModel.findById(ret.id)).deleted).toBe(true);
     });
   });
 
@@ -180,6 +188,17 @@ describe('GameServersService', () => {
     describe('when the server is free but offline', () => {
       beforeEach(async () => {
         testGameServer.isOnline = false;
+        await testGameServer.save();
+      });
+
+      it('should throw an error', async () => {
+        await expect(service.findFreeGameServer()).rejects.toThrow(mongoose.Error.DocumentNotFoundError);
+      });
+    });
+
+    describe('when the server is deleted', () => {
+      beforeEach(async () => {
+        testGameServer.deleted = true;
         await testGameServer.save();
       });
 
