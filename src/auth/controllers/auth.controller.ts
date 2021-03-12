@@ -26,7 +26,7 @@ export class AuthController {
         const url = req.cookies?.[redirectUrlCookieName] || this.environment.clientUrl;
 
         if (error) {
-          this.logger.warn(`Steam login error for ${player}: ${error}`);
+          this.logger.warn(`Steam login error: ${error}`);
           return res.redirect(`${url}/auth-error?error=${error.message}`);
         }
 

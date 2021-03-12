@@ -36,7 +36,7 @@ export class SteamApiService {
         );
       }),
       map(seconds => floor(seconds / 60 / 60)),
-      catchError(() => throwError(new Error('cannot verify in-game hours for TF2'))),
+      catchError(error => throwError(new Error(`cannot verify in-game hours for TF2 (${error})`))),
     ).toPromise();
   }
 
