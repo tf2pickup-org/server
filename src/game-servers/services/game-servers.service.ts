@@ -25,7 +25,7 @@ export class GameServersService {
   ) { }
 
   async getAllGameServers(): Promise<GameServer[]> {
-    return plainToClass(GameServer, await this.gameServerModel.find().lean().exec());
+    return plainToClass(GameServer, await this.gameServerModel.find({ deleted: false }).lean().exec());
   }
 
   async getById(gameServerId: string): Promise<GameServer> {
@@ -42,7 +42,7 @@ export class GameServersService {
     }
 
     if (!params.mumbleChannelName) {
-      const latestServer = await this.gameServerModel.findOne({ mumbleChannelName: { $ne: null } }).sort({ createdAt: -1 }).exec();
+      const latestServer = await this.gameServerModel.findOne({ mumbleChannelName: { $ne: null }, deleted: false }).sort({ createdAt: -1 }).exec();
       if (latestServer) {
         const id = parseInt(latestServer.mumbleChannelName, 10) + 1;
         params.mumbleChannelName = `${id}`;
@@ -62,18 +62,13 @@ export class GameServersService {
       await this.gameServerModel.findByIdAndUpdate(gameServerId, update, { new: true }).lean().exec());
   }
 
-  async removeGameServer(gameServerId: string) {
-    const { ok } = await this.gameServerModel.deleteOne({ _id: gameServerId });
-    if (!ok) {
-      throw new Error('unable to remove game server');
-    } else {
-      this.logger.log(`game server ${gameServerId} removed`);
-    }
+  async removeGameServer(gameServerId: string): Promise<GameServer> {
+    return await this.updateGameServer(gameServerId, { deleted: true });
   }
 
   async findFreeGameServer(): Promise<GameServer> {
     return plainToClass(GameServer,
-      await this.gameServerModel.findOne({ isOnline: true, game: { $exists: false } }).orFail().lean().exec());
+      await this.gameServerModel.findOne({ deleted: false, isOnline: true, game: { $exists: false } }).orFail().lean().exec());
   }
 
   async assignFreeGameServer(game: DocumentType<Game>): Promise<GameServer> {
@@ -104,6 +99,7 @@ export class GameServersService {
 
   async getGameServerByEventSource(eventSource: { address: string; port: number; }): Promise<GameServer> {
     return plainToClass(GameServer, await this.gameServerModel.findOne({
+      deleted: false,
       resolvedIpAddresses: eventSource.address,
       port: `${eventSource.port}`,
     }));
