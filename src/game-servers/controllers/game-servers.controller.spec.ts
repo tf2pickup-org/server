@@ -2,16 +2,6 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { GameServersController } from './game-servers.controller';
 import { GameServersService } from '../services/game-servers.service';
 import { GameServer } from '../models/game-server';
-import { NotFoundException } from '@nestjs/common';
-
-// class GameServersServiceStub {
-
-
-//   async getAllGameServers() { return new Promise(resolve => resolve([ this.gameServer ])); }
-//   async getById(id: string) { return new Promise(resolve => resolve(this.gameServer)); }
-//   async addGameServer(gameServer: any) { return new Promise(resolve => resolve(gameServer)); }
-//   async removeGameServer(id: string) { return new  Promise(resolve => resolve()); }
-// }
 
 const mockGameServer: GameServer = {
   name: 'FAKE_NAME',
