@@ -1,5 +1,4 @@
-FROM node:12 AS development
-
+FROM node:12 AS build
 WORKDIR /tf2pickup.pl
 
 COPY package*.json ./
@@ -12,7 +11,6 @@ RUN npm run build
 
 
 FROM node:12 AS production
-
 WORKDIR /tf2pickup.pl
 
 ARG NODE_ENV=production
@@ -23,7 +21,7 @@ COPY package*.json ./
 RUN npm install --only=production
 
 COPY configs ./configs
-COPY --from=development /tf2pickup.pl/dist ./dist
+COPY --from=build /tf2pickup.pl/dist ./dist
 
 CMD ["npm", "run", "prod"]
 
