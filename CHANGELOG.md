@@ -1,3 +1,10 @@
+## [4.0.1](https://github.com/tf2pickup-pl/server/compare/4.0.0...4.0.1) (2021-03-12)
+
+
+### Bug Fixes
+
+* **auth:** more verbose steam API errors ([#913](https://github.com/tf2pickup-pl/server/issues/913)) ([5e44cef](https://github.com/tf2pickup-pl/server/commit/5e44cef277fb36d30308ca7d35b2eae7fef347f1))
+
 # [4.0.0](https://github.com/tf2pickup-pl/server/compare/3.8.4...4.0.0) (2021-03-11)
 
 
