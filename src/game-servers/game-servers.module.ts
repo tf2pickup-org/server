@@ -3,12 +3,10 @@ import { TypegooseModule } from 'nestjs-typegoose';
 import { GameServer } from './models/game-server';
 import { GameServersService } from './services/game-servers.service';
 import { GameServersController } from './controllers/game-servers.controller';
-import { removeRconPassword } from '@/utils/tojson-transform';
-import { standardSchemaOptions } from '@/utils/standard-schema-options';
 
 @Module({
   imports: [
-    TypegooseModule.forFeature([ standardSchemaOptions(GameServer, removeRconPassword) ]),
+    TypegooseModule.forFeature([ GameServer ]),
   ],
   providers: [
     GameServersService,
