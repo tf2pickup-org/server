@@ -1,4 +1,4 @@
-name: Build nad publish Docker image
+name: Build and publish Docker image
 
 on:
   release:
