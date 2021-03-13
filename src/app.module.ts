@@ -10,7 +10,6 @@ import { QueueModule } from './queue/queue.module';
 import { GamesModule } from './games/games.module';
 import { GameServersModule } from './game-servers/game-servers.module';
 import { SharedModule } from './shared/shared.module';
-import { DiscordModule } from './discord/discord.module';
 import { EnvironmentModule } from './environment/environment.module';
 import { ConfigModule } from '@nestjs/config';
 import validationSchema from './environment-validation-schema';
@@ -23,6 +22,7 @@ import { EventsModule } from './events/events.module';
 import { StreamsModule } from './streams/streams.module';
 import { PlayerPreferencesModule } from './player-preferences/player-preferences.module';
 import { ConfigurationModule } from './configuration/configuration.module';
+import { PluginsModule } from './plugins/plugins.module';
 
 function createMongodbUri(environment: Environment) {
   let credentials = '';
@@ -70,12 +70,12 @@ function createMongodbUri(environment: Environment) {
     GamesModule,
     QueueModule,
     SharedModule,
-    DiscordModule,
     DocumentsModule,
     EventsModule,
     StreamsModule.configure(),
     PlayerPreferencesModule,
     ConfigurationModule,
+    PluginsModule.configure(),
   ],
   controllers: [
     AppController,
