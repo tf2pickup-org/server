@@ -1,7 +1,6 @@
 import { MongooseDocument } from '@/utils/mongoose-document';
 import { prop, index } from '@typegoose/typegoose';
 import { Exclude, Expose, Transform, Type } from 'class-transformer';
-import { IsString, Matches } from 'class-validator';
 import { PlayerAvatar } from './player-avatar';
 import { PlayerRole } from './player-role';
 import { TwitchTvUser } from './twitch-tv-user';
@@ -13,11 +12,9 @@ export class Player extends MongooseDocument {
   @Transform(({ value, obj }) => value ?? obj._id.toString())
   id?: string;
 
-  @IsString()
   @prop({ required: true, unique: true, trim: true })
   name!: string;
 
-  @Matches(/^\d{17}$/)
   @prop({ unique: true })
   steamId?: string; // SteamID64 only
 

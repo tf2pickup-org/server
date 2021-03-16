@@ -125,10 +125,10 @@ export class PlayersService implements OnModuleInit {
     // eslint-disable-next-line no-empty
     } catch (error) { }
 
-    const id = (await this.playerModel.create({
+    const { id } = await this.playerModel.create({
       etf2lProfileId: etf2lProfile?.id,
       ...playerData,
-    }))._id;
+    });
     const player = await this.getById(id);
     this.logger.verbose(`created new player (name: ${player.name})`);
     this.events.playerRegisters.next({ player });
