@@ -16,7 +16,7 @@ const readFile = promisify(fs.readFile);
 module.exports.up = next => {
   config();
 
-  if (!fs.existsSync(process.env.KEY_STORE_FILE)) {
+  if (!process.env.KEY_STORE_FILE || !fs.existsSync(process.env.KEY_STORE_FILE)) {
     next();
     return;
   }
