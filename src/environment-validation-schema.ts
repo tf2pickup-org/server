@@ -13,7 +13,6 @@ export default object({
   MONGODB_USERNAME: any().optional(),
   MONGODB_PASSWORD: any().optional(),
   STEAM_API_KEY: string().required(),
-  KEY_STORE_FILE: string().required(),
   KEY_STORE_PASSPHARE: string().required(),
   SUPER_USER: string().required(),
   QUEUE_CONFIG: string()

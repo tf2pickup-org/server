@@ -1,6 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AuthService } from './auth.service';
-import { KeyStoreService } from './key-store.service';
 import { getModelToken, TypegooseModule } from 'nestjs-typegoose';
 import { generateKeyPairSync } from 'crypto';
 import { decode, sign, verify } from 'jsonwebtoken';
@@ -8,34 +7,16 @@ import { MongoMemoryServer } from 'mongodb-memory-server';
 import { RefreshToken } from '../models/refresh-token';
 import { ReturnModelType } from '@typegoose/typegoose';
 import { typegooseTestingModule } from '@/utils/testing-typegoose-module';
-
-class KeyStoreServiceStub {
-  public key = generateKeyPairSync('ec', {
-    namedCurve: 'secp521r1',
-  });
-
-  getKey(name: string, purpose: string) {
-    switch (name) {
-      case 'auth':
-      case 'refresh':
-      case 'context':
-        switch (purpose) {
-          case 'sign': return this.key.privateKey.export({ format: 'pem', type: 'pkcs8' });
-          case 'verify': return this.key.publicKey.export({ format: 'pem', type: 'spki' });
-          default: throw new Error('invalid purpose');
-        }
-
-      case 'ws':
-        return 'secret';
-    }
-  }
-}
+import { InvalidTokenError } from '../errors/invalid-token.error';
+import { JwtTokenPurpose } from '../jwt-token-purpose';
+import { KeyPair } from '../key-pair';
 
 describe('AuthService', () => {
   const mongod = new MongoMemoryServer();
   let service: AuthService;
-  let keyStoreService: KeyStoreServiceStub;
   let refreshTokenModel: ReturnModelType<typeof RefreshToken>;
+  let authKeys: KeyPair;
+  let refreshKeys: KeyPair;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -45,13 +26,17 @@ describe('AuthService', () => {
       ],
       providers: [
         AuthService,
-        { provide: KeyStoreService, useClass: KeyStoreServiceStub },
+        { provide: 'AUTH_TOKEN_KEY', useFactory: () => generateKeyPairSync('ec', { namedCurve: 'secp521r1' }) },
+        { provide: 'REFRESH_TOKEN_KEY', useFactory: () => generateKeyPairSync('ec', { namedCurve: 'secp521r1' }) },
+        { provide: 'WEBSOCKET_SECRET', useValue: 'websocket_secret' },
+        { provide: 'CONTEXT_TOKEN_KEY', useFactory: () => generateKeyPairSync('ec', { namedCurve: 'secp521r1' }) },
       ],
     }).compile();
 
     service = module.get<AuthService>(AuthService);
-    keyStoreService = module.get(KeyStoreService);
-    refreshTokenModel = module.get(getModelToken('RefreshToken'));
+    refreshTokenModel = module.get(getModelToken(RefreshToken.name));
+    authKeys = module.get('AUTH_TOKEN_KEY');
+    refreshKeys = module.get('REFRESH_TOKEN_KEY');
   });
 
   afterEach(async () => await refreshTokenModel.deleteMany({ }));
@@ -62,62 +47,38 @@ describe('AuthService', () => {
 
   describe('#generateJwtToken()', () => {
     describe('auth', () => {
-      it('should retrieve the signing auth key from the key store', async () => {
-        const spy = jest.spyOn(keyStoreService, 'getKey');
-        await service.generateJwtToken('auth', 'FAKE_USER_ID');
-        expect(spy).toHaveBeenCalledWith('auth', 'sign');
-      });
-
       it('should encode user id', async () => {
-        const token = await service.generateJwtToken('auth', 'FAKE_USER_ID');
+        const token = await service.generateJwtToken(JwtTokenPurpose.auth, 'FAKE_USER_ID');
         const decoded = decode(token) as { id: string; iat: number; exp: number };
         expect(decoded.id).toEqual('FAKE_USER_ID');
       });
     });
 
     describe('refresh', () => {
-      it('should retrieve the signing refresh key from the key store', async () => {
-        const spy = jest.spyOn(keyStoreService, 'getKey');
-        await service.generateJwtToken('refresh', 'FAKE_USER_ID');
-        expect(spy).toHaveBeenCalledWith('refresh', 'sign');
-      });
-
       it('should encode user id', async () => {
-        const token = await service.generateJwtToken('refresh', 'FAKE_USER_ID');
+        const token = await service.generateJwtToken(JwtTokenPurpose.refresh, 'FAKE_USER_ID');
         const decoded = decode(token) as { id: string; iat: number; exp: number };
         expect(decoded.id).toEqual('FAKE_USER_ID');
       });
 
       it('should store the token in the database', async () => {
-        const value = await service.generateJwtToken('refresh', 'FAKE_USER_ID');
+        const value = await service.generateJwtToken(JwtTokenPurpose.refresh, 'FAKE_USER_ID');
         const key = await refreshTokenModel.findOne({ value });
         expect(key).toBeDefined();
       });
     });
 
     describe('ws', () => {
-      it('should retrieve the ws secret from the key store', async () => {
-        const spy = jest.spyOn(keyStoreService, 'getKey');
-        await service.generateJwtToken('ws', 'FAKE_USER_ID');
-        expect(spy).toHaveBeenCalledWith('ws', expect.any(String));
-      });
-
       it('should encode user id', async () => {
-        const token = await service.generateJwtToken('ws', 'FAKE_USER_ID');
+        const token = await service.generateJwtToken(JwtTokenPurpose.websocket, 'FAKE_USER_ID');
         const decoded = decode(token) as { id: string, iat: number, exp: number };
         expect(decoded.id).toEqual('FAKE_USER_ID');
       });
     });
 
     describe('context', () => {
-      it('should retrieve the signing key from the key store', async () => {
-        const spy = jest.spyOn(keyStoreService, 'getKey');
-        await service.generateJwtToken('context', 'FAKE_USER_ID');
-        expect(spy).toHaveBeenCalledWith('context', 'sign');
-      });
-
       it('should encode user id', async () => {
-        const token = await service.generateJwtToken('context', 'FAKE_USER_ID');
+        const token = await service.generateJwtToken(JwtTokenPurpose.context, 'FAKE_USER_ID');
         const decoded = decode(token) as { id: string; iat: number; exp: number };
         expect(decoded.id).toEqual('FAKE_USER_ID');
       });
@@ -126,11 +87,11 @@ describe('AuthService', () => {
 
   describe('#refreshTokens()', () => {
     it('should throw an error if the refresh token is not in the database', async () => {
-      await expect(service.refreshTokens('some fake token')).rejects.toThrowError('invalid token');
+      await expect(service.refreshTokens('some fake token')).rejects.toThrow(InvalidTokenError);
     });
 
     it('should throw an error if the refresh token has expired', async () => {
-      const key = keyStoreService.getKey('refresh', 'sign');
+      const key = refreshKeys.privateKey.export({ format: 'pem', type: 'pkcs8' });
 
       // issue a token that has already expired
       const oneWeekAgo = new Date();
@@ -150,28 +111,41 @@ describe('AuthService', () => {
     });
 
     it('should generate auth and refresh tokens', async () => {
-      const oldRefreshToken = await service.generateJwtToken('refresh', 'FAKE_USER_ID');
+      const oldRefreshToken = await service.generateJwtToken(JwtTokenPurpose.refresh, 'FAKE_USER_ID');
       const { refreshToken, authToken } = await service.refreshTokens(oldRefreshToken);
 
-      const key = keyStoreService.getKey('refresh', 'verify');
+      const refreshPublicKey = refreshKeys.publicKey.export({ format: 'pem', type: 'spki' });
 
-      const refreshTokenDecoded = verify(refreshToken, key, { algorithms: ['ES512'] }) as { id: string; iat: number; exp: number };
+      const refreshTokenDecoded = verify(refreshToken, refreshPublicKey, { algorithms: ['ES512'] }) as { id: string; iat: number; exp: number };
       expect(refreshTokenDecoded.id).toEqual('FAKE_USER_ID');
 
-      const authTokenDecoded = verify(authToken, key, { algorithms: ['ES512'] }) as { id: string, iat: number, exp: number };
+      const authPublicKey = authKeys.publicKey.export({ format: 'pem', type: 'spki' });
+      const authTokenDecoded = verify(authToken, authPublicKey, { algorithms: ['ES512'] }) as { id: string, iat: number, exp: number };
       expect(authTokenDecoded.id).toEqual('FAKE_USER_ID');
     });
 
     it('should remove the old refresh token', async () => {
-      const oldRefreshToken = await service.generateJwtToken('refresh', 'FAKE_USER_ID');
+      const oldRefreshToken = await service.generateJwtToken(JwtTokenPurpose.refresh, 'FAKE_USER_ID');
       await service.refreshTokens(oldRefreshToken);
       expect(await refreshTokenModel.findOne({ value: oldRefreshToken })).toBeNull();
     });
   });
 
+  describe('#verifyToken()', () => {
+    it('should verify auth token', async () => {
+      const token = await service.generateJwtToken(JwtTokenPurpose.auth, 'FAKE_USER_ID');
+      expect(service.verifyToken(JwtTokenPurpose.auth, token).id).toEqual('FAKE_USER_ID');
+    });
+
+    it('should verify context token', async () => {
+      const token = await service.generateJwtToken(JwtTokenPurpose.context, 'FAKE_USER_ID');
+      expect(service.verifyToken(JwtTokenPurpose.context, token).id).toEqual('FAKE_USER_ID');
+    });
+  });
+
   describe('#removeOldRefreshTokens()', () => {
     it('should remove old tokens', async () => {
-      const key = keyStoreService.getKey('refresh', 'sign');
+      const key = refreshKeys.privateKey.export({ format: 'pem', type: 'pkcs8' });
       const token = sign({ id: 'FAKE_USER_ID' }, key, { algorithm: 'ES512', expiresIn: '7d' });
 
       const createdAt = new Date();

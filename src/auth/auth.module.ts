@@ -5,12 +5,17 @@ import { PassportModule } from '@nestjs/passport';
 import { SteamStrategy } from './strategies/steam.strategy';
 import { AuthController } from './controllers/auth.controller';
 import { authenticate } from 'passport';
-import { TypegooseModule } from 'nestjs-typegoose';
+import { getModelToken, TypegooseModule } from 'nestjs-typegoose';
 import { RefreshToken } from './models/refresh-token';
-import { KeyStoreService } from './services/key-store.service';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { AuthGateway } from './gateways/auth.gateway';
-import { setRedirectUrlCookie } from './middlewares/set-redirect-url-cookie';
+import { setRedirectUrlCookie } from './middleware/set-redirect-url-cookie';
+import { Key } from './models/key';
+import { Environment } from '@/environment/environment';
+import { ReturnModelType } from '@typegoose/typegoose';
+import { importOrGenerateKeys } from './import-or-generate-keys';
+import { KeyName } from './key-name';
+import { generate } from 'generate-password';
 
 const passportModule = PassportModule.register({
   defaultStrategy: 'jwt',
@@ -20,13 +25,36 @@ const passportModule = PassportModule.register({
 @Module({
   imports: [
     passportModule,
-    TypegooseModule.forFeature([ RefreshToken ]),
+    TypegooseModule.forFeature([ RefreshToken, Key ]),
 
     PlayersModule,
   ],
   providers: [
+    {
+      // keys used to sign & validate auth JWT
+      provide: 'AUTH_TOKEN_KEY',
+      inject: [ getModelToken(Key.name), Environment ],
+      useFactory: async (keyModel: ReturnModelType<typeof Key>, environment: Environment) =>
+        await importOrGenerateKeys(keyModel, KeyName.auth, environment.keyStorePassphare),
+    },
+    {
+      // keys used to sign & validate refresh JWT
+      provide: 'REFRESH_TOKEN_KEY',
+      inject: [ getModelToken(Key.name), Environment ],
+      useFactory: async (keyModel: ReturnModelType<typeof Key>, environment: Environment) =>
+        await importOrGenerateKeys(keyModel, KeyName.refresh, environment.keyStorePassphare),
+    },
+    {
+      provide: 'WEBSOCKET_SECRET',
+      useFactory: () => generate({ length: 32, numbers: true, uppercase: true }),
+    },
+    {
+      provide: 'CONTEXT_TOKEN_KEY',
+      inject: [ getModelToken(Key.name), Environment ],
+      useFactory: async (keyModel: ReturnModelType<typeof Key>, environment: Environment) =>
+        await importOrGenerateKeys(keyModel, KeyName.context, environment.keyStorePassphare),
+    },
     AuthService,
-    KeyStoreService,
     SteamStrategy,
     JwtStrategy,
     AuthGateway,

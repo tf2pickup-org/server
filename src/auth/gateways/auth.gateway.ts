@@ -1,8 +1,7 @@
 import { WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server } from 'socket.io';
-import { OnModuleInit } from '@nestjs/common';
+import { Inject, OnModuleInit } from '@nestjs/common';
 import { authenticate } from 'socketio-jwt-auth';
-import { KeyStoreService } from '../services/key-store.service';
 import { PlayersService } from '@/players/services/players.service';
 
 @WebSocketGateway()
@@ -12,13 +11,13 @@ export class AuthGateway implements OnModuleInit {
   server: Server;
 
   constructor(
-    private keyStoreService: KeyStoreService,
     private playersService: PlayersService,
+    @Inject('WEBSOCKET_SECRET') private websocketSecret: string,
   ) { }
 
   onModuleInit() {
     this.server?.use(authenticate({
-      secret: this.keyStoreService.getKey('ws', 'verify') as string,
+      secret: this.websocketSecret,
       succeedWithoutToken: true,
     }, async (payload, done) => {
       if (payload && payload.id) {

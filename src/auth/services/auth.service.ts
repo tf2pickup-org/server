@@ -1,10 +1,12 @@
-import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { sign, verify } from 'jsonwebtoken';
 import { InjectModel } from 'nestjs-typegoose';
 import { RefreshToken } from '../models/refresh-token';
-import { ReturnModelType } from '@typegoose/typegoose';
-import { KeyStoreService } from './key-store.service';
-import { Cron } from '@nestjs/schedule';
+import { mongoose, ReturnModelType } from '@typegoose/typegoose';
+import { Cron, CronExpression } from '@nestjs/schedule';
+import { InvalidTokenError } from '../errors/invalid-token.error';
+import { JwtTokenPurpose } from '../jwt-token-purpose';
+import { KeyPair } from '../key-pair';
 
 @Injectable()
 export class AuthService implements OnModuleInit {
@@ -12,62 +14,79 @@ export class AuthService implements OnModuleInit {
   private logger = new Logger(AuthService.name);
 
   constructor(
-    private keyStoreService: KeyStoreService,
     @InjectModel(RefreshToken) private refreshTokenModel: ReturnModelType<typeof RefreshToken>,
+    @Inject('AUTH_TOKEN_KEY') private authTokenKey: KeyPair,
+    @Inject('REFRESH_TOKEN_KEY') private refreshTokenKey: KeyPair,
+    @Inject('WEBSOCKET_SECRET') private websocketSecret: string,
+    @Inject('CONTEXT_TOKEN_KEY') private contextTokenKey: KeyPair,
   ) { }
 
   onModuleInit() {
     this.removeOldRefreshTokens();
   }
 
-  async generateJwtToken(purpose: 'auth' | 'refresh' | 'ws' | 'context', userId: string): Promise<string> {
+  async generateJwtToken(purpose: JwtTokenPurpose, userId: string): Promise<string> {
     switch (purpose) {
-      case 'auth': {
-        const key = this.keyStoreService.getKey('auth', 'sign');
+      case JwtTokenPurpose.auth: {
+        const key = this.authTokenKey.privateKey.export({ format: 'pem', type: 'pkcs8' });
         return sign({ id: userId }, key, { algorithm: 'ES512', expiresIn: '15m' });
       }
 
-      case 'refresh': {
-        const key = this.keyStoreService.getKey('refresh', 'sign');
+      case JwtTokenPurpose.refresh: {
+        const key = this.refreshTokenKey.privateKey.export({ format: 'pem', type: 'pkcs8' });
         const token = sign({ id: userId }, key, { algorithm: 'ES512', expiresIn: '7d' });
         await this.refreshTokenModel.create({ value: token });
         return token;
       }
 
-      case 'ws': {
-        const key = this.keyStoreService.getKey('ws', 'sign');
+      case JwtTokenPurpose.websocket: {
+        const key = this.websocketSecret;
         return sign({ id: userId }, key, { algorithm: 'HS256', expiresIn: '10m' });
       }
 
-      case 'context': {
-        const key = this.keyStoreService.getKey('context', 'sign');
+      case JwtTokenPurpose.context: {
+        const key = this.contextTokenKey.privateKey.export({ format: 'pem', type: 'pkcs8' });
         return sign({ id: userId }, key, { algorithm: 'ES512', expiresIn: '1m' })
       }
     }
   }
 
   async refreshTokens(oldRefreshToken: string): Promise<{ refreshToken: string, authToken: string }> {
-    const result = await this.refreshTokenModel.findOne({ value: oldRefreshToken });
-    if (!result) {
-      throw new Error('invalid token');
+    try {
+      await this.refreshTokenModel.deleteOne({ value: oldRefreshToken }).orFail().lean().exec();
+      const key = this.refreshTokenKey.publicKey.export({ format: 'pem', type: 'spki' });
+      const decoded = verify(oldRefreshToken, key, { algorithms: ['ES512'] }) as { id: string; iat: number; exp: number };
+
+      const userId = decoded.id;
+      const refreshToken = await this.generateJwtToken(JwtTokenPurpose.refresh, userId);
+      const authToken = await this.generateJwtToken(JwtTokenPurpose.auth, userId);
+      return { refreshToken, authToken };
+    } catch (error) {
+      if (error instanceof mongoose.Error.DocumentNotFoundError) {
+        throw new InvalidTokenError();
+      } else {
+        throw error;
+      }
     }
-
-    const key = this.keyStoreService.getKey('refresh', 'verify');
-    const decoded = verify(oldRefreshToken, key, { algorithms: ['ES512'] }) as { id: string; iat: number; exp: number };
-    await result.remove();
-
-    const userId = decoded.id;
-    const refreshToken = await this.generateJwtToken('refresh', userId);
-    const authToken = await this.generateJwtToken('auth', userId);
-    return { refreshToken, authToken };
   }
 
-  verifyToken(purpose: 'auth' | 'context', token: string): { id: string; iat: number; exp: number } {
-    const key = this.keyStoreService.getKey(purpose, 'verify');
+  verifyToken(purpose: JwtTokenPurpose.auth | JwtTokenPurpose.context, token: string): { id: string; iat: number; exp: number } {
+    let key: string | Buffer;
+
+    switch (purpose) {
+      case JwtTokenPurpose.auth:
+        key = this.authTokenKey.publicKey.export({ format: 'pem', type: 'spki' });
+        break;
+
+      case JwtTokenPurpose.context:
+        key = this.contextTokenKey.publicKey.export({ format: 'pem', type: 'spki' });
+        break;
+    }
+
     return verify(token, key, { algorithms: ['ES512'] }) as { id: string; iat: number; exp: number };
   }
 
-  @Cron('0 0 4 * * *') // 4 am everyday
+  @Cron(CronExpression.EVERY_WEEK)
   async removeOldRefreshTokens() {
     // refresh tokens are leased for one week
     const oneWeekAgo = new Date();
