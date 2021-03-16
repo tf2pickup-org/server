@@ -56,6 +56,12 @@ export class QueueController {
     return this.mapVoteService.results;
   }
 
+  @Put('map_vote_results/scramble')
+  @Auth('admin', 'super-user')
+  scrambleMaps() {
+    return this.mapVoteService.scramble();
+  }
+
   @Get('announcements')
   async getSubstituteRequests() {
     return this.queueAnnouncementsService.substituteRequests();

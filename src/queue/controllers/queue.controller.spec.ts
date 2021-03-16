@@ -127,6 +127,13 @@ describe('Queue Controller', () => {
     });
   });
 
+  describe('#scrambleMaps()', () => {
+    it('should scramble the maps', async () => {
+      await controller.scrambleMaps();
+      expect(mapVoteService.scramble).toHaveBeenCalled();
+    });
+  });
+
   describe('#getSubstituteRequests()', () => {
     it('should return substitute requests', async () => {
       expect(await controller.getSubstituteRequests()).toEqual([
