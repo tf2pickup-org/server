@@ -5,8 +5,9 @@ import { Environment } from '@/environment/environment';
 import { AuthService } from '../services/auth.service';
 import { User } from '../decorators/user.decorator';
 import { Auth } from '../decorators/auth.decorator';
-import { redirectUrlCookieName } from '../middlewares/set-redirect-url-cookie';
+import { redirectUrlCookieName } from '../middleware/set-redirect-url-cookie';
 import { Player } from '@/players/models/player';
+import { JwtTokenPurpose } from '../jwt-token-purpose';
 
 @Controller('auth')
 export class AuthController {
@@ -34,8 +35,8 @@ export class AuthController {
           return res.sendStatus(401);
         }
 
-        const refreshToken = await this.authService.generateJwtToken('refresh', player.id);
-        const authToken = await this.authService.generateJwtToken('auth', player.id);
+        const refreshToken = await this.authService.generateJwtToken(JwtTokenPurpose.refresh, player.id);
+        const authToken = await this.authService.generateJwtToken(JwtTokenPurpose.auth, player.id);
         return res.redirect(`${url}?refresh_token=${refreshToken}&auth_token=${authToken}`);
       })(req, res, next);
     });
@@ -58,7 +59,7 @@ export class AuthController {
   @Get('wstoken')
   @Auth()
   async refreshWsToken(@User() user: Player) {
-    const wsToken = await this.authService.generateJwtToken('ws', user.id);
+    const wsToken = await this.authService.generateJwtToken(JwtTokenPurpose.websocket, user.id);
     return { wsToken };
   }
 

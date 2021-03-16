@@ -5,6 +5,7 @@ import { HttpAdapterHost } from '@nestjs/core';
 import { AuthService } from '../services/auth.service';
 import { BadRequestException } from '@nestjs/common/exceptions/bad-request.exception';
 import { Player } from '@/players/models/player';
+import { JwtTokenPurpose } from '../jwt-token-purpose';
 
 class EnvironmentStub {
   clientUrl = '';
@@ -75,7 +76,7 @@ describe('Auth Controller', () => {
     it('should generate ws token', async () => {
       const spy = jest.spyOn(authService, 'generateJwtToken').mockImplementation(() => 'FAKE_WS_TOKEN');
       const result = await controller.refreshWsToken({ id: 'FAKE_USER_ID' } as Player);
-      expect(spy).toHaveBeenCalledWith('ws', 'FAKE_USER_ID');
+      expect(spy).toHaveBeenCalledWith(JwtTokenPurpose.websocket, 'FAKE_USER_ID');
       expect(result).toEqual({ wsToken: 'FAKE_WS_TOKEN' });
     });
   });

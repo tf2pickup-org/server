@@ -1,21 +1,21 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { PassportStrategy } from '@nestjs/passport';
 import { PlayersService } from '@/players/services/players.service';
-import { KeyStoreService } from '../services/key-store.service';
 import { mongoose } from '@typegoose/typegoose';
+import { KeyPair } from '../key-pair';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
 
   constructor(
     private playersService: PlayersService,
-    keyStoreService: KeyStoreService,
+    @Inject('AUTH_TOKEN_KEY') authTokenKey: KeyPair,
   ) {
     super({
       jsonWebTokenOptions: { algorithms: ['ES512'] },
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-      secretOrKey: keyStoreService.getKey('auth', 'verify'),
+      secretOrKey: authTokenKey.publicKey.export({ format: 'pem', type: 'spki' }),
     });
   }
 
