@@ -40,8 +40,8 @@ export class MapVoteService implements OnModuleInit {
     this._results.subscribe(results => this.events.mapVotesChange.next({ results }));
 
     this.events.playerLeavesQueue.subscribe(({ playerId }) => this.resetPlayerVote(playerId));
-    this.events.mapPoolChange.subscribe(() => this.reset());
-    await this.reset();
+    this.events.mapPoolChange.subscribe(() => this.scramble());
+    await this.scramble();
   }
 
   voteCountForMap(map: string): number {
@@ -78,17 +78,21 @@ export class MapVoteService implements OnModuleInit {
     const map = mapsWithMaxVotes[Math.floor(Math.random() * mapsWithMaxVotes.length)].map;
     await this.mapModel.updateMany({ cooldown: { $gt: 0 } }, { $inc: { cooldown: -1 } });
     await this.mapModel.updateOne({ name: map }, { cooldown: mapCooldown });
-    setImmediate(() => this.reset());
+    setImmediate(() => this.scramble());
     return map;
   }
 
-  private async reset() {
+  /**
+   * Randomly maps that will be available for vote.
+   */
+  async scramble() {
     this.mapOptions = shuffle(await this.mapModel.find({ cooldown: { $lte: 0 } }).exec())
       .slice(0, this.mapVoteOptionCount)
       .map(m => m.name);
     this.logger.debug(`Map options: ${this.mapOptions.join(',')}`);
     this.votes = [];
     this._results.next(this.getResults());
+    return this.results;
   }
 
   private resetPlayerVote(playerId: string) {
