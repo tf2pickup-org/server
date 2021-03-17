@@ -10,10 +10,10 @@ export class DiagnosticCheck {
   status?: DiagnosticCheckStatus;
 
   @prop({ type: () => [String], default: [] })
-  warnings?: string[];
+  reportedWarnings?: string[];
 
   @prop({ type: () => [String], default: [] })
-  errors?: string[];
+  reportedErrors?: string[];
 
   @prop({ required: true })
   critical: boolean;
