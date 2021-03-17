@@ -21,9 +21,12 @@ jest.mock('@configs/players', () => ({
 import { minimumTf2InGameHours } from '@configs/players';
 import { Events } from '@/events/events';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
+import { WebsocketEvent } from '@/websocket-event';
+import { Socket } from 'socket.io';
 
 jest.mock('@/discord/services/discord.service');
 jest.mock('./etf2l-profile.service');
+jest.mock( './online-players.service');
 
 class EnvironmentStub {
   superUser = null;
@@ -42,10 +45,6 @@ class GamesServiceStub {
   getPlayerPlayedClassCount(playerId: string) { return this.classCount; }
 }
 
-class OnlinePlayersServiceStub {
-  getSocketsForPlayer(playerId: string) { return []; }
-}
-
 class SteamApiServiceStub {
   getTf2InGameHours(steamId64: string) { return Promise.resolve(800); }
 }
@@ -58,9 +57,10 @@ describe('PlayersService', () => {
   let environment: EnvironmentStub;
   let etf2lProfileService: jest.Mocked<Etf2lProfileService>;
   let gamesService: GamesServiceStub;
-  let onlinePlayersService: OnlinePlayersServiceStub;
+  let onlinePlayersService: jest.Mocked<OnlinePlayersService>;
   let steamApiService: SteamApiServiceStub;
   let events: Events;
+  let socket: Socket;
 
   beforeAll(() => mongod = new MongoMemoryServer());
   afterAll(async () => await mongod.stop());
@@ -76,7 +76,7 @@ describe('PlayersService', () => {
         { provide: Environment, useClass: EnvironmentStub },
         Etf2lProfileService,
         { provide: GamesService, useClass: GamesServiceStub },
-        { provide: OnlinePlayersService, useClass: OnlinePlayersServiceStub },
+        OnlinePlayersService,
         { provide: SteamApiService, useClass: SteamApiServiceStub },
         Events,
       ],
@@ -111,6 +111,13 @@ describe('PlayersService', () => {
       id: 112758,
       name: 'maly',
     });
+
+    socket = { emit: jest.fn() } as any;
+    onlinePlayersService.getSocketsForPlayer.mockReturnValue([socket]);
+  });
+
+  beforeEach(async () => {
+    await service.onModuleInit();
   });
 
   afterEach(async () => await playerModel.deleteMany({ }));
@@ -119,24 +126,8 @@ describe('PlayersService', () => {
     expect(service).toBeDefined();
   });
 
-  describe('#onModuleInit()', () => {
-    describe('when the bot user is not yet created', () => {
-      it('should create the bot user', async () => {
-        await service.onModuleInit();
-        expect(await playerModel.findOne({ name: 'FAKE_BOT_NAME' })).toBeTruthy();
-      });
-    });
-
-    describe('when the bot user is already created', () => {
-      beforeEach(async () => {
-        await service.onModuleInit();
-      });
-
-      it('should not create any users', async () => {
-        await service.onModuleInit();
-        expect((await playerModel.find({ name: 'FAKE_BOT_NAME' })).length).toEqual(1);
-      });
-    });
+  it('should create the bot user', async () => {
+    expect(await playerModel.findOne({ name: 'FAKE_BOT_NAME' })).toBeTruthy();
   });
 
   describe('#getAll()', () => {
@@ -200,13 +191,6 @@ describe('PlayersService', () => {
   });
 
   describe('#findBot()', () => {
-    beforeEach(async () => {
-      await playerModel.create({
-        name: 'FAKE_BOT_NAME',
-        role: 'bot',
-      })
-    });
-
     it('should find the bot', async () => {
       expect(await service.findBot()).toMatchObject({
         name: 'FAKE_BOT_NAME',
@@ -371,12 +355,13 @@ describe('PlayersService', () => {
     });
 
     it('should notify all clients via ws', async () => {
-      const socket = { emit: (...args: any[]) => null };
-      jest.spyOn(onlinePlayersService, 'getSocketsForPlayer').mockReturnValue([ socket ] as any);
-      const spy = jest.spyOn(socket, 'emit');
+      const socket = { emit: jest.fn() };
+      onlinePlayersService.getSocketsForPlayer.mockReturnValue([socket as any]);
 
       await service.registerTwitchAccount(mockPlayer.id, twitchTvUser);
-      expect(spy).toHaveBeenCalledWith('profile update', expect.objectContaining({ twitchTvUser }));
+      expect(socket.emit).toHaveBeenCalledWith(WebsocketEvent.profileUpdate, {
+        player: expect.objectContaining({ twitchTvUser })
+      });
     });
   });
 
@@ -423,12 +408,9 @@ describe('PlayersService', () => {
     });
 
     it('should emit updated player over websocket', async () => {
-      const socket = { emit: (...args: any[]) => null };
-      jest.spyOn(onlinePlayersService, 'getSocketsForPlayer').mockReturnValue([ socket ] as any);
-      const spy = jest.spyOn(socket, 'emit');
-
       await service.updatePlayer(mockPlayer.id, { name: 'NEW_NAME' }, admin.id);
-      expect(spy).toHaveBeenCalledWith('profile update', expect.objectContaining({ name: 'NEW_NAME' }));
+      expect(socket.emit).toHaveBeenCalledWith(WebsocketEvent.profileUpdate,
+        { player: expect.objectContaining({ name: 'NEW_NAME' }) });
     });
 
     describe('when the given player does not exist', () => {

@@ -11,6 +11,7 @@ import { distinctUntilChanged } from 'rxjs/operators';
 import { PopulatePlayers } from '../decorators/populate-players.decorator';
 import { PlayerPopulatorService } from '../services/player-populator.service';
 import { AuthorizedWsClient } from '@/auth/ws-client';
+import { WebsocketEvent } from '@/websocket-event';
 
 @WebSocketGateway()
 export class QueueGateway implements OnGatewayInit, OnModuleInit {
@@ -29,19 +30,19 @@ export class QueueGateway implements OnGatewayInit, OnModuleInit {
   onModuleInit() {
     this.events.queueSlotsChange
       .pipe(distinctUntilChanged())
-      .subscribe(async ({ slots }) => this.socket.emit('queue slots update', await this.playerPopulatorService.populatePlayers(slots)));
+      .subscribe(async ({ slots }) => this.socket.emit(WebsocketEvent.queueSlotsUpdate, await this.playerPopulatorService.populatePlayers(slots)));
     this.events.queueStateChange
       .pipe(distinctUntilChanged())
-      .subscribe(({ state }) => this.socket.emit('queue state update', state));
+      .subscribe(({ state }) => this.socket.emit(WebsocketEvent.queueStateUpdate, state));
     this.events.queueFriendshipsChange
       .pipe(distinctUntilChanged())
-      .subscribe(({ friendships }) => this.socket.emit('friendships update', friendships));
+      .subscribe(({ friendships }) => this.socket.emit(WebsocketEvent.friendshipsUpdate, friendships));
     this.events.mapVotesChange
       .pipe(distinctUntilChanged())
-      .subscribe(({ results }) => this.socket.emit('map vote results update', results));
+      .subscribe(({ results }) => this.socket.emit(WebsocketEvent.mapVoteResultsUpdate, results));
     this.events.substituteRequestsChange.subscribe(async () => {
       const requests = await this.queueAnnouncementsService.substituteRequests();
-      this.socket.emit('substitute requests update', requests);
+      this.socket.emit(WebsocketEvent.substituteRequestsUpdate, requests);
     });
   }
 

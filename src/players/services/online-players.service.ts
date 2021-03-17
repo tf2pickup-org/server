@@ -42,7 +42,7 @@ export class OnlinePlayersService implements OnModuleInit {
   }
 
   getSocketsForPlayer(playerId: string) {
-    return this.sockets.get(playerId) || [];
+    return this.sockets.get(playerId) ?? [];
   }
 
   private verifyPlayer(playerId: string) {
