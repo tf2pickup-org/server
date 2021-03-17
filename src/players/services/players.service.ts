@@ -14,8 +14,10 @@ import { ObjectId } from 'mongodb';
 import { minimumTf2InGameHours, requireEtf2lAccount } from '@configs/players';
 import { PlayerAvatar } from '../models/player-avatar';
 import { Events } from '@/events/events';
-import { plainToClass } from 'class-transformer';
+import { classToPlain, plainToClass } from 'class-transformer';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
+import { OnlinePlayersService } from './online-players.service';
+import { WebsocketEvent } from '@/websocket-event';
 
 type ForceCreatePlayerOptions = Pick<Player, 'steamId' | 'name'>;
 
@@ -31,6 +33,7 @@ export class PlayersService implements OnModuleInit {
     @Inject(forwardRef(() => GamesService)) private gamesService: GamesService,
     private steamApiService: SteamApiService,
     private events: Events,
+    private onlinePlayersService: OnlinePlayersService,
   ) { }
 
   async onModuleInit() {
@@ -46,6 +49,14 @@ export class PlayersService implements OnModuleInit {
         throw error;
       }
     }
+
+    this.events.playerUpdates.subscribe(({ newPlayer }) => {
+      this.onlinePlayersService
+        .getSocketsForPlayer(newPlayer.id)
+        .forEach(socket => socket.emit(WebsocketEvent.profileUpdate, {
+          player: classToPlain(newPlayer),
+        }));
+    });
   }
 
   async getAll(): Promise<Player[]> {

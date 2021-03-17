@@ -7,6 +7,7 @@ import { OnlinePlayersService } from './online-players.service';
 import { PlayersService } from './players.service';
 import { Events } from '@/events/events';
 import { plainToClass } from 'class-transformer';
+import { WebsocketEvent } from '@/websocket-event';
 
 @Injectable()
 export class PlayerBansService implements OnModuleInit {
@@ -27,7 +28,7 @@ export class PlayerBansService implements OnModuleInit {
     ).subscribe(async ({ ban }) => {
       const playerId = ban.player.toString();
       const bans = await this.getPlayerActiveBans(playerId);
-      this.onlinePlayersService.getSocketsForPlayer(playerId).forEach(socket => socket.emit('profile update', { bans }));
+      this.onlinePlayersService.getSocketsForPlayer(playerId).forEach(socket => socket.emit(WebsocketEvent.profileUpdate, { bans }));
     });
   }
 
