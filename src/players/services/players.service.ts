@@ -8,14 +8,13 @@ import { InjectModel } from 'nestjs-typegoose';
 import { GamesService } from '@/games/services/games.service';
 import { PlayerStats } from '../dto/player-stats';
 import { Etf2lProfile } from '../etf2l-profile';
-import { OnlinePlayersService } from './online-players.service';
 import { SteamApiService } from './steam-api.service';
 import { TwitchTvUser } from '../models/twitch-tv-user';
 import { ObjectId } from 'mongodb';
 import { minimumTf2InGameHours, requireEtf2lAccount } from '@configs/players';
 import { PlayerAvatar } from '../models/player-avatar';
 import { Events } from '@/events/events';
-import { classToPlain, plainToClass } from 'class-transformer';
+import { plainToClass } from 'class-transformer';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 
 type ForceCreatePlayerOptions = Pick<Player, 'steamId' | 'name'>;
@@ -30,7 +29,6 @@ export class PlayersService implements OnModuleInit {
     private etf2lProfileService: Etf2lProfileService,
     @InjectModel(Player) private playerModel: ReturnModelType<typeof Player>,
     @Inject(forwardRef(() => GamesService)) private gamesService: GamesService,
-    private onlinePlayersService: OnlinePlayersService,
     private steamApiService: SteamApiService,
     private events: Events,
   ) { }
@@ -146,7 +144,6 @@ export class PlayersService implements OnModuleInit {
   async updatePlayer(playerId: string, update: Partial<Player>, adminId?: string): Promise<Player> {
     const oldPlayer = await this.getById(playerId);
     const newPlayer = plainToClass(Player, await this.playerModel.findOneAndUpdate({ _id: playerId }, update, { new: true }).lean().exec());
-    this.onlinePlayersService.getSocketsForPlayer(playerId).forEach(socket => socket.emit('profile update', classToPlain(newPlayer)));
     this.events.playerUpdates.next({ oldPlayer, newPlayer, adminId });
     return newPlayer;
   }

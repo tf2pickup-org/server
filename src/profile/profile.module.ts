@@ -5,6 +5,7 @@ import { PlayersModule } from '@/players/players.module';
 import { GamesModule } from '@/games/games.module';
 import { QueueModule } from '@/queue/queue.module';
 import { PlayerPreferencesModule } from '@/player-preferences/player-preferences.module';
+import { ProfileUpdaterService } from './services/profile-updater.service';
 
 @Module({
   imports: [
@@ -16,6 +17,9 @@ import { PlayerPreferencesModule } from '@/player-preferences/player-preferences
   ],
   controllers: [
     ProfileController,
+  ],
+  providers: [
+    ProfileUpdaterService,
   ],
 })
 export class ProfileModule { }
