@@ -22,7 +22,6 @@ import { minimumTf2InGameHours } from '@configs/players';
 import { Events } from '@/events/events';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 
-jest.mock('@/discord/services/discord.service');
 jest.mock('./etf2l-profile.service');
 
 class EnvironmentStub {

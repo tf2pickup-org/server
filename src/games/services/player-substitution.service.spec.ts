@@ -5,7 +5,7 @@ import { PlayersService } from '@/players/services/players.service';
 import { PlayerBansService } from '@/players/services/player-bans.service';
 import { GameRuntimeService } from './game-runtime.service';
 import { QueueService } from '@/queue/services/queue.service';
-import { DiscordService } from '@/discord/services/discord.service';
+import { DiscordService } from '@/plugins/discord/services/discord.service';
 import { Environment } from '@/environment/environment';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { DocumentType, mongoose } from '@typegoose/typegoose';
@@ -20,7 +20,7 @@ import { removeGameAssignedSkills } from '@/utils/tojson-transform';
 import { SlotStatus } from '../models/slot-status';
 import { GameState } from '../models/game-state';
 
-jest.mock('@/discord/services/discord.service');
+jest.mock('@/plugins/discord/services/discord.service');
 jest.mock('@/players/services/players.service');
 jest.mock('./games.service');
 jest.mock('@/players/services/player-bans.service');

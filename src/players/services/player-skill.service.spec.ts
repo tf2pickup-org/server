@@ -11,7 +11,7 @@ import { QueueConfigService } from '@/queue/services/queue-config.service';
 import { FuturePlayerSkillService } from './future-player-skill.service';
 import { Etf2lProfileService } from './etf2l-profile.service';
 import { Player } from '../models/player';
-import { DiscordService } from '@/discord/services/discord.service';
+import { DiscordService } from '@/plugins/discord/services/discord.service';
 import { Environment } from '@/environment/environment';
 import { Events } from '@/events/events';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
