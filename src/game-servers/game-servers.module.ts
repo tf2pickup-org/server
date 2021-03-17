@@ -3,6 +3,7 @@ import { TypegooseModule } from 'nestjs-typegoose';
 import { GameServer } from './models/game-server';
 import { GameServersService } from './services/game-servers.service';
 import { GameServersController } from './controllers/game-servers.controller';
+import { GameServerDiagnosticsService } from './services/game-server-diagnostics.service';
 
 @Module({
   imports: [
@@ -10,6 +11,7 @@ import { GameServersController } from './controllers/game-servers.controller';
   ],
   providers: [
     GameServersService,
+    GameServerDiagnosticsService,
   ],
   exports: [
     GameServersService,
