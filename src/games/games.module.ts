@@ -17,7 +17,6 @@ import { GameRuntimeService } from './services/game-runtime.service';
 import { GameEventHandlerService } from './services/game-event-handler.service';
 import { GamesWithSubstitutionRequestsController } from './controllers/games-with-substitution-requests.controller';
 import { PlayerSubstitutionService } from './services/player-substitution.service';
-import { DiscordModule } from '@/discord/discord.module';
 import { LogReceiver } from 'srcds-log-receiver';
 import { Environment } from '@/environment/environment';
 import { ConfigurationModule } from '@/configuration/configuration.module';
@@ -36,7 +35,7 @@ const logReceiverProvider = {
     GameServersModule,
     forwardRef(() => PlayersModule),
     QueueModule,
-    DiscordModule,
+  
     ConfigurationModule,
   ],
   providers: [

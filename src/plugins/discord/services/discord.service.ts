@@ -1,7 +1,7 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { Client, Guild, TextChannel, Role, Emoji } from 'discord.js';
 import { Environment } from '@/environment/environment';
-import { version } from '../../../package.json';
+import { version } from '../../../../package.json';
 import { emojisToInstall } from '../emojis-to-install';
 
 @Injectable()
