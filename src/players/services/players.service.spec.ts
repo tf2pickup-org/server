@@ -24,7 +24,6 @@ import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { WebsocketEvent } from '@/websocket-event';
 import { Socket } from 'socket.io';
 
-jest.mock('@/discord/services/discord.service');
 jest.mock('./etf2l-profile.service');
 jest.mock( './online-players.service');
 

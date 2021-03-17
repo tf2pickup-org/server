@@ -1,11 +1,11 @@
-import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
+import { Injectable, Logger, Inject, forwardRef, Optional } from '@nestjs/common';
 import { GamesService } from './games.service';
 import { PlayersService } from '@/players/services/players.service';
 import { PlayerBansService } from '@/players/services/player-bans.service';
 import { GameRuntimeService } from './game-runtime.service';
 import { QueueService } from '@/queue/services/queue.service';
-import { DiscordService } from '@/discord/services/discord.service';
-import { substituteRequest } from '@/discord/notifications';
+import { DiscordService } from '@/plugins/discord/services/discord.service';
+import { substituteRequest } from '@/plugins/discord/notifications';
 import { Environment } from '@/environment/environment';
 import { Message } from 'discord.js';
 import { Events } from '@/events/events';
@@ -30,10 +30,12 @@ export class PlayerSubstitutionService {
     private playerBansService: PlayerBansService,
     @Inject(forwardRef(() => GameRuntimeService)) private gameRuntimeService: GameRuntimeService,
     private queueSevice: QueueService,
-    private discordService: DiscordService,
+    @Optional() private discordService: DiscordService,
     private environment: Environment,
     private events: Events,
-  ) { }
+  ) {
+    this.logger.verbose(`Discord plugin will ${this.discordService ? '' : 'not '}be used`);
+  }
 
   async substitutePlayer(gameId: string, playerId: string) {
     const { game, slot } = await this.findPlayerSlot(gameId, playerId);
@@ -58,7 +60,7 @@ export class PlayerSubstitutionService {
     this.events.gameChanges.next({ game: game.toJSON() });
     this.events.substituteRequestsChange.next();
 
-    const channel = this.discordService.getPlayersChannel();
+    const channel = this.discordService?.getPlayersChannel();
     if (channel) {
       const embed = substituteRequest({
         gameNumber: game.number,
