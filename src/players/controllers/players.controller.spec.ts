@@ -152,17 +152,12 @@ describe('Players Controller', () => {
       expect(spy).toHaveBeenCalledWith('FAKE_ID');
       expect(ret).toEqual(playersService.player as any);
     });
-
-    it('should return 404', async () => {
-      jest.spyOn(playersService, 'getById').mockResolvedValue(null);
-      await expect(controller.getPlayer('FAKE_ID')).rejects.toThrow(NotFoundException);
-    });
   });
 
   describe('#forceCreatePlayer()', () => {
     it('should call the service', async () => {
       const spy = jest.spyOn(playersService, 'forceCreatePlayer');
-      await controller.forceCreatePlayer({ id: 'FAKE_PLAYER_ID', name: 'FAKE_PLAYER_NAME', steamId: 'FAKE_PLAYER_STEAM_ID' } as Player);
+      await controller.forceCreatePlayer({ name: 'FAKE_PLAYER_NAME', steamId: 'FAKE_PLAYER_STEAM_ID' });
       expect(spy).toHaveBeenCalledWith(expect.objectContaining({ name: 'FAKE_PLAYER_NAME', steamId: 'FAKE_PLAYER_STEAM_ID' }));
     });
   });
