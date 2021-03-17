@@ -80,7 +80,7 @@ describe('GameEventListenerService', () => {
   });
 
   describe('should handle game events', () => {
-    it('match started', async () => new Promise(resolve => {
+    it('match started', async () => new Promise<void>(resolve => {
       const spy = jest.spyOn(gameEventHandlerService, 'onMatchStarted');
       logReceiver.mockEvent('01/26/2020 - 20:40:20: World triggered "Round_Start"');
       setTimeout(() => {
@@ -89,7 +89,7 @@ describe('GameEventListenerService', () => {
       });
     }));
 
-    it('match ended', async () => new Promise(resolve => {
+    it('match ended', async () => new Promise<void>(resolve => {
       const spy = jest.spyOn(gameEventHandlerService, 'onMatchEnded');
       logReceiver.mockEvent('01/26/2020 - 20:38:49: World triggered "Game_Over" reason "Reached Time Limit"');
       setTimeout(() => {
@@ -98,7 +98,7 @@ describe('GameEventListenerService', () => {
       }, 0);
     }));
 
-    it('logs uploaded', async () => new Promise(resolve => {
+    it('logs uploaded', async () => new Promise<void>(resolve => {
       const spy = jest.spyOn(gameEventHandlerService, 'onLogsUploaded');
       logReceiver.mockEvent('01/26/2020 - 20:38:52: [TFTrue] The log is available here: http://logs.tf/2458457. Type !log to view it.');
       setTimeout(() => {
@@ -107,7 +107,7 @@ describe('GameEventListenerService', () => {
       }, 0);
     }));
 
-    it('demo uploaded', async () => new Promise(resolve => {
+    it('demo uploaded', async () => new Promise<void>(resolve => {
       const spy = jest.spyOn(gameEventHandlerService, 'onDemoUploaded');
       logReceiver.mockEvent('06/19/2020 - 00:04:28: [demos.tf]: STV available at: https://demos.tf/427407');
       setTimeout(() => {
@@ -116,7 +116,7 @@ describe('GameEventListenerService', () => {
       }, 0);
     }));
 
-    it('player connected', async () => new Promise(resolve => {
+    it('player connected', async () => new Promise<void>(resolve => {
       const spy = jest.spyOn(gameEventHandlerService, 'onPlayerJoining');
       logReceiver.mockEvent('01/26/2020 - 20:03:44: "mały #tf2pickup.pl<366><[U:1:114143419]><>" connected, address "83.29.150.132:27005"');
       setTimeout(() => {
@@ -125,7 +125,7 @@ describe('GameEventListenerService', () => {
       }, 0);
     }));
 
-    it('player joined team', async () => new Promise(resolve => {
+    it('player joined team', async () => new Promise<void>(resolve => {
       const spy = jest.spyOn(gameEventHandlerService, 'onPlayerConnected');
       logReceiver.mockEvent('01/26/2020 - 20:03:51: "maly<366><[U:1:114143419]><Unassigned>" joined team "Blue"');
       setTimeout(() => {
@@ -134,7 +134,7 @@ describe('GameEventListenerService', () => {
       }, 0);
     }));
 
-    it('player disconnected', async () => new Promise(resolve => {
+    it('player disconnected', async () => new Promise<void>(resolve => {
       const spy = jest.spyOn(gameEventHandlerService, 'onPlayerDisconnected');
       logReceiver.mockEvent('01/26/2020 - 20:38:43: "maly<366><[U:1:114143419]><Blue>" disconnected (reason "Disconnect by user.")');
       setTimeout(() => {
@@ -143,7 +143,7 @@ describe('GameEventListenerService', () => {
       }, 0);
     }));
 
-    it('score reported', async () => new Promise(resolve => {
+    it('score reported', async () => new Promise<void>(resolve => {
       const spy = jest.spyOn(gameEventHandlerService, 'onScoreReported');
       logReceiver.mockEvent('01/26/2020 - 20:38:49: Team "Blue" final score "2" with "3" players');
       setTimeout(() => {
@@ -153,7 +153,7 @@ describe('GameEventListenerService', () => {
     }));
   });
 
-  it('should discard invalid messages', async () => new Promise(resolve => {
+  it('should discard invalid messages', async () => new Promise<void>(resolve => {
     const spy = jest.spyOn(gameEventHandlerService, 'onMatchStarted');
     logReceiver.emit('data', {
       isValid: false,
