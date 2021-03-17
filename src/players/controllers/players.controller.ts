@@ -12,6 +12,7 @@ import { User } from '@/auth/decorators/user.decorator';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { DocumentNotFoundFilter } from '@/shared/filters/document-not-found.filter';
 import { PlayerStats } from '../dto/player-stats';
+import { ForceCreatePlayer } from '../dto/force-create-player';
 
 @Controller('players')
 @UseInterceptors(CacheInterceptor)
@@ -34,19 +35,14 @@ export class PlayersController {
   @UseInterceptors(ClassSerializerInterceptor)
   @UseFilters(DocumentNotFoundFilter)
   async getPlayer(@Param('id', ObjectIdValidationPipe) playerId: string) {
-    const player = await this.playersService.getById(playerId);
-    if (player) {
-      return player;
-    } else {
-      throw new NotFoundException();
-    }
+    return this.playersService.getById(playerId);
   }
 
   @Post()
   @Auth('admin', 'super-user')
   @UsePipes(ValidationPipe)
   @UseInterceptors(ClassSerializerInterceptor)
-  async forceCreatePlayer(@Body() player: Player) {
+  async forceCreatePlayer(@Body() player: ForceCreatePlayer) {
     return await this.playersService.forceCreatePlayer(player);
   }
 
