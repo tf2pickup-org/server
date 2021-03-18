@@ -1,3 +1,10 @@
+## [4.0.2](https://github.com/tf2pickup-pl/server/compare/4.0.1...4.0.2) (2021-03-18)
+
+
+### Bug Fixes
+
+* **players:** fix force create player ([#927](https://github.com/tf2pickup-pl/server/issues/927)) ([64a51ad](https://github.com/tf2pickup-pl/server/commit/64a51ad8a909424d35a50ba37af22e5141195f24))
+
 ## [4.0.1](https://github.com/tf2pickup-pl/server/compare/4.0.0...4.0.1) (2021-03-12)
 
 
