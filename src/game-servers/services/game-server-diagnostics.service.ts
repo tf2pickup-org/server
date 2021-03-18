@@ -35,6 +35,10 @@ export class GameServerDiagnosticsService {
           name: 'discovery',
           critical: false,
         },
+        {
+          name: 'rcon connection',
+          critical: true,
+        },
       ],
     });
 
