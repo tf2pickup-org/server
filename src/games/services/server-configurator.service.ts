@@ -34,7 +34,7 @@ export class ServerConfiguratorService {
   async configureServer(server: GameServer, game: Game) {
     this.logger.verbose(`configuring server ${server.name}...`);
     this.logger.debug(`[${server.name}] using rcon password ${server.rconPassword}`);
-    const whitelistId = (await this.configurationService.getConfiguration()).whitelistId;
+    const whitelistId = await this.configurationService.getWhitelistId();
 
     let rcon: Rcon;
     try {

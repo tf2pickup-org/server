@@ -58,7 +58,7 @@ describe('ServerConfiguratorService', () => {
   let playersService: jest.Mocked<PlayersService>;
   let queueConfigService: QueueConfigServiceStub;
   let mapPoolService: jest.Mocked<MapPoolService>;
-  let confiugurationService: jest.Mocked<ConfigurationService>;
+  let configurationService: jest.Mocked<ConfigurationService>;
 
   beforeAll(() => mongod = new MongoMemoryServer());
   afterAll(async () => await mongod.stop());
@@ -86,14 +86,14 @@ describe('ServerConfiguratorService', () => {
     playersService = module.get(PlayersService);
     queueConfigService = module.get(QueueConfigService);
     mapPoolService = module.get(MapPoolService);
-    confiugurationService = module.get(ConfigurationService);
+    configurationService = module.get(ConfigurationService);
   });
 
   beforeEach(() => {
     mapPoolService.getMaps.mockResolvedValue([
       { name: 'cp_badlands', execConfig: 'etf2l_6v6_5cp' },
     ]);
-    confiugurationService.getConfiguration.mockResolvedValue({ });
+    configurationService.getWhitelistId.mockResolvedValue('');
   });
 
   it('should be defined', () => {
@@ -158,9 +158,7 @@ describe('ServerConfiguratorService', () => {
 
     describe('when the whitelistId is set', () => {
       beforeEach(() => {
-        confiugurationService.getConfiguration.mockResolvedValue({
-          whitelistId: 'FAKE_WHITELIST_ID',
-        });
+        configurationService.getWhitelistId.mockResolvedValue('FAKE_WHITELIST_ID');
       });
 
       it('should set the whitelist', async () => {
