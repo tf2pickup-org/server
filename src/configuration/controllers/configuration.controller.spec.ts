@@ -50,4 +50,26 @@ describe('ConfigurationController', () => {
       expect(configurationService.setDefaultPlayerSkill).toHaveBeenCalledWith(defaultPlayerSkill);
     });
   });
+
+  describe('#getWhitelistId()', () => {
+    beforeEach(() => {
+      configurationService.getWhitelistId.mockResolvedValue('etf2l_6v6');
+    });
+
+    it('should return the whitelist id', async () => {
+      expect(await controller.getWhitelistId()).toEqual('etf2l_6v6');
+    });
+  });
+
+  describe('#setWhitelistId()', () => {
+    beforeEach(() => {
+      configurationService.setWhitelistId.mockResolvedValue('etf2l_6v6');
+    });
+
+    it('should set the whitelist id', async () => {
+      const ret = await controller.setWhitelistId('etf2l_6v6');
+      expect(ret).toEqual('etf2l_6v6');
+      expect(configurationService.setWhitelistId).toHaveBeenCalledWith('etf2l_6v6');
+    });
+  });
 });
