@@ -1,6 +1,5 @@
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { Test, TestingModule } from '@nestjs/testing';
-import { Configuration } from '../models/configuration';
 import { ConfigurationService } from '../services/configuration.service';
 import { ConfigurationController } from './configuration.controller';
 
@@ -26,29 +25,51 @@ describe('ConfigurationController', () => {
     expect(controller).toBeDefined();
   });
 
-  describe('#getConfiguration()', () => {
-    const configuration: Configuration = { defaultPlayerSkill: new Map([[Tf2ClassName.soldier, 3]]) };
+  describe('#getDefaultPlayerSkill()', () => {
+    const defaultPlayerSkill = new Map([[Tf2ClassName.soldier, 2], [Tf2ClassName.scout, 4]]);
 
     beforeEach(() => {
-      configurationService.getConfiguration.mockResolvedValue(configuration);
+      configurationService.getDefaultPlayerSkill.mockResolvedValue(defaultPlayerSkill);
     });
 
-    it('should return the configuration', async () => {
-      expect(await controller.getConfiguration()).toEqual(configuration);
+    it('should return default player skill', async () => {
+      expect(await controller.getDefaultPlayerSkill()).toEqual(defaultPlayerSkill);
     });
   });
 
-  describe('#setConfiguration()', () => {
-    const configuration: Configuration = { defaultPlayerSkill: new Map([[Tf2ClassName.soldier, 2]]), whitelistId: '12345' };
+  describe('#setDefaultPlayerSkill()', () => {
+    const defaultPlayerSkill = new Map([[Tf2ClassName.medic, 5]]);
 
     beforeEach(() => {
-      configurationService.setConfiguration.mockImplementation(configuration => Promise.resolve(configuration));
+      configurationService.setDefaultPlayerSkill.mockResolvedValue(defaultPlayerSkill);
     });
 
-    it('should set the configuration', async () => {
-      const ret = await controller.setConfiguration(configuration);
-      expect(ret).toEqual(configuration);
-      expect(configurationService.setConfiguration).toHaveBeenCalledWith(configuration);
+    it('should set default player skll', async () => {
+      const ret = await controller.setDefaultPlayerSkill({ [Tf2ClassName.medic]: 5 });
+      expect(ret).toEqual(defaultPlayerSkill);
+      expect(configurationService.setDefaultPlayerSkill).toHaveBeenCalledWith(defaultPlayerSkill);
+    });
+  });
+
+  describe('#getWhitelistId()', () => {
+    beforeEach(() => {
+      configurationService.getWhitelistId.mockResolvedValue('etf2l_6v6');
+    });
+
+    it('should return the whitelist id', async () => {
+      expect(await controller.getWhitelistId()).toEqual('etf2l_6v6');
+    });
+  });
+
+  describe('#setWhitelistId()', () => {
+    beforeEach(() => {
+      configurationService.setWhitelistId.mockResolvedValue('etf2l_6v6');
+    });
+
+    it('should set the whitelist id', async () => {
+      const ret = await controller.setWhitelistId('etf2l_6v6');
+      expect(ret).toEqual('etf2l_6v6');
+      expect(configurationService.setWhitelistId).toHaveBeenCalledWith('etf2l_6v6');
     });
   });
 });

@@ -276,14 +276,12 @@ describe('GamesService', () => {
         { id: 11, gameClass: Tf2ClassName.medic, playerId: (await playersService._createOne())._id, ready: true, friend: null },
       ] as any;
 
-      configurationService.getConfiguration.mockResolvedValue({
-        defaultPlayerSkill: new Map([
-          [Tf2ClassName.scout, 2],
-          [Tf2ClassName.soldier, 3],
-          [Tf2ClassName.demoman, 4],
-          [Tf2ClassName.medic, 5],
-        ]),
-      });
+      configurationService.getDefaultPlayerSkill.mockResolvedValue(new Map([
+        [Tf2ClassName.scout, 2],
+        [Tf2ClassName.soldier, 3],
+        [Tf2ClassName.demoman, 4],
+        [Tf2ClassName.medic, 5],
+      ]));
     });
 
     describe('when the queue is not full', () => {
