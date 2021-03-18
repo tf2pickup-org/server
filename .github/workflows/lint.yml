@@ -2,9 +2,14 @@ name: lint
 
 on:
   push:
-    branches: [ master ]
+    branches:
+      - 'master'
+      - '*.*.*'
+    tags:
+      - '*.*.*'
   pull_request:
-    branches: [ master ]
+    branches:
+      - 'master'
 
 jobs:
   lint:
