@@ -36,14 +36,20 @@ export class GameServerDiagnosticRunner {
   }
 
   async checkDiscovery() {
-    const updatedRun = classToClass(this._run.value);
-    const check = updatedRun.getCheckByName('discovery');
+    const run1 = classToClass(this._run.value);
+    let check = run1.getCheckByName('discovery');
     if (!check) {
-      return updatedRun;
+      return run1;
     }
 
+    this.logger.log('checking server discovery...');
+    check.status = DiagnosticCheckStatus.running;
+    this._run.next(run1);
+
+    const run2 = classToClass(run1);
+    check = run2.getCheckByName('discovery');
+
     try {
-      this.logger.log('checking server discovery...');
       const result = await query({ type: 'tf2', host: this.gameServer.address, port: parseInt(this.gameServer.port, 10) });
       check.status = DiagnosticCheckStatus.completed;
 
@@ -58,8 +64,8 @@ export class GameServerDiagnosticRunner {
       this.logger.warn(`failed: ${error}`);
     }
 
-    this._run.next(updatedRun);
-    return updatedRun;
+    this._run.next(run2);
+    return run2;
   }
 
   complete() {

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ReturnModelType } from '@typegoose/typegoose';
 import { plainToClass } from 'class-transformer';
 import { InjectModel } from 'nestjs-typegoose';
@@ -10,6 +10,7 @@ import { GameServersService } from './game-servers.service';
 @Injectable()
 export class GameServerDiagnosticsService {
 
+  private logger = new Logger(GameServerDiagnosticsService.name);
   private runners = new Map<string, GameServerDiagnosticRunner>();
 
   constructor(
@@ -39,6 +40,12 @@ export class GameServerDiagnosticsService {
 
     const run = await this.getDiagnosticRunById(id);
     const runner = new GameServerDiagnosticRunner(run, gameServer);
+    runner.run.subscribe(
+      run => this.logger.debug(JSON.stringify(run, null, 2)),
+      noop,
+      () => this.logger.debug('completed')
+    );
+
     runner.run.subscribe(
       run => this.gameServerDiagnosticRunModel.updateOne({ _id: run.id }, run).orFail().lean().exec(),
       noop,
