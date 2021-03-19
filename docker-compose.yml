@@ -1,6 +1,20 @@
 version: '3'
 services:
-  mongodb:
+  mongo:
     image: mongo:4.0
     ports:
       - '27017:27017'
+    volumes:
+      - mongodb:/data/db
+
+  mongoku:
+    image: huggingface/mongoku:latest
+    depends_on:
+      - mongo
+    ports:
+      - '3100:3100'
+    environment:
+      - MONGOKU_DEFAULT_HOST=mongodb://mongo:27017
+
+volumes:
+  mongodb:
