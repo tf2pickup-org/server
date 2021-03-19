@@ -1,6 +1,7 @@
 import { Auth } from '@/auth/decorators/auth.decorator';
-import { Tf2ClassName } from '@/shared/models/tf2-class-name';
-import { Body, ClassSerializerInterceptor, Controller, Get, Put, UseInterceptors } from '@nestjs/common';
+import { Body, ClassSerializerInterceptor, Controller, Get, Put, UseInterceptors, ValidationPipe } from '@nestjs/common';
+import { DefaultPlayerSkill } from '../dto/default-player-skill';
+import { WhitelistId } from '../dto/whitelist-id';
 import { ConfigurationService } from '../services/configuration.service';
 
 @Controller('configuration')
@@ -13,27 +14,29 @@ export class ConfigurationController {
   @Get('default-player-skill')
   @UseInterceptors(ClassSerializerInterceptor)
   async getDefaultPlayerSkill() {
-    return this.configurationService.getDefaultPlayerSkill();
+    return new DefaultPlayerSkill(await this.configurationService.getDefaultPlayerSkill());
   }
 
   @Put('default-player-skill')
   @Auth('admin', 'super-user')
+  @UseInterceptors(ClassSerializerInterceptor)
   async setDefaultPlayerSkill(
-    @Body() value: { [className in Tf2ClassName]?: number },
+    @Body(new ValidationPipe({ transform: true })) { value }: DefaultPlayerSkill,
   ) {
-    const valueAsMap = new Map(Object.entries(value)) as Map<Tf2ClassName, number>;
-    return this.configurationService.setDefaultPlayerSkill(valueAsMap);
+    return new DefaultPlayerSkill(await this.configurationService.setDefaultPlayerSkill(value));
   }
 
   @Get('whitelist-id')
+  @UseInterceptors(ClassSerializerInterceptor)
   async getWhitelistId() {
-    return this.configurationService.getWhitelistId();
+    return new WhitelistId(await this.configurationService.getWhitelistId());
   }
 
   @Put('whitelist-id')
   @Auth('admin', 'super-user')
-  async setWhitelistId(@Body() whitelistId: string) {
-    return this.configurationService.setWhitelistId(whitelistId);
+  @UseInterceptors(ClassSerializerInterceptor)
+  async setWhitelistId(@Body(new ValidationPipe()) { value }: WhitelistId) {
+    return new WhitelistId(await this.configurationService.setWhitelistId(value));
   }
 
 }
