@@ -1,5 +1,7 @@
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { Test, TestingModule } from '@nestjs/testing';
+import { DefaultPlayerSkill } from '../dto/default-player-skill';
+import { WhitelistId } from '../dto/whitelist-id';
 import { ConfigurationService } from '../services/configuration.service';
 import { ConfigurationController } from './configuration.controller';
 
@@ -33,7 +35,7 @@ describe('ConfigurationController', () => {
     });
 
     it('should return default player skill', async () => {
-      expect(await controller.getDefaultPlayerSkill()).toEqual(defaultPlayerSkill);
+      expect(await controller.getDefaultPlayerSkill()).toEqual(new DefaultPlayerSkill(defaultPlayerSkill));
     });
   });
 
@@ -44,9 +46,9 @@ describe('ConfigurationController', () => {
       configurationService.setDefaultPlayerSkill.mockResolvedValue(defaultPlayerSkill);
     });
 
-    it('should set default player skll', async () => {
-      const ret = await controller.setDefaultPlayerSkill({ [Tf2ClassName.medic]: 5 });
-      expect(ret).toEqual(defaultPlayerSkill);
+    it('should set default player skill', async () => {
+      const ret = await controller.setDefaultPlayerSkill(new DefaultPlayerSkill(new Map([[Tf2ClassName.medic, 5]])));
+      expect(ret).toEqual(new DefaultPlayerSkill(defaultPlayerSkill));
       expect(configurationService.setDefaultPlayerSkill).toHaveBeenCalledWith(defaultPlayerSkill);
     });
   });
@@ -57,7 +59,7 @@ describe('ConfigurationController', () => {
     });
 
     it('should return the whitelist id', async () => {
-      expect(await controller.getWhitelistId()).toEqual('etf2l_6v6');
+      expect(await controller.getWhitelistId()).toEqual(new WhitelistId('etf2l_6v6'));
     });
   });
 
@@ -67,8 +69,8 @@ describe('ConfigurationController', () => {
     });
 
     it('should set the whitelist id', async () => {
-      const ret = await controller.setWhitelistId('etf2l_6v6');
-      expect(ret).toEqual('etf2l_6v6');
+      const ret = await controller.setWhitelistId(new WhitelistId('etf2l_6v6'));
+      expect(ret).toEqual(new WhitelistId('etf2l_6v6'));
       expect(configurationService.setWhitelistId).toHaveBeenCalledWith('etf2l_6v6');
     });
   });
