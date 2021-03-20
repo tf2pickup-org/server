@@ -19,6 +19,8 @@ export class ConfigurationService implements OnModuleInit {
     await Promise.all([
       this.loadDefault(ConfigurationEntryKey.defaultPlayerSkill, JSON.stringify(Object.fromEntries(defaultDefaultPlayerSkill.entries()))),
       this.loadDefault(ConfigurationEntryKey.whitelistId, ''),
+      this.loadDefault(ConfigurationEntryKey.etf2lAccountRequired, true.toString()),
+      this.loadDefault(ConfigurationEntryKey.minimumTf2InGameHours, '500'),
     ]);
   }
 
@@ -39,6 +41,24 @@ export class ConfigurationService implements OnModuleInit {
   async setWhitelistId(whitelistId: string): Promise<string> {
     await this.store(ConfigurationEntryKey.whitelistId, whitelistId);
     return whitelistId;
+  }
+
+  async isEtf2lAccountRequired(): Promise<boolean> {
+    return (await this.retrieve(ConfigurationEntryKey.etf2lAccountRequired)) === 'true';
+  }
+
+  async setEtf2lAccountRequired(etf2lAccountRequired: boolean): Promise<boolean> {
+    await this.store(ConfigurationEntryKey.etf2lAccountRequired, etf2lAccountRequired.toString());
+    return etf2lAccountRequired;
+  }
+
+  async getMinimumTf2InGameHours(): Promise<number> {
+    return parseInt(await this.retrieve(ConfigurationEntryKey.minimumTf2InGameHours), 10);
+  }
+
+  async setMinimumTf2InGameHours(minimumTf2InGameHours: number): Promise<number> {
+    await this.store(ConfigurationEntryKey.minimumTf2InGameHours, minimumTf2InGameHours.toString());
+    return minimumTf2InGameHours;
   }
 
   private async retrieve(key: ConfigurationEntryKey): Promise<string> {

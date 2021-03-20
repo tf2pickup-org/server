@@ -58,4 +58,20 @@ describe('ConfigurationService', () => {
     expect(await service.setWhitelistId('etf2l_6v6')).toEqual('etf2l_6v6');
   });
 
+  it('should return whether etf2l account is required', async () => {
+    expect(await service.isEtf2lAccountRequired()).toBe(true);
+  });
+
+  it('should set whether etf2l account is required', async () => {
+    expect(await service.setEtf2lAccountRequired(false)).toBe(false);
+  });
+
+  it('should return minimum tf2 in-game hours', async () => {
+    expect(await service.getMinimumTf2InGameHours()).toEqual(500);
+  });
+
+  it('should set minimum tf2 in-game hours', async () => {
+    expect(await service.setMinimumTf2InGameHours(1000)).toEqual(1000);
+  });
+
 });

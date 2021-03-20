@@ -13,12 +13,6 @@ import { typegooseTestingModule } from '@/utils/testing-typegoose-module';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { SteamApiService } from './steam-api.service';
 import { ObjectId } from 'mongodb';
-
-jest.mock('@configs/players', () => ({
-  minimumTf2InGameHours: 500,
-  requireEtf2lAccount: true,
-}));
-import { minimumTf2InGameHours } from '@configs/players';
 import { Events } from '@/events/events';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { WebsocketEvent } from '@/websocket-event';
@@ -26,9 +20,11 @@ import { Socket } from 'socket.io';
 import { InsufficientTf2InGameHoursError } from '../errors/insufficient-tf2-in-game-hours.error';
 import { Tf2InGameHoursVerificationError } from '../errors/tf2-in-game-hours-verification.error';
 import { PlayerRole } from '../models/player-role';
+import { ConfigurationService } from '@/configuration/services/configuration.service';
 
 jest.mock('./etf2l-profile.service');
 jest.mock( './online-players.service');
+jest.mock('@/configuration/services/configuration.service');
 
 class EnvironmentStub {
   superUser = null;
@@ -63,6 +59,7 @@ describe('PlayersService', () => {
   let steamApiService: SteamApiServiceStub;
   let events: Events;
   let socket: Socket;
+  let configurationService: jest.Mocked<ConfigurationService>;
 
   beforeAll(() => mongod = new MongoMemoryServer());
   afterAll(async () => await mongod.stop());
@@ -81,6 +78,7 @@ describe('PlayersService', () => {
         OnlinePlayersService,
         { provide: SteamApiService, useClass: SteamApiServiceStub },
         Events,
+        ConfigurationService,
       ],
     }).compile();
 
@@ -92,6 +90,7 @@ describe('PlayersService', () => {
     onlinePlayersService = module.get(OnlinePlayersService);
     steamApiService = module.get(SteamApiService);
     events = module.get(Events);
+    configurationService = module.get(ConfigurationService);
   });
 
   beforeEach(async () => {
@@ -213,6 +212,11 @@ describe('PlayersService', () => {
       ],
     };
 
+    beforeEach(() => {
+      configurationService.isEtf2lAccountRequired.mockResolvedValue(true);
+      configurationService.getMinimumTf2InGameHours.mockResolvedValue(500);
+    });
+
     describe('when an ETF2L profile doesn\'t exist', () => {
       beforeEach(() => {
         etf2lProfileService.fetchPlayerInfo.mockRejectedValue(new Error('no etf2l profile'));
@@ -303,15 +307,7 @@ describe('PlayersService', () => {
 
       describe('and nobody cares', () => {
         beforeEach(() => {
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-expect-error
-          minimumTf2InGameHours = 0;
-        });
-
-        afterEach(() => {
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-expect-error
-          minimumTf2InGameHours = 500;
+          configurationService.getMinimumTf2InGameHours.mockResolvedValue(0);
         });
 
         it('should pass', async () => {
