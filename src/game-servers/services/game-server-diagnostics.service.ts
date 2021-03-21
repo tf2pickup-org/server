@@ -1,9 +1,16 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { ReturnModelType } from '@typegoose/typegoose';
-import { plainToClass } from 'class-transformer';
+import { ModuleRef } from '@nestjs/core';
+import { isRefType, ReturnModelType } from '@typegoose/typegoose';
+import { classToClass, plainToClass } from 'class-transformer';
 import { InjectModel } from 'nestjs-typegoose';
-import { from, noop, Observable } from 'rxjs';
-import { GameServerDiagnosticRunner } from '../game-server-diagnostic-runner';
+import { from, Observable } from 'rxjs';
+import { concatMap, tap } from 'rxjs/operators';
+import { LogForwarding } from '../diagnostic-checks/log-forwarding';
+import { RconConnection } from '../diagnostic-checks/rcon-connection';
+import { ServerDiscovery } from '../diagnostic-checks/server-discovery';
+import { DiagnosticCheckRunner } from '../interfaces/diagnostic-check-runner';
+import { DiagnosticCheckStatus } from '../models/diagnostic-check-status';
+import { DiagnosticRunStatus } from '../models/diagnostic-run-status';
 import { GameServerDiagnosticRun } from '../models/game-server-diagnostic-run';
 import { GameServersService } from './game-servers.service';
 
@@ -11,11 +18,11 @@ import { GameServersService } from './game-servers.service';
 export class GameServerDiagnosticsService {
 
   private logger = new Logger(GameServerDiagnosticsService.name);
-  private runners = new Map<string, GameServerDiagnosticRunner>();
 
   constructor(
     @InjectModel(GameServerDiagnosticRun) private gameServerDiagnosticRunModel: ReturnModelType<typeof GameServerDiagnosticRun>,
     private gameServersService: GameServersService,
+    private moduleRef: ModuleRef,
   ) { }
 
   async getDiagnosticRunById(id: string): Promise<GameServerDiagnosticRun> {
@@ -23,40 +30,86 @@ export class GameServerDiagnosticsService {
   }
 
   getDiagnosticRunObservable(id: string): Observable<GameServerDiagnosticRun> {
-    return this.runners.get(id)?.run ?? from(this.getDiagnosticRunById(id));
+    return from(this.getDiagnosticRunById(id));
   }
 
   async runDiagnostics(gameServerId: string): Promise<string> {
-    const gameServer = await this.gameServersService.getById(gameServerId);
+    await this.gameServersService.getById(gameServerId);
+    const runners = await this.collectAllRunners();
+    const checks = runners.map(runner => ({ name: runner.name, critical: runner.critical }));
+
     const { id } = await this.gameServerDiagnosticRunModel.create({
       gameServer: gameServerId,
-      checks: [
-        {
-          name: 'discovery',
-          critical: false,
-        },
-        {
-          name: 'rcon connection',
-          critical: true,
-        },
-      ],
+      checks,
     });
 
-    const run = await this.getDiagnosticRunById(id);
-    const runner = new GameServerDiagnosticRunner(run, gameServer);
-    runner.run.subscribe(
-      run => this.logger.debug(JSON.stringify(run, null, 2)),
-      noop,
-      () => this.logger.debug('completed')
-    );
+    const run$ = this.executeAllRunners(await this.getDiagnosticRunById(id), runners);
+    run$.pipe(
+      tap(run => this.logger.debug(JSON.stringify(run, null, 2))),
+      concatMap(run => from(this.gameServerDiagnosticRunModel.findOneAndUpdate({ _id: run.id }, run).orFail().lean().exec())),
+    ).subscribe();
 
-    runner.run.subscribe(
-      run => this.gameServerDiagnosticRunModel.updateOne({ _id: run.id }, run).orFail().lean().exec(),
-      noop,
-      () => this.runners.delete(id),
-    );
-    this.runners.set(id, runner);
     return id;
+  }
+
+  async collectAllRunners(): Promise<DiagnosticCheckRunner[]> {
+    return Promise.all([
+      this.moduleRef.resolve(ServerDiscovery),
+      this.moduleRef.resolve(RconConnection),
+      this.moduleRef.resolve(LogForwarding),
+    ]);
+  }
+
+  private executeAllRunners(diagnosticRun: GameServerDiagnosticRun, runners: DiagnosticCheckRunner[]): Observable<GameServerDiagnosticRun> {
+    return new Observable<GameServerDiagnosticRun>(subscriber => {
+      let shouldStop = false;
+
+      const fn = async () => {
+        const gameServer = isRefType(diagnosticRun.gameServer) ?
+          await this.gameServersService.getById(diagnosticRun.gameServer.toString()) :
+          diagnosticRun.gameServer;
+
+        this.logger.log(`Starting diagnostics of ${gameServer.name}...`);
+
+        const effects = new Map<string, any>();
+        let run = diagnosticRun;
+
+        for (const runner of runners) {
+          if (shouldStop) {
+            break;
+          }
+
+          run = classToClass(run);
+          let check = run.getCheckByName(runner.name);
+          check.status = DiagnosticCheckStatus.running;
+          subscriber.next(run);
+
+          run = classToClass(run);
+          check = run.getCheckByName(runner.name);
+
+          const result = await runner.run({ gameServer, effects });
+          check.reportedErrors = result.reportedErrors;
+          check.reportedWarnings = result.reportedWarnings;
+          check.status = result.success ? DiagnosticCheckStatus.completed : DiagnosticCheckStatus.failed;
+          subscriber.next(run);
+
+          if (result.effects) {
+            result.effects.forEach((value, key) => effects.set(key, value));
+          }
+        }
+
+        run = classToClass(run);
+        run.status = run.checks.every(check => check.status === DiagnosticCheckStatus.completed) ?
+          DiagnosticRunStatus.completed : DiagnosticRunStatus.failed;
+        subscriber.next(run);
+
+        this.logger.log(`Diagnostics of ${gameServer.name} done. Status: ${run.status}`);
+        subscriber.complete();
+      };
+
+      fn();
+      return () => shouldStop = true;
+    });
   }
 
 }

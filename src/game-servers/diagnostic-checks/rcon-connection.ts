@@ -1,19 +1,44 @@
+import { Injectable, Scope } from '@nestjs/common';
 import { Rcon } from 'rcon-client/lib';
-import { GameServer } from '../models/game-server';
+import { DiagnosticCheckResult } from '../interfaces/diagnostic-check-result';
+import { DiagnosticCheckRunner } from '../interfaces/diagnostic-check-runner';
 
-export const rconConnection = async (gameServer: GameServer): Promise<Rcon> => new Promise((resolve, reject) => {
-  const rcon = new Rcon({
-    host: gameServer.address,
-    port: parseInt(gameServer.port, 10),
-    password: gameServer.rconPassword,
-    timeout: 30000,
-  });
+@Injectable({ scope: Scope.TRANSIENT })
+export class RconConnection implements DiagnosticCheckRunner {
 
-  rcon.on('error', error => {
-    return reject(error);
-  });
+  name = 'rcon connection';
+  critical = true;
 
-  rcon.connect()
-    .then(resolve)
-    .catch(reject);
-});
+  async run({ gameServer }): Promise<DiagnosticCheckResult> {
+    const createRcon = () => new Promise((resolve, reject) => {
+      const rcon = new Rcon({
+        host: gameServer.address,
+        port: parseInt(gameServer.port, 10),
+        password: gameServer.rconPassword,
+        timeout: 30000,
+      });
+
+      rcon.on('authenticated', () => resolve(rcon));
+      rcon.on('error', () => reject());
+
+      rcon.connect();
+    });
+
+    try {
+      const rcon = await createRcon();
+      return {
+        success: true,
+        reportedErrors: [],
+        reportedWarnings: [],
+        effects: new Map([['rcon connection', rcon]]),
+      };
+    } catch (error) {
+      return {
+        success: false,
+        reportedErrors: [error.toString()],
+        reportedWarnings: [],
+      };
+    }
+  }
+
+}
