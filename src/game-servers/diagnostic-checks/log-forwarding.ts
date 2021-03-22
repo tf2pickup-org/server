@@ -22,6 +22,13 @@ export class LogForwarding implements DiagnosticCheckRunner {
 
   async run({ effects }): Promise<DiagnosticCheckResult> {
     const rcon: Rcon = effects.get('rcon connection');
+    if (!rcon) {
+      return Promise.resolve({
+        success: false,
+        reportedErrors: ['RCON not available'],
+        reportedWarnings: [],
+      });
+    }
 
     return new Promise((resolve) => {
       const secret = generate({ length: 32, numbers: true });
