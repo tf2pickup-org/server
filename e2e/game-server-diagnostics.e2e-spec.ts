@@ -33,7 +33,7 @@ describe('Game server diagnostics (e2e)', () => {
 
   beforeAll(async () => {
     const playersService = app.get(PlayersService);
-    const maly = await playersService.createPlayer((await import('../steam-profiles')).maly);
+    const maly = await playersService.createPlayer((await import('./steam-profiles')).maly);
 
     const authService = app.get(AuthService);
     authToken = await authService.generateJwtToken(JwtTokenPurpose.auth, maly.id);

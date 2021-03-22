@@ -14,7 +14,6 @@ const config: Config.InitialOptions = {
   setupFiles: [
     '<rootDir>/e2e/prepare-env.ts',
   ],
-  globalSetup: '<rootDir>/e2e/setup.ts',
   globalTeardown: '<rootDir>/e2e/teardown.ts',
 };
 export default config;
