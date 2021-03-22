@@ -60,11 +60,20 @@ jobs:
     - name: Start services
       run: docker-compose up -d
 
+    - name: Sleep for 30 seconds # let TF2 server boot up properly
+      uses: jakejarvis/wait-action@v0.1.0
+      with:
+        time: '30s'
+
     - name: Install dependencies
       run: npm install
 
     - name: Run tests
-      run: npm run test:e2e
+      run: |
+        export MONGODB_HOST=$(docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' server_mongo_1)
+        export MONGODB_PORT=27017
+        export MONGODB_DB=tf2pickuppl_e2e_tests
+        npm run test:e2e
 
     - name: Stop services
       run: docker-compose down

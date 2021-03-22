@@ -103,6 +103,7 @@ describe('GameServers Controller', () => {
       const ret = await controller.runDiagnostics('FAKE_GAME_SERVER_ID');
       expect(gameServerDiagnosticsService.runDiagnostics).toHaveBeenCalledWith('FAKE_GAME_SERVER_ID');
       expect(ret).toEqual({
+        diagnosticRunId: 'FAKE_DIAGNOSTICS_ID',
         tracking: {
           url: 'FAKE_API_URL/game-server-diagnostics/FAKE_DIAGNOSTICS_ID',
         },

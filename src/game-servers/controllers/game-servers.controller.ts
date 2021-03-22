@@ -50,6 +50,7 @@ export class GameServersController {
   async runDiagnostics(@Param('id', ObjectIdValidationPipe) gameServerId: string) {
     const id = await this.gameServerDiagnosticsService.runDiagnostics(gameServerId);
     return {
+      diagnosticRunId: id,
       tracking: {
         url: `${this.environment.apiUrl}/game-server-diagnostics/${id}`,
       },

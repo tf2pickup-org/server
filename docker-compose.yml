@@ -14,7 +14,20 @@ services:
     ports:
       - '3100:3100'
     environment:
-      - MONGOKU_DEFAULT_HOST=mongodb://mongo:27017
+      - 'MONGOKU_DEFAULT_HOST=mongodb://mongo:27017'
+
+  gameserver:
+    image: tf2pickuppl/tf2-gameserver:latest
+    ports:
+      - '27015:27015/tcp'
+      - '27015:27015/udp'
+      - '27020:27020/udp'
+    environment:
+      - 'RCON_PASSWORD=123456'
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+    stdin_open: true
+    tty: true
 
 volumes:
   mongodb:
