@@ -3,25 +3,23 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { mongoose, ReturnModelType } from '@typegoose/typegoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { getModelToken, TypegooseModule } from 'nestjs-typegoose';
-import { Subject } from 'rxjs';
+import { LogForwarding } from '../diagnostic-checks/log-forwarding';
+import { RconConnection } from '../diagnostic-checks/rcon-connection';
+import { ServerDiscovery } from '../diagnostic-checks/server-discovery';
+import { DiagnosticRunStatus } from '../models/diagnostic-run-status';
 import { GameServerDiagnosticRun } from '../models/game-server-diagnostic-run';
 import { GameServerDiagnosticsService } from './game-server-diagnostics.service';
 import { GameServersService } from './game-servers.service';
 
 jest.mock('./game-servers.service');
-jest.mock('../game-server-diagnostic-runner', () => ({
-  GameServerDiagnosticRunner: jest.fn().mockImplementation(() => {
-    return {
-      run: new Subject<GameServerDiagnosticRun>(),
-    };
-  }),
-}));
+jest.mock('../diagnostic-checks/log-forwarding');
+jest.mock('../diagnostic-checks/rcon-connection');
+jest.mock('../diagnostic-checks/server-discovery');
 
 describe('GameServerDiagnosticsService', () => {
   let service: GameServerDiagnosticsService;
   let mongod: MongoMemoryServer;
   let gameServerDiagnosticRunModel: ReturnModelType<typeof GameServerDiagnosticRun>;
-  let gameServersService: jest.Mocked<GameServersService>;
 
   beforeAll(() => mongod = new MongoMemoryServer());
   afterAll(async () => await mongod.stop());
@@ -35,12 +33,14 @@ describe('GameServerDiagnosticsService', () => {
       providers: [
         GameServerDiagnosticsService,
         GameServersService,
+        ServerDiscovery,
+        RconConnection,
+        LogForwarding,
       ],
     }).compile();
 
     service = module.get<GameServerDiagnosticsService>(GameServerDiagnosticsService);
     gameServerDiagnosticRunModel = module.get(getModelToken(GameServerDiagnosticRun.name));
-    gameServersService = module.get(GameServersService);
   });
 
   afterEach(async () => {
@@ -69,40 +69,6 @@ describe('GameServerDiagnosticsService', () => {
       it('should throw an error', async () => {
         await expect(() => service.getDiagnosticRunById(new mongoose.Types.ObjectId().toString())).rejects
           .toThrow(mongoose.Error.DocumentNotFoundError);
-      });
-    });
-  });
-
-  describe('#runDiagnostics()', () => {
-    let gameServerId: string;
-
-    beforeEach(() => {
-      gameServerId = new mongoose.Types.ObjectId().toString();
-      gameServersService.getById.mockResolvedValue({
-        id: gameServerId,
-        name: 'FAKE_SERVER',
-        address: 'http://127.0.0.1',
-        port: '27015',
-        rconPassword: 'FAKE_RCON_PASSWORD',
-        resolvedIpAddresses: ['127.0.0.1'],
-      });
-    });
-
-    it('should create new diagnostic run', async () => {
-      const id = await service.runDiagnostics(gameServerId);
-      expect(id).toBeTruthy();
-      expect(await gameServerDiagnosticRunModel.findById(id)).toBeTruthy();
-    });
-
-    describe('when created', () => {
-      let diagnosticRunId: string;
-
-      beforeEach(async () => {
-        diagnosticRunId = await service.runDiagnostics(gameServerId);
-      });
-
-      it('should return this diagnostic run in getDiagnosticRunObservable()', () => {
-        expect(service.getDiagnosticRunObservable(diagnosticRunId)).toBeTruthy();
       });
     });
   });

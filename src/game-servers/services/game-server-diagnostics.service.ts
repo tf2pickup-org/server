@@ -29,10 +29,6 @@ export class GameServerDiagnosticsService {
     return plainToClass(GameServerDiagnosticRun, await this.gameServerDiagnosticRunModel.findById(id).orFail().lean().exec());
   }
 
-  getDiagnosticRunObservable(id: string): Observable<GameServerDiagnosticRun> {
-    return from(this.getDiagnosticRunById(id));
-  }
-
   async runDiagnostics(gameServerId: string): Promise<string> {
     await this.gameServersService.getById(gameServerId);
     const runners = await this.collectAllRunners();
