@@ -18,6 +18,7 @@ import { classToPlain, plainToClass } from 'class-transformer';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { OnlinePlayersService } from './online-players.service';
 import { WebsocketEvent } from '@/websocket-event';
+import { UpdateQuery } from 'mongoose';
 
 type ForceCreatePlayerOptions = Pick<Player, 'steamId' | 'name'>;
 
@@ -144,15 +145,21 @@ export class PlayersService implements OnModuleInit {
     return player;
   }
 
+  // FIXME Move this method to TwitchModule
   async registerTwitchAccount(playerId: string, twitchTvUser: TwitchTvUser): Promise<Player> {
     return this.updatePlayer(playerId, { twitchTvUser });
+  }
+
+  // FIXME Move this method to TwitchModule
+  async removeTwitchTvProfile(playerId: string) {
+    return this.updatePlayer(playerId, { $unset: { twitchTvUser: 1 } });
   }
 
   async getUsersWithTwitchTvAccount(): Promise<Player[]> {
     return plainToClass(Player, await this.playerModel.find({ twitchTvUser: { $exists: true } }).lean().exec());
   }
 
-  async updatePlayer(playerId: string, update: Partial<Player>, adminId?: string): Promise<Player> {
+  async updatePlayer(playerId: string, update: UpdateQuery<Player>, adminId?: string): Promise<Player> {
     const oldPlayer = await this.getById(playerId);
     const newPlayer = plainToClass(Player, await this.playerModel.findOneAndUpdate({ _id: playerId }, update, { new: true }).lean().exec());
     this.events.playerUpdates.next({ oldPlayer, newPlayer, adminId });

@@ -1,12 +1,14 @@
-import { Controller, Get, Redirect, Query, BadRequestException, Logger } from '@nestjs/common';
+import { Controller, Get, Redirect, Query, BadRequestException, Logger, Put } from '@nestjs/common';
 import { TwitchService } from '../services/twitch.service';
 import { TwitchAuthService } from '../services/twitch-auth.service';
 import { PlayersService } from '@/players/services/players.service';
 import { AuthService } from '@/auth/services/auth.service';
 import { JsonWebTokenError } from 'jsonwebtoken';
 import { TwitchTvUser } from '@/players/models/twitch-tv-user';
-import { KeyName } from '@/auth/key-name';
 import { JwtTokenPurpose } from '@/auth/jwt-token-purpose';
+import { Auth } from '@/auth/decorators/auth.decorator';
+import { User } from '@/auth/decorators/user.decorator';
+import { Player } from '@/players/models/player';
 
 @Controller('twitch')
 export class TwitchController {
@@ -50,6 +52,12 @@ export class TwitchController {
       profileImageUrl: userProfile.profile_image_url,
     };
     await this.playersService.registerTwitchAccount(id, twitchTvUser);
+  }
+
+  @Put('disconnect')
+  @Auth()
+  async disconnect(@User() user: Player) {
+    return this.playersService.removeTwitchTvProfile(user.id);
   }
 
   @Get('streams')

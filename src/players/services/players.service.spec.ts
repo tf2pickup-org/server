@@ -364,6 +364,22 @@ describe('PlayersService', () => {
     });
   });
 
+  describe('#removeTwitchTvProfile()', () => {
+    beforeEach(async () => {
+      const twitchTvUser = {
+        userId: 'FAKE_TWITCH_TV_USER_ID',
+        login: 'FAKE_TWITCH_TV_LOGIN',
+      };
+      await service.registerTwitchAccount(mockPlayer.id, twitchTvUser);
+    });
+
+    it('should remove the twitchTvProfile', async () => {
+      const ret = await service.removeTwitchTvProfile(mockPlayer.id);
+      expect(ret.twitchTvUser).toBe(undefined);
+      expect((await playerModel.findById(mockPlayer.id)).twitchTvUser).toBe(undefined);
+    });
+  });
+
   describe('#getUsersWithTwitchTvAccount()', () => {
     beforeEach(async () => {
       const player = await playerModel.findOne();

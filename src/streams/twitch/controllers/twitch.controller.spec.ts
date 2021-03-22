@@ -6,6 +6,7 @@ import { PlayersService } from '@/players/services/players.service';
 import { AuthService } from '@/auth/services/auth.service';
 import { JsonWebTokenError } from 'jsonwebtoken';
 import { BadRequestException } from '@nestjs/common';
+import { Player } from '@/players/models/player';
 
 class TwitchServiceStub {
   streams = [
@@ -43,6 +44,7 @@ class TwitchAuthServiceStub {
 
 class PlayersServiceStub {
   registerTwitchAccount(playerId: string, twitchUserId: string) { return Promise.resolve(); }
+  removeTwitchTvProfile = jest.fn().mockResolvedValue({ id: 'FAKE_USER_ID' });
 }
 
 class AuthServiceStub {
@@ -106,6 +108,14 @@ describe('Twitch Controller', () => {
         displayName: 'FAKE_TWITCH_TV_DISPLAY_NAME',
         profileImageUrl: 'FAKE_TWITCH_TV_PROFILE_IMAGE_URL',
       });
+    });
+  });
+
+  describe('#disconnect()', () => {
+    it('should remove twitch.tv profile from the user\'s account', async () => {
+      const ret = await controller.disconnect({ id: 'FAKE_USER_ID' } as Player);
+      expect(playersService.removeTwitchTvProfile).toHaveBeenCalledWith('FAKE_USER_ID');
+      expect(ret).toEqual({ id: 'FAKE_USER_ID' });
     });
   });
 
