@@ -48,6 +48,7 @@ jobs:
         export MONGODB_PORT=27017
         export MONGODB_DB=tf2pickuppl_e2e_tests
         npm run test:e2e
+      shell: bash
 
     - name: Stop services
       run: docker-compose down
