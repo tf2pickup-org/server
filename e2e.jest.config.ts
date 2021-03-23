@@ -5,6 +5,8 @@ import { compilerOptions } from './tsconfig.json';
 
 const config: Config.InitialOptions = {
   ...defaults,
+  collectCoverage: true,
+  coverageDirectory: 'coverage',
   moduleNameMapper: pathsToModuleNameMapper(compilerOptions.paths, { prefix: '<rootDir>/' }),
   preset: 'ts-jest',
   testEnvironment: 'node',
