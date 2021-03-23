@@ -74,7 +74,7 @@ describe('Game server diagnostics (e2e)', () => {
           clearInterval(i);
           resolve();
         }
-      });
+      }, 1000);
     });
 
     afterEach(async () => {
