@@ -18,6 +18,22 @@ jobs:
     strategy:
       matrix:
         node-version: [12.x, 14.x]
+    
+    services:
+      mongo:
+        image: mongo:4.0
+        ports:
+          - 27017:27017
+      
+      gameserver:
+        image: tf2pickuppl/tf2-gameserver
+        ports:
+          - 27015:27015/tcp
+          - 27015:27015/udp
+          - 27020:27020/udp
+        env:
+          RCON_PASSWORD: 123456
+        options: --tty
 
     steps:
     - name: Checkout repository
@@ -34,24 +50,13 @@ jobs:
     - name: Run unit test
       run: npm run test:ci
 
-    - name: Start services
-      run: docker-compose up -d
-
-    - name: Sleep for 30 seconds # let TF2 server boot up properly
-      uses: jakejarvis/wait-action@v0.1.0
-      with:
-        time: '30s'
-
     - name: Run e2e tests
       run: |
-        export MONGODB_HOST=$(docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' server_mongo_1)
+        export MONGODB_HOST=localhost
         export MONGODB_PORT=27017
         export MONGODB_DB=tf2pickuppl_e2e_tests
         npm run test:e2e
       shell: bash
-
-    - name: Stop services
-      run: docker-compose down
 
     - name: Build
       run: npm run build
