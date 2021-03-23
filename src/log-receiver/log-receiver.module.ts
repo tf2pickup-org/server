@@ -1,6 +1,7 @@
 import { Environment } from '@/environment/environment';
 import { Module } from '@nestjs/common';
 import { LogReceiver } from 'srcds-log-receiver';
+import { LogReceiverService } from './services/log-receiver/log-receiver.service';
 
 const logReceiverProvider = {
   provide: LogReceiver,
@@ -13,6 +14,7 @@ const logReceiverProvider = {
 @Module({
   providers: [
     logReceiverProvider,
+    LogReceiverService,
   ],
   exports: [
     logReceiverProvider,
