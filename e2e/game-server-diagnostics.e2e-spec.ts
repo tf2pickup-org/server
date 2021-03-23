@@ -20,7 +20,7 @@ jest.setTimeout(10000);
 describe('Game server diagnostics (e2e)', () => {
   let app: INestApplication;
   let authToken: string;
-  let gameServerId: string;
+  let workingGameServerId: string;
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -40,13 +40,13 @@ describe('Game server diagnostics (e2e)', () => {
 
     const gameServersService = app.get(GameServersService);
     const gameServer = await gameServersService.addGameServer({
-      name: 'test game server',
-      address: 'localhost',
+      name: 'working game server',
+      address: '127.0.0.1',
       port: '27015',
       rconPassword: '123456',
     });
 
-    gameServerId = gameServer.id;
+    workingGameServerId = gameServer.id;
   });
 
   afterAll(async () => {
@@ -59,10 +59,10 @@ describe('Game server diagnostics (e2e)', () => {
     await app.close();
   });
 
-  describe('diagnostic run is requested', () => {
+  describe('diagnostic run', () => {
     let diagnosticRunId: string;
 
-    const waitForDiagnosticRun = async (runId: string) => new Promise<void>(resolve => {
+    const waitForDiagnosticRunToComplete = async (runId: string) => new Promise<void>(resolve => {
       const isDone = async () => {
         const diagnosticsService = app.get(GameServerDiagnosticsService);
         const run = await diagnosticsService.getDiagnosticRunById(runId);
@@ -77,27 +77,29 @@ describe('Game server diagnostics (e2e)', () => {
       }, 1000);
     });
 
-    afterEach(async () => {
-      await waitForDiagnosticRun(diagnosticRunId);
+    beforeEach(async () => {
+      const diagnosticsService = app.get(GameServerDiagnosticsService);
+      diagnosticRunId = await diagnosticsService.runDiagnostics(workingGameServerId);
     });
 
-    it('POST /game-servers/:id/diagnostics', () => new Promise<void>((resolve, reject) => {
-      request(app.getHttpServer())
-        .post(`/game-servers/${gameServerId}/diagnostics`)
+    afterEach(async () => {
+      await waitForDiagnosticRunToComplete(diagnosticRunId);
+    });
+
+    it('GET /game-server-diagnostics/:id', async () => {
+      await waitForDiagnosticRunToComplete(diagnosticRunId);
+
+      return request(app.getHttpServer())
+        .get(`/game-server-diagnostics/${diagnosticRunId}`)
         .set('Authorization', `Bearer ${authToken}`)
-        .expect(202)
-        .expect('Content-Type', /json/)
-        .end((error, response) => {
-          if (error) {
-            return reject(error);
-          }
-
-          expect(response.body.diagnosticRunId).toBeTruthy();
-          expect(response.body.tracking.url).toBeTruthy();
-
-          diagnosticRunId = response.body.diagnosticRunId;
-          resolve();
+        .expect(200)
+        .then(response => {
+          const body = response.body;
+          expect(body.id).toEqual(diagnosticRunId);
+          expect(body.gameServer).toEqual(workingGameServerId);
+          expect(body.status).toEqual('completed');
+          expect(body.checks.every(check => check.status === 'completed')).toBe(true);
         });
-    }));
+    });
   });
 });

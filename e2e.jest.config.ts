@@ -13,9 +13,6 @@ const config: Config.InitialOptions = {
   testMatch: [
     '<rootDir>/e2e/**/*.e2e-spec.ts',
   ],
-  setupFiles: [
-    '<rootDir>/e2e/prepare-env.ts',
-  ],
   globalTeardown: '<rootDir>/e2e/teardown.ts',
 };
 export default config;

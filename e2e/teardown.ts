@@ -1,12 +1,7 @@
 import { MongoClient } from 'mongodb';
 import { mongoDbUri } from '../src/utils/mongoDbUri';
-import { config } from 'dotenv';
 
 const teardown = async () => {
-  config({
-    path: 'e2e/e2e.env',
-  });
-
   const client = await MongoClient.connect(mongoDbUri({
     host: process.env.MONGODB_HOST,
     port: process.env.MONGODB_PORT,

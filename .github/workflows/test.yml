@@ -54,12 +54,21 @@ jobs:
       uses: codecov/codecov-action@v1
 
     - name: Run e2e tests
-      run: |
-        export MONGODB_HOST=localhost
-        export MONGODB_PORT=27017
-        export MONGODB_DB=tf2pickuppl_e2e_tests
-        npm run test:e2e
-      shell: bash
+      env:
+        API_URL: http://localhost:3000
+        CLIENT_URL: http://localhost:4200
+        MONGODB_HOST: localhost
+        MONGODB_PORT: 27017
+        MONGODB_DB: tf2pickuppl_e2e_tests
+        STEAM_API_KEY: FAKE_API_KEY
+        KEY_STORE_PASSPHARE: a_password
+        SUPER_USER: 76561198074409147
+        QUEUE_CONFIG: 6v6
+        MUMBLE_SERVER_URL: melkor.tf
+        MUMBLE_CHANNEL_NAME: tf2pickup
+        LOG_RELAY_ADDRESS: localhost
+        LOG_RELAY_PORT: 9871
+      run: npm run test:e2e
 
     - name: Upload test coverage info
       uses: codecov/codecov-action@v1
