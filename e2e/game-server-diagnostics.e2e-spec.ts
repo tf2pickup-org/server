@@ -41,7 +41,7 @@ describe('Game server diagnostics (e2e)', () => {
     const gameServersService = app.get(GameServersService);
     const gameServer = await gameServersService.addGameServer({
       name: 'working game server',
-      address: '127.0.0.1',
+      address: 'localhost',
       port: '27015',
       rconPassword: '123456',
     });
