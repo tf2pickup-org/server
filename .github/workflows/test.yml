@@ -67,7 +67,7 @@ jobs:
         QUEUE_CONFIG: 6v6
         MUMBLE_SERVER_URL: melkor.tf
         MUMBLE_CHANNEL_NAME: tf2pickup
-        LOG_RELAY_ADDRESS: localhost
+        LOG_RELAY_ADDRESS: host.docker.internal
         LOG_RELAY_PORT: 9871
       run: npm run test:e2e
 
