@@ -57,6 +57,7 @@ jobs:
       env:
         API_URL: http://localhost:3000
         CLIENT_URL: http://localhost:4200
+        BOT_NAME: tf2pickup.pl
         MONGODB_HOST: localhost
         MONGODB_PORT: 27017
         MONGODB_DB: tf2pickuppl_e2e_tests
