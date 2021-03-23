@@ -21,6 +21,22 @@ describe('Game server diagnostics (e2e)', () => {
   let app: INestApplication;
   let authToken: string;
   let workingGameServerId: string;
+  let faultyGameServerId: string;
+  let diagnosticsService: GameServerDiagnosticsService;
+
+  const waitForDiagnosticRunToComplete = async (runId: string) => new Promise<void>(resolve => {
+    const isDone = async () => {
+      const run = await diagnosticsService.getDiagnosticRunById(runId);
+      return [DiagnosticRunStatus.completed, DiagnosticRunStatus.failed].includes(run.status);
+    };
+
+    const i = setInterval(async () => {
+      if (await isDone()) {
+        clearInterval(i);
+        resolve();
+      }
+    }, 1000);
+  });
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -29,6 +45,8 @@ describe('Game server diagnostics (e2e)', () => {
 
     app = moduleFixture.createNestApplication();
     await app.init();
+
+    diagnosticsService = app.get(GameServerDiagnosticsService);
   });
 
   beforeAll(async () => {
@@ -39,14 +57,19 @@ describe('Game server diagnostics (e2e)', () => {
     authToken = await authService.generateJwtToken(JwtTokenPurpose.auth, maly.id);
 
     const gameServersService = app.get(GameServersService);
-    const gameServer = await gameServersService.addGameServer({
+    workingGameServerId = (await gameServersService.addGameServer({
       name: 'working game server',
-      address: 'localhost',
+      address: '127.0.0.1',
       port: '27015',
       rconPassword: '123456',
-    });
+    })).id;
 
-    workingGameServerId = gameServer.id;
+    faultyGameServerId = (await gameServersService.addGameServer({
+      name: 'fauly game server',
+      address: '127.0.0.1',
+      port: '30987',
+      rconPassword: '1234',
+    })).id;
   });
 
   afterAll(async () => {
@@ -59,26 +82,10 @@ describe('Game server diagnostics (e2e)', () => {
     await app.close();
   });
 
-  describe('diagnostic run', () => {
+  describe('diagnostic run for a working game server', () => {
     let diagnosticRunId: string;
 
-    const waitForDiagnosticRunToComplete = async (runId: string) => new Promise<void>(resolve => {
-      const isDone = async () => {
-        const diagnosticsService = app.get(GameServerDiagnosticsService);
-        const run = await diagnosticsService.getDiagnosticRunById(runId);
-        return [DiagnosticRunStatus.completed, DiagnosticRunStatus.failed].includes(run.status);
-      };
-
-      const i = setInterval(async () => {
-        if (await isDone()) {
-          clearInterval(i);
-          resolve();
-        }
-      }, 1000);
-    });
-
     beforeEach(async () => {
-      const diagnosticsService = app.get(GameServerDiagnosticsService);
       diagnosticRunId = await diagnosticsService.runDiagnostics(workingGameServerId);
     });
 
@@ -99,6 +106,33 @@ describe('Game server diagnostics (e2e)', () => {
           expect(body.gameServer).toEqual(workingGameServerId);
           expect(body.status).toEqual('completed');
           expect(body.checks.every(check => check.status === 'completed')).toBe(true);
+        });
+    });
+  });
+
+  describe('diagnostic run for a faulty game server', () => {
+    let diagnosticRunId: string;
+
+    beforeEach(async () => {
+      diagnosticRunId = await diagnosticsService.runDiagnostics(faultyGameServerId);
+    });
+
+    afterEach(async () => {
+      await waitForDiagnosticRunToComplete(diagnosticRunId);
+    });
+
+    it('GET /game-server-diagnostics/:id', async () => {
+      await waitForDiagnosticRunToComplete(diagnosticRunId);
+
+      return request(app.getHttpServer())
+        .get(`/game-server-diagnostics/${diagnosticRunId}`)
+        .set('Authorization', `Bearer ${authToken}`)
+        .expect(200)
+        .then(response => {
+          const body = response.body;
+          expect(body.id).toEqual(diagnosticRunId);
+          expect(body.gameServer).toEqual(faultyGameServerId);
+          expect(body.status).toEqual('failed');
         });
     });
   });
