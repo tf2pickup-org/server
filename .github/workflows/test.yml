@@ -33,7 +33,9 @@ jobs:
           - 27020:27020/udp
         env:
           RCON_PASSWORD: 123456
-        options: --tty
+        options: |
+          --tty
+          --add-host host.docker.internal:host-gateway
 
     steps:
     - name: Checkout repository
