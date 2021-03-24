@@ -65,7 +65,7 @@ describe('Game server diagnostics (e2e)', () => {
     })).id;
 
     faultyGameServerId = (await gameServersService.addGameServer({
-      name: 'fauly game server',
+      name: 'faulty game server',
       address: '127.0.0.1',
       port: '30987',
       rconPassword: '1234',
@@ -98,7 +98,7 @@ describe('Game server diagnostics (e2e)', () => {
 
       return request(app.getHttpServer())
         .get(`/game-server-diagnostics/${diagnosticRunId}`)
-        .set('Authorization', `Bearer ${authToken}`)
+        .auth(authToken, { type: 'bearer' })
         .expect(200)
         .then(response => {
           const body = response.body;
@@ -126,7 +126,7 @@ describe('Game server diagnostics (e2e)', () => {
 
       return request(app.getHttpServer())
         .get(`/game-server-diagnostics/${diagnosticRunId}`)
-        .set('Authorization', `Bearer ${authToken}`)
+        .auth(authToken, { type: 'bearer' })
         .expect(200)
         .then(response => {
           const body = response.body;
