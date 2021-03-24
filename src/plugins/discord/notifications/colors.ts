@@ -6,4 +6,6 @@ export enum Colors {
   SubstituteRequest = '#ff557f',
   SkillChanged = '#ff953e',
   QueuePreview = '#f9f9f9',
+  GameServerAdded = '#d3ffa9',
+  GameServerRemoved = '#ffa6a7',
 }
