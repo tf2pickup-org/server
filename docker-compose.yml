@@ -14,7 +14,15 @@ services:
     ports:
       - '3100:3100'
     environment:
-      - MONGOKU_DEFAULT_HOST=mongodb://mongo:27017
+      - 'MONGOKU_DEFAULT_HOST=mongodb://mongo:27017'
+
+  gameserver:
+    image: tf2pickuppl/tf2-gameserver:latest
+    environment:
+      - 'RCON_PASSWORD=123456'
+    network_mode: host
+    stdin_open: true
+    tty: true
 
 volumes:
   mongodb:

@@ -17,17 +17,8 @@ import { GameRuntimeService } from './services/game-runtime.service';
 import { GameEventHandlerService } from './services/game-event-handler.service';
 import { GamesWithSubstitutionRequestsController } from './controllers/games-with-substitution-requests.controller';
 import { PlayerSubstitutionService } from './services/player-substitution.service';
-import { LogReceiver } from 'srcds-log-receiver';
-import { Environment } from '@/environment/environment';
 import { ConfigurationModule } from '@/configuration/configuration.module';
-
-const logReceiverProvider = {
-  provide: LogReceiver,
-  useFactory: (environment: Environment) => new LogReceiver({
-    port: parseInt(environment.logRelayPort, 10),
-  }),
-  inject: [ Environment ],
-};
+import { LogReceiverModule } from '@/log-receiver/log-receiver.module';
 
 @Module({
   imports: [
@@ -35,8 +26,9 @@ const logReceiverProvider = {
     GameServersModule,
     forwardRef(() => PlayersModule),
     QueueModule,
-  
+
     ConfigurationModule,
+    LogReceiverModule,
   ],
   providers: [
     GamesService,
@@ -48,7 +40,6 @@ const logReceiverProvider = {
     GameRuntimeService,
     GameEventHandlerService,
     PlayerSubstitutionService,
-    logReceiverProvider,
   ],
   exports: [
     GamesService,

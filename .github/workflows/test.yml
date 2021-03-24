@@ -12,12 +12,28 @@ on:
       - 'master'
 
 jobs:
-  unit-tests:
+  tests:
     runs-on: ubuntu-latest
 
     strategy:
       matrix:
         node-version: [12.x, 14.x]
+
+    services:
+      mongo:
+        image: mongo:4.0
+        ports:
+          - 27017:27017
+
+      gameserver:
+        image: tf2pickuppl/tf2-gameserver
+        ports:
+          - 27015:27015/tcp
+          - 27015:27015/udp
+          - 27020:27020/udp
+        env:
+          RCON_PASSWORD: 123456
+        options: --tty --add-host host.docker.internal:host-gateway
 
     steps:
     - name: Checkout repository
@@ -31,40 +47,32 @@ jobs:
     - name: Install dependencies
       run: npm install
 
-    - name: Test
+    - name: Run unit test
       run: npm run test:ci
-
-    - name: Build
-      run: npm run build
 
     - name: Upload test coverage info
       uses: codecov/codecov-action@v1
 
-  e2e-tests:
-    runs-on: ubuntu-latest
-    needs: [unit-tests]
-
-    strategy:
-      matrix:
-        node-version: [12.x, 14.x]
-
-    steps:
-    - name: Checkout repository
-      uses: actions/checkout@v2
-
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v2
-      with:
-        node-version: ${{ matrix.node-version }}
-
-    - name: Start services
-      run: docker-compose up -d
-
-    - name: Install dependencies
-      run: npm install
-
-    - name: Run tests
+    - name: Run e2e tests
+      env:
+        API_URL: 'http://localhost:3000'
+        CLIENT_URL: 'http://localhost:4200'
+        BOT_NAME: 'tf2pickup.pl'
+        MONGODB_HOST: 'localhost'
+        MONGODB_PORT: 27017
+        MONGODB_DB: 'tf2pickuppl_e2e_tests'
+        STEAM_API_KEY: 'FAKE_API_KEY'
+        KEY_STORE_PASSPHARE: 'a_password'
+        SUPER_USER: '76561198074409147'
+        QUEUE_CONFIG: '6v6'
+        MUMBLE_SERVER_URL: 'melkor.tf'
+        MUMBLE_CHANNEL_NAME: 'tf2pickup'
+        LOG_RELAY_ADDRESS: 'host.docker.internal'
+        LOG_RELAY_PORT: '9871'
       run: npm run test:e2e
 
-    - name: Stop services
-      run: docker-compose down
+    - name: Upload test coverage info
+      uses: codecov/codecov-action@v1
+
+    - name: Build
+      run: npm run build
