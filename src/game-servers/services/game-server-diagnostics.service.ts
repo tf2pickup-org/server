@@ -68,7 +68,8 @@ export class GameServerDiagnosticsService {
         this.logger.log(`Starting diagnostics of ${gameServer.name}...`);
 
         const effects = new Map<string, any>();
-        let run = diagnosticRun;
+        let run = classToClass(diagnosticRun);
+        run.status = DiagnosticRunStatus.running;
 
         for (const runner of runners) {
           if (shouldStop) {
