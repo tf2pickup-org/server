@@ -13,6 +13,7 @@ const config: Config.InitialOptions = {
   testMatch: [
     '<rootDir>/e2e/**/*.e2e-spec.ts',
   ],
+  globalSetup: '<rootDir>/e2e/setup.ts',
   globalTeardown: '<rootDir>/e2e/teardown.ts',
 };
 export default config;
