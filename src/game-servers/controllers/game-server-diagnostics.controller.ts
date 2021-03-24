@@ -14,6 +14,7 @@ export class GameServerDiagnosticsController {
   ) { }
 
   @Get(':id')
+  @Auth('super-user')
   @UseInterceptors(ClassSerializerInterceptor)
   @UseFilters(DocumentNotFoundFilter)
   async getDiagnosticRun(@Param('id', ObjectIdValidationPipe) id: string): Promise<GameServerDiagnosticRun> {

@@ -23,7 +23,6 @@ import { StreamsModule } from './streams/streams.module';
 import { PlayerPreferencesModule } from './player-preferences/player-preferences.module';
 import { ConfigurationModule } from './configuration/configuration.module';
 import { PluginsModule } from './plugins/plugins.module';
-import { LogReceiver } from 'srcds-log-receiver';
 import { LogReceiverModule } from './log-receiver/log-receiver.module';
 
 function createMongodbUri(environment: Environment) {
