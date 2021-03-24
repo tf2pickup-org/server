@@ -165,12 +165,13 @@ describe('GameRuntimeService', () => {
     });
 
     it('should emit the gameChanges event', async () => new Promise<void>(resolve => {
-      events.gameChanges.subscribe(({ game }) => {
+      events.gameChanges.subscribe(({ game, adminId }) => {
         expect(game.id).toEqual(mockGame.id);
+        expect(adminId).toEqual('FAKE_ADMIN_ID');
         resolve();
       });
 
-      service.forceEnd(mockGame.id);
+      service.forceEnd(mockGame.id, 'FAKE_ADMIN_ID');
     }));
 
     // eslint-disable-next-line jest/expect-expect

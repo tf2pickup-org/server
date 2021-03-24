@@ -43,7 +43,7 @@ export class Events {
   readonly mapPoolChange = new Subject<{ maps: Map[] }>();
 
   readonly gameCreated = new Subject<{ game: Game }>();
-  readonly gameChanges = new Subject<{ game: Game }>();
+  readonly gameChanges = new Subject<{ game: Game, adminId?: string }>();
   readonly substituteRequestsChange = new Subject<void>();
 
   readonly gameServerAdded = new Subject<{ gameServer: GameServer, adminId?: string }>();
