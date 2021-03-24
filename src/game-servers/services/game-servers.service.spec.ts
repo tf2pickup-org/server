@@ -18,6 +18,7 @@ describe('GameServersService', () => {
   let gameServerModel: ReturnModelType<typeof GameServer>;
   let gameModel: ReturnModelType<typeof Game>;
   let testGameServer: DocumentType<GameServer>;
+  let events: Events;
 
   beforeAll(() => mongod = new MongoMemoryServer());
   afterAll(async () => await mongod.stop());
@@ -37,6 +38,7 @@ describe('GameServersService', () => {
     service = module.get<GameServersService>(GameServersService);
     gameServerModel = module.get(getModelToken(GameServer.name));
     gameModel = module.get(getModelToken(Game.name));
+    events = module.get(Events);
   });
 
   beforeEach(async () => {
@@ -162,6 +164,22 @@ describe('GameServersService', () => {
         expect(gameServer.resolvedIpAddresses).toEqual(['151.80.108.144']);
       });
     });
+
+    it('should emit the gameServerAdded event', async () => new Promise<void>(resolve => {
+      events.gameServerAdded.subscribe(({ gameServer, adminId }) => {
+        expect(adminId).toEqual('FAKE_ADMIN_ID');
+        expect(gameServer.name).toEqual('fake game server');
+        resolve();
+      });
+
+      service.addGameServer({
+        name: 'fake game server',
+        address: '127.0.0.1',
+        port: '27017',
+        rconPassword: 'test rcon password',
+        mumbleChannelName: '',
+      }, 'FAKE_ADMIN_ID');
+    }))
   });
 
   describe('#removeGameServer()', () => {
@@ -170,6 +188,16 @@ describe('GameServersService', () => {
       expect(ret.deleted).toBe(true);
       expect((await gameServerModel.findById(ret.id)).deleted).toBe(true);
     });
+
+    it('should emit the gameServerRemoved event', async () => new Promise<void>(resolve => {
+      events.gameServerRemoved.subscribe(({ gameServer, adminId }) => {
+        expect(gameServer.id).toEqual(testGameServer.id);
+        expect(adminId).toEqual('FAKE_ADMIN_ID');
+        resolve();
+      })
+
+      service.removeGameServer(testGameServer.id, 'FAKE_ADMIN_ID');
+    }));
   });
 
   describe('#findFreeGameServer()', () => {
