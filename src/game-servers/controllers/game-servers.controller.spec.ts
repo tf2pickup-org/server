@@ -4,6 +4,7 @@ import { GameServersService } from '../services/game-servers.service';
 import { GameServer } from '../models/game-server';
 import { GameServerDiagnosticsService } from '../services/game-server-diagnostics.service';
 import { Environment } from '@/environment/environment';
+import { Player } from '@/players/models/player';
 
 const mockGameServer: GameServer = {
   name: 'FAKE_NAME',
@@ -77,8 +78,8 @@ describe('GameServers Controller', () => {
 
     it('should add the game server', async () => {
       const dto = { name: 'FAKE_SERVER_NAME', port: '27015', address: 'FAKE_SERVER_ADDRESS', rconPassword: 'FAKE_RCON_PASSWORD' };
-      const ret = await controller.addGameServer(dto);
-      expect(gameServersService.addGameServer).toHaveBeenCalledWith(dto);
+      const ret = await controller.addGameServer(dto, { id: 'FAKE_ADMIN_ID' } as Player);
+      expect(gameServersService.addGameServer).toHaveBeenCalledWith(dto, 'FAKE_ADMIN_ID');
       expect(ret).toEqual(mockGameServer);
     });
   });
@@ -89,8 +90,8 @@ describe('GameServers Controller', () => {
     });
 
     it('should call the service', async () => {
-      await controller.removeGameServer('FAKE_ID');
-      expect(gameServersService.removeGameServer).toHaveBeenCalledWith('FAKE_ID');
+      await controller.removeGameServer('FAKE_ID', { id: 'FAKE_ADMIN_ID' } as Player);
+      expect(gameServersService.removeGameServer).toHaveBeenCalledWith('FAKE_ID', 'FAKE_ADMIN_ID');
     });
   });
 

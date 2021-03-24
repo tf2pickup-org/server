@@ -7,6 +7,8 @@ import { DocumentNotFoundFilter } from '@/shared/filters/document-not-found.filt
 import { AddGameServer } from '../dto/add-game-server';
 import { GameServerDiagnosticsService } from '../services/game-server-diagnostics.service';
 import { Environment } from '@/environment/environment';
+import { User } from '@/auth/decorators/user.decorator';
+import { Player } from '@/players/models/player';
 
 @Controller('game-servers')
 export class GameServersController {
@@ -34,14 +36,14 @@ export class GameServersController {
   @Auth('super-user')
   @UsePipes(ValidationPipe)
   @UseInterceptors(ClassSerializerInterceptor)
-  async addGameServer(@Body() gameServer: AddGameServer) {
-    return this.gameServersService.addGameServer(gameServer);
+  async addGameServer(@Body() gameServer: AddGameServer, @User() admin: Player) {
+    return this.gameServersService.addGameServer(gameServer, admin.id);
   }
 
   @Delete(':id')
   @Auth('super-user')
-  async removeGameServer(@Param('id', ObjectIdValidationPipe) gameServerId: string) {
-    await this.gameServersService.removeGameServer(gameServerId);
+  async removeGameServer(@Param('id', ObjectIdValidationPipe) gameServerId: string, @User() admin: Player) {
+    await this.gameServersService.removeGameServer(gameServerId, admin.id);
   }
 
   @Post(':id/diagnostics')
