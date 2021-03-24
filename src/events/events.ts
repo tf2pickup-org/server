@@ -1,3 +1,4 @@
+import { GameServer } from '@/game-servers/models/game-server';
 import { Game } from '@/games/models/game';
 import { Player } from '@/players/models/player';
 import { PlayerBan } from '@/players/models/player-ban';
@@ -44,6 +45,9 @@ export class Events {
   readonly gameCreated = new Subject<{ game: Game }>();
   readonly gameChanges = new Subject<{ game: Game }>();
   readonly substituteRequestsChange = new Subject<void>();
+
+  readonly gameServerAdded = new Subject<{ gameServer: GameServer, adminId?: string }>();
+  readonly gameServerRemoved = new Subject<{ gameServer: GameServer, adminId?: string }>();
 
   constructor() {
     for (const eventName in this) {
