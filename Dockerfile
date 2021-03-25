@@ -20,6 +20,7 @@ RUN npm install --only=production
 
 COPY --from=build /tf2pickup.pl/configs ./configs
 COPY --from=build /tf2pickup.pl/dist ./dist
+COPY migrations ./migrations
 
 USER node
 CMD [ "npm", "run", "prod" ]
