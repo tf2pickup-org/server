@@ -7,3 +7,4 @@ export { queuePreview } from './queue-preview';
 export { playerProfileUpdated } from './player-profile-updated';
 export { gameServerAdded } from './game-server-added';
 export { gameServerRemoved } from './game-server-removed';
+export { gameForceEnded } from './game-force-ended';

@@ -1,6 +1,8 @@
 import { Environment } from '@/environment/environment';
 import { Events } from '@/events/events';
 import { GameServer } from '@/game-servers/models/game-server';
+import { Game } from '@/games/models/game';
+import { GameState } from '@/games/models/game-state';
 import { Player } from '@/players/models/player';
 import { PlayerBan } from '@/players/models/player-ban';
 import { PlayerSkillType } from '@/players/services/player-skill.service';
@@ -8,7 +10,8 @@ import { PlayersService } from '@/players/services/players.service';
 import { iconUrlPath } from '@configs/discord';
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { isRefType } from '@typegoose/typegoose';
-import { newPlayer, playerBanAdded, playerBanRevoked, playerSkillChanged, playerProfileUpdated, gameServerAdded, gameServerRemoved } from '../notifications';
+import { distinctUntilChanged, filter } from 'rxjs/operators';
+import { newPlayer, playerBanAdded, playerBanRevoked, playerSkillChanged, playerProfileUpdated, gameServerAdded, gameServerRemoved, gameForceEnded } from '../notifications';
 import { DiscordService } from './discord.service';
 
 const playerSkillEqual = (oldSkill: PlayerSkillType, newSkill: PlayerSkillType) => {
@@ -45,6 +48,10 @@ export class AdminNotificationsService implements OnModuleInit {
       this.onPlayerSkillChanged(playerId, oldSkill, newSkill, adminId));
     this.events.gameServerAdded.subscribe(({ gameServer, adminId }) => this.onGameServerAdded(gameServer, adminId));
     this.events.gameServerRemoved.subscribe(({ gameServer, adminId }) => this.onGameServerRemoved(gameServer, adminId));
+    this.events.gameChanges.pipe(
+      distinctUntilChanged((x, y) => x.game.state === y.game.state),
+      filter(({ game }) => game.state === GameState.interrupted),
+    ).subscribe(({ game, adminId }) => this.onGameForceEnded(game, adminId));
   }
 
   private onPlayerRegisters(player: Player) {
@@ -222,6 +229,31 @@ export class AdminNotificationsService implements OnModuleInit {
         client: {
           name: new URL(this.environment.clientUrl).hostname,
           iconUrl: `${this.environment.clientUrl}/${iconUrlPath}`,
+        },
+      }),
+    });
+  }
+
+  private async onGameForceEnded(game: Game, adminId: string) {
+    if (!adminId) {
+      return;
+    }
+
+    const admin = await this.playersService.getById(adminId);
+    this.discordService.getAdminsChannel()?.send({
+      embed: gameForceEnded({
+        admin: {
+          name: admin.name,
+          profileUrl: `${this.environment.clientUrl}/player/${admin.id}`,
+          avatarUrl: admin.avatar?.small,
+        },
+        client: {
+          name: new URL(this.environment.clientUrl).hostname,
+          iconUrl: `${this.environment.clientUrl}/${iconUrlPath}`,
+        },
+        game: {
+          number: `${game.number}`,
+          url: `${this.environment.clientUrl}/game/${game.id}`,
         },
       }),
     });

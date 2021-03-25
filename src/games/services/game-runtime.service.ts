@@ -55,7 +55,7 @@ export class GameRuntimeService {
     return game;
   }
 
-  async forceEnd(gameId: string) {
+  async forceEnd(gameId: string, adminId?: string) {
     const game = await this.gamesService.getById(gameId);
     if (!game) {
       throw new Error('no such game');
@@ -67,7 +67,7 @@ export class GameRuntimeService {
     game.error = 'ended by admin';
     game.slots.filter(s => s.status === SlotStatus.waitingForSubstitute).forEach(s => s.status = SlotStatus.active);
     await game.save();
-    this.events.gameChanges.next({ game });
+    this.events.gameChanges.next({ game, adminId });
     this.events.substituteRequestsChange.next();
 
     if (game.gameServer) {

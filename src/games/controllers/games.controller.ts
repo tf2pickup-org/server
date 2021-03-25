@@ -6,6 +6,8 @@ import { GameRuntimeService } from '../services/game-runtime.service';
 import { PlayerSubstitutionService } from '../services/player-substitution.service';
 import { IsOneOfPipe } from '@/shared/pipes/is-one-of.pipe';
 import { Game } from '../models/game';
+import { User } from '@/auth/decorators/user.decorator';
+import { Player } from '@/players/models/player';
 
 const sortOptions: string[] = [
   'launched_at',
@@ -91,13 +93,14 @@ export class GamesController {
     @Query('force_end') forceEnd: any,
     @Query('substitute_player') substitutePlayerId: string,
     @Query('substitute_player_cancel') cancelSubstitutePlayerId: string,
+    @User() admin: Player,
   ) {
     if (reinitializeServer !== undefined) {
       await this.gameRuntimeService.reconfigure(gameId);
     }
 
     if (forceEnd !== undefined) {
-      await this.gameRuntimeService.forceEnd(gameId);
+      await this.gameRuntimeService.forceEnd(gameId, admin.id);
     }
 
     if (substitutePlayerId !== undefined) {

@@ -5,6 +5,7 @@ import { Game } from '../models/game';
 import { GameRuntimeService } from '../services/game-runtime.service';
 import { PlayerSubstitutionService } from '../services/player-substitution.service';
 import { NotFoundException } from '@nestjs/common';
+import { Player } from '@/players/models/player';
 
 jest.mock('../services/game-runtime.service');
 jest.mock('../services/player-substitution.service');
@@ -64,7 +65,7 @@ describe('Games Controller', () => {
       describe('when sorting with launched_at', () => {
         it('should return games', async () => {
           const spy = jest.spyOn(gamesService, 'getGames');
-    
+
           const ret = await controller.getGames(44, 52, 'launched_at');
           expect(spy).toHaveBeenCalledWith({ launchedAt: 1 }, 44, 52);
           expect(ret).toEqual({
@@ -91,7 +92,7 @@ describe('Games Controller', () => {
       describe('when sorting with launched_at', () => {
         it('should return player games', async () => {
           const spy = jest.spyOn(gamesService, 'getPlayerGames');
-    
+
           const ret = await controller.getGames(30, 2, 'launched_at', 'FAKE_PLAYER_ID');
           expect(spy).toHaveBeenCalledWith('FAKE_PLAYER_ID', { launchedAt: 1 }, 30, 2);
           expect(ret).toEqual({
@@ -136,25 +137,25 @@ describe('Games Controller', () => {
   describe('#takeAdminAction()', () => {
     it('should reinitialize server', async () => {
       const spy = jest.spyOn(gameRuntimeService, 'reconfigure');
-      await controller.takeAdminAction('FAKE_GAME_ID', '', undefined, undefined, undefined);
+      await controller.takeAdminAction('FAKE_GAME_ID', '', undefined, undefined, undefined, { id: 'FAKE_ADMIN_ID' } as Player);
       expect(spy).toHaveBeenCalledWith('FAKE_GAME_ID');
     });
 
     it('should force end the game', async () => {
       const spy = jest.spyOn(gameRuntimeService, 'forceEnd');
-      await controller.takeAdminAction('FAKE_GAME_ID', undefined, '', undefined, undefined);
-      expect(spy).toHaveBeenCalledWith('FAKE_GAME_ID');
+      await controller.takeAdminAction('FAKE_GAME_ID', undefined, '', undefined, undefined, { id: 'FAKE_ADMIN_ID' } as Player);
+      expect(spy).toHaveBeenCalledWith('FAKE_GAME_ID', 'FAKE_ADMIN_ID');
     });
 
     it('should substitute player', async () => {
       const spy = jest.spyOn(playerSubstitutionService, 'substitutePlayer');
-      await controller.takeAdminAction('FAKE_GAME_ID', undefined, undefined, 'FAKE_PLAYER_ID', undefined);
+      await controller.takeAdminAction('FAKE_GAME_ID', undefined, undefined, 'FAKE_PLAYER_ID', undefined, { id: 'FAKE_ADMIN_ID' } as Player);
       expect(spy).toHaveBeenCalledWith('FAKE_GAME_ID', 'FAKE_PLAYER_ID');
     });
 
     it('should cancel substitution request', async () => {
       const spy = jest.spyOn(playerSubstitutionService, 'cancelSubstitutionRequest');
-      await controller.takeAdminAction('FAKE_GAME_ID', undefined, undefined, undefined, 'FAKE_PLAYER_ID');
+      await controller.takeAdminAction('FAKE_GAME_ID', undefined, undefined, undefined, 'FAKE_PLAYER_ID', { id: 'FAKE_ADMIN_ID' } as Player);
       expect(spy).toHaveBeenCalledWith('FAKE_GAME_ID', 'FAKE_PLAYER_ID');
     });
   });

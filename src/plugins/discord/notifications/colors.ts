@@ -8,4 +8,5 @@ export enum Colors {
   QueuePreview = '#f9f9f9',
   GameServerAdded = '#d3ffa9',
   GameServerRemoved = '#ffa6a7',
+  GameForceEnded = '#ff5e61',
 }
