@@ -5,6 +5,7 @@ import { readFileSync } from 'fs';
 import { resolve } from 'path';
 import { HttpService } from '@nestjs/common';
 import { Environment } from '@/environment/environment';
+import { Tf2InGameHoursVerificationError } from '../errors/tf2-in-game-hours-verification.error';
 
 const steamApiResponseJson = readFileSync(resolve(__dirname, '..', 'steam-api-response.json'));
 
@@ -62,7 +63,7 @@ describe('SteamApiService', () => {
       });
 
       it('should throw an error', async () => {
-        await expect(service.getTf2InGameHours('FAKE_STEAM_ID')).rejects.toThrow(Error);
+        await expect(service.getTf2InGameHours('FAKE_STEAM_ID')).rejects.toThrow(Tf2InGameHoursVerificationError);
       });
     });
   });

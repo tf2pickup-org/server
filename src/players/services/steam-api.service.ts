@@ -3,6 +3,7 @@ import { Environment } from '@/environment/environment';
 import { map, switchMap, catchError } from 'rxjs/operators';
 import { floor } from 'lodash';
 import { of, throwError } from 'rxjs';
+import { Tf2InGameHoursVerificationError } from '../errors/tf2-in-game-hours-verification.error';
 
 interface UserStatsForGameResponse {
   playerstats: {
@@ -36,7 +37,7 @@ export class SteamApiService {
         );
       }),
       map(seconds => floor(seconds / 60 / 60)),
-      catchError(error => throwError(new Error(`cannot verify in-game hours for TF2 (${error})`))),
+      catchError(error => throwError(new Tf2InGameHoursVerificationError(error))),
     ).toPromise();
   }
 
