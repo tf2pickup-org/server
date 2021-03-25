@@ -23,6 +23,8 @@ import { Events } from '@/events/events';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { WebsocketEvent } from '@/websocket-event';
 import { Socket } from 'socket.io';
+import { InsufficientTf2InGameHoursError } from '../errors/insufficient-tf2-in-game-hours.error';
+import { Tf2InGameHoursVerificationError } from '../errors/tf2-in-game-hours-verification.error';
 
 jest.mock('./etf2l-profile.service');
 jest.mock( './online-players.service');
@@ -210,7 +212,7 @@ describe('PlayersService', () => {
       ],
     };
 
-    describe('when an ETFL2 profile doesn\'t exist', () => {
+    describe('when an ETF2L profile doesn\'t exist', () => {
       beforeEach(() => {
         etf2lProfileService.fetchPlayerInfo.mockRejectedValue(new Error('no etf2l profile'));
       });
@@ -285,17 +287,17 @@ describe('PlayersService', () => {
       });
 
       it('should deny', async () => {
-        await expect(service.createPlayer(mockSteamProfile)).rejects.toThrowError('not enough tf2 hours');
+        await expect(service.createPlayer(mockSteamProfile)).rejects.toThrow(InsufficientTf2InGameHoursError);
       });
     });
 
     describe('when TF2 in-game hours could not be fetched', () => {
       beforeEach(() => {
-        jest.spyOn(steamApiService, 'getTf2InGameHours').mockRejectedValue(new Error('cannot verify in-game hours for TF2'));
+        jest.spyOn(steamApiService, 'getTf2InGameHours').mockRejectedValue(new Tf2InGameHoursVerificationError(''));
       });
 
       it('should deny', async () => {
-        await expect(service.createPlayer(mockSteamProfile)).rejects.toThrowError('cannot verify in-game hours for TF2');
+        await expect(service.createPlayer(mockSteamProfile)).rejects.toThrow(Tf2InGameHoursVerificationError);
       });
 
       describe('and nobody cares', () => {

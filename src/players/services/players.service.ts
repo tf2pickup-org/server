@@ -19,6 +19,9 @@ import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { OnlinePlayersService } from './online-players.service';
 import { WebsocketEvent } from '@/websocket-event';
 import { UpdateQuery } from 'mongoose';
+import { Tf2InGameHoursVerificationError } from '../errors/tf2-in-game-hours-verification.error';
+import { AccountBannedError } from '../errors/account-banned.error';
+import { InsufficientTf2InGameHoursError } from '../errors/insufficient-tf2-in-game-hours.error';
 
 type ForceCreatePlayerOptions = Pick<Player, 'steamId' | 'name'>;
 
@@ -94,7 +97,7 @@ export class PlayersService implements OnModuleInit {
       etf2lProfile = await this.etf2lProfileService.fetchPlayerInfo(steamProfile.id);
 
       if (etf2lProfile.bans?.filter(ban => ban.end > Date.now() / 1000).length > 0) {
-        throw new Error('this account is banned on ETF2L');
+        throw new AccountBannedError('this account is banned on ETF2L');
       }
 
       name = etf2lProfile.name;
@@ -186,13 +189,13 @@ export class PlayersService implements OnModuleInit {
     try {
       const hoursInTf2 = await this.steamApiService.getTf2InGameHours(steamId);
       if (hoursInTf2 < minimumTf2InGameHours) {
-        throw new Error('not enough tf2 hours');
+        throw new InsufficientTf2InGameHoursError();
       }
-    } catch (e) {
-      if (e.message === 'cannot verify in-game hours for TF2' && minimumTf2InGameHours <= 0) {
+    } catch (error) {
+      if (error instanceof Tf2InGameHoursVerificationError && minimumTf2InGameHours <= 0) {
         return;
       } else {
-        throw e;
+        throw error;
       }
     }
   }
