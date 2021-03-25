@@ -1,3 +1,10 @@
+## [5.0.3](https://github.com/tf2pickup-pl/server/compare/5.0.2...5.0.3) (2021-03-25)
+
+
+### Bug Fixes
+
+* **players:** handle TF2 in-game hours verification errors properly ([#948](https://github.com/tf2pickup-pl/server/issues/948)) ([f82d6bb](https://github.com/tf2pickup-pl/server/commit/f82d6bb9e4340007be175896bc841598fb499b4e))
+
 ## [5.0.2](https://github.com/tf2pickup-pl/server/compare/5.0.1...5.0.2) (2021-03-25)
 
 
