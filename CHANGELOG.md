@@ -1,3 +1,38 @@
+# [5.0.0](https://github.com/tf2pickup-pl/server/compare/4.0.1...5.0.0) (2021-03-25)
+
+
+### Bug Fixes
+
+* **auth:** store keys in database ([#922](https://github.com/tf2pickup-pl/server/issues/922)) ([60ae7c3](https://github.com/tf2pickup-pl/server/commit/60ae7c38bc98f1b82af0eef7a41a7a6ff29df6c9))
+* **build:** docker image build improvements ([#924](https://github.com/tf2pickup-pl/server/issues/924)) ([490ba60](https://github.com/tf2pickup-pl/server/commit/490ba60ba42abd9bbe9bf9b8aa23113c0c338815))
+* **ci:** test, lint & build on release branches and tags ([#935](https://github.com/tf2pickup-pl/server/issues/935)) ([292037b](https://github.com/tf2pickup-pl/server/commit/292037ba9b06b7393c3d24d78ce7e11b8b0a15f3))
+* **configuration:** use DTO in controller ([#936](https://github.com/tf2pickup-pl/server/issues/936)) ([ba39434](https://github.com/tf2pickup-pl/server/commit/ba39434fdf08a3ab65b0b2998ef62afc9a119c42))
+* **deps:** update dependency commander to v7.2.0 ([#940](https://github.com/tf2pickup-pl/server/issues/940)) ([3473d36](https://github.com/tf2pickup-pl/server/commit/3473d369e87feb5dca6594431f58674aec29ab8c))
+* **deps:** update nest monorepo to v7.6.14 ([#915](https://github.com/tf2pickup-pl/server/issues/915)) ([e441bec](https://github.com/tf2pickup-pl/server/commit/e441bece6bee90c91d598bfb696c8b20656716f5))
+* **deps:** update nest monorepo to v7.6.15 ([#941](https://github.com/tf2pickup-pl/server/issues/941)) ([b73ec35](https://github.com/tf2pickup-pl/server/commit/b73ec350dad352c08031d96513a65067387e6dde))
+* **discord:** game force ended notification ([#946](https://github.com/tf2pickup-pl/server/issues/946)) ([ed19ca1](https://github.com/tf2pickup-pl/server/commit/ed19ca1fe1f153800a31e868147a06ca9a729ac7))
+* **discord:** make DiscordModule optional ([#928](https://github.com/tf2pickup-pl/server/issues/928)) ([71492be](https://github.com/tf2pickup-pl/server/commit/71492beccc80c8a9f8cf5da7b94fddda1875ed35))
+* **e2e:** use random database name ([#945](https://github.com/tf2pickup-pl/server/issues/945)) ([5777986](https://github.com/tf2pickup-pl/server/commit/57779862831fabfbe1dbb2bab7d4707cb89c5396))
+* **game-servers:** don't remove game servers permamently ([#917](https://github.com/tf2pickup-pl/server/issues/917)) ([76e84ed](https://github.com/tf2pickup-pl/server/commit/76e84ed626c8cc84fcf746f280fc4a481b7998a0))
+* **players:** fix force create player ([#927](https://github.com/tf2pickup-pl/server/issues/927)) ([a0f1588](https://github.com/tf2pickup-pl/server/commit/a0f1588208320c53ae637f24b072acf41c182fc2))
+* **twitch.tv:** disconnect twitch.tv profile ([#939](https://github.com/tf2pickup-pl/server/issues/939)) ([dcec891](https://github.com/tf2pickup-pl/server/commit/dcec891801cab90fc9bbf7983265e17262d027b1))
+
+
+### Features
+
+* **game-servers:** game server diagnostics ([#942](https://github.com/tf2pickup-pl/server/issues/942)) ([6cda591](https://github.com/tf2pickup-pl/server/commit/6cda591a424d0e95ab1e8e8c452f632ca8d66c43))
+* **game-servers:** game server notifications on Discord ([#944](https://github.com/tf2pickup-pl/server/issues/944)) ([f6bbb89](https://github.com/tf2pickup-pl/server/commit/f6bbb89cecdfc4f18f9d1947689a7d9cc8ac06e5))
+* make it possible to scramble maps ([#926](https://github.com/tf2pickup-pl/server/issues/926)) ([69b78dc](https://github.com/tf2pickup-pl/server/commit/69b78dcbc8fd7c9bcc046bc1187296cdb8c5a47a))
+
+
+### Refactors
+
+* ConfigurationModule redesign (#934) ([be9cbb6](https://github.com/tf2pickup-pl/server/commit/be9cbb67c6fc501259c11967b8a7cb4c577ea9c6)) ([#934](https://github.com/tf2pickup-pl/server/issues/934))
+
+### BREAKING CHANGES
+
+* The old configuration endpoint is not compatible with the new one.
+
 ## [4.0.1](https://github.com/tf2pickup-pl/server/compare/4.0.0...4.0.1) (2021-03-12)
 
 
