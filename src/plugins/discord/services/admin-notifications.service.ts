@@ -10,7 +10,7 @@ import { PlayersService } from '@/players/services/players.service';
 import { iconUrlPath } from '@configs/discord';
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { isRefType } from '@typegoose/typegoose';
-import { distinctUntilChanged, distinctUntilKeyChanged, filter, map } from 'rxjs/operators';
+import { distinctUntilChanged, filter } from 'rxjs/operators';
 import { newPlayer, playerBanAdded, playerBanRevoked, playerSkillChanged, playerProfileUpdated, gameServerAdded, gameServerRemoved, gameForceEnded } from '../notifications';
 import { DiscordService } from './discord.service';
 
