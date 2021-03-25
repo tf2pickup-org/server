@@ -22,6 +22,7 @@ import { UpdateQuery } from 'mongoose';
 import { Tf2InGameHoursVerificationError } from '../errors/tf2-in-game-hours-verification.error';
 import { AccountBannedError } from '../errors/account-banned.error';
 import { InsufficientTf2InGameHoursError } from '../errors/insufficient-tf2-in-game-hours.error';
+import { PlayerRole } from '../models/player-role';
 
 type ForceCreatePlayerOptions = Pick<Player, 'steamId' | 'name'>;
 
@@ -47,7 +48,7 @@ export class PlayersService implements OnModuleInit {
       if (error instanceof mongoose.Error.DocumentNotFoundError) {
         await this.playerModel.create({
           name: this.environment.botName,
-          role: 'bot',
+          roles: [ PlayerRole.bot ],
         });
       } else {
         throw error;
@@ -64,7 +65,7 @@ export class PlayersService implements OnModuleInit {
   }
 
   async getAll(): Promise<Player[]> {
-    return plainToClass(Player, await this.playerModel.find({ role: { $ne: 'bot' } }).lean().exec());
+    return plainToClass(Player, await this.playerModel.find({ roles: { $ne: PlayerRole.bot } }).lean().exec());
   }
 
   async getById(id: string | ObjectId): Promise<Player> {
@@ -117,7 +118,7 @@ export class PlayersService implements OnModuleInit {
       steamId: steamProfile.id,
       name,
       avatar,
-      role: this.environment.superUser === steamProfile.id ? 'super-user' : null,
+      roles: this.environment.superUser === steamProfile.id ? [ PlayerRole.superUser, PlayerRole.admin ] : [],
       etf2lProfileId: etf2lProfile?.id,
       hasAcceptedRules: false,
     }))._id;

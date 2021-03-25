@@ -1,4 +1,5 @@
 import { Auth } from '@/auth/decorators/auth.decorator';
+import { PlayerRole } from '@/players/models/player-role';
 import { DocumentNotFoundFilter } from '@/shared/filters/document-not-found.filter';
 import { Body, ClassSerializerInterceptor, Controller, DefaultValuePipe, Get, Param, Put, Query, UseFilters, UseInterceptors, UsePipes, ValidationPipe } from '@nestjs/common';
 import { Document } from '../models/document';
@@ -24,7 +25,7 @@ export class DocumentsController {
   @Put(':name')
   @UseInterceptors(ClassSerializerInterceptor)
   @UsePipes(ValidationPipe)
-  @Auth('admin', 'super-user')
+  @Auth(PlayerRole.admin)
   async saveDocument(
     @Param('name') name: string,
     @Query('language', new DefaultValuePipe('en')) language: string,

@@ -25,6 +25,7 @@ import { WebsocketEvent } from '@/websocket-event';
 import { Socket } from 'socket.io';
 import { InsufficientTf2InGameHoursError } from '../errors/insufficient-tf2-in-game-hours.error';
 import { Tf2InGameHoursVerificationError } from '../errors/tf2-in-game-hours-verification.error';
+import { PlayerRole } from '../models/player-role';
 
 jest.mock('./etf2l-profile.service');
 jest.mock( './online-players.service');
@@ -195,7 +196,7 @@ describe('PlayersService', () => {
     it('should find the bot', async () => {
       expect(await service.findBot()).toMatchObject({
         name: 'FAKE_BOT_NAME',
-        role: 'bot',
+        roles: [ PlayerRole.bot ],
       });
     });
   });
@@ -261,7 +262,7 @@ describe('PlayersService', () => {
           medium: 'FAKE_MEDIUM_AVATAR_URL',
           large: 'FAKE_FULL_AVATAR_URL',
         },
-        role: null,
+        roles: [],
         etf2lProfileId: 112758,
       });
     });
@@ -269,7 +270,7 @@ describe('PlayersService', () => {
     it('should assign the super-user role', async () => {
       environment.superUser = 'FAKE_STEAM_ID_2';
       const ret = await service.createPlayer(mockSteamProfile);
-      expect(ret.role).toEqual('super-user');
+      expect(ret.roles.includes(PlayerRole.superUser)).toBe(true);
     });
 
     it('should emit the playerRegisters event', async () => new Promise<void>(resolve => {
@@ -416,12 +417,12 @@ describe('PlayersService', () => {
       expect(ret.name).toEqual('NEW_NAME');
     });
 
-    it('should update player role', async () => {
-      const ret1 = await service.updatePlayer(mockPlayer.id, { role: 'admin' }, admin.id);
-      expect(ret1.role).toEqual('admin');
+    it('should update player roles', async () => {
+      const ret1 = await service.updatePlayer(mockPlayer.id, { roles: [ PlayerRole.admin ] }, admin.id);
+      expect(ret1.roles).toEqual([ PlayerRole.admin ]);
 
-      const ret2 = await service.updatePlayer(mockPlayer.id, { role: null }, admin.id);
-      expect(ret2.role).toBe(null);
+      const ret2 = await service.updatePlayer(mockPlayer.id, { roles: [] }, admin.id);
+      expect(ret2.roles).toEqual([]);
     });
 
     it('should emit updated player over websocket', async () => {

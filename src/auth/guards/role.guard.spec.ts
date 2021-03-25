@@ -1,10 +1,12 @@
 import { RoleGuard } from './role.guard';
 import { TestingModule, Test } from '@nestjs/testing';
 import { Reflector } from '@nestjs/core';
+import { PlayerRole } from '@/players/models/player-role';
+import { UnauthorizedException } from '@nestjs/common';
 
 const context = {
   getHandler: () => null,
-  switchToHttp: () => null,
+  switchToHttp: jest.fn(),
 };
 
 describe('RoleGuard', () => {
@@ -27,26 +29,26 @@ describe('RoleGuard', () => {
   });
 
   it('should allow when the user has the required role', () => {
-    jest.spyOn(reflector, 'get').mockImplementation(() => ['super-user']);
-    jest.spyOn(context, 'switchToHttp').mockImplementation(() => ({
+    jest.spyOn(reflector, 'get').mockImplementation(() => [ PlayerRole.superUser ]);
+    context.switchToHttp.mockImplementation(() => ({
       getRequest: () => ({
         user: {
-          role: 'super-user',
+          roles: [ PlayerRole.superUser ]
         },
       }),
     }));
     expect(guard.canActivate(context as any)).toBe(true);
   });
 
-  it('should dany when the user does not have the required role', () => {
-    jest.spyOn(reflector, 'get').mockImplementation(() => ['super-user']);
-    jest.spyOn(context, 'switchToHttp').mockImplementation(() => ({
+  it('should deny when the user does not have the required role', () => {
+    jest.spyOn(reflector, 'get').mockImplementation(() => [ PlayerRole.superUser ]);
+    context.switchToHttp.mockImplementation(() => ({
       getRequest: () => ({
         user: {
-          role: 'admin',
+          roles: [ PlayerRole.admin ],
         },
       }),
     }));
-    expect(() => guard.canActivate(context as any)).toThrow(/*new UnauthorizedException()*/);
+    expect(() => guard.canActivate(context as any)).toThrow(UnauthorizedException);
   });
 });

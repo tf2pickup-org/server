@@ -74,9 +74,9 @@ export class AdminNotificationsService implements OnModuleInit {
     if (oldPlayer.name !== newPlayer.name) {
       changes.name = { old: oldPlayer.name, new: newPlayer.name };
     }
-    if (oldPlayer.role !== newPlayer.role) {
-      changes.role = { old: oldPlayer.role, new: newPlayer.role };
-    }
+    // if (oldPlayer.role !== newPlayer.role) {
+    //   changes.role = { old: oldPlayer.role, new: newPlayer.role };
+    // }
 
     if (Object.keys(changes).length === 0) {
       return; // skip empty notification

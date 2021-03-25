@@ -13,6 +13,7 @@ import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { DocumentNotFoundFilter } from '@/shared/filters/document-not-found.filter';
 import { PlayerStats } from '../dto/player-stats';
 import { ForceCreatePlayer } from '../dto/force-create-player';
+import { PlayerRole } from '../models/player-role';
 
 @Controller('players')
 @UseInterceptors(CacheInterceptor)
@@ -39,7 +40,7 @@ export class PlayersController {
   }
 
   @Post()
-  @Auth('admin', 'super-user')
+  @Auth(PlayerRole.admin)
   @UsePipes(ValidationPipe)
   @UseInterceptors(ClassSerializerInterceptor)
   async forceCreatePlayer(@Body() player: ForceCreatePlayer) {
@@ -47,10 +48,10 @@ export class PlayersController {
   }
 
   @Patch(':id')
-  @Auth('admin', 'super-user')
+  @Auth(PlayerRole.admin)
   @UseInterceptors(ClassSerializerInterceptor)
-  async updatePlayer(@Param('id', ObjectIdValidationPipe) playerId: string, @Body() player: Partial<Player>, @User() user: Player) {
-    return await this.playersService.updatePlayer(playerId, player, user.id);
+  async updatePlayer(@Param('id', ObjectIdValidationPipe) playerId: string, @Body() player: Partial<Player>, @User() admin: Player) {
+    return await this.playersService.updatePlayer(playerId, player, admin.id);
   }
 
   @Get(':id/games')
@@ -89,13 +90,13 @@ export class PlayersController {
   }
 
   @Get('/all/skill')
-  @Auth('admin', 'super-user')
+  @Auth(PlayerRole.admin)
   async getAllPlayerSkills() {
     return await this.playerSkillService.getAll();
   }
 
   @Get(':id/skill')
-  @Auth('admin', 'super-user')
+  @Auth(PlayerRole.admin)
   async getPlayerSkill(@Param('id', ObjectIdValidationPipe) playerId: string) {
     const skill = await this.playerSkillService.getPlayerSkill(playerId);
     if (skill) {
@@ -106,7 +107,7 @@ export class PlayersController {
   }
 
   @Put(':id/skill')
-  @Auth('admin', 'super-user')
+  @Auth(PlayerRole.admin)
   // todo validate skill
   async setPlayerSkill(
     @Param('id', ObjectIdValidationPipe) playerId: string,
@@ -118,14 +119,14 @@ export class PlayersController {
   }
 
   @Get(':id/bans')
-  @Auth('admin', 'super-user')
+  @Auth(PlayerRole.admin)
   @UseInterceptors(ClassSerializerInterceptor)
   async getPlayerBans(@Param('id', ObjectIdValidationPipe) playerId: string) {
     return await this.playerBansService.getPlayerBans(playerId);
   }
 
   @Post(':id/bans')
-  @Auth('admin', 'super-user')
+  @Auth(PlayerRole.admin)
   @UsePipes(ValidationPipe)
   @UseInterceptors(ClassSerializerInterceptor)
   async addPlayerBan(@Body() playerBan: PlayerBan, @User() user: Player) {
@@ -136,7 +137,7 @@ export class PlayersController {
   }
 
   @Post(':playerId/bans/:banId')
-  @Auth('admin', 'super-user')
+  @Auth(PlayerRole.admin)
   @UseInterceptors(ClassSerializerInterceptor)
   @HttpCode(200)
   async updatePlayerBan(@Param('playerId', ObjectIdValidationPipe) playerId: string, @Param('banId', ObjectIdValidationPipe) banId: string,

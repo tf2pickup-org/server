@@ -1,4 +1,5 @@
 import { Auth } from '@/auth/decorators/auth.decorator';
+import { PlayerRole } from '@/players/models/player-role';
 import { Body, ClassSerializerInterceptor, Controller, Get, Put, UseInterceptors, ValidationPipe } from '@nestjs/common';
 import { DefaultPlayerSkill } from '../dto/default-player-skill';
 import { WhitelistId } from '../dto/whitelist-id';
@@ -18,7 +19,7 @@ export class ConfigurationController {
   }
 
   @Put('default-player-skill')
-  @Auth('admin', 'super-user')
+  @Auth(PlayerRole.admin)
   @UseInterceptors(ClassSerializerInterceptor)
   async setDefaultPlayerSkill(
     @Body(new ValidationPipe({ transform: true })) { value }: DefaultPlayerSkill,
@@ -33,7 +34,7 @@ export class ConfigurationController {
   }
 
   @Put('whitelist-id')
-  @Auth('admin', 'super-user')
+  @Auth(PlayerRole.admin)
   @UseInterceptors(ClassSerializerInterceptor)
   async setWhitelistId(@Body(new ValidationPipe()) { value }: WhitelistId) {
     return new WhitelistId(await this.configurationService.setWhitelistId(value));
