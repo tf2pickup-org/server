@@ -1,6 +1,8 @@
 import { Environment } from '@/environment/environment';
 import { Events } from '@/events/events';
 import { GameServer } from '@/game-servers/models/game-server';
+import { Game } from '@/games/models/game';
+import { GameState } from '@/games/models/game-state';
 import { Player } from '@/players/models/player';
 import { PlayersService } from '@/players/services/players.service';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
@@ -229,6 +231,26 @@ describe('AdminNotificationsService', () => {
       });
 
       events.gameServerRemoved.next({ gameServer: { name: 'fake game server' } as GameServer, adminId: admin.id });
+    }));
+  });
+
+  describe('when a game is force-ended', () => {
+    let admin: Player;
+
+    beforeEach(async () => {
+      // @ts-expect-error
+      admin = await playersService._createOne();
+    });
+
+    it('should send a message', async () => new Promise<void>(resolve => {
+      sentMessages.subscribe(message => {
+        expect(message.embed).toBeTruthy();
+        expect(message.embed.title).toEqual('Game force-ended');
+        resolve();
+      });
+
+      events.gameChanges.next(({ game: { number: 1, state: GameState.started, id: 'FAKE_GAME_ID' } as Game }));
+      events.gameChanges.next(({ game: { number: 1, state: GameState.interrupted, id: 'FAKE_GAME_ID' } as Game, adminId: admin.id } ));
     }));
   });
 });
