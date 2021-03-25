@@ -1,3 +1,10 @@
+## [5.0.2](https://github.com/tf2pickup-pl/server/compare/5.0.1...5.0.2) (2021-03-25)
+
+
+### Bug Fixes
+
+* **migration:** add game server model migration ([a3150da](https://github.com/tf2pickup-pl/server/commit/a3150da8a2488833d482101ca7b08746a1a7c94e))
+
 ## [5.0.1](https://github.com/tf2pickup-pl/server/compare/5.0.0...5.0.1) (2021-03-25)
 
 
