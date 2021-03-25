@@ -1,3 +1,10 @@
+## [5.0.1](https://github.com/tf2pickup-pl/server/compare/5.0.0...5.0.1) (2021-03-25)
+
+
+### Bug Fixes
+
+* **ci:** fix Docker image build script ([c3dd6fc](https://github.com/tf2pickup-pl/server/commit/c3dd6fc779c04aa8c9a9e771523776974f8ca2df))
+
 # [5.0.0](https://github.com/tf2pickup-pl/server/compare/4.0.1...5.0.0) (2021-03-25)
 
 
