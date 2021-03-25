@@ -1,3 +1,10 @@
+## [5.0.4](https://github.com/tf2pickup-pl/server/compare/5.0.3...5.0.4) (2021-03-25)
+
+
+### Bug Fixes
+
+* **build:** add migrations to docker image ([1713947](https://github.com/tf2pickup-pl/server/commit/17139478035310bdb2145111b226aec75c05382f))
+
 ## [5.0.3](https://github.com/tf2pickup-pl/server/compare/5.0.2...5.0.3) (2021-03-25)
 
 
