@@ -1,3 +1,10 @@
+## [5.0.5](https://github.com/tf2pickup-pl/server/compare/5.0.4...5.0.5) (2021-03-26)
+
+
+### Bug Fixes
+
+* **games:** fix game dereference ([#951](https://github.com/tf2pickup-pl/server/issues/951)) ([b8caca9](https://github.com/tf2pickup-pl/server/commit/b8caca930fa18c76d888c34bb7117ace7653274b))
+
 ## [5.0.4](https://github.com/tf2pickup-pl/server/compare/5.0.3...5.0.4) (2021-03-25)
 
 
