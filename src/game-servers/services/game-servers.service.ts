@@ -105,7 +105,7 @@ export class GameServersService {
       deleted: false,
       resolvedIpAddresses: eventSource.address,
       port: `${eventSource.port}`,
-    }));
+    }).orFail().lean().exec());
   }
 
   @Cron(CronExpression.EVERY_MINUTE)
