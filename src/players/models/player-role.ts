@@ -1,1 +1,6 @@
-export type PlayerRole = 'admin' | 'super-user' | 'bot';
+export enum PlayerRole {
+  superUser = 'super user',
+  admin = 'admin',
+  bot = 'bot',
+}
+

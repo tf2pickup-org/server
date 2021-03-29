@@ -8,6 +8,7 @@ import { IsOneOfPipe } from '@/shared/pipes/is-one-of.pipe';
 import { Game } from '../models/game';
 import { User } from '@/auth/decorators/user.decorator';
 import { Player } from '@/players/models/player';
+import { PlayerRole } from '@/players/models/player-role';
 
 const sortOptions: string[] = [
   'launched_at',
@@ -74,7 +75,7 @@ export class GamesController {
   }
 
   @Get(':id/skills')
-  @Auth('admin', 'super-user')
+  @Auth(PlayerRole.admin)
   async getGameSkills(@Param('id', ObjectIdValidationPipe) gameId: string) {
     const game = await this.gamesService.getById(gameId);
     if (game) {
@@ -85,7 +86,7 @@ export class GamesController {
   }
 
   @Post(':id')
-  @Auth('admin', 'super-user')
+  @Auth(PlayerRole.admin)
   @HttpCode(200)
   async takeAdminAction(
     @Param('id', ObjectIdValidationPipe) gameId: string,

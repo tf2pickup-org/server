@@ -9,6 +9,7 @@ import { GameServerDiagnosticsService } from '../services/game-server-diagnostic
 import { Environment } from '@/environment/environment';
 import { User } from '@/auth/decorators/user.decorator';
 import { Player } from '@/players/models/player';
+import { PlayerRole } from '@/players/models/player-role';
 
 @Controller('game-servers')
 export class GameServersController {
@@ -33,7 +34,7 @@ export class GameServersController {
   }
 
   @Post()
-  @Auth('super-user')
+  @Auth(PlayerRole.superUser)
   @UsePipes(ValidationPipe)
   @UseInterceptors(ClassSerializerInterceptor)
   async addGameServer(@Body() gameServer: AddGameServer, @User() admin: Player) {
@@ -41,13 +42,13 @@ export class GameServersController {
   }
 
   @Delete(':id')
-  @Auth('super-user')
+  @Auth(PlayerRole.superUser)
   async removeGameServer(@Param('id', ObjectIdValidationPipe) gameServerId: string, @User() admin: Player) {
     await this.gameServersService.removeGameServer(gameServerId, admin.id);
   }
 
   @Post(':id/diagnostics')
-  @Auth('super-user')
+  @Auth(PlayerRole.superUser)
   @HttpCode(202)
   async runDiagnostics(@Param('id', ObjectIdValidationPipe) gameServerId: string) {
     const id = await this.gameServerDiagnosticsService.runDiagnostics(gameServerId);

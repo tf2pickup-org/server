@@ -9,6 +9,7 @@ import { PlayerPopulatorService } from '../services/player-populator.service';
 import { MapPoolService } from '../services/map-pool.service';
 import { Auth } from '@/auth/decorators/auth.decorator';
 import { Map } from '../models/map';
+import { PlayerRole } from '@/players/models/player-role';
 
 @Controller('queue')
 export class QueueController {
@@ -57,7 +58,7 @@ export class QueueController {
   }
 
   @Put('map_vote_results/scramble')
-  @Auth('admin', 'super-user')
+  @Auth(PlayerRole.admin)
   scrambleMaps() {
     return this.mapVoteService.scramble();
   }
@@ -78,20 +79,20 @@ export class QueueController {
   }
 
   @Post('maps')
-  @Auth('super-user', 'admin')
+  @Auth(PlayerRole.admin)
   @UsePipes(ValidationPipe)
   async addMap(@Body() map: Map) {
     return await this.mapPoolService.addMap(map);
   }
 
   @Delete('maps/:name')
-  @Auth('super-user', 'admin')
+  @Auth(PlayerRole.admin)
   async deleteMap(@Param('name') name: string) {
     return await this.mapPoolService.removeMap(name);
   }
 
   @Put('maps')
-  @Auth('super-user', 'admin')
+  @Auth(PlayerRole.admin)
   @UsePipes(ValidationPipe)
   async setMaps(@Body() maps: Map[]) {
     return await this.mapPoolService.setMaps(maps);
