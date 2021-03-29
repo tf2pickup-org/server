@@ -1,4 +1,4 @@
-FROM node:12 AS build
+FROM node:lts-alpine AS build
 WORKDIR /tf2pickup.pl
 
 COPY package*.json ./
@@ -8,7 +8,7 @@ COPY . .
 RUN npm run build
 
 
-FROM node:12
+FROM node:lts-alpine
 WORKDIR /tf2pickup.pl
 
 ARG NODE_ENV=production
