@@ -2,7 +2,7 @@
 'use strict'
 
 //
-// Set
+// Remove Player.role, use Player.roles instead.
 //
 
 const { config } = require('dotenv');
