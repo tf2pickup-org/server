@@ -33,7 +33,7 @@
     "@nestjs/websockets": "7.6.15",
     "@typegoose/typegoose": "7.5.0",
     "async-mutex": "0.3.1",
-    "cache-manager": "3.4.2",
+    "cache-manager": "3.4.3",
     "class-transformer": "0.4.0",
     "class-validator": "0.13.1",
     "commander": "7.2.0",
