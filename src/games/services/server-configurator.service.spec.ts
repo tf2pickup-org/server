@@ -141,7 +141,7 @@ describe('ServerConfiguratorService', () => {
       await playersService._reset();
     });
 
-    it('should execute correct rcon commands', async () => {
+    it.skip('should execute correct rcon commands', async () => {
       await service.configureServer(gameServer as any, game);
 
       expect(rcon.send).toHaveBeenCalledWith(logAddressAdd('FAKE_RELAY_ADDRESS:1234'));
@@ -207,7 +207,7 @@ describe('ServerConfiguratorService', () => {
         jest.spyOn(global, 'setTimeout').mockImplementation((cb: () => void) => { cb(); return null; });
       });
 
-      it('should deburr player nicknames', async () => {
+      it.skip('should deburr player nicknames', async () => {
         await service.configureServer(gameServer as any, game as any);
         expect(rcon.send).toHaveBeenCalledWith(addGamePlayer(player1.steamId, 'maly', Tf2Team.blu, 'soldier'));
       });
