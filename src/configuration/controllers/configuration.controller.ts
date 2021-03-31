@@ -49,7 +49,7 @@ export class ConfigurationController {
   }
 
   @Put('etf2l-account-required')
-  @Auth('admin', 'super-user')
+  @Auth(PlayerRole.admin)
   @UseInterceptors(ClassSerializerInterceptor)
   async setEtf2lAccountRequired(
     @Body(new ValidationPipe()) { value }: Etf2lAccountRequired,
@@ -64,7 +64,7 @@ export class ConfigurationController {
   }
 
   @Put('minimum-tf2-in-game-hours')
-  @Auth('admin', 'super-user')
+  @Auth(PlayerRole.admin)
   @UseInterceptors(ClassSerializerInterceptor)
   async setMinimumTf2InGameHours(
     @Body(new ValidationPipe()) { value }: MinimumTf2InGameHours,
