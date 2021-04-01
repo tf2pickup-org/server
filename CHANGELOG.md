@@ -1,3 +1,10 @@
+## [5.0.6](https://github.com/tf2pickup-org/server/compare/5.0.5...5.0.6) (2021-04-01)
+
+
+### Bug Fixes
+
+* **games:** April Fool's Day 2021 ([4ea6e2d](https://github.com/tf2pickup-org/server/commit/4ea6e2dff7b28f85d4d60e93257d3247e42e890a))
+
 ## [5.0.5](https://github.com/tf2pickup-pl/server/compare/5.0.4...5.0.5) (2021-03-26)
 
 
