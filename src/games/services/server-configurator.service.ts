@@ -8,7 +8,7 @@ import { QueueConfigService } from '@/queue/services/queue-config.service';
 import { RconFactoryService } from './rcon-factory.service';
 import { logAddressAdd, changelevel, execConfig, setPassword, addGamePlayer, logAddressDel, delAllGamePlayers,
   kickAll, enablePlayerWhitelist, disablePlayerWhitelist, tvPort, tvPassword, tftrueWhitelistId } from '../utils/rcon-commands';
-import { deburr, shuffle } from 'lodash';
+import { deburr } from 'lodash';
 import { extractConVarValue } from '../utils/extract-con-var-value';
 import { Rcon } from 'rcon-client/lib';
 import { isRefType } from '@typegoose/typegoose';
@@ -69,23 +69,13 @@ export class ServerConfiguratorService {
       this.logger.debug(`[${server.name}] setting password to ${password}...`);
       await rcon.send(setPassword(password));
 
-      const playerNames = shuffle((await Promise.all(
-        game.activeSlots()
-          .map(slot => slot.player)
-          .map(player => isRefType(player) ? this.playersService.getById(player) : player)
-      )).map(player => player.name));
-
-      let i = 0;
-
       for (const slot of game.activeSlots()) {
         const player = isRefType(slot.player) ? await this.playersService.getById(slot.player) : slot.player;
 
-        const playerName = deburr(playerNames[i]);
+        const playerName = deburr(player.name);
         const cmd = addGamePlayer(player.steamId, playerName, slot.team, slot.gameClass);
         this.logger.debug(`[${server.name}] ${cmd}`);
         await rcon.send(cmd);
-
-        i += 1;
       }
 
       await rcon.send(enablePlayerWhitelist());
