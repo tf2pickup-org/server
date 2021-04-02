@@ -19,7 +19,6 @@ import { ConsoleModule } from 'nestjs-console';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { EventsModule } from './events/events.module';
-import { StreamsModule } from './streams/streams.module';
 import { PlayerPreferencesModule } from './player-preferences/player-preferences.module';
 import { ConfigurationModule } from './configuration/configuration.module';
 import { PluginsModule } from './plugins/plugins.module';
@@ -68,7 +67,6 @@ import { createMongoDbUri } from './utils/create-mongo-db-uri';
     SharedModule,
     DocumentsModule,
     EventsModule,
-    StreamsModule.configure(),
     PlayerPreferencesModule,
     ConfigurationModule,
     PluginsModule.configure(),
