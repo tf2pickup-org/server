@@ -1,3 +1,10 @@
+## [5.0.7](https://github.com/tf2pickup-org/server/compare/5.0.6...5.0.7) (2021-04-02)
+
+
+### Reverts
+
+* it is not April Fool's Day anymore ([2acb6e3](https://github.com/tf2pickup-org/server/commit/2acb6e3229d009739a58776ff32fdd7e6f9f7a52))
+
 ## [5.0.6](https://github.com/tf2pickup-org/server/compare/5.0.5...5.0.6) (2021-04-01)
 
 
