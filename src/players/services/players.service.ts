@@ -11,7 +11,6 @@ import { Etf2lProfile } from '../etf2l-profile';
 import { SteamApiService } from './steam-api.service';
 import { TwitchTvUser } from '../models/twitch-tv-user';
 import { ObjectId } from 'mongodb';
-import { minimumTf2InGameHours, requireEtf2lAccount } from '@configs/players';
 import { PlayerAvatar } from '../models/player-avatar';
 import { Events } from '@/events/events';
 import { classToPlain, plainToClass } from 'class-transformer';
@@ -23,6 +22,7 @@ import { Tf2InGameHoursVerificationError } from '../errors/tf2-in-game-hours-ver
 import { AccountBannedError } from '../errors/account-banned.error';
 import { InsufficientTf2InGameHoursError } from '../errors/insufficient-tf2-in-game-hours.error';
 import { PlayerRole } from '../models/player-role';
+import { ConfigurationService } from '@/configuration/services/configuration.service';
 
 type ForceCreatePlayerOptions = Pick<Player, 'steamId' | 'name'>;
 
@@ -39,6 +39,7 @@ export class PlayersService implements OnModuleInit {
     private steamApiService: SteamApiService,
     private events: Events,
     private onlinePlayersService: OnlinePlayersService,
+    private configurationService: ConfigurationService,
   ) { }
 
   async onModuleInit() {
@@ -103,7 +104,7 @@ export class PlayersService implements OnModuleInit {
 
       name = etf2lProfile.name;
     } catch (error) {
-      if (requireEtf2lAccount) {
+      if (await this.configurationService.isEtf2lAccountRequired()) {
         throw error;
       }
     }
@@ -187,6 +188,7 @@ export class PlayersService implements OnModuleInit {
   }
 
   private async verifyTf2InGameHours(steamId: string) {
+    const minimumTf2InGameHours = await this.configurationService.getMinimumTf2InGameHours();
     try {
       const hoursInTf2 = await this.steamApiService.getTf2InGameHours(steamId);
       if (hoursInTf2 < minimumTf2InGameHours) {

@@ -17,6 +17,7 @@ import { SteamApiService } from './services/steam-api.service';
 import { QueueModule } from '@/queue/queue.module';
 import { FuturePlayerSkillService } from './services/future-player-skill.service';
 import { FuturePlayerSkill } from './models/future-player-skill';
+import { ConfigurationModule } from '@/configuration/configuration.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { FuturePlayerSkill } from './models/future-player-skill';
 
     forwardRef(() => GamesModule),
     forwardRef(() => QueueModule),
+    ConfigurationModule,
   ],
   providers: [
     PlayersService,
