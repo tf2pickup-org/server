@@ -2,10 +2,10 @@ import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
 import { GamesService } from './games.service';
 import { GameServersService } from '@/game-servers/services/game-servers.service';
 import { ServerConfiguratorService } from './server-configurator.service';
-import { Environment } from '@/environment/environment';
 import { Cron } from '@nestjs/schedule';
 import { Events } from '@/events/events';
 import { GameState } from '../models/game-state';
+import { ConfigurationService } from '@/configuration/services/configuration.service';
 
 /**
  * This service is responsible for launching a single game.
@@ -22,8 +22,8 @@ export class GameLauncherService {
     @Inject(forwardRef(() => GamesService)) private gamesService: GamesService,
     private gameServersService: GameServersService,
     private serverConfiguratorService: ServerConfiguratorService,
-    private environment: Environment,
     private events: Events,
+    private configurationService: ConfigurationService,
   ) { }
 
   /**
@@ -48,7 +48,7 @@ export class GameLauncherService {
       this.logger.verbose(`using server ${gameServer.name} for game #${game.number}`);
 
       // step 2: set mumble url
-      const mumbleUrl = `mumble://${this.environment.mumbleServerUrl}/${this.environment.mumbleChannelName}/${gameServer.mumbleChannelName}`;
+      const mumbleUrl = await this.getMumbleUrl(gameServer.mumbleChannelName);
       this.logger.verbose(`game #${game.number} mumble url: ${mumbleUrl}`);
       game.mumbleUrl = mumbleUrl;
       await game.save();
@@ -75,6 +75,11 @@ export class GameLauncherService {
       this.logger.verbose(`launching game #${game.number}...`);
       this.launch(game.id);
     }
+  }
+
+  private async getMumbleUrl(gameServerChannelName: string) {
+    const mumbleOptions = await this.configurationService.getVoiceServer();
+    return `mumble://${mumbleOptions.url}:${mumbleOptions.port}/${mumbleOptions.channelName}/${gameServerChannelName}`;
   }
 
 }
