@@ -60,14 +60,6 @@ export class Environment {
     return this.configService.get<string>('QUEUE_CONFIG');
   }
 
-  get mumbleServerUrl() {
-    return this.configService.get<string>('MUMBLE_SERVER_URL');
-  }
-
-  get mumbleChannelName() {
-    return this.configService.get<string>('MUMBLE_CHANNEL_NAME');
-  }
-
   get logRelayAddress() {
     return this.configService.get<string>('LOG_RELAY_ADDRESS');
   }
