@@ -4,9 +4,12 @@ import { ReturnModelType } from '@typegoose/typegoose';
 import { InjectModel } from 'nestjs-typegoose';
 import { ConfigurationEntry } from '../models/configuration-entry';
 import { ConfigurationEntryKey } from '../models/configuration-entry-key';
+import { MumbleOptions } from '../models/mumble-options';
 
 // this name wtf
 const defaultDefaultPlayerSkill = new Map(Object.keys(Tf2ClassName).map(className => [className, 1]));
+
+type VoiceServer = MumbleOptions;
 
 @Injectable()
 export class ConfigurationService implements OnModuleInit {
@@ -61,20 +64,29 @@ export class ConfigurationService implements OnModuleInit {
     return minimumTf2InGameHours;
   }
 
+  async getVoiceServer(): Promise<VoiceServer> {
+    return JSON.parse(await this.retrieve(ConfigurationEntryKey.voiceServer));
+  }
+
+  async setVoiceServer(voiceServer: VoiceServer): Promise<VoiceServer> {
+    await this.store(ConfigurationEntryKey.voiceServer, JSON.stringify(voiceServer));
+    return voiceServer;
+  }
+
   private async retrieve(key: ConfigurationEntryKey): Promise<string> {
     const ret = await this.configurationEntryModel.findOne({ key }).orFail().lean().exec()
     return ret.value;
   }
 
   private async store(key: ConfigurationEntryKey, value: string) {
-    await this.configurationEntryModel.updateOne({ key }, { value }).orFail().lean().exec();
+    await this.configurationEntryModel.updateOne({ key }, { value }, { upsert: true }).lean().exec();
   }
 
   private async loadDefault(key: ConfigurationEntryKey, value: string) {
     try {
       await this.retrieve(key);
     } catch (error) {
-      await this.configurationEntryModel.updateOne({ key }, { value }, { upsert: true });
+      await this.store(key, value);
     }
   }
 
