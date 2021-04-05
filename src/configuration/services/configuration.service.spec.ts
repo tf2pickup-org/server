@@ -6,7 +6,7 @@ import { MongoMemoryServer } from 'mongodb-memory-server';
 import { getModelToken, TypegooseModule } from 'nestjs-typegoose';
 import { ConfigurationEntry } from '../models/configuration-entry';
 import { ConfigurationEntryKey } from '../models/configuration-entry-key';
-import { VoiceServer } from '../models/voice-server';
+import { MumbleOptions } from '../models/mumble-options';
 import { ConfigurationService } from './configuration.service';
 
 describe('ConfigurationService', () => {
@@ -77,7 +77,7 @@ describe('ConfigurationService', () => {
   });
 
   it('should set voice server', async () => {
-    const voiceServer: VoiceServer = {
+    const voiceServer: MumbleOptions = {
       type: 'mumble',
       url: 'melkor.tf',
       port: 64738,
@@ -86,7 +86,7 @@ describe('ConfigurationService', () => {
   });
 
   it('should retrieve voice server', async () => {
-    const voiceServer: VoiceServer = {
+    const voiceServer: MumbleOptions = {
       type: 'mumble',
       url: 'melkor.tf',
       port: 64738,
