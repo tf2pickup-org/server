@@ -7,18 +7,17 @@ import { LogMessage, LogReceiver } from 'srcds-log-receiver';
 import { DiagnosticCheckResult } from '../interfaces/diagnostic-check-result';
 import { DiagnosticCheckRunner } from '../interfaces/diagnostic-check-runner';
 
-const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 @Injectable({ scope: Scope.TRANSIENT })
 export class LogForwarding implements DiagnosticCheckRunner {
-
   name = 'log forwarding';
   critical = true;
 
   constructor(
     private logReceiver: LogReceiver,
     private environment: Environment,
-  ) { }
+  ) {}
 
   async run({ effects }): Promise<DiagnosticCheckResult> {
     const rcon: Rcon = effects.get('rcon connection');
@@ -32,11 +31,17 @@ export class LogForwarding implements DiagnosticCheckRunner {
 
     return new Promise((resolve) => {
       const secret = generate({ length: 32, numbers: true });
-      const timer = setTimeout(() => resolve({
-        success: false,
-        reportedErrors: [`No logs received over the UDP protocol on port ${this.logReceiver.opts.port}. Check your firewall settings.`],
-        reportedWarnings: [],
-      }), 5000);
+      const timer = setTimeout(
+        () =>
+          resolve({
+            success: false,
+            reportedErrors: [
+              `No logs received over the UDP protocol on port ${this.logReceiver.opts.port}. Check your firewall settings.`,
+            ],
+            reportedWarnings: [],
+          }),
+        5000,
+      );
 
       this.logReceiver.on('data', (data: LogMessage) => {
         if (new RegExp(`Console.+say\\s"${secret}"$`).test(data.message)) {
@@ -44,18 +49,17 @@ export class LogForwarding implements DiagnosticCheckRunner {
           resolve({
             success: true,
             reportedErrors: [],
-            reportedWarnings:[],
+            reportedWarnings: [],
           });
         }
       });
 
       const logAddress = `${this.environment.logRelayAddress}:${this.environment.logRelayPort}`;
-      rcon.send(logAddressAdd(logAddress))
+      rcon
+        .send(logAddressAdd(logAddress))
         .then(() => sleep(1000))
         .then(() => rcon.send(`say ${secret}`))
         .then(() => rcon.send(logAddressDel(logAddress)));
     });
-
   }
-
 }

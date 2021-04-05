@@ -2,7 +2,6 @@ import { prop } from '@typegoose/typegoose';
 import { DiagnosticCheckStatus } from './diagnostic-check-status';
 
 export class DiagnosticCheck {
-
   @prop({ required: true })
   name: string;
 
@@ -17,5 +16,4 @@ export class DiagnosticCheck {
 
   @prop({ required: true })
   critical: boolean;
-
 }

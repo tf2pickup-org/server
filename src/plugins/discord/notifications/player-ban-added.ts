@@ -21,15 +21,22 @@ interface PlayerBanAddedOptions {
   ends: Date;
 }
 
-export const playerBanAdded = (options: PlayerBanAddedOptions) => new MessageEmbed()
-  .setColor(Colors.PlayerBanAdded)
-  .setAuthor(options.admin.name, options.admin.avatarUrl, options.admin.profileUrl)
-  .setTitle('Player ban added')
-  .setThumbnail(options.player.avatarUrl)
-  .setDescription([
-    `Player: **[${options.player.name}](${options.player.profileUrl})**`,
-    `Reason: **${options.reason}**`,
-    `Ends: **${moment(options.ends).fromNow()}**`
-  ].join('\n'))
-  .setFooter(options.client.name, options.client.iconUrl)
-  .setTimestamp();
+export const playerBanAdded = (options: PlayerBanAddedOptions) =>
+  new MessageEmbed()
+    .setColor(Colors.PlayerBanAdded)
+    .setAuthor(
+      options.admin.name,
+      options.admin.avatarUrl,
+      options.admin.profileUrl,
+    )
+    .setTitle('Player ban added')
+    .setThumbnail(options.player.avatarUrl)
+    .setDescription(
+      [
+        `Player: **[${options.player.name}](${options.player.profileUrl})**`,
+        `Reason: **${options.reason}**`,
+        `Ends: **${moment(options.ends).fromNow()}**`,
+      ].join('\n'),
+    )
+    .setFooter(options.client.name, options.client.iconUrl)
+    .setTimestamp();

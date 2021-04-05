@@ -14,8 +14,6 @@ import { PlayerPreferencesModule } from '@/player-preferences/player-preferences
     QueueModule,
     PlayerPreferencesModule,
   ],
-  controllers: [
-    ProfileController,
-  ],
+  controllers: [ProfileController],
 })
-export class ProfileModule { }
+export class ProfileModule {}

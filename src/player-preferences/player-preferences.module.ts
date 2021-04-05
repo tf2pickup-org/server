@@ -4,14 +4,8 @@ import { PlayerPreferences } from './models/player-preferences';
 import { PlayerPreferencesService } from './services/player-preferences.service';
 
 @Module({
-  imports: [
-    TypegooseModule.forFeature([ PlayerPreferences ]),
-  ],
-  providers: [
-    PlayerPreferencesService,
-  ],
-  exports: [
-    PlayerPreferencesService,
-  ],
+  imports: [TypegooseModule.forFeature([PlayerPreferences])],
+  providers: [PlayerPreferencesService],
+  exports: [PlayerPreferencesService],
 })
 export class PlayerPreferencesModule {}

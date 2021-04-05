@@ -14,7 +14,6 @@ import { DiscordService } from './discord.service';
 
 @Injectable()
 export class QueuePromptsService implements OnModuleInit {
-
   private requiredPlayerCount = 0;
   private message?: Message;
 
@@ -25,12 +24,12 @@ export class QueuePromptsService implements OnModuleInit {
     private queueService: QueueService,
     private playersService: PlayersService,
     private queueConfigService: QueueConfigService,
-  ) { }
+  ) {}
 
   onModuleInit() {
-    this.events.queueSlotsChange.pipe(
-      debounceTime(3000),
-    ).subscribe(() => this.refreshPrompt(this.queueService.slots));
+    this.events.queueSlotsChange
+      .pipe(debounceTime(3000))
+      .subscribe(() => this.refreshPrompt(this.queueService.slots));
   }
 
   private async refreshPrompt(slots: QueueSlot[]) {
@@ -50,38 +49,53 @@ export class QueuePromptsService implements OnModuleInit {
       this.message.edit({ embed });
     } else {
       if (this.playerThresholdMet()) {
-        this.message = await this.discordService.getPlayersChannel()?.send({ embed });
+        this.message = await this.discordService
+          .getPlayersChannel()
+          ?.send({ embed });
       }
     }
   }
 
   private async slotsToGameClassData(slots: QueueSlot[]) {
-    const playerData = await Promise.all(slots
-      .filter(slot => !!slot.playerId)
-      .map(slot => this.playersService.getById(slot.playerId).then(player => ({ name: player.name, gameClass: slot.gameClass })))
+    const playerData = await Promise.all(
+      slots
+        .filter((slot) => !!slot.playerId)
+        .map((slot) =>
+          this.playersService.getById(slot.playerId).then((player) => ({
+            name: player.name,
+            gameClass: slot.gameClass,
+          })),
+        ),
     );
 
-    return this.queueConfigService.queueConfig.classes
-      .map(gameClass => ({
-        gameClass: gameClass.name,
-        emoji: this.discordService.findEmoji(`tf2${gameClass.name}`),
-        playersRequired: gameClass.count * this.queueConfigService.queueConfig.teamCount,
-        players: playerData.filter(p => p.gameClass === gameClass.name),
-      }));
+    return this.queueConfigService.queueConfig.classes.map((gameClass) => ({
+      gameClass: gameClass.name,
+      emoji: this.discordService.findEmoji(`tf2${gameClass.name}`),
+      playersRequired:
+        gameClass.count * this.queueConfigService.queueConfig.teamCount,
+      players: playerData.filter((p) => p.gameClass === gameClass.name),
+    }));
   }
 
   private playerThresholdMet() {
-    return this.queueService.playerCount >= (this.requiredPlayerCount * promptPlayerThresholdRatio);
+    return (
+      this.queueService.playerCount >=
+      this.requiredPlayerCount * promptPlayerThresholdRatio
+    );
   }
 
   @Cron(CronExpression.EVERY_5_MINUTES)
   async ensurePromptIsVisible() {
-    const messages = await this.discordService.getPlayersChannel().messages.fetch({ limit: 1 });
-    if (messages?.first()?.id !== this.message?.id && this.playerThresholdMet()) {
+    const messages = await this.discordService
+      .getPlayersChannel()
+      .messages.fetch({ limit: 1 });
+    if (
+      messages?.first()?.id !== this.message?.id &&
+      this.playerThresholdMet()
+    ) {
       await this.message?.delete();
       delete this.message;
       this.refreshPrompt(this.queueService.slots);
     }
   }
-
 }

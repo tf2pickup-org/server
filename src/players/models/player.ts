@@ -7,7 +7,6 @@ import { TwitchTvUser } from './twitch-tv-user';
 
 @index({ steamId: 'hashed' })
 export class Player extends MongooseDocument {
-
   @Expose()
   @Transform(({ value, obj }) => value ?? obj._id.toString())
   id?: string;
@@ -38,5 +37,4 @@ export class Player extends MongooseDocument {
   @Type(() => TwitchTvUser)
   @prop({ type: TwitchTvUser })
   twitchTvUser?: TwitchTvUser;
-
 }

@@ -6,7 +6,6 @@ import { SlotStatus } from './slot-status';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 
 export class GameSlot {
-
   @prop({ required: true, ref: Player, index: true })
   player!: Ref<Player>;
 
@@ -19,7 +18,9 @@ export class GameSlot {
   @prop({ index: true, enum: SlotStatus, default: SlotStatus.active })
   status?: SlotStatus;
 
-  @prop({ enum: PlayerConnectionStatus, default: PlayerConnectionStatus.offline })
+  @prop({
+    enum: PlayerConnectionStatus,
+    default: PlayerConnectionStatus.offline,
+  })
   connectionStatus?: PlayerConnectionStatus;
-
 }

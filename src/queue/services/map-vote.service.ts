@@ -16,7 +16,6 @@ interface MapVote {
 
 @Injectable()
 export class MapVoteService implements OnModuleInit {
-
   private readonly logger = new Logger(MapVoteService.name);
   private readonly _results = new BehaviorSubject<MapVoteResult[]>([]);
 
@@ -34,18 +33,22 @@ export class MapVoteService implements OnModuleInit {
     @InjectModel(Map) private mapModel: ReturnModelType<typeof Map>,
     private queueService: QueueService,
     private events: Events,
-  ) { }
+  ) {}
 
   async onModuleInit() {
-    this._results.subscribe(results => this.events.mapVotesChange.next({ results }));
+    this._results.subscribe((results) =>
+      this.events.mapVotesChange.next({ results }),
+    );
 
-    this.events.playerLeavesQueue.subscribe(({ playerId }) => this.resetPlayerVote(playerId));
+    this.events.playerLeavesQueue.subscribe(({ playerId }) =>
+      this.resetPlayerVote(playerId),
+    );
     this.events.mapPoolChange.subscribe(() => this.scramble());
     await this.scramble();
   }
 
   voteCountForMap(map: string): number {
-    return this.votes.filter(v => v.map === map).length;
+    return this.votes.filter((v) => v.map === map).length;
   }
 
   voteForMap(playerId: string, map: string) {
@@ -58,7 +61,7 @@ export class MapVoteService implements OnModuleInit {
     }
 
     this.votes = [
-      ...this.votes.filter(v => v.playerId !== playerId),
+      ...this.votes.filter((v) => v.playerId !== playerId),
       { map, playerId },
     ];
 
@@ -66,17 +69,23 @@ export class MapVoteService implements OnModuleInit {
   }
 
   playerVote(playerId: string): string {
-    return this.votes.find(v => v.playerId === playerId)?.map;
+    return this.votes.find((v) => v.playerId === playerId)?.map;
   }
 
   /**
    * Decides the winner and resets the vote.
    */
   async getWinner() {
-    const maxVotes = maxBy(this.results, r => r.voteCount).voteCount;
-    const mapsWithMaxVotes = this.results.filter(m => m.voteCount === maxVotes);
-    const map = mapsWithMaxVotes[Math.floor(Math.random() * mapsWithMaxVotes.length)].map;
-    await this.mapModel.updateMany({ cooldown: { $gt: 0 } }, { $inc: { cooldown: -1 } });
+    const maxVotes = maxBy(this.results, (r) => r.voteCount).voteCount;
+    const mapsWithMaxVotes = this.results.filter(
+      (m) => m.voteCount === maxVotes,
+    );
+    const map =
+      mapsWithMaxVotes[Math.floor(Math.random() * mapsWithMaxVotes.length)].map;
+    await this.mapModel.updateMany(
+      { cooldown: { $gt: 0 } },
+      { $inc: { cooldown: -1 } },
+    );
     await this.mapModel.updateOne({ name: map }, { cooldown: mapCooldown });
     setImmediate(() => this.scramble());
     return map;
@@ -86,9 +95,11 @@ export class MapVoteService implements OnModuleInit {
    * Randomly maps that will be available for vote.
    */
   async scramble() {
-    this.mapOptions = shuffle(await this.mapModel.find({ cooldown: { $lte: 0 } }).exec())
+    this.mapOptions = shuffle(
+      await this.mapModel.find({ cooldown: { $lte: 0 } }).exec(),
+    )
       .slice(0, this.mapVoteOptionCount)
-      .map(m => m.name);
+      .map((m) => m.name);
     this.logger.debug(`Map options: ${this.mapOptions.join(',')}`);
     this.votes = [];
     this._results.next(this.getResults());
@@ -96,13 +107,14 @@ export class MapVoteService implements OnModuleInit {
   }
 
   private resetPlayerVote(playerId: string) {
-    this.votes = [ ...this.votes.filter(v => v.playerId !== playerId) ];
+    this.votes = [...this.votes.filter((v) => v.playerId !== playerId)];
     this._results.next(this.getResults());
   }
 
   private getResults() {
-    return this.mapOptions
-      .map(map => ({ map, voteCount: this.voteCountForMap(map) }));
+    return this.mapOptions.map((map) => ({
+      map,
+      voteCount: this.voteCountForMap(map),
+    }));
   }
-
 }

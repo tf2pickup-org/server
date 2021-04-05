@@ -11,47 +11,77 @@ import { iconUrlPath } from '@configs/discord';
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { isRefType } from '@typegoose/typegoose';
 import { distinctUntilChanged, filter } from 'rxjs/operators';
-import { newPlayer, playerBanAdded, playerBanRevoked, playerSkillChanged, playerProfileUpdated, gameServerAdded, gameServerRemoved, gameForceEnded } from '../notifications';
+import {
+  newPlayer,
+  playerBanAdded,
+  playerBanRevoked,
+  playerSkillChanged,
+  playerProfileUpdated,
+  gameServerAdded,
+  gameServerRemoved,
+  gameForceEnded,
+} from '../notifications';
 import { DiscordService } from './discord.service';
 
-const playerSkillEqual = (oldSkill: PlayerSkillType, newSkill: PlayerSkillType) => {
+const playerSkillEqual = (
+  oldSkill: PlayerSkillType,
+  newSkill: PlayerSkillType,
+) => {
   if (oldSkill.size !== newSkill.size) {
     return false;
   }
 
   for (const [key, value] of oldSkill) {
     const currentSkill = newSkill.get(key);
-    if (currentSkill !== value || (currentSkill === undefined && !newSkill.has(key))) {
+    if (
+      currentSkill !== value ||
+      (currentSkill === undefined && !newSkill.has(key))
+    ) {
       return false;
     }
   }
 
   return true;
-}
+};
 
 @Injectable()
 export class AdminNotificationsService implements OnModuleInit {
-
   constructor(
     private discordService: DiscordService,
     private events: Events,
     private environment: Environment,
     private playersService: PlayersService,
-  ) { }
+  ) {}
 
   onModuleInit() {
-    this.events.playerRegisters.subscribe(({ player }) => this.onPlayerRegisters(player));
-    this.events.playerUpdates.subscribe(({ oldPlayer, newPlayer, adminId }) => this.onPlayerUpdates(oldPlayer, newPlayer, adminId));
-    this.events.playerBanAdded.subscribe(({ ban }) => this.onPlayerBanAdded(ban));
-    this.events.playerBanRevoked.subscribe(({ ban }) => this.onPlayerBanRevoked(ban));
-    this.events.playerSkillChanged.subscribe(({ playerId, oldSkill, newSkill, adminId }) =>
-      this.onPlayerSkillChanged(playerId, oldSkill, newSkill, adminId));
-    this.events.gameServerAdded.subscribe(({ gameServer, adminId }) => this.onGameServerAdded(gameServer, adminId));
-    this.events.gameServerRemoved.subscribe(({ gameServer, adminId }) => this.onGameServerRemoved(gameServer, adminId));
-    this.events.gameChanges.pipe(
-      distinctUntilChanged((x, y) => x.game.state === y.game.state),
-      filter(({ game }) => game.state === GameState.interrupted),
-    ).subscribe(({ game, adminId }) => this.onGameForceEnded(game, adminId));
+    this.events.playerRegisters.subscribe(({ player }) =>
+      this.onPlayerRegisters(player),
+    );
+    this.events.playerUpdates.subscribe(({ oldPlayer, newPlayer, adminId }) =>
+      this.onPlayerUpdates(oldPlayer, newPlayer, adminId),
+    );
+    this.events.playerBanAdded.subscribe(({ ban }) =>
+      this.onPlayerBanAdded(ban),
+    );
+    this.events.playerBanRevoked.subscribe(({ ban }) =>
+      this.onPlayerBanRevoked(ban),
+    );
+    this.events.playerSkillChanged.subscribe(
+      ({ playerId, oldSkill, newSkill, adminId }) =>
+        this.onPlayerSkillChanged(playerId, oldSkill, newSkill, adminId),
+    );
+    this.events.gameServerAdded.subscribe(({ gameServer, adminId }) =>
+      this.onGameServerAdded(gameServer, adminId),
+    );
+    this.events.gameServerRemoved.subscribe(({ gameServer, adminId }) =>
+      this.onGameServerRemoved(gameServer, adminId),
+    );
+    this.events.gameChanges
+      .pipe(
+        distinctUntilChanged((x, y) => x.game.state === y.game.state),
+        filter(({ game }) => game.state === GameState.interrupted),
+      )
+      .subscribe(({ game, adminId }) => this.onGameForceEnded(game, adminId));
   }
 
   private onPlayerRegisters(player: Player) {
@@ -63,14 +93,18 @@ export class AdminNotificationsService implements OnModuleInit {
     });
   }
 
-  private async onPlayerUpdates(oldPlayer: Player, newPlayer: Player, adminId: string) {
+  private async onPlayerUpdates(
+    oldPlayer: Player,
+    newPlayer: Player,
+    adminId: string,
+  ) {
     if (!adminId) {
       return;
     }
 
     const admin = await this.playersService.getById(adminId);
 
-    const changes: Record<string, { old: string, new: string }> = { };
+    const changes: Record<string, { old: string; new: string }> = {};
     if (oldPlayer.name !== newPlayer.name) {
       changes.name = { old: oldPlayer.name, new: newPlayer.name };
     }
@@ -108,8 +142,12 @@ export class AdminNotificationsService implements OnModuleInit {
   }
 
   private async onPlayerBanAdded(ban: PlayerBan) {
-    const admin = isRefType(ban.admin) ? await this.playersService.getById(ban.admin) : ban.admin;
-    const player = isRefType(ban.player) ? await this.playersService.getById(ban.player) : ban.player;
+    const admin = isRefType(ban.admin)
+      ? await this.playersService.getById(ban.admin)
+      : ban.admin;
+    const player = isRefType(ban.player)
+      ? await this.playersService.getById(ban.player)
+      : ban.player;
 
     this.discordService.getAdminsChannel()?.send({
       embed: playerBanAdded({
@@ -134,8 +172,12 @@ export class AdminNotificationsService implements OnModuleInit {
   }
 
   private async onPlayerBanRevoked(ban: PlayerBan) {
-    const admin = isRefType(ban.admin) ? await this.playersService.getById(ban.admin) : ban.admin;
-    const player = isRefType(ban.player) ? await this.playersService.getById(ban.player) : ban.player;
+    const admin = isRefType(ban.admin)
+      ? await this.playersService.getById(ban.admin)
+      : ban.admin;
+    const player = isRefType(ban.player)
+      ? await this.playersService.getById(ban.player)
+      : ban.player;
 
     this.discordService.getAdminsChannel()?.send({
       embed: playerBanRevoked({
@@ -158,7 +200,12 @@ export class AdminNotificationsService implements OnModuleInit {
     });
   }
 
-  private async onPlayerSkillChanged(playerId: string, oldSkill: PlayerSkillType, newSkill: PlayerSkillType, adminId: string) {
+  private async onPlayerSkillChanged(
+    playerId: string,
+    oldSkill: PlayerSkillType,
+    newSkill: PlayerSkillType,
+    adminId: string,
+  ) {
     if (!adminId) {
       return;
     }
@@ -262,5 +309,4 @@ export class AdminNotificationsService implements OnModuleInit {
       }),
     });
   }
-
 }

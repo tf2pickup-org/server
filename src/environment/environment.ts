@@ -3,10 +3,7 @@ import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class Environment {
-
-  constructor(
-    private configService: ConfigService,
-  ) { }
+  constructor(private configService: ConfigService) {}
 
   get apiUrl() {
     return this.configService.get<string>('API_URL');
@@ -77,15 +74,21 @@ export class Environment {
   }
 
   get discordQueueNotificationsChannel() {
-    return this.configService.get<string>('DISCORD_QUEUE_NOTIFICATIONS_CHANNEL');
+    return this.configService.get<string>(
+      'DISCORD_QUEUE_NOTIFICATIONS_CHANNEL',
+    );
   }
 
   get discordQueueNotificationsMentionRole() {
-    return this.configService.get<string>('DISCORD_QUEUE_NOTIFICATIONS_MENTION_ROLE');
+    return this.configService.get<string>(
+      'DISCORD_QUEUE_NOTIFICATIONS_MENTION_ROLE',
+    );
   }
 
   get discordAdminNotificationsChannel() {
-    return this.configService.get<string>('DISCORD_ADMIN_NOTIFICATIONS_CHANNEL');
+    return this.configService.get<string>(
+      'DISCORD_ADMIN_NOTIFICATIONS_CHANNEL',
+    );
   }
 
   get twitchClientId() {
@@ -95,5 +98,4 @@ export class Environment {
   get twitchClientSecret() {
     return this.configService.get<string>('TWITCH_CLIENT_SECRET');
   }
-
 }

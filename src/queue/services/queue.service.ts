@@ -1,4 +1,11 @@
-import { Injectable, Logger, Inject, forwardRef, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  Inject,
+  forwardRef,
+  OnModuleInit,
+  OnModuleDestroy,
+} from '@nestjs/common';
 import { QueueSlot } from '@/queue/queue-slot';
 import { PlayersService } from '@/players/services/players.service';
 import { QueueConfigService } from './queue-config.service';
@@ -10,7 +17,6 @@ import { Events } from '@/events/events';
 
 @Injectable()
 export class QueueService implements OnModuleInit, OnModuleDestroy {
-
   slots: QueueSlot[] = [];
   state: QueueState = 'waiting';
 
@@ -22,27 +28,36 @@ export class QueueService implements OnModuleInit, OnModuleDestroy {
   }
 
   get playerCount(): number {
-    return this.slots.filter(s => !!s.playerId).length;
+    return this.slots.filter((s) => !!s.playerId).length;
   }
 
   get readyPlayerCount() {
-    return this.slots.filter(s => s.ready).length;
+    return this.slots.filter((s) => s.ready).length;
   }
 
   constructor(
-    @Inject(forwardRef(() => PlayersService)) private playersService: PlayersService,
+    @Inject(forwardRef(() => PlayersService))
+    private playersService: PlayersService,
     private queueConfigService: QueueConfigService,
     private playerBansService: PlayerBansService,
     @Inject(forwardRef(() => GamesService)) private gamesService: GamesService,
     private events: Events,
-  ) { }
+  ) {}
 
   onModuleInit() {
     this.resetSlots();
-    this.events.queueSlotsChange.subscribe(() => setImmediate(() => this.maybeUpdateState()));
-    this.events.queueStateChange.subscribe(({ state }) => this.onStateChange(state));
-    this.events.playerDisconnects.subscribe(({ playerId }) => this.kick(playerId));
-    this.events.playerBanAdded.subscribe(({ ban }) => this.kick(ban.player.toString()));
+    this.events.queueSlotsChange.subscribe(() =>
+      setImmediate(() => this.maybeUpdateState()),
+    );
+    this.events.queueStateChange.subscribe(({ state }) =>
+      this.onStateChange(state),
+    );
+    this.events.playerDisconnects.subscribe(({ playerId }) =>
+      this.kick(playerId),
+    );
+    this.events.playerBanAdded.subscribe(({ ban }) =>
+      this.kick(ban.player.toString()),
+    );
   }
 
   onModuleDestroy() {
@@ -50,15 +65,15 @@ export class QueueService implements OnModuleInit, OnModuleDestroy {
   }
 
   getSlotById(id: number): QueueSlot {
-    return this.slots.find(s => s.id === id);
+    return this.slots.find((s) => s.id === id);
   }
 
   findSlotByPlayerId(playerId: string): QueueSlot {
-    return this.slots.find(s => s.playerId === playerId);
+    return this.slots.find((s) => s.playerId === playerId);
   }
 
   isInQueue(playerId: string): boolean {
-    return !!this.slots.find(s => s.playerId === playerId);
+    return !!this.slots.find((s) => s.playerId === playerId);
   }
 
   reset() {
@@ -107,24 +122,29 @@ export class QueueService implements OnModuleInit, OnModuleDestroy {
     }
 
     // remove player from any slot(s) he could be occupying
-    const oldSlots = this.slots.filter(s => s.playerId === playerId);
-    oldSlots.forEach(s => this.clearSlot(s));
+    const oldSlots = this.slots.filter((s) => s.playerId === playerId);
+    oldSlots.forEach((s) => this.clearSlot(s));
 
     targetSlot.playerId = playerId;
 
-    if (this.state === 'ready' || this.playerCount === this.requiredPlayerCount) {
+    if (
+      this.state === 'ready' ||
+      this.playerCount === this.requiredPlayerCount
+    ) {
       targetSlot.ready = true;
     }
 
-    this.logger.debug(`player ${player.name} joined the queue (slotId=${targetSlot.id}, gameClass=${targetSlot.gameClass})`);
+    this.logger.debug(
+      `player ${player.name} joined the queue (slotId=${targetSlot.id}, gameClass=${targetSlot.gameClass})`,
+    );
 
     // is player joining instead of only changing slots?
     if (oldSlots.length === 0) {
       this.events.playerJoinsQueue.next({ playerId });
     }
 
-    const slots = [ targetSlot, ...oldSlots ];
-    this.events.queueSlotsChange.next({ slots })
+    const slots = [targetSlot, ...oldSlots];
+    this.events.queueSlotsChange.next({ slots });
     return slots;
   }
 
@@ -138,7 +158,7 @@ export class QueueService implements OnModuleInit, OnModuleDestroy {
       this.clearSlot(slot);
       this.logger.debug(`slot ${slot.id} (gameClass=${slot.gameClass}) free`);
       this.events.playerLeavesQueue.next({ playerId, reason: 'manual' });
-      this.events.queueSlotsChange.next({ slots: [ slot ] });
+      this.events.queueSlotsChange.next({ slots: [slot] });
       return slot;
     } else {
       throw new Error('slot already free');
@@ -157,7 +177,9 @@ export class QueueService implements OnModuleInit, OnModuleDestroy {
       if (slot) {
         this.clearSlot(slot);
         this.events.playerLeavesQueue.next({ playerId, reason: 'kicked' });
-        this.logger.debug(`slot ${slot.id} (gameClass=${slot.gameClass}) free (player was kicked)`);
+        this.logger.debug(
+          `slot ${slot.id} (gameClass=${slot.gameClass}) free (player was kicked)`,
+        );
         updatedSlots.push(slot);
       }
     }
@@ -173,8 +195,10 @@ export class QueueService implements OnModuleInit, OnModuleDestroy {
     const slot = this.findSlotByPlayerId(playerId);
     if (slot) {
       slot.ready = true;
-      this.logger.debug(`slot ${slot.id} ready (${this.readyPlayerCount}/${this.requiredPlayerCount})`);
-      this.events.queueSlotsChange.next({ slots: [ slot ] });
+      this.logger.debug(
+        `slot ${slot.id} ready (${this.readyPlayerCount}/${this.requiredPlayerCount})`,
+      );
+      this.events.queueSlotsChange.next({ slots: [slot] });
       return slot;
     } else {
       throw new Error('player is not in the queue');
@@ -224,18 +248,25 @@ export class QueueService implements OnModuleInit, OnModuleDestroy {
     };
 
     let lastId = 0;
-    this.slots = this.queueConfigService.queueConfig.classes.reduce((prev, curr) => {
-      const tmpSlots = [];
-      for (let i = 0; i < curr.count * this.queueConfigService.queueConfig.teamCount; ++i) {
-        tmpSlots.push({
-          id: lastId++,
-          gameClass: curr.name,
-          ...defaultSlot,
-        });
-      }
+    this.slots = this.queueConfigService.queueConfig.classes.reduce(
+      (prev, curr) => {
+        const tmpSlots = [];
+        for (
+          let i = 0;
+          i < curr.count * this.queueConfigService.queueConfig.teamCount;
+          ++i
+        ) {
+          tmpSlots.push({
+            id: lastId++,
+            gameClass: curr.name,
+            ...defaultSlot,
+          });
+        }
 
-      return prev.concat(tmpSlots);
-    }, []);
+        return prev.concat(tmpSlots);
+      },
+      [],
+    );
   }
 
   private clearSlot(slot: QueueSlot) {
@@ -259,13 +290,13 @@ export class QueueService implements OnModuleInit, OnModuleDestroy {
 
   private kickUnreadyPlayers() {
     this.logger.debug('kicking players that are not ready');
-    const slots = this.slots.filter(s => !s.ready);
-    this.kick(...slots.map(s => s.playerId));
+    const slots = this.slots.filter((s) => !s.ready);
+    this.kick(...slots.map((s) => s.playerId));
   }
 
   private unreadyQueue() {
-    const slots = this.slots.filter(s => !!s.playerId);
-    slots.forEach(s => s.ready = false);
+    const slots = this.slots.filter((s) => !!s.playerId);
+    slots.forEach((s) => (s.ready = false));
     this.events.queueSlotsChange.next({ slots });
     this.setState('waiting');
   }
@@ -274,5 +305,4 @@ export class QueueService implements OnModuleInit, OnModuleDestroy {
     this.state = state;
     this.events.queueStateChange.next({ state });
   }
-
 }

@@ -22,8 +22,12 @@ const mockGame = {
 };
 
 class GamesServiceStub {
-  getById() { return new Promise(resolve => resolve(mockGame)); }
-  getOrphanedGames() { return new Promise(resolve => resolve([ mockGame ])); }
+  getById() {
+    return new Promise((resolve) => resolve(mockGame));
+  }
+  getOrphanedGames() {
+    return new Promise((resolve) => resolve([mockGame]));
+  }
 }
 
 const mockGameServer = {
@@ -36,10 +40,14 @@ const mockGameServer = {
 };
 
 class ServerConfiguratorServiceStub {
-  configureServer(server: any, game: any) { return new Promise(resolve => resolve({
-    connectString: 'FAKE_CONNECT_STRING',
-    stvConnectString: 'FAKE_STV_CONNECT_STRING',
-  })); }
+  configureServer(server: any, game: any) {
+    return new Promise((resolve) =>
+      resolve({
+        connectString: 'FAKE_CONNECT_STRING',
+        stvConnectString: 'FAKE_STV_CONNECT_STRING',
+      }),
+    );
+  }
 }
 
 describe('GameLauncherService', () => {
@@ -55,7 +63,10 @@ describe('GameLauncherService', () => {
         GameLauncherService,
         { provide: GamesService, useClass: GamesServiceStub },
         GameServersService,
-        { provide: ServerConfiguratorService, useClass: ServerConfiguratorServiceStub },
+        {
+          provide: ServerConfiguratorService,
+          useClass: ServerConfiguratorServiceStub,
+        },
         Events,
         ConfigurationService,
       ],
@@ -69,7 +80,9 @@ describe('GameLauncherService', () => {
   });
 
   beforeEach(() => {
-    gameServersService.assignFreeGameServer.mockResolvedValue(mockGameServer as DocumentType<GameServer>);
+    gameServersService.assignFreeGameServer.mockResolvedValue(
+      mockGameServer as DocumentType<GameServer>,
+    );
   });
 
   it('should be defined', () => {
@@ -92,21 +105,28 @@ describe('GameLauncherService', () => {
       });
 
       it('should throw', async () => {
-        await expect(service.launch('FAKE_GAME_ID')).rejects.toThrowError('no such game');
+        await expect(service.launch('FAKE_GAME_ID')).rejects.toThrowError(
+          'no such game',
+        );
       });
     });
 
     it('should configure the game server', async () => {
       const spy = jest.spyOn(serverConfiguratorService, 'configureServer');
       const ret = await service.launch('FAKE_GAME_ID');
-      expect(spy).toHaveBeenCalledWith(expect.objectContaining({ id: mockGameServer.id }), expect.objectContaining({ id: mockGame.id }));
+      expect(spy).toHaveBeenCalledWith(
+        expect.objectContaining({ id: mockGameServer.id }),
+        expect.objectContaining({ id: mockGame.id }),
+      );
       expect(ret.connectString).toEqual('FAKE_CONNECT_STRING');
       expect(ret.stvConnectString).toEqual('FAKE_STV_CONNECT_STRING');
     });
 
     it('should setup a valid mumble url', async () => {
       const ret = await service.launch('FAKE_GAME_ID');
-      expect(ret.mumbleUrl).toEqual('mumble://mumble.melkor.tf:64738/tf2pickuppl/FAKE_SERVER_MUMBLE_CHANNEL_NAME');
+      expect(ret.mumbleUrl).toEqual(
+        'mumble://mumble.melkor.tf:64738/tf2pickuppl/FAKE_SERVER_MUMBLE_CHANNEL_NAME',
+      );
     });
   });
 

@@ -50,9 +50,6 @@ import { ConfigurationModule } from '@/configuration/configuration.module';
     PlayerSkillService,
     OnlinePlayersService,
   ],
-  controllers: [
-    PlayersController,
-    HallOfFameController,
-  ],
+  controllers: [PlayersController, HallOfFameController],
 })
-export class PlayersModule { }
+export class PlayersModule {}

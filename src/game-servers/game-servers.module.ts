@@ -13,7 +13,7 @@ import { LogReceiverModule } from '@/log-receiver/log-receiver.module';
 
 @Module({
   imports: [
-    TypegooseModule.forFeature([ GameServer, GameServerDiagnosticRun ]),
+    TypegooseModule.forFeature([GameServer, GameServerDiagnosticRun]),
     LogReceiverModule,
   ],
   providers: [
@@ -23,12 +23,7 @@ import { LogReceiverModule } from '@/log-receiver/log-receiver.module';
     RconConnection,
     LogForwarding,
   ],
-  exports: [
-    GameServersService,
-  ],
-  controllers: [
-    GameServersController,
-    GameServerDiagnosticsController,
-  ],
+  exports: [GameServersService],
+  controllers: [GameServersController, GameServerDiagnosticsController],
 })
-export class GameServersModule { }
+export class GameServersModule {}

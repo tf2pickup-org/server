@@ -10,7 +10,6 @@ class Message {
 
 @Injectable()
 export class DiscordService {
-
   _lastMessage = null;
 
   playersChannel = {
@@ -50,5 +49,4 @@ export class DiscordService {
   findEmoji(name: string) {
     return `<emoji:${name}>`;
   }
-
 }

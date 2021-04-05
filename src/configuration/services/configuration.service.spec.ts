@@ -14,7 +14,7 @@ describe('ConfigurationService', () => {
   let mongod: MongoMemoryServer;
   let configurationEntryModel: ReturnModelType<typeof ConfigurationEntry>;
 
-  beforeAll(() => mongod = new MongoMemoryServer());
+  beforeAll(() => (mongod = new MongoMemoryServer()));
   afterAll(async () => await mongod.stop());
 
   beforeEach(async () => {
@@ -23,13 +23,13 @@ describe('ConfigurationService', () => {
         typegooseTestingModule(mongod),
         TypegooseModule.forFeature([ConfigurationEntry]),
       ],
-      providers: [
-        ConfigurationService,
-      ],
+      providers: [ConfigurationService],
     }).compile();
 
     service = module.get<ConfigurationService>(ConfigurationService);
-    configurationEntryModel = module.get(getModelToken(ConfigurationEntry.name));
+    configurationEntryModel = module.get(
+      getModelToken(ConfigurationEntry.name),
+    );
   });
 
   beforeEach(async () => {
@@ -37,8 +37,8 @@ describe('ConfigurationService', () => {
   });
 
   afterEach(async () => {
-    await configurationEntryModel.deleteMany({ });
-  })
+    await configurationEntryModel.deleteMany({});
+  });
 
   it('should be defined', () => {
     expect(service).toBeDefined();
@@ -49,7 +49,9 @@ describe('ConfigurationService', () => {
   });
 
   it('should set default player skill', async () => {
-    expect(await service.setDefaultPlayerSkill(new Map([[Tf2ClassName.soldier, 3]]))).toBeTruthy();
+    expect(
+      await service.setDefaultPlayerSkill(new Map([[Tf2ClassName.soldier, 3]])),
+    ).toBeTruthy();
   });
 
   it('should get whitelist id', async () => {
@@ -91,8 +93,11 @@ describe('ConfigurationService', () => {
       url: 'melkor.tf',
       port: 64738,
     };
-    await configurationEntryModel.updateOne({ key: ConfigurationEntryKey.voiceServer }, { value: JSON.stringify(voiceServer) }, { upsert: true });
+    await configurationEntryModel.updateOne(
+      { key: ConfigurationEntryKey.voiceServer },
+      { value: JSON.stringify(voiceServer) },
+      { upsert: true },
+    );
     expect(await service.getVoiceServer()).toEqual(voiceServer);
   });
-
 });

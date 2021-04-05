@@ -7,22 +7,9 @@ import { AuthModule } from '@/auth/auth.module';
 import { TwitchGateway } from './gateways/twitch.gateway';
 
 @Module({
-  imports: [
-    HttpModule,
-
-    PlayersModule,
-    AuthModule,
-  ],
-  providers: [
-    TwitchService,
-    TwitchAuthService,
-    TwitchGateway,
-  ],
-  exports: [
-    TwitchService,
-  ],
-  controllers: [
-    TwitchController,
-  ],
+  imports: [HttpModule, PlayersModule, AuthModule],
+  providers: [TwitchService, TwitchAuthService, TwitchGateway],
+  exports: [TwitchService],
+  controllers: [TwitchController],
 })
-export class TwitchModule { }
+export class TwitchModule {}

@@ -18,19 +18,16 @@ describe('PlayerPopulatorService', () => {
   let playersService: PlayersService;
   let mockPlayer: DocumentType<Player>;
 
-  beforeAll(() => mongod = new MongoMemoryServer());
+  beforeAll(() => (mongod = new MongoMemoryServer()));
   afterAll(async () => await mongod.stop());
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [
         typegooseTestingModule(mongod),
-        TypegooseModule.forFeature([ Player ]),
+        TypegooseModule.forFeature([Player]),
       ],
-      providers: [
-        PlayerPopulatorService,
-        PlayersService,
-      ],
+      providers: [PlayerPopulatorService, PlayersService],
     }).compile();
 
     service = module.get<PlayerPopulatorService>(PlayerPopulatorService);
@@ -54,15 +51,31 @@ describe('PlayerPopulatorService', () => {
   describe('#populatePlayer()', () => {
     describe('when the playerId is null', () => {
       it('should return the unchanged slot', async () => {
-        const slot: QueueSlot = { id: 3, gameClass: Tf2ClassName.soldier, ready: false, playerId: null };
-        expect(await service.populatePlayer(slot)).toEqual({ ...slot, player: null });
+        const slot: QueueSlot = {
+          id: 3,
+          gameClass: Tf2ClassName.soldier,
+          ready: false,
+          playerId: null,
+        };
+        expect(await service.populatePlayer(slot)).toEqual({
+          ...slot,
+          player: null,
+        });
       });
     });
 
     describe('when the playerId is defined', () => {
       it('should populate the player', async () => {
-        const slot: QueueSlot = { id: 3, gameClass: Tf2ClassName.soldier, ready: false, playerId: mockPlayer.id };
-        expect(await service.populatePlayer(slot)).toEqual({ ...slot, player: plainToClass(Player, mockPlayer.toObject()) });
+        const slot: QueueSlot = {
+          id: 3,
+          gameClass: Tf2ClassName.soldier,
+          ready: false,
+          playerId: mockPlayer.id,
+        };
+        expect(await service.populatePlayer(slot)).toEqual({
+          ...slot,
+          player: plainToClass(Player, mockPlayer.toObject()),
+        });
       });
     });
   });
@@ -70,13 +83,35 @@ describe('PlayerPopulatorService', () => {
   describe('#populatePlayers', () => {
     it('should populate players in the array', async () => {
       const slots: QueueSlot[] = [
-        { id: 0, gameClass: Tf2ClassName.soldier, ready: false, playerId: null },
-        { id: 1, gameClass: Tf2ClassName.soldier, ready: false, playerId: mockPlayer.id },
+        {
+          id: 0,
+          gameClass: Tf2ClassName.soldier,
+          ready: false,
+          playerId: null,
+        },
+        {
+          id: 1,
+          gameClass: Tf2ClassName.soldier,
+          ready: false,
+          playerId: mockPlayer.id,
+        },
       ];
 
       expect(await service.populatePlayers(slots)).toEqual([
-        { id: 0, gameClass: Tf2ClassName.soldier, ready: false, playerId: null, player: null },
-        { id: 1, gameClass: Tf2ClassName.soldier, ready: false, playerId: mockPlayer.id, player: plainToClass(Player, mockPlayer.toObject()) },
+        {
+          id: 0,
+          gameClass: Tf2ClassName.soldier,
+          ready: false,
+          playerId: null,
+          player: null,
+        },
+        {
+          id: 1,
+          gameClass: Tf2ClassName.soldier,
+          ready: false,
+          playerId: mockPlayer.id,
+          player: plainToClass(Player, mockPlayer.toObject()),
+        },
       ]);
     });
   });

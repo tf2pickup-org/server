@@ -17,7 +17,9 @@ class HttpServiceStub {
       expires_in: 3600,
     },
   };
-  post(url: string) { return of(this.result); }
+  post(url: string) {
+    return of(this.result);
+  }
 }
 
 describe('TwitchAuthService', () => {
@@ -43,7 +45,9 @@ describe('TwitchAuthService', () => {
 
   describe('#getOauthRedirectUrl()', () => {
     it('should provide the oauthRedirectUrl', () => {
-      expect(service.getOauthRedirectUrl('FAKE_STATE')).toEqual('https://id.twitch.tv/oauth2/authorize?client_id=FAKE_TWITCH_CLIENT_ID&redirect_uri=FAKE_API_URL/twitch/auth/return&response_type=code&scope=user_read&state=FAKE_STATE');
+      expect(service.getOauthRedirectUrl('FAKE_STATE')).toEqual(
+        'https://id.twitch.tv/oauth2/authorize?client_id=FAKE_TWITCH_CLIENT_ID&redirect_uri=FAKE_API_URL/twitch/auth/return&response_type=code&scope=user_read&state=FAKE_STATE',
+      );
     });
   });
 

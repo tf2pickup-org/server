@@ -1,4 +1,10 @@
-import { Injectable, Logger, Inject, forwardRef, Optional } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  Inject,
+  forwardRef,
+  Optional,
+} from '@nestjs/common';
 import { GamesService } from './games.service';
 import { PlayersService } from '@/players/services/players.service';
 import { PlayerBansService } from '@/players/services/player-bans.service';
@@ -20,21 +26,24 @@ import { mongoose } from '@typegoose/typegoose';
  */
 @Injectable()
 export class PlayerSubstitutionService {
-
   private logger = new Logger(PlayerSubstitutionService.name);
   private discordNotifications = new Map<string, Message>(); // playerId <-> message pairs
 
   constructor(
     @Inject(forwardRef(() => GamesService)) private gamesService: GamesService,
-    @Inject(forwardRef(() => PlayersService)) private playersService: PlayersService,
+    @Inject(forwardRef(() => PlayersService))
+    private playersService: PlayersService,
     private playerBansService: PlayerBansService,
-    @Inject(forwardRef(() => GameRuntimeService)) private gameRuntimeService: GameRuntimeService,
+    @Inject(forwardRef(() => GameRuntimeService))
+    private gameRuntimeService: GameRuntimeService,
     private queueSevice: QueueService,
     @Optional() private discordService: DiscordService,
     private environment: Environment,
     private events: Events,
   ) {
-    this.logger.verbose(`Discord plugin will ${this.discordService ? '' : 'not '}be used`);
+    this.logger.verbose(
+      `Discord plugin will ${this.discordService ? '' : 'not '}be used`,
+    );
   }
 
   async substitutePlayer(gameId: string, playerId: string) {
@@ -53,7 +62,9 @@ export class PlayerSubstitutionService {
     }
 
     const player = await this.playersService.getById(playerId);
-    this.logger.debug(`player ${player.name} taking part in game #${game.number} is marked as 'waiting for substitute'`);
+    this.logger.debug(
+      `player ${player.name} taking part in game #${game.number} is marked as 'waiting for substitute'`,
+    );
 
     slot.status = SlotStatus.waitingForSubstitute;
     await game.save();
@@ -69,7 +80,9 @@ export class PlayerSubstitutionService {
         gameUrl: `${this.environment.clientUrl}/game/${game.id}`,
       });
 
-      const roleToMention = this.discordService.findRole(this.environment.discordQueueNotificationsMentionRole);
+      const roleToMention = this.discordService.findRole(
+        this.environment.discordQueueNotificationsMentionRole,
+      );
       let message: Message;
 
       if (roleToMention?.mentionable) {
@@ -100,7 +113,9 @@ export class PlayerSubstitutionService {
     }
 
     const player = await this.playersService.getById(playerId);
-    this.logger.verbose(`player ${player.name} taking part in game #${game.number} is marked as 'active'`);
+    this.logger.verbose(
+      `player ${player.name} taking part in game #${game.number} is marked as 'active'`,
+    );
 
     slot.status = SlotStatus.active;
     await game.save();
@@ -116,10 +131,17 @@ export class PlayerSubstitutionService {
     return game;
   }
 
-  async replacePlayer(gameId: string, replaceeId: string, replacementId: string) {
+  async replacePlayer(
+    gameId: string,
+    replaceeId: string,
+    replacementId: string,
+  ) {
     const replacement = await this.playersService.getById(replacementId);
 
-    if ((await this.playerBansService.getPlayerActiveBans(replacementId)).length > 0) {
+    if (
+      (await this.playerBansService.getPlayerActiveBans(replacementId)).length >
+      0
+    ) {
       throw new Error('player is banned');
     }
 
@@ -128,7 +150,11 @@ export class PlayerSubstitutionService {
       throw new Error('no such game');
     }
 
-    const slot = game.slots.find(slot => slot.status === SlotStatus.waitingForSubstitute && slot.player.toString().localeCompare(replaceeId) === 0);
+    const slot = game.slots.find(
+      (slot) =>
+        slot.status === SlotStatus.waitingForSubstitute &&
+        slot.player.toString().localeCompare(replaceeId) === 0,
+    );
     if (!slot) {
       throw new Error(`no such slot (playerId: ${replaceeId})`);
     }
@@ -172,9 +198,17 @@ export class PlayerSubstitutionService {
 
     await this.deleteDiscordAnnouncement(replaceeId);
 
-    this.logger.verbose(`player ${replacement.name} is replacing ${replacee.name} on ${replacementSlot.gameClass} in game #${game.number}`);
+    this.logger.verbose(
+      `player ${replacement.name} is replacing ${replacee.name} on ${replacementSlot.gameClass} in game #${game.number}`,
+    );
 
-    setImmediate(() => this.gameRuntimeService.replacePlayer(game.id, replaceeId, replacementSlot));
+    setImmediate(() =>
+      this.gameRuntimeService.replacePlayer(
+        game.id,
+        replaceeId,
+        replacementSlot,
+      ),
+    );
     return game;
   }
 
@@ -199,5 +233,4 @@ export class PlayerSubstitutionService {
       this.discordNotifications.delete(replaceeId);
     }
   }
-
 }

@@ -19,7 +19,7 @@ jest.mock('@/players/services/players.service');
 
 const environment = {
   clientUrl: 'http://localhost',
-}
+};
 
 describe('AdminNotificationsService', () => {
   let service: AdminNotificationsService;
@@ -30,7 +30,7 @@ describe('AdminNotificationsService', () => {
   let sendSpy: jest.SpyInstance;
   let sentMessages: Subject<any>;
 
-  beforeAll(() => mongod = new MongoMemoryServer());
+  beforeAll(() => (mongod = new MongoMemoryServer()));
   afterAll(async () => mongod.stop());
 
   beforeEach(() => {
@@ -41,7 +41,7 @@ describe('AdminNotificationsService', () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [
         typegooseTestingModule(mongod),
-        TypegooseModule.forFeature([ Player ]),
+        TypegooseModule.forFeature([Player]),
       ],
       providers: [
         AdminNotificationsService,
@@ -56,10 +56,12 @@ describe('AdminNotificationsService', () => {
     events = module.get(Events);
     playersService = module.get(PlayersService);
     discordService = module.get(DiscordService);
-    sendSpy = jest.spyOn(discordService.getAdminsChannel(), 'send').mockImplementation(message => {
-      sentMessages.next(message);
-      return Promise.resolve(message);
-    });
+    sendSpy = jest
+      .spyOn(discordService.getAdminsChannel(), 'send')
+      .mockImplementation((message) => {
+        sentMessages.next(message);
+        return Promise.resolve(message);
+      });
   });
 
   beforeEach(() => {
@@ -96,24 +98,34 @@ describe('AdminNotificationsService', () => {
       admin = await playersService._createOne();
     });
 
-    it('should send a message', async () => new Promise<void>(resolve => {
-      sentMessages.subscribe(message => {
-        expect(message.embed).toBeTruthy();
-        expect(message.embed.title).toEqual('Player profile updated');
-        resolve();
-      });
-
-      events.playerUpdates.next({ oldPlayer: player, newPlayer: { ...player, name: 'NEW_PLAYER_NAME' }, adminId: admin.id });
-    }));
-
-    describe('when the update doesn\'t change anything', () => {
-      it('should not send any messages', async () => new Promise<void>(resolve => {
-        events.playerUpdates.next({ oldPlayer: player, newPlayer: player, adminId: admin.id });
-        setTimeout(() => {
-          expect(sendSpy).not.toHaveBeenCalled();
+    it('should send a message', async () =>
+      new Promise<void>((resolve) => {
+        sentMessages.subscribe((message) => {
+          expect(message.embed).toBeTruthy();
+          expect(message.embed.title).toEqual('Player profile updated');
           resolve();
-        }, 1000);
+        });
+
+        events.playerUpdates.next({
+          oldPlayer: player,
+          newPlayer: { ...player, name: 'NEW_PLAYER_NAME' },
+          adminId: admin.id,
+        });
       }));
+
+    describe("when the update doesn't change anything", () => {
+      it('should not send any messages', async () =>
+        new Promise<void>((resolve) => {
+          events.playerUpdates.next({
+            oldPlayer: player,
+            newPlayer: player,
+            adminId: admin.id,
+          });
+          setTimeout(() => {
+            expect(sendSpy).not.toHaveBeenCalled();
+            resolve();
+          }, 1000);
+        }));
     });
   });
 
@@ -128,15 +140,24 @@ describe('AdminNotificationsService', () => {
       admin = await playersService._createOne();
     });
 
-    it('should send a message', async () => new Promise<void>(resolve => {
-      sentMessages.subscribe(message => {
-        expect(message.embed).toBeTruthy();
-        expect(message.embed.title).toEqual('Player ban added');
-        resolve();
-      });
+    it('should send a message', async () =>
+      new Promise<void>((resolve) => {
+        sentMessages.subscribe((message) => {
+          expect(message.embed).toBeTruthy();
+          expect(message.embed.title).toEqual('Player ban added');
+          resolve();
+        });
 
-      events.playerBanAdded.next({ ban: { player, admin, start: new Date(), end: new Date(), reason: 'FAKE_BAN' } });
-    }));
+        events.playerBanAdded.next({
+          ban: {
+            player,
+            admin,
+            start: new Date(),
+            end: new Date(),
+            reason: 'FAKE_BAN',
+          },
+        });
+      }));
   });
 
   describe('when the playerBanRevoked event emits', () => {
@@ -150,15 +171,24 @@ describe('AdminNotificationsService', () => {
       admin = await playersService._createOne();
     });
 
-    it('should send a message', async () => new Promise<void>(resolve => {
-      sentMessages.subscribe(message => {
-        expect(message.embed).toBeTruthy();
-        expect(message.embed.title).toEqual('Player ban revoked');
-        resolve();
-      });
+    it('should send a message', async () =>
+      new Promise<void>((resolve) => {
+        sentMessages.subscribe((message) => {
+          expect(message.embed).toBeTruthy();
+          expect(message.embed.title).toEqual('Player ban revoked');
+          resolve();
+        });
 
-      events.playerBanRevoked.next({ ban: { player, admin, start: new Date(), end: new Date(), reason: 'FAKE_BAN' } });
-    }));
+        events.playerBanRevoked.next({
+          ban: {
+            player,
+            admin,
+            start: new Date(),
+            end: new Date(),
+            reason: 'FAKE_BAN',
+          },
+        });
+      }));
   });
 
   describe('when the playerSkillChanged event emits', () => {
@@ -172,27 +202,39 @@ describe('AdminNotificationsService', () => {
       admin = await playersService._createOne();
     });
 
-    it('should send a message', async () => new Promise<void>(resolve => {
-      sentMessages.subscribe(message => {
-        expect(message.embed).toBeTruthy();
-        expect(message.embed.title).toEqual('Player skill updated');
-        resolve();
-      });
-
-      const oldSkill = new Map([[Tf2ClassName.soldier, 2]]);
-      const newSkill = new Map([[Tf2ClassName.soldier, 4]]);
-      events.playerSkillChanged.next({ playerId: player.id, oldSkill, newSkill, adminId: admin.id });
-    }));
-
-    describe('when the skill doesn\'t really change', () => {
-      it('should not send any message', async () => new Promise<void>(resolve => {
-        const oldSkill = new Map([[Tf2ClassName.soldier, 2]]);
-        events.playerSkillChanged.next({ playerId: player.id, oldSkill, newSkill: oldSkill, adminId: admin.id });
-        setTimeout(() => {
-          expect(sendSpy).not.toHaveBeenCalled();
+    it('should send a message', async () =>
+      new Promise<void>((resolve) => {
+        sentMessages.subscribe((message) => {
+          expect(message.embed).toBeTruthy();
+          expect(message.embed.title).toEqual('Player skill updated');
           resolve();
-        }, 1000);
+        });
+
+        const oldSkill = new Map([[Tf2ClassName.soldier, 2]]);
+        const newSkill = new Map([[Tf2ClassName.soldier, 4]]);
+        events.playerSkillChanged.next({
+          playerId: player.id,
+          oldSkill,
+          newSkill,
+          adminId: admin.id,
+        });
       }));
+
+    describe("when the skill doesn't really change", () => {
+      it('should not send any message', async () =>
+        new Promise<void>((resolve) => {
+          const oldSkill = new Map([[Tf2ClassName.soldier, 2]]);
+          events.playerSkillChanged.next({
+            playerId: player.id,
+            oldSkill,
+            newSkill: oldSkill,
+            adminId: admin.id,
+          });
+          setTimeout(() => {
+            expect(sendSpy).not.toHaveBeenCalled();
+            resolve();
+          }, 1000);
+        }));
     });
   });
 
@@ -204,15 +246,19 @@ describe('AdminNotificationsService', () => {
       admin = await playersService._createOne();
     });
 
-    it('should send a message', async () => new Promise<void>(resolve => {
-      sentMessages.subscribe(message => {
-        expect(message.embed).toBeTruthy();
-        expect(message.embed.title).toEqual('Game server added');
-        resolve();
-      });
+    it('should send a message', async () =>
+      new Promise<void>((resolve) => {
+        sentMessages.subscribe((message) => {
+          expect(message.embed).toBeTruthy();
+          expect(message.embed.title).toEqual('Game server added');
+          resolve();
+        });
 
-      events.gameServerAdded.next({ gameServer: { name: 'fake game server' } as GameServer, adminId: admin.id });
-    }));
+        events.gameServerAdded.next({
+          gameServer: { name: 'fake game server' } as GameServer,
+          adminId: admin.id,
+        });
+      }));
   });
 
   describe('when the gameServerRemoved event emits', () => {
@@ -223,15 +269,19 @@ describe('AdminNotificationsService', () => {
       admin = await playersService._createOne();
     });
 
-    it('should send a message', async () => new Promise<void>(resolve => {
-      sentMessages.subscribe(message => {
-        expect(message.embed).toBeTruthy();
-        expect(message.embed.title).toEqual('Game server removed');
-        resolve();
-      });
+    it('should send a message', async () =>
+      new Promise<void>((resolve) => {
+        sentMessages.subscribe((message) => {
+          expect(message.embed).toBeTruthy();
+          expect(message.embed.title).toEqual('Game server removed');
+          resolve();
+        });
 
-      events.gameServerRemoved.next({ gameServer: { name: 'fake game server' } as GameServer, adminId: admin.id });
-    }));
+        events.gameServerRemoved.next({
+          gameServer: { name: 'fake game server' } as GameServer,
+          adminId: admin.id,
+        });
+      }));
   });
 
   describe('when a game is force-ended', () => {
@@ -242,15 +292,29 @@ describe('AdminNotificationsService', () => {
       admin = await playersService._createOne();
     });
 
-    it('should send a message', async () => new Promise<void>(resolve => {
-      sentMessages.subscribe(message => {
-        expect(message.embed).toBeTruthy();
-        expect(message.embed.title).toEqual('Game force-ended');
-        resolve();
-      });
+    it('should send a message', async () =>
+      new Promise<void>((resolve) => {
+        sentMessages.subscribe((message) => {
+          expect(message.embed).toBeTruthy();
+          expect(message.embed.title).toEqual('Game force-ended');
+          resolve();
+        });
 
-      events.gameChanges.next(({ game: { number: 1, state: GameState.started, id: 'FAKE_GAME_ID' } as Game }));
-      events.gameChanges.next(({ game: { number: 1, state: GameState.interrupted, id: 'FAKE_GAME_ID' } as Game, adminId: admin.id } ));
-    }));
+        events.gameChanges.next({
+          game: {
+            number: 1,
+            state: GameState.started,
+            id: 'FAKE_GAME_ID',
+          } as Game,
+        });
+        events.gameChanges.next({
+          game: {
+            number: 1,
+            state: GameState.interrupted,
+            id: 'FAKE_GAME_ID',
+          } as Game,
+          adminId: admin.id,
+        });
+      }));
   });
 });

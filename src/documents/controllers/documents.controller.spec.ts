@@ -11,9 +11,7 @@ describe('Documents Controller', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [DocumentsController],
-      providers: [
-        DocumentsService,
-      ],
+      providers: [DocumentsService],
     }).compile();
 
     controller = module.get<DocumentsController>(DocumentsController);
@@ -26,7 +24,9 @@ describe('Documents Controller', () => {
 
   describe('#getDocument', () => {
     beforeEach(() => {
-      documentsService.getDocument.mockImplementation((name, language) => Promise.resolve({ name, language, body: 'testing' }));
+      documentsService.getDocument.mockImplementation((name, language) =>
+        Promise.resolve({ name, language, body: 'testing' }),
+      );
     });
 
     it('should query the service', async () => {
@@ -35,14 +35,24 @@ describe('Documents Controller', () => {
     });
   });
 
-  describe('#saveDocument', () =>{
+  describe('#saveDocument', () => {
     beforeEach(() => {
-      documentsService.saveDocument.mockImplementation((name, language, body) => Promise.resolve({ name, language, body }));
+      documentsService.saveDocument.mockImplementation((name, language, body) =>
+        Promise.resolve({ name, language, body }),
+      );
     });
 
     it('should call the service', async () => {
-      await controller.saveDocument('test', 'en', { name: 'test', language: 'en', body: 'just testing' });
-      expect(documentsService.saveDocument).toHaveBeenCalledWith('test', 'en', 'just testing');
+      await controller.saveDocument('test', 'en', {
+        name: 'test',
+        language: 'en',
+        body: 'just testing',
+      });
+      expect(documentsService.saveDocument).toHaveBeenCalledWith(
+        'test',
+        'en',
+        'just testing',
+      );
     });
   });
 });

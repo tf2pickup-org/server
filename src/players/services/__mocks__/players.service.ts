@@ -7,16 +7,18 @@ import { plainToClass } from 'class-transformer';
 
 @Injectable()
 export class PlayersService {
-
   private lastId = 0;
   playerRegistered = new Subject<string>();
 
   constructor(
     @InjectModel(Player) private playerModel: ReturnModelType<typeof Player>,
-  ) { }
+  ) {}
 
   async getById(id: string) {
-    return plainToClass(Player, await this.playerModel.findById(id).orFail().lean().exec());
+    return plainToClass(
+      Player,
+      await this.playerModel.findById(id).orFail().lean().exec(),
+    );
   }
 
   async getAll() {
@@ -24,14 +26,17 @@ export class PlayersService {
   }
 
   async findBySteamId(steamId: string) {
-    return plainToClass(Player, await this.playerModel.findOne({ steamId }).orFail().lean().exec());
+    return plainToClass(
+      Player,
+      await this.playerModel.findOne({ steamId }).orFail().lean().exec(),
+    );
   }
 
   async _reset() {
-    await this.playerModel.deleteMany({ }).exec();
+    await this.playerModel.deleteMany({}).exec();
   }
 
-  async _createOne(overrides: Partial<Player> = { }) {
+  async _createOne(overrides: Partial<Player> = {}) {
     const player = {
       name: `fake_player_${++this.lastId}`,
       steamId: `steamid_${this.lastId}`,
@@ -41,5 +46,4 @@ export class PlayersService {
     };
     return await this.playerModel.create(player);
   }
-
 }

@@ -5,19 +5,15 @@ import { LogReceiverService } from './services/log-receiver/log-receiver.service
 
 const logReceiverProvider = {
   provide: LogReceiver,
-  useFactory: (environment: Environment) => new LogReceiver({
-    port: parseInt(environment.logRelayPort, 10),
-  }),
-  inject: [ Environment ],
+  useFactory: (environment: Environment) =>
+    new LogReceiver({
+      port: parseInt(environment.logRelayPort, 10),
+    }),
+  inject: [Environment],
 };
 
 @Module({
-  providers: [
-    logReceiverProvider,
-    LogReceiverService,
-  ],
-  exports: [
-    logReceiverProvider,
-  ],
+  providers: [logReceiverProvider, LogReceiverService],
+  exports: [logReceiverProvider],
 })
 export class LogReceiverModule {}

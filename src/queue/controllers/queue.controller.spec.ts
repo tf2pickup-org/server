@@ -57,7 +57,12 @@ describe('Queue Controller', () => {
     queueConfigService.queueConfig = { some_param: 'some_value' };
 
     queueService.slots = [
-      { id: 0, gameClass: Tf2ClassName.soldier, ready: false, playerId: 'FAKE_ID' },
+      {
+        id: 0,
+        gameClass: Tf2ClassName.soldier,
+        ready: false,
+        playerId: 'FAKE_ID',
+      },
       { id: 1, gameClass: Tf2ClassName.soldier, ready: false, playerId: null },
     ];
     queueService.state = 'waiting';
@@ -71,14 +76,28 @@ describe('Queue Controller', () => {
       },
     ]);
 
-    friendsService.friendships = [{ sourcePlayerId: 'FAKE_MEDIC', targetPlayerId: 'FAKE_DM_CLASS' }];
+    friendsService.friendships = [
+      { sourcePlayerId: 'FAKE_MEDIC', targetPlayerId: 'FAKE_DM_CLASS' },
+    ];
 
     // @ts-expect-error
     mapVoteService.results = [];
 
     playerPopulatorService.populatePlayers.mockResolvedValue([
-      { id: 0, gameClass: Tf2ClassName.soldier, ready: false, playerId: 'FAKE_ID', player: { id: 'FAKE_ID' } as Player },
-      { id: 1, gameClass: Tf2ClassName.soldier, ready: false, playerId: null, player: null },
+      {
+        id: 0,
+        gameClass: Tf2ClassName.soldier,
+        ready: false,
+        playerId: 'FAKE_ID',
+        player: { id: 'FAKE_ID' } as Player,
+      },
+      {
+        id: 1,
+        gameClass: Tf2ClassName.soldier,
+        ready: false,
+        playerId: null,
+        player: null,
+      },
     ]);
   });
 
@@ -102,7 +121,9 @@ describe('Queue Controller', () => {
 
   describe('#getQueueConfig()', () => {
     it('should return queue config', () => {
-      expect(controller.getQueueConfig()).toEqual(queueConfigService.queueConfig);
+      expect(controller.getQueueConfig()).toEqual(
+        queueConfigService.queueConfig,
+      );
     });
   });
 
@@ -115,8 +136,18 @@ describe('Queue Controller', () => {
   describe('#getQueueSlots()', () => {
     it('should return queue slots', () => {
       expect(controller.getQueueSlots()).toEqual([
-        { id: 0, gameClass: Tf2ClassName.soldier, ready: false, playerId: 'FAKE_ID' },
-        { id: 1, gameClass: Tf2ClassName.soldier, ready: false, playerId: null },
+        {
+          id: 0,
+          gameClass: Tf2ClassName.soldier,
+          ready: false,
+          playerId: 'FAKE_ID',
+        },
+        {
+          id: 1,
+          gameClass: Tf2ClassName.soldier,
+          ready: false,
+          playerId: null,
+        },
       ]);
     });
   });
@@ -149,7 +180,9 @@ describe('Queue Controller', () => {
 
   describe('#getFriendships()', () => {
     it('should return the frienships', () => {
-      expect(controller.getFriendships()).toEqual([{ sourcePlayerId: 'FAKE_MEDIC', targetPlayerId: 'FAKE_DM_CLASS' }]);
+      expect(controller.getFriendships()).toEqual([
+        { sourcePlayerId: 'FAKE_MEDIC', targetPlayerId: 'FAKE_DM_CLASS' },
+      ]);
     });
   });
 
@@ -161,25 +194,39 @@ describe('Queue Controller', () => {
     });
 
     it('should return the maps in the map pool', async () => {
-      expect(await controller.getMaps()).toEqual([{ name: 'cp_badlands', execConfig: 'etf2l_6v6_5cp' }]);
+      expect(await controller.getMaps()).toEqual([
+        { name: 'cp_badlands', execConfig: 'etf2l_6v6_5cp' },
+      ]);
     });
   });
 
   describe('#addMap()', () => {
     beforeEach(() => {
-      mapPoolService.addMap.mockResolvedValue({ name: 'cp_badlands', execConfig: 'etf2l_6v6_5cp' });
+      mapPoolService.addMap.mockResolvedValue({
+        name: 'cp_badlands',
+        execConfig: 'etf2l_6v6_5cp',
+      });
     });
 
     it('should add the map', async () => {
-      const ret = await controller.addMap({ name: 'cp_badlands', execConfig: 'etf2l_6v6_5cp' });
+      const ret = await controller.addMap({
+        name: 'cp_badlands',
+        execConfig: 'etf2l_6v6_5cp',
+      });
       expect(ret).toEqual({ name: 'cp_badlands', execConfig: 'etf2l_6v6_5cp' });
-      expect(mapPoolService.addMap).toHaveBeenCalledWith({ name: 'cp_badlands', execConfig: 'etf2l_6v6_5cp' })
+      expect(mapPoolService.addMap).toHaveBeenCalledWith({
+        name: 'cp_badlands',
+        execConfig: 'etf2l_6v6_5cp',
+      });
     });
   });
 
   describe('#deleteMap()', () => {
     beforeEach(() => {
-      mapPoolService.removeMap.mockResolvedValue({ name: 'cp_badlands', execConfig: 'etf2l_6v6_5cp' });
+      mapPoolService.removeMap.mockResolvedValue({
+        name: 'cp_badlands',
+        execConfig: 'etf2l_6v6_5cp',
+      });
     });
 
     it('should remote the map', async () => {
@@ -191,13 +238,25 @@ describe('Queue Controller', () => {
 
   describe('#setMaps()', () => {
     beforeEach(() => {
-      mapPoolService.setMaps.mockResolvedValue([{ name: 'cp_badlands' }, { name: 'cp_process_final', execConfig: 'etf2l_6v6_5cp' }]);
+      mapPoolService.setMaps.mockResolvedValue([
+        { name: 'cp_badlands' },
+        { name: 'cp_process_final', execConfig: 'etf2l_6v6_5cp' },
+      ]);
     });
 
     it('should set the maps', async () => {
-      const ret = await controller.setMaps([{ name: 'cp_badlands' }, { name: 'cp_process_final', execConfig: 'etf2l_6v6_5cp' }]);
-      expect(ret).toEqual([{ name: 'cp_badlands' }, { name: 'cp_process_final', execConfig: 'etf2l_6v6_5cp' }]);
-      expect(mapPoolService.setMaps).toHaveBeenCalledWith([{ name: 'cp_badlands' }, { name: 'cp_process_final', execConfig: 'etf2l_6v6_5cp' }]);
+      const ret = await controller.setMaps([
+        { name: 'cp_badlands' },
+        { name: 'cp_process_final', execConfig: 'etf2l_6v6_5cp' },
+      ]);
+      expect(ret).toEqual([
+        { name: 'cp_badlands' },
+        { name: 'cp_process_final', execConfig: 'etf2l_6v6_5cp' },
+      ]);
+      expect(mapPoolService.setMaps).toHaveBeenCalledWith([
+        { name: 'cp_badlands' },
+        { name: 'cp_process_final', execConfig: 'etf2l_6v6_5cp' },
+      ]);
     });
   });
 });

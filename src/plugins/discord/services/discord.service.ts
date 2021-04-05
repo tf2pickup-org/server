@@ -6,14 +6,11 @@ import { emojisToInstall } from '../emojis-to-install';
 
 @Injectable()
 export class DiscordService implements OnModuleInit {
-
   private client = new Client();
   private guild: Guild;
   private logger = new Logger(DiscordService.name);
 
-  constructor(
-    private environment: Environment,
-  ) { }
+  constructor(private environment: Environment) {}
 
   onModuleInit() {
     if (this.environment.discordBotToken) {
@@ -24,8 +21,9 @@ export class DiscordService implements OnModuleInit {
         this.installEmojis();
       });
 
-      this.client.login(this.environment.discordBotToken)
-        .catch(error => this.logger.error(error.toString()));
+      this.client
+        .login(this.environment.discordBotToken)
+        .catch((error) => this.logger.error(error.toString()));
     }
   }
 
@@ -38,46 +36,59 @@ export class DiscordService implements OnModuleInit {
   }
 
   findRole(name: string): Role | null {
-    return this.guild?.roles?.cache.find(role => role.name ===  name);
+    return this.guild?.roles?.cache.find((role) => role.name === name);
   }
 
   findEmoji(name: string): Emoji {
-    return this.guild?.emojis?.cache.find(emoji => emoji.name === name);
+    return this.guild?.emojis?.cache.find((emoji) => emoji.name === name);
   }
 
   private enable() {
-    this.guild = this.client.guilds.cache.find(guild => guild.name === this.environment.discordGuild);
+    this.guild = this.client.guilds.cache.find(
+      (guild) => guild.name === this.environment.discordGuild,
+    );
     if (!this.guild?.available) {
-      this.logger.warn(`guild '${this.environment.discordGuild}' is not available; discord notifications will not work`);
+      this.logger.warn(
+        `guild '${this.environment.discordGuild}' is not available; discord notifications will not work`,
+      );
     }
   }
 
   private findChannel(name: string) {
     return this.guild?.channels?.cache
-      .filter(c => c instanceof TextChannel)
-      .find(c => (c as TextChannel).name === name) as TextChannel;
+      .filter((c) => c instanceof TextChannel)
+      .find((c) => (c as TextChannel).name === name) as TextChannel;
   }
 
   private async installEmojis() {
     const installedEmojis: Emoji[] = [];
 
     for (const emoji of emojisToInstall) {
-      const found = this.guild?.emojis.cache.find(e => e.name === emoji.name);
+      const found = this.guild?.emojis.cache.find((e) => e.name === emoji.name);
       if (!found) {
         try {
-          const e = await this.guild.emojis.create(emoji.sourceUrl, emoji.name, { reason: 'required by the tf2pickup.org server' });
+          const e = await this.guild.emojis.create(
+            emoji.sourceUrl,
+            emoji.name,
+            { reason: 'required by the tf2pickup.org server' },
+          );
           installedEmojis.push(e);
           this.logger.log(`Installed emoji ${emoji.name}`);
         } catch (error) {
-          this.logger.error(`Failed installing emoji '${emoji.name}' (${error}).`);
+          this.logger.error(
+            `Failed installing emoji '${emoji.name}' (${error}).`,
+          );
         }
       }
     }
 
     if (installedEmojis.length > 0) {
-      this.getAdminsChannel()?.send(`The following emoji${installedEmojis.length > 1 ? 's have' : ' has'}` +
-        ` been installed: ${installedEmojis.map(e => e.toString()).join(' ')}`);
+      this.getAdminsChannel()?.send(
+        `The following emoji${installedEmojis.length > 1 ? 's have' : ' has'}` +
+          ` been installed: ${installedEmojis
+            .map((e) => e.toString())
+            .join(' ')}`,
+      );
     }
   }
-
 }

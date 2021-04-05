@@ -13,12 +13,16 @@ describe('setRedirectUrlCookie', () => {
   });
 
   it('should set the cookie', () => {
-    setRedirectUrlCookie({ query: { url: 'FAKE_URL' }} as any, response as any, nextFn);
+    setRedirectUrlCookie(
+      { query: { url: 'FAKE_URL' } } as any,
+      response as any,
+      nextFn,
+    );
     expect(response.cookie).toHaveBeenCalledWith('redirect-url', 'FAKE_URL');
   });
 
   it('should call the next function', () => {
-    setRedirectUrlCookie({ query: { }} as any, response as any, nextFn);
+    setRedirectUrlCookie({ query: {} } as any, response as any, nextFn);
     expect(nextFn).toHaveBeenCalled();
   });
 });

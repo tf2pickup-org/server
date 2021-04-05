@@ -2,7 +2,9 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { TwitchGateway } from './twitch.gateway';
 
 class SocketStub {
-  emit(ev: string, ...args:  any[]) { return null; }
+  emit(ev: string, ...args: any[]) {
+    return null;
+  }
 }
 
 describe('TwitchGateway', () => {

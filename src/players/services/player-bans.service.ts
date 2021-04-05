@@ -1,4 +1,10 @@
-import { Injectable, OnModuleInit, Logger, Inject, forwardRef } from '@nestjs/common';
+import {
+  Injectable,
+  OnModuleInit,
+  Logger,
+  Inject,
+  forwardRef,
+} from '@nestjs/common';
 import { InjectModel } from 'nestjs-typegoose';
 import { PlayerBan } from '../models/player-ban';
 import { ReturnModelType } from '@typegoose/typegoose';
@@ -11,42 +17,59 @@ import { WebsocketEvent } from '@/websocket-event';
 
 @Injectable()
 export class PlayerBansService implements OnModuleInit {
-
   private logger = new Logger(PlayerBansService.name);
 
   constructor(
-    @InjectModel(PlayerBan) private playerBanModel: ReturnModelType<typeof PlayerBan>,
+    @InjectModel(PlayerBan)
+    private playerBanModel: ReturnModelType<typeof PlayerBan>,
     private onlinePlayersService: OnlinePlayersService,
-    @Inject(forwardRef(() => PlayersService)) private playersService: PlayersService,
+    @Inject(forwardRef(() => PlayersService))
+    private playersService: PlayersService,
     private events: Events,
-  ) { }
+  ) {}
 
   onModuleInit() {
-    merge(
-      this.events.playerBanAdded,
-      this.events.playerBanRevoked,
-    ).subscribe(async ({ ban }) => {
-      const playerId = ban.player.toString();
-      const bans = await this.getPlayerActiveBans(playerId);
-      this.onlinePlayersService.getSocketsForPlayer(playerId).forEach(socket => socket.emit(WebsocketEvent.profileUpdate, { bans }));
-    });
+    merge(this.events.playerBanAdded, this.events.playerBanRevoked).subscribe(
+      async ({ ban }) => {
+        const playerId = ban.player.toString();
+        const bans = await this.getPlayerActiveBans(playerId);
+        this.onlinePlayersService
+          .getSocketsForPlayer(playerId)
+          .forEach((socket) =>
+            socket.emit(WebsocketEvent.profileUpdate, { bans }),
+          );
+      },
+    );
   }
 
   async getById(banId: string): Promise<PlayerBan> {
-    return plainToClass(PlayerBan, await this.playerBanModel.findById(banId).orFail().lean().exec());
+    return plainToClass(
+      PlayerBan,
+      await this.playerBanModel.findById(banId).orFail().lean().exec(),
+    );
   }
 
   async getPlayerBans(playerId: string): Promise<PlayerBan[]> {
-    return plainToClass(PlayerBan, await this.playerBanModel.find({ player: playerId }).sort({ start: -1 }).lean().exec());
+    return plainToClass(
+      PlayerBan,
+      await this.playerBanModel
+        .find({ player: playerId })
+        .sort({ start: -1 })
+        .lean()
+        .exec(),
+    );
   }
 
   async getPlayerActiveBans(playerId: string): Promise<PlayerBan[]> {
-    const plain = await this.playerBanModel.find({
-      player: playerId,
-      end: {
-        $gte: new Date(),
-      },
-    }).lean().exec();
+    const plain = await this.playerBanModel
+      .find({
+        player: playerId,
+        end: {
+          $gte: new Date(),
+        },
+      })
+      .lean()
+      .exec();
     return plainToClass(PlayerBan, plain);
   }
 
@@ -54,7 +77,9 @@ export class PlayerBansService implements OnModuleInit {
     const player = await this.playersService.getById(props.player.toString());
     const { id } = await this.playerBanModel.create(props);
     const addedBan = await this.getById(id);
-    this.logger.verbose(`ban added for player ${player.id} (reason: ${addedBan.reason})`);
+    this.logger.verbose(
+      `ban added for player ${player.id} (reason: ${addedBan.reason})`,
+    );
     this.events.playerBanAdded.next({ ban: addedBan });
     return addedBan;
   }
@@ -72,8 +97,17 @@ export class PlayerBansService implements OnModuleInit {
     return newBan;
   }
 
-  private async updateBan(banId: string, update: Partial<PlayerBan>): Promise<PlayerBan> {
-    return plainToClass(PlayerBan, await this.playerBanModel.findOneAndUpdate({ _id: banId }, update, { new: true }).orFail().lean().exec());
+  private async updateBan(
+    banId: string,
+    update: Partial<PlayerBan>,
+  ): Promise<PlayerBan> {
+    return plainToClass(
+      PlayerBan,
+      await this.playerBanModel
+        .findOneAndUpdate({ _id: banId }, update, { new: true })
+        .orFail()
+        .lean()
+        .exec(),
+    );
   }
-
 }

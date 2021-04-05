@@ -14,7 +14,6 @@ import { GameState } from '../models/game-state';
 
 @Injectable()
 export class GameRuntimeService {
-
   private logger = new Logger(GameRuntimeService.name);
 
   constructor(
@@ -22,9 +21,10 @@ export class GameRuntimeService {
     private gameServersService: GameServersService,
     private serverConfiguratorService: ServerConfiguratorService,
     private rconFactoryService: RconFactoryService,
-    @Inject(forwardRef(() => PlayersService)) private playersService: PlayersService,
+    @Inject(forwardRef(() => PlayersService))
+    private playersService: PlayersService,
     private events: Events,
-  ) { }
+  ) {}
 
   async reconfigure(gameId: string) {
     const game = await this.gamesService.getById(gameId);
@@ -42,9 +42,16 @@ export class GameRuntimeService {
     await game.save();
     this.events.gameChanges.next({ game });
 
-    const gameServer = await this.gameServersService.getById(game.gameServer.toString());
+    const gameServer = await this.gameServersService.getById(
+      game.gameServer.toString(),
+    );
     try {
-      const { connectString } = await this.serverConfiguratorService.configureServer(gameServer, game);
+      const {
+        connectString,
+      } = await this.serverConfiguratorService.configureServer(
+        gameServer,
+        game,
+      );
       game.connectString = connectString;
       await game.save();
       this.events.gameChanges.next({ game });
@@ -65,7 +72,9 @@ export class GameRuntimeService {
 
     game.state = GameState.interrupted;
     game.error = 'ended by admin';
-    game.slots.filter(s => s.status === SlotStatus.waitingForSubstitute).forEach(s => s.status = SlotStatus.active);
+    game.slots
+      .filter((s) => s.status === SlotStatus.waitingForSubstitute)
+      .forEach((s) => (s.status = SlotStatus.active));
     await game.save();
     this.events.gameChanges.next({ game, adminId });
     this.events.substituteRequestsChange.next();
@@ -77,7 +86,11 @@ export class GameRuntimeService {
     return game;
   }
 
-  async replacePlayer(gameId: string, replaceeId: string, replacementSlot: GameSlot) {
+  async replacePlayer(
+    gameId: string,
+    replaceeId: string,
+    replacementSlot: GameSlot,
+  ) {
     const game = await this.gamesService.getById(gameId);
     if (!game) {
       throw new Error('no such game');
@@ -87,14 +100,23 @@ export class GameRuntimeService {
       throw new Error('this game has no server assigned');
     }
 
-    const gameServer = await this.gameServersService.getById(game.gameServer.toString());
+    const gameServer = await this.gameServersService.getById(
+      game.gameServer.toString(),
+    );
     let rcon: Rcon;
 
     try {
       rcon = await this.rconFactoryService.createRcon(gameServer);
-      const player = isRefType(replacementSlot.player) ? await this.playersService.getById(replacementSlot.player) : replacementSlot.player;
+      const player = isRefType(replacementSlot.player)
+        ? await this.playersService.getById(replacementSlot.player)
+        : replacementSlot.player;
 
-      const cmd = addGamePlayer(player.steamId, player.name, replacementSlot.team, replacementSlot.gameClass);
+      const cmd = addGamePlayer(
+        player.steamId,
+        player.name,
+        replacementSlot.team,
+        replacementSlot.gameClass,
+      );
       this.logger.debug(cmd);
       await rcon.send(cmd);
 
@@ -103,7 +125,9 @@ export class GameRuntimeService {
       this.logger.debug(cmd2);
       await rcon.send(cmd2);
     } catch (e) {
-      this.logger.error(`Error replacing the player on the game server: ${e.message}`);
+      this.logger.error(
+        `Error replacing the player on the game server: ${e.message}`,
+      );
     } finally {
       await rcon?.end();
     }
@@ -137,5 +161,4 @@ export class GameRuntimeService {
       await rcon?.end();
     }
   }
-
 }

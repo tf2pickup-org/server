@@ -18,9 +18,13 @@ class HttpAdapterHostStub {
 }
 
 class AuthServiceStub {
-  authToken = 'eyJhbGciOiJFUzUxMiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVkNDQ4ODc1Yjk2M2ZmN2UwMGM2YjZiMyIsImlhdCI6MTU3Njc5NzQxNCwiZXhwIjoxNTc2Nzk4MzE0fQ.AXeWhEMSRS_kB7ISiRUt5vk9T71_mXUWevl_wT_tnyiS9vHQScMIY4qVzQnrx21FUwfyAmUVOdRdFNPpndGFPW4kARaPbeVkOSgF4vPt4MHJqvlXrA-B97Z7u9ahRqMFcdNyCIWbbR-bQ4592TJLdoGdx1Mqbc0brSYDlLaaG2aGPYN';
-  refreshToken = 'eyJhbGciOiJFUzUxMiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVkNDQ4ODc1Yjk2M2ZmN2UwMGM2YjZiMyIsImlhdCI6MTU3Njc5NzQxNCwiZXhwIjoxNTc3NDAyMjE0fQ.AAOwakFw8lKXRwmeLqPWksQTKjXqYVAb-Gc_sXhXolU36fPr69Flxgf5c2YZ6qCghZlloZ3TR5PaJ1PT3b2s1je5AfQw01fcZ56E10LGUyfLvV02Mgy5ler9PzbLi7sZzRs1QgDUeq3Ml9WYRIZirP_r9VxVS_4eDluP3NNlpFVqymDs';
-  generateJwtToken(name: string, userId: string) { return ''; }
+  authToken =
+    'eyJhbGciOiJFUzUxMiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVkNDQ4ODc1Yjk2M2ZmN2UwMGM2YjZiMyIsImlhdCI6MTU3Njc5NzQxNCwiZXhwIjoxNTc2Nzk4MzE0fQ.AXeWhEMSRS_kB7ISiRUt5vk9T71_mXUWevl_wT_tnyiS9vHQScMIY4qVzQnrx21FUwfyAmUVOdRdFNPpndGFPW4kARaPbeVkOSgF4vPt4MHJqvlXrA-B97Z7u9ahRqMFcdNyCIWbbR-bQ4592TJLdoGdx1Mqbc0brSYDlLaaG2aGPYN';
+  refreshToken =
+    'eyJhbGciOiJFUzUxMiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVkNDQ4ODc1Yjk2M2ZmN2UwMGM2YjZiMyIsImlhdCI6MTU3Njc5NzQxNCwiZXhwIjoxNTc3NDAyMjE0fQ.AAOwakFw8lKXRwmeLqPWksQTKjXqYVAb-Gc_sXhXolU36fPr69Flxgf5c2YZ6qCghZlloZ3TR5PaJ1PT3b2s1je5AfQw01fcZ56E10LGUyfLvV02Mgy5ler9PzbLi7sZzRs1QgDUeq3Ml9WYRIZirP_r9VxVS_4eDluP3NNlpFVqymDs';
+  generateJwtToken(name: string, userId: string) {
+    return '';
+  }
   refreshTokens(oldToken: string) {
     return {
       authToken: this.authToken,
@@ -63,20 +67,33 @@ describe('Auth Controller', () => {
     });
 
     it('should reject if the old refresh token is not present', async () => {
-      await expect(controller.refreshToken(undefined)).rejects.toThrow(BadRequestException);
+      await expect(controller.refreshToken(undefined)).rejects.toThrow(
+        BadRequestException,
+      );
     });
 
     it('should be rejected if the token is invalid', async () => {
-      jest.spyOn(authService, 'refreshTokens').mockRejectedValue('invalid token' as never);
-      await expect(controller.refreshToken('OLD_REFRESH_TOKEN')).rejects.toThrow(BadRequestException)
+      jest
+        .spyOn(authService, 'refreshTokens')
+        .mockRejectedValue('invalid token' as never);
+      await expect(
+        controller.refreshToken('OLD_REFRESH_TOKEN'),
+      ).rejects.toThrow(BadRequestException);
     });
   });
 
   describe('#refreshWsToken()', () => {
     it('should generate ws token', async () => {
-      const spy = jest.spyOn(authService, 'generateJwtToken').mockImplementation(() => 'FAKE_WS_TOKEN');
-      const result = await controller.refreshWsToken({ id: 'FAKE_USER_ID' } as Player);
-      expect(spy).toHaveBeenCalledWith(JwtTokenPurpose.websocket, 'FAKE_USER_ID');
+      const spy = jest
+        .spyOn(authService, 'generateJwtToken')
+        .mockImplementation(() => 'FAKE_WS_TOKEN');
+      const result = await controller.refreshWsToken({
+        id: 'FAKE_USER_ID',
+      } as Player);
+      expect(spy).toHaveBeenCalledWith(
+        JwtTokenPurpose.websocket,
+        'FAKE_USER_ID',
+      );
       expect(result).toEqual({ wsToken: 'FAKE_WS_TOKEN' });
     });
   });

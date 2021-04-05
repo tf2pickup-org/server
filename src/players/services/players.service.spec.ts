@@ -23,7 +23,7 @@ import { PlayerRole } from '../models/player-role';
 import { ConfigurationService } from '@/configuration/services/configuration.service';
 
 jest.mock('./etf2l-profile.service');
-jest.mock( './online-players.service');
+jest.mock('./online-players.service');
 jest.mock('@/configuration/services/configuration.service');
 
 class EnvironmentStub {
@@ -39,12 +39,18 @@ class GamesServiceStub {
     medic: 92,
   };
 
-  getPlayerGameCount(playerId: string, options: any) { return 220; }
-  getPlayerPlayedClassCount(playerId: string) { return this.classCount; }
+  getPlayerGameCount(playerId: string, options: any) {
+    return 220;
+  }
+  getPlayerPlayedClassCount(playerId: string) {
+    return this.classCount;
+  }
 }
 
 class SteamApiServiceStub {
-  getTf2InGameHours(steamId64: string) { return Promise.resolve(800); }
+  getTf2InGameHours(steamId64: string) {
+    return Promise.resolve(800);
+  }
 }
 
 describe('PlayersService', () => {
@@ -61,7 +67,7 @@ describe('PlayersService', () => {
   let socket: Socket;
   let configurationService: jest.Mocked<ConfigurationService>;
 
-  beforeAll(() => mongod = new MongoMemoryServer());
+  beforeAll(() => (mongod = new MongoMemoryServer()));
   afterAll(async () => await mongod.stop());
 
   beforeEach(async () => {
@@ -104,10 +110,7 @@ describe('PlayersService', () => {
     etf2lProfileService.fetchPlayerInfo.mockResolvedValue({
       // http://api.etf2l.org/player/112758
       bans: null,
-      classes: [
-        'Soldier',
-        'Medic',
-      ],
+      classes: ['Soldier', 'Medic'],
       country: 'Poland',
       id: 112758,
       name: 'maly',
@@ -121,7 +124,7 @@ describe('PlayersService', () => {
     await service.onModuleInit();
   });
 
-  afterEach(async () => await playerModel.deleteMany({ }));
+  afterEach(async () => await playerModel.deleteMany({}));
 
   it('should be defined', () => {
     expect(service).toBeDefined();
@@ -183,11 +186,13 @@ describe('PlayersService', () => {
 
     it('should query playerModel', async () => {
       const player = await service.findByTwitchUserId('FAKE_TWITCH_TV_USER_ID');
-      expect(player).toEqual(expect.objectContaining({
-        twitchTvUser: expect.objectContaining({
-          userId: 'FAKE_TWITCH_TV_USER_ID',
+      expect(player).toEqual(
+        expect.objectContaining({
+          twitchTvUser: expect.objectContaining({
+            userId: 'FAKE_TWITCH_TV_USER_ID',
+          }),
         }),
-      }));
+      );
     });
   });
 
@@ -195,7 +200,7 @@ describe('PlayersService', () => {
     it('should find the bot', async () => {
       expect(await service.findBot()).toMatchObject({
         name: 'FAKE_BOT_NAME',
-        roles: [ PlayerRole.bot ],
+        roles: [PlayerRole.bot],
       });
     });
   });
@@ -217,13 +222,17 @@ describe('PlayersService', () => {
       configurationService.getMinimumTf2InGameHours.mockResolvedValue(500);
     });
 
-    describe('when an ETF2L profile doesn\'t exist', () => {
+    describe("when an ETF2L profile doesn't exist", () => {
       beforeEach(() => {
-        etf2lProfileService.fetchPlayerInfo.mockRejectedValue(new Error('no etf2l profile'));
+        etf2lProfileService.fetchPlayerInfo.mockRejectedValue(
+          new Error('no etf2l profile'),
+        );
       });
 
       it('should deny creating tf2pickup.pl profile', async () => {
-        await expect(service.createPlayer(mockSteamProfile)).rejects.toThrowError('no etf2l profile');
+        await expect(
+          service.createPlayer(mockSteamProfile),
+        ).rejects.toThrowError('no etf2l profile');
       });
     });
 
@@ -237,22 +246,22 @@ describe('PlayersService', () => {
             start: 0,
           },
         ],
-        classes: [
-          'Scout',
-          'Soldier',
-          'Sniper',
-        ],
+        classes: ['Scout', 'Soldier', 'Sniper'],
         country: 'Russia',
         id: 129205,
         name: 'Tixx',
       };
 
       beforeEach(() => {
-        etf2lProfileService.fetchPlayerInfo.mockResolvedValue(blacklistedProfile);
+        etf2lProfileService.fetchPlayerInfo.mockResolvedValue(
+          blacklistedProfile,
+        );
       });
 
       it('should deny creating tf2pickup.pl profile', async () => {
-        await expect(service.createPlayer(mockSteamProfile)).rejects.toThrowError('this account is banned on ETF2L');
+        await expect(
+          service.createPlayer(mockSteamProfile),
+        ).rejects.toThrowError('this account is banned on ETF2L');
       });
     });
 
@@ -277,14 +286,15 @@ describe('PlayersService', () => {
       expect(ret.roles.includes(PlayerRole.superUser)).toBe(true);
     });
 
-    it('should emit the playerRegisters event', async () => new Promise<void>(resolve => {
-      events.playerRegisters.subscribe(({ player }) => {
-        expect(player).toBeTruthy();
-        expect(player.steamId).toEqual(mockSteamProfile.id);
-        resolve();
-      });
-      service.createPlayer(mockSteamProfile);
-    }));
+    it('should emit the playerRegisters event', async () =>
+      new Promise<void>((resolve) => {
+        events.playerRegisters.subscribe(({ player }) => {
+          expect(player).toBeTruthy();
+          expect(player.steamId).toEqual(mockSteamProfile.id);
+          resolve();
+        });
+        service.createPlayer(mockSteamProfile);
+      }));
 
     describe('when TF2 in-game hours requirements are not met', () => {
       beforeEach(() => {
@@ -292,17 +302,23 @@ describe('PlayersService', () => {
       });
 
       it('should deny', async () => {
-        await expect(service.createPlayer(mockSteamProfile)).rejects.toThrow(InsufficientTf2InGameHoursError);
+        await expect(service.createPlayer(mockSteamProfile)).rejects.toThrow(
+          InsufficientTf2InGameHoursError,
+        );
       });
     });
 
     describe('when TF2 in-game hours could not be fetched', () => {
       beforeEach(() => {
-        jest.spyOn(steamApiService, 'getTf2InGameHours').mockRejectedValue(new Tf2InGameHoursVerificationError(''));
+        jest
+          .spyOn(steamApiService, 'getTf2InGameHours')
+          .mockRejectedValue(new Tf2InGameHoursVerificationError(''));
       });
 
       it('should deny', async () => {
-        await expect(service.createPlayer(mockSteamProfile)).rejects.toThrow(Tf2InGameHoursVerificationError);
+        await expect(service.createPlayer(mockSteamProfile)).rejects.toThrow(
+          Tf2InGameHoursVerificationError,
+        );
       });
 
       describe('and nobody cares', () => {
@@ -311,7 +327,9 @@ describe('PlayersService', () => {
         });
 
         it('should pass', async () => {
-          await expect(service.createPlayer(mockSteamProfile)).resolves.toBeTruthy();
+          await expect(
+            service.createPlayer(mockSteamProfile),
+          ).resolves.toBeTruthy();
         });
       });
     });
@@ -319,16 +337,25 @@ describe('PlayersService', () => {
 
   describe('#forceCreatePlayer()', () => {
     it('should create player', async () => {
-      const player = await service.forceCreatePlayer({ name: 'FAKE_FORCE_PLAYER_NAME', steamId: 'FAKE_FORCE_STEAM_ID' });
-      expect(player).toMatchObject({ name: 'FAKE_FORCE_PLAYER_NAME', steamId: 'FAKE_FORCE_STEAM_ID' });
+      const player = await service.forceCreatePlayer({
+        name: 'FAKE_FORCE_PLAYER_NAME',
+        steamId: 'FAKE_FORCE_STEAM_ID',
+      });
+      expect(player).toMatchObject({
+        name: 'FAKE_FORCE_PLAYER_NAME',
+        steamId: 'FAKE_FORCE_STEAM_ID',
+      });
       expect(await playerModel.findById(player._id)).toBeTruthy();
     });
 
     describe('when the player has ETF2L account', () => {
       it('should automatically assign ETF2L id', async () => {
-        const player = await service.forceCreatePlayer({ name: 'FAKE_FORCE_PLAYER_NAME', steamId: 'FAKE_FORCE_STEAM_ID' });
+        const player = await service.forceCreatePlayer({
+          name: 'FAKE_FORCE_PLAYER_NAME',
+          steamId: 'FAKE_FORCE_STEAM_ID',
+        });
         expect(player.etf2lProfileId).toEqual(112758);
-      })
+      });
     });
   });
 
@@ -340,15 +367,20 @@ describe('PlayersService', () => {
 
     describe('when the given user does not exist', () => {
       it('should throw an error', async () => {
-        await expect(service.registerTwitchAccount(new ObjectId().toString(), {
-          userId: 'FAKE_TWITCH_TV_USER_ID',
-          login: 'FAKE_TWITCH_TV_LOGIN',
-        })).rejects.toThrow(mongoose.Error.DocumentNotFoundError);
+        await expect(
+          service.registerTwitchAccount(new ObjectId().toString(), {
+            userId: 'FAKE_TWITCH_TV_USER_ID',
+            login: 'FAKE_TWITCH_TV_LOGIN',
+          }),
+        ).rejects.toThrow(mongoose.Error.DocumentNotFoundError);
       });
     });
 
     it('should save the twitch user id', async () => {
-      const ret = await service.registerTwitchAccount(mockPlayer.id, twitchTvUser);
+      const ret = await service.registerTwitchAccount(
+        mockPlayer.id,
+        twitchTvUser,
+      );
       expect(ret.twitchTvUser).toEqual(expect.objectContaining(twitchTvUser));
     });
 
@@ -358,7 +390,7 @@ describe('PlayersService', () => {
 
       await service.registerTwitchAccount(mockPlayer.id, twitchTvUser);
       expect(socket.emit).toHaveBeenCalledWith(WebsocketEvent.profileUpdate, {
-        player: expect.objectContaining({ twitchTvUser })
+        player: expect.objectContaining({ twitchTvUser }),
       });
     });
   });
@@ -375,7 +407,9 @@ describe('PlayersService', () => {
     it('should remove the twitchTvProfile', async () => {
       const ret = await service.removeTwitchTvProfile(mockPlayer.id);
       expect(ret.twitchTvUser).toBe(undefined);
-      expect((await playerModel.findById(mockPlayer.id)).twitchTvUser).toBe(undefined);
+      expect((await playerModel.findById(mockPlayer.id)).twitchTvUser).toBe(
+        undefined,
+      );
     });
   });
 
@@ -409,27 +443,42 @@ describe('PlayersService', () => {
     });
 
     it('should update player name', async () => {
-      const ret = await service.updatePlayer(mockPlayer.id, { name: 'NEW_NAME' }, admin.id);
+      const ret = await service.updatePlayer(
+        mockPlayer.id,
+        { name: 'NEW_NAME' },
+        admin.id,
+      );
       expect(ret.name).toEqual('NEW_NAME');
     });
 
     it('should update player roles', async () => {
-      const ret1 = await service.updatePlayer(mockPlayer.id, { roles: [ PlayerRole.admin ] }, admin.id);
-      expect(ret1.roles).toEqual([ PlayerRole.admin ]);
+      const ret1 = await service.updatePlayer(
+        mockPlayer.id,
+        { roles: [PlayerRole.admin] },
+        admin.id,
+      );
+      expect(ret1.roles).toEqual([PlayerRole.admin]);
 
-      const ret2 = await service.updatePlayer(mockPlayer.id, { roles: [] }, admin.id);
+      const ret2 = await service.updatePlayer(
+        mockPlayer.id,
+        { roles: [] },
+        admin.id,
+      );
       expect(ret2.roles).toEqual([]);
     });
 
     it('should emit updated player over websocket', async () => {
       await service.updatePlayer(mockPlayer.id, { name: 'NEW_NAME' }, admin.id);
-      expect(socket.emit).toHaveBeenCalledWith(WebsocketEvent.profileUpdate,
-        { player: expect.objectContaining({ name: 'NEW_NAME' }) });
+      expect(socket.emit).toHaveBeenCalledWith(WebsocketEvent.profileUpdate, {
+        player: expect.objectContaining({ name: 'NEW_NAME' }),
+      });
     });
 
     describe('when the given player does not exist', () => {
       it('should reject', async () => {
-        await expect(service.updatePlayer(new ObjectId().toString(), { }, admin.id)).rejects.toThrowError();
+        await expect(
+          service.updatePlayer(new ObjectId().toString(), {}, admin.id),
+        ).rejects.toThrowError();
       });
     });
   });
@@ -440,8 +489,10 @@ describe('PlayersService', () => {
       expect(ret.hasAcceptedRules).toBe(true);
     });
 
-    it('should fail if the given user doesn\'t exist', async () => {
-      await expect(service.acceptTerms(new ObjectId().toString())).rejects.toThrow(mongoose.Error.DocumentNotFoundError);
+    it("should fail if the given user doesn't exist", async () => {
+      await expect(
+        service.acceptTerms(new ObjectId().toString()),
+      ).rejects.toThrow(mongoose.Error.DocumentNotFoundError);
     });
   });
 
@@ -452,10 +503,10 @@ describe('PlayersService', () => {
         player: 'FAKE_ID',
         gamesPlayed: 220,
         classesPlayed: new Map([
-          [ Tf2ClassName.scout, 19 ],
-          [ Tf2ClassName.soldier, 102 ],
-          [ Tf2ClassName.demoman, 0 ],
-          [ Tf2ClassName.medic, 92 ],
+          [Tf2ClassName.scout, 19],
+          [Tf2ClassName.soldier, 102],
+          [Tf2ClassName.demoman, 0],
+          [Tf2ClassName.medic, 92],
         ]),
       });
     });

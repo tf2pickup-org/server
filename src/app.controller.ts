@@ -4,10 +4,7 @@ import { Environment } from './environment/environment';
 
 @Controller()
 export class AppController {
-
-  constructor(
-    private environment: Environment,
-  ) { }
+  constructor(private environment: Environment) {}
 
   @Get()
   index() {

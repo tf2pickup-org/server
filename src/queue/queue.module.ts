@@ -21,9 +21,7 @@ import { Map } from './models/map';
 
 @Module({
   imports: [
-    TypegooseModule.forFeature([
-      standardSchemaOptions(Map),
-    ]),
+    TypegooseModule.forFeature([standardSchemaOptions(Map)]),
 
     forwardRef(() => PlayersModule),
     forwardRef(() => GamesModule),
@@ -39,10 +37,14 @@ import { Map } from './models/map';
     {
       provide: 'QUEUE_CONFIG_JSON',
       useFactory: async (environment: Environment) => {
-        const configFileName = join('configs', 'queue', `${environment.queueConfig}.json`);
+        const configFileName = join(
+          'configs',
+          'queue',
+          `${environment.queueConfig}.json`,
+        );
         return promisify(readFile)(configFileName, 'utf-8');
       },
-      inject: [ Environment ],
+      inject: [Environment],
     },
     PlayerPopulatorService,
     MapPoolService,
@@ -54,8 +56,6 @@ import { Map } from './models/map';
     QueueGateway,
     MapPoolService,
   ],
-  controllers: [
-    QueueController,
-  ],
+  controllers: [QueueController],
 })
-export class QueueModule { }
+export class QueueModule {}

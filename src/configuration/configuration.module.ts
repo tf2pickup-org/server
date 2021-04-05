@@ -15,14 +15,8 @@ import { ConfigurationEntry } from './models/configuration-entry';
       },
     ]),
   ],
-  providers: [
-    ConfigurationService,
-  ],
-  controllers: [
-    ConfigurationController,
-  ],
-  exports: [
-    ConfigurationService,
-  ],
+  providers: [ConfigurationService],
+  controllers: [ConfigurationController],
+  exports: [ConfigurationService],
 })
-export class ConfigurationModule { }
+export class ConfigurationModule {}

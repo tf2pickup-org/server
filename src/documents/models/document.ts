@@ -5,7 +5,6 @@ import { IsLocale, IsOptional, IsString } from 'class-validator';
 @Exclude()
 @index({ name: 1, language: 1 }, { unique: true })
 export class Document {
-
   @IsString()
   @Expose()
   @prop({ required: true })
@@ -21,5 +20,4 @@ export class Document {
   @Expose()
   @prop()
   body?: string;
-
 }

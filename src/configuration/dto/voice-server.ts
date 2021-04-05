@@ -3,7 +3,6 @@ import { ConfigurationEntryKey } from '../models/configuration-entry-key';
 import { MumbleOptions } from '../models/mumble-options';
 
 export class VoiceServer {
-
   constructor(value: MumbleOptions) {
     this.key = ConfigurationEntryKey.voiceServer;
     this.value = value;
@@ -13,5 +12,4 @@ export class VoiceServer {
   key: string;
 
   value: MumbleOptions;
-
 }

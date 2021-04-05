@@ -9,13 +9,9 @@ export interface Friendship {
 
 @Injectable()
 export class FriendsService implements OnModuleInit {
-
   friendships: Friendship[] = [];
 
-  constructor(
-    private queueService: QueueService,
-    private events: Events,
-  ) { }
+  constructor(private queueService: QueueService, private events: Events) {}
 
   onModuleInit() {
     this.events.queueSlotsChange.subscribe(() => this.cleanupFriendships());
@@ -26,13 +22,18 @@ export class FriendsService implements OnModuleInit {
       throw new Error('cannot make friends at this stage');
     }
 
-    if (targetPlayerId === null) { // only removing frienship
+    if (targetPlayerId === null) {
+      // only removing frienship
       this.friendships = [
-        ...this.friendships.filter(f => f.sourcePlayerId !== sourcePlayerId),
+        ...this.friendships.filter((f) => f.sourcePlayerId !== sourcePlayerId),
       ];
     } else {
-      const sourcePlayerSlot = this.queueService.findSlotByPlayerId(sourcePlayerId);
-      const targetPlayerSlot = this.queueService.findSlotByPlayerId(targetPlayerId);
+      const sourcePlayerSlot = this.queueService.findSlotByPlayerId(
+        sourcePlayerId,
+      );
+      const targetPlayerSlot = this.queueService.findSlotByPlayerId(
+        targetPlayerId,
+      );
       if (!sourcePlayerSlot || !targetPlayerSlot) {
         throw new Error('player not in the queue');
       }
@@ -45,12 +46,17 @@ export class FriendsService implements OnModuleInit {
         throw new Error('cannot make the other medic as a friend');
       }
 
-      if (targetPlayerId !== null && !!this.friendships.find(f => f.targetPlayerId === targetPlayerId)) {
-        throw new Error('this player is already marked as a friend by another player');
+      if (
+        targetPlayerId !== null &&
+        !!this.friendships.find((f) => f.targetPlayerId === targetPlayerId)
+      ) {
+        throw new Error(
+          'this player is already marked as a friend by another player',
+        );
       }
 
       this.friendships = [
-        ...this.friendships.filter(f => f.sourcePlayerId !== sourcePlayerId),
+        ...this.friendships.filter((f) => f.sourcePlayerId !== sourcePlayerId),
         { sourcePlayerId, targetPlayerId },
       ];
     }
@@ -60,8 +66,11 @@ export class FriendsService implements OnModuleInit {
   }
 
   private cleanupFriendships() {
-    this.friendships = this.friendships.filter(f => this.queueService.findSlotByPlayerId(f.sourcePlayerId)?.gameClass === 'medic');
+    this.friendships = this.friendships.filter(
+      (f) =>
+        this.queueService.findSlotByPlayerId(f.sourcePlayerId)?.gameClass ===
+        'medic',
+    );
     this.events.queueFriendshipsChange.next({ friendships: this.friendships });
   }
-
 }

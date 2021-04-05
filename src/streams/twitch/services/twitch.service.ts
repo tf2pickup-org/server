@@ -44,7 +44,6 @@ interface TwitchGetStreamsResponse {
 
 @Injectable()
 export class TwitchService implements OnModuleInit {
-
   private logger = new Logger(TwitchService.name);
   private _streams = new BehaviorSubject<TwitchStream[]>([]);
 
@@ -59,47 +58,60 @@ export class TwitchService implements OnModuleInit {
     private twitchGateway: TwitchGateway,
     private twitchAuthService: TwitchAuthService,
     private playerBansService: PlayerBansService,
-  ) { }
+  ) {}
 
   onModuleInit() {
-    this._streams.pipe(
-      distinctUntilChanged((x, y) => JSON.stringify(x) === JSON.stringify(y)),
-    ).subscribe(streams => this.twitchGateway.emitStreamsUpdate(streams));
+    this._streams
+      .pipe(
+        distinctUntilChanged((x, y) => JSON.stringify(x) === JSON.stringify(y)),
+      )
+      .subscribe((streams) => this.twitchGateway.emitStreamsUpdate(streams));
   }
 
   async fetchUserProfile(accessToken: string) {
     // https://dev.twitch.tv/docs/api/reference#get-users
-    return this.httpService.get<TwitchGetUsersResponse>(`${twitchTvApiEndpoint}/users`, {
-      headers: {
-        'Authorization': `Bearer ${accessToken}`,
-        'Client-ID': this.environment.twitchClientId,
-      },
-    }).pipe(
-      map(response => response.data.data[0]),
-    ).toPromise();
+    return this.httpService
+      .get<TwitchGetUsersResponse>(`${twitchTvApiEndpoint}/users`, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          'Client-ID': this.environment.twitchClientId,
+        },
+      })
+      .pipe(map((response) => response.data.data[0]))
+      .toPromise();
   }
 
   @Cron(CronExpression.EVERY_MINUTE)
   async pollUsersStreams() {
     const users = await this.playersService.getUsersWithTwitchTvAccount();
     if (users.length > 0) {
-      const rawStreams = await this.fetchStreams(users.map(u => u.twitchTvUser.userId));
-      const streams = (await Promise.all(rawStreams.map(async s => {
-        const player = await this.playersService.findByTwitchUserId(s.user_id);
-        const bans = await this.playerBansService.getPlayerActiveBans(player.id);
-        if (bans.length > 0) {
-          return null;
-        } else {
-          return {
-            playerId: player.id,
-            id: s.id,
-            userName: s.user_name,
-            title: s.title,
-            thumbnailUrl: s.thumbnail_url,
-            viewerCount: s.viewer_count,
-          };
-        }
-      }))).filter(stream => !!stream);
+      const rawStreams = await this.fetchStreams(
+        users.map((u) => u.twitchTvUser.userId),
+      );
+      const streams = (
+        await Promise.all(
+          rawStreams.map(async (s) => {
+            const player = await this.playersService.findByTwitchUserId(
+              s.user_id,
+            );
+            const bans = await this.playerBansService.getPlayerActiveBans(
+              player.id,
+            );
+            if (bans.length > 0) {
+              return null;
+            } else {
+              return {
+                playerId: player.id,
+                id: s.id,
+                userName: s.user_name,
+                title: s.title,
+                thumbnailUrl: s.thumbnail_url,
+                viewerCount: s.viewer_count,
+              };
+            }
+          }),
+        )
+      ).filter((stream) => !!stream);
       this._streams.next(streams);
       this.logger.debug('streams refreshed');
     }
@@ -107,17 +119,17 @@ export class TwitchService implements OnModuleInit {
 
   private async fetchStreams(users: string[]) {
     // https://dev.twitch.tv/docs/api/reference#get-streams
-    return this.httpService.get<TwitchGetStreamsResponse>(`${twitchTvApiEndpoint}/streams`, {
-      params: {
-        user_id: users,
-      },
-      headers: {
-        'Client-ID': this.environment.twitchClientId,
-        'Authorization': `Bearer ${await this.twitchAuthService.getAppAccessToken()}`,
-      },
-    }).pipe(
-      map(response => response.data.data),
-    ).toPromise();
+    return this.httpService
+      .get<TwitchGetStreamsResponse>(`${twitchTvApiEndpoint}/streams`, {
+        params: {
+          user_id: users,
+        },
+        headers: {
+          'Client-ID': this.environment.twitchClientId,
+          Authorization: `Bearer ${await this.twitchAuthService.getAppAccessToken()}`,
+        },
+      })
+      .pipe(map((response) => response.data.data))
+      .toPromise();
   }
-
 }

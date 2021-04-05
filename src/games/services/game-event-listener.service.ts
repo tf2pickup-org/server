@@ -19,7 +19,6 @@ interface GameEvent {
 
 @Injectable()
 export class GameEventListenerService implements OnModuleInit {
-
   private logger = new Logger(GameEventListenerService.name);
 
   // events
@@ -27,12 +26,12 @@ export class GameEventListenerService implements OnModuleInit {
     {
       name: 'match started',
       regex: /^[\d/\s-:]+World triggered "Round_Start"$/,
-      handle: gameId => this.gameEventHandlerService.onMatchStarted(gameId),
+      handle: (gameId) => this.gameEventHandlerService.onMatchStarted(gameId),
     },
     {
       name: 'match ended',
       regex: /^[\d/\s-:]+World triggered "Game_Over" reason ".*"$/,
-      handle: gameId => this.gameEventHandlerService.onMatchEnded(gameId),
+      handle: (gameId) => this.gameEventHandlerService.onMatchEnded(gameId),
     },
     {
       name: 'logs uploaded',
@@ -49,7 +48,10 @@ export class GameEventListenerService implements OnModuleInit {
       handle: (gameId, matches) => {
         const steamId = new SteamID(matches[5]);
         if (steamId.isValid()) {
-          this.gameEventHandlerService.onPlayerJoining(gameId, steamId.getSteamID64());
+          this.gameEventHandlerService.onPlayerJoining(
+            gameId,
+            steamId.getSteamID64(),
+          );
         }
       },
     },
@@ -60,7 +62,10 @@ export class GameEventListenerService implements OnModuleInit {
       handle: (gameId, matches) => {
         const steamId = new SteamID(matches[5]);
         if (steamId.isValid()) {
-          this.gameEventHandlerService.onPlayerConnected(gameId, steamId.getSteamID64());
+          this.gameEventHandlerService.onPlayerConnected(
+            gameId,
+            steamId.getSteamID64(),
+          );
         }
       },
     },
@@ -71,7 +76,10 @@ export class GameEventListenerService implements OnModuleInit {
       handle: (gameId, matches) => {
         const steamId = new SteamID(matches[5]);
         if (steamId.isValid()) {
-          this.gameEventHandlerService.onPlayerDisconnected(gameId, steamId.getSteamID64());
+          this.gameEventHandlerService.onPlayerDisconnected(
+            gameId,
+            steamId.getSteamID64(),
+          );
         }
       },
     },
@@ -91,7 +99,7 @@ export class GameEventListenerService implements OnModuleInit {
       handle: (gameId, matches) => {
         const demoUrl = matches[1];
         this.gameEventHandlerService.onDemoUploaded(gameId, demoUrl);
-      }
+      },
     },
   ];
 
@@ -100,30 +108,43 @@ export class GameEventListenerService implements OnModuleInit {
     private gameSeversService: GameServersService,
     private gamesService: GamesService,
     private logReceiver: LogReceiver,
-  ) { }
+  ) {}
 
   onModuleInit() {
-    this.logger.verbose(`listening for incoming logs at ${this.logReceiver.opts.address}:${this.logReceiver.opts.port}`);
+    this.logger.verbose(
+      `listening for incoming logs at ${this.logReceiver.opts.address}:${this.logReceiver.opts.port}`,
+    );
 
     this.logReceiver.on('data', (msg: LogMessage) => {
       if (msg.isValid) {
         this.logger.debug(msg.message);
-        this.testForGameEvent(msg.message, { address: msg.receivedFrom.address, port: msg.receivedFrom.port });
+        this.testForGameEvent(msg.message, {
+          address: msg.receivedFrom.address,
+          port: msg.receivedFrom.port,
+        });
       }
     });
   }
 
-  private async testForGameEvent(message: string, eventSource: { address: string, port: number }) {
+  private async testForGameEvent(
+    message: string,
+    eventSource: { address: string; port: number },
+  ) {
     for (const gameEvent of this.gameEvents) {
       const matches = message.match(gameEvent.regex);
       if (matches) {
-        const gameServer = await this.gameSeversService.getGameServerByEventSource(eventSource);
-        const game = isRefType(gameServer.game) ? await this.gamesService.getById(gameServer.game) : gameServer.game;
-        this.logger.debug(`#${game.number}/${gameServer.name}: ${gameEvent.name}`);
+        const gameServer = await this.gameSeversService.getGameServerByEventSource(
+          eventSource,
+        );
+        const game = isRefType(gameServer.game)
+          ? await this.gamesService.getById(gameServer.game)
+          : gameServer.game;
+        this.logger.debug(
+          `#${game.number}/${gameServer.name}: ${gameEvent.name}`,
+        );
         gameEvent.handle(game.id, matches);
         break;
       }
     }
   }
-
 }

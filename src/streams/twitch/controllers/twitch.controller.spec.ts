@@ -15,16 +15,18 @@ class TwitchServiceStub {
       id: '1495594625',
       userName: 'H2P_Gucio',
       title: 'Bliżej niż dalej :)  / 10 zgonów = gift sub',
-      thumbnailUrl: 'https://static-cdn.jtvnw.net/previews-ttv/live_user_h2p_gucio-{width}x{height}.jpg',
-      viewerCount: 5018
+      thumbnailUrl:
+        'https://static-cdn.jtvnw.net/previews-ttv/live_user_h2p_gucio-{width}x{height}.jpg',
+      viewerCount: 5018,
     },
     {
       playerId: '5d44887bb963ff7e00c6b6bb',
       id: '1494755665',
       userName: 'xEmtek',
       title: 'SPEEDRUN do 1 rangi - ciąg dalszy ',
-      thumbnailUrl: 'https://static-cdn.jtvnw.net/previews-ttv/live_user_xemtek-{width}x{height}.jpg',
-      viewerCount: 703
+      thumbnailUrl:
+        'https://static-cdn.jtvnw.net/previews-ttv/live_user_xemtek-{width}x{height}.jpg',
+      viewerCount: 703,
     },
   ];
   fetchUserProfile(token: string) {
@@ -38,18 +40,28 @@ class TwitchServiceStub {
 }
 
 class TwitchAuthServiceStub {
-  getOauthRedirectUrl(state: string) { return `FAKE_REDIRECT_URL?state=${state}`; }
-  fetchUserAccessToken(code: string) { return Promise.resolve('FAKE_TOKEN'); }
+  getOauthRedirectUrl(state: string) {
+    return `FAKE_REDIRECT_URL?state=${state}`;
+  }
+  fetchUserAccessToken(code: string) {
+    return Promise.resolve('FAKE_TOKEN');
+  }
 }
 
 class PlayersServiceStub {
-  registerTwitchAccount(playerId: string, twitchUserId: string) { return Promise.resolve(); }
+  registerTwitchAccount(playerId: string, twitchUserId: string) {
+    return Promise.resolve();
+  }
   removeTwitchTvProfile = jest.fn().mockResolvedValue({ id: 'FAKE_USER_ID' });
 }
 
 class AuthServiceStub {
-  verifyToken(purpose, token) { return { id: 'FAKE_USER_ID' }; }
-  generateJwtToken(purpose, userId) { return Promise.resolve('FAKE_JWT'); }
+  verifyToken(purpose, token) {
+    return { id: 'FAKE_USER_ID' };
+  }
+  generateJwtToken(purpose, userId) {
+    return Promise.resolve('FAKE_JWT');
+  }
 }
 
 describe('Twitch Controller', () => {
@@ -89,11 +101,15 @@ describe('Twitch Controller', () => {
 
     describe('if the jwt is incorrect', () => {
       beforeEach(() => {
-        jest.spyOn(authService, 'verifyToken').mockImplementation(() => { throw new JsonWebTokenError('FAKE_ERROR'); });
+        jest.spyOn(authService, 'verifyToken').mockImplementation(() => {
+          throw new JsonWebTokenError('FAKE_ERROR');
+        });
       });
 
       it('should return 400', async () => {
-        await expect(controller.authenticate('FAKE_TOKEN')).rejects.toThrow(BadRequestException);
+        await expect(controller.authenticate('FAKE_TOKEN')).rejects.toThrow(
+          BadRequestException,
+        );
       });
     });
   });
@@ -112,9 +128,11 @@ describe('Twitch Controller', () => {
   });
 
   describe('#disconnect()', () => {
-    it('should remove twitch.tv profile from the user\'s account', async () => {
+    it("should remove twitch.tv profile from the user's account", async () => {
       const ret = await controller.disconnect({ id: 'FAKE_USER_ID' } as Player);
-      expect(playersService.removeTwitchTvProfile).toHaveBeenCalledWith('FAKE_USER_ID');
+      expect(playersService.removeTwitchTvProfile).toHaveBeenCalledWith(
+        'FAKE_USER_ID',
+      );
       expect(ret).toEqual({ id: 'FAKE_USER_ID' });
     });
   });

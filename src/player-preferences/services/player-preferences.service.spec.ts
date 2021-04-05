@@ -12,7 +12,7 @@ describe('PlayerPreferencesService', () => {
   let mongod: MongoMemoryServer;
   let playerPreferencesModel: ReturnModelType<typeof PlayerPreferences>;
 
-  beforeAll(() => mongod = new MongoMemoryServer());
+  beforeAll(() => (mongod = new MongoMemoryServer()));
   afterAll(async () => await mongod.stop());
 
   beforeEach(async () => {
@@ -21,9 +21,7 @@ describe('PlayerPreferencesService', () => {
         typegooseTestingModule(mongod),
         TypegooseModule.forFeature([PlayerPreferences]),
       ],
-      providers: [
-        PlayerPreferencesService,
-      ],
+      providers: [PlayerPreferencesService],
     }).compile();
 
     service = module.get<PlayerPreferencesService>(PlayerPreferencesService);
@@ -31,7 +29,7 @@ describe('PlayerPreferencesService', () => {
   });
 
   afterEach(async () => {
-    await playerPreferencesModel.deleteMany({ });
+    await playerPreferencesModel.deleteMany({});
   });
 
   it('should be defined', () => {
@@ -73,10 +71,15 @@ describe('PlayerPreferencesService', () => {
 
     describe('when saving for the first time', () => {
       it('should upsert', async () => {
-        const prefs = await service.updatePlayerPreferences(playerId, new Map([['sound-volume', '0.7']]));
+        const prefs = await service.updatePlayerPreferences(
+          playerId,
+          new Map([['sound-volume', '0.7']]),
+        );
         expect(prefs.size).toEqual(1);
         expect(prefs.get('sound-volume')).toEqual('0.7');
-        expect(await playerPreferencesModel.findOne({ player: playerId })).toBeTruthy();
+        expect(
+          await playerPreferencesModel.findOne({ player: playerId }),
+        ).toBeTruthy();
       });
     });
 
@@ -91,7 +94,10 @@ describe('PlayerPreferencesService', () => {
       it('should update', async () => {
         preferences.set('sound-pack', 'default');
         preferences.set('sound-volume', '0.6');
-        const prefs = await service.updatePlayerPreferences(playerId, preferences);
+        const prefs = await service.updatePlayerPreferences(
+          playerId,
+          preferences,
+        );
         expect(prefs.size).toEqual(2);
         expect(prefs.get('sound-volume')).toEqual('0.6');
         expect(prefs.get('sound-pack')).toEqual('default');

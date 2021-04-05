@@ -36,8 +36,8 @@ import { createMongoDbUri } from './utils/create-mongo-db-uri';
       },
     }),
     TypegooseModule.forRootAsync({
-      imports: [ EnvironmentModule ],
-      inject: [ Environment ],
+      imports: [EnvironmentModule],
+      inject: [Environment],
       useFactory: async (environment: Environment) => ({
         uri: createMongoDbUri({
           host: environment.mongoDbHost,
@@ -74,11 +74,7 @@ import { createMongoDbUri } from './utils/create-mongo-db-uri';
     PluginsModule.configure(),
     LogReceiverModule,
   ],
-  controllers: [
-    AppController,
-  ],
-  providers: [
-    AppService,
-  ],
+  controllers: [AppController],
+  providers: [AppService],
 })
-export class AppModule { }
+export class AppModule {}

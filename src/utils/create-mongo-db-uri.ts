@@ -15,5 +15,7 @@ export const createMongoDbUri = (props: CreateMongoDbUriProps) => {
       credentials = `${props.username}@`;
     }
   }
-  return `mongodb://${credentials}${props.host}:${props.port}/${props.database ?? ''}`;
+  return `mongodb://${credentials}${props.host}:${props.port}/${
+    props.database ?? ''
+  }`;
 };

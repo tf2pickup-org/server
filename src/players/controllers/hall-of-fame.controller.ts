@@ -3,10 +3,7 @@ import { GamesService } from '@/games/services/games.service';
 
 @Controller('hall-of-fame')
 export class HallOfFameController {
-
-  constructor(
-    private gamesService: GamesService,
-  ) { }
+  constructor(private gamesService: GamesService) {}
 
   @Get()
   async getHallOfFame() {
@@ -14,5 +11,4 @@ export class HallOfFameController {
     const mostActiveMedics = await this.gamesService.getMostActiveMedics();
     return { mostActivePlayers, mostActiveMedics };
   }
-
 }

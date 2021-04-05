@@ -5,13 +5,16 @@ import { DiagnosticCheckRunner } from '../interfaces/diagnostic-check-runner';
 
 @Injectable({ scope: Scope.TRANSIENT })
 export class ServerDiscovery implements DiagnosticCheckRunner {
-
   name = 'server discovery';
   critical = false;
 
   async run({ gameServer }): Promise<DiagnosticCheckResult> {
     try {
-      const result = await query({ type: 'tf2', host: gameServer.address, port: parseInt(gameServer.port, 10) });
+      const result = await query({
+        type: 'tf2',
+        host: gameServer.address,
+        port: parseInt(gameServer.port, 10),
+      });
       const reportedWarnings = [];
 
       if (!result.password) {
@@ -26,10 +29,9 @@ export class ServerDiscovery implements DiagnosticCheckRunner {
     } catch (error) {
       return {
         success: false,
-        reportedErrors: [ error.toString() ],
+        reportedErrors: [error.toString()],
         reportedWarnings: [],
       };
     }
   }
-
 }

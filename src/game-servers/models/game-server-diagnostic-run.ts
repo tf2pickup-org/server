@@ -6,7 +6,6 @@ import { DiagnosticRunStatus } from './diagnostic-run-status';
 import { GameServer } from './game-server';
 
 export class GameServerDiagnosticRun extends MongooseDocument {
-
   @Expose()
   @Transform(({ value, obj }) => value ?? obj._id?.toString())
   id?: string;
@@ -14,7 +13,7 @@ export class GameServerDiagnosticRun extends MongooseDocument {
   @prop({ default: () => new Date() })
   launchedAt?: Date;
 
-  @Transform(({ value }) => isRefType(value) ? value.toString() : value)
+  @Transform(({ value }) => (isRefType(value) ? value.toString() : value))
   @prop({ required: true, ref: () => GameServer })
   gameServer: Ref<GameServer>;
 
@@ -26,7 +25,6 @@ export class GameServerDiagnosticRun extends MongooseDocument {
   status?: DiagnosticRunStatus;
 
   getCheckByName(name: string) {
-    return this.checks.find(check => check.name === name);
+    return this.checks.find((check) => check.name === name);
   }
-
 }

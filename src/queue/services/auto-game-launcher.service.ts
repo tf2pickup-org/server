@@ -14,26 +14,31 @@ import { Events } from '@/events/events';
  */
 @Injectable()
 export class AutoGameLauncherService {
-
   constructor(
     private queueService: QueueService,
     private mapVoteService: MapVoteService,
     private gamesService: GamesService,
     private friendsService: FriendsService,
     private events: Events,
-  ) { }
+  ) {}
 
   onModuleInit() {
-    this.events.queueStateChange.pipe(
-      filter(({ state }) => state === 'launching'),
-    ).subscribe(() => this.launchGame());
+    this.events.queueStateChange
+      .pipe(filter(({ state }) => state === 'launching'))
+      .subscribe(() => this.launchGame());
   }
 
   private async launchGame() {
-    const friends = this.friendsService.friendships.map(f => [ f.sourcePlayerId, f.targetPlayerId ]);
-    const game = await this.gamesService.create(this.queueService.slots, await this.mapVoteService.getWinner(), friends);
+    const friends = this.friendsService.friendships.map((f) => [
+      f.sourcePlayerId,
+      f.targetPlayerId,
+    ]);
+    const game = await this.gamesService.create(
+      this.queueService.slots,
+      await this.mapVoteService.getWinner(),
+      friends,
+    );
     this.queueService.reset();
     await this.gamesService.launch(game.id);
   }
-
 }

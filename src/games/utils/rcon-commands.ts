@@ -1,4 +1,9 @@
-export function addGamePlayer(steamId: string, name: string, team: string, gameClass: string) {
+export function addGamePlayer(
+  steamId: string,
+  name: string,
+  team: string,
+  gameClass: string,
+) {
   return [
     `sm_game_player_add ${steamId}`,
     `-name "${name}"`,

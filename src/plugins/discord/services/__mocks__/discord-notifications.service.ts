@@ -4,7 +4,6 @@ import { Player } from '@/players/models/player';
 import { SubstituteRequest } from '@/queue/substitute-request';
 
 export class DiscordNotificationsService {
-
   notifyQueue(currentPlayerCount: number, targetPlayerCount: number) {
     return null;
   }
@@ -29,8 +28,11 @@ export class DiscordNotificationsService {
     return Promise.resolve();
   }
 
-  async notifySkillChange(playerId: string, oldSkill: Map<string, number>, newSkill: Map<string, number>) {
+  async notifySkillChange(
+    playerId: string,
+    oldSkill: Map<string, number>,
+    newSkill: Map<string, number>,
+  ) {
     return Promise.resolve();
   }
-
 }

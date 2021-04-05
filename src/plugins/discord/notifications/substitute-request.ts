@@ -8,7 +8,9 @@ interface SubstituteRequestFields {
   gameUrl: string;
 }
 
-export function substituteRequest(fields: SubstituteRequestFields): MessageEmbedOptions {
+export function substituteRequest(
+  fields: SubstituteRequestFields,
+): MessageEmbedOptions {
   return {
     color: Colors.SubstituteRequest,
     title: 'A substitute is needed',

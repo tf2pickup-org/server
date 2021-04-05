@@ -16,10 +16,15 @@ interface GameServerAddedOptions {
   };
 }
 
-export const gameServerAdded = (options: GameServerAddedOptions) => new MessageEmbed()
-  .setColor(Colors.GameServerAdded)
-  .setAuthor(options.admin.name, options.admin.avatarUrl, options.admin.profileUrl)
-  .setTitle('Game server added')
-  .setDescription(options.gameServer.name)
-  .setFooter(options.client.name, options.client.iconUrl)
-  .setTimestamp();
+export const gameServerAdded = (options: GameServerAddedOptions) =>
+  new MessageEmbed()
+    .setColor(Colors.GameServerAdded)
+    .setAuthor(
+      options.admin.name,
+      options.admin.avatarUrl,
+      options.admin.profileUrl,
+    )
+    .setTitle('Game server added')
+    .setDescription(options.gameServer.name)
+    .setFooter(options.client.name, options.client.iconUrl)
+    .setTimestamp();

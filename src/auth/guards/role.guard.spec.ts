@@ -14,7 +14,7 @@ describe('RoleGuard', () => {
   let guard: RoleGuard;
 
   beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({ }).compile();
+    const module: TestingModule = await Test.createTestingModule({}).compile();
     reflector = module.get<Reflector>(Reflector);
     guard = new RoleGuard(reflector);
   });
@@ -29,11 +29,13 @@ describe('RoleGuard', () => {
   });
 
   it('should allow when the user has the required role', () => {
-    jest.spyOn(reflector, 'get').mockImplementation(() => [ PlayerRole.superUser ]);
+    jest
+      .spyOn(reflector, 'get')
+      .mockImplementation(() => [PlayerRole.superUser]);
     context.switchToHttp.mockImplementation(() => ({
       getRequest: () => ({
         user: {
-          roles: [ PlayerRole.superUser ]
+          roles: [PlayerRole.superUser],
         },
       }),
     }));
@@ -41,14 +43,18 @@ describe('RoleGuard', () => {
   });
 
   it('should deny when the user does not have the required role', () => {
-    jest.spyOn(reflector, 'get').mockImplementation(() => [ PlayerRole.superUser ]);
+    jest
+      .spyOn(reflector, 'get')
+      .mockImplementation(() => [PlayerRole.superUser]);
     context.switchToHttp.mockImplementation(() => ({
       getRequest: () => ({
         user: {
-          roles: [ PlayerRole.admin ],
+          roles: [PlayerRole.admin],
         },
       }),
     }));
-    expect(() => guard.canActivate(context as any)).toThrow(UnauthorizedException);
+    expect(() => guard.canActivate(context as any)).toThrow(
+      UnauthorizedException,
+    );
   });
 });

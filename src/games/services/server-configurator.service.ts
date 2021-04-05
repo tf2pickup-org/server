@@ -6,8 +6,21 @@ import { generate } from 'generate-password';
 import { PlayersService } from '@/players/services/players.service';
 import { QueueConfigService } from '@/queue/services/queue-config.service';
 import { RconFactoryService } from './rcon-factory.service';
-import { logAddressAdd, changelevel, execConfig, setPassword, addGamePlayer, logAddressDel, delAllGamePlayers,
-  kickAll, enablePlayerWhitelist, disablePlayerWhitelist, tvPort, tvPassword, tftrueWhitelistId } from '../utils/rcon-commands';
+import {
+  logAddressAdd,
+  changelevel,
+  execConfig,
+  setPassword,
+  addGamePlayer,
+  logAddressDel,
+  delAllGamePlayers,
+  kickAll,
+  enablePlayerWhitelist,
+  disablePlayerWhitelist,
+  tvPort,
+  tvPassword,
+  tftrueWhitelistId,
+} from '../utils/rcon-commands';
 import { deburr } from 'lodash';
 import { extractConVarValue } from '../utils/extract-con-var-value';
 import { Rcon } from 'rcon-client/lib';
@@ -15,25 +28,27 @@ import { isRefType } from '@typegoose/typegoose';
 import { MapPoolService } from '@/queue/services/map-pool.service';
 import { ConfigurationService } from '@/configuration/services/configuration.service';
 
-const wait = () => new Promise(resolve => setTimeout(resolve, 10 * 1000));
+const wait = () => new Promise((resolve) => setTimeout(resolve, 10 * 1000));
 
 @Injectable()
 export class ServerConfiguratorService {
-
   private logger = new Logger(ServerConfiguratorService.name);
 
   constructor(
     private environment: Environment,
-    @Inject(forwardRef(() => PlayersService)) private playersService: PlayersService,
+    @Inject(forwardRef(() => PlayersService))
+    private playersService: PlayersService,
     private queueConfigService: QueueConfigService,
     private rconFactoryService: RconFactoryService,
     private mapPoolService: MapPoolService,
     private configurationService: ConfigurationService,
-  ) { }
+  ) {}
 
   async configureServer(server: GameServer, game: Game) {
     this.logger.verbose(`configuring server ${server.name}...`);
-    this.logger.debug(`[${server.name}] using rcon password ${server.rconPassword}`);
+    this.logger.debug(
+      `[${server.name}] using rcon password ${server.rconPassword}`,
+    );
     const whitelistId = await this.configurationService.getWhitelistId();
 
     let rcon: Rcon;
@@ -53,7 +68,7 @@ export class ServerConfiguratorService {
       await wait();
 
       const maps = await this.mapPoolService.getMaps();
-      const config = maps.find(m => m.name === game.map)?.execConfig;
+      const config = maps.find((m) => m.name === game.map)?.execConfig;
       if (config) {
         this.logger.debug(`[${server.name}] executing ${config}...`);
         await rcon.send(execConfig(config));
@@ -61,7 +76,9 @@ export class ServerConfiguratorService {
       }
 
       if (whitelistId) {
-        this.logger.debug(`[${server.name}] setting whitelist ${whitelistId}...`);
+        this.logger.debug(
+          `[${server.name}] setting whitelist ${whitelistId}...`,
+        );
         await rcon.send(tftrueWhitelistId(whitelistId));
       }
 
@@ -70,10 +87,17 @@ export class ServerConfiguratorService {
       await rcon.send(setPassword(password));
 
       for (const slot of game.activeSlots()) {
-        const player = isRefType(slot.player) ? await this.playersService.getById(slot.player) : slot.player;
+        const player = isRefType(slot.player)
+          ? await this.playersService.getById(slot.player)
+          : slot.player;
 
         const playerName = deburr(player.name);
-        const cmd = addGamePlayer(player.steamId, playerName, slot.team, slot.gameClass);
+        const cmd = addGamePlayer(
+          player.steamId,
+          playerName,
+          slot.team,
+          slot.gameClass,
+        );
         this.logger.debug(`[${server.name}] ${cmd}`);
         await rcon.send(cmd);
       }
@@ -99,7 +123,9 @@ export class ServerConfiguratorService {
         stvConnectString,
       };
     } catch (error) {
-      throw new Error(`could not configure server ${server.name} (${error.message})`);
+      throw new Error(
+        `could not configure server ${server.name} (${error.message})`,
+      );
     } finally {
       await rcon?.end();
     }
@@ -111,16 +137,19 @@ export class ServerConfiguratorService {
       rcon = await this.rconFactoryService.createRcon(server);
 
       const logAddress = `${this.environment.logRelayAddress}:${this.environment.logRelayPort}`;
-      this.logger.debug(`[${server.name}] removing log address ${logAddress}...`);
+      this.logger.debug(
+        `[${server.name}] removing log address ${logAddress}...`,
+      );
       await rcon.send(logAddressDel(logAddress));
       await rcon.send(delAllGamePlayers());
       await rcon.send(disablePlayerWhitelist());
       this.logger.verbose(`[${server.name}] server cleaned up`);
     } catch (error) {
-      throw new Error(`could not cleanup server ${server.name} (${error.message})`);
+      throw new Error(
+        `could not cleanup server ${server.name} (${error.message})`,
+      );
     } finally {
       await rcon?.end();
     }
   }
-
 }

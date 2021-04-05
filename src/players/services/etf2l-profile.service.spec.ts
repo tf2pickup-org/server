@@ -8,7 +8,7 @@ const mockEtf2lProfile: Etf2lProfile = {
   id: 12345,
   name: 'FAKE_ETF2L_NAME',
   country: 'SOME_COUNTRY',
-  classes: [ 'FAKE_CLASS_1', 'FAKE_CLASS_2' ],
+  classes: ['FAKE_CLASS_1', 'FAKE_CLASS_2'],
 };
 
 class HttpServiceStub {
@@ -44,18 +44,28 @@ describe('Etf2lProfileService', () => {
     it('should query the ETF2L API', async () => {
       const spy = jest.spyOn(httpService, 'get');
       const res = await service.fetchPlayerInfo('FAKE_STEAM_ID');
-      expect(spy).toHaveBeenCalledWith('http://api.etf2l.org/player/FAKE_STEAM_ID.json');
+      expect(spy).toHaveBeenCalledWith(
+        'http://api.etf2l.org/player/FAKE_STEAM_ID.json',
+      );
       expect(res).toEqual(mockEtf2lProfile);
     });
 
     it('should handle 404', async () => {
-      jest.spyOn(httpService, 'get').mockReturnValue(of({ status: 404 } as any));
-      await expect(service.fetchPlayerInfo('')).rejects.toThrowError('no etf2l profile');
+      jest
+        .spyOn(httpService, 'get')
+        .mockReturnValue(of({ status: 404 } as any));
+      await expect(service.fetchPlayerInfo('')).rejects.toThrowError(
+        'no etf2l profile',
+      );
     });
 
     it('should forward any other error', async () => {
-      jest.spyOn(httpService, 'get').mockReturnValue(of({ status: 403, statusText: 'HAHAHA no.' } as any));
-      await expect(service.fetchPlayerInfo('')).rejects.toThrowError('403: HAHAHA no.');
+      jest
+        .spyOn(httpService, 'get')
+        .mockReturnValue(of({ status: 403, statusText: 'HAHAHA no.' } as any));
+      await expect(service.fetchPlayerInfo('')).rejects.toThrowError(
+        '403: HAHAHA no.',
+      );
     });
   });
 });

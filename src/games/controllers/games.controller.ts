@@ -1,4 +1,14 @@
-import { Controller, Get, Query, ParseIntPipe, Param, NotFoundException, Post, HttpCode, DefaultValuePipe } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Query,
+  ParseIntPipe,
+  Param,
+  NotFoundException,
+  Post,
+  HttpCode,
+  DefaultValuePipe,
+} from '@nestjs/common';
 import { GamesService } from '../services/games.service';
 import { ObjectIdValidationPipe } from '@/shared/pipes/object-id-validation.pipe';
 import { Auth } from '@/auth/decorators/auth.decorator';
@@ -19,18 +29,22 @@ const sortOptions: string[] = [
 
 @Controller('games')
 export class GamesController {
-
   constructor(
     private gamesService: GamesService,
     private gameRuntimeService: GameRuntimeService,
     private playerSubstitutionService: PlayerSubstitutionService,
-  ) { }
+  ) {}
 
   @Get()
   async getGames(
     @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
     @Query('offset', new DefaultValuePipe(0), ParseIntPipe) offset: number,
-    @Query('sort', new DefaultValuePipe('-launched_at'), new IsOneOfPipe(sortOptions)) sort: string,
+    @Query(
+      'sort',
+      new DefaultValuePipe('-launched_at'),
+      new IsOneOfPipe(sortOptions),
+    )
+    sort: string,
     @Query('playerId') playerId?: string,
   ) {
     let sortParam: { launchedAt: 1 | -1 };
@@ -50,12 +64,12 @@ export class GamesController {
     let itemCount: number;
 
     if (playerId === undefined) {
-      [ results, itemCount ] = await Promise.all([
+      [results, itemCount] = await Promise.all([
         this.gamesService.getGames(sortParam, limit, offset),
         this.gamesService.getGameCount(),
       ]);
     } else {
-      [ results, itemCount ] = await Promise.all([
+      [results, itemCount] = await Promise.all([
         this.gamesService.getPlayerGames(playerId, sortParam, limit, offset),
         this.gamesService.getPlayerGameCount(playerId),
       ]);
@@ -105,12 +119,17 @@ export class GamesController {
     }
 
     if (substitutePlayerId !== undefined) {
-      await this.playerSubstitutionService.substitutePlayer(gameId, substitutePlayerId);
+      await this.playerSubstitutionService.substitutePlayer(
+        gameId,
+        substitutePlayerId,
+      );
     }
 
     if (cancelSubstitutePlayerId !== undefined) {
-      await this.playerSubstitutionService.cancelSubstitutionRequest(gameId, cancelSubstitutePlayerId);
+      await this.playerSubstitutionService.cancelSubstitutionRequest(
+        gameId,
+        cancelSubstitutePlayerId,
+      );
     }
   }
-
 }
