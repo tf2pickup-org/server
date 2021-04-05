@@ -3,12 +3,13 @@ import { GameLauncherService } from './game-launcher.service';
 import { GamesService } from './games.service';
 import { GameServersService } from '@/game-servers/services/game-servers.service';
 import { ServerConfiguratorService } from './server-configurator.service';
-import { Environment } from '@/environment/environment';
 import { Events } from '@/events/events';
 import { DocumentType } from '@typegoose/typegoose';
 import { GameServer } from '@/game-servers/models/game-server';
+import { ConfigurationService } from '@/configuration/services/configuration.service';
 
 jest.mock('@/game-servers/services/game-servers.service');
+jest.mock('@/configuration/services/configuration.service');
 
 const mockGame = {
   id: 'FAKE_GAME_ID',
@@ -41,16 +42,12 @@ class ServerConfiguratorServiceStub {
   })); }
 }
 
-class EnvironmentStub {
-  mumbleServerUrl = 'FAKE_MUMBLE_SERVER_URL';
-  mumbleChannelName = 'FAKE_MUMBLE_CHANNEL_NAME';
-}
-
 describe('GameLauncherService', () => {
   let service: GameLauncherService;
   let gamesService: GamesServiceStub;
   let gameServersService: jest.Mocked<GameServersService>;
   let serverConfiguratorService: ServerConfiguratorServiceStub;
+  let configurationService: jest.Mocked<ConfigurationService>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -59,8 +56,8 @@ describe('GameLauncherService', () => {
         { provide: GamesService, useClass: GamesServiceStub },
         GameServersService,
         { provide: ServerConfiguratorService, useClass: ServerConfiguratorServiceStub },
-        { provide: Environment, useClass: EnvironmentStub },
         Events,
+        ConfigurationService,
       ],
     }).compile();
 
@@ -68,6 +65,7 @@ describe('GameLauncherService', () => {
     gamesService = module.get(GamesService);
     gameServersService = module.get(GameServersService);
     serverConfiguratorService = module.get(ServerConfiguratorService);
+    configurationService = module.get(ConfigurationService);
   });
 
   beforeEach(() => {
@@ -79,6 +77,15 @@ describe('GameLauncherService', () => {
   });
 
   describe('#launch()', () => {
+    beforeEach(() => {
+      configurationService.getVoiceServer.mockResolvedValue({
+        type: 'mumble',
+        url: 'mumble.melkor.tf',
+        port: 64738,
+        channelName: 'tf2pickuppl',
+      });
+    });
+
     describe('when the game does not exist', () => {
       beforeEach(() => {
         jest.spyOn(gamesService, 'getById').mockResolvedValue(null);
@@ -99,7 +106,7 @@ describe('GameLauncherService', () => {
 
     it('should setup a valid mumble url', async () => {
       const ret = await service.launch('FAKE_GAME_ID');
-      expect(ret.mumbleUrl).toEqual('mumble://FAKE_MUMBLE_SERVER_URL/FAKE_MUMBLE_CHANNEL_NAME/FAKE_SERVER_MUMBLE_CHANNEL_NAME');
+      expect(ret.mumbleUrl).toEqual('mumble://mumble.melkor.tf:64738/tf2pickuppl/FAKE_SERVER_MUMBLE_CHANNEL_NAME');
     });
   });
 

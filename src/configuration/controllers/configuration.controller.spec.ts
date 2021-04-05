@@ -3,7 +3,9 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { DefaultPlayerSkill } from '../dto/default-player-skill';
 import { Etf2lAccountRequired } from '../dto/etf2l-account-required';
 import { MinimumTf2InGameHours } from '../dto/minimum-tf2-in-game-hours';
+import { VoiceServer } from '../dto/voice-server';
 import { WhitelistId } from '../dto/whitelist-id';
+import { MumbleOptions } from '../models/mumble-options';
 import { ConfigurationService } from '../services/configuration.service';
 import { ConfigurationController } from './configuration.controller';
 
@@ -118,6 +120,29 @@ describe('ConfigurationController', () => {
       const ret = await controller.setMinimumTf2InGameHours(new MinimumTf2InGameHours(1000));
       expect(ret).toEqual(new MinimumTf2InGameHours(1000));
       expect(configurationService.setMinimumTf2InGameHours).toHaveBeenCalledWith(1000);
+    });
+  });
+
+  describe('#getVoiceSErver()', () => {
+    beforeEach(() => {
+      configurationService.getVoiceServer.mockResolvedValue({ type: 'mumble', url: 'mumble.melkor.tf', port: 64738 });
+    });
+
+    it('should return the value', async () => {
+      expect(await controller.getVoiceServer()).toEqual(new VoiceServer({ type: 'mumble', url: 'mumble.melkor.tf', port: 64738 }));
+    });
+  });
+
+  describe('#setVoiceServer', () => {
+    beforeEach(() => {
+      configurationService.setVoiceServer.mockImplementation(value => Promise.resolve(value));
+    });
+
+    it('should set the voice server config', async () => {
+      const voiceServer: MumbleOptions = { type: 'mumble', url: 'mumble.melkor.tf', port: 64738 };
+      const ret = await controller.setVoiceServer(new VoiceServer(voiceServer));
+      expect(configurationService.setVoiceServer).toHaveBeenCalledWith(voiceServer);
+      expect(ret).toEqual(new VoiceServer(voiceServer));
     });
   });
 });

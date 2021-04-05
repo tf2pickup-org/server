@@ -3,4 +3,5 @@ export enum ConfigurationEntryKey {
   whitelistId = 'whitelist id',
   etf2lAccountRequired = 'etf2l account required',
   minimumTf2InGameHours = 'minimum tf2 in-game hours',
+  voiceServer = 'voice server',
 }

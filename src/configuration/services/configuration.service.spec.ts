@@ -5,6 +5,8 @@ import { ReturnModelType } from '@typegoose/typegoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { getModelToken, TypegooseModule } from 'nestjs-typegoose';
 import { ConfigurationEntry } from '../models/configuration-entry';
+import { ConfigurationEntryKey } from '../models/configuration-entry-key';
+import { MumbleOptions } from '../models/mumble-options';
 import { ConfigurationService } from './configuration.service';
 
 describe('ConfigurationService', () => {
@@ -72,6 +74,25 @@ describe('ConfigurationService', () => {
 
   it('should set minimum tf2 in-game hours', async () => {
     expect(await service.setMinimumTf2InGameHours(1000)).toEqual(1000);
+  });
+
+  it('should set voice server', async () => {
+    const voiceServer: MumbleOptions = {
+      type: 'mumble',
+      url: 'melkor.tf',
+      port: 64738,
+    };
+    expect(await service.setVoiceServer(voiceServer)).toEqual(voiceServer);
+  });
+
+  it('should retrieve voice server', async () => {
+    const voiceServer: MumbleOptions = {
+      type: 'mumble',
+      url: 'melkor.tf',
+      port: 64738,
+    };
+    await configurationEntryModel.updateOne({ key: ConfigurationEntryKey.voiceServer }, { value: JSON.stringify(voiceServer) }, { upsert: true });
+    expect(await service.getVoiceServer()).toEqual(voiceServer);
   });
 
 });

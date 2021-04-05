@@ -4,6 +4,7 @@ import { Body, ClassSerializerInterceptor, Controller, Get, Put, UseInterceptors
 import { DefaultPlayerSkill } from '../dto/default-player-skill';
 import { Etf2lAccountRequired } from '../dto/etf2l-account-required';
 import { MinimumTf2InGameHours } from '../dto/minimum-tf2-in-game-hours';
+import { VoiceServer } from '../dto/voice-server';
 import { WhitelistId } from '../dto/whitelist-id';
 import { ConfigurationService } from '../services/configuration.service';
 
@@ -70,6 +71,21 @@ export class ConfigurationController {
     @Body(new ValidationPipe()) { value }: MinimumTf2InGameHours,
   ) {
     return new MinimumTf2InGameHours(await this.configurationService.setMinimumTf2InGameHours(value));
+  }
+
+  @Get('voice-server')
+  @UseInterceptors(ClassSerializerInterceptor)
+  async getVoiceServer() {
+    return new VoiceServer(await this.configurationService.getVoiceServer());
+  }
+
+  @Put('voice-server')
+  @Auth(PlayerRole.admin)
+  @UseInterceptors(ClassSerializerInterceptor)
+  async setVoiceServer(
+    @Body(new ValidationPipe()) { value }: VoiceServer,
+  ) {
+    return new VoiceServer(await this.configurationService.setVoiceServer(value));
   }
 
 }
