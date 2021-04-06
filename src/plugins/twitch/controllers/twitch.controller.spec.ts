@@ -8,45 +8,9 @@ import { JsonWebTokenError } from 'jsonwebtoken';
 import { BadRequestException } from '@nestjs/common';
 import { Player } from '@/players/models/player';
 
-class TwitchServiceStub {
-  streams = [
-    {
-      playerId: '5d448875b963ff7e00c6b6b3',
-      id: '1495594625',
-      userName: 'H2P_Gucio',
-      title: 'Bliżej niż dalej :)  / 10 zgonów = gift sub',
-      thumbnailUrl:
-        'https://static-cdn.jtvnw.net/previews-ttv/live_user_h2p_gucio-{width}x{height}.jpg',
-      viewerCount: 5018,
-    },
-    {
-      playerId: '5d44887bb963ff7e00c6b6bb',
-      id: '1494755665',
-      userName: 'xEmtek',
-      title: 'SPEEDRUN do 1 rangi - ciąg dalszy ',
-      thumbnailUrl:
-        'https://static-cdn.jtvnw.net/previews-ttv/live_user_xemtek-{width}x{height}.jpg',
-      viewerCount: 703,
-    },
-  ];
-  fetchUserProfile(token: string) {
-    return Promise.resolve({
-      id: 'FAKE_TWITCH_TV_USER_ID',
-      login: 'FAKE_TWITCH_TV_LOGIN',
-      display_name: 'FAKE_TWITCH_TV_DISPLAY_NAME',
-      profile_image_url: 'FAKE_TWITCH_TV_PROFILE_IMAGE_URL',
-    });
-  }
-}
-
-class TwitchAuthServiceStub {
-  getOauthRedirectUrl(state: string) {
-    return `FAKE_REDIRECT_URL?state=${state}`;
-  }
-  fetchUserAccessToken(code: string) {
-    return Promise.resolve('FAKE_TOKEN');
-  }
-}
+jest.mock('../services/twitch.service');
+jest.mock('../services/twitch-auth.service');
+jest.mock('@/auth/services/auth.service');
 
 class PlayersServiceStub {
   registerTwitchAccount(playerId: string, twitchUserId: string) {
@@ -55,29 +19,21 @@ class PlayersServiceStub {
   removeTwitchTvProfile = jest.fn().mockResolvedValue({ id: 'FAKE_USER_ID' });
 }
 
-class AuthServiceStub {
-  verifyToken(purpose, token) {
-    return { id: 'FAKE_USER_ID' };
-  }
-  generateJwtToken(purpose, userId) {
-    return Promise.resolve('FAKE_JWT');
-  }
-}
-
 describe('Twitch Controller', () => {
   let controller: TwitchController;
-  let authService: AuthServiceStub;
+  let authService: jest.Mocked<AuthService>;
   let playersService: PlayersServiceStub;
-  let twitchService: TwitchServiceStub;
+  let twitchService: jest.Mocked<TwitchService>;
+  let twitchAuthService: jest.Mocked<TwitchAuthService>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [TwitchController],
       providers: [
-        { provide: TwitchService, useClass: TwitchServiceStub },
-        { provide: TwitchAuthService, useClass: TwitchAuthServiceStub },
+        TwitchService,
+        TwitchAuthService,
         { provide: PlayersService, useClass: PlayersServiceStub },
-        { provide: AuthService, useClass: AuthServiceStub },
+        AuthService,
       ],
     }).compile();
 
@@ -85,6 +41,7 @@ describe('Twitch Controller', () => {
     authService = module.get(AuthService);
     playersService = module.get(PlayersService);
     twitchService = module.get(TwitchService);
+    twitchAuthService = module.get(TwitchAuthService);
   });
 
   it('should be defined', () => {
@@ -92,6 +49,14 @@ describe('Twitch Controller', () => {
   });
 
   describe('#authenticate()', () => {
+    beforeEach(() => {
+      authService.verifyToken.mockReturnValue({ id: 'FAKE_USER_ID' } as any);
+      authService.generateJwtToken.mockResolvedValue('FAKE_JWT');
+      twitchAuthService.getOauthRedirectUrl.mockImplementation(
+        (state) => `FAKE_REDIRECT_URL?state=${state}`,
+      );
+    });
+
     it('should return redirect url', async () => {
       const ret = await controller.authenticate('FAKE_TOKEN');
       expect(ret).toEqual({
@@ -101,7 +66,7 @@ describe('Twitch Controller', () => {
 
     describe('if the jwt is incorrect', () => {
       beforeEach(() => {
-        jest.spyOn(authService, 'verifyToken').mockImplementation(() => {
+        authService.verifyToken.mockImplementation(() => {
           throw new JsonWebTokenError('FAKE_ERROR');
         });
       });
@@ -115,15 +80,16 @@ describe('Twitch Controller', () => {
   });
 
   describe('#authenticationCallback()', () => {
+    beforeEach(() => {
+      authService.verifyToken.mockReturnValue({ id: 'FAKE_USER_ID' } as any);
+    });
+
     it('should link the twitch.tv account', async () => {
-      const spy = jest.spyOn(playersService, 'registerTwitchAccount');
       await controller.authenticationCallback('FAKE_CODE', 'FAKE_STATE');
-      expect(spy).toHaveBeenCalledWith('FAKE_USER_ID', {
-        userId: 'FAKE_TWITCH_TV_USER_ID',
-        login: 'FAKE_TWITCH_TV_LOGIN',
-        displayName: 'FAKE_TWITCH_TV_DISPLAY_NAME',
-        profileImageUrl: 'FAKE_TWITCH_TV_PROFILE_IMAGE_URL',
-      });
+      expect(twitchService.saveUserProfile).toHaveBeenCalledWith(
+        'FAKE_USER_ID',
+        'FAKE_CODE',
+      );
     });
   });
 
@@ -138,6 +104,32 @@ describe('Twitch Controller', () => {
   });
 
   describe('#getStreams()', () => {
+    const streams = [
+      {
+        playerId: '5d448875b963ff7e00c6b6b3',
+        id: '1495594625',
+        userName: 'H2P_Gucio',
+        title: 'Bliżej niż dalej :)  / 10 zgonów = gift sub',
+        thumbnailUrl:
+          'https://static-cdn.jtvnw.net/previews-ttv/live_user_h2p_gucio-{width}x{height}.jpg',
+        viewerCount: 5018,
+      },
+      {
+        playerId: '5d44887bb963ff7e00c6b6bb',
+        id: '1494755665',
+        userName: 'xEmtek',
+        title: 'SPEEDRUN do 1 rangi - ciąg dalszy ',
+        thumbnailUrl:
+          'https://static-cdn.jtvnw.net/previews-ttv/live_user_xemtek-{width}x{height}.jpg',
+        viewerCount: 703,
+      },
+    ];
+
+    beforeEach(() => {
+      // @ts-ignore
+      twitchService.streams = streams;
+    });
+
     it('should return streams', () => {
       expect(controller.getStreams()).toEqual(twitchService.streams);
     });

@@ -12,7 +12,6 @@ import { TwitchAuthService } from '../services/twitch-auth.service';
 import { PlayersService } from '@/players/services/players.service';
 import { AuthService } from '@/auth/services/auth.service';
 import { JsonWebTokenError } from 'jsonwebtoken';
-import { TwitchTvUser } from '@/players/models/twitch-tv-user';
 import { JwtTokenPurpose } from '@/auth/jwt-token-purpose';
 import { Auth } from '@/auth/decorators/auth.decorator';
 import { User } from '@/auth/decorators/user.decorator';
@@ -56,15 +55,7 @@ export class TwitchController {
     @Query('state') state: string,
   ) {
     const { id } = this.authService.verifyToken(JwtTokenPurpose.context, state);
-    const token = await this.twitchAuthService.fetchUserAccessToken(code);
-    const userProfile = await this.twitchService.fetchUserProfile(token);
-    const twitchTvUser: TwitchTvUser = {
-      userId: userProfile.id,
-      login: userProfile.login,
-      displayName: userProfile.display_name,
-      profileImageUrl: userProfile.profile_image_url,
-    };
-    await this.playersService.registerTwitchAccount(id, twitchTvUser);
+    await this.twitchService.saveUserProfile(id, code);
   }
 
   @Put('disconnect')
