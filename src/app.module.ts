@@ -24,18 +24,7 @@ import { PlayerPreferencesModule } from './player-preferences/player-preferences
 import { ConfigurationModule } from './configuration/configuration.module';
 import { PluginsModule } from './plugins/plugins.module';
 import { LogReceiverModule } from './log-receiver/log-receiver.module';
-
-function createMongodbUri(environment: Environment) {
-  let credentials = '';
-  if (environment.mongoDbUsername) {
-    if (environment.mongoDbPassword) {
-      credentials = `${environment.mongoDbUsername}:${environment.mongoDbPassword}@`;
-    } else {
-      credentials = `${environment.mongoDbUsername}@`;
-    }
-  }
-  return `mongodb://${credentials}${environment.mongoDbHost}:${environment.mongoDbPort}/${environment.mongoDbName}`;
-}
+import { createMongoDbUri } from './utils/create-mongo-db-uri';
 
 @Module({
   imports: [
@@ -50,7 +39,13 @@ function createMongodbUri(environment: Environment) {
       imports: [ EnvironmentModule ],
       inject: [ Environment ],
       useFactory: async (environment: Environment) => ({
-        uri: createMongodbUri(environment),
+        uri: createMongoDbUri({
+          host: environment.mongoDbHost,
+          port: environment.mongoDbPort,
+          database: environment.mongoDbName,
+          username: environment.mongoDbUsername,
+          password: environment.mongoDbPassword,
+        }),
         useNewUrlParser: true,
         useUnifiedTopology: true,
         useFindAndModify: false,
