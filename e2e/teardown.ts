@@ -1,8 +1,8 @@
 import { MongoClient } from 'mongodb';
-import { mongoDbUri } from '../src/utils/mongoDbUri';
+import { createMongoDbUri } from '../src/utils/create-mongo-db-uri';
 
 const teardown = async () => {
-  const client = await MongoClient.connect(mongoDbUri({
+  const client = await MongoClient.connect(createMongoDbUri({
     host: process.env.MONGODB_HOST,
     port: process.env.MONGODB_PORT,
   }), {
