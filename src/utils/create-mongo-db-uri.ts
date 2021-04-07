@@ -1,4 +1,4 @@
-interface MongoDbUriProps {
+interface CreateMongoDbUriProps {
   host: string;
   port: string;
   database?: string;
@@ -6,7 +6,7 @@ interface MongoDbUriProps {
   password?: string;
 }
 
-export const mongoDbUri = (props: MongoDbUriProps) => {
+export const createMongoDbUri = (props: CreateMongoDbUriProps) => {
   let credentials = '';
   if (props.username) {
     if (props.password) {
