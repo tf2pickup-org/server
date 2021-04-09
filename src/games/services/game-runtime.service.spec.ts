@@ -92,9 +92,10 @@ describe('GameRuntimeService', () => {
 
     gameServersService.getById.mockResolvedValue(mockGameServer as any);
 
-    // @ts-expect-error
     mockPlayers = await Promise.all([
+      // @ts-expect-error
       playersService._createOne(),
+      // @ts-expect-error
       playersService._createOne(),
     ]);
 

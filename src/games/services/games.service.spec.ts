@@ -271,98 +271,98 @@ describe('GamesService', () => {
 
     beforeEach(async () => {
       slots = [
-        // @ts-expect-error
         {
           id: 0,
           gameClass: Tf2ClassName.scout,
+          // @ts-expect-error
           playerId: (await playersService._createOne())._id,
           ready: true,
           friend: null,
         },
-        // @ts-expect-error
         {
           id: 1,
           gameClass: Tf2ClassName.scout,
+          // @ts-expect-error
           playerId: (await playersService._createOne())._id,
           ready: true,
           friend: null,
         },
-        // @ts-expect-error
         {
           id: 2,
           gameClass: Tf2ClassName.scout,
+          // @ts-expect-error
           playerId: (await playersService._createOne())._id,
           ready: true,
           friend: null,
         },
-        // @ts-expect-error
         {
           id: 3,
           gameClass: Tf2ClassName.scout,
+          // @ts-expect-error
           playerId: (await playersService._createOne())._id,
           ready: true,
           friend: null,
         },
-        // @ts-expect-error
         {
           id: 4,
           gameClass: Tf2ClassName.soldier,
+          // @ts-expect-error
           playerId: (await playersService._createOne())._id,
           ready: true,
           friend: null,
         },
-        // @ts-expect-error
         {
           id: 5,
           gameClass: Tf2ClassName.soldier,
+          // @ts-expect-error
           playerId: (await playersService._createOne())._id,
           ready: true,
           friend: null,
         },
-        // @ts-expect-error
         {
           id: 6,
           gameClass: Tf2ClassName.soldier,
+          // @ts-expect-error
           playerId: (await playersService._createOne())._id,
           ready: true,
           friend: null,
         },
-        // @ts-expect-error
         {
           id: 7,
           gameClass: Tf2ClassName.soldier,
+          // @ts-expect-error
           playerId: (await playersService._createOne())._id,
           ready: true,
           friend: null,
         },
-        // @ts-expect-error
         {
           id: 8,
           gameClass: Tf2ClassName.demoman,
+          // @ts-expect-error
           playerId: (await playersService._createOne())._id,
           ready: true,
           friend: null,
         },
-        // @ts-expect-error
         {
           id: 9,
           gameClass: Tf2ClassName.demoman,
+          // @ts-expect-error
           playerId: (await playersService._createOne())._id,
           ready: true,
           friend: null,
         },
-        // @ts-expect-error
         {
           id: 10,
           gameClass: Tf2ClassName.medic,
+          // @ts-expect-error
           playerId: (await playersService._createOne())._id,
           ready: true,
           friend: null,
         },
-        // @ts-expect-error
         {
           id: 11,
           gameClass: Tf2ClassName.medic,
+          // @ts-expect-error
           playerId: (await playersService._createOne())._id,
           ready: true,
           friend: null,

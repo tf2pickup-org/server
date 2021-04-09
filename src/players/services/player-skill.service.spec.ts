@@ -115,8 +115,8 @@ describe('PlayerSkillService', () => {
 
     describe('when there is future skill for the given player', () => {
       beforeEach(() => {
-        // @ts-expect-error
         futurePlayerSkillService.findSkill = () =>
+          // @ts-expect-error
           Promise.resolve({
             steamId: mockPlayer.steamId,
             skill: new Map([['soldier', 2]]),

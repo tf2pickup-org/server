@@ -117,9 +117,10 @@ describe('ServerConfiguratorService', () => {
     let game: Game;
 
     beforeEach(async () => {
-      // @ts-expect-error
       [player1, player2] = [
+        // @ts-expect-error
         await playersService._createOne(),
+        // @ts-expect-error
         await playersService._createOne(),
       ];
 
