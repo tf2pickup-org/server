@@ -2,9 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { AuthGateway } from './auth.gateway';
 import { PlayersService } from '@/players/services/players.service';
 
-class PlayersServiceStub {
-
-}
+class PlayersServiceStub {}
 
 describe('AuthGateway', () => {
   let gateway: AuthGateway;
@@ -26,7 +24,9 @@ describe('AuthGateway', () => {
   });
 
   describe('#onModuleInit()', () => {
-    beforeEach(() => gateway.server = { use: jest.fn().mockReturnValue(null) } as any);
+    beforeEach(
+      () => (gateway.server = { use: jest.fn().mockReturnValue(null) } as any),
+    );
 
     it('should register middleware', () => {
       gateway.onModuleInit();

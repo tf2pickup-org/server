@@ -1,5 +1,25 @@
-import { Controller, Get, Param, NotFoundException, Patch, Body, BadRequestException, ParseIntPipe, Query, Put, Post, UsePipes, ValidationPipe,
-  HttpCode, Header, UseInterceptors, CacheInterceptor, CacheTTL, ClassSerializerInterceptor, UseFilters } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Param,
+  NotFoundException,
+  Patch,
+  Body,
+  BadRequestException,
+  ParseIntPipe,
+  Query,
+  Put,
+  Post,
+  UsePipes,
+  ValidationPipe,
+  HttpCode,
+  Header,
+  UseInterceptors,
+  CacheInterceptor,
+  CacheTTL,
+  ClassSerializerInterceptor,
+  UseFilters,
+} from '@nestjs/common';
 import { PlayersService } from '../services/players.service';
 import { ObjectIdValidationPipe } from '@/shared/pipes/object-id-validation.pipe';
 import { Player } from '../models/player';
@@ -18,13 +38,12 @@ import { PlayerRole } from '../models/player-role';
 @Controller('players')
 @UseInterceptors(CacheInterceptor)
 export class PlayersController {
-
   constructor(
     private playersService: PlayersService,
     private gamesService: GamesService,
     private playerSkillService: PlayerSkillService,
     private playerBansService: PlayerBansService,
-  ) { }
+  ) {}
 
   @Get()
   @UseInterceptors(ClassSerializerInterceptor)
@@ -50,14 +69,22 @@ export class PlayersController {
   @Patch(':id')
   @Auth(PlayerRole.admin)
   @UseInterceptors(ClassSerializerInterceptor)
-  async updatePlayer(@Param('id', ObjectIdValidationPipe) playerId: string, @Body() player: Partial<Player>, @User() admin: Player) {
+  async updatePlayer(
+    @Param('id', ObjectIdValidationPipe) playerId: string,
+    @Body() player: Partial<Player>,
+    @User() admin: Player,
+  ) {
     return await this.playersService.updatePlayer(playerId, player, admin.id);
   }
 
   @Get(':id/games')
   @Header('Warning', '299 - "Deprecated API"')
-  async getPlayerGames(@Param('id', ObjectIdValidationPipe) playerId: string, @Query('limit', ParseIntPipe) limit = 10,
-                       @Query('offset', ParseIntPipe) offset = 0, @Query('sort') sort = '-launched_at') {
+  async getPlayerGames(
+    @Param('id', ObjectIdValidationPipe) playerId: string,
+    @Query('limit', ParseIntPipe) limit = 10,
+    @Query('offset', ParseIntPipe) offset = 0,
+    @Query('sort') sort = '-launched_at',
+  ) {
     let sortParam: { launchedAt: 1 | -1 };
     switch (sort) {
       case '-launched_at':
@@ -74,7 +101,7 @@ export class PlayersController {
         throw new BadRequestException('invalid value for the sort parameter');
     }
 
-    const [ results, itemCount ] = await Promise.all([
+    const [results, itemCount] = await Promise.all([
       this.gamesService.getPlayerGames(playerId, sortParam, limit, offset),
       this.gamesService.getPlayerGameCount(playerId),
     ]);
@@ -85,7 +112,9 @@ export class PlayersController {
   @CacheTTL(12 * 60 * 60)
   @Get(':id/stats')
   @UseInterceptors(ClassSerializerInterceptor)
-  async getPlayerStats(@Param('id', ObjectIdValidationPipe) playerId: string): Promise<PlayerStats> {
+  async getPlayerStats(
+    @Param('id', ObjectIdValidationPipe) playerId: string,
+  ): Promise<PlayerStats> {
     return await this.playersService.getPlayerStats(playerId);
   }
 
@@ -114,8 +143,15 @@ export class PlayersController {
     @Body() newSkill: { [className in Tf2ClassName]?: number },
     @User() user: Player,
   ) {
-    const newSkillAsMap = new Map(Object.entries(newSkill)) as Map<Tf2ClassName, number>;
-    return this.playerSkillService.setPlayerSkill(playerId, newSkillAsMap, user.id);
+    const newSkillAsMap = new Map(Object.entries(newSkill)) as Map<
+      Tf2ClassName,
+      number
+    >;
+    return this.playerSkillService.setPlayerSkill(
+      playerId,
+      newSkillAsMap,
+      user.id,
+    );
   }
 
   @Get(':id/bans')
@@ -131,7 +167,9 @@ export class PlayersController {
   @UseInterceptors(ClassSerializerInterceptor)
   async addPlayerBan(@Body() playerBan: PlayerBan, @User() user: Player) {
     if (playerBan.admin.toString() !== user.id) {
-      throw new BadRequestException('the admin field must be the same as authorized user\'s id');
+      throw new BadRequestException(
+        "the admin field must be the same as authorized user's id",
+      );
     }
     return await this.playerBansService.addPlayerBan(playerBan);
   }
@@ -140,8 +178,12 @@ export class PlayersController {
   @Auth(PlayerRole.admin)
   @UseInterceptors(ClassSerializerInterceptor)
   @HttpCode(200)
-  async updatePlayerBan(@Param('playerId', ObjectIdValidationPipe) playerId: string, @Param('banId', ObjectIdValidationPipe) banId: string,
-                        @Query('revoke') revoke: any, @User() user: Player) {
+  async updatePlayerBan(
+    @Param('playerId', ObjectIdValidationPipe) playerId: string,
+    @Param('banId', ObjectIdValidationPipe) banId: string,
+    @Query('revoke') revoke: any,
+    @User() user: Player,
+  ) {
     const player = await this.playersService.getById(playerId);
     if (!player) {
       throw new NotFoundException('player not found');
@@ -153,12 +195,11 @@ export class PlayersController {
     }
 
     if (ban.player.toString() !== playerId) {
-      throw new BadRequestException('the given ban is not of the user\'s');
+      throw new BadRequestException("the given ban is not of the user's");
     }
 
     if (revoke !== undefined) {
       return this.playerBansService.revokeBan(banId, user.id);
     }
   }
-
 }

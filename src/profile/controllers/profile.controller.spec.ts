@@ -11,19 +11,27 @@ import { PlayerPreferencesService } from '@/player-preferences/services/player-p
 jest.mock('@/player-preferences/services/player-preferences.service');
 
 class PlayersServiceStub {
-  acceptTerms(playerId: string) { return null; }
+  acceptTerms(playerId: string) {
+    return null;
+  }
 }
 
 class GamesServiceStub {
-  getPlayerActiveGame(playerId: string) { return new Promise(resolve => resolve(null)); }
+  getPlayerActiveGame(playerId: string) {
+    return new Promise((resolve) => resolve(null));
+  }
 }
 
 class PlayerBansServiceStub {
-  getPlayerActiveBans(playerId: string) { return new Promise(resolve => resolve([])); }
+  getPlayerActiveBans(playerId: string) {
+    return new Promise((resolve) => resolve([]));
+  }
 }
 
 class MapVoteServiceStub {
-  playerVote(playerId: string) { return 'cp_badlands'; }
+  playerVote(playerId: string) {
+    return 'cp_badlands';
+  }
 }
 
 describe('Profile Controller', () => {
@@ -49,8 +57,12 @@ describe('Profile Controller', () => {
   });
 
   beforeEach(() => {
-    playerPreferencesService.getPlayerPreferences.mockResolvedValue(new Map([['sound-volume', '0.5']]));
-    playerPreferencesService.updatePlayerPreferences.mockResolvedValue(new Map([['sound-volume', '0.9']]));
+    playerPreferencesService.getPlayerPreferences.mockResolvedValue(
+      new Map([['sound-volume', '0.5']]),
+    );
+    playerPreferencesService.updatePlayerPreferences.mockResolvedValue(
+      new Map([['sound-volume', '0.9']]),
+    );
   });
 
   it('should be defined', () => {
@@ -58,7 +70,7 @@ describe('Profile Controller', () => {
   });
 
   describe('#getProfile()', () => {
-    it('should return the logged-in user\'s profile', async () => {
+    it("should return the logged-in user's profile", async () => {
       const profile = {
         player: {
           id: 'FAKE_ID',
@@ -68,25 +80,36 @@ describe('Profile Controller', () => {
         activeGameId: null,
         bans: [],
         mapVote: 'cp_badlands',
-        preferences: new Map([['sound-volume', '0.5']]) };
+        preferences: new Map([['sound-volume', '0.5']]),
+      };
       expect(await controller.getProfile(profile.player)).toEqual(profile);
     });
   });
 
   describe('#getPreferences()', () => {
-    it('should return the user\'s preferences', async () => {
-      const ret = await controller.getPreferences({ id: 'FAKE_USER_ID' } as Player);
+    it("should return the user's preferences", async () => {
+      const ret = await controller.getPreferences({
+        id: 'FAKE_USER_ID',
+      } as Player);
       expect(ret.size).toEqual(1);
       expect(ret.get('sound-volume')).toEqual('0.5');
     });
   });
 
   describe('#savePreferences()', () => {
-    it('should update user\'s preferences', async () => {
-      const ret = await controller.savePreferences({ id: 'FAKE_USER_ID' } as Player, { 'sound-volume': '0.9' });
+    it("should update user's preferences", async () => {
+      const ret = await controller.savePreferences(
+        { id: 'FAKE_USER_ID' } as Player,
+        { 'sound-volume': '0.9' },
+      );
       expect(ret.size).toEqual(1);
       expect(ret.get('sound-volume')).toEqual('0.9');
-      expect(playerPreferencesService.updatePlayerPreferences).toHaveBeenCalledWith('FAKE_USER_ID', new Map([['sound-volume', '0.9']]));
+      expect(
+        playerPreferencesService.updatePlayerPreferences,
+      ).toHaveBeenCalledWith(
+        'FAKE_USER_ID',
+        new Map([['sound-volume', '0.9']]),
+      );
     });
   });
 
@@ -98,7 +121,9 @@ describe('Profile Controller', () => {
     });
 
     it('should reject invalid requests', async () => {
-      await expect(controller.acceptTerms({ id: 'FAKE_ID' } as Player, undefined)).rejects.toThrow(BadRequestException);
+      await expect(
+        controller.acceptTerms({ id: 'FAKE_ID' } as Player, undefined),
+      ).rejects.toThrow(BadRequestException);
     });
   });
 });

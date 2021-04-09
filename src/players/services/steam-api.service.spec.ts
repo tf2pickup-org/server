@@ -7,7 +7,9 @@ import { HttpService } from '@nestjs/common';
 import { Environment } from '@/environment/environment';
 import { Tf2InGameHoursVerificationError } from '../errors/tf2-in-game-hours-verification.error';
 
-const steamApiResponseJson = readFileSync(resolve(__dirname, '..', 'steam-api-response.json'));
+const steamApiResponseJson = readFileSync(
+  resolve(__dirname, '..', 'steam-api-response.json'),
+);
 
 class HttpServiceStub {
   get(url: string) {
@@ -47,7 +49,9 @@ describe('SteamApiService', () => {
     it('should query the correct URL', async () => {
       const spy = jest.spyOn(httpService, 'get');
       await service.getTf2InGameHours('FAKE_STEAM_ID');
-      expect(spy).toHaveBeenCalledWith('http://api.steampowered.com/ISteamUserStats/GetUserStatsForGame/v0002/?appid=440&key=FAKE_STEAM_API_KEY&steamid=FAKE_STEAM_ID&format=json');
+      expect(spy).toHaveBeenCalledWith(
+        'http://api.steampowered.com/ISteamUserStats/GetUserStatsForGame/v0002/?appid=440&key=FAKE_STEAM_API_KEY&steamid=FAKE_STEAM_ID&format=json',
+      );
     });
 
     describe('with response 200', () => {
@@ -59,11 +63,15 @@ describe('SteamApiService', () => {
 
     describe('with response code 500', () => {
       beforeEach(() => {
-        jest.spyOn(httpService, 'get').mockReturnValue(throwError({ status: 500 } as any));
+        jest
+          .spyOn(httpService, 'get')
+          .mockReturnValue(throwError({ status: 500 } as any));
       });
 
       it('should throw an error', async () => {
-        await expect(service.getTf2InGameHours('FAKE_STEAM_ID')).rejects.toThrow(Tf2InGameHoursVerificationError);
+        await expect(
+          service.getTf2InGameHours('FAKE_STEAM_ID'),
+        ).rejects.toThrow(Tf2InGameHoursVerificationError);
       });
     });
   });

@@ -26,18 +26,19 @@ interface GetPlayerGameCountOptions {
 
 @Injectable()
 export class GamesService {
-
   private logger = new Logger(GamesService.name);
 
   constructor(
     @InjectModel(Game) private gameModel: ReturnModelType<typeof Game>,
-    @Inject(forwardRef(() => PlayersService)) private playersService: PlayersService,
+    @Inject(forwardRef(() => PlayersService))
+    private playersService: PlayersService,
     private playerSkillService: PlayerSkillService,
     private queueConfigService: QueueConfigService,
-    @Inject(forwardRef(() => GameLauncherService)) private gameLauncherService: GameLauncherService,
+    @Inject(forwardRef(() => GameLauncherService))
+    private gameLauncherService: GameLauncherService,
     private events: Events,
     private configurationService: ConfigurationService,
-  ) { }
+  ) {}
 
   async getGameCount(): Promise<number> {
     return await this.gameModel.estimatedDocumentCount();
@@ -51,15 +52,20 @@ export class GamesService {
     return await this.gameModel.find({ state: /launching|started/ });
   }
 
-  async getGames(sort: GameSortOptions = { launchedAt: -1 }, limit: number, skip: number) {
-    return await this.gameModel
-      .find()
-      .sort(sort)
-      .limit(limit)
-      .skip(skip);
+  async getGames(
+    sort: GameSortOptions = { launchedAt: -1 },
+    limit: number,
+    skip: number,
+  ) {
+    return await this.gameModel.find().sort(sort).limit(limit).skip(skip);
   }
 
-  async getPlayerGames(playerId: string, sort: GameSortOptions = { launchedAt: -1 }, limit = 10, skip = 0) {
+  async getPlayerGames(
+    playerId: string,
+    sort: GameSortOptions = { launchedAt: -1 },
+    limit = 10,
+    skip = 0,
+  ) {
     return await this.gameModel
       .find({ 'slots.player': new ObjectId(playerId) })
       .sort(sort)
@@ -67,7 +73,10 @@ export class GamesService {
       .skip(skip);
   }
 
-  async getPlayerGameCount(playerId: string, options: GetPlayerGameCountOptions = { }) {
+  async getPlayerGameCount(
+    playerId: string,
+    options: GetPlayerGameCountOptions = {},
+  ) {
     const defaultOptions: GetPlayerGameCountOptions = { endedOnly: false };
     const _options = { ...defaultOptions, ...options };
 
@@ -79,15 +88,20 @@ export class GamesService {
     return await this.gameModel.countDocuments(criteria);
   }
 
-  async getPlayerPlayedClassCount(playerId: string): Promise<{ [gameClass in Tf2ClassName]?: number }> {
+  async getPlayerPlayedClassCount(
+    playerId: string,
+  ): Promise<{ [gameClass in Tf2ClassName]?: number }> {
     // FIXME store player stats in a separate model to avoid this query
-    const allGames = await this.gameModel.find({ 'slots.player': new ObjectId(playerId), state: GameState.ended });
+    const allGames = await this.gameModel.find({
+      'slots.player': new ObjectId(playerId),
+      state: GameState.ended,
+    });
     return this.queueConfigService.queueConfig.classes
-      .map(cls => cls.name)
+      .map((cls) => cls.name)
       .reduce((prev, gameClass) => {
-        prev[gameClass] = allGames
-          .filter(g => g.findPlayerSlot(playerId)?.gameClass === gameClass)
-          .length;
+        prev[gameClass] = allGames.filter(
+          (g) => g.findPlayerSlot(playerId)?.gameClass === gameClass,
+        ).length;
         return prev;
       }, {});
   }
@@ -97,22 +111,33 @@ export class GamesService {
       state: /launching|started/,
       slots: {
         $elemMatch: {
-          status: { $in: [ SlotStatus.active, SlotStatus.waitingForSubstitute ] },
+          status: { $in: [SlotStatus.active, SlotStatus.waitingForSubstitute] },
           player: playerId,
         },
       },
     });
   }
 
-  async create(queueSlots: QueueSlot[], map: string, friends: string[][] = []): Promise<DocumentType<Game>> {
-    if (!queueSlots.every(slot => !!slot.playerId)) {
+  async create(
+    queueSlots: QueueSlot[],
+    map: string,
+    friends: string[][] = [],
+  ): Promise<DocumentType<Game>> {
+    if (!queueSlots.every((slot) => !!slot.playerId)) {
       throw new Error('queue not full');
     }
 
-    const players: PlayerSlot[] = await Promise.all(queueSlots.map(slot => this.queueSlotToPlayerSlot(slot)));
-    const assignedSkills = players.reduce((prev, curr) => { prev[curr.playerId] = curr.skill; return prev; }, { });
-    const slots = pickTeams(shuffle(players), { friends })
-      .map(s => ({ ...s, player: s.playerId }));
+    const players: PlayerSlot[] = await Promise.all(
+      queueSlots.map((slot) => this.queueSlotToPlayerSlot(slot)),
+    );
+    const assignedSkills = players.reduce((prev, curr) => {
+      prev[curr.playerId] = curr.skill;
+      return prev;
+    }, {});
+    const slots = pickTeams(shuffle(players), { friends }).map((s) => ({
+      ...s,
+      player: s.playerId,
+    }));
     const gameNo = await this.getNextGameNumber();
 
     const game = await this.gameModel.create({
@@ -159,22 +184,22 @@ export class GamesService {
   }
 
   async getGamesWithSubstitutionRequests(): Promise<DocumentType<Game>[]> {
-    return this.gameModel
-      .find({
-        'state': { $in: [ GameState.launching, GameState.started ] },
-        'slots.status': SlotStatus.waitingForSubstitute,
-      });
+    return this.gameModel.find({
+      state: { $in: [GameState.launching, GameState.started] },
+      'slots.status': SlotStatus.waitingForSubstitute,
+    });
   }
 
   async getOrphanedGames(): Promise<DocumentType<Game>[]> {
-    return this.gameModel
-      .find({
-        state: GameState.launching,
-        gameServer: { $exists: false },
-      });
+    return this.gameModel.find({
+      state: GameState.launching,
+      gameServer: { $exists: false },
+    });
   }
 
-  private async queueSlotToPlayerSlot(queueSlot: QueueSlot): Promise<PlayerSlot> {
+  private async queueSlotToPlayerSlot(
+    queueSlot: QueueSlot,
+  ): Promise<PlayerSlot> {
     const { playerId, gameClass } = queueSlot;
     const player = await this.playersService.getById(playerId);
     if (!player) {
@@ -192,12 +217,14 @@ export class GamesService {
   }
 
   private async getNextGameNumber(): Promise<number> {
-    const latestGame = await this.gameModel.findOne().sort({ launchedAt: -1 }).exec();
+    const latestGame = await this.gameModel
+      .findOne()
+      .sort({ launchedAt: -1 })
+      .exec();
     if (latestGame) {
       return latestGame.number + 1;
     } else {
       return 1;
     }
   }
-
 }

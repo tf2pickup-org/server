@@ -9,7 +9,9 @@ const game = {
 };
 
 class GamesServiceStub {
-  getGamesWithSubstitutionRequests() { return [ game ]; }
+  getGamesWithSubstitutionRequests() {
+    return [game];
+  }
 }
 
 describe('GamesWithSubstitutionRequests Controller', () => {
@@ -18,13 +20,13 @@ describe('GamesWithSubstitutionRequests Controller', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        { provide: GamesService, useClass: GamesServiceStub },
-      ],
+      providers: [{ provide: GamesService, useClass: GamesServiceStub }],
       controllers: [GamesWithSubstitutionRequestsController],
     }).compile();
 
-    controller = module.get<GamesWithSubstitutionRequestsController>(GamesWithSubstitutionRequestsController);
+    controller = module.get<GamesWithSubstitutionRequestsController>(
+      GamesWithSubstitutionRequestsController,
+    );
     gamesService = module.get(GamesService);
   });
 
@@ -37,7 +39,7 @@ describe('GamesWithSubstitutionRequests Controller', () => {
       const spy = jest.spyOn(gamesService, 'getGamesWithSubstitutionRequests');
       const ret = await controller.getGamesWithSubstitutionRequests();
       expect(spy).toHaveBeenCalled();
-      expect(ret).toEqual([ game ] as any);
+      expect(ret).toEqual([game] as any);
     });
   });
 });

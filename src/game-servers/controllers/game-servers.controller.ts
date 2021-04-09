@@ -1,5 +1,17 @@
-import { Controller, Get, Param, Post, Body, UsePipes, ValidationPipe, Delete, UseInterceptors,
-    ClassSerializerInterceptor, UseFilters, HttpCode } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Param,
+  Post,
+  Body,
+  UsePipes,
+  ValidationPipe,
+  Delete,
+  UseInterceptors,
+  ClassSerializerInterceptor,
+  UseFilters,
+  HttpCode,
+} from '@nestjs/common';
 import { GameServersService } from '../services/game-servers.service';
 import { ObjectIdValidationPipe } from '@/shared/pipes/object-id-validation.pipe';
 import { Auth } from '@/auth/decorators/auth.decorator';
@@ -13,12 +25,11 @@ import { PlayerRole } from '@/players/models/player-role';
 
 @Controller('game-servers')
 export class GameServersController {
-
   constructor(
     private gameServersService: GameServersService,
     private gameServerDiagnosticsService: GameServerDiagnosticsService,
     private environment: Environment,
-  ) { }
+  ) {}
 
   @Get()
   @UseInterceptors(ClassSerializerInterceptor)
@@ -29,7 +40,9 @@ export class GameServersController {
   @Get(':id')
   @UseInterceptors(ClassSerializerInterceptor)
   @UseFilters(DocumentNotFoundFilter)
-  async getGameServer(@Param('id', ObjectIdValidationPipe) gameServerId: string) {
+  async getGameServer(
+    @Param('id', ObjectIdValidationPipe) gameServerId: string,
+  ) {
     return await this.gameServersService.getById(gameServerId);
   }
 
@@ -37,21 +50,31 @@ export class GameServersController {
   @Auth(PlayerRole.superUser)
   @UsePipes(ValidationPipe)
   @UseInterceptors(ClassSerializerInterceptor)
-  async addGameServer(@Body() gameServer: AddGameServer, @User() admin: Player) {
+  async addGameServer(
+    @Body() gameServer: AddGameServer,
+    @User() admin: Player,
+  ) {
     return this.gameServersService.addGameServer(gameServer, admin.id);
   }
 
   @Delete(':id')
   @Auth(PlayerRole.superUser)
-  async removeGameServer(@Param('id', ObjectIdValidationPipe) gameServerId: string, @User() admin: Player) {
+  async removeGameServer(
+    @Param('id', ObjectIdValidationPipe) gameServerId: string,
+    @User() admin: Player,
+  ) {
     await this.gameServersService.removeGameServer(gameServerId, admin.id);
   }
 
   @Post(':id/diagnostics')
   @Auth(PlayerRole.superUser)
   @HttpCode(202)
-  async runDiagnostics(@Param('id', ObjectIdValidationPipe) gameServerId: string) {
-    const id = await this.gameServerDiagnosticsService.runDiagnostics(gameServerId);
+  async runDiagnostics(
+    @Param('id', ObjectIdValidationPipe) gameServerId: string,
+  ) {
+    const id = await this.gameServerDiagnosticsService.runDiagnostics(
+      gameServerId,
+    );
     return {
       diagnosticRunId: id,
       tracking: {
@@ -59,5 +82,4 @@ export class GameServersController {
       },
     };
   }
-
 }

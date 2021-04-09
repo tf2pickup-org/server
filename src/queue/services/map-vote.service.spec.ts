@@ -18,7 +18,7 @@ describe('MapVoteService', () => {
   let queueService: jest.Mocked<QueueService>;
   let events: Events;
 
-  beforeAll(() => mongod = new MongoMemoryServer());
+  beforeAll(() => (mongod = new MongoMemoryServer()));
   afterAll(async () => await mongod.stop());
 
   beforeEach(async () => {
@@ -27,11 +27,7 @@ describe('MapVoteService', () => {
         typegooseTestingModule(mongod),
         TypegooseModule.forFeature([Map]),
       ],
-      providers: [
-        MapVoteService,
-        QueueService,
-        Events,
-      ],
+      providers: [MapVoteService, QueueService, Events],
     }).compile();
 
     service = module.get<MapVoteService>(MapVoteService);
@@ -42,9 +38,9 @@ describe('MapVoteService', () => {
 
   beforeEach(async () => {
     await mapModel.insertMany([
-       { name: 'cp_badlands' },
-       { name: 'cp_process_final' },
-       { name: 'cp_snakewater_final1' },
+      { name: 'cp_badlands' },
+      { name: 'cp_process_final' },
+      { name: 'cp_snakewater_final1' },
     ]);
     queueService.isInQueue.mockReturnValue(true);
   });
@@ -52,7 +48,7 @@ describe('MapVoteService', () => {
   beforeEach(async () => await service.onModuleInit());
 
   afterEach(async () => {
-    await mapModel.deleteMany({ });
+    await mapModel.deleteMany({});
   });
 
   it('should be defined', () => {
@@ -60,17 +56,19 @@ describe('MapVoteService', () => {
   });
 
   it('should reset all votes initially', () => {
-    expect(service.results.every(r => r.voteCount === 0)).toBe(true);
+    expect(service.results.every((r) => r.voteCount === 0)).toBe(true);
   });
 
   describe('#voteForMap()', () => {
     it('should save the vote', () => {
       service.voteForMap('FAKE_ID', 'cp_badlands');
-      expect(service.results).toEqual(expect.arrayContaining([
-        { map: 'cp_badlands', voteCount: 1 },
-        { map: 'cp_process_final', voteCount: 0 },
-        { map: 'cp_snakewater_final1', voteCount: 0 },
-      ]));
+      expect(service.results).toEqual(
+        expect.arrayContaining([
+          { map: 'cp_badlands', voteCount: 1 },
+          { map: 'cp_process_final', voteCount: 0 },
+          { map: 'cp_snakewater_final1', voteCount: 0 },
+        ]),
+      );
       expect(service.voteCountForMap('cp_badlands')).toEqual(1);
     });
 
@@ -84,26 +82,34 @@ describe('MapVoteService', () => {
       });
 
       it('should deny', () => {
-        expect(() => service.voteForMap('FAKE_ID', 'cp_badlands')).toThrowError();
+        expect(() =>
+          service.voteForMap('FAKE_ID', 'cp_badlands'),
+        ).toThrowError();
       });
     });
 
-    it('should remove the player\'s vote when the player leaves the queue', () => {
+    it("should remove the player's vote when the player leaves the queue", () => {
       service.voteForMap('FAKE_PLAYER_ID', 'cp_badlands');
       expect(service.voteCountForMap('cp_badlands')).toEqual(1);
-      events.playerLeavesQueue.next({ playerId: 'FAKE_PLAYER_ID', reason: 'manual' });
+      events.playerLeavesQueue.next({
+        playerId: 'FAKE_PLAYER_ID',
+        reason: 'manual',
+      });
       expect(service.voteCountForMap('cp_badlands')).toEqual(0);
     });
 
-    it('should emit the mapVotesChange event', async () => new Promise<void>(resolve => {
-      events.mapVotesChange.subscribe(({ results }) => {
-        expect(results.length).toEqual(3);
-        expect(results.find(r => r.map === 'cp_badlands').voteCount).toEqual(1);
-        resolve();
-      });
+    it('should emit the mapVotesChange event', async () =>
+      new Promise<void>((resolve) => {
+        events.mapVotesChange.subscribe(({ results }) => {
+          expect(results.length).toEqual(3);
+          expect(
+            results.find((r) => r.map === 'cp_badlands').voteCount,
+          ).toEqual(1);
+          resolve();
+        });
 
-      service.voteForMap('FAKE_ID', 'cp_badlands');
-    }));
+        service.voteForMap('FAKE_ID', 'cp_badlands');
+      }));
   });
 
   describe('#getWinner()', () => {
@@ -118,16 +124,19 @@ describe('MapVoteService', () => {
       expect(await service.getWinner()).toMatch(/cp_badlands|cp_process_final/);
     });
 
-    it('should eventually reset the vote', async () => new Promise<void>(resolve => {
-      events.mapVotesChange.pipe(skip(1)).subscribe(({ results }) => {
-        expect(results.every(r => r.voteCount === 0)).toBe(true);
-        expect(service.mapOptions.every(m => m !== 'cp_badlands')).toBe(true);
-        resolve();
-      });
+    it('should eventually reset the vote', async () =>
+      new Promise<void>((resolve) => {
+        events.mapVotesChange.pipe(skip(1)).subscribe(({ results }) => {
+          expect(results.every((r) => r.voteCount === 0)).toBe(true);
+          expect(service.mapOptions.every((m) => m !== 'cp_badlands')).toBe(
+            true,
+          );
+          resolve();
+        });
 
-      service.voteForMap('FAKE_ID_1', 'cp_badlands');
-      service.getWinner();
-    }));
+        service.voteForMap('FAKE_ID_1', 'cp_badlands');
+        service.getWinner();
+      }));
 
     describe('when a map is chosen', () => {
       beforeEach(async () => {
@@ -160,7 +169,7 @@ describe('MapVoteService', () => {
     const maps = await mapModel.find();
     events.mapPoolChange.next({ maps });
 
-    await new Promise(resolve => setTimeout(resolve, 100));
-    expect(service.results.every(r => r.voteCount === 0)).toBe(true);
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    expect(service.results.every((r) => r.voteCount === 0)).toBe(true);
   });
 });

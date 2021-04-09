@@ -3,11 +3,7 @@ import { Environment } from './environment';
 
 @Global()
 @Module({
-  providers: [
-    Environment,
-  ],
-  exports: [
-    Environment,
-  ],
+  providers: [Environment],
+  exports: [Environment],
 })
-export class EnvironmentModule { }
+export class EnvironmentModule {}

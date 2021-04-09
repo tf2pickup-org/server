@@ -3,4 +3,3 @@ export enum PlayerRole {
   admin = 'admin',
   bot = 'bot',
 }
-

@@ -11,12 +11,11 @@ interface UserStatsForGameResponse {
     gameName: string;
     stats: { name: string; value: number }[];
     achievements: { name: string; achieved: 1 }[];
-  }
+  };
 }
 
 @Injectable()
 export class SteamApiService {
-
   private readonly steamApiEndpoint = 'http://api.steampowered.com';
   private readonly userStatsEndpoint = `${this.steamApiEndpoint}/ISteamUserStats`;
   private readonly userStatsForGameEndpoint = `${this.userStatsEndpoint}/GetUserStatsForGame/v0002`;
@@ -25,20 +24,26 @@ export class SteamApiService {
   constructor(
     private httpService: HttpService,
     private environment: Environment,
-  ) { }
+  ) {}
 
   async getTf2InGameHours(steamId64: string): Promise<number> {
-    return this.httpService.get<UserStatsForGameResponse>(`${this.userStatsForGameEndpoint}/?appid=${this.tf2AppId}&key=${this.environment.steamApiKey}&steamid=${steamId64}&format=json`).pipe(
-      switchMap(response => {
-        return of(
-          response.data.playerstats.stats
-            .filter(s => /\.accum\.iPlayTime$/.test(s.name))
-            .reduce((sum, curr) => sum + curr.value, 0)
-        );
-      }),
-      map(seconds => floor(seconds / 60 / 60)),
-      catchError(error => throwError(new Tf2InGameHoursVerificationError(error))),
-    ).toPromise();
+    return this.httpService
+      .get<UserStatsForGameResponse>(
+        `${this.userStatsForGameEndpoint}/?appid=${this.tf2AppId}&key=${this.environment.steamApiKey}&steamid=${steamId64}&format=json`,
+      )
+      .pipe(
+        switchMap((response) => {
+          return of(
+            response.data.playerstats.stats
+              .filter((s) => /\.accum\.iPlayTime$/.test(s.name))
+              .reduce((sum, curr) => sum + curr.value, 0),
+          );
+        }),
+        map((seconds) => floor(seconds / 60 / 60)),
+        catchError((error) =>
+          throwError(new Tf2InGameHoursVerificationError(error)),
+        ),
+      )
+      .toPromise();
   }
-
 }

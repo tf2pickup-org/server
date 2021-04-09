@@ -19,9 +19,11 @@ jest.mock('../diagnostic-checks/server-discovery');
 describe('GameServerDiagnosticsService', () => {
   let service: GameServerDiagnosticsService;
   let mongod: MongoMemoryServer;
-  let gameServerDiagnosticRunModel: ReturnModelType<typeof GameServerDiagnosticRun>;
+  let gameServerDiagnosticRunModel: ReturnModelType<
+    typeof GameServerDiagnosticRun
+  >;
 
-  beforeAll(() => mongod = new MongoMemoryServer());
+  beforeAll(() => (mongod = new MongoMemoryServer()));
   afterAll(async () => await mongod.stop());
 
   beforeEach(async () => {
@@ -39,12 +41,16 @@ describe('GameServerDiagnosticsService', () => {
       ],
     }).compile();
 
-    service = module.get<GameServerDiagnosticsService>(GameServerDiagnosticsService);
-    gameServerDiagnosticRunModel = module.get(getModelToken(GameServerDiagnosticRun.name));
+    service = module.get<GameServerDiagnosticsService>(
+      GameServerDiagnosticsService,
+    );
+    gameServerDiagnosticRunModel = module.get(
+      getModelToken(GameServerDiagnosticRun.name),
+    );
   });
 
   afterEach(async () => {
-    await gameServerDiagnosticRunModel.deleteMany({ });
+    await gameServerDiagnosticRunModel.deleteMany({});
   });
 
   it('should be defined', () => {
@@ -56,7 +62,12 @@ describe('GameServerDiagnosticsService', () => {
       let id: string;
 
       beforeEach(async () => {
-        id = (await gameServerDiagnosticRunModel.create({ gameServer: new mongoose.Types.ObjectId().toString(), checks: [] })).id;
+        id = (
+          await gameServerDiagnosticRunModel.create({
+            gameServer: new mongoose.Types.ObjectId().toString(),
+            checks: [],
+          })
+        ).id;
       });
 
       it('should return the given run', async () => {
@@ -67,8 +78,11 @@ describe('GameServerDiagnosticsService', () => {
 
     describe('when the given run does not exist', () => {
       it('should throw an error', async () => {
-        await expect(() => service.getDiagnosticRunById(new mongoose.Types.ObjectId().toString())).rejects
-          .toThrow(mongoose.Error.DocumentNotFoundError);
+        await expect(() =>
+          service.getDiagnosticRunById(
+            new mongoose.Types.ObjectId().toString(),
+          ),
+        ).rejects.toThrow(mongoose.Error.DocumentNotFoundError);
       });
     });
   });

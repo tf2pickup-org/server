@@ -1,7 +1,6 @@
 import { IsPort, IsString } from 'class-validator';
 
 export class AddGameServer {
-
   @IsString()
   name: string;
 
@@ -13,5 +12,4 @@ export class AddGameServer {
 
   @IsString()
   rconPassword: string;
-
 }

@@ -5,9 +5,11 @@
  * @param rconResponse The plain rcon response
  */
 export function extractConVarValue(rconResponse: string): string {
-  return rconResponse
-    ?.split(/\r?\n/)[0]
-    // https://regex101.com/r/jeIrq2/1
-    ?.match(/^"(.[^"]*)"\s=\s"(.*)"(\s\(\s?def\.\s"(.*)"\s?\))?$/)?.[2]
-    ?.toString();
+  return (
+    rconResponse
+      ?.split(/\r?\n/)[0]
+      // https://regex101.com/r/jeIrq2/1
+      ?.match(/^"(.[^"]*)"\s=\s"(.*)"(\s\(\s?def\.\s"(.*)"\s?\))?$/)?.[2]
+      ?.toString()
+  );
 }

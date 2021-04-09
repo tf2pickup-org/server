@@ -8,7 +8,6 @@ interface PlayerStatsParams {
 }
 
 export class PlayerStats {
-
   constructor(params: PlayerStatsParams) {
     this.player = params.player;
     this.gamesPlayed = params.gamesPlayed;

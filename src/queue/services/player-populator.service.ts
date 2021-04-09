@@ -4,17 +4,18 @@ import { QueueSlot } from '../queue-slot';
 
 @Injectable()
 export class PlayerPopulatorService {
-
-  constructor(
-    private playersService: PlayersService,
-  ) { }
+  constructor(private playersService: PlayersService) {}
 
   async populatePlayer(slot: QueueSlot) {
-    return { ...slot, player: slot.playerId ? (await this.playersService.getById(slot.playerId)) : null };
+    return {
+      ...slot,
+      player: slot.playerId
+        ? await this.playersService.getById(slot.playerId)
+        : null,
+    };
   }
 
   async populatePlayers(slots: QueueSlot[]) {
-    return Promise.all(slots.map(slot => this.populatePlayer(slot)));
+    return Promise.all(slots.map((slot) => this.populatePlayer(slot)));
   }
-
 }

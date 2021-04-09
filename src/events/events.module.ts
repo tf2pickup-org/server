@@ -3,11 +3,7 @@ import { Events } from './events';
 
 @Global()
 @Module({
-  providers: [
-    Events,
-  ],
-  exports: [
-    Events,
-  ],
+  providers: [Events],
+  exports: [Events],
 })
-export class EventsModule { }
+export class EventsModule {}

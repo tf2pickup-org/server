@@ -1,4 +1,10 @@
-import { Injectable, Logger, Inject, forwardRef, OnModuleInit } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  Inject,
+  forwardRef,
+  OnModuleInit,
+} from '@nestjs/common';
 import { Environment } from '@/environment/environment';
 import { Player } from '../models/player';
 import { mongoose, ReturnModelType } from '@typegoose/typegoose';
@@ -28,7 +34,6 @@ type ForceCreatePlayerOptions = Pick<Player, 'steamId' | 'name'>;
 
 @Injectable()
 export class PlayersService implements OnModuleInit {
-
   private logger = new Logger(PlayersService.name);
 
   constructor(
@@ -40,7 +45,7 @@ export class PlayersService implements OnModuleInit {
     private events: Events,
     private onlinePlayersService: OnlinePlayersService,
     private configurationService: ConfigurationService,
-  ) { }
+  ) {}
 
   async onModuleInit() {
     try {
@@ -49,7 +54,7 @@ export class PlayersService implements OnModuleInit {
       if (error instanceof mongoose.Error.DocumentNotFoundError) {
         await this.playerModel.create({
           name: this.environment.botName,
-          roles: [ PlayerRole.bot ],
+          roles: [PlayerRole.bot],
         });
       } else {
         throw error;
@@ -59,34 +64,65 @@ export class PlayersService implements OnModuleInit {
     this.events.playerUpdates.subscribe(({ newPlayer }) => {
       this.onlinePlayersService
         .getSocketsForPlayer(newPlayer.id)
-        .forEach(socket => socket.emit(WebsocketEvent.profileUpdate, {
-          player: classToPlain(newPlayer),
-        }));
+        .forEach((socket) =>
+          socket.emit(WebsocketEvent.profileUpdate, {
+            player: classToPlain(newPlayer),
+          }),
+        );
     });
   }
 
   async getAll(): Promise<Player[]> {
-    return plainToClass(Player, await this.playerModel.find({ roles: { $ne: PlayerRole.bot } }).lean().exec());
+    return plainToClass(
+      Player,
+      await this.playerModel
+        .find({ roles: { $ne: PlayerRole.bot } })
+        .lean()
+        .exec(),
+    );
   }
 
   async getById(id: string | ObjectId): Promise<Player> {
-    return plainToClass(Player, await this.playerModel.findById(id).orFail().lean().exec());
+    return plainToClass(
+      Player,
+      await this.playerModel.findById(id).orFail().lean().exec(),
+    );
   }
 
   async findBySteamId(steamId: string): Promise<Player> {
-    return plainToClass(Player, await this.playerModel.findOne({ steamId }).orFail().lean().exec());
+    return plainToClass(
+      Player,
+      await this.playerModel.findOne({ steamId }).orFail().lean().exec(),
+    );
   }
 
   async findByEtf2lProfileId(etf2lProfileId: number): Promise<Player> {
-    return plainToClass(Player, await this.playerModel.findOne({ etf2lProfileId }).orFail().lean().exec());
+    return plainToClass(
+      Player,
+      await this.playerModel.findOne({ etf2lProfileId }).orFail().lean().exec(),
+    );
   }
 
   async findByTwitchUserId(twitchTvUserId: string): Promise<Player> {
-    return plainToClass(Player, await this.playerModel.findOne({ 'twitchTvUser.userId': twitchTvUserId }).orFail().lean().exec());
+    return plainToClass(
+      Player,
+      await this.playerModel
+        .findOne({ 'twitchTvUser.userId': twitchTvUserId })
+        .orFail()
+        .lean()
+        .exec(),
+    );
   }
 
   async findBot(): Promise<Player> {
-    return plainToClass(Player, this.playerModel.findOne({ name: this.environment.botName }).orFail().lean().exec());
+    return plainToClass(
+      Player,
+      this.playerModel
+        .findOne({ name: this.environment.botName })
+        .orFail()
+        .lean()
+        .exec(),
+    );
   }
 
   async createPlayer(steamProfile: SteamProfile): Promise<Player> {
@@ -96,9 +132,14 @@ export class PlayersService implements OnModuleInit {
     let name = steamProfile.displayName;
 
     try {
-      etf2lProfile = await this.etf2lProfileService.fetchPlayerInfo(steamProfile.id);
+      etf2lProfile = await this.etf2lProfileService.fetchPlayerInfo(
+        steamProfile.id,
+      );
 
-      if (etf2lProfile.bans?.filter(ban => ban.end > Date.now() / 1000).length > 0) {
+      if (
+        etf2lProfile.bans?.filter((ban) => ban.end > Date.now() / 1000).length >
+        0
+      ) {
         throw new AccountBannedError('this account is banned on ETF2L');
       }
 
@@ -115,14 +156,19 @@ export class PlayersService implements OnModuleInit {
       large: steamProfile.photos[2].value,
     };
 
-    const id = (await this.playerModel.create({
-      steamId: steamProfile.id,
-      name,
-      avatar,
-      roles: this.environment.superUser === steamProfile.id ? [ PlayerRole.superUser, PlayerRole.admin ] : [],
-      etf2lProfileId: etf2lProfile?.id,
-      hasAcceptedRules: false,
-    }))._id;
+    const id = (
+      await this.playerModel.create({
+        steamId: steamProfile.id,
+        name,
+        avatar,
+        roles:
+          this.environment.superUser === steamProfile.id
+            ? [PlayerRole.superUser, PlayerRole.admin]
+            : [],
+        etf2lProfileId: etf2lProfile?.id,
+        hasAcceptedRules: false,
+      })
+    )._id;
 
     const player = await this.getById(id);
     this.logger.verbose(`created new player (name: ${player?.name})`);
@@ -133,12 +179,16 @@ export class PlayersService implements OnModuleInit {
   /**
    * Create player account, omitting all checks.
    */
-  async forceCreatePlayer(playerData: ForceCreatePlayerOptions): Promise<Player> {
+  async forceCreatePlayer(
+    playerData: ForceCreatePlayerOptions,
+  ): Promise<Player> {
     let etf2lProfile: Etf2lProfile;
     try {
-      etf2lProfile = await this.etf2lProfileService.fetchPlayerInfo(playerData.steamId);
-    // eslint-disable-next-line no-empty
-    } catch (error) { }
+      etf2lProfile = await this.etf2lProfileService.fetchPlayerInfo(
+        playerData.steamId,
+      );
+      // eslint-disable-next-line no-empty
+    } catch (error) {}
 
     const { id } = await this.playerModel.create({
       etf2lProfileId: etf2lProfile?.id,
@@ -151,7 +201,10 @@ export class PlayersService implements OnModuleInit {
   }
 
   // FIXME Move this method to TwitchModule
-  async registerTwitchAccount(playerId: string, twitchTvUser: TwitchTvUser): Promise<Player> {
+  async registerTwitchAccount(
+    playerId: string,
+    twitchTvUser: TwitchTvUser,
+  ): Promise<Player> {
     return this.updatePlayer(playerId, { twitchTvUser });
   }
 
@@ -161,12 +214,28 @@ export class PlayersService implements OnModuleInit {
   }
 
   async getUsersWithTwitchTvAccount(): Promise<Player[]> {
-    return plainToClass(Player, await this.playerModel.find({ twitchTvUser: { $exists: true } }).lean().exec());
+    return plainToClass(
+      Player,
+      await this.playerModel
+        .find({ twitchTvUser: { $exists: true } })
+        .lean()
+        .exec(),
+    );
   }
 
-  async updatePlayer(playerId: string, update: UpdateQuery<Player>, adminId?: string): Promise<Player> {
+  async updatePlayer(
+    playerId: string,
+    update: UpdateQuery<Player>,
+    adminId?: string,
+  ): Promise<Player> {
     const oldPlayer = await this.getById(playerId);
-    const newPlayer = plainToClass(Player, await this.playerModel.findOneAndUpdate({ _id: playerId }, update, { new: true }).lean().exec());
+    const newPlayer = plainToClass(
+      Player,
+      await this.playerModel
+        .findOneAndUpdate({ _id: playerId }, update, { new: true })
+        .lean()
+        .exec(),
+    );
     this.events.playerUpdates.next({ oldPlayer, newPlayer, adminId });
     return newPlayer;
   }
@@ -182,8 +251,14 @@ export class PlayersService implements OnModuleInit {
   async getPlayerStats(playerId: string): Promise<PlayerStats> {
     return new PlayerStats({
       player: playerId,
-      gamesPlayed: await this.gamesService.getPlayerGameCount(playerId, { endedOnly: true }),
-      classesPlayed: new Map(Object.entries(await this.gamesService.getPlayerPlayedClassCount(playerId))) as Map<Tf2ClassName, number>,
+      gamesPlayed: await this.gamesService.getPlayerGameCount(playerId, {
+        endedOnly: true,
+      }),
+      classesPlayed: new Map(
+        Object.entries(
+          await this.gamesService.getPlayerPlayedClassCount(playerId),
+        ),
+      ) as Map<Tf2ClassName, number>,
     });
   }
 
@@ -195,12 +270,14 @@ export class PlayersService implements OnModuleInit {
         throw new InsufficientTf2InGameHoursError();
       }
     } catch (error) {
-      if (error instanceof Tf2InGameHoursVerificationError && minimumTf2InGameHours <= 0) {
+      if (
+        error instanceof Tf2InGameHoursVerificationError &&
+        minimumTf2InGameHours <= 0
+      ) {
         return;
       } else {
         throw error;
       }
     }
   }
-
 }

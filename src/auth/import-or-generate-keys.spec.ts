@@ -28,48 +28,65 @@ describe('importOrGenerateKeys()', () => {
         typegooseTestingModule(mongod),
         TypegooseModule.forFeature([Key]),
       ],
-      providers: [
-        { provide: Environment, useValue: environment },
-      ],
+      providers: [{ provide: Environment, useValue: environment }],
     }).compile();
 
     keyModel = module.get(getModelToken(Key.name));
   });
 
-  afterEach(async () => await keyModel.deleteMany({ }));
+  afterEach(async () => await keyModel.deleteMany({}));
 
   describe('when the key is in the database', () => {
     let generatedKeyPair: KeyPair;
 
     beforeEach(async () => {
-      const generateKeyPairAsync = promisify(generateKeyPair)
-      generatedKeyPair = await generateKeyPairAsync('ec', { namedCurve: 'secp521r1' });
+      const generateKeyPairAsync = promisify(generateKeyPair);
+      generatedKeyPair = await generateKeyPairAsync('ec', {
+        namedCurve: 'secp521r1',
+      });
 
       await keyModel.create({
         name: KeyName.auth,
-        publicKeyEncoded: generatedKeyPair.publicKey.export({
-          format: 'pem',
-          type: 'spki',
-        }).toString(),
-        privateKeyEncoded: generatedKeyPair.privateKey.export({
-          format: 'pem',
-          type: 'pkcs8',
-          passphrase: environment.keyStorePassphare,
-          cipher: 'aes-256-cbc',
-        }).toString(),
+        publicKeyEncoded: generatedKeyPair.publicKey
+          .export({
+            format: 'pem',
+            type: 'spki',
+          })
+          .toString(),
+        privateKeyEncoded: generatedKeyPair.privateKey
+          .export({
+            format: 'pem',
+            type: 'pkcs8',
+            passphrase: environment.keyStorePassphare,
+            cipher: 'aes-256-cbc',
+          })
+          .toString(),
       });
     });
 
     it('should return the same keys', async () => {
-      const keyPair = await importOrGenerateKeys(keyModel, KeyName.auth, environment.keyStorePassphare);
-      expect(keyPair.publicKey.export({ format: 'pem', type: 'spki' }).toString())
-        .toEqual(generatedKeyPair.publicKey.export({ format: 'pem', type: 'spki' }).toString())
+      const keyPair = await importOrGenerateKeys(
+        keyModel,
+        KeyName.auth,
+        environment.keyStorePassphare,
+      );
+      expect(
+        keyPair.publicKey.export({ format: 'pem', type: 'spki' }).toString(),
+      ).toEqual(
+        generatedKeyPair.publicKey
+          .export({ format: 'pem', type: 'spki' })
+          .toString(),
+      );
     });
   });
 
   describe('when the key is not yet in the database', () => {
     it('should generate them', async () => {
-      await importOrGenerateKeys(keyModel, KeyName.auth, environment.keyStorePassphare);
+      await importOrGenerateKeys(
+        keyModel,
+        KeyName.auth,
+        environment.keyStorePassphare,
+      );
       expect(await keyModel.findOne({ name: KeyName.auth })).toBeTruthy();
     });
   });

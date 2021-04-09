@@ -19,14 +19,21 @@ interface PlayerBanRevokedOptions {
   reason: string;
 }
 
-export const playerBanRevoked = (options: PlayerBanRevokedOptions) => new MessageEmbed()
-  .setColor(Colors.PlayerBanRevoked)
-  .setAuthor(options.admin.name, options.admin.avatarUrl, options.admin.profileUrl)
-  .setTitle('Player ban revoked')
-  .setThumbnail(options.player.avatarUrl)
-  .setDescription([
-    `Player: **[${options.player.name}](${options.player.profileUrl})**`,
-    `Reason: **${options.reason}**`,
-  ].join('\n'))
-  .setFooter(options.client.name, options.client.iconUrl)
-  .setTimestamp();
+export const playerBanRevoked = (options: PlayerBanRevokedOptions) =>
+  new MessageEmbed()
+    .setColor(Colors.PlayerBanRevoked)
+    .setAuthor(
+      options.admin.name,
+      options.admin.avatarUrl,
+      options.admin.profileUrl,
+    )
+    .setTitle('Player ban revoked')
+    .setThumbnail(options.player.avatarUrl)
+    .setDescription(
+      [
+        `Player: **[${options.player.name}](${options.player.profileUrl})**`,
+        `Reason: **${options.reason}**`,
+      ].join('\n'),
+    )
+    .setFooter(options.client.name, options.client.iconUrl)
+    .setTimestamp();

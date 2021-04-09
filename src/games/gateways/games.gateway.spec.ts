@@ -23,11 +23,7 @@ describe('GamesGateway', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        GamesGateway,
-        PlayerSubstitutionService,
-        Events,
-      ],
+      providers: [GamesGateway, PlayerSubstitutionService, Events],
     }).compile();
 
     gateway = module.get<GamesGateway>(GamesGateway);
@@ -54,10 +50,16 @@ describe('GamesGateway', () => {
   describe('#replacePlayer()', () => {
     it('should replace the player', async () => {
       const ret = await gateway.replacePlayer(
-        { request: { user: { id: 'FAKE_REPLACEMENT_ID', logged_in: true } } } as AuthorizedWsClient,
+        {
+          request: { user: { id: 'FAKE_REPLACEMENT_ID', logged_in: true } },
+        } as AuthorizedWsClient,
         { gameId: 'FAKE_GAME_ID', replaceeId: 'FAKE_REPLACEE_ID' },
       );
-      expect(playerSubstitutionService.replacePlayer).toHaveBeenCalledWith('FAKE_GAME_ID', 'FAKE_REPLACEE_ID', 'FAKE_REPLACEMENT_ID');
+      expect(playerSubstitutionService.replacePlayer).toHaveBeenCalledWith(
+        'FAKE_GAME_ID',
+        'FAKE_REPLACEE_ID',
+        'FAKE_REPLACEMENT_ID',
+      );
       expect(ret).toEqual(mockGame as any);
     });
   });

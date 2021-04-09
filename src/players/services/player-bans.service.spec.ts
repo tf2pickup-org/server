@@ -14,7 +14,9 @@ import { Events } from '@/events/events';
 jest.mock('./players.service');
 
 class OnlinePlayersServiceStub {
-  getSocketsForPlayer(playerId: string) { return []; }
+  getSocketsForPlayer(playerId: string) {
+    return [];
+  }
 }
 
 describe('PlayerBansService', () => {
@@ -28,14 +30,14 @@ describe('PlayerBansService', () => {
   let player: DocumentType<Player>;
   let events: Events;
 
-  beforeAll(() => mongod = new MongoMemoryServer());
+  beforeAll(() => (mongod = new MongoMemoryServer()));
   afterAll(async () => mongod.stop());
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [
         typegooseTestingModule(mongod),
-        TypegooseModule.forFeature([ PlayerBan, Player ]),
+        TypegooseModule.forFeature([PlayerBan, Player]),
       ],
       providers: [
         PlayerBansService,
@@ -88,7 +90,9 @@ describe('PlayerBansService', () => {
 
     describe('when the given ban does not exist', () => {
       it('should throw', async () => {
-        await expect(service.getById(new mongoose.Types.ObjectId().toString())).rejects.toThrow(mongoose.Error.DocumentNotFoundError);
+        await expect(
+          service.getById(new mongoose.Types.ObjectId().toString()),
+        ).rejects.toThrow(mongoose.Error.DocumentNotFoundError);
       });
     });
   });
@@ -131,27 +135,29 @@ describe('PlayerBansService', () => {
         expect(ret).toMatchObject(newBan);
       });
 
-      it('should emit the playerBanAdded event', async () => new Promise<void>(resolve => {
-        events.playerBanAdded.subscribe(({ ban }) => {
-          expect(ban.player.toString()).toEqual(player.id.toString());
-          resolve();
-        });
-
-        service.addPlayerBan(newBan);
-      }));
-
-      it('should emit profile update event on player\'s socket', async () => new Promise<void>(resolve => {
-        const socket = {
-          emit: (eventName: string, update: any) => {
-            expect(eventName).toEqual('profile update');
-            expect(update.bans.length).toEqual(2);
+      it('should emit the playerBanAdded event', async () =>
+        new Promise<void>((resolve) => {
+          events.playerBanAdded.subscribe(({ ban }) => {
+            expect(ban.player.toString()).toEqual(player.id.toString());
             resolve();
-          },
-        };
+          });
 
-        onlinePlayersService.getSocketsForPlayer = () => [ socket ];
-        service.addPlayerBan(newBan);
-      }));
+          service.addPlayerBan(newBan);
+        }));
+
+      it("should emit profile update event on player's socket", async () =>
+        new Promise<void>((resolve) => {
+          const socket = {
+            emit: (eventName: string, update: any) => {
+              expect(eventName).toEqual('profile update');
+              expect(update.bans.length).toEqual(2);
+              resolve();
+            },
+          };
+
+          onlinePlayersService.getSocketsForPlayer = () => [socket];
+          service.addPlayerBan(newBan);
+        }));
     });
 
     describe('when adding a ban that has invalid player id', () => {
@@ -182,15 +188,16 @@ describe('PlayerBansService', () => {
       expect(ban.end.getTime()).toBeLessThanOrEqual(new Date().getTime());
     });
 
-    it('should emit the playerBanRevoked event', async () => new Promise<void>(resolve => {
-      events.playerBanRevoked.subscribe(({ ban, adminId }) => {
-        expect(adminId).toEqual(admin.id);
-        expect(ban.player.toString()).toEqual(player.id.toString());
-        resolve();
-      });
+    it('should emit the playerBanRevoked event', async () =>
+      new Promise<void>((resolve) => {
+        events.playerBanRevoked.subscribe(({ ban, adminId }) => {
+          expect(adminId).toEqual(admin.id);
+          expect(ban.player.toString()).toEqual(player.id.toString());
+          resolve();
+        });
 
-      service.revokeBan(mockPlayerBan.id, admin.id);
-    }));
+        service.revokeBan(mockPlayerBan.id, admin.id);
+      }));
 
     describe('when attempting to revoke an already expired ban', () => {
       beforeEach(async () => {
@@ -199,7 +206,9 @@ describe('PlayerBansService', () => {
       });
 
       it('should reject', async () => {
-        await expect(service.revokeBan(mockPlayerBan.id, admin.id)).rejects.toThrowError();
+        await expect(
+          service.revokeBan(mockPlayerBan.id, admin.id),
+        ).rejects.toThrowError();
       });
     });
   });

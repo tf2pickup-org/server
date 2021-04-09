@@ -1,4 +1,8 @@
-import { WebSocketGateway, OnGatewayInit, SubscribeMessage } from '@nestjs/websockets';
+import {
+  WebSocketGateway,
+  OnGatewayInit,
+  SubscribeMessage,
+} from '@nestjs/websockets';
 import { Socket } from 'socket.io';
 import { WsAuthorized } from '@/auth/decorators/ws-authorized.decorator';
 import { PlayerSubstitutionService } from '../services/player-substitution.service';
@@ -9,18 +13,25 @@ import { WebsocketEvent } from '@/websocket-event';
 
 @WebSocketGateway()
 export class GamesGateway implements OnGatewayInit, OnModuleInit {
-
   private socket: Socket;
 
   constructor(
-    @Inject(forwardRef(() => PlayerSubstitutionService)) private playerSubstitutionService: PlayerSubstitutionService,
+    @Inject(forwardRef(() => PlayerSubstitutionService))
+    private playerSubstitutionService: PlayerSubstitutionService,
     private events: Events,
-  ) { }
+  ) {}
 
   @WsAuthorized()
   @SubscribeMessage('replace player')
-  async replacePlayer(client: AuthorizedWsClient, payload: { gameId: string, replaceeId: string }) {
-    return await this.playerSubstitutionService.replacePlayer(payload.gameId, payload.replaceeId, client.request.user.id);
+  async replacePlayer(
+    client: AuthorizedWsClient,
+    payload: { gameId: string; replaceeId: string },
+  ) {
+    return await this.playerSubstitutionService.replacePlayer(
+      payload.gameId,
+      payload.replaceeId,
+      client.request.user.id,
+    );
   }
 
   afterInit(socket: Socket) {
@@ -28,8 +39,11 @@ export class GamesGateway implements OnGatewayInit, OnModuleInit {
   }
 
   onModuleInit() {
-    this.events.gameCreated.subscribe(({ game }) => this.socket.emit(WebsocketEvent.gameCreated, game));
-    this.events.gameChanges.subscribe(({ game }) => this.socket.emit(WebsocketEvent.gameUpdated, game));
+    this.events.gameCreated.subscribe(({ game }) =>
+      this.socket.emit(WebsocketEvent.gameCreated, game),
+    );
+    this.events.gameChanges.subscribe(({ game }) =>
+      this.socket.emit(WebsocketEvent.gameUpdated, game),
+    );
   }
-
 }

@@ -11,7 +11,7 @@ describe('DocumentsService', () => {
   let mongod: MongoMemoryServer;
   let documentModel: ReturnModelType<typeof Document>;
 
-  beforeAll(() => mongod = new MongoMemoryServer());
+  beforeAll(() => (mongod = new MongoMemoryServer()));
   afterAll(async () => await mongod.stop());
 
   beforeEach(async () => {
@@ -20,16 +20,14 @@ describe('DocumentsService', () => {
         typegooseTestingModule(mongod),
         TypegooseModule.forFeature([Document]),
       ],
-      providers: [
-        DocumentsService,
-      ],
+      providers: [DocumentsService],
     }).compile();
 
     service = module.get<DocumentsService>(DocumentsService);
     documentModel = module.get(getModelToken(Document.name));
   });
 
-  afterEach(async () => await documentModel.deleteMany({ }));
+  afterEach(async () => await documentModel.deleteMany({}));
 
   it('should be defined', () => {
     expect(service).toBeDefined();
@@ -38,14 +36,20 @@ describe('DocumentsService', () => {
   describe('#onModuleInit()', () => {
     it('should create empty rules document', async () => {
       await service.onModuleInit();
-      expect(await documentModel.findOne({ name: 'rules', language: 'en' })).toBeTruthy();
+      expect(
+        await documentModel.findOne({ name: 'rules', language: 'en' }),
+      ).toBeTruthy();
     });
   });
 
   describe('#getDocument()', () => {
     describe('when a given document exists', () => {
       beforeEach(async () => {
-        await documentModel.create({ name: 'test', language: 'en', body: 'just testing' });
+        await documentModel.create({
+          name: 'test',
+          language: 'en',
+          body: 'just testing',
+        });
       });
 
       it('should return the document', async () => {
@@ -59,7 +63,9 @@ describe('DocumentsService', () => {
 
     describe('when the given document does not exist', () => {
       it('should throw an error', async () => {
-        await expect(service.getDocument('test')).rejects.toThrow(mongoose.Error.DocumentNotFoundError);
+        await expect(service.getDocument('test')).rejects.toThrow(
+          mongoose.Error.DocumentNotFoundError,
+        );
       });
     });
   });
@@ -76,5 +82,4 @@ describe('DocumentsService', () => {
       expect(doc).toMatchObject(ret);
     });
   });
-
 });

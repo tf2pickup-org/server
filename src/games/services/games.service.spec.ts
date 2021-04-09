@@ -48,7 +48,7 @@ describe('GamesService', () => {
   let playerSkillService: jest.Mocked<PlayerSkillService>;
   let configurationService: jest.Mocked<ConfigurationService>;
 
-  beforeAll(() => mongod = new MongoMemoryServer());
+  beforeAll(() => (mongod = new MongoMemoryServer()));
   afterAll(async () => await mongod.stop());
 
   beforeEach(async () => {
@@ -80,7 +80,7 @@ describe('GamesService', () => {
   afterEach(async () => {
     // @ts-expect-error
     await playersService._reset();
-    await gameModel.deleteMany({ });
+    await gameModel.deleteMany({});
   });
 
   it('should be defined', () => {
@@ -100,7 +100,11 @@ describe('GamesService', () => {
     let game: DocumentType<Game>;
 
     beforeEach(async () => {
-      game = await gameModel.create({ number: 1, map: 'cp_badlands', slots: [] });
+      game = await gameModel.create({
+        number: 1,
+        map: 'cp_badlands',
+        slots: [],
+      });
     });
 
     it('should get the game by its id', async () => {
@@ -115,15 +119,32 @@ describe('GamesService', () => {
     let endedGame: DocumentType<Game>;
 
     beforeEach(async () => {
-      launchingGame = await gameModel.create({ number: 1, map: 'cp_badlands', state: GameState.launching, slots: [] });
-      runningGame = await gameModel.create({ number: 2, map: 'cp_badlands', state: GameState.started, slots: [] });
-      endedGame = await gameModel.create({ number: 3, map: 'cp_badlands', state: GameState.ended, slots: [] });
+      launchingGame = await gameModel.create({
+        number: 1,
+        map: 'cp_badlands',
+        state: GameState.launching,
+        slots: [],
+      });
+      runningGame = await gameModel.create({
+        number: 2,
+        map: 'cp_badlands',
+        state: GameState.started,
+        slots: [],
+      });
+      endedGame = await gameModel.create({
+        number: 3,
+        map: 'cp_badlands',
+        state: GameState.ended,
+        slots: [],
+      });
     });
 
     it('should get only running games', async () => {
       const ret = await service.getRunningGames();
       expect(ret.length).toEqual(2);
-      expect(JSON.stringify(ret)).toEqual(JSON.stringify([ launchingGame, runningGame ]));
+      expect(JSON.stringify(ret)).toEqual(
+        JSON.stringify([launchingGame, runningGame]),
+      );
     });
   });
 
@@ -192,7 +213,7 @@ describe('GamesService', () => {
         playerId = new ObjectId().toString();
         player2Id = new ObjectId().toString();
 
-        await  gameModel.create({
+        await gameModel.create({
           number: 1,
           map: 'cp_badlands',
           state: GameState.started,
@@ -224,7 +245,7 @@ describe('GamesService', () => {
 
       beforeEach(async () => {
         playerId = new ObjectId().toString();
-        await  gameModel.create({
+        await gameModel.create({
           number: 1,
           map: 'cp_badlands',
           state: GameState.ended,
@@ -250,38 +271,112 @@ describe('GamesService', () => {
 
     beforeEach(async () => {
       slots = [
-        // @ts-expect-error
-        { id: 0, gameClass: Tf2ClassName.scout, playerId: (await playersService._createOne())._id, ready: true, friend: null },
-        // @ts-expect-error
-        { id: 1, gameClass: Tf2ClassName.scout, playerId: (await playersService._createOne())._id, ready: true, friend: null },
-        // @ts-expect-error
-        { id: 2, gameClass: Tf2ClassName.scout, playerId: (await playersService._createOne())._id, ready: true, friend: null },
-        // @ts-expect-error
-        { id: 3, gameClass: Tf2ClassName.scout, playerId: (await playersService._createOne())._id, ready: true, friend: null },
-        // @ts-expect-error
-        { id: 4, gameClass: Tf2ClassName.soldier, playerId: (await playersService._createOne())._id, ready: true, friend: null },
-        // @ts-expect-error
-        { id: 5, gameClass: Tf2ClassName.soldier, playerId: (await playersService._createOne())._id, ready: true, friend: null },
-        // @ts-expect-error
-        { id: 6, gameClass: Tf2ClassName.soldier, playerId: (await playersService._createOne())._id, ready: true, friend: null },
-        // @ts-expect-error
-        { id: 7, gameClass: Tf2ClassName.soldier, playerId: (await playersService._createOne())._id, ready: true, friend: null },
-        // @ts-expect-error
-        { id: 8, gameClass: Tf2ClassName.demoman, playerId: (await playersService._createOne())._id, ready: true, friend: null },
-        // @ts-expect-error
-        { id: 9, gameClass: Tf2ClassName.demoman, playerId: (await playersService._createOne())._id, ready: true, friend: null },
-        // @ts-expect-error
-        { id: 10, gameClass: Tf2ClassName.medic, playerId: (await playersService._createOne())._id, ready: true, friend: null },
-        // @ts-expect-error
-        { id: 11, gameClass: Tf2ClassName.medic, playerId: (await playersService._createOne())._id, ready: true, friend: null },
+        {
+          id: 0,
+          gameClass: Tf2ClassName.scout,
+          // @ts-expect-error
+          playerId: (await playersService._createOne())._id,
+          ready: true,
+          friend: null,
+        },
+        {
+          id: 1,
+          gameClass: Tf2ClassName.scout,
+          // @ts-expect-error
+          playerId: (await playersService._createOne())._id,
+          ready: true,
+          friend: null,
+        },
+        {
+          id: 2,
+          gameClass: Tf2ClassName.scout,
+          // @ts-expect-error
+          playerId: (await playersService._createOne())._id,
+          ready: true,
+          friend: null,
+        },
+        {
+          id: 3,
+          gameClass: Tf2ClassName.scout,
+          // @ts-expect-error
+          playerId: (await playersService._createOne())._id,
+          ready: true,
+          friend: null,
+        },
+        {
+          id: 4,
+          gameClass: Tf2ClassName.soldier,
+          // @ts-expect-error
+          playerId: (await playersService._createOne())._id,
+          ready: true,
+          friend: null,
+        },
+        {
+          id: 5,
+          gameClass: Tf2ClassName.soldier,
+          // @ts-expect-error
+          playerId: (await playersService._createOne())._id,
+          ready: true,
+          friend: null,
+        },
+        {
+          id: 6,
+          gameClass: Tf2ClassName.soldier,
+          // @ts-expect-error
+          playerId: (await playersService._createOne())._id,
+          ready: true,
+          friend: null,
+        },
+        {
+          id: 7,
+          gameClass: Tf2ClassName.soldier,
+          // @ts-expect-error
+          playerId: (await playersService._createOne())._id,
+          ready: true,
+          friend: null,
+        },
+        {
+          id: 8,
+          gameClass: Tf2ClassName.demoman,
+          // @ts-expect-error
+          playerId: (await playersService._createOne())._id,
+          ready: true,
+          friend: null,
+        },
+        {
+          id: 9,
+          gameClass: Tf2ClassName.demoman,
+          // @ts-expect-error
+          playerId: (await playersService._createOne())._id,
+          ready: true,
+          friend: null,
+        },
+        {
+          id: 10,
+          gameClass: Tf2ClassName.medic,
+          // @ts-expect-error
+          playerId: (await playersService._createOne())._id,
+          ready: true,
+          friend: null,
+        },
+        {
+          id: 11,
+          gameClass: Tf2ClassName.medic,
+          // @ts-expect-error
+          playerId: (await playersService._createOne())._id,
+          ready: true,
+          friend: null,
+        },
       ] as any;
 
-      configurationService.getDefaultPlayerSkill.mockResolvedValue(new Map([
-        [Tf2ClassName.scout, 2],
-        [Tf2ClassName.soldier, 3],
-        [Tf2ClassName.demoman, 4],
-        [Tf2ClassName.medic, 5],
-      ]));
+      configurationService.getDefaultPlayerSkill.mockResolvedValue(
+        new Map([
+          [Tf2ClassName.scout, 2],
+          [Tf2ClassName.soldier, 3],
+          [Tf2ClassName.demoman, 4],
+          [Tf2ClassName.medic, 5],
+        ]),
+      );
     });
 
     describe('when the queue is not full', () => {
@@ -291,55 +386,78 @@ describe('GamesService', () => {
       });
 
       it('should fail', async () => {
-        await expect(service.create(slots, 'cp_fake')).rejects.toThrow('queue not full');
+        await expect(service.create(slots, 'cp_fake')).rejects.toThrow(
+          'queue not full',
+        );
       });
     });
 
     it('should create a game', async () => {
       const game = await service.create(slots, 'cp_fake');
-      expect(game.toObject()).toEqual(expect.objectContaining({
-        number: 1,
-        map: 'cp_fake',
-        slots: expect.any(Array),
-        assignedSkills: expect.any(Object),
-        state: 'launching',
-        launchedAt: expect.any(Date),
-      }));
+      expect(game.toObject()).toEqual(
+        expect.objectContaining({
+          number: 1,
+          map: 'cp_fake',
+          slots: expect.any(Array),
+          assignedSkills: expect.any(Object),
+          state: 'launching',
+          launchedAt: expect.any(Date),
+        }),
+      );
     });
 
-    it('should emit the gameCreated event', async () => new Promise<void>(resolve => {
-      events.gameCreated.subscribe(({ game }) => {
-        expect(game).toMatchObject({ number: 1, map: 'cp_fake', state: 'launching' });
-        resolve();
-      });
+    it('should emit the gameCreated event', async () =>
+      new Promise<void>((resolve) => {
+        events.gameCreated.subscribe(({ game }) => {
+          expect(game).toMatchObject({
+            number: 1,
+            map: 'cp_fake',
+            state: 'launching',
+          });
+          resolve();
+        });
 
-      service.create(slots, 'cp_fake');
-    }));
+        service.create(slots, 'cp_fake');
+      }));
 
     describe('when skill for a player is defined', () => {
       beforeEach(() => {
-        playerSkillService.getPlayerSkill.mockImplementation(playerId => {
+        playerSkillService.getPlayerSkill.mockImplementation((playerId) => {
           if (playerId === slots[0].playerId) {
             return Promise.resolve(new Map([[Tf2ClassName.scout, 9]]));
           } else {
             return Promise.resolve(null);
           }
-        })
+        });
       });
 
       it('should record the given skill', async () => {
         const game = await service.create(slots, 'cp_fake');
-        expect(game.assignedSkills.get(slots[0].playerId.toString())).toEqual(9);
+        expect(game.assignedSkills.get(slots[0].playerId.toString())).toEqual(
+          9,
+        );
       });
     });
 
     describe('when skill for the player is not defined', () => {
       it('should assign default skill', async () => {
         const game = await service.create(slots, 'cp_fale');
-        const scouts = game.slots.filter(s => s.gameClass === Tf2ClassName.scout);
-        expect(scouts.every(s => game.assignedSkills.get(s.player.toString()) === 2)).toBe(true);
-        const soldiers = game.slots.filter(s => s.gameClass === Tf2ClassName.soldier);
-        expect(soldiers.every(s => game.assignedSkills.get(s.player.toString()) === 3)).toBe(true);
+        const scouts = game.slots.filter(
+          (s) => s.gameClass === Tf2ClassName.scout,
+        );
+        expect(
+          scouts.every(
+            (s) => game.assignedSkills.get(s.player.toString()) === 2,
+          ),
+        ).toBe(true);
+        const soldiers = game.slots.filter(
+          (s) => s.gameClass === Tf2ClassName.soldier,
+        );
+        expect(
+          soldiers.every(
+            (s) => game.assignedSkills.get(s.player.toString()) === 3,
+          ),
+        ).toBe(true);
       });
     });
 
@@ -403,7 +521,10 @@ describe('GamesService', () => {
 
     it('should return the most active players', async () => {
       const ret = await service.getMostActivePlayers();
-      expect(ret).toEqual([{ player: player1.id.toString(), count: 2 }, { player: player2.id.toString(), count: 1 }]);
+      expect(ret).toEqual([
+        { player: player1.id.toString(), count: 2 },
+        { player: player2.id.toString(), count: 1 },
+      ]);
     });
   });
 
@@ -442,9 +563,7 @@ describe('GamesService', () => {
 
     it('should return games with substitution requests', async () => {
       const ret = await service.getGamesWithSubstitutionRequests();
-      expect(ret).toEqual([
-        expect.objectContaining({ id: game.id }),
-      ]);
+      expect(ret).toEqual([expect.objectContaining({ id: game.id })]);
     });
   });
 

@@ -28,8 +28,12 @@ jest.mock('./rcon-factory.service');
 jest.mock('@/players/services/players.service');
 
 class RconStub {
-  send(cmd: string) { return Promise.resolve(); }
-  end() { return Promise.resolve(); }
+  send(cmd: string) {
+    return Promise.resolve();
+  }
+  end() {
+    return Promise.resolve();
+  }
 }
 
 describe('GameRuntimeService', () => {
@@ -45,14 +49,17 @@ describe('GameRuntimeService', () => {
   let mockGame: DocumentType<Game>;
   let events: Events;
 
-  beforeAll(() => mongod = new MongoMemoryServer());
+  beforeAll(() => (mongod = new MongoMemoryServer()));
   afterAll(async () => await mongod.stop());
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [
         typegooseTestingModule(mongod),
-        TypegooseModule.forFeature([ standardSchemaOptions(Game, removeGameAssignedSkills), Player ]),
+        TypegooseModule.forFeature([
+          standardSchemaOptions(Game, removeGameAssignedSkills),
+          Player,
+        ]),
       ],
       providers: [
         GameRuntimeService,
@@ -85,8 +92,12 @@ describe('GameRuntimeService', () => {
 
     gameServersService.getById.mockResolvedValue(mockGameServer as any);
 
-    // @ts-expect-error
-    mockPlayers = await Promise.all([ playersService._createOne(), playersService._createOne() ]);
+    mockPlayers = await Promise.all([
+      // @ts-expect-error
+      playersService._createOne(),
+      // @ts-expect-error
+      playersService._createOne(),
+    ]);
 
     // @ts-expect-error
     mockGame = await gamesService._createOne(mockPlayers);
@@ -94,10 +105,11 @@ describe('GameRuntimeService', () => {
     mockGame.gameServer = new ObjectId(mockGameServer.id);
     await mockGame.save();
 
-    serverConfiguratorService.configureServer = () => Promise.resolve({
-      connectString: 'FAKE_CONNECT_STRING',
-      stvConnectString: 'FAKE_STV_CONNECT_STRING',
-    });
+    serverConfiguratorService.configureServer = () =>
+      Promise.resolve({
+        connectString: 'FAKE_CONNECT_STRING',
+        stvConnectString: 'FAKE_STV_CONNECT_STRING',
+      });
   });
 
   afterEach(async () => {
@@ -115,13 +127,18 @@ describe('GameRuntimeService', () => {
     it('should configure the server again', async () => {
       const spy = jest.spyOn(serverConfiguratorService, 'configureServer');
       const ret = await service.reconfigure(mockGame.id);
-      expect(spy).toHaveBeenCalledWith(expect.objectContaining({ id: mockGameServer.id }), expect.objectContaining({ id: mockGame.id }));
+      expect(spy).toHaveBeenCalledWith(
+        expect.objectContaining({ id: mockGameServer.id }),
+        expect.objectContaining({ id: mockGame.id }),
+      );
       expect(ret.connectString).toEqual('FAKE_CONNECT_STRING');
     });
 
     describe('when the given game does not exist', () => {
       it('should throw an error', async () => {
-        await expect(service.reconfigure(new ObjectId().toString())).rejects.toThrowError('no such game');
+        await expect(
+          service.reconfigure(new ObjectId().toString()),
+        ).rejects.toThrowError('no such game');
       });
     });
 
@@ -134,13 +151,16 @@ describe('GameRuntimeService', () => {
       });
 
       it('should throw an error', async () => {
-        await expect(service.reconfigure(anotherGame.id)).rejects.toThrowError('this game has no server assigned');
+        await expect(service.reconfigure(anotherGame.id)).rejects.toThrowError(
+          'this game has no server assigned',
+        );
       });
     });
 
     describe('when an rcon error occurs', () => {
       beforeEach(() => {
-        serverConfiguratorService.configureServer = () => Promise.reject('FAKE_RCON_ERROR');
+        serverConfiguratorService.configureServer = () =>
+          Promise.reject('FAKE_RCON_ERROR');
       });
 
       it('should handle the error', async () => {
@@ -164,31 +184,36 @@ describe('GameRuntimeService', () => {
       expect(releaseSpy).toHaveBeenCalledWith(mockGameServer.id);
     });
 
-    it('should emit the gameChanges event', async () => new Promise<void>(resolve => {
-      events.gameChanges.subscribe(({ game, adminId }) => {
-        expect(game.id).toEqual(mockGame.id);
-        expect(adminId).toEqual('FAKE_ADMIN_ID');
-        resolve();
-      });
+    it('should emit the gameChanges event', async () =>
+      new Promise<void>((resolve) => {
+        events.gameChanges.subscribe(({ game, adminId }) => {
+          expect(game.id).toEqual(mockGame.id);
+          expect(adminId).toEqual('FAKE_ADMIN_ID');
+          resolve();
+        });
 
-      service.forceEnd(mockGame.id, 'FAKE_ADMIN_ID');
-    }));
+        service.forceEnd(mockGame.id, 'FAKE_ADMIN_ID');
+      }));
 
     // eslint-disable-next-line jest/expect-expect
-    it('should emit the substituteRequestsChange event', async () => new Promise<void>(resolve => {
-      events.substituteRequestsChange.subscribe(resolve);
-      service.forceEnd(mockGame.id);
-    }));
+    it('should emit the substituteRequestsChange event', async () =>
+      new Promise<void>((resolve) => {
+        events.substituteRequestsChange.subscribe(resolve);
+        service.forceEnd(mockGame.id);
+      }));
 
     describe('when the given game does not exist', () => {
       it('should reject', async () => {
-        await expect(service.forceEnd(new ObjectId().toString())).rejects.toThrowError('no such game');
+        await expect(
+          service.forceEnd(new ObjectId().toString()),
+        ).rejects.toThrowError('no such game');
       });
     });
 
     describe('when an rcon error occurs', () => {
       beforeEach(() => {
-        serverConfiguratorService.configureServer = () => Promise.reject('FAKE_RCON_ERROR');
+        serverConfiguratorService.configureServer = () =>
+          Promise.reject('FAKE_RCON_ERROR');
       });
 
       it('should handle the error', async () => {
@@ -224,7 +249,9 @@ describe('GameRuntimeService', () => {
       });
 
       it('should throw an error', async () => {
-        await expect(service.replacePlayer('FAKE_GAME_ID', 'FAKE_REPLACEE_ID', null)).rejects.toThrowError('no such game');
+        await expect(
+          service.replacePlayer('FAKE_GAME_ID', 'FAKE_REPLACEE_ID', null),
+        ).rejects.toThrowError('no such game');
       });
     });
 
@@ -237,8 +264,13 @@ describe('GameRuntimeService', () => {
       });
 
       it('should throw an error', async () => {
-        await expect(service.replacePlayer(anotherGame.id, mockPlayers[0].id, mockPlayers[1].id))
-          .rejects.toThrowError('this game has no server assigned');
+        await expect(
+          service.replacePlayer(
+            anotherGame.id,
+            mockPlayers[0].id,
+            mockPlayers[1].id,
+          ),
+        ).rejects.toThrowError('this game has no server assigned');
       });
     });
 
@@ -286,7 +318,9 @@ describe('GameRuntimeService', () => {
       });
 
       it('should throw an error', async () => {
-        await expect(service.sayChat(mockGameServer.id, 'some message')).rejects.toThrowError('game server does not exist');
+        await expect(
+          service.sayChat(mockGameServer.id, 'some message'),
+        ).rejects.toThrowError('game server does not exist');
       });
     });
 

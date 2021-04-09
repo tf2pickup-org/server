@@ -17,10 +17,17 @@ interface GameForceEndedOptions {
   };
 }
 
-export const gameForceEnded = (options: GameForceEndedOptions) => new MessageEmbed()
-  .setColor(Colors.GameForceEnded)
-  .setAuthor(options.admin.name, options.admin.avatarUrl, options.admin.profileUrl)
-  .setTitle('Game force-ended')
-  .setDescription(`Game number: **[${options.game.number}](${options.game.url})**`)
-  .setFooter(options.client.name, options.client.iconUrl)
-  .setTimestamp();
+export const gameForceEnded = (options: GameForceEndedOptions) =>
+  new MessageEmbed()
+    .setColor(Colors.GameForceEnded)
+    .setAuthor(
+      options.admin.name,
+      options.admin.avatarUrl,
+      options.admin.profileUrl,
+    )
+    .setTitle('Game force-ended')
+    .setDescription(
+      `Game number: **[${options.game.number}](${options.game.url})**`,
+    )
+    .setFooter(options.client.name, options.client.iconUrl)
+    .setTimestamp();

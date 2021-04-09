@@ -25,7 +25,7 @@ const passportModule = PassportModule.register({
 @Module({
   imports: [
     passportModule,
-    TypegooseModule.forFeature([ RefreshToken, Key ]),
+    TypegooseModule.forFeature([RefreshToken, Key]),
 
     PlayersModule,
   ],
@@ -33,49 +33,61 @@ const passportModule = PassportModule.register({
     {
       // keys used to sign & validate auth JWT
       provide: 'AUTH_TOKEN_KEY',
-      inject: [ getModelToken(Key.name), Environment ],
-      useFactory: async (keyModel: ReturnModelType<typeof Key>, environment: Environment) =>
-        await importOrGenerateKeys(keyModel, KeyName.auth, environment.keyStorePassphare),
+      inject: [getModelToken(Key.name), Environment],
+      useFactory: async (
+        keyModel: ReturnModelType<typeof Key>,
+        environment: Environment,
+      ) =>
+        await importOrGenerateKeys(
+          keyModel,
+          KeyName.auth,
+          environment.keyStorePassphare,
+        ),
     },
     {
       // keys used to sign & validate refresh JWT
       provide: 'REFRESH_TOKEN_KEY',
-      inject: [ getModelToken(Key.name), Environment ],
-      useFactory: async (keyModel: ReturnModelType<typeof Key>, environment: Environment) =>
-        await importOrGenerateKeys(keyModel, KeyName.refresh, environment.keyStorePassphare),
+      inject: [getModelToken(Key.name), Environment],
+      useFactory: async (
+        keyModel: ReturnModelType<typeof Key>,
+        environment: Environment,
+      ) =>
+        await importOrGenerateKeys(
+          keyModel,
+          KeyName.refresh,
+          environment.keyStorePassphare,
+        ),
     },
     {
       provide: 'WEBSOCKET_SECRET',
-      useFactory: () => generate({ length: 32, numbers: true, uppercase: true }),
+      useFactory: () =>
+        generate({ length: 32, numbers: true, uppercase: true }),
     },
     {
       provide: 'CONTEXT_TOKEN_KEY',
-      inject: [ getModelToken(Key.name), Environment ],
-      useFactory: async (keyModel: ReturnModelType<typeof Key>, environment: Environment) =>
-        await importOrGenerateKeys(keyModel, KeyName.context, environment.keyStorePassphare),
+      inject: [getModelToken(Key.name), Environment],
+      useFactory: async (
+        keyModel: ReturnModelType<typeof Key>,
+        environment: Environment,
+      ) =>
+        await importOrGenerateKeys(
+          keyModel,
+          KeyName.context,
+          environment.keyStorePassphare,
+        ),
     },
     AuthService,
     SteamStrategy,
     JwtStrategy,
     AuthGateway,
   ],
-  controllers: [
-    AuthController,
-  ],
-  exports: [
-    passportModule,
-    AuthService,
-  ],
+  controllers: [AuthController],
+  exports: [passportModule, AuthService],
 })
 export class AuthModule implements NestModule {
-
   configure(consumer: MiddlewareConsumer) {
     consumer
-      .apply(
-        setRedirectUrlCookie,
-        authenticate('steam', { session: false }),
-      )
+      .apply(setRedirectUrlCookie, authenticate('steam', { session: false }))
       .forRoutes('/auth/steam');
   }
-
 }

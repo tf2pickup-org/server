@@ -10,16 +10,13 @@ describe('Environment', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        Environment,
-        ConfigService,
-      ],
+      providers: [Environment, ConfigService],
     }).compile();
 
     environment = module.get<Environment>(Environment);
     configService = module.get(ConfigService);
 
-    configService.get = varName => varName;
+    configService.get = (varName) => varName;
   });
 
   it('should be defined', () => {
@@ -48,7 +45,7 @@ describe('Environment', () => {
     'DISCORD_ADMIN_NOTIFICATIONS_CHANNEL',
     'TWITCH_CLIENT_ID',
     'TWITCH_CLIENT_SECRET',
-  ].forEach(varName => {
+  ].forEach((varName) => {
     const getterName = varName
       .toLowerCase()
       .replace(/_(.)/g, (_, p1) => p1.toString().toUpperCase())

@@ -16,10 +16,15 @@ interface GameServerRemovedOptions {
   };
 }
 
-export const gameServerRemoved = (options: GameServerRemovedOptions) => new MessageEmbed()
-  .setColor(Colors.GameServerRemoved)
-  .setAuthor(options.admin.name, options.admin.avatarUrl, options.admin.profileUrl)
-  .setTitle('Game server removed')
-  .setDescription(options.gameServer.name)
-  .setFooter(options.client.name, options.client.iconUrl)
-  .setTimestamp();
+export const gameServerRemoved = (options: GameServerRemovedOptions) =>
+  new MessageEmbed()
+    .setColor(Colors.GameServerRemoved)
+    .setAuthor(
+      options.admin.name,
+      options.admin.avatarUrl,
+      options.admin.profileUrl,
+    )
+    .setTitle('Game server removed')
+    .setDescription(options.gameServer.name)
+    .setFooter(options.client.name, options.client.iconUrl)
+    .setTimestamp();

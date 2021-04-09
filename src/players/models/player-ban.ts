@@ -5,18 +5,17 @@ import { MongooseDocument } from '@/utils/mongoose-document';
 import { Expose, Transform, Type } from 'class-transformer';
 
 export class PlayerBan extends MongooseDocument {
-
   @Expose()
   @Transform(({ value, obj }) => value ?? obj._id?.toString())
   id?: string;
 
   @IsMongoId()
-  @Transform(({ value }) => isRefType(value) ? value.toString() : value)
+  @Transform(({ value }) => (isRefType(value) ? value.toString() : value))
   @prop({ ref: () => Player, required: true })
   player!: Ref<Player>;
 
   @IsMongoId()
-  @Transform(({ value }) => isRefType(value) ? value.toString() : value)
+  @Transform(({ value }) => (isRefType(value) ? value.toString() : value))
   @prop({ ref: () => Player, required: true })
   admin!: Ref<Player>;
 

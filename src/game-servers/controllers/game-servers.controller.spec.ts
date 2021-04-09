@@ -49,13 +49,13 @@ describe('GameServers Controller', () => {
 
   describe('#getAllGameServers()', () => {
     beforeEach(() => {
-      gameServersService.getAllGameServers.mockResolvedValue([ mockGameServer ]);
+      gameServersService.getAllGameServers.mockResolvedValue([mockGameServer]);
     });
 
     it('should call service', async () => {
       const ret = await controller.getAllGameServers();
       expect(gameServersService.getAllGameServers).toHaveBeenCalled();
-      expect(ret).toEqual([ mockGameServer ]);
+      expect(ret).toEqual([mockGameServer]);
     });
   });
 
@@ -77,9 +77,19 @@ describe('GameServers Controller', () => {
     });
 
     it('should add the game server', async () => {
-      const dto = { name: 'FAKE_SERVER_NAME', port: '27015', address: 'FAKE_SERVER_ADDRESS', rconPassword: 'FAKE_RCON_PASSWORD' };
-      const ret = await controller.addGameServer(dto, { id: 'FAKE_ADMIN_ID' } as Player);
-      expect(gameServersService.addGameServer).toHaveBeenCalledWith(dto, 'FAKE_ADMIN_ID');
+      const dto = {
+        name: 'FAKE_SERVER_NAME',
+        port: '27015',
+        address: 'FAKE_SERVER_ADDRESS',
+        rconPassword: 'FAKE_RCON_PASSWORD',
+      };
+      const ret = await controller.addGameServer(dto, {
+        id: 'FAKE_ADMIN_ID',
+      } as Player);
+      expect(gameServersService.addGameServer).toHaveBeenCalledWith(
+        dto,
+        'FAKE_ADMIN_ID',
+      );
       expect(ret).toEqual(mockGameServer);
     });
   });
@@ -90,25 +100,34 @@ describe('GameServers Controller', () => {
     });
 
     it('should call the service', async () => {
-      await controller.removeGameServer('FAKE_ID', { id: 'FAKE_ADMIN_ID' } as Player);
-      expect(gameServersService.removeGameServer).toHaveBeenCalledWith('FAKE_ID', 'FAKE_ADMIN_ID');
+      await controller.removeGameServer('FAKE_ID', {
+        id: 'FAKE_ADMIN_ID',
+      } as Player);
+      expect(gameServersService.removeGameServer).toHaveBeenCalledWith(
+        'FAKE_ID',
+        'FAKE_ADMIN_ID',
+      );
     });
   });
 
   describe('#runDiagnostics()', () => {
     beforeEach(() => {
-      gameServerDiagnosticsService.runDiagnostics.mockResolvedValue('FAKE_DIAGNOSTICS_ID');
+      gameServerDiagnosticsService.runDiagnostics.mockResolvedValue(
+        'FAKE_DIAGNOSTICS_ID',
+      );
     });
 
     it('should call the service', async () => {
       const ret = await controller.runDiagnostics('FAKE_GAME_SERVER_ID');
-      expect(gameServerDiagnosticsService.runDiagnostics).toHaveBeenCalledWith('FAKE_GAME_SERVER_ID');
+      expect(gameServerDiagnosticsService.runDiagnostics).toHaveBeenCalledWith(
+        'FAKE_GAME_SERVER_ID',
+      );
       expect(ret).toEqual({
         diagnosticRunId: 'FAKE_DIAGNOSTICS_ID',
         tracking: {
           url: 'FAKE_API_URL/game-server-diagnostics/FAKE_DIAGNOSTICS_ID',
         },
-      })
+      });
     });
   });
 });

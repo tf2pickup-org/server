@@ -4,7 +4,6 @@ import { Rcon } from 'rcon-client';
 
 @Injectable()
 export class RconFactoryService {
-
   async createRcon(gameServer: GameServer): Promise<Rcon> {
     return new Promise((resolve, reject) => {
       const rcon = new Rcon({
@@ -14,12 +13,11 @@ export class RconFactoryService {
         timeout: 30000,
       });
 
-      rcon.on('error', error => {
+      rcon.on('error', (error) => {
         return reject(error);
       });
 
       rcon.connect().then(resolve).catch(reject);
     });
   }
-
 }

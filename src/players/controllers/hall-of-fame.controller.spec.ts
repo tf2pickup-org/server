@@ -3,8 +3,12 @@ import { HallOfFameController } from './hall-of-fame.controller';
 import { GamesService } from '@/games/services/games.service';
 
 class GamesServiceStub {
-  getMostActivePlayers() { return [ ]; }
-  getMostActiveMedics() { return [ ]; }
+  getMostActivePlayers() {
+    return [];
+  }
+  getMostActiveMedics() {
+    return [];
+  }
 }
 
 describe('HallOfFame Controller', () => {
@@ -14,9 +18,7 @@ describe('HallOfFame Controller', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [HallOfFameController],
-      providers: [
-        { provide: GamesService, useClass: GamesServiceStub },
-      ],
+      providers: [{ provide: GamesService, useClass: GamesServiceStub }],
     }).compile();
 
     controller = module.get<HallOfFameController>(HallOfFameController);

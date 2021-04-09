@@ -1,4 +1,14 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, UsePipes, ValidationPipe } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Put,
+  UsePipes,
+  ValidationPipe,
+} from '@nestjs/common';
 import { QueueConfigService } from '../services/queue-config.service';
 import { QueueService } from '../services/queue.service';
 import { MapVoteService } from '../services/map-vote.service';
@@ -13,7 +23,6 @@ import { PlayerRole } from '@/players/models/player-role';
 
 @Controller('queue')
 export class QueueController {
-
   constructor(
     private queueConfigService: QueueConfigService,
     private queueService: QueueService,
@@ -22,13 +31,15 @@ export class QueueController {
     private friendsService: FriendsService,
     private playerPopulatorService: PlayerPopulatorService,
     private mapPoolService: MapPoolService,
-  ) { }
+  ) {}
 
   @Get()
   async getQueue() {
     return {
       config: this.queueConfigService.queueConfig,
-      slots: await this.playerPopulatorService.populatePlayers(this.getQueueSlots()),
+      slots: await this.playerPopulatorService.populatePlayers(
+        this.getQueueSlots(),
+      ),
       state: this.queueService.state,
       mapVoteResults: this.mapVoteService.results,
       substituteRequests: await this.queueAnnouncementsService.substituteRequests(),
@@ -97,5 +108,4 @@ export class QueueController {
   async setMaps(@Body() maps: Map[]) {
     return await this.mapPoolService.setMaps(maps);
   }
-
 }

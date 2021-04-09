@@ -29,14 +29,26 @@ describe('AutoGameLauncherService', () => {
 
     // @ts-expect-error
     FriendsService.mockImplementation(() => ({
-      friendships: [{ sourcePlayerId: 'FAKE_MEDIC', targetPlayerId: 'FAKE_DM_CLASS' }],
+      friendships: [
+        { sourcePlayerId: 'FAKE_MEDIC', targetPlayerId: 'FAKE_DM_CLASS' },
+      ],
     }));
 
     // @ts-expect-error
     QueueService.mockImplementation(() => ({
       slots: [
-        { id: 0, playerId: 'FAKE_PLAYER_ID_1', gameClass: 'soldier', ready: true },
-        { id: 1, playerId: 'FAKE_PLAYER_ID_2', gameClass: 'soldier', ready: true },
+        {
+          id: 0,
+          playerId: 'FAKE_PLAYER_ID_1',
+          gameClass: 'soldier',
+          ready: true,
+        },
+        {
+          id: 1,
+          playerId: 'FAKE_PLAYER_ID_2',
+          gameClass: 'soldier',
+          ready: true,
+        },
       ],
       reset: jest.fn(),
     }));
@@ -67,12 +79,16 @@ describe('AutoGameLauncherService', () => {
   });
 
   it('should launch the game and reset the queue', async () => {
-    return new Promise<void>(resolve => {
+    return new Promise<void>((resolve) => {
       events.queueStateChange.next({ state: 'launching' });
 
       setImmediate(() => {
         expect(queueService.reset).toHaveBeenCalled();
-        expect(gamesService.create).toHaveBeenCalledWith(queueService.slots, 'cp_badlands', [['FAKE_MEDIC', 'FAKE_DM_CLASS']]);
+        expect(gamesService.create).toHaveBeenCalledWith(
+          queueService.slots,
+          'cp_badlands',
+          [['FAKE_MEDIC', 'FAKE_DM_CLASS']],
+        );
         expect(gamesService.launch).toHaveBeenCalledWith('FAKE_GAME_ID');
         resolve();
       });

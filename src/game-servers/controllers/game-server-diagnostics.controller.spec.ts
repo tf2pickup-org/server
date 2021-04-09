@@ -4,7 +4,7 @@ import { GameServerDiagnosticsController } from './game-server-diagnostics.contr
 
 jest.mock('../services/game-server-diagnostics.service', () => ({
   GameServerDiagnosticsService: jest.fn().mockImplementation(() => ({
-    getDiagnosticRunById: id => Promise.resolve({ id }),
+    getDiagnosticRunById: (id) => Promise.resolve({ id }),
   })),
 }));
 
@@ -14,12 +14,12 @@ describe('GameServerDiagnosticsController', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [GameServerDiagnosticsController],
-      providers: [
-        GameServerDiagnosticsService,
-      ],
+      providers: [GameServerDiagnosticsService],
     }).compile();
 
-    controller = module.get<GameServerDiagnosticsController>(GameServerDiagnosticsController);
+    controller = module.get<GameServerDiagnosticsController>(
+      GameServerDiagnosticsController,
+    );
   });
 
   it('should be defined', () => {
@@ -31,5 +31,5 @@ describe('GameServerDiagnosticsController', () => {
       const ret = await controller.getDiagnosticRun('FAKE_ID');
       expect(ret).toEqual({ id: 'FAKE_ID' });
     });
-  })
+  });
 });

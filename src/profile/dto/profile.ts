@@ -12,7 +12,6 @@ interface ProfileParams {
 }
 
 export class Profile {
-
   constructor(params: ProfileParams) {
     this.player = params.player;
     this.activeGameId = params.activeGameId;
@@ -36,5 +35,4 @@ export class Profile {
   preferences: PreferencesType;
 
   hasAcceptedRules: boolean;
-
 }

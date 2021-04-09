@@ -22,7 +22,9 @@ import { LogReceiverModule } from '@/log-receiver/log-receiver.module';
 
 @Module({
   imports: [
-    TypegooseModule.forFeature([ standardSchemaOptions(Game, removeGameAssignedSkills) ]),
+    TypegooseModule.forFeature([
+      standardSchemaOptions(Game, removeGameAssignedSkills),
+    ]),
     GameServersModule,
     forwardRef(() => PlayersModule),
     QueueModule,
@@ -41,12 +43,7 @@ import { LogReceiverModule } from '@/log-receiver/log-receiver.module';
     GameEventHandlerService,
     PlayerSubstitutionService,
   ],
-  exports: [
-    GamesService,
-  ],
-  controllers: [
-    GamesController,
-    GamesWithSubstitutionRequestsController,
-  ],
+  exports: [GamesService],
+  controllers: [GamesController, GamesWithSubstitutionRequestsController],
 })
-export class GamesModule { }
+export class GamesModule {}

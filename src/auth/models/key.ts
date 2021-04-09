@@ -1,7 +1,6 @@
 import { prop } from '@typegoose/typegoose';
 
 export class Key {
-
   @prop({ required: true, unique: true })
   name: string;
 
@@ -10,5 +9,4 @@ export class Key {
 
   @prop({ required: true })
   publicKeyEncoded: string;
-
 }

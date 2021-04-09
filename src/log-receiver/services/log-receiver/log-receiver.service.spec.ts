@@ -4,7 +4,7 @@ import { LogReceiverService } from './log-receiver.service';
 
 class MockLogReceiver {
   socket = {
-    close: jest.fn().mockImplementation(cb => cb()),
+    close: jest.fn().mockImplementation((cb) => cb()),
   };
 }
 
@@ -30,7 +30,7 @@ describe('LogReceiverService', () => {
 
   it('should destroy log receiver on module destruction', async () => {
     await service.onModuleDestroy();
-    
+
     expect(mockLogReceiver.socket.close).toHaveBeenCalled();
   });
 });

@@ -26,8 +26,11 @@ describe('DocumentNotFoundFilter', () => {
     };
 
     const filter = new DocumentNotFoundFilter();
-    filter.catch(new mongoose.Error.DocumentNotFoundError({ }), host as any);
+    filter.catch(new mongoose.Error.DocumentNotFoundError({}), host as any);
     expect(response.status).toHaveBeenCalledWith(404);
-    expect(response.json).toHaveBeenCalledWith({ statusCode: 404, path: '/some/invalid/path' });
+    expect(response.json).toHaveBeenCalledWith({
+      statusCode: 404,
+      path: '/some/invalid/path',
+    });
   });
 });

@@ -4,7 +4,6 @@ import { MongooseDocument } from '@/utils/mongoose-document';
 import { Exclude, Expose, Transform } from 'class-transformer';
 
 export class GameServer extends MongooseDocument {
-
   @Expose()
   @Transform(({ value, obj }) => value ?? obj._id?.toString())
   id?: string;
@@ -37,12 +36,11 @@ export class GameServer extends MongooseDocument {
   @prop()
   mumbleChannelName?: string;
 
-  @Transform(({ value }) => isRefType(value) ? value.toString() : value)
+  @Transform(({ value }) => (isRefType(value) ? value.toString() : value))
   @prop({ ref: () => Game })
   game?: Ref<Game>; // currently running game
 
   @Exclude({ toPlainOnly: true })
   @prop({ default: false })
   deleted?: boolean;
-
 }

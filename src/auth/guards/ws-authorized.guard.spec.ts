@@ -20,7 +20,9 @@ describe('WsAuthorizedGuard', () => {
   it('should deny if the user is not authenticated', () => {
     user.logged_in = false;
     const guard = new WsAuthorizedGuard();
-    expect(() => guard.canActivate(context as any)).toThrowError('unauthorized');
+    expect(() => guard.canActivate(context as any)).toThrowError(
+      'unauthorized',
+    );
   });
 
   it('should pass if the user is authenticated', () => {

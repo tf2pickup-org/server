@@ -7,17 +7,8 @@ import { AdminNotificationsService } from './services/admin-notifications.servic
 
 @Global()
 @Module({
-  imports: [
-    forwardRef(() => QueueModule),
-    forwardRef(() => PlayersModule),
-  ],
-  providers: [
-    DiscordService,
-    QueuePromptsService,
-    AdminNotificationsService,
-  ],
-  exports: [
-    DiscordService,
-  ],
+  imports: [forwardRef(() => QueueModule), forwardRef(() => PlayersModule)],
+  providers: [DiscordService, QueuePromptsService, AdminNotificationsService],
+  exports: [DiscordService],
 })
-export class DiscordModule { }
+export class DiscordModule {}

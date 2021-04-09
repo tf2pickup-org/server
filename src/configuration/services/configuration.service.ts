@@ -7,33 +7,49 @@ import { ConfigurationEntryKey } from '../models/configuration-entry-key';
 import { MumbleOptions } from '../models/mumble-options';
 
 // this name wtf
-const defaultDefaultPlayerSkill = new Map(Object.keys(Tf2ClassName).map(className => [className, 1]));
+const defaultDefaultPlayerSkill = new Map(
+  Object.keys(Tf2ClassName).map((className) => [className, 1]),
+);
 
 type VoiceServer = MumbleOptions;
 
 @Injectable()
 export class ConfigurationService implements OnModuleInit {
-
   constructor(
-    @InjectModel(ConfigurationEntry) private configurationEntryModel: ReturnModelType<typeof ConfigurationEntry>,
-  ) { }
+    @InjectModel(ConfigurationEntry)
+    private configurationEntryModel: ReturnModelType<typeof ConfigurationEntry>,
+  ) {}
 
   async onModuleInit() {
     await Promise.all([
-      this.loadDefault(ConfigurationEntryKey.defaultPlayerSkill, JSON.stringify(Object.fromEntries(defaultDefaultPlayerSkill.entries()))),
+      this.loadDefault(
+        ConfigurationEntryKey.defaultPlayerSkill,
+        JSON.stringify(Object.fromEntries(defaultDefaultPlayerSkill.entries())),
+      ),
       this.loadDefault(ConfigurationEntryKey.whitelistId, ''),
-      this.loadDefault(ConfigurationEntryKey.etf2lAccountRequired, true.toString()),
+      this.loadDefault(
+        ConfigurationEntryKey.etf2lAccountRequired,
+        true.toString(),
+      ),
       this.loadDefault(ConfigurationEntryKey.minimumTf2InGameHours, '500'),
     ]);
   }
 
   async getDefaultPlayerSkill(): Promise<Map<Tf2ClassName, number>> {
     const value = await this.retrieve(ConfigurationEntryKey.defaultPlayerSkill);
-    return new Map(Object.entries(JSON.parse(value))) as Map<Tf2ClassName, number>;
+    return new Map(Object.entries(JSON.parse(value))) as Map<
+      Tf2ClassName,
+      number
+    >;
   }
 
-  async setDefaultPlayerSkill(defaultPlayerSkill: Map<Tf2ClassName, number>): Promise<Map<Tf2ClassName, number>> {
-    await this.store(ConfigurationEntryKey.defaultPlayerSkill, JSON.stringify(Object.fromEntries(defaultPlayerSkill)));
+  async setDefaultPlayerSkill(
+    defaultPlayerSkill: Map<Tf2ClassName, number>,
+  ): Promise<Map<Tf2ClassName, number>> {
+    await this.store(
+      ConfigurationEntryKey.defaultPlayerSkill,
+      JSON.stringify(Object.fromEntries(defaultPlayerSkill)),
+    );
     return defaultPlayerSkill;
   }
 
@@ -47,20 +63,36 @@ export class ConfigurationService implements OnModuleInit {
   }
 
   async isEtf2lAccountRequired(): Promise<boolean> {
-    return (await this.retrieve(ConfigurationEntryKey.etf2lAccountRequired)) === 'true';
+    return (
+      (await this.retrieve(ConfigurationEntryKey.etf2lAccountRequired)) ===
+      'true'
+    );
   }
 
-  async setEtf2lAccountRequired(etf2lAccountRequired: boolean): Promise<boolean> {
-    await this.store(ConfigurationEntryKey.etf2lAccountRequired, etf2lAccountRequired.toString());
+  async setEtf2lAccountRequired(
+    etf2lAccountRequired: boolean,
+  ): Promise<boolean> {
+    await this.store(
+      ConfigurationEntryKey.etf2lAccountRequired,
+      etf2lAccountRequired.toString(),
+    );
     return etf2lAccountRequired;
   }
 
   async getMinimumTf2InGameHours(): Promise<number> {
-    return parseInt(await this.retrieve(ConfigurationEntryKey.minimumTf2InGameHours), 10);
+    return parseInt(
+      await this.retrieve(ConfigurationEntryKey.minimumTf2InGameHours),
+      10,
+    );
   }
 
-  async setMinimumTf2InGameHours(minimumTf2InGameHours: number): Promise<number> {
-    await this.store(ConfigurationEntryKey.minimumTf2InGameHours, minimumTf2InGameHours.toString());
+  async setMinimumTf2InGameHours(
+    minimumTf2InGameHours: number,
+  ): Promise<number> {
+    await this.store(
+      ConfigurationEntryKey.minimumTf2InGameHours,
+      minimumTf2InGameHours.toString(),
+    );
     return minimumTf2InGameHours;
   }
 
@@ -69,17 +101,27 @@ export class ConfigurationService implements OnModuleInit {
   }
 
   async setVoiceServer(voiceServer: VoiceServer): Promise<VoiceServer> {
-    await this.store(ConfigurationEntryKey.voiceServer, JSON.stringify(voiceServer));
+    await this.store(
+      ConfigurationEntryKey.voiceServer,
+      JSON.stringify(voiceServer),
+    );
     return voiceServer;
   }
 
   private async retrieve(key: ConfigurationEntryKey): Promise<string> {
-    const ret = await this.configurationEntryModel.findOne({ key }).orFail().lean().exec()
+    const ret = await this.configurationEntryModel
+      .findOne({ key })
+      .orFail()
+      .lean()
+      .exec();
     return ret.value;
   }
 
   private async store(key: ConfigurationEntryKey, value: string) {
-    await this.configurationEntryModel.updateOne({ key }, { value }, { upsert: true }).lean().exec();
+    await this.configurationEntryModel
+      .updateOne({ key }, { value }, { upsert: true })
+      .lean()
+      .exec();
   }
 
   private async loadDefault(key: ConfigurationEntryKey, value: string) {
@@ -89,5 +131,4 @@ export class ConfigurationService implements OnModuleInit {
       await this.store(key, value);
     }
   }
-
 }

@@ -12,7 +12,6 @@ import { GameState } from '../models/game-state';
 
 @Injectable()
 export class GameEventHandlerService {
-
   private logger = new Logger(GameEventHandlerService.name);
 
   constructor(
@@ -20,10 +19,14 @@ export class GameEventHandlerService {
     private playersService: PlayersService,
     private gameRuntimeService: GameRuntimeService,
     private events: Events,
-  ) { }
+  ) {}
 
   async onMatchStarted(gameId: string) {
-    const game = await this.gameModel.findOneAndUpdate({ _id: gameId, state: GameState.launching }, { state: GameState.started }, { new: true });
+    const game = await this.gameModel.findOneAndUpdate(
+      { _id: gameId, state: GameState.launching },
+      { state: GameState.started },
+      { new: true },
+    );
     if (game) {
       this.events.gameChanges.next({ game: game.toJSON() });
     }
@@ -43,13 +46,16 @@ export class GameEventHandlerService {
         arrayFilters: [
           { 'element.status': { $eq: `${SlotStatus.waitingForSubstitute}` } },
         ],
-      }
+      },
     );
 
     if (game) {
       this.events.gameChanges.next({ game: game.toJSON() });
       this.events.substituteRequestsChange.next();
-      setTimeout(() => this.gameRuntimeService.cleanupServer(game.gameServer.toString()), serverCleanupDelay);
+      setTimeout(
+        () => this.gameRuntimeService.cleanupServer(game.gameServer.toString()),
+        serverCleanupDelay,
+      );
     } else {
       this.logger.warn(`no such game: ${gameId}`);
     }
@@ -58,7 +64,11 @@ export class GameEventHandlerService {
   }
 
   async onLogsUploaded(gameId: string, logsUrl: string) {
-    const game = await this.gameModel.findOneAndUpdate({ _id: gameId }, { logsUrl }, { new: true });
+    const game = await this.gameModel.findOneAndUpdate(
+      { _id: gameId },
+      { logsUrl },
+      { new: true },
+    );
     if (game) {
       this.events.gameChanges.next({ game: game.toJSON() });
     } else {
@@ -69,7 +79,11 @@ export class GameEventHandlerService {
   }
 
   async onDemoUploaded(gameId: string, demoUrl: string) {
-    const game = await this.gameModel.findByIdAndUpdate(gameId, { demoUrl }, { new: true });
+    const game = await this.gameModel.findByIdAndUpdate(
+      gameId,
+      { demoUrl },
+      { new: true },
+    );
     if (game) {
       this.events.gameChanges.next({ game: game.toJSON() });
     } else {
@@ -80,20 +94,36 @@ export class GameEventHandlerService {
   }
 
   async onPlayerJoining(gameId: string, steamId: string) {
-    return await this.setPlayerConnectionStatus(gameId, steamId, PlayerConnectionStatus.joining);
+    return await this.setPlayerConnectionStatus(
+      gameId,
+      steamId,
+      PlayerConnectionStatus.joining,
+    );
   }
 
   async onPlayerConnected(gameId: string, steamId: string) {
-    return await this.setPlayerConnectionStatus(gameId, steamId, PlayerConnectionStatus.connected);
+    return await this.setPlayerConnectionStatus(
+      gameId,
+      steamId,
+      PlayerConnectionStatus.connected,
+    );
   }
 
   async onPlayerDisconnected(gameId: string, steamId: string) {
-    return await this.setPlayerConnectionStatus(gameId, steamId, PlayerConnectionStatus.offline);
+    return await this.setPlayerConnectionStatus(
+      gameId,
+      steamId,
+      PlayerConnectionStatus.offline,
+    );
   }
 
   async onScoreReported(gameId: string, teamName: string, score: string) {
     const fixedTeamName = teamName.toLowerCase().substring(0, 3); // converts Red to 'red' and Blue to 'blu'
-    const game = await this.gameModel.findOneAndUpdate({ _id: gameId }, { [`score.${fixedTeamName}`]: parseInt(score, 10) }, { new: true });
+    const game = await this.gameModel.findOneAndUpdate(
+      { _id: gameId },
+      { [`score.${fixedTeamName}`]: parseInt(score, 10) },
+      { new: true },
+    );
     if (game) {
       this.events.gameChanges.next({ game: game.toJSON() });
     } else {
@@ -103,7 +133,11 @@ export class GameEventHandlerService {
     return game;
   }
 
-  private async setPlayerConnectionStatus(gameId: string, steamId: string, connectionStatus: PlayerConnectionStatus) {
+  private async setPlayerConnectionStatus(
+    gameId: string,
+    steamId: string,
+    connectionStatus: PlayerConnectionStatus,
+  ) {
     const player = await this.playersService.findBySteamId(steamId);
     if (!player) {
       this.logger.warn(`no such player: ${steamId}`);
@@ -117,10 +151,8 @@ export class GameEventHandlerService {
       },
       {
         new: true, // return updated document
-        arrayFilters: [
-          { 'element.player': { $eq: player.id } },
-        ],
-      }
+        arrayFilters: [{ 'element.player': { $eq: player.id } }],
+      },
     );
 
     if (game) {
@@ -131,5 +163,4 @@ export class GameEventHandlerService {
 
     return game;
   }
-
 }

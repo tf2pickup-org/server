@@ -48,14 +48,17 @@ describe('PlayerSubstitutionService', () => {
   let discordService: jest.Mocked<DiscordService>;
   let events: Events;
 
-  beforeAll(() => mongod = new MongoMemoryServer());
+  beforeAll(() => (mongod = new MongoMemoryServer()));
   afterAll(async () => await mongod.stop());
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [
         typegooseTestingModule(mongod),
-        TypegooseModule.forFeature([ Player, standardSchemaOptions(Game, removeGameAssignedSkills) ]),
+        TypegooseModule.forFeature([
+          Player,
+          standardSchemaOptions(Game, removeGameAssignedSkills),
+        ]),
       ],
       providers: [
         PlayerSubstitutionService,
@@ -88,7 +91,7 @@ describe('PlayerSubstitutionService', () => {
     // @ts-expect-error
     player3 = await playersService._createOne();
     // @ts-expect-error
-    mockGame = await gamesService._createOne([ player1, player2 ]);
+    mockGame = await gamesService._createOne([player1, player2]);
 
     mockGame.gameServer = new ObjectId();
     await mockGame.save();
@@ -110,13 +113,17 @@ describe('PlayerSubstitutionService', () => {
   describe('#substitutePlayer()', () => {
     describe('when the given game does not exist', () => {
       it('should throw an error', async () => {
-        await expect(service.substitutePlayer(new ObjectId().toString(), player1.id)).rejects.toThrowError('no such game');
+        await expect(
+          service.substitutePlayer(new ObjectId().toString(), player1.id),
+        ).rejects.toThrowError('no such game');
       });
     });
 
     describe('when the target player does not exist', () => {
       it('should throw an error', async () => {
-        await expect(service.substitutePlayer(mockGame.id, new ObjectId().toString())).rejects.toThrowError('no such player');
+        await expect(
+          service.substitutePlayer(mockGame.id, new ObjectId().toString()),
+        ).rejects.toThrowError('no such player');
       });
     });
 
@@ -127,7 +134,9 @@ describe('PlayerSubstitutionService', () => {
       });
 
       it('should throw an error', async () => {
-        await expect(service.substitutePlayer(mockGame.id, player1.id)).rejects.toThrowError('this player has already been replaced');
+        await expect(
+          service.substitutePlayer(mockGame.id, player1.id),
+        ).rejects.toThrowError('this player has already been replaced');
       });
     });
 
@@ -138,14 +147,15 @@ describe('PlayerSubstitutionService', () => {
       expect(slot.status).toEqual(SlotStatus.waitingForSubstitute);
     });
 
-    it('should emit the gameChanges event', async () => new Promise<void>(resolve => {
-      events.gameChanges.subscribe(({ game }) => {
-        expect(game).toMatchObject({ id: mockGame.id });
-        resolve();
-      });
+    it('should emit the gameChanges event', async () =>
+      new Promise<void>((resolve) => {
+        events.gameChanges.subscribe(({ game }) => {
+          expect(game).toMatchObject({ id: mockGame.id });
+          resolve();
+        });
 
-      service.substitutePlayer(mockGame.id, player1.id);
-    }));
+        service.substitutePlayer(mockGame.id, player1.id);
+      }));
 
     describe('when the game has already ended', () => {
       beforeEach(async () => {
@@ -155,21 +165,26 @@ describe('PlayerSubstitutionService', () => {
       });
 
       it('should reject', async () => {
-        await expect(service.substitutePlayer(mockGame.id, player1.id)).rejects.toThrowError('the game has already ended');
+        await expect(
+          service.substitutePlayer(mockGame.id, player1.id),
+        ).rejects.toThrowError('the game has already ended');
       });
     });
 
     it('should notify on discord', async () => {
       const spy = jest.spyOn(discordService.getPlayersChannel(), 'send');
       await service.substitutePlayer(mockGame.id, player1.id);
-      expect(spy).toHaveBeenCalledWith('&<TF2 gamers>', { embed: expect.any(Object) });
+      expect(spy).toHaveBeenCalledWith('&<TF2 gamers>', {
+        embed: expect.any(Object),
+      });
     });
 
     // eslint-disable-next-line jest/expect-expect
-    it('should emit the substituteRequestsChange event', async () => new Promise<void>(resolve => {
-      events.substituteRequestsChange.subscribe(resolve);
-      service.substitutePlayer(mockGame.id, player1.id);
-    }));
+    it('should emit the substituteRequestsChange event', async () =>
+      new Promise<void>((resolve) => {
+        events.substituteRequestsChange.subscribe(resolve);
+        service.substitutePlayer(mockGame.id, player1.id);
+      }));
 
     it('should do nothing if the player is already marked', async () => {
       const game1 = await service.substitutePlayer(mockGame.id, player1.id);
@@ -183,7 +198,7 @@ describe('PlayerSubstitutionService', () => {
     const channel = { send: () => discordMessage };
 
     beforeEach(async () => {
-      discordMessage = await discordService.getPlayersChannel().send({ });
+      discordMessage = await discordService.getPlayersChannel().send({});
       // @ts-expect-error
       discordService.getPlayersChannel = () => channel;
 
@@ -192,13 +207,23 @@ describe('PlayerSubstitutionService', () => {
 
     describe('when the given game does not exist', () => {
       it('should throw an error', async () => {
-        await expect(service.cancelSubstitutionRequest(new ObjectId().toString(), player1.id)).rejects.toThrowError('no such game');
+        await expect(
+          service.cancelSubstitutionRequest(
+            new ObjectId().toString(),
+            player1.id,
+          ),
+        ).rejects.toThrowError('no such game');
       });
     });
 
     describe('when the given player does not exist', () => {
       it('should throw an error', async () => {
-        await expect(service.cancelSubstitutionRequest(mockGame.id, new ObjectId().toString())).rejects.toThrowError('no such player');
+        await expect(
+          service.cancelSubstitutionRequest(
+            mockGame.id,
+            new ObjectId().toString(),
+          ),
+        ).rejects.toThrowError('no such player');
       });
     });
 
@@ -208,24 +233,30 @@ describe('PlayerSubstitutionService', () => {
       });
 
       it('should throw an error', async () => {
-        await expect(service.cancelSubstitutionRequest(mockGame.id, player1.id)).rejects.toThrowError('this player has already been replaced');
+        await expect(
+          service.cancelSubstitutionRequest(mockGame.id, player1.id),
+        ).rejects.toThrowError('this player has already been replaced');
       });
     });
 
     it('should update the player status', async () => {
-      const game = await service.cancelSubstitutionRequest(mockGame.id, player1.id);
+      const game = await service.cancelSubstitutionRequest(
+        mockGame.id,
+        player1.id,
+      );
       const slot = game.findPlayerSlot(player1.id);
       expect(slot.status).toEqual(SlotStatus.active);
     });
 
-    it('should emit the gameChanges event', async () => new Promise<void>(resolve => {
-      events.gameChanges.subscribe(({ game }) => {
-        expect(game).toMatchObject({ id: mockGame.id });
-        resolve();
-      });
+    it('should emit the gameChanges event', async () =>
+      new Promise<void>((resolve) => {
+        events.gameChanges.subscribe(({ game }) => {
+          expect(game).toMatchObject({ id: mockGame.id });
+          resolve();
+        });
 
-      service.cancelSubstitutionRequest(mockGame.id, player1.id);
-    }));
+        service.cancelSubstitutionRequest(mockGame.id, player1.id);
+      }));
 
     describe('when the game is no longer running', () => {
       beforeEach(async () => {
@@ -235,15 +266,18 @@ describe('PlayerSubstitutionService', () => {
       });
 
       it('should reject', async () => {
-        await expect(service.cancelSubstitutionRequest(mockGame.id, player1.id)).rejects.toThrowError('the game has already ended');
+        await expect(
+          service.cancelSubstitutionRequest(mockGame.id, player1.id),
+        ).rejects.toThrowError('the game has already ended');
       });
     });
 
     // eslint-disable-next-line jest/expect-expect
-    it('should emit the substituteRequestsChange event', async () => new Promise<void>(resolve => {
-      events.substituteRequestsChange.subscribe(resolve);
-      service.cancelSubstitutionRequest(mockGame.id, player1.id);
-    }));
+    it('should emit the substituteRequestsChange event', async () =>
+      new Promise<void>((resolve) => {
+        events.substituteRequestsChange.subscribe(resolve);
+        service.cancelSubstitutionRequest(mockGame.id, player1.id);
+      }));
 
     it('should get rid of discord announcement', async () => {
       const spy = jest.spyOn(discordMessage, 'delete');
@@ -257,7 +291,7 @@ describe('PlayerSubstitutionService', () => {
     const channel = { send: () => discordMessage };
 
     beforeEach(async () => {
-      discordMessage = await discordService.getPlayersChannel().send({ });
+      discordMessage = await discordService.getPlayersChannel().send({});
       // @ts-expect-error
       discordService.getPlayersChannel = () => channel;
 
@@ -266,7 +300,11 @@ describe('PlayerSubstitutionService', () => {
 
     it('should replace the player', async () => {
       // replace player 1 with player 3
-      const game = await service.replacePlayer(mockGame.id, player1.id, player3.id);
+      const game = await service.replacePlayer(
+        mockGame.id,
+        player1.id,
+        player3.id,
+      );
       expect(game.id).toEqual(mockGame.id);
       const replaceeSlot = game.findPlayerSlot(player1.id);
       expect(replaceeSlot.status).toEqual(SlotStatus.replaced);
@@ -275,47 +313,66 @@ describe('PlayerSubstitutionService', () => {
       expect(replacementSlot.status).toEqual(SlotStatus.active);
     });
 
-    it('should emit the gameChanges event', async () => new Promise<void>(resolve => {
-      events.gameChanges.subscribe(({ game }) => {
-        expect(game).toMatchObject({ id: mockGame.id });
-        resolve();
-      });
+    it('should emit the gameChanges event', async () =>
+      new Promise<void>((resolve) => {
+        events.gameChanges.subscribe(({ game }) => {
+          expect(game).toMatchObject({ id: mockGame.id });
+          resolve();
+        });
 
-      service.replacePlayer(mockGame.id, player1.id, player3.id);
-    }));
+        service.replacePlayer(mockGame.id, player1.id, player3.id);
+      }));
 
-    it('should replace the player in-game', async () => new Promise<void>(resolve => {
-      setTimeout(() => {
-        expect(gameRuntimeService.replacePlayer).toHaveBeenCalledWith(mockGame.id, player1.id, expect.objectContaining({ player: player3._id }));
-        resolve();
-      }, 100);
-      service.replacePlayer(mockGame.id, player1.id, player3.id);
-    }));
+    it('should replace the player in-game', async () =>
+      new Promise<void>((resolve) => {
+        setTimeout(() => {
+          expect(gameRuntimeService.replacePlayer).toHaveBeenCalledWith(
+            mockGame.id,
+            player1.id,
+            expect.objectContaining({ player: player3._id }),
+          );
+          resolve();
+        }, 100);
+        service.replacePlayer(mockGame.id, player1.id, player3.id);
+      }));
 
     describe('when the replacement player is banned', () => {
       beforeEach(() => {
         const end = new Date();
         end.setHours(end.getHours() + 1);
-        playerBansService.getPlayerActiveBans = () => Promise.resolve([
-          { player: 'FAKE_PLAYERID', admin: 'FAKE_ADMINID', start: new Date(), end } as any,
-        ]);
+        playerBansService.getPlayerActiveBans = () =>
+          Promise.resolve([
+            {
+              player: 'FAKE_PLAYERID',
+              admin: 'FAKE_ADMINID',
+              start: new Date(),
+              end,
+            } as any,
+          ]);
       });
 
       it('should reject', async () => {
-        await expect(service.replacePlayer(mockGame.id, player1.id, player3.id)).rejects.toThrowError('player is banned');
+        await expect(
+          service.replacePlayer(mockGame.id, player1.id, player3.id),
+        ).rejects.toThrowError('player is banned');
       });
     });
 
     describe('when replacing an active player', () => {
       it('should reject', async () => {
-        await expect(service.replacePlayer(mockGame.id, player2.id, player3.id))
-          .rejects.toThrowError();
-      })
+        await expect(
+          service.replacePlayer(mockGame.id, player2.id, player3.id),
+        ).rejects.toThrowError();
+      });
     });
 
     describe('when a player is subbing himself', () => {
       it('should mark the slot back as active', async () => {
-        const game = await service.replacePlayer(mockGame.id, player1.id, player1.id);
+        const game = await service.replacePlayer(
+          mockGame.id,
+          player1.id,
+          player1.id,
+        );
         expect(game.id).toEqual(mockGame.id);
         const slot = game.findPlayerSlot(player1.id);
         expect(slot.status).toBe(SlotStatus.active);
@@ -335,31 +392,42 @@ describe('PlayerSubstitutionService', () => {
       });
 
       it('should reject', async () => {
-        await expect(service.replacePlayer(mockGame.id, player1.id, player3.id)).rejects
-          .toThrowError();
+        await expect(
+          service.replacePlayer(mockGame.id, player1.id, player3.id),
+        ).rejects.toThrowError();
       });
     });
 
     describe('when the given player is involved in another game', () => {
       beforeEach(async () => {
-        gamesService.getPlayerActiveGame = () => Promise.resolve({ id: new ObjectId().toString() } as any);
+        gamesService.getPlayerActiveGame = () =>
+          Promise.resolve({ id: new ObjectId().toString() } as any);
       });
 
       it('should reject', async () => {
-        await expect(service.replacePlayer(mockGame.id, player1.id, player3.id)).rejects
-          .toThrowError('player is involved in a currently running game');
+        await expect(
+          service.replacePlayer(mockGame.id, player1.id, player3.id),
+        ).rejects.toThrowError(
+          'player is involved in a currently running game',
+        );
       });
     });
 
     // eslint-disable-next-line jest/expect-expect
-    it('should emit the substituteRequestsChange event', async () => new Promise<void>(resolve => {
-      events.substituteRequestsChange.subscribe(resolve);
-      service.replacePlayer(mockGame.id, player1.id, player3.id);
-    }));
+    it('should emit the substituteRequestsChange event', async () =>
+      new Promise<void>((resolve) => {
+        events.substituteRequestsChange.subscribe(resolve);
+        service.replacePlayer(mockGame.id, player1.id, player3.id);
+      }));
 
     it('should reject if the replacement player does not exist', async () => {
-      await expect(service.replacePlayer(mockGame.id, player1.id, new ObjectId().toString())).rejects
-        .toThrow(mongoose.Error.DocumentNotFoundError);
+      await expect(
+        service.replacePlayer(
+          mockGame.id,
+          player1.id,
+          new ObjectId().toString(),
+        ),
+      ).rejects.toThrow(mongoose.Error.DocumentNotFoundError);
     });
 
     it('should kick the replacement player from the queue', async () => {
@@ -369,7 +437,10 @@ describe('PlayerSubstitutionService', () => {
 
     it('should announce the replacement in the game', async () => {
       await service.replacePlayer(mockGame.id, player1.id, player3.id);
-      expect(gameRuntimeService.sayChat).toHaveBeenCalledWith(mockGame.gameServer.toString(), 'fake_player_3 is replacing fake_player_1 on soldier.');
+      expect(gameRuntimeService.sayChat).toHaveBeenCalledWith(
+        mockGame.gameServer.toString(),
+        'fake_player_3 is replacing fake_player_1 on soldier.',
+      );
     });
 
     it('should delete the discord announcement', async () => {
@@ -384,10 +455,18 @@ describe('PlayerSubstitutionService', () => {
         await service.substitutePlayer(mockGame.id, player2.id);
       });
 
-      it('player1 should be able to take player2\'s slot', async () => {
-        const game = await service.replacePlayer(mockGame.id, player2.id, player1.id);
-        expect(game.slots.filter(s => s.player.toString().localeCompare(player1.id) == 0).length).toEqual(2);
-      })
+      it("player1 should be able to take player2's slot", async () => {
+        const game = await service.replacePlayer(
+          mockGame.id,
+          player2.id,
+          player1.id,
+        );
+        expect(
+          game.slots.filter(
+            (s) => s.player.toString().localeCompare(player1.id) == 0,
+          ).length,
+        ).toEqual(2);
+      });
     });
   });
 });

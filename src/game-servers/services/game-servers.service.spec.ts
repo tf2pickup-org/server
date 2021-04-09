@@ -20,7 +20,7 @@ describe('GameServersService', () => {
   let testGameServer: DocumentType<GameServer>;
   let events: Events;
 
-  beforeAll(() => mongod = new MongoMemoryServer());
+  beforeAll(() => (mongod = new MongoMemoryServer()));
   afterAll(async () => await mongod.stop());
 
   beforeEach(async () => {
@@ -29,10 +29,7 @@ describe('GameServersService', () => {
         typegooseTestingModule(mongod),
         TypegooseModule.forFeature([GameServer, Game]),
       ],
-      providers: [
-        GameServersService,
-        Events,
-      ],
+      providers: [GameServersService, Events],
     }).compile();
 
     service = module.get<GameServersService>(GameServersService);
@@ -47,13 +44,13 @@ describe('GameServersService', () => {
       address: 'localhost',
       port: '27015',
       rconPassword: '123456',
-      resolvedIpAddresses: [ '127.0.0.1' ],
+      resolvedIpAddresses: ['127.0.0.1'],
     });
   });
 
   afterEach(async () => {
-    await gameServerModel.deleteMany({ });
-    await gameModel.deleteMany({ });
+    await gameServerModel.deleteMany({});
+    await gameModel.deleteMany({});
   });
 
   it('should be defined', () => {
@@ -165,21 +162,25 @@ describe('GameServersService', () => {
       });
     });
 
-    it('should emit the gameServerAdded event', async () => new Promise<void>(resolve => {
-      events.gameServerAdded.subscribe(({ gameServer, adminId }) => {
-        expect(adminId).toEqual('FAKE_ADMIN_ID');
-        expect(gameServer.name).toEqual('fake game server');
-        resolve();
-      });
+    it('should emit the gameServerAdded event', async () =>
+      new Promise<void>((resolve) => {
+        events.gameServerAdded.subscribe(({ gameServer, adminId }) => {
+          expect(adminId).toEqual('FAKE_ADMIN_ID');
+          expect(gameServer.name).toEqual('fake game server');
+          resolve();
+        });
 
-      service.addGameServer({
-        name: 'fake game server',
-        address: '127.0.0.1',
-        port: '27017',
-        rconPassword: 'test rcon password',
-        mumbleChannelName: '',
-      }, 'FAKE_ADMIN_ID');
-    }))
+        service.addGameServer(
+          {
+            name: 'fake game server',
+            address: '127.0.0.1',
+            port: '27017',
+            rconPassword: 'test rcon password',
+            mumbleChannelName: '',
+          },
+          'FAKE_ADMIN_ID',
+        );
+      }));
   });
 
   describe('#removeGameServer()', () => {
@@ -189,15 +190,16 @@ describe('GameServersService', () => {
       expect((await gameServerModel.findById(ret.id)).deleted).toBe(true);
     });
 
-    it('should emit the gameServerRemoved event', async () => new Promise<void>(resolve => {
-      events.gameServerRemoved.subscribe(({ gameServer, adminId }) => {
-        expect(gameServer.id).toEqual(testGameServer.id);
-        expect(adminId).toEqual('FAKE_ADMIN_ID');
-        resolve();
-      })
+    it('should emit the gameServerRemoved event', async () =>
+      new Promise<void>((resolve) => {
+        events.gameServerRemoved.subscribe(({ gameServer, adminId }) => {
+          expect(gameServer.id).toEqual(testGameServer.id);
+          expect(adminId).toEqual('FAKE_ADMIN_ID');
+          resolve();
+        });
 
-      service.removeGameServer(testGameServer.id, 'FAKE_ADMIN_ID');
-    }));
+        service.removeGameServer(testGameServer.id, 'FAKE_ADMIN_ID');
+      }));
   });
 
   describe('#findFreeGameServer()', () => {
@@ -209,7 +211,9 @@ describe('GameServersService', () => {
       });
 
       it('should throw an error', async () => {
-        await expect(service.findFreeGameServer()).rejects.toThrow(mongoose.Error.DocumentNotFoundError);
+        await expect(service.findFreeGameServer()).rejects.toThrow(
+          mongoose.Error.DocumentNotFoundError,
+        );
       });
     });
 
@@ -220,7 +224,9 @@ describe('GameServersService', () => {
       });
 
       it('should throw an error', async () => {
-        await expect(service.findFreeGameServer()).rejects.toThrow(mongoose.Error.DocumentNotFoundError);
+        await expect(service.findFreeGameServer()).rejects.toThrow(
+          mongoose.Error.DocumentNotFoundError,
+        );
       });
     });
 
@@ -231,7 +237,9 @@ describe('GameServersService', () => {
       });
 
       it('should throw an error', async () => {
-        await expect(service.findFreeGameServer()).rejects.toThrow(mongoose.Error.DocumentNotFoundError);
+        await expect(service.findFreeGameServer()).rejects.toThrow(
+          mongoose.Error.DocumentNotFoundError,
+        );
       });
     });
 
@@ -242,7 +250,9 @@ describe('GameServersService', () => {
       });
 
       it('should return this game server', async () => {
-        expect((await service.findFreeGameServer()).id).toEqual(testGameServer.id);
+        expect((await service.findFreeGameServer()).id).toEqual(
+          testGameServer.id,
+        );
       });
     });
   });
@@ -251,7 +261,11 @@ describe('GameServersService', () => {
     let game: DocumentType<Game>;
 
     beforeEach(async () => {
-      game = await gameModel.create({ number: 1, map: 'cp_badlands', slots: [] });
+      game = await gameModel.create({
+        number: 1,
+        map: 'cp_badlands',
+        slots: [],
+      });
 
       testGameServer.isOnline = true;
       await testGameServer.save();
@@ -265,7 +279,11 @@ describe('GameServersService', () => {
 
     describe('when there are no free game servers', () => {
       beforeEach(async () => {
-        const game2 = await gameModel.create({ number: 2, map: 'cp_badlands', slots: [] });
+        const game2 = await gameModel.create({
+          number: 2,
+          map: 'cp_badlands',
+          slots: [],
+        });
         await service.assignFreeGameServer(game2);
       });
 
@@ -283,14 +301,19 @@ describe('GameServersService', () => {
 
     describe('when the game server does not exist', () => {
       it('should throw an error', async () => {
-        await expect(service.releaseServer(new ObjectId().toString())).rejects.toThrow(mongoose.Error.DocumentNotFoundError);
+        await expect(
+          service.releaseServer(new ObjectId().toString()),
+        ).rejects.toThrow(mongoose.Error.DocumentNotFoundError);
       });
     });
   });
 
   describe('#getGameServerByEventSource()', () => {
     it('should return the correct server', async () => {
-      const server = await service.getGameServerByEventSource({ address: '127.0.0.1', port: 27015 });
+      const server = await service.getGameServerByEventSource({
+        address: '127.0.0.1',
+        port: 27015,
+      });
       expect(server.id).toEqual(testGameServer.id);
     });
   });

@@ -6,10 +6,10 @@ import { Document } from '../models/document';
 
 @Injectable()
 export class DocumentsService implements OnModuleInit {
-
   constructor(
-    @InjectModel(Document) private documentModel: ReturnModelType<typeof Document>,
-  ) { }
+    @InjectModel(Document)
+    private documentModel: ReturnModelType<typeof Document>,
+  ) {}
 
   async onModuleInit() {
     // ensure we have the rules document created
@@ -25,17 +25,27 @@ export class DocumentsService implements OnModuleInit {
   }
 
   async getDocument(name: string, language = 'en'): Promise<Document> {
-    const pojo = await this.documentModel.findOne({ name, language }).orFail().lean().exec();
+    const pojo = await this.documentModel
+      .findOne({ name, language })
+      .orFail()
+      .lean()
+      .exec();
     return plainToClass(Document, pojo);
   }
 
-  async saveDocument(name: string, language: string, body: string): Promise<Document> {
-    const pojo = await this.documentModel.findOneAndUpdate(
-      { name, language },
-      { body },
-      { upsert: true, new: true },
-    ).lean().exec();
+  async saveDocument(
+    name: string,
+    language: string,
+    body: string,
+  ): Promise<Document> {
+    const pojo = await this.documentModel
+      .findOneAndUpdate(
+        { name, language },
+        { body },
+        { upsert: true, new: true },
+      )
+      .lean()
+      .exec();
     return plainToClass(Document, pojo);
   }
-
 }

@@ -1,4 +1,8 @@
-import { SubscribeMessage, WebSocketGateway, OnGatewayInit } from '@nestjs/websockets';
+import {
+  SubscribeMessage,
+  WebSocketGateway,
+  OnGatewayInit,
+} from '@nestjs/websockets';
 import { QueueService } from '../services/queue.service';
 import { WsAuthorized } from '@/auth/decorators/ws-authorized.decorator';
 import { Socket } from 'socket.io';
@@ -15,7 +19,6 @@ import { WebsocketEvent } from '@/websocket-event';
 
 @WebSocketGateway()
 export class QueueGateway implements OnGatewayInit, OnModuleInit {
-
   private socket: Socket;
 
   constructor(
@@ -25,21 +28,32 @@ export class QueueGateway implements OnGatewayInit, OnModuleInit {
     private friendsService: FriendsService,
     private events: Events,
     private playerPopulatorService: PlayerPopulatorService,
-  ) { }
+  ) {}
 
   onModuleInit() {
     this.events.queueSlotsChange
       .pipe(distinctUntilChanged())
-      .subscribe(async ({ slots }) => this.socket.emit(WebsocketEvent.queueSlotsUpdate, await this.playerPopulatorService.populatePlayers(slots)));
+      .subscribe(async ({ slots }) =>
+        this.socket.emit(
+          WebsocketEvent.queueSlotsUpdate,
+          await this.playerPopulatorService.populatePlayers(slots),
+        ),
+      );
     this.events.queueStateChange
       .pipe(distinctUntilChanged())
-      .subscribe(({ state }) => this.socket.emit(WebsocketEvent.queueStateUpdate, state));
+      .subscribe(({ state }) =>
+        this.socket.emit(WebsocketEvent.queueStateUpdate, state),
+      );
     this.events.queueFriendshipsChange
       .pipe(distinctUntilChanged())
-      .subscribe(({ friendships }) => this.socket.emit(WebsocketEvent.friendshipsUpdate, friendships));
+      .subscribe(({ friendships }) =>
+        this.socket.emit(WebsocketEvent.friendshipsUpdate, friendships),
+      );
     this.events.mapVotesChange
       .pipe(distinctUntilChanged())
-      .subscribe(({ results }) => this.socket.emit(WebsocketEvent.mapVoteResultsUpdate, results));
+      .subscribe(({ results }) =>
+        this.socket.emit(WebsocketEvent.mapVoteResultsUpdate, results),
+      );
     this.events.substituteRequestsChange.subscribe(async () => {
       const requests = await this.queueAnnouncementsService.substituteRequests();
       this.socket.emit(WebsocketEvent.substituteRequestsUpdate, requests);
@@ -70,7 +84,10 @@ export class QueueGateway implements OnGatewayInit, OnModuleInit {
   @WsAuthorized()
   @SubscribeMessage('mark friend')
   markFriend(client: AuthorizedWsClient, payload: { friendPlayerId: string }) {
-    return this.friendsService.markFriend(client.request.user.id, payload.friendPlayerId);
+    return this.friendsService.markFriend(
+      client.request.user.id,
+      payload.friendPlayerId,
+    );
   }
 
   @WsAuthorized()
@@ -83,5 +100,4 @@ export class QueueGateway implements OnGatewayInit, OnModuleInit {
   afterInit(socket: Socket) {
     this.socket = socket;
   }
-
 }

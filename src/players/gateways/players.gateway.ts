@@ -1,10 +1,14 @@
-import { WebSocketGateway, OnGatewayConnection, OnGatewayDisconnect } from '@nestjs/websockets';
+import {
+  WebSocketGateway,
+  OnGatewayConnection,
+  OnGatewayDisconnect,
+} from '@nestjs/websockets';
 import { Socket } from 'socket.io';
 import { Subject } from 'rxjs';
 
 @WebSocketGateway()
-export class PlayersGateway implements OnGatewayConnection, OnGatewayDisconnect {
-
+export class PlayersGateway
+  implements OnGatewayConnection, OnGatewayDisconnect {
   private _playerConnected = new Subject<Socket>();
   private _playerDisconnected = new Subject<Socket>();
 
@@ -23,5 +27,4 @@ export class PlayersGateway implements OnGatewayConnection, OnGatewayDisconnect 
   handleDisconnect(socket: Socket) {
     this._playerDisconnected.next(socket);
   }
-
 }

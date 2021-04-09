@@ -16,19 +16,22 @@ export type PlayerSkillType = PlayerSkill['skill'];
 @Injectable()
 @Console()
 export class PlayerSkillService implements OnModuleInit {
-
   constructor(
-    @InjectModel(PlayerSkill) private playerSkillModel: ReturnModelType<typeof PlayerSkill>,
-    @Inject(forwardRef(() => PlayersService)) private playersService: PlayersService,
+    @InjectModel(PlayerSkill)
+    private playerSkillModel: ReturnModelType<typeof PlayerSkill>,
+    @Inject(forwardRef(() => PlayersService))
+    private playersService: PlayersService,
     private queueConfigService: QueueConfigService,
     private futurePlayerSkillService: FuturePlayerSkillService,
     private etf2lProfileService: Etf2lProfileService,
     private events: Events,
-  ) { }
+  ) {}
 
   onModuleInit() {
     this.events.playerRegisters.subscribe(async ({ player }) => {
-      const futureSkill = await this.futurePlayerSkillService.findSkill(player.steamId);
+      const futureSkill = await this.futurePlayerSkillService.findSkill(
+        player.steamId,
+      );
       if (futureSkill) {
         await this.setPlayerSkill(player.id, futureSkill.skill);
       }
@@ -36,17 +39,34 @@ export class PlayerSkillService implements OnModuleInit {
   }
 
   async getAll(): Promise<PlayerSkill[]> {
-    return await this.playerSkillModel.find({ });
+    return await this.playerSkillModel.find({});
   }
 
   async getPlayerSkill(playerId: string): Promise<PlayerSkillType> {
     return (await this.playerSkillModel.findOne({ player: playerId }))?.skill;
   }
 
-  async setPlayerSkill(playerId: string, skill: PlayerSkillType, adminId?: string): Promise<PlayerSkillType> {
-    const oldSkill = (await this.playerSkillModel.findOne({ player: playerId }))?.skill || new Map();
-    const newSkill = (await this.playerSkillModel.findOneAndUpdate({ player: playerId }, { skill }, { new: true, upsert: true })).skill;
-    this.events.playerSkillChanged.next({ playerId, oldSkill, newSkill, adminId });
+  async setPlayerSkill(
+    playerId: string,
+    skill: PlayerSkillType,
+    adminId?: string,
+  ): Promise<PlayerSkillType> {
+    const oldSkill =
+      (await this.playerSkillModel.findOne({ player: playerId }))?.skill ||
+      new Map();
+    const newSkill = (
+      await this.playerSkillModel.findOneAndUpdate(
+        { player: playerId },
+        { skill },
+        { new: true, upsert: true },
+      )
+    ).skill;
+    this.events.playerSkillChanged.next({
+      playerId,
+      oldSkill,
+      newSkill,
+      adminId,
+    });
     return newSkill;
   }
 
@@ -70,20 +90,29 @@ export class PlayerSkillService implements OnModuleInit {
     let i = 0;
 
     for await (const line of rl) {
-      const [ etf2lProfileId, ...rawSkill ] = line.split(/;|,/);
+      const [etf2lProfileId, ...rawSkill] = line.split(/;|,/);
 
       const skill = new Map(
-        this.queueConfigService.queueConfig.classes
-          .map((c, index) => [ c.name, parseInt(rawSkill[index], 10) ])
+        this.queueConfigService.queueConfig.classes.map((c, index) => [
+          c.name,
+          parseInt(rawSkill[index], 10),
+        ]),
       );
 
       try {
-        const player = await this.playersService.findByEtf2lProfileId(parseInt(etf2lProfileId, 10));
+        const player = await this.playersService.findByEtf2lProfileId(
+          parseInt(etf2lProfileId, 10),
+        );
         if (player) {
           await this.setPlayerSkill(player.id, skill);
         } else {
-          const etf2lProfile = await this.etf2lProfileService.fetchPlayerInfo(etf2lProfileId);
-          await this.futurePlayerSkillService.registerSkill(etf2lProfile.steam.id64, skill);
+          const etf2lProfile = await this.etf2lProfileService.fetchPlayerInfo(
+            etf2lProfileId,
+          );
+          await this.futurePlayerSkillService.registerSkill(
+            etf2lProfile.steam.id64,
+            skill,
+          );
         }
         i += 1;
       } catch (e) {
@@ -93,5 +122,4 @@ export class PlayerSkillService implements OnModuleInit {
 
     spinner.succeed(`Imported skills for ${i} players.`);
   }
-
 }

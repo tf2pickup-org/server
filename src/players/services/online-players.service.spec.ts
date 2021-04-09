@@ -37,24 +37,28 @@ describe('OnlinePlayersService', () => {
     expect(service).toBeDefined();
   });
 
-  it('should handle player connections and disconnections properly', async () => new Promise<void>(resolve => {
-    expect(service.getSocketsForPlayer('FAKE_ID')).toEqual([]);
+  it('should handle player connections and disconnections properly', async () =>
+    new Promise<void>((resolve) => {
+      expect(service.getSocketsForPlayer('FAKE_ID')).toEqual([]);
 
-    const socket = { id: 'FAKE_SOCKET_ID', request: { user: { logged_in: true, id: 'FAKE_ID' } } };
-    playersGateway.playerConnected.next(socket);
-    expect(service.getSocketsForPlayer('FAKE_ID')).toEqual([ socket ] as any);
+      const socket = {
+        id: 'FAKE_SOCKET_ID',
+        request: { user: { logged_in: true, id: 'FAKE_ID' } },
+      };
+      playersGateway.playerConnected.next(socket);
+      expect(service.getSocketsForPlayer('FAKE_ID')).toEqual([socket] as any);
 
-    playersGateway.playerConnected.next(socket);
-    expect(service.getSocketsForPlayer('FAKE_ID')).toEqual([ socket ] as any);
+      playersGateway.playerConnected.next(socket);
+      expect(service.getSocketsForPlayer('FAKE_ID')).toEqual([socket] as any);
 
-    playersGateway.playerDisconnected.next(socket);
-    expect(service.getSocketsForPlayer('FAKE_ID')).toEqual([]);
+      playersGateway.playerDisconnected.next(socket);
+      expect(service.getSocketsForPlayer('FAKE_ID')).toEqual([]);
 
-    events.playerDisconnects.subscribe(({ playerId }) => {
-      expect(playerId).toEqual('FAKE_ID');
-      resolve();
-    });
+      events.playerDisconnects.subscribe(({ playerId }) => {
+        expect(playerId).toEqual('FAKE_ID');
+        resolve();
+      });
 
-    jest.runAllTimers();
-  }));
+      jest.runAllTimers();
+    }));
 });

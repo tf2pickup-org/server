@@ -2,7 +2,6 @@ import { Equals, IsNumber } from 'class-validator';
 import { ConfigurationEntryKey } from '../models/configuration-entry-key';
 
 export class MinimumTf2InGameHours {
-
   constructor(value: number) {
     this.key = ConfigurationEntryKey.minimumTf2InGameHours;
     this.value = value;
@@ -13,5 +12,4 @@ export class MinimumTf2InGameHours {
 
   @IsNumber()
   value: number;
-
 }

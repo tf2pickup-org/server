@@ -23,39 +23,57 @@ interface PlayerSkillChangedEventProps {
  */
 @Injectable()
 export class Events {
-
   private logger = new Logger(Events.name);
 
   readonly playerRegisters = new Subject<{ player: Player }>();
-  readonly playerUpdates = new Subject<{ oldPlayer: Player, newPlayer: Player, adminId?: string }>();
+  readonly playerUpdates = new Subject<{
+    oldPlayer: Player;
+    newPlayer: Player;
+    adminId?: string;
+  }>();
   readonly playerDisconnects = new Subject<{ playerId: string }>();
   readonly playerBanAdded = new Subject<{ ban: PlayerBan }>();
-  readonly playerBanRevoked = new Subject<{ ban: PlayerBan, adminId?: string }>();
+  readonly playerBanRevoked = new Subject<{
+    ban: PlayerBan;
+    adminId?: string;
+  }>();
   readonly playerSkillChanged = new Subject<PlayerSkillChangedEventProps>();
 
   readonly playerJoinsQueue = new Subject<{ playerId: string }>();
-  readonly playerLeavesQueue = new Subject<{ playerId: string, reason: 'manual' | 'kicked' }>();
+  readonly playerLeavesQueue = new Subject<{
+    playerId: string;
+    reason: 'manual' | 'kicked';
+  }>();
   readonly queueSlotsChange = new Subject<{ slots: QueueSlot[] }>();
   readonly queueStateChange = new Subject<{ state: QueueState }>();
-  readonly queueFriendshipsChange = new Subject<{ friendships: Friendship[] }>();
+  readonly queueFriendshipsChange = new Subject<{
+    friendships: Friendship[];
+  }>();
   readonly mapVotesChange = new Subject<{ results: MapVoteResult[] }>();
 
   readonly mapPoolChange = new Subject<{ maps: Map[] }>();
 
   readonly gameCreated = new Subject<{ game: Game }>();
-  readonly gameChanges = new Subject<{ game: Game, adminId?: string }>();
+  readonly gameChanges = new Subject<{ game: Game; adminId?: string }>();
   readonly substituteRequestsChange = new Subject<void>();
 
-  readonly gameServerAdded = new Subject<{ gameServer: GameServer, adminId?: string }>();
-  readonly gameServerRemoved = new Subject<{ gameServer: GameServer, adminId?: string }>();
+  readonly gameServerAdded = new Subject<{
+    gameServer: GameServer;
+    adminId?: string;
+  }>();
+  readonly gameServerRemoved = new Subject<{
+    gameServer: GameServer;
+    adminId?: string;
+  }>();
 
   constructor() {
     for (const eventName in this) {
       const prop = this[eventName] as any;
       if (prop instanceof Subject) {
-        prop.subscribe((...args) => this.logger.debug(`${eventName}: ${JSON.stringify(args)}`));
+        prop.subscribe((...args) =>
+          this.logger.debug(`${eventName}: ${JSON.stringify(args)}`),
+        );
       }
     }
   }
-
 }

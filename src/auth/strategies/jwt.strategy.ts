@@ -7,7 +7,6 @@ import { KeyPair } from '../key-pair';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-
   constructor(
     private playersService: PlayersService,
     @Inject('AUTH_TOKEN_KEY') authTokenKey: KeyPair,
@@ -15,7 +14,10 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     super({
       jsonWebTokenOptions: { algorithms: ['ES512'] },
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-      secretOrKey: authTokenKey.publicKey.export({ format: 'pem', type: 'spki' }),
+      secretOrKey: authTokenKey.publicKey.export({
+        format: 'pem',
+        type: 'spki',
+      }),
     });
   }
 
@@ -30,5 +32,4 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       }
     }
   }
-
 }

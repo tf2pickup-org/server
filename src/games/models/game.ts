@@ -49,11 +49,14 @@ export class Game {
   stvConnectString?: string;
 
   findPlayerSlot(playerId: string) {
-    return this.slots.find(s => s.player.toString().localeCompare(playerId) === 0);
+    return this.slots.find(
+      (s) => s.player.toString().localeCompare(playerId) === 0,
+    );
   }
 
   activeSlots() {
-    return this.slots.filter(slot => slot.status.match(/active|waiting for substitute/));
+    return this.slots.filter((slot) =>
+      slot.status.match(/active|waiting for substitute/),
+    );
   }
-
 }

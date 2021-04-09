@@ -11,7 +11,9 @@ describe('ObjectIdValidationPipe', () => {
     expect(new ObjectIdValidationPipe().transform(id)).toEqual(id);
   });
 
-  it('should deny invalid object id',() => {
-    expect(() => new ObjectIdValidationPipe().transform('some invalid id')).toThrow();
+  it('should deny invalid object id', () => {
+    expect(() =>
+      new ObjectIdValidationPipe().transform('some invalid id'),
+    ).toThrow();
   });
 });

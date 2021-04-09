@@ -1,6 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { DiscordService } from './discord.service';
-import { Client, playersChannel, pickupsRole, adminChannel } from '@mocks/discord.js';
+import {
+  Client,
+  playersChannel,
+  pickupsRole,
+  adminChannel,
+} from '@mocks/discord.js';
 import { Environment } from '@/environment/environment';
 
 class EnvironmentStub {
@@ -39,15 +44,16 @@ describe('DiscordService', () => {
       expect(spy).toHaveBeenCalledWith('FAKE_DISCORD_BOT_TOKEN');
     });
 
-    it('should send notification', async () => new Promise<void>(resolve => {
-      const spy = jest.spyOn(adminChannel, 'send');
-      service.onModuleInit();
-      client.emit('ready');
-      setTimeout(() => {
-        expect(spy).toHaveBeenCalled();
-        resolve();
-      }, 0);
-    }));
+    it('should send notification', async () =>
+      new Promise<void>((resolve) => {
+        const spy = jest.spyOn(adminChannel, 'send');
+        service.onModuleInit();
+        client.emit('ready');
+        setTimeout(() => {
+          expect(spy).toHaveBeenCalled();
+          resolve();
+        }, 0);
+      }));
   });
 
   describe('when logged in', () => {
@@ -74,5 +80,4 @@ describe('DiscordService', () => {
       });
     });
   });
-
 });

@@ -9,20 +9,23 @@ import { Map } from '../models/map';
 
 @Injectable()
 export class MapPoolService implements OnModuleInit {
-
   private logger = new Logger(MapPoolService.name);
 
   constructor(
     @InjectModel(Map) private mapModel: ReturnModelType<typeof Map>,
     private events: Events,
   ) {
-    new Validator().validate(defaultMapPool, mapPoolSchema, { throwError: true });
+    new Validator().validate(defaultMapPool, mapPoolSchema, {
+      throwError: true,
+    });
   }
 
   async onModuleInit() {
     const mapCount = await this.mapModel.countDocuments();
     if (mapCount === 0) {
-      this.logger.log('Map pool empty! Initializing it with the default one...');
+      this.logger.log(
+        'Map pool empty! Initializing it with the default one...',
+      );
       await this.mapModel.insertMany(defaultMapPool.maps);
     }
 
@@ -46,7 +49,7 @@ export class MapPoolService implements OnModuleInit {
   }
 
   async setMaps(maps: Map[]): Promise<Map[]> {
-    await this.mapModel.deleteMany({ });
+    await this.mapModel.deleteMany({});
     const ret = await this.mapModel.insertMany(maps);
     this.refreshMaps();
     return ret;
@@ -56,5 +59,4 @@ export class MapPoolService implements OnModuleInit {
     const maps = await this.getMaps();
     this.events.mapPoolChange.next({ maps });
   }
-
 }

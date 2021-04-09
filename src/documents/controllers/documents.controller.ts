@@ -1,16 +1,26 @@
 import { Auth } from '@/auth/decorators/auth.decorator';
 import { PlayerRole } from '@/players/models/player-role';
 import { DocumentNotFoundFilter } from '@/shared/filters/document-not-found.filter';
-import { Body, ClassSerializerInterceptor, Controller, DefaultValuePipe, Get, Param, Put, Query, UseFilters, UseInterceptors, UsePipes, ValidationPipe } from '@nestjs/common';
+import {
+  Body,
+  ClassSerializerInterceptor,
+  Controller,
+  DefaultValuePipe,
+  Get,
+  Param,
+  Put,
+  Query,
+  UseFilters,
+  UseInterceptors,
+  UsePipes,
+  ValidationPipe,
+} from '@nestjs/common';
 import { Document } from '../models/document';
 import { DocumentsService } from '../services/documents.service';
 
 @Controller('documents')
 export class DocumentsController {
-
-  constructor(
-    private documentsService: DocumentsService,
-  ) { }
+  constructor(private documentsService: DocumentsService) {}
 
   @Get(':name')
   @UseInterceptors(ClassSerializerInterceptor)
@@ -33,5 +43,4 @@ export class DocumentsController {
   ) {
     return this.documentsService.saveDocument(name, language, document.body);
   }
-
 }

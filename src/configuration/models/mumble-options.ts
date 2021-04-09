@@ -1,5 +1,5 @@
 export interface MumbleOptions {
-  type: 'mumble',
+  type: 'mumble';
   url: string;
   port: number;
   password?: string;

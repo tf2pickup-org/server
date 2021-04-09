@@ -5,14 +5,11 @@ import * as queueConfigSchema from '../queue-config.schema.json';
 
 @Injectable()
 export class QueueConfigService {
-
   queueConfig: QueueConfig;
 
   private readonly logger = new Logger(QueueConfigService.name);
 
-  constructor(
-    @Inject('QUEUE_CONFIG_JSON') queueConfigJson: string,
-  ) {
+  constructor(@Inject('QUEUE_CONFIG_JSON') queueConfigJson: string) {
     const config = JSON.parse(queueConfigJson);
     this.validateConfig(config);
     this.queueConfig = config as QueueConfig;
@@ -21,5 +18,4 @@ export class QueueConfigService {
   private validateConfig(config: any) {
     new Validator().validate(config, queueConfigSchema, { throwError: true });
   }
-
 }

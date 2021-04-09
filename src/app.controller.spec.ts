@@ -13,9 +13,7 @@ describe('AppController', () => {
   beforeEach(async () => {
     const app: TestingModule = await Test.createTestingModule({
       controllers: [AppController],
-      providers: [
-        { provide: Environment, useClass: EnvironmentStub },
-      ],
+      providers: [{ provide: Environment, useClass: EnvironmentStub }],
     }).compile();
 
     appController = app.get<AppController>(AppController);

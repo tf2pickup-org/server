@@ -15,7 +15,6 @@ import { ConfigurationService } from '@/configuration/services/configuration.ser
  */
 @Injectable()
 export class GameLauncherService {
-
   private logger = new Logger(GameLauncherService.name);
 
   constructor(
@@ -24,7 +23,7 @@ export class GameLauncherService {
     private serverConfiguratorService: ServerConfiguratorService,
     private events: Events,
     private configurationService: ConfigurationService,
-  ) { }
+  ) {}
 
   /**
    * Launches the given game.
@@ -38,14 +37,23 @@ export class GameLauncherService {
       throw new Error('no such game');
     }
 
-    if (game.state === GameState.ended || game.state === GameState.interrupted) {
-      this.logger.warn(`trying to launch game #${game.number} that has already been ended`);
+    if (
+      game.state === GameState.ended ||
+      game.state === GameState.interrupted
+    ) {
+      this.logger.warn(
+        `trying to launch game #${game.number} that has already been ended`,
+      );
     }
 
     try {
       // step 1: obtain a free server
-      const gameServer = await this.gameServersService.assignFreeGameServer(game);
-      this.logger.verbose(`using server ${gameServer.name} for game #${game.number}`);
+      const gameServer = await this.gameServersService.assignFreeGameServer(
+        game,
+      );
+      this.logger.verbose(
+        `using server ${gameServer.name} for game #${game.number}`,
+      );
 
       // step 2: set mumble url
       const mumbleUrl = await this.getMumbleUrl(gameServer.mumbleChannelName);
@@ -55,7 +63,13 @@ export class GameLauncherService {
       this.events.gameChanges.next({ game: game.toJSON() });
 
       // step 3: configure server
-      const { connectString, stvConnectString } = await this.serverConfiguratorService.configureServer(gameServer, game);
+      const {
+        connectString,
+        stvConnectString,
+      } = await this.serverConfiguratorService.configureServer(
+        gameServer,
+        game,
+      );
       game.connectString = connectString;
       game.stvConnectString = stvConnectString;
       await game.save();
@@ -81,5 +95,4 @@ export class GameLauncherService {
     const mumbleOptions = await this.configurationService.getVoiceServer();
     return `mumble://${mumbleOptions.url}:${mumbleOptions.port}/${mumbleOptions.channelName}/${gameServerChannelName}`;
   }
-
 }

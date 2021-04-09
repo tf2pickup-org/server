@@ -15,7 +15,9 @@ const mockPlayer: Player = {
 jest.mock('@/players/services/players.service', () => ({
   PlayersService: jest.fn().mockImplementation(() => ({
     findBySteamId: jest.fn().mockResolvedValue(mockPlayer),
-    createPlayer: jest.fn().mockResolvedValue({ ...mockPlayer, hasAcceptedRules: false }),
+    createPlayer: jest
+      .fn()
+      .mockResolvedValue({ ...mockPlayer, hasAcceptedRules: false }),
     updatePlayer: jest.fn().mockResolvedValue(mockPlayer),
   })),
 }));
@@ -48,8 +50,13 @@ describe('SteamStrategy', () => {
 
   describe('#validate()', () => {
     describe('when the player does have an account', () => {
-      it('should return that player\'s profile', async () => {
-        const player = await strategy.validate('FAKE_STEAM_ID', { provider: 'steam', id: 'FAKE_STEAM_ID', displayName: 'FAKE_PLAYER', photos: [] });
+      it("should return that player's profile", async () => {
+        const player = await strategy.validate('FAKE_STEAM_ID', {
+          provider: 'steam',
+          id: 'FAKE_STEAM_ID',
+          displayName: 'FAKE_PLAYER',
+          photos: [],
+        });
         expect(playersService.createPlayer).not.toHaveBeenCalled();
         expect(player).toEqual(mockPlayer);
       });
@@ -57,13 +64,18 @@ describe('SteamStrategy', () => {
 
     describe('when the player does not have an account', () => {
       beforeEach(() => {
-        playersService.findBySteamId.mockImplementation(steamId => {
+        playersService.findBySteamId.mockImplementation((steamId) => {
           throw new mongoose.Error.DocumentNotFoundError({ steamId });
         });
       });
 
       it('should create it', async () => {
-        const player = await strategy.validate('FAKE_STEAM_ID', { provider: 'steam', id: 'FAKE_STEAM_ID', displayName: 'FAKE_PLAYER', photos: [] });
+        const player = await strategy.validate('FAKE_STEAM_ID', {
+          provider: 'steam',
+          id: 'FAKE_STEAM_ID',
+          displayName: 'FAKE_PLAYER',
+          photos: [],
+        });
         expect(playersService.createPlayer).toHaveBeenCalled();
         expect(player.steamId).toEqual('FAKE_STEAM_ID');
         expect(player.hasAcceptedRules).toBe(false);
