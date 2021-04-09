@@ -182,6 +182,8 @@ describe('TwitchService', () => {
           },
         }),
       );
+
+      playerBansService.getPlayerActiveBans.mockResolvedValue([]);
     });
 
     it('should refresh all streams', async () => {
