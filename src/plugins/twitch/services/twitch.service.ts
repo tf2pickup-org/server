@@ -9,6 +9,7 @@ import { TwitchGateway } from '../gateways/twitch.gateway';
 import { TwitchAuthService } from './twitch-auth.service';
 import { PlayerBansService } from '@/players/services/player-bans.service';
 import { twitchTvApiEndpoint } from '@configs/urls';
+import { TwitchTvUser } from '@/players/models/twitch-tv-user';
 
 interface TwitchGetUsersResponse {
   data: {
@@ -79,6 +80,18 @@ export class TwitchService implements OnModuleInit {
       })
       .pipe(map((response) => response.data.data[0]))
       .toPromise();
+  }
+
+  async saveUserProfile(userId: string, code: string) {
+    const token = await this.twitchAuthService.fetchUserAccessToken(code);
+    const userProfile = await this.fetchUserProfile(token);
+    const twitchTvUser: TwitchTvUser = {
+      userId: userProfile.id,
+      login: userProfile.login,
+      displayName: userProfile.display_name,
+      profileImageUrl: userProfile.profile_image_url,
+    };
+    await this.playersService.registerTwitchAccount(userId, twitchTvUser);
   }
 
   @Cron(CronExpression.EVERY_MINUTE)
