@@ -7,28 +7,17 @@ import { of } from 'rxjs';
 import { TwitchGateway } from '../gateways/twitch.gateway';
 import { TwitchAuthService } from './twitch-auth.service';
 import { PlayerBansService } from '@/players/services/player-bans.service';
+import { MongoMemoryServer } from 'mongodb-memory-server';
+import { TwitchTvProfile } from '../models/twitch-tv-profile';
+import { typegooseTestingModule } from '@/utils/testing-typegoose-module';
+import { getModelToken, TypegooseModule } from 'nestjs-typegoose';
+import { Player } from '@/players/models/player';
+import { ReturnModelType } from '@typegoose/typegoose';
 
 jest.mock('../gateways/twitch.gateway');
 jest.mock('./twitch-auth.service');
 jest.mock('@/players/services/player-bans.service');
-
-class PlayersServiceStub {
-  twitchUser = {
-    id: 'FAKE_USER_ID',
-    twitchTvUser: {
-      userId: 'FAKE_TWITCH_TV_USER_ID',
-      login: 'FAKE_TWITCH_TV_LOGIN',
-    },
-  };
-
-  getUsersWithTwitchTvAccount() {
-    return Promise.resolve([this.twitchUser]);
-  }
-  findByTwitchUserId(twitchUserId: string) {
-    return Promise.resolve(this.twitchUser);
-  }
-  registerTwitchAccount = jest.fn().mockResolvedValue(null);
-}
+jest.mock('@/players/services/players.service');
 
 class HttpServiceStub {
   get(url: string, options: any) {
@@ -43,16 +32,25 @@ const environment = {
 
 describe('TwitchService', () => {
   let service: TwitchService;
+  let mongod: MongoMemoryServer;
   let httpService: HttpServiceStub;
   let playerBansService: jest.Mocked<PlayerBansService>;
   let twitchAuthService: jest.Mocked<TwitchAuthService>;
-  let playersService: PlayersServiceStub;
+  let playersService: jest.Mocked<PlayersService>;
+  let twitchTvProfileModel: ReturnModelType<typeof TwitchTvProfile>;
+
+  beforeAll(() => (mongod = new MongoMemoryServer()));
+  afterAll(async () => await mongod.stop());
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
+      imports: [
+        typegooseTestingModule(mongod),
+        TypegooseModule.forFeature([Player, TwitchTvProfile]),
+      ],
       providers: [
         TwitchService,
-        { provide: PlayersService, useClass: PlayersServiceStub },
+        PlayersService,
         { provide: HttpService, useClass: HttpServiceStub },
         { provide: Environment, useValue: environment },
         TwitchGateway,
@@ -66,7 +64,11 @@ describe('TwitchService', () => {
     playerBansService = module.get(PlayerBansService);
     twitchAuthService = module.get(TwitchAuthService);
     playersService = module.get(PlayersService);
+    twitchTvProfileModel = module.get(getModelToken(TwitchTvProfile.name));
   });
+
+  // @ts-expect-error
+  afterEach(async () => await playersService._reset());
 
   it('should be defined', () => {
     expect(service).toBeDefined();
@@ -127,7 +129,9 @@ describe('TwitchService', () => {
       email: 'login@provider.com',
     };
 
-    beforeEach(() => {
+    let player: Player;
+
+    beforeEach(async () => {
       twitchAuthService.fetchUserAccessToken.mockResolvedValue(
         'FAKE_USER_TOKEN',
       );
@@ -138,25 +142,27 @@ describe('TwitchService', () => {
           },
         }),
       );
+
+      // @ts-expect-error
+      player = await playersService._createOne();
     });
 
     it('should register twitch.tv profile', async () => {
-      await service.saveUserProfile('FAKE_USER_ID', 'FAKE_CODE');
-      expect(playersService.registerTwitchAccount).toHaveBeenCalledWith(
-        'FAKE_USER_ID',
-        {
-          userId: '44322889',
-          login: 'dallas',
-          displayName: 'dallas',
-          profileImageUrl:
-            'https://static-cdn.jtvnw.net/jtv_user_pictures/dallas-profile_image-1a2c906ee2c35f12-300x300.png',
-        },
+      await service.saveUserProfile(player.id, 'FAKE_CODE');
+
+      const profile = await twitchTvProfileModel.findOne({ player: player.id });
+      expect(profile).toBeTruthy();
+      expect(profile.userId).toEqual('44322889');
+      expect(profile.login).toEqual('dallas');
+      expect(profile.displayName).toEqual('dallas');
+      expect(profile.profileImageUrl).toEqual(
+        'https://static-cdn.jtvnw.net/jtv_user_pictures/dallas-profile_image-1a2c906ee2c35f12-300x300.png',
       );
     });
   });
 
   describe('#pollUsersStreams()', () => {
-    beforeEach(() => {
+    beforeEach(async () => {
       jest.spyOn(httpService, 'get').mockReturnValue(
         of({
           data: {
@@ -182,6 +188,17 @@ describe('TwitchService', () => {
           },
         }),
       );
+
+      // @ts-expect-error
+      const player = await playersService._createOne();
+      await twitchTvProfileModel.create({
+        player: player.id,
+        userId: '23161357',
+        login: 'LIRIK',
+        displayName: 'LIRIK',
+        profileImageUrl:
+          'https://static-cdn.jtvnw.net/previews-ttv/live_user_lirik-{width}x{height}.jpg',
+      });
 
       playerBansService.getPlayerActiveBans.mockResolvedValue([]);
     });
