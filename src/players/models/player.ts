@@ -3,7 +3,6 @@ import { prop, index } from '@typegoose/typegoose';
 import { Exclude, Expose, Transform, Type } from 'class-transformer';
 import { PlayerAvatar } from './player-avatar';
 import { PlayerRole } from './player-role';
-import { TwitchTvUser } from './twitch-tv-user';
 
 @index({ steamId: 'hashed' })
 export class Player extends MongooseDocument {
@@ -33,8 +32,4 @@ export class Player extends MongooseDocument {
 
   @prop({ index: true })
   etf2lProfileId?: number;
-
-  @Type(() => TwitchTvUser)
-  @prop({ type: TwitchTvUser })
-  twitchTvUser?: TwitchTvUser;
 }
