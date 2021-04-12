@@ -14,7 +14,9 @@ export default object({
   MONGODB_PASSWORD: any().optional(),
   STEAM_API_KEY: string().required(),
   KEY_STORE_PASSPHARE: string().required(),
-  SUPER_USER: string().required(),
+  SUPER_USER: string()
+    .required()
+    .pattern(/^\d{17}$/, { name: 'SteamID64' }),
   QUEUE_CONFIG: string().valid('test', '6v6', '9v9').default('6v6'),
   LOG_RELAY_ADDRESS: string().required(),
   LOG_RELAY_PORT: number().required(),
