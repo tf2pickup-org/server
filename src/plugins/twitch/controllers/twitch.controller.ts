@@ -6,6 +6,8 @@ import {
   BadRequestException,
   Logger,
   Put,
+  UseInterceptors,
+  ClassSerializerInterceptor,
 } from '@nestjs/common';
 import { TwitchService } from '../services/twitch.service';
 import { TwitchAuthService } from '../services/twitch-auth.service';
@@ -16,6 +18,7 @@ import { JwtTokenPurpose } from '@/auth/jwt-token-purpose';
 import { Auth } from '@/auth/decorators/auth.decorator';
 import { User } from '@/auth/decorators/user.decorator';
 import { Player } from '@/players/models/player';
+import { TwitchTvProfile } from '../models/twitch-tv-profile';
 
 @Controller('twitch')
 export class TwitchController {
@@ -60,8 +63,9 @@ export class TwitchController {
 
   @Put('disconnect')
   @Auth()
-  async disconnect(@User() user: Player) {
-    return this.playersService.removeTwitchTvProfile(user.id);
+  @UseInterceptors(ClassSerializerInterceptor)
+  async disconnect(@User() user: Player): Promise<TwitchTvProfile> {
+    return this.twitchService.deleteUserProfile(user.id);
   }
 
   @Get('streams')

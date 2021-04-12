@@ -12,6 +12,7 @@ import { twitchTvApiEndpoint } from '@configs/urls';
 import { InjectModel } from 'nestjs-typegoose';
 import { TwitchTvProfile } from '../models/twitch-tv-profile';
 import { isRefType, ReturnModelType } from '@typegoose/typegoose';
+import { plainToClass } from 'class-transformer';
 
 interface TwitchGetUsersResponse {
   data: {
@@ -86,16 +87,27 @@ export class TwitchService implements OnModuleInit {
       .toPromise();
   }
 
-  async saveUserProfile(userId: string, code: string) {
+  async saveUserProfile(playerId: string, code: string) {
     const token = await this.twitchAuthService.fetchUserAccessToken(code);
     const profile = await this.fetchUserProfile(token);
     await this.twitchTvProfileModel.create({
-      player: userId,
+      player: playerId,
       userId: profile.id,
       login: profile.login,
       displayName: profile.display_name,
       profileImageUrl: profile.profile_image_url,
     });
+  }
+
+  async deleteUserProfile(playerId: string): Promise<TwitchTvProfile> {
+    return plainToClass(
+      TwitchTvProfile,
+      await this.twitchTvProfileModel
+        .findOneAndDelete({ player: playerId })
+        .orFail()
+        .lean()
+        .exec(),
+    );
   }
 
   @Cron(CronExpression.EVERY_MINUTE)
