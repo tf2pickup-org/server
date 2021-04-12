@@ -187,8 +187,9 @@ export class PlayersService implements OnModuleInit {
       etf2lProfile = await this.etf2lProfileService.fetchPlayerInfo(
         playerData.steamId,
       );
-      // eslint-disable-next-line no-empty
-    } catch (error) {}
+    } catch (error) {
+      etf2lProfile = undefined;
+    }
 
     const { id } = await this.playerModel.create({
       etf2lProfileId: etf2lProfile?.id,
