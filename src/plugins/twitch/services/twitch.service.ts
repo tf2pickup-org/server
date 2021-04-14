@@ -12,7 +12,8 @@ import { twitchTvApiEndpoint } from '@configs/urls';
 import { InjectModel } from 'nestjs-typegoose';
 import { TwitchTvProfile } from '../models/twitch-tv-profile';
 import { isRefType, ReturnModelType } from '@typegoose/typegoose';
-import { plainToClass } from 'class-transformer';
+import { classToPlain, plainToClass } from 'class-transformer';
+import { LinkedProfilesService } from '@/players/services/linked-profiles.service';
 
 interface TwitchGetUsersResponse {
   data: {
@@ -64,6 +65,7 @@ export class TwitchService implements OnModuleInit {
     private playerBansService: PlayerBansService,
     @InjectModel(TwitchTvProfile)
     private twitchTvProfileModel: ReturnModelType<typeof TwitchTvProfile>,
+    private linkedProfilesService: LinkedProfilesService,
   ) {}
 
   onModuleInit() {
@@ -72,6 +74,25 @@ export class TwitchService implements OnModuleInit {
         distinctUntilChanged((x, y) => JSON.stringify(x) === JSON.stringify(y)),
       )
       .subscribe((streams) => this.twitchGateway.emitStreamsUpdate(streams));
+
+    this.linkedProfilesService.registerLinkedProfileProvider({
+      name: 'twitch.tv',
+      fetchProfile: async (playerId) =>
+        classToPlain(await this.getTwitchTvProfileByPlayerId(playerId)),
+    });
+  }
+
+  async getTwitchTvProfileByPlayerId(
+    playerId: string,
+  ): Promise<TwitchTvProfile> {
+    return plainToClass(
+      TwitchTvProfile,
+      this.twitchTvProfileModel
+        .findOne({ player: playerId })
+        .orFail()
+        .lean()
+        .exec(),
+    );
   }
 
   async fetchUserProfile(accessToken: string) {

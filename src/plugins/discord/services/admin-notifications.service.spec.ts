@@ -108,7 +108,11 @@ describe('AdminNotificationsService', () => {
 
         events.playerUpdates.next({
           oldPlayer: player,
-          newPlayer: { ...player, name: 'NEW_PLAYER_NAME' },
+          newPlayer: {
+            ...player,
+            name: 'NEW_PLAYER_NAME',
+            linkedProfilesUrl: '',
+          },
           adminId: admin.id,
         });
       }));

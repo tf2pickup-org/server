@@ -32,4 +32,9 @@ export class Player extends MongooseDocument {
 
   @prop({ index: true })
   etf2lProfileId?: number;
+
+  @Expose()
+  get linkedProfilesUrl() {
+    return `/players/${this.id}/linked-profiles`;
+  }
 }

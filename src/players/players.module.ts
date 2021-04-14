@@ -18,6 +18,7 @@ import { QueueModule } from '@/queue/queue.module';
 import { FuturePlayerSkillService } from './services/future-player-skill.service';
 import { FuturePlayerSkill } from './models/future-player-skill';
 import { ConfigurationModule } from '@/configuration/configuration.module';
+import { LinkedProfilesService } from './services/linked-profiles.service';
 
 @Module({
   imports: [
@@ -43,12 +44,14 @@ import { ConfigurationModule } from '@/configuration/configuration.module';
     PlayersGateway,
     SteamApiService,
     FuturePlayerSkillService,
+    LinkedProfilesService,
   ],
   exports: [
     PlayersService,
     PlayerBansService,
     PlayerSkillService,
     OnlinePlayersService,
+    LinkedProfilesService,
   ],
   controllers: [PlayersController, HallOfFameController],
 })

@@ -13,11 +13,13 @@ import { typegooseTestingModule } from '@/utils/testing-typegoose-module';
 import { getModelToken, TypegooseModule } from 'nestjs-typegoose';
 import { Player } from '@/players/models/player';
 import { ReturnModelType } from '@typegoose/typegoose';
+import { LinkedProfilesService } from '@/players/services/linked-profiles.service';
 
 jest.mock('../gateways/twitch.gateway');
 jest.mock('./twitch-auth.service');
 jest.mock('@/players/services/player-bans.service');
 jest.mock('@/players/services/players.service');
+jest.mock('@/players/services/linked-profiles.service');
 
 class HttpServiceStub {
   get(url: string, options: any) {
@@ -38,6 +40,7 @@ describe('TwitchService', () => {
   let twitchAuthService: jest.Mocked<TwitchAuthService>;
   let playersService: jest.Mocked<PlayersService>;
   let twitchTvProfileModel: ReturnModelType<typeof TwitchTvProfile>;
+  let linkedProfilesService: jest.Mocked<LinkedProfilesService>;
 
   beforeAll(() => (mongod = new MongoMemoryServer()));
   afterAll(async () => await mongod.stop());
@@ -56,6 +59,7 @@ describe('TwitchService', () => {
         TwitchGateway,
         TwitchAuthService,
         PlayerBansService,
+        LinkedProfilesService,
       ],
     }).compile();
 
@@ -65,6 +69,7 @@ describe('TwitchService', () => {
     twitchAuthService = module.get(TwitchAuthService);
     playersService = module.get(PlayersService);
     twitchTvProfileModel = module.get(getModelToken(TwitchTvProfile.name));
+    linkedProfilesService = module.get(LinkedProfilesService);
   });
 
   // @ts-expect-error
@@ -72,6 +77,21 @@ describe('TwitchService', () => {
 
   it('should be defined', () => {
     expect(service).toBeDefined();
+  });
+
+  describe('#onModuleInit()', () => {
+    beforeEach(() => {
+      service.onModuleInit();
+    });
+
+    it('should register linked profile provider', () => {
+      expect(
+        linkedProfilesService.registerLinkedProfileProvider,
+      ).toHaveBeenCalledWith({
+        name: 'twitch.tv',
+        fetchProfile: expect.any(Function),
+      });
+    });
   });
 
   describe('#fetchUserProfile()', () => {
