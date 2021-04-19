@@ -1,3 +1,4 @@
+import { Link } from '@/shared/models/link';
 import { MongooseDocument } from '@/utils/mongoose-document';
 import { prop, index } from '@typegoose/typegoose';
 import { Exclude, Expose, Transform, Type } from 'class-transformer';
@@ -34,7 +35,13 @@ export class Player extends MongooseDocument {
   etf2lProfileId?: number;
 
   @Expose()
-  get linkedProfilesUrl() {
-    return `/players/${this.id}/linked-profiles`;
+  @Type(() => Link)
+  get _links(): Link[] {
+    return [
+      new Link({
+        href: `/players/${this.id}/linked-profiles`,
+        title: 'Linked profiles',
+      }),
+    ];
   }
 }
