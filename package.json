@@ -40,7 +40,7 @@
     "discord.js": "12.5.3",
     "gamedig": "3.0.3",
     "generate-password": "1.6.0",
-    "helmet": "4.5.0",
+    "helmet": "4.6.0",
     "jsonschema": "1.4.0",
     "jsonwebtoken": "8.5.1",
     "lodash": "4.17.21",
