@@ -74,7 +74,7 @@
     "@types/jsonschema": "1.1.1",
     "@types/jsonwebtoken": "8.5.1",
     "@types/lodash": "4.14.168",
-    "@types/mongoose": "5.10.1",
+    "@types/mongoose": "5.10.5",
     "@types/node": "12.20.12",
     "@types/passport": "1.0.6",
     "@types/passport-jwt": "3.0.5",
