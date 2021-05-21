@@ -46,7 +46,7 @@
     "lodash": "4.17.21",
     "migrate": "1.7.0",
     "moment": "2.29.1",
-    "mongoose": "5.10.19",
+    "mongoose": "5.11.7",
     "nestjs-console": "4.0.0",
     "nestjs-typegoose": "7.1.38",
     "passport": "0.4.1",
