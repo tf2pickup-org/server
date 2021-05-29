@@ -136,7 +136,6 @@ export class TwitchService implements OnModuleInit {
 
   @Cron(CronExpression.EVERY_MINUTE)
   async pollUsersStreams() {
-    // const users = await this.playersService.getUsersWithTwitchTvAccount();
     const users = await this.twitchTvProfileModel.find();
     if (users.length > 0) {
       const rawStreams = await this.fetchStreams(
