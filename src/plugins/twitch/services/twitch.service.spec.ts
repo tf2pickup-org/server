@@ -12,7 +12,7 @@ import { TwitchTvProfile } from '../models/twitch-tv-profile';
 import { typegooseTestingModule } from '@/utils/testing-typegoose-module';
 import { getModelToken, TypegooseModule } from 'nestjs-typegoose';
 import { Player } from '@/players/models/player';
-import { ReturnModelType } from '@typegoose/typegoose';
+import { mongoose, ReturnModelType } from '@typegoose/typegoose';
 import { LinkedProfilesService } from '@/players/services/linked-profiles.service';
 import { Events } from '@/events/events';
 
@@ -42,6 +42,7 @@ describe('TwitchService', () => {
   let playersService: jest.Mocked<PlayersService>;
   let twitchTvProfileModel: ReturnModelType<typeof TwitchTvProfile>;
   let linkedProfilesService: jest.Mocked<LinkedProfilesService>;
+  let events: Events;
 
   beforeAll(() => (mongod = new MongoMemoryServer()));
   afterAll(async () => await mongod.stop());
@@ -72,6 +73,7 @@ describe('TwitchService', () => {
     playersService = module.get(PlayersService);
     twitchTvProfileModel = module.get(getModelToken(TwitchTvProfile.name));
     linkedProfilesService = module.get(LinkedProfilesService);
+    events = module.get(Events);
   });
 
   // @ts-expect-error
@@ -92,6 +94,41 @@ describe('TwitchService', () => {
       ).toHaveBeenCalledWith({
         name: 'twitch.tv',
         fetchProfile: expect.any(Function),
+      });
+    });
+  });
+
+  describe('#getTwitchTvProfileByPlayerId()', () => {
+    describe('when exists', () => {
+      let player: Player;
+
+      beforeEach(async () => {
+        // @ts-expect-error
+        player = await playersService._createOne();
+        await twitchTvProfileModel.create({
+          player: player.id,
+          userId: '44322889',
+          login: 'dallas',
+          displayName: 'dallas',
+          profileImageUrl:
+            'https://static-cdn.jtvnw.net/jtv_user_pictures/dallas-profile_image-1a2c906ee2c35f12-300x300.png',
+        });
+      });
+
+      it('should return the requested twitch.tv profile', async () => {
+        const profile = await service.getTwitchTvProfileByPlayerId(player.id);
+        expect(profile.player).toEqual(player.id);
+        expect(profile.userId).toEqual('44322889');
+      });
+    });
+
+    describe('when does not exist', () => {
+      it('should throw an error', async () => {
+        await expect(
+          service.getTwitchTvProfileByPlayerId(
+            new mongoose.Types.ObjectId().toString(),
+          ),
+        ).rejects.toThrow(mongoose.Error.DocumentNotFoundError);
       });
     });
   });
@@ -181,6 +218,48 @@ describe('TwitchService', () => {
         'https://static-cdn.jtvnw.net/jtv_user_pictures/dallas-profile_image-1a2c906ee2c35f12-300x300.png',
       );
     });
+
+    it('should emit the linkedProfilesChanged event', async () =>
+      new Promise<void>((resolve) => {
+        events.linkedProfilesChanged.subscribe(({ playerId }) => {
+          expect(playerId).toEqual(player.id);
+          resolve();
+        });
+
+        service.saveUserProfile(player.id, 'FAKE_CODE');
+      }));
+  });
+
+  describe('#deleteUserProfile()', () => {
+    let player: Player;
+
+    beforeEach(async () => {
+      // @ts-expect-error
+      player = await playersService._createOne();
+      await twitchTvProfileModel.create({
+        player: player.id,
+        userId: '44322889',
+        login: 'dallas',
+        displayName: 'dallas',
+        profileImageUrl:
+          'https://static-cdn.jtvnw.net/jtv_user_pictures/dallas-profile_image-1a2c906ee2c35f12-300x300.png',
+      });
+    });
+
+    it('should return the deleted twitch.tv profile', async () => {
+      const profile = await service.deleteUserProfile(player.id);
+      expect(profile.player).toEqual(player.id);
+    });
+
+    it('should emit the linkedProfilesChanged event', async () =>
+      new Promise<void>((resolve) => {
+        events.linkedProfilesChanged.subscribe(({ playerId }) => {
+          expect(playerId).toEqual(player.id);
+          resolve();
+        });
+
+        service.deleteUserProfile(player.id);
+      }));
   });
 
   describe('#pollUsersStreams()', () => {
