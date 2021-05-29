@@ -19,7 +19,7 @@ describe('LinkedProfilesService', () => {
   describe('#getLinkedProfiles()', () => {
     beforeEach(() => {
       service.registerLinkedProfileProvider({
-        name: 'test',
+        name: 'twitch.tv',
         fetchProfile: (playerId) =>
           Promise.resolve({
             playerId,
@@ -32,7 +32,7 @@ describe('LinkedProfilesService', () => {
       const linkedProfiles = await service.getLinkedProfiles('FAKE_PLAYER_ID');
       expect(linkedProfiles).toEqual([
         {
-          provider: 'test',
+          provider: 'twitch.tv',
           playerId: 'FAKE_PLAYER_ID',
           test: 'test',
         },

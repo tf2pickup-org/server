@@ -18,6 +18,8 @@ import { plainToClass } from 'class-transformer';
 import { PlayerBan } from '../models/player-ban';
 import { mongoose } from '@typegoose/typegoose';
 import { LinkedProfilesService } from '../services/linked-profiles.service';
+import { LinkedProfileProviderName } from '../types/linked-profile-provider-name';
+import { LinkedProfiles } from '../dto/linked-profiles';
 
 jest.mock('../services/linked-profiles.service');
 
@@ -346,7 +348,7 @@ describe('Players Controller', () => {
         displayName: 'm_maly',
         profileImageUrl:
           'https://static-cdn.jtvnw.net/jtv_user_pictures/9330a24b-a956-407c-910b-5b975950d122-profile_image-300x300.png',
-        provider: 'twitch.tv',
+        provider: 'twitch.tv' as LinkedProfileProviderName,
       },
     ];
 
@@ -359,7 +361,9 @@ describe('Players Controller', () => {
       expect(linkedProfilesService.getLinkedProfiles).toHaveBeenCalledWith(
         'FAKE_PLAYER_ID',
       );
-      expect(result).toEqual(linkedProfiles);
+      expect(result).toEqual(
+        new LinkedProfiles('FAKE_PLAYER_ID', linkedProfiles),
+      );
     });
   });
 });

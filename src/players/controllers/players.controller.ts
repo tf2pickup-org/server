@@ -35,6 +35,7 @@ import { PlayerStats } from '../dto/player-stats';
 import { ForceCreatePlayer } from '../dto/force-create-player';
 import { PlayerRole } from '../models/player-role';
 import { LinkedProfilesService } from '../services/linked-profiles.service';
+import { LinkedProfiles } from '../dto/linked-profiles';
 
 @Controller('players')
 @UseInterceptors(CacheInterceptor)
@@ -210,6 +211,9 @@ export class PlayersController {
   async getPlayerLinkedProfiles(
     @Param('id', ObjectIdValidationPipe) playerId: string,
   ) {
-    return this.linkedProfilesService.getLinkedProfiles(playerId);
+    const linkedProfiles = await this.linkedProfilesService.getLinkedProfiles(
+      playerId,
+    );
+    return new LinkedProfiles(playerId, linkedProfiles);
   }
 }

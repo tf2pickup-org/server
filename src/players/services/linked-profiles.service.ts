@@ -1,7 +1,10 @@
 import { Injectable } from '@nestjs/common';
+import { classToPlain } from 'class-transformer';
+import { LinkedProfile } from '../types/linked-profile';
+import { LinkedProfileProviderName } from '../types/linked-profile-provider-name';
 
 interface LinkedProfileProvider {
-  name: string;
+  name: LinkedProfileProviderName;
   fetchProfile: (playerId: string) => Promise<any> | any;
 }
 
@@ -13,13 +16,13 @@ export class LinkedProfilesService {
     this.linkedProfileProviders.push(linkedProfileProvider);
   }
 
-  async getLinkedProfiles(playerId: string): Promise<any[]> {
+  async getLinkedProfiles(playerId: string): Promise<LinkedProfile[]> {
     return (
       await Promise.all(
         this.linkedProfileProviders.map(async (provider) => {
           try {
             const profile = await provider.fetchProfile(playerId);
-            return { ...profile, provider: provider.name };
+            return { ...classToPlain(profile), provider: provider.name };
           } catch (_error) {
             return null;
           }

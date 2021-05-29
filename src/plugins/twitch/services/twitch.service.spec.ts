@@ -14,6 +14,7 @@ import { getModelToken, TypegooseModule } from 'nestjs-typegoose';
 import { Player } from '@/players/models/player';
 import { ReturnModelType } from '@typegoose/typegoose';
 import { LinkedProfilesService } from '@/players/services/linked-profiles.service';
+import { Events } from '@/events/events';
 
 jest.mock('../gateways/twitch.gateway');
 jest.mock('./twitch-auth.service');
@@ -60,6 +61,7 @@ describe('TwitchService', () => {
         TwitchAuthService,
         PlayerBansService,
         LinkedProfilesService,
+        Events,
       ],
     }).compile();
 

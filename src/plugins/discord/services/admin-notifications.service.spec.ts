@@ -111,7 +111,7 @@ describe('AdminNotificationsService', () => {
           newPlayer: {
             ...player,
             name: 'NEW_PLAYER_NAME',
-            linkedProfilesUrl: '',
+            _links: [],
           },
           adminId: admin.id,
         });

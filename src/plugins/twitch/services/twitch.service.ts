@@ -1,7 +1,6 @@
 import { Injectable, HttpService, OnModuleInit, Logger } from '@nestjs/common';
 import { TwitchStream } from '../models/twitch-stream';
 import { Cron, CronExpression } from '@nestjs/schedule';
-import { PlayersService } from '@/players/services/players.service';
 import { Environment } from '@/environment/environment';
 import { map, distinctUntilChanged } from 'rxjs/operators';
 import { BehaviorSubject } from 'rxjs';
@@ -12,8 +11,9 @@ import { twitchTvApiEndpoint } from '@configs/urls';
 import { InjectModel } from 'nestjs-typegoose';
 import { TwitchTvProfile } from '../models/twitch-tv-profile';
 import { isRefType, ReturnModelType } from '@typegoose/typegoose';
-import { classToPlain, plainToClass } from 'class-transformer';
+import { plainToClass } from 'class-transformer';
 import { LinkedProfilesService } from '@/players/services/linked-profiles.service';
+import { Events } from '@/events/events';
 
 interface TwitchGetUsersResponse {
   data: {
@@ -57,7 +57,6 @@ export class TwitchService implements OnModuleInit {
   }
 
   constructor(
-    private playersService: PlayersService,
     private httpService: HttpService,
     private environment: Environment,
     private twitchGateway: TwitchGateway,
@@ -66,6 +65,7 @@ export class TwitchService implements OnModuleInit {
     @InjectModel(TwitchTvProfile)
     private twitchTvProfileModel: ReturnModelType<typeof TwitchTvProfile>,
     private linkedProfilesService: LinkedProfilesService,
+    private events: Events,
   ) {}
 
   onModuleInit() {
@@ -78,7 +78,7 @@ export class TwitchService implements OnModuleInit {
     this.linkedProfilesService.registerLinkedProfileProvider({
       name: 'twitch.tv',
       fetchProfile: async (playerId) =>
-        classToPlain(await this.getTwitchTvProfileByPlayerId(playerId)),
+        await this.getTwitchTvProfileByPlayerId(playerId),
     });
   }
 
@@ -118,10 +118,11 @@ export class TwitchService implements OnModuleInit {
       displayName: profile.display_name,
       profileImageUrl: profile.profile_image_url,
     });
+    this.events.linkedProfilesChanged.next({ playerId });
   }
 
   async deleteUserProfile(playerId: string): Promise<TwitchTvProfile> {
-    return plainToClass(
+    const ret = plainToClass(
       TwitchTvProfile,
       await this.twitchTvProfileModel
         .findOneAndDelete({ player: playerId })
@@ -129,6 +130,8 @@ export class TwitchService implements OnModuleInit {
         .lean()
         .exec(),
     );
+    this.events.linkedProfilesChanged.next({ playerId });
+    return ret;
   }
 
   @Cron(CronExpression.EVERY_MINUTE)
