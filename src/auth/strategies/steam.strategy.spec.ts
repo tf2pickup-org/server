@@ -10,7 +10,7 @@ const mockPlayer: Player = {
   name: 'FAKE_PLAYER',
   steamId: 'FAKE_STEAM_ID',
   hasAcceptedRules: true,
-  linkedProfilesUrl: '',
+  _links: [],
 };
 
 jest.mock('@/players/services/players.service', () => ({
