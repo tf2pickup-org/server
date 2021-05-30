@@ -64,10 +64,8 @@ export class AuthController {
   async refreshToken(@Query('refresh_token') oldRefreshToken: string) {
     if (oldRefreshToken !== undefined) {
       try {
-        const {
-          refreshToken,
-          authToken,
-        } = await this.authService.refreshTokens(oldRefreshToken);
+        const { refreshToken, authToken } =
+          await this.authService.refreshTokens(oldRefreshToken);
         return { refreshToken, authToken };
       } catch (error) {
         throw new BadRequestException(error.message);

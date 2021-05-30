@@ -46,12 +46,8 @@ export class GameRuntimeService {
       game.gameServer.toString(),
     );
     try {
-      const {
-        connectString,
-      } = await this.serverConfiguratorService.configureServer(
-        gameServer,
-        game,
-      );
+      const { connectString } =
+        await this.serverConfiguratorService.configureServer(gameServer, game);
       game.connectString = connectString;
       await game.save();
       this.events.gameChanges.next({ game });

@@ -44,7 +44,8 @@ export class GameEventListenerService implements OnModuleInit {
     {
       name: 'player connected',
       // https://regex101.com/r/uyPW8m/4
-      regex: /^(\d{2}\/\d{2}\/\d{4})\s-\s(\d{2}:\d{2}:\d{2}):\s"(.+)<(\d+)><(\[.[^\]]+\])><>"\sconnected,\saddress\s"(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d{1,5})"$/,
+      regex:
+        /^(\d{2}\/\d{2}\/\d{4})\s-\s(\d{2}:\d{2}:\d{2}):\s"(.+)<(\d+)><(\[.[^\]]+\])><>"\sconnected,\saddress\s"(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d{1,5})"$/,
       handle: (gameId, matches) => {
         const steamId = new SteamID(matches[5]);
         if (steamId.isValid()) {
@@ -58,7 +59,8 @@ export class GameEventListenerService implements OnModuleInit {
     {
       name: 'player joined team',
       // https://regex101.com/r/yzX9zG/1
-      regex: /^(\d{2}\/\d{2}\/\d{4})\s-\s(\d{2}:\d{2}:\d{2}):\s"(.+)<(\d+)><(\[.[^\]]+\])><(.+)>"\sjoined\steam\s"(.+)"/,
+      regex:
+        /^(\d{2}\/\d{2}\/\d{4})\s-\s(\d{2}:\d{2}:\d{2}):\s"(.+)<(\d+)><(\[.[^\]]+\])><(.+)>"\sjoined\steam\s"(.+)"/,
       handle: (gameId, matches) => {
         const steamId = new SteamID(matches[5]);
         if (steamId.isValid()) {
@@ -72,7 +74,8 @@ export class GameEventListenerService implements OnModuleInit {
     {
       name: 'player disconnected',
       // https://regex101.com/r/x4AMTG/1
-      regex: /^(\d{2}\/\d{2}\/\d{4})\s-\s(\d{2}:\d{2}:\d{2}):\s"(.+)<(\d+)><(\[.[^\]]+\])><(.[^>]+)>"\sdisconnected\s\(reason\s"(.[^"]+)"\)$/,
+      regex:
+        /^(\d{2}\/\d{2}\/\d{4})\s-\s(\d{2}:\d{2}:\d{2}):\s"(.+)<(\d+)><(\[.[^\]]+\])><(.[^>]+)>"\sdisconnected\s\(reason\s"(.[^"]+)"\)$/,
       handle: (gameId, matches) => {
         const steamId = new SteamID(matches[5]);
         if (steamId.isValid()) {
@@ -86,7 +89,8 @@ export class GameEventListenerService implements OnModuleInit {
     {
       name: 'score reported',
       // https://regex101.com/r/RAUdTe/1
-      regex: /^[\d/\s-:]+Team "(.[^"]+)" final score "(\d)" with "(\d)" players$/,
+      regex:
+        /^[\d/\s-:]+Team "(.[^"]+)" final score "(\d)" with "(\d)" players$/,
       handle: (gameId, matches) => {
         const [, teamName, score] = matches;
         this.gameEventHandlerService.onScoreReported(gameId, teamName, score);
@@ -133,9 +137,8 @@ export class GameEventListenerService implements OnModuleInit {
     for (const gameEvent of this.gameEvents) {
       const matches = message.match(gameEvent.regex);
       if (matches) {
-        const gameServer = await this.gameSeversService.getGameServerByEventSource(
-          eventSource,
-        );
+        const gameServer =
+          await this.gameSeversService.getGameServerByEventSource(eventSource);
         const game = isRefType(gameServer.game)
           ? await this.gamesService.getById(gameServer.game)
           : gameServer.game;

@@ -55,7 +55,8 @@ export class QueueGateway implements OnGatewayInit, OnModuleInit {
         this.socket.emit(WebsocketEvent.mapVoteResultsUpdate, results),
       );
     this.events.substituteRequestsChange.subscribe(async () => {
-      const requests = await this.queueAnnouncementsService.substituteRequests();
+      const requests =
+        await this.queueAnnouncementsService.substituteRequests();
       this.socket.emit(WebsocketEvent.substituteRequestsUpdate, requests);
     });
   }

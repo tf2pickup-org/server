@@ -211,7 +211,8 @@ export class GamesService {
       const skillForClass = skill.get(gameClass);
       return { playerId, gameClass, skill: skillForClass };
     } else {
-      const defaultPlayerSkill = await this.configurationService.getDefaultPlayerSkill();
+      const defaultPlayerSkill =
+        await this.configurationService.getDefaultPlayerSkill();
       return { playerId, gameClass, skill: defaultPlayerSkill.get(gameClass) };
     }
   }
