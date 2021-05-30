@@ -14,6 +14,7 @@ import { isRefType, ReturnModelType } from '@typegoose/typegoose';
 import { plainToClass } from 'class-transformer';
 import { LinkedProfilesService } from '@/players/services/linked-profiles.service';
 import { Events } from '@/events/events';
+import { promotedStreams } from '@configs/twitchtv';
 
 interface TwitchGetUsersResponse {
   data: {
@@ -137,21 +138,27 @@ export class TwitchService implements OnModuleInit {
   @Cron(CronExpression.EVERY_MINUTE)
   async pollUsersStreams() {
     const users = await this.twitchTvProfileModel.find();
-    if (users.length > 0) {
-      const rawStreams = await this.fetchStreams(
-        users.map((user) => user.userId),
-      );
-      const streams = (
-        await Promise.all(
-          rawStreams.map(async (stream) => {
-            const profile = await this.twitchTvProfileModel.findOne({
-              userId: stream.user_id,
-            });
+    const rawStreams = await this.fetchStreams({
+      userIds: users.map((user) => user.userId),
+      userLogins: promotedStreams,
+    });
+    const streams = (
+      await Promise.all(
+        rawStreams.map(async (stream) => {
+          const profile = await this.twitchTvProfileModel.findOne({
+            userId: stream.user_id,
+          });
 
-            if (profile === null) {
-              return null;
-            }
-
+          if (profile === null) {
+            // promoted stream
+            return {
+              id: stream.id,
+              userName: stream.user_name,
+              title: stream.title,
+              thumbnailUrl: stream.thumbnail_url,
+              viewerCount: stream.viewer_count,
+            };
+          } else {
             const playerId = isRefType(profile.player)
               ? profile.player
               : profile.player.id;
@@ -172,20 +179,24 @@ export class TwitchService implements OnModuleInit {
                 viewerCount: stream.viewer_count,
               };
             }
-          }),
-        )
-      ).filter((stream) => !!stream);
-      this._streams.next(streams);
-      this.logger.debug('streams refreshed');
-    }
+          }
+        }),
+      )
+    ).filter((stream) => !!stream);
+    this._streams.next(streams);
+    this.logger.debug('streams refreshed');
   }
 
-  private async fetchStreams(users: string[]) {
+  private async fetchStreams(params: {
+    userIds: string[];
+    userLogins: string[];
+  }) {
     // https://dev.twitch.tv/docs/api/reference#get-streams
     return this.httpService
       .get<TwitchGetStreamsResponse>(`${twitchTvApiEndpoint}/streams`, {
         params: {
-          user_id: users,
+          user_id: params.userIds,
+          user_login: params.userLogins,
         },
         headers: {
           'Client-ID': this.environment.twitchClientId,

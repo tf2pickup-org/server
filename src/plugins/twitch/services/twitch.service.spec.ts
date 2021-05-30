@@ -304,7 +304,7 @@ describe('TwitchService', () => {
       playerBansService.getPlayerActiveBans.mockResolvedValue([]);
     });
 
-    it('should refresh all streams', async () => {
+    it('should refresh players streams', async () => {
       await service.pollUsersStreams();
       expect(service.streams.length).toEqual(1);
     });
@@ -317,6 +317,46 @@ describe('TwitchService', () => {
       it('should not add his stream to the list of streams', async () => {
         await service.pollUsersStreams();
         expect(service.streams.length).toEqual(0);
+      });
+    });
+
+    describe('when fetching a promoted stream', () => {
+      beforeEach(async () => {
+        jest.spyOn(httpService, 'get').mockReturnValue(
+          of({
+            data: {
+              data: [
+                {
+                  id: '42220566028',
+                  user_id: '21255999',
+                  user_login: 'kritzkast',
+                  user_name: 'KritzKast',
+                  game_id: '16676',
+                  game_name: 'Team Fortress 2',
+                  type: 'live',
+                  title:
+                    'ETF2L Highlander S24 Premiership W2: Feila eSports vs. inVision',
+                  viewer_count: 155,
+                  started_at: '2021-05-30T19:19:04Z',
+                  language: 'en',
+                  thumbnail_url:
+                    'https://static-cdn.jtvnw.net/previews-ttv/live_user_kritzkast-{width}x{height}.jpg',
+                  tag_ids: [Array],
+                  is_mature: false,
+                },
+              ],
+              pagination: {},
+            },
+          }),
+        );
+      });
+
+      it('should refresh promoted streams', async () => {
+        await service.pollUsersStreams();
+        expect(service.streams.length).toEqual(1);
+        const stream = service.streams[0];
+        expect(stream.playerId).toBe(undefined);
+        expect(stream.userName).toEqual('KritzKast');
       });
     });
   });

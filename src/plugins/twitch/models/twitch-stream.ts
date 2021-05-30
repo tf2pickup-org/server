@@ -1,5 +1,5 @@
 export interface TwitchStream {
-  playerId: string;
+  playerId?: string;
   id: string;
   userName: string;
   title: string;
