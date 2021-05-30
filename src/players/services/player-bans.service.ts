@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from 'nestjs-typegoose';
 import { PlayerBan } from '../models/player-ban';
-import { ReturnModelType } from '@typegoose/typegoose';
+import { mongoose, ReturnModelType } from '@typegoose/typegoose';
 import { merge } from 'rxjs';
 import { OnlinePlayersService } from './online-players.service';
 import { PlayersService } from './players.service';
@@ -60,7 +60,9 @@ export class PlayerBansService implements OnModuleInit {
     );
   }
 
-  async getPlayerActiveBans(playerId: string): Promise<PlayerBan[]> {
+  async getPlayerActiveBans(
+    playerId: string | mongoose.Types.ObjectId,
+  ): Promise<PlayerBan[]> {
     const plain = await this.playerBanModel
       .find({
         player: playerId,

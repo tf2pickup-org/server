@@ -16,7 +16,6 @@ class PlayersServiceStub {
   registerTwitchAccount(playerId: string, twitchUserId: string) {
     return Promise.resolve();
   }
-  removeTwitchTvProfile = jest.fn().mockResolvedValue({ id: 'FAKE_USER_ID' });
 }
 
 describe('Twitch Controller', () => {
@@ -94,12 +93,19 @@ describe('Twitch Controller', () => {
   });
 
   describe('#disconnect()', () => {
-    it("should remove twitch.tv profile from the user's account", async () => {
+    beforeEach(() => {
+      twitchService.deleteUserProfile.mockResolvedValue({
+        userId: 'FAKE_USER_ID',
+        login: 'FAKE_LOGIN',
+      });
+    });
+
+    it('should remove the twitch.tv profile', async () => {
       const ret = await controller.disconnect({ id: 'FAKE_USER_ID' } as Player);
-      expect(playersService.removeTwitchTvProfile).toHaveBeenCalledWith(
+      expect(twitchService.deleteUserProfile).toHaveBeenCalledWith(
         'FAKE_USER_ID',
       );
-      expect(ret).toEqual({ id: 'FAKE_USER_ID' });
+      expect(ret).toEqual({ userId: 'FAKE_USER_ID', login: 'FAKE_LOGIN' });
     });
   });
 

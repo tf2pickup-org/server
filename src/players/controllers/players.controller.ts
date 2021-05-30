@@ -34,6 +34,8 @@ import { DocumentNotFoundFilter } from '@/shared/filters/document-not-found.filt
 import { PlayerStats } from '../dto/player-stats';
 import { ForceCreatePlayer } from '../dto/force-create-player';
 import { PlayerRole } from '../models/player-role';
+import { LinkedProfilesService } from '../services/linked-profiles.service';
+import { LinkedProfiles } from '../dto/linked-profiles';
 
 @Controller('players')
 @UseInterceptors(CacheInterceptor)
@@ -43,6 +45,7 @@ export class PlayersController {
     private gamesService: GamesService,
     private playerSkillService: PlayerSkillService,
     private playerBansService: PlayerBansService,
+    private linkedProfilesService: LinkedProfilesService,
   ) {}
 
   @Get()
@@ -201,5 +204,16 @@ export class PlayersController {
     if (revoke !== undefined) {
       return this.playerBansService.revokeBan(banId, user.id);
     }
+  }
+
+  @Get(':id/linked-profiles')
+  @UseInterceptors(ClassSerializerInterceptor)
+  async getPlayerLinkedProfiles(
+    @Param('id', ObjectIdValidationPipe) playerId: string,
+  ) {
+    const linkedProfiles = await this.linkedProfilesService.getLinkedProfiles(
+      playerId,
+    );
+    return new LinkedProfiles(playerId, linkedProfiles);
   }
 }

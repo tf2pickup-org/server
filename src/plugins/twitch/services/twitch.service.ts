@@ -1,7 +1,6 @@
 import { Injectable, HttpService, OnModuleInit, Logger } from '@nestjs/common';
 import { TwitchStream } from '../models/twitch-stream';
 import { Cron, CronExpression } from '@nestjs/schedule';
-import { PlayersService } from '@/players/services/players.service';
 import { Environment } from '@/environment/environment';
 import { map, distinctUntilChanged } from 'rxjs/operators';
 import { BehaviorSubject } from 'rxjs';
@@ -9,7 +8,12 @@ import { TwitchGateway } from '../gateways/twitch.gateway';
 import { TwitchAuthService } from './twitch-auth.service';
 import { PlayerBansService } from '@/players/services/player-bans.service';
 import { twitchTvApiEndpoint } from '@configs/urls';
-import { TwitchTvUser } from '@/players/models/twitch-tv-user';
+import { InjectModel } from 'nestjs-typegoose';
+import { TwitchTvProfile } from '../models/twitch-tv-profile';
+import { isRefType, ReturnModelType } from '@typegoose/typegoose';
+import { plainToClass } from 'class-transformer';
+import { LinkedProfilesService } from '@/players/services/linked-profiles.service';
+import { Events } from '@/events/events';
 
 interface TwitchGetUsersResponse {
   data: {
@@ -53,12 +57,15 @@ export class TwitchService implements OnModuleInit {
   }
 
   constructor(
-    private playersService: PlayersService,
     private httpService: HttpService,
     private environment: Environment,
     private twitchGateway: TwitchGateway,
     private twitchAuthService: TwitchAuthService,
     private playerBansService: PlayerBansService,
+    @InjectModel(TwitchTvProfile)
+    private twitchTvProfileModel: ReturnModelType<typeof TwitchTvProfile>,
+    private linkedProfilesService: LinkedProfilesService,
+    private events: Events,
   ) {}
 
   onModuleInit() {
@@ -67,6 +74,25 @@ export class TwitchService implements OnModuleInit {
         distinctUntilChanged((x, y) => JSON.stringify(x) === JSON.stringify(y)),
       )
       .subscribe((streams) => this.twitchGateway.emitStreamsUpdate(streams));
+
+    this.linkedProfilesService.registerLinkedProfileProvider({
+      name: 'twitch.tv',
+      fetchProfile: async (playerId) =>
+        await this.getTwitchTvProfileByPlayerId(playerId),
+    });
+  }
+
+  async getTwitchTvProfileByPlayerId(
+    playerId: string,
+  ): Promise<TwitchTvProfile> {
+    return plainToClass(
+      TwitchTvProfile,
+      this.twitchTvProfileModel
+        .findOne({ player: playerId })
+        .orFail()
+        .lean()
+        .exec(),
+    );
   }
 
   async fetchUserProfile(accessToken: string) {
@@ -82,44 +108,68 @@ export class TwitchService implements OnModuleInit {
       .toPromise();
   }
 
-  async saveUserProfile(userId: string, code: string) {
+  async saveUserProfile(playerId: string, code: string) {
     const token = await this.twitchAuthService.fetchUserAccessToken(code);
-    const userProfile = await this.fetchUserProfile(token);
-    const twitchTvUser: TwitchTvUser = {
-      userId: userProfile.id,
-      login: userProfile.login,
-      displayName: userProfile.display_name,
-      profileImageUrl: userProfile.profile_image_url,
-    };
-    await this.playersService.registerTwitchAccount(userId, twitchTvUser);
+    const profile = await this.fetchUserProfile(token);
+    await this.twitchTvProfileModel.create({
+      player: playerId,
+      userId: profile.id,
+      login: profile.login,
+      displayName: profile.display_name,
+      profileImageUrl: profile.profile_image_url,
+    });
+    this.events.linkedProfilesChanged.next({ playerId });
+  }
+
+  async deleteUserProfile(playerId: string): Promise<TwitchTvProfile> {
+    const ret = plainToClass(
+      TwitchTvProfile,
+      await this.twitchTvProfileModel
+        .findOneAndDelete({ player: playerId })
+        .orFail()
+        .lean()
+        .exec(),
+    );
+    this.events.linkedProfilesChanged.next({ playerId });
+    return ret;
   }
 
   @Cron(CronExpression.EVERY_MINUTE)
   async pollUsersStreams() {
-    const users = await this.playersService.getUsersWithTwitchTvAccount();
+    const users = await this.twitchTvProfileModel.find();
     if (users.length > 0) {
       const rawStreams = await this.fetchStreams(
-        users.map((u) => u.twitchTvUser.userId),
+        users.map((user) => user.userId),
       );
       const streams = (
         await Promise.all(
-          rawStreams.map(async (s) => {
-            const player = await this.playersService.findByTwitchUserId(
-              s.user_id,
-            );
+          rawStreams.map(async (stream) => {
+            const profile = await this.twitchTvProfileModel.findOne({
+              userId: stream.user_id,
+            });
+
+            if (profile === null) {
+              return null;
+            }
+
+            const playerId = isRefType(profile.player)
+              ? profile.player
+              : profile.player.id;
+
             const bans = await this.playerBansService.getPlayerActiveBans(
-              player.id,
+              playerId,
             );
+
             if (bans.length > 0) {
               return null;
             } else {
               return {
-                playerId: player.id,
-                id: s.id,
-                userName: s.user_name,
-                title: s.title,
-                thumbnailUrl: s.thumbnail_url,
-                viewerCount: s.viewer_count,
+                playerId: playerId.toString(),
+                id: stream.id,
+                userName: stream.user_name,
+                title: stream.title,
+                thumbnailUrl: stream.thumbnail_url,
+                viewerCount: stream.viewer_count,
               };
             }
           }),

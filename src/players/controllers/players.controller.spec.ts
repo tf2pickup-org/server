@@ -17,6 +17,11 @@ import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { plainToClass } from 'class-transformer';
 import { PlayerBan } from '../models/player-ban';
 import { mongoose } from '@typegoose/typegoose';
+import { LinkedProfilesService } from '../services/linked-profiles.service';
+import { LinkedProfileProviderName } from '../types/linked-profile-provider-name';
+import { LinkedProfiles } from '../dto/linked-profiles';
+
+jest.mock('../services/linked-profiles.service');
 
 class PlayersServiceStub {
   player = plainToClass(Player, {
@@ -141,6 +146,7 @@ describe('Players Controller', () => {
   let gamesService: GamesServiceStub;
   let playerSkillService: PlayerSkillServiceStub;
   let playerBansService: PlayerBansServiceStub;
+  let linkedProfilesService: jest.Mocked<LinkedProfilesService>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -149,6 +155,7 @@ describe('Players Controller', () => {
         { provide: GamesService, useClass: GamesServiceStub },
         { provide: PlayerSkillService, useClass: PlayerSkillServiceStub },
         { provide: PlayerBansService, useClass: PlayerBansServiceStub },
+        LinkedProfilesService,
       ],
       controllers: [PlayersController],
       imports: [CacheModule.register()],
@@ -159,6 +166,7 @@ describe('Players Controller', () => {
     gamesService = module.get(GamesService);
     playerSkillService = module.get(PlayerSkillService);
     playerBansService = module.get(PlayerBansService);
+    linkedProfilesService = module.get(LinkedProfilesService);
   });
 
   it('should be defined', () => {
@@ -328,6 +336,34 @@ describe('Players Controller', () => {
       await expect(
         controller.addPlayerBan(ban as any, { id: 'SOME_ID' } as any),
       ).rejects.toThrow(BadRequestException);
+    });
+  });
+
+  describe('#getPlayerLinkedProfiles()', () => {
+    const linkedProfiles = [
+      {
+        player: '6054cd120504423a7dd0dcc8',
+        userId: '75739124',
+        login: 'm_maly',
+        displayName: 'm_maly',
+        profileImageUrl:
+          'https://static-cdn.jtvnw.net/jtv_user_pictures/9330a24b-a956-407c-910b-5b975950d122-profile_image-300x300.png',
+        provider: 'twitch.tv' as LinkedProfileProviderName,
+      },
+    ];
+
+    beforeEach(() => {
+      linkedProfilesService.getLinkedProfiles.mockResolvedValue(linkedProfiles);
+    });
+
+    it('should query the service', async () => {
+      const result = await controller.getPlayerLinkedProfiles('FAKE_PLAYER_ID');
+      expect(linkedProfilesService.getLinkedProfiles).toHaveBeenCalledWith(
+        'FAKE_PLAYER_ID',
+      );
+      expect(result).toEqual(
+        new LinkedProfiles('FAKE_PLAYER_ID', linkedProfiles),
+      );
     });
   });
 });

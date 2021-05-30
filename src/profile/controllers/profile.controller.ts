@@ -19,6 +19,7 @@ import { PlayerBansService } from '@/players/services/player-bans.service';
 import { MapVoteService } from '@/queue/services/map-vote.service';
 import { PlayerPreferencesService } from '@/player-preferences/services/player-preferences.service';
 import { Profile } from '../dto/profile';
+import { LinkedProfilesService } from '@/players/services/linked-profiles.service';
 
 @Controller('profile')
 export class ProfileController {
@@ -28,6 +29,7 @@ export class ProfileController {
     private playerBansService: PlayerBansService,
     private mapVoteService: MapVoteService,
     private playerPreferencesService: PlayerPreferencesService,
+    private linkedProfilesService: LinkedProfilesService,
   ) {}
 
   @Get()
@@ -41,6 +43,9 @@ export class ProfileController {
       bans: await this.playerBansService.getPlayerActiveBans(user.id),
       mapVote: this.mapVoteService.playerVote(user.id),
       preferences: await this.playerPreferencesService.getPlayerPreferences(
+        user.id,
+      ),
+      linkedProfiles: await this.linkedProfilesService.getLinkedProfiles(
         user.id,
       ),
     });

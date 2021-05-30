@@ -15,7 +15,6 @@ import { GamesService } from '@/games/services/games.service';
 import { PlayerStats } from '../dto/player-stats';
 import { Etf2lProfile } from '../etf2l-profile';
 import { SteamApiService } from './steam-api.service';
-import { TwitchTvUser } from '../models/twitch-tv-user';
 import { ObjectId } from 'mongodb';
 import { PlayerAvatar } from '../models/player-avatar';
 import { Events } from '@/events/events';
@@ -100,17 +99,6 @@ export class PlayersService implements OnModuleInit {
     return plainToClass(
       Player,
       await this.playerModel.findOne({ etf2lProfileId }).orFail().lean().exec(),
-    );
-  }
-
-  async findByTwitchUserId(twitchTvUserId: string): Promise<Player> {
-    return plainToClass(
-      Player,
-      await this.playerModel
-        .findOne({ 'twitchTvUser.userId': twitchTvUserId })
-        .orFail()
-        .lean()
-        .exec(),
     );
   }
 
@@ -199,29 +187,6 @@ export class PlayersService implements OnModuleInit {
     this.logger.verbose(`created new player (name: ${player.name})`);
     this.events.playerRegisters.next({ player });
     return player;
-  }
-
-  // FIXME Move this method to TwitchModule
-  async registerTwitchAccount(
-    playerId: string,
-    twitchTvUser: TwitchTvUser,
-  ): Promise<Player> {
-    return this.updatePlayer(playerId, { twitchTvUser });
-  }
-
-  // FIXME Move this method to TwitchModule
-  async removeTwitchTvProfile(playerId: string) {
-    return this.updatePlayer(playerId, { $unset: { twitchTvUser: 1 } });
-  }
-
-  async getUsersWithTwitchTvAccount(): Promise<Player[]> {
-    return plainToClass(
-      Player,
-      await this.playerModel
-        .find({ twitchTvUser: { $exists: true } })
-        .lean()
-        .exec(),
-    );
   }
 
   async updatePlayer(

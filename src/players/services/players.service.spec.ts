@@ -174,28 +174,6 @@ describe('PlayersService', () => {
     });
   });
 
-  describe('#findByTwitchUserId()', () => {
-    beforeEach(async () => {
-      const player = await playerModel.findOne();
-      player.twitchTvUser = {
-        userId: 'FAKE_TWITCH_TV_USER_ID',
-        login: 'FAKE_TWITCH_TV_LOGIN',
-      };
-      await player.save();
-    });
-
-    it('should query playerModel', async () => {
-      const player = await service.findByTwitchUserId('FAKE_TWITCH_TV_USER_ID');
-      expect(player).toEqual(
-        expect.objectContaining({
-          twitchTvUser: expect.objectContaining({
-            userId: 'FAKE_TWITCH_TV_USER_ID',
-          }),
-        }),
-      );
-    });
-  });
-
   describe('#findBot()', () => {
     it('should find the bot', async () => {
       expect(await service.findBot()).toMatchObject({
@@ -356,77 +334,6 @@ describe('PlayersService', () => {
         });
         expect(player.etf2lProfileId).toEqual(112758);
       });
-    });
-  });
-
-  describe('#registerTwitchAccount()', () => {
-    const twitchTvUser = {
-      userId: 'FAKE_TWITCH_TV_USER_ID',
-      login: 'FAKE_TWITCH_TV_LOGIN',
-    };
-
-    describe('when the given user does not exist', () => {
-      it('should throw an error', async () => {
-        await expect(
-          service.registerTwitchAccount(new ObjectId().toString(), {
-            userId: 'FAKE_TWITCH_TV_USER_ID',
-            login: 'FAKE_TWITCH_TV_LOGIN',
-          }),
-        ).rejects.toThrow(mongoose.Error.DocumentNotFoundError);
-      });
-    });
-
-    it('should save the twitch user id', async () => {
-      const ret = await service.registerTwitchAccount(
-        mockPlayer.id,
-        twitchTvUser,
-      );
-      expect(ret.twitchTvUser).toEqual(expect.objectContaining(twitchTvUser));
-    });
-
-    it('should notify all clients via ws', async () => {
-      const socket = { emit: jest.fn() };
-      onlinePlayersService.getSocketsForPlayer.mockReturnValue([socket as any]);
-
-      await service.registerTwitchAccount(mockPlayer.id, twitchTvUser);
-      expect(socket.emit).toHaveBeenCalledWith(WebsocketEvent.profileUpdate, {
-        player: expect.objectContaining({ twitchTvUser }),
-      });
-    });
-  });
-
-  describe('#removeTwitchTvProfile()', () => {
-    beforeEach(async () => {
-      const twitchTvUser = {
-        userId: 'FAKE_TWITCH_TV_USER_ID',
-        login: 'FAKE_TWITCH_TV_LOGIN',
-      };
-      await service.registerTwitchAccount(mockPlayer.id, twitchTvUser);
-    });
-
-    it('should remove the twitchTvProfile', async () => {
-      const ret = await service.removeTwitchTvProfile(mockPlayer.id);
-      expect(ret.twitchTvUser).toBe(undefined);
-      expect((await playerModel.findById(mockPlayer.id)).twitchTvUser).toBe(
-        undefined,
-      );
-    });
-  });
-
-  describe('#getUsersWithTwitchTvAccount()', () => {
-    beforeEach(async () => {
-      const player = await playerModel.findOne();
-      player.twitchTvUser = {
-        userId: 'FAKE_TWITCH_TV_USER_ID',
-        login: 'FAKE_TWITCH_TV_LOGIN',
-      };
-      await player.save();
-    });
-
-    it('should return all twitch.tv user ids', async () => {
-      const ret = await service.getUsersWithTwitchTvAccount();
-      expect(ret.length).toBe(1);
-      expect(ret[0].twitchTvUser.userId).toEqual('FAKE_TWITCH_TV_USER_ID');
     });
   });
 

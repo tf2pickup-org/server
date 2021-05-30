@@ -7,8 +7,10 @@ import { PlayerBansService } from '@/players/services/player-bans.service';
 import { MapVoteService } from '@/queue/services/map-vote.service';
 import { BadRequestException } from '@nestjs/common';
 import { PlayerPreferencesService } from '@/player-preferences/services/player-preferences.service';
+import { LinkedProfilesService } from '@/players/services/linked-profiles.service';
 
 jest.mock('@/player-preferences/services/player-preferences.service');
+jest.mock('@/players/services/linked-profiles.service');
 
 class PlayersServiceStub {
   acceptTerms(playerId: string) {
@@ -47,6 +49,7 @@ describe('Profile Controller', () => {
         { provide: PlayerBansService, useClass: PlayerBansServiceStub },
         { provide: MapVoteService, useClass: MapVoteServiceStub },
         PlayerPreferencesService,
+        LinkedProfilesService,
       ],
       controllers: [ProfileController],
     }).compile();
@@ -76,6 +79,8 @@ describe('Profile Controller', () => {
           id: 'FAKE_ID',
           name: 'FAKE_USER_NAME',
           steamId: 'FAKE_STEAM_ID',
+          linkedProfilesUrl: '',
+          _links: [],
         },
         activeGameId: null,
         bans: [],

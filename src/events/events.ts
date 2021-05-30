@@ -38,6 +38,7 @@ export class Events {
     adminId?: string;
   }>();
   readonly playerSkillChanged = new Subject<PlayerSkillChangedEventProps>();
+  readonly linkedProfilesChanged = new Subject<{ playerId: string }>();
 
   readonly playerJoinsQueue = new Subject<{ playerId: string }>();
   readonly playerLeavesQueue = new Subject<{
