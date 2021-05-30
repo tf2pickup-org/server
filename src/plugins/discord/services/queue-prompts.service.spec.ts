@@ -49,9 +49,9 @@ describe('QueuePromptsService', () => {
         } as any),
     );
 
-    (QueueConfigService as jest.MockedClass<
-      typeof QueueConfigService
-    >).mockImplementation(
+    (
+      QueueConfigService as jest.MockedClass<typeof QueueConfigService>
+    ).mockImplementation(
       () =>
         ({
           queueConfig: {

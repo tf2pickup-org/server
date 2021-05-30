@@ -8,7 +8,8 @@ import { Subject } from 'rxjs';
 
 @WebSocketGateway()
 export class PlayersGateway
-  implements OnGatewayConnection, OnGatewayDisconnect {
+  implements OnGatewayConnection, OnGatewayDisconnect
+{
   private _playerConnected = new Subject<Socket>();
   private _playerDisconnected = new Subject<Socket>();
 

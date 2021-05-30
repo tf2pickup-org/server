@@ -42,7 +42,8 @@ export class QueueController {
       ),
       state: this.queueService.state,
       mapVoteResults: this.mapVoteService.results,
-      substituteRequests: await this.queueAnnouncementsService.substituteRequests(),
+      substituteRequests:
+        await this.queueAnnouncementsService.substituteRequests(),
       friendships: this.friendsService.friendships,
     };
   }

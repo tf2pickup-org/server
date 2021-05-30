@@ -229,7 +229,8 @@ export class PlayersService implements OnModuleInit {
   }
 
   private async verifyTf2InGameHours(steamId: string) {
-    const minimumTf2InGameHours = await this.configurationService.getMinimumTf2InGameHours();
+    const minimumTf2InGameHours =
+      await this.configurationService.getMinimumTf2InGameHours();
     try {
       const hoursInTf2 = await this.steamApiService.getTf2InGameHours(steamId);
       if (hoursInTf2 < minimumTf2InGameHours) {

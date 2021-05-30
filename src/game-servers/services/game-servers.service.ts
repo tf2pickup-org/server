@@ -116,7 +116,9 @@ export class GameServersService {
     return this.mutex.runExclusive(async () => {
       try {
         const gameServer = await this.updateGameServer(
-          (await this.findFreeGameServer()).id,
+          (
+            await this.findFreeGameServer()
+          ).id,
           { game: game._id },
         );
         game.gameServer = gameServer._id;

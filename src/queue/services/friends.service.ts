@@ -28,12 +28,10 @@ export class FriendsService implements OnModuleInit {
         ...this.friendships.filter((f) => f.sourcePlayerId !== sourcePlayerId),
       ];
     } else {
-      const sourcePlayerSlot = this.queueService.findSlotByPlayerId(
-        sourcePlayerId,
-      );
-      const targetPlayerSlot = this.queueService.findSlotByPlayerId(
-        targetPlayerId,
-      );
+      const sourcePlayerSlot =
+        this.queueService.findSlotByPlayerId(sourcePlayerId);
+      const targetPlayerSlot =
+        this.queueService.findSlotByPlayerId(targetPlayerId);
       if (!sourcePlayerSlot || !targetPlayerSlot) {
         throw new Error('player not in the queue');
       }

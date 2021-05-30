@@ -63,13 +63,8 @@ export class GameLauncherService {
       this.events.gameChanges.next({ game: game.toJSON() });
 
       // step 3: configure server
-      const {
-        connectString,
-        stvConnectString,
-      } = await this.serverConfiguratorService.configureServer(
-        gameServer,
-        game,
-      );
+      const { connectString, stvConnectString } =
+        await this.serverConfiguratorService.configureServer(gameServer, game);
       game.connectString = connectString;
       game.stvConnectString = stvConnectString;
       await game.save();

@@ -144,9 +144,7 @@ describe('ServerConfiguratorService', () => {
       game.map = 'cp_badlands';
 
       rcon = new RconStub();
-      rconFactoryService.createRcon.mockResolvedValue(
-        (rcon as unknown) as Rcon,
-      );
+      rconFactoryService.createRcon.mockResolvedValue(rcon as unknown as Rcon);
       jest.useFakeTimers();
       jest.spyOn(global, 'setTimeout').mockImplementation((cb: () => void) => {
         cb();
