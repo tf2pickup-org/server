@@ -64,7 +64,7 @@
     "@nestjs/cli": "7.6.0",
     "@nestjs/schematics": "7.3.1",
     "@nestjs/testing": "7.6.17",
-    "@release-it/conventional-changelog": "3.0.0",
+    "@release-it/conventional-changelog": "3.0.1",
     "@types/cache-manager": "3.4.0",
     "@types/express": "4.17.12",
     "@types/gamedig": "3.0.0",
