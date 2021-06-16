@@ -32,6 +32,15 @@ export class ConfigurationService implements OnModuleInit {
         true.toString(),
       ),
       this.loadDefault(ConfigurationEntryKey.minimumTf2InGameHours, '500'),
+      this.loadDefault(
+        ConfigurationEntryKey.voiceServer,
+        JSON.stringify({
+          type: 'mumble',
+          url: 'melkor.tf',
+          port: 64738,
+          channelName: 'tf2pickup',
+        }),
+      ),
     ]);
   }
 
