@@ -1,6 +1,7 @@
+import { Game } from '@/games/models/game';
 import { Link } from '@/shared/models/link';
 import { MongooseDocument } from '@/utils/mongoose-document';
-import { prop, index } from '@typegoose/typegoose';
+import { prop, index, Ref } from '@typegoose/typegoose';
 import { Exclude, Expose, Transform, Type } from 'class-transformer';
 import { PlayerAvatar } from './player-avatar';
 import { PlayerRole } from './player-role';
@@ -33,6 +34,10 @@ export class Player extends MongooseDocument {
 
   @prop({ index: true })
   etf2lProfileId?: number;
+
+  @Exclude({ toPlainOnly: true })
+  @prop({ ref: () => Game })
+  activeGame?: Ref<Game>;
 
   @Expose()
   @Type(() => Link)

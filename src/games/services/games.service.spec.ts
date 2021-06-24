@@ -461,11 +461,20 @@ describe('GamesService', () => {
       });
     });
 
-    it('should assing the very next number', async () => {
+    it('should assign the very next number', async () => {
       const game1 = await service.create(slots, 'cp_fake_rc1');
       expect(game1.number).toEqual(1);
       const game2 = await service.create(slots, 'cp_fake_rc2');
       expect(game2.number).toEqual(2);
+    });
+
+    it('should assign the created game to each player', async () => {
+      const spy = jest.spyOn(playersService, 'updatePlayer');
+      const game = await service.create(slots, 'cp_fake_rc1');
+      expect(spy).toHaveBeenCalledTimes(12);
+      spy.mock.calls.forEach((call) =>
+        expect(call[1].activeGame).toEqual(game.id),
+      );
     });
   });
 

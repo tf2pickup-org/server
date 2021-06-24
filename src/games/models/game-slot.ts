@@ -6,7 +6,7 @@ import { SlotStatus } from './slot-status';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 
 export class GameSlot {
-  @prop({ required: true, ref: Player, index: true })
+  @prop({ required: true, ref: () => Player, index: true })
   player!: Ref<Player>;
 
   @prop({ required: true, enum: Tf2Team })

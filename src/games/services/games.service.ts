@@ -149,6 +149,17 @@ export class GamesService {
 
     this.logger.debug(`game #${game.number} created`);
     this.events.gameCreated.next({ game: game.toJSON() });
+
+    await Promise.all(
+      game.slots
+        .map((slot) => slot.player)
+        .map((playerId) =>
+          this.playersService.updatePlayer(playerId.toString(), {
+            activeGame: game.id,
+          }),
+        ),
+    );
+
     return game;
   }
 

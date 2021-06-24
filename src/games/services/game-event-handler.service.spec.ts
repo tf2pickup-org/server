@@ -172,6 +172,18 @@ describe('GameEventHandlerService', () => {
           service.onMatchEnded(mockGame.id);
         }));
     });
+
+    it('should remove assigned game from each player', async () => {
+      const game = await service.onMatchEnded(mockGame.id);
+      const players = await Promise.all(
+        game.slots
+          .map((slot) => slot.player)
+          .map((playerId) => playersService.getById(playerId.toString())),
+      );
+      expect(players.every((player) => player.activeGame === undefined)).toBe(
+        true,
+      );
+    });
   });
 
   describe('#onLogsUploaded()', () => {
