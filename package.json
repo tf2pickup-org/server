@@ -31,7 +31,7 @@
     "@nestjs/schedule": "0.4.3",
     "@nestjs/serve-static": "2.1.4",
     "@nestjs/websockets": "7.6.18",
-    "@typegoose/typegoose": "7.6.0",
+    "@typegoose/typegoose": "7.6.1",
     "async-mutex": "0.3.1",
     "cache-manager": "3.4.4",
     "class-transformer": "0.4.0",
