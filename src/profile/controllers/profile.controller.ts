@@ -14,7 +14,6 @@ import { Auth } from '@/auth/decorators/auth.decorator';
 import { User } from '@/auth/decorators/user.decorator';
 import { Player } from '@/players/models/player';
 import { PlayersService } from '@/players/services/players.service';
-import { GamesService } from '@/games/services/games.service';
 import { PlayerBansService } from '@/players/services/player-bans.service';
 import { MapVoteService } from '@/queue/services/map-vote.service';
 import { PlayerPreferencesService } from '@/player-preferences/services/player-preferences.service';
@@ -25,7 +24,6 @@ import { LinkedProfilesService } from '@/players/services/linked-profiles.servic
 export class ProfileController {
   constructor(
     private playersService: PlayersService,
-    private gamesService: GamesService,
     private playerBansService: PlayerBansService,
     private mapVoteService: MapVoteService,
     private playerPreferencesService: PlayerPreferencesService,
@@ -38,8 +36,7 @@ export class ProfileController {
   async getProfile(@User() user: Player): Promise<Profile> {
     return new Profile({
       player: user,
-      activeGameId:
-        (await this.gamesService.getPlayerActiveGame(user.id))?.id ?? null,
+      activeGameId: user.activeGame?.toString(),
       bans: await this.playerBansService.getPlayerActiveBans(user.id),
       mapVote: this.mapVoteService.playerVote(user.id),
       preferences: await this.playerPreferencesService.getPlayerPreferences(
