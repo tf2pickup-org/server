@@ -66,7 +66,7 @@
     "@nestjs/testing": "7.6.18",
     "@release-it/conventional-changelog": "3.0.1",
     "@types/cache-manager": "3.4.1",
-    "@types/express": "4.17.12",
+    "@types/express": "4.17.13",
     "@types/gamedig": "3.0.0",
     "@types/hapi__joi": "17.1.6",
     "@types/helmet": "0.0.48",
