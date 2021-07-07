@@ -77,7 +77,7 @@
     "@types/mongoose": "5.10.1",
     "@types/node": "14.17.5",
     "@types/passport": "1.0.7",
-    "@types/passport-jwt": "3.0.5",
+    "@types/passport-jwt": "3.0.6",
     "@types/passport-steam": "1.0.1",
     "@types/socket.io": "3.0.1",
     "@types/socketio-jwt-auth": "0.0.2",
