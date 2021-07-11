@@ -214,7 +214,7 @@ describe('PlayersService', () => {
       });
     });
 
-    describe('when the user has ETFL2 ban', () => {
+    describe('when the user has an ETF2L ban', () => {
       // http://api.etf2l.org/player/129205
       const blacklistedProfile: Etf2lProfile = {
         bans: [
@@ -378,6 +378,15 @@ describe('PlayersService', () => {
       await service.updatePlayer(mockPlayer.id, { name: 'NEW_NAME' }, admin.id);
       expect(socket.emit).toHaveBeenCalledWith(WebsocketEvent.profileUpdate, {
         player: expect.objectContaining({ name: 'NEW_NAME' }),
+      });
+    });
+
+    describe("when a change doesn't affect JSON output", () => {
+      it('should not emit updated player over websocket', async () => {
+        await service.updatePlayer(mockPlayer.id, {
+          activeGame: new ObjectId(),
+        });
+        expect(socket.emit).not.toHaveBeenCalled();
       });
     });
 

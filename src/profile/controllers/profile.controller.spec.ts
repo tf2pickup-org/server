@@ -2,12 +2,12 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { ProfileController } from './profile.controller';
 import { Player } from '@/players/models/player';
 import { PlayersService } from '@/players/services/players.service';
-import { GamesService } from '@/games/services/games.service';
 import { PlayerBansService } from '@/players/services/player-bans.service';
 import { MapVoteService } from '@/queue/services/map-vote.service';
 import { BadRequestException } from '@nestjs/common';
 import { PlayerPreferencesService } from '@/player-preferences/services/player-preferences.service';
 import { LinkedProfilesService } from '@/players/services/linked-profiles.service';
+import { mongoose } from '@typegoose/typegoose';
 
 jest.mock('@/player-preferences/services/player-preferences.service');
 jest.mock('@/players/services/linked-profiles.service');
@@ -15,12 +15,6 @@ jest.mock('@/players/services/linked-profiles.service');
 class PlayersServiceStub {
   acceptTerms(playerId: string) {
     return null;
-  }
-}
-
-class GamesServiceStub {
-  getPlayerActiveGame(playerId: string) {
-    return new Promise((resolve) => resolve(null));
   }
 }
 
@@ -45,7 +39,6 @@ describe('Profile Controller', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         { provide: PlayersService, useClass: PlayersServiceStub },
-        { provide: GamesService, useClass: GamesServiceStub },
         { provide: PlayerBansService, useClass: PlayerBansServiceStub },
         { provide: MapVoteService, useClass: MapVoteServiceStub },
         PlayerPreferencesService,
@@ -82,12 +75,26 @@ describe('Profile Controller', () => {
           linkedProfilesUrl: '',
           _links: [],
         },
-        activeGameId: null,
         bans: [],
         mapVote: 'cp_badlands',
         preferences: new Map([['sound-volume', '0.5']]),
       };
       expect(await controller.getProfile(profile.player)).toEqual(profile);
+    });
+
+    it('should return active game id', async () => {
+      const gameId = new mongoose.Types.ObjectId();
+      const player = {
+        id: 'FAKE_ID',
+        name: 'FAKE_USER_NAME',
+        steamId: 'FAKE_STEAM_ID',
+        activeGame: gameId,
+        linkedProfilesUrl: '',
+        _links: [],
+      };
+      expect(await controller.getProfile(player)).toEqual(
+        expect.objectContaining({ activeGameId: gameId.toString() }),
+      );
     });
   });
 

@@ -449,6 +449,12 @@ describe('PlayerSubstitutionService', () => {
       expect(spy).toHaveBeenCalled();
     });
 
+    it("should remove player's active game", async () => {
+      await service.replacePlayer(mockGame.id, player1.id, player3.id);
+      const player = await playersService.getById(player1.id);
+      expect(player.activeGame).toBe(undefined);
+    });
+
     describe('when a player1 gets replaced, but then player2 leaves', () => {
       beforeEach(async () => {
         await service.replacePlayer(mockGame.id, player1.id, player3.id);

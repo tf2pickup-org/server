@@ -149,6 +149,17 @@ export class GamesService {
 
     this.logger.debug(`game #${game.number} created`);
     this.events.gameCreated.next({ game: game.toJSON() });
+
+    await Promise.all(
+      game.slots
+        .map((slot) => slot.player)
+        .map((playerId) =>
+          this.playersService.updatePlayer(playerId.toString(), {
+            activeGame: game.id,
+          }),
+        ),
+    );
+
     return game;
   }
 
@@ -183,6 +194,9 @@ export class GamesService {
     ]);
   }
 
+  /**
+   * @returns Games that need player substitute.
+   */
   async getGamesWithSubstitutionRequests(): Promise<DocumentType<Game>[]> {
     return this.gameModel.find({
       state: { $in: [GameState.launching, GameState.started] },
@@ -190,6 +204,9 @@ export class GamesService {
     });
   }
 
+  /**
+   * @returns Games with no game server assigned.
+   */
   async getOrphanedGames(): Promise<DocumentType<Game>[]> {
     return this.gameModel.find({
       state: GameState.launching,

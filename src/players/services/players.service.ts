@@ -28,6 +28,8 @@ import { AccountBannedError } from '../errors/account-banned.error';
 import { InsufficientTf2InGameHoursError } from '../errors/insufficient-tf2-in-game-hours.error';
 import { PlayerRole } from '../models/player-role';
 import { ConfigurationService } from '@/configuration/services/configuration.service';
+import { filter, map } from 'rxjs/operators';
+import { isEqual } from 'lodash';
 
 type ForceCreatePlayerOptions = Pick<Player, 'steamId' | 'name'>;
 
@@ -60,15 +62,23 @@ export class PlayersService implements OnModuleInit {
       }
     }
 
-    this.events.playerUpdates.subscribe(({ newPlayer }) => {
-      this.onlinePlayersService
-        .getSocketsForPlayer(newPlayer.id)
-        .forEach((socket) =>
-          socket.emit(WebsocketEvent.profileUpdate, {
-            player: classToPlain(newPlayer),
-          }),
-        );
-    });
+    this.events.playerUpdates
+      .pipe(
+        map(({ oldPlayer, newPlayer }) => ({
+          oldPlayer: classToPlain(oldPlayer),
+          newPlayer: classToPlain(newPlayer),
+        })),
+        filter(({ oldPlayer, newPlayer }) => !isEqual(newPlayer, oldPlayer)),
+      )
+      .subscribe(({ newPlayer }) => {
+        this.onlinePlayersService
+          .getSocketsForPlayer(newPlayer.id)
+          .forEach((socket) =>
+            socket.emit(WebsocketEvent.profileUpdate, {
+              player: newPlayer,
+            }),
+          );
+      });
   }
 
   async getAll(): Promise<Player[]> {

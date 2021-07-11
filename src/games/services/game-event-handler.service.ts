@@ -52,6 +52,17 @@ export class GameEventHandlerService {
     if (game) {
       this.events.gameChanges.next({ game: game.toJSON() });
       this.events.substituteRequestsChange.next();
+
+      await Promise.all(
+        game.slots
+          .map((slot) => slot.player)
+          .map((playerId) =>
+            this.playersService.updatePlayer(playerId.toString(), {
+              $unset: { activeGame: 1 },
+            }),
+          ),
+      );
+
       setTimeout(
         () => this.gameRuntimeService.cleanupServer(game.gameServer.toString()),
         serverCleanupDelay,

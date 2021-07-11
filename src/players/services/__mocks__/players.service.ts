@@ -4,6 +4,7 @@ import { Player } from '@/players/models/player';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from 'nestjs-typegoose';
 import { plainToClass } from 'class-transformer';
+import { UpdateQuery } from 'mongoose';
 
 @Injectable()
 export class PlayersService {
@@ -34,6 +35,17 @@ export class PlayersService {
 
   async _reset() {
     await this.playerModel.deleteMany({}).exec();
+  }
+
+  async updatePlayer(playerId: string, update: UpdateQuery<Player>) {
+    const newPlayer = plainToClass(
+      Player,
+      await this.playerModel
+        .findOneAndUpdate({ _id: playerId }, update, { new: true })
+        .lean()
+        .exec(),
+    );
+    return newPlayer;
   }
 
   async _createOne(overrides: Partial<Player> = {}) {
