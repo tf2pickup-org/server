@@ -194,6 +194,9 @@ export class GamesService {
     ]);
   }
 
+  /**
+   * @returns Games that need player substitute.
+   */
   async getGamesWithSubstitutionRequests(): Promise<DocumentType<Game>[]> {
     return this.gameModel.find({
       state: { $in: [GameState.launching, GameState.started] },
@@ -201,6 +204,9 @@ export class GamesService {
     });
   }
 
+  /**
+   * @returns Games with no game server assigned.
+   */
   async getOrphanedGames(): Promise<DocumentType<Game>[]> {
     return this.gameModel.find({
       state: GameState.launching,

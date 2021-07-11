@@ -202,6 +202,10 @@ export class PlayerSubstitutionService {
       `player ${replacement.name} is replacing ${replacee.name} on ${replacementSlot.gameClass} in game #${game.number}`,
     );
 
+    await this.playersService.updatePlayer(replacee.id.toString(), {
+      $unset: { activeGame: 1 },
+    });
+
     setImmediate(() =>
       this.gameRuntimeService.replacePlayer(
         game.id,
