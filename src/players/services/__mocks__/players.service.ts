@@ -1,10 +1,9 @@
 import { Subject } from 'rxjs';
-import { ReturnModelType } from '@typegoose/typegoose';
-import { Player } from '@/players/models/player';
+import { Player, PlayerDocument } from '@/players/models/player';
 import { Injectable } from '@nestjs/common';
-import { InjectModel } from 'nestjs-typegoose';
 import { plainToClass } from 'class-transformer';
-import { UpdateQuery } from 'mongoose';
+import { Model, UpdateQuery } from 'mongoose';
+import { InjectModel } from '@nestjs/mongoose';
 
 @Injectable()
 export class PlayersService {
@@ -12,7 +11,7 @@ export class PlayersService {
   playerRegistered = new Subject<string>();
 
   constructor(
-    @InjectModel(Player) private playerModel: ReturnModelType<typeof Player>,
+    @InjectModel(Player.name) private playerModel: Model<PlayerDocument>,
   ) {}
 
   async getById(id: string) {

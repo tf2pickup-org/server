@@ -1,20 +1,20 @@
 import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { sign, verify } from 'jsonwebtoken';
-import { InjectModel } from 'nestjs-typegoose';
-import { RefreshToken } from '../models/refresh-token';
-import { mongoose, ReturnModelType } from '@typegoose/typegoose';
+import { RefreshToken, RefreshTokenDocument } from '../models/refresh-token';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { InvalidTokenError } from '../errors/invalid-token.error';
 import { JwtTokenPurpose } from '../jwt-token-purpose';
 import { KeyPair } from '../key-pair';
+import { InjectModel } from '@nestjs/mongoose';
+import { Error, Model } from 'mongoose';
 
 @Injectable()
 export class AuthService implements OnModuleInit {
   private logger = new Logger(AuthService.name);
 
   constructor(
-    @InjectModel(RefreshToken)
-    private refreshTokenModel: ReturnModelType<typeof RefreshToken>,
+    @InjectModel(RefreshToken.name)
+    private refreshTokenModel: Model<RefreshTokenDocument>,
     @Inject('AUTH_TOKEN_KEY') private authTokenKey: KeyPair,
     @Inject('REFRESH_TOKEN_KEY') private refreshTokenKey: KeyPair,
     @Inject('WEBSOCKET_SECRET') private websocketSecret: string,
@@ -103,7 +103,7 @@ export class AuthService implements OnModuleInit {
       );
       return { refreshToken, authToken };
     } catch (error) {
-      if (error instanceof mongoose.Error.DocumentNotFoundError) {
+      if (error instanceof Error.DocumentNotFoundError) {
         throw new InvalidTokenError();
       } else {
         throw error;

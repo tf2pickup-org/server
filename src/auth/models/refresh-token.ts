@@ -1,10 +1,14 @@
-import { prop, index } from '@typegoose/typegoose';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Document } from 'mongoose';
 
-@index({ value: 'hashed' })
+@Schema()
 export class RefreshToken {
-  @prop({ required: true })
+  @Prop({ required: true, index: true })
   value!: string;
 
-  @prop({ default: () => new Date() })
+  @Prop({ default: () => new Date() })
   public createdAt?: Date;
 }
+
+export type RefreshTokenDocument = RefreshToken & Document;
+export const refreshTokenSchema = SchemaFactory.createForClass(RefreshToken);

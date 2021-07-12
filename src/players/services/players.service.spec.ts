@@ -2,13 +2,11 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { PlayersService } from './players.service';
 import { Environment } from '@/environment/environment';
 import { Etf2lProfileService } from './etf2l-profile.service';
-import { getModelToken, TypegooseModule } from 'nestjs-typegoose';
 import { SteamProfile } from '../steam-profile';
 import { GamesService } from '@/games/services/games.service';
 import { OnlinePlayersService } from './online-players.service';
 import { Etf2lProfile } from '../etf2l-profile';
-import { ReturnModelType, DocumentType, mongoose } from '@typegoose/typegoose';
-import { Player } from '../models/player';
+import { Player, PlayerDocument, playerSchema } from '../models/player';
 import { typegooseTestingModule } from '@/utils/testing-typegoose-module';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { SteamApiService } from './steam-api.service';
@@ -21,6 +19,8 @@ import { InsufficientTf2InGameHoursError } from '../errors/insufficient-tf2-in-g
 import { Tf2InGameHoursVerificationError } from '../errors/tf2-in-game-hours-verification.error';
 import { PlayerRole } from '../models/player-role';
 import { ConfigurationService } from '@/configuration/services/configuration.service';
+import { Error, Model } from 'mongoose';
+import { getModelToken, MongooseModule } from '@nestjs/mongoose';
 
 jest.mock('./etf2l-profile.service');
 jest.mock('./online-players.service');
@@ -56,8 +56,8 @@ class SteamApiServiceStub {
 describe('PlayersService', () => {
   let service: PlayersService;
   let mongod: MongoMemoryServer;
-  let playerModel: ReturnModelType<typeof Player>;
-  let mockPlayer: DocumentType<Player>;
+  let playerModel: Model<PlayerDocument>;
+  let mockPlayer: PlayerDocument;
   let environment: EnvironmentStub;
   let etf2lProfileService: jest.Mocked<Etf2lProfileService>;
   let gamesService: GamesServiceStub;
@@ -74,7 +74,12 @@ describe('PlayersService', () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [
         typegooseTestingModule(mongod),
-        TypegooseModule.forFeature([Player]),
+        MongooseModule.forFeature([
+          {
+            name: Player.name,
+            schema: playerSchema,
+          },
+        ]),
       ],
       providers: [
         PlayersService,
@@ -89,7 +94,7 @@ describe('PlayersService', () => {
     }).compile();
 
     service = module.get<PlayersService>(PlayersService);
-    playerModel = module.get(getModelToken('Player'));
+    playerModel = module.get(getModelToken(Player.name));
     environment = module.get(Environment);
     etf2lProfileService = module.get(Etf2lProfileService);
     gamesService = module.get(GamesService);
@@ -338,7 +343,7 @@ describe('PlayersService', () => {
   });
 
   describe('#updatePlayer()', () => {
-    let admin: DocumentType<Player>;
+    let admin: PlayerDocument;
 
     beforeEach(async () => {
       admin = await playerModel.create({
@@ -408,7 +413,7 @@ describe('PlayersService', () => {
     it("should fail if the given user doesn't exist", async () => {
       await expect(
         service.acceptTerms(new ObjectId().toString()),
-      ).rejects.toThrow(mongoose.Error.DocumentNotFoundError);
+      ).rejects.toThrow(Error.DocumentNotFoundError);
     });
   });
 

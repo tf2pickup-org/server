@@ -1,10 +1,10 @@
 import { ArgumentsHost, Catch, ExceptionFilter } from '@nestjs/common';
-import { mongoose } from '@typegoose/typegoose';
 import { Request, Response } from 'express';
+import { Error } from 'mongoose';
 
-@Catch(mongoose.Error.DocumentNotFoundError)
+@Catch(Error.DocumentNotFoundError)
 export class DocumentNotFoundFilter implements ExceptionFilter {
-  catch(exception: mongoose.Error.DocumentNotFoundError, host: ArgumentsHost) {
+  catch(exception: Error.DocumentNotFoundError, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
     const request = ctx.getRequest<Request>();

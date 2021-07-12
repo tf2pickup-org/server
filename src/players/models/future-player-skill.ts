@@ -1,13 +1,24 @@
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
-import { prop } from '@typegoose/typegoose';
+import { Prop, raw, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Document } from 'mongoose';
 
 /**
  * Imported skills for players that have not registered their account yet.
  */
+@Schema()
 export class FuturePlayerSkill {
-  @prop({ required: true, unique: true })
+  @Prop({ required: true, unique: true })
   steamId!: string;
 
-  @prop({ type: Number })
+  @Prop(
+    raw({
+      type: Map,
+      of: Number,
+    }),
+  )
   skill?: Map<Tf2ClassName, number>;
 }
+
+export type FuturePlayerSkillDocument = FuturePlayerSkill & Document;
+export const futurePlayerSkillSchema =
+  SchemaFactory.createForClass(FuturePlayerSkill);

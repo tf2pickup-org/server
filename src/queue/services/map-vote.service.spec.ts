@@ -4,17 +4,17 @@ import { QueueService } from './queue.service';
 import { Events } from '@/events/events';
 import { typegooseTestingModule } from '@/utils/testing-typegoose-module';
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import { getModelToken, TypegooseModule } from 'nestjs-typegoose';
-import { Map } from '../models/map';
-import { ReturnModelType } from '@typegoose/typegoose';
+import { Map, MapDocument, mapSchema } from '../models/map';
 import { skip } from 'rxjs/operators';
+import { Model } from 'mongoose';
+import { getModelToken, MongooseModule } from '@nestjs/mongoose';
 
 jest.mock('./queue.service');
 
 describe('MapVoteService', () => {
   let mongod: MongoMemoryServer;
   let service: MapVoteService;
-  let mapModel: ReturnModelType<typeof Map>;
+  let mapModel: Model<MapDocument>;
   let queueService: jest.Mocked<QueueService>;
   let events: Events;
 
@@ -25,13 +25,18 @@ describe('MapVoteService', () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [
         typegooseTestingModule(mongod),
-        TypegooseModule.forFeature([Map]),
+        MongooseModule.forFeature([
+          {
+            name: Map.name,
+            schema: mapSchema,
+          },
+        ]),
       ],
       providers: [MapVoteService, QueueService, Events],
     }).compile();
 
     service = module.get<MapVoteService>(MapVoteService);
-    mapModel = module.get(getModelToken('Map'));
+    mapModel = module.get(getModelToken(Map.name));
     queueService = module.get(QueueService);
     events = module.get(Events);
   });

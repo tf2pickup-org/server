@@ -6,11 +6,9 @@ import {
   OnModuleInit,
 } from '@nestjs/common';
 import { Environment } from '@/environment/environment';
-import { Player } from '../models/player';
-import { mongoose, ReturnModelType } from '@typegoose/typegoose';
+import { Player, PlayerDocument } from '../models/player';
 import { SteamProfile } from '../steam-profile';
 import { Etf2lProfileService } from './etf2l-profile.service';
-import { InjectModel } from 'nestjs-typegoose';
 import { GamesService } from '@/games/services/games.service';
 import { PlayerStats } from '../dto/player-stats';
 import { Etf2lProfile } from '../etf2l-profile';
@@ -22,7 +20,7 @@ import { classToPlain, plainToClass } from 'class-transformer';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { OnlinePlayersService } from './online-players.service';
 import { WebsocketEvent } from '@/websocket-event';
-import { UpdateQuery } from 'mongoose';
+import { Error, Model, UpdateQuery } from 'mongoose';
 import { Tf2InGameHoursVerificationError } from '../errors/tf2-in-game-hours-verification.error';
 import { AccountBannedError } from '../errors/account-banned.error';
 import { InsufficientTf2InGameHoursError } from '../errors/insufficient-tf2-in-game-hours.error';
@@ -30,6 +28,7 @@ import { PlayerRole } from '../models/player-role';
 import { ConfigurationService } from '@/configuration/services/configuration.service';
 import { filter, map } from 'rxjs/operators';
 import { isEqual } from 'lodash';
+import { InjectModel } from '@nestjs/mongoose';
 
 type ForceCreatePlayerOptions = Pick<Player, 'steamId' | 'name'>;
 
@@ -40,7 +39,7 @@ export class PlayersService implements OnModuleInit {
   constructor(
     private environment: Environment,
     private etf2lProfileService: Etf2lProfileService,
-    @InjectModel(Player) private playerModel: ReturnModelType<typeof Player>,
+    @InjectModel(Player.name) private playerModel: Model<PlayerDocument>,
     @Inject(forwardRef(() => GamesService)) private gamesService: GamesService,
     private steamApiService: SteamApiService,
     private events: Events,
@@ -52,7 +51,7 @@ export class PlayersService implements OnModuleInit {
     try {
       await this.findBot();
     } catch (error) {
-      if (error instanceof mongoose.Error.DocumentNotFoundError) {
+      if (error instanceof Error.DocumentNotFoundError) {
         await this.playerModel.create({
           name: this.environment.botName,
           roles: [PlayerRole.bot],

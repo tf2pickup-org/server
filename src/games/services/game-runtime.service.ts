@@ -7,7 +7,6 @@ import { PlayersService } from '@/players/services/players.service';
 import { addGamePlayer, delGamePlayer, say } from '../utils/rcon-commands';
 import { GameSlot } from '../models/game-slot';
 import { Rcon } from 'rcon-client/lib';
-import { isRefType } from '@typegoose/typegoose';
 import { Events } from '@/events/events';
 import { SlotStatus } from '../models/slot-status';
 import { GameState } from '../models/game-state';
@@ -103,9 +102,7 @@ export class GameRuntimeService {
 
     try {
       rcon = await this.rconFactoryService.createRcon(gameServer);
-      const player = isRefType(replacementSlot.player)
-        ? await this.playersService.getById(replacementSlot.player)
-        : replacementSlot.player;
+      const player = await this.playersService.getById(replacementSlot.player);
 
       const cmd = addGamePlayer(
         player.steamId,

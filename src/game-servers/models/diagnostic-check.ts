@@ -1,19 +1,25 @@
-import { prop } from '@typegoose/typegoose';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Document } from 'mongoose';
 import { DiagnosticCheckStatus } from './diagnostic-check-status';
 
+@Schema()
 export class DiagnosticCheck {
-  @prop({ required: true })
+  @Prop({ required: true })
   name: string;
 
-  @prop({ enum: DiagnosticCheckStatus, default: DiagnosticCheckStatus.pending })
+  @Prop({ enum: DiagnosticCheckStatus, default: DiagnosticCheckStatus.pending })
   status?: DiagnosticCheckStatus;
 
-  @prop({ type: () => [String], default: [] })
+  @Prop({ type: [String], default: [] })
   reportedWarnings?: string[];
 
-  @prop({ type: () => [String], default: [] })
+  @Prop({ type: [String], default: [] })
   reportedErrors?: string[];
 
-  @prop({ required: true })
+  @Prop({ required: true })
   critical: boolean;
 }
+
+export type DiagnosticCheckDocument = DiagnosticCheck & Document;
+export const diagnosticCheckSchema =
+  SchemaFactory.createForClass(DiagnosticCheck);

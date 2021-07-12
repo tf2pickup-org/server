@@ -8,13 +8,17 @@ import { TwitchGateway } from '../gateways/twitch.gateway';
 import { TwitchAuthService } from './twitch-auth.service';
 import { PlayerBansService } from '@/players/services/player-bans.service';
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import { TwitchTvProfile } from '../models/twitch-tv-profile';
+import {
+  TwitchTvProfile,
+  TwitchTvProfileDocument,
+  twitchTvProfileSchema,
+} from '../models/twitch-tv-profile';
 import { typegooseTestingModule } from '@/utils/testing-typegoose-module';
-import { getModelToken, TypegooseModule } from 'nestjs-typegoose';
-import { Player } from '@/players/models/player';
-import { mongoose, ReturnModelType } from '@typegoose/typegoose';
+import { Player, playerSchema } from '@/players/models/player';
 import { LinkedProfilesService } from '@/players/services/linked-profiles.service';
 import { Events } from '@/events/events';
+import { Error, Model, Types } from 'mongoose';
+import { getModelToken, MongooseModule } from '@nestjs/mongoose';
 
 jest.mock('../gateways/twitch.gateway');
 jest.mock('./twitch-auth.service');
@@ -40,7 +44,7 @@ describe('TwitchService', () => {
   let playerBansService: jest.Mocked<PlayerBansService>;
   let twitchAuthService: jest.Mocked<TwitchAuthService>;
   let playersService: jest.Mocked<PlayersService>;
-  let twitchTvProfileModel: ReturnModelType<typeof TwitchTvProfile>;
+  let twitchTvProfileModel: Model<TwitchTvProfileDocument>;
   let linkedProfilesService: jest.Mocked<LinkedProfilesService>;
   let events: Events;
 
@@ -51,7 +55,10 @@ describe('TwitchService', () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [
         typegooseTestingModule(mongod),
-        TypegooseModule.forFeature([Player, TwitchTvProfile]),
+        MongooseModule.forFeature([
+          { name: Player.name, schema: playerSchema },
+          { name: TwitchTvProfile.name, schema: twitchTvProfileSchema },
+        ]),
       ],
       providers: [
         TwitchService,
@@ -125,10 +132,8 @@ describe('TwitchService', () => {
     describe('when does not exist', () => {
       it('should throw an error', async () => {
         await expect(
-          service.getTwitchTvProfileByPlayerId(
-            new mongoose.Types.ObjectId().toString(),
-          ),
-        ).rejects.toThrow(mongoose.Error.DocumentNotFoundError);
+          service.getTwitchTvProfileByPlayerId(new Types.ObjectId().toString()),
+        ).rejects.toThrow(Error.DocumentNotFoundError);
       });
     });
   });

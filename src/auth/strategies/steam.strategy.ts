@@ -4,7 +4,7 @@ import { PlayersService } from '@/players/services/players.service';
 import { Environment } from '@/environment/environment';
 import { SteamProfile } from '@/players/steam-profile';
 import { PassportStrategy } from '@nestjs/passport';
-import { mongoose } from '@typegoose/typegoose';
+import { Error } from 'mongoose';
 
 @Injectable()
 export class SteamStrategy extends PassportStrategy(steam.Strategy) {
@@ -29,7 +29,7 @@ export class SteamStrategy extends PassportStrategy(steam.Strategy) {
         },
       });
     } catch (error) {
-      if (error instanceof mongoose.Error.DocumentNotFoundError) {
+      if (error instanceof Error.DocumentNotFoundError) {
         return await this.playerService.createPlayer(profile);
       } else {
         throw error;

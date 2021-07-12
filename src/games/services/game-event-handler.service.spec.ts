@@ -3,19 +3,17 @@ import { GameEventHandlerService } from './game-event-handler.service';
 import { PlayersService } from '@/players/services/players.service';
 import { GameRuntimeService } from './game-runtime.service';
 import { typegooseTestingModule } from '@/utils/testing-typegoose-module';
-import { TypegooseModule, getModelToken } from 'nestjs-typegoose';
-import { Game } from '../models/game';
-import { DocumentType, ReturnModelType } from '@typegoose/typegoose';
+import { Game, GameDocument, gameSchema } from '../models/game';
 import { ObjectId } from 'mongodb';
-import { Player } from '@/players/models/player';
+import { Player, PlayerDocument, playerSchema } from '@/players/models/player';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { serverCleanupDelay } from '@configs/game-servers';
 import { GamesService } from './games.service';
 import { Events } from '@/events/events';
-import { standardSchemaOptions } from '@/utils/standard-schema-options';
-import { removeGameAssignedSkills } from '@/utils/tojson-transform';
 import { SlotStatus } from '../models/slot-status';
 import { GameState } from '../models/game-state';
+import { Model } from 'mongoose';
+import { getModelToken, MongooseModule } from '@nestjs/mongoose';
 
 jest.mock('@/players/services/players.service');
 jest.mock('@nestjs/config');
@@ -27,10 +25,10 @@ describe('GameEventHandlerService', () => {
   let mongod: MongoMemoryServer;
   let playersService: PlayersService;
   let gameRuntimeService: GameRuntimeService;
-  let player1: DocumentType<Player>;
-  let player2: DocumentType<Player>;
-  let mockGame: DocumentType<Game>;
-  let gameModel: ReturnModelType<typeof Game>;
+  let player1: PlayerDocument;
+  let player2: PlayerDocument;
+  let mockGame: GameDocument;
+  let gameModel: Model<GameDocument>;
   let gamesService: GamesService;
   let events: Events;
 
@@ -41,9 +39,9 @@ describe('GameEventHandlerService', () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [
         typegooseTestingModule(mongod),
-        TypegooseModule.forFeature([
-          standardSchemaOptions(Game, removeGameAssignedSkills),
-          Player,
+        MongooseModule.forFeature([
+          { name: Game.name, schema: gameSchema },
+          { name: Player.name, schema: playerSchema },
         ]),
       ],
       providers: [

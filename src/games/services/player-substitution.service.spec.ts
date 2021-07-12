@@ -8,17 +8,15 @@ import { QueueService } from '@/queue/services/queue.service';
 import { DiscordService } from '@/plugins/discord/services/discord.service';
 import { Environment } from '@/environment/environment';
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import { DocumentType, mongoose } from '@typegoose/typegoose';
-import { Player } from '@/players/models/player';
+import { Player, PlayerDocument, playerSchema } from '@/players/models/player';
 import { ObjectId } from 'mongodb';
 import { typegooseTestingModule } from '@/utils/testing-typegoose-module';
-import { TypegooseModule } from 'nestjs-typegoose';
-import { Game } from '../models/game';
+import { Game, GameDocument, gameSchema } from '../models/game';
 import { Events } from '@/events/events';
-import { standardSchemaOptions } from '@/utils/standard-schema-options';
-import { removeGameAssignedSkills } from '@/utils/tojson-transform';
 import { SlotStatus } from '../models/slot-status';
 import { GameState } from '../models/game-state';
+import { MongooseModule } from '@nestjs/mongoose';
+import { Error } from 'mongoose';
 
 jest.mock('@/plugins/discord/services/discord.service');
 jest.mock('@/players/services/players.service');
@@ -41,10 +39,10 @@ describe('PlayerSubstitutionService', () => {
   let playerBansService: PlayerBansService;
   let gameRuntimeService: jest.Mocked<GameRuntimeService>;
   let queueService: jest.Mocked<QueueService>;
-  let player1: DocumentType<Player>;
-  let player2: DocumentType<Player>;
-  let player3: DocumentType<Player>;
-  let mockGame: DocumentType<Game>;
+  let player1: PlayerDocument;
+  let player2: PlayerDocument;
+  let player3: PlayerDocument;
+  let mockGame: GameDocument;
   let discordService: jest.Mocked<DiscordService>;
   let events: Events;
 
@@ -55,9 +53,9 @@ describe('PlayerSubstitutionService', () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [
         typegooseTestingModule(mongod),
-        TypegooseModule.forFeature([
-          Player,
-          standardSchemaOptions(Game, removeGameAssignedSkills),
+        MongooseModule.forFeature([
+          { name: Player.name, schema: playerSchema },
+          { name: Game.name, schema: gameSchema },
         ]),
       ],
       providers: [
@@ -427,7 +425,7 @@ describe('PlayerSubstitutionService', () => {
           player1.id,
           new ObjectId().toString(),
         ),
-      ).rejects.toThrow(mongoose.Error.DocumentNotFoundError);
+      ).rejects.toThrow(Error.DocumentNotFoundError);
     });
 
     it('should kick the replacement player from the queue', async () => {

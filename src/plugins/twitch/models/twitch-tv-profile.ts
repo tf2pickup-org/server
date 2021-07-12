@@ -1,22 +1,27 @@
-import { Player } from '@/players/models/player';
 import { MongooseDocument } from '@/utils/mongoose-document';
-import { isRefType, prop, Ref } from '@typegoose/typegoose';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Transform } from 'class-transformer';
+import { Types, Document } from 'mongoose';
 
+@Schema()
 export class TwitchTvProfile extends MongooseDocument {
-  @Transform(({ value }) => (isRefType(value) ? value.toString() : value))
-  @prop({ ref: () => Player, index: true })
-  player?: Ref<Player>;
+  @Transform(({ value }) => value.toString())
+  @Prop({ ref: 'Player', index: true })
+  player?: Types.ObjectId;
 
-  @prop({ required: true, index: true })
+  @Prop({ required: true, index: true })
   userId: string;
 
-  @prop({ required: true })
+  @Prop({ required: true })
   login: string;
 
-  @prop()
+  @Prop()
   displayName?: string;
 
-  @prop()
+  @Prop()
   profileImageUrl?: string;
 }
+
+export type TwitchTvProfileDocument = TwitchTvProfile & Document;
+export const twitchTvProfileSchema =
+  SchemaFactory.createForClass(TwitchTvProfile);

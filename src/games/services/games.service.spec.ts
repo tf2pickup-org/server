@@ -1,12 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { GamesService } from './games.service';
-import { TypegooseModule, getModelToken } from 'nestjs-typegoose';
 import { PlayersService } from '@/players/services/players.service';
 import { PlayerSkillService } from '@/players/services/player-skill.service';
-import { Player } from '@/players/models/player';
+import { Player, PlayerDocument, playerSchema } from '@/players/models/player';
 import { typegooseTestingModule } from '@/utils/testing-typegoose-module';
-import { Game } from '../models/game';
-import { ReturnModelType, DocumentType } from '@typegoose/typegoose';
+import { Game, GameDocument, gameSchema } from '../models/game';
 import { ObjectId } from 'mongodb';
 import { QueueSlot } from '@/queue/queue-slot';
 import { GameLauncherService } from './game-launcher.service';
@@ -18,6 +16,8 @@ import { SlotStatus } from '../models/slot-status';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { GameState } from '../models/game-state';
 import { ConfigurationService } from '@/configuration/services/configuration.service';
+import { Model } from 'mongoose';
+import { getModelToken, MongooseModule } from '@nestjs/mongoose';
 
 jest.mock('@/players/services/players.service');
 jest.mock('@/players/services/player-skill.service');
@@ -41,7 +41,7 @@ class QueueConfigServiceStub {
 describe('GamesService', () => {
   let service: GamesService;
   let mongod: MongoMemoryServer;
-  let gameModel: ReturnModelType<typeof Game>;
+  let gameModel: Model<GameDocument>;
   let gameLauncherService: GameLauncherService;
   let playersService: PlayersService;
   let events: Events;
@@ -55,7 +55,10 @@ describe('GamesService', () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [
         typegooseTestingModule(mongod),
-        TypegooseModule.forFeature([Game, Player]),
+        MongooseModule.forFeature([
+          { name: Game.name, schema: gameSchema },
+          { name: Player.name, schema: playerSchema },
+        ]),
       ],
       providers: [
         GamesService,
@@ -69,7 +72,7 @@ describe('GamesService', () => {
     }).compile();
 
     service = module.get<GamesService>(GamesService);
-    gameModel = module.get(getModelToken('Game'));
+    gameModel = module.get(getModelToken(Game.name));
     gameLauncherService = module.get(GameLauncherService);
     playersService = module.get(PlayersService);
     events = module.get(Events);
@@ -97,7 +100,7 @@ describe('GamesService', () => {
   });
 
   describe('#getById()', () => {
-    let game: DocumentType<Game>;
+    let game: GameDocument;
 
     beforeEach(async () => {
       game = await gameModel.create({
@@ -114,9 +117,9 @@ describe('GamesService', () => {
   });
 
   describe('#getRunningGames()', () => {
-    let launchingGame: DocumentType<Game>;
-    let runningGame: DocumentType<Game>;
-    let endedGame: DocumentType<Game>;
+    let launchingGame: GameDocument;
+    let runningGame: GameDocument;
+    let endedGame: GameDocument;
 
     beforeEach(async () => {
       launchingGame = await gameModel.create({
@@ -150,7 +153,7 @@ describe('GamesService', () => {
 
   describe('#getPlayerActiveGame()', () => {
     describe('when a player is active in a game', () => {
-      let game: DocumentType<Game>;
+      let game: GameDocument;
       let playerId: string;
 
       beforeEach(async () => {
@@ -177,8 +180,8 @@ describe('GamesService', () => {
       });
     });
 
-    describe('when a player is marked as awaitng substitute in a game', () => {
-      let game: DocumentType<Game>;
+    describe('when a player is marked as awaiting substitute in a game', () => {
+      let game: GameDocument;
       let playerId: string;
 
       beforeEach(async () => {
@@ -487,8 +490,8 @@ describe('GamesService', () => {
   });
 
   describe('#getMostActivePlayers()', () => {
-    let player1: DocumentType<Player>;
-    let player2: DocumentType<Player>;
+    let player1: PlayerDocument;
+    let player2: PlayerDocument;
 
     beforeEach(async () => {
       // @ts-expect-error
@@ -542,7 +545,7 @@ describe('GamesService', () => {
   });
 
   describe('#getGamesWithSubstitutionRequests()', () => {
-    let game: DocumentType<Game>;
+    let game: GameDocument;
 
     beforeEach(async () => {
       // @ts-expect-error

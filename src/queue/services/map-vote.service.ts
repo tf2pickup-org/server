@@ -5,9 +5,9 @@ import { BehaviorSubject } from 'rxjs';
 import { MapVoteResult } from '../map-vote-result';
 import { mapCooldown } from '@configs/queue';
 import { Events } from '@/events/events';
-import { Map } from '../models/map';
-import { ReturnModelType } from '@typegoose/typegoose';
-import { InjectModel } from 'nestjs-typegoose';
+import { Map, MapDocument } from '../models/map';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
 
 interface MapVote {
   playerId: string;
@@ -30,7 +30,7 @@ export class MapVoteService implements OnModuleInit {
   private votes: MapVote[];
 
   constructor(
-    @InjectModel(Map) private mapModel: ReturnModelType<typeof Map>,
+    @InjectModel(Map.name) private mapModel: Model<MapDocument>,
     private queueService: QueueService,
     private events: Events,
   ) {}

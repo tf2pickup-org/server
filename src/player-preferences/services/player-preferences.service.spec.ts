@@ -1,16 +1,20 @@
 import { typegooseTestingModule } from '@/utils/testing-typegoose-module';
 import { Test, TestingModule } from '@nestjs/testing';
-import { ReturnModelType } from '@typegoose/typegoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import { getModelToken, TypegooseModule } from 'nestjs-typegoose';
-import { PlayerPreferences } from '../models/player-preferences';
+import {
+  PlayerPreferences,
+  PlayerPreferencesDocument,
+  playerPreferencesSchema,
+} from '../models/player-preferences';
 import { PlayerPreferencesService } from './player-preferences.service';
 import { ObjectId } from 'mongodb';
+import { Model } from 'mongoose';
+import { getModelToken, MongooseModule } from '@nestjs/mongoose';
 
 describe('PlayerPreferencesService', () => {
   let service: PlayerPreferencesService;
   let mongod: MongoMemoryServer;
-  let playerPreferencesModel: ReturnModelType<typeof PlayerPreferences>;
+  let playerPreferencesModel: Model<PlayerPreferencesDocument>;
 
   beforeAll(() => (mongod = new MongoMemoryServer()));
   afterAll(async () => await mongod.stop());
@@ -19,7 +23,12 @@ describe('PlayerPreferencesService', () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [
         typegooseTestingModule(mongod),
-        TypegooseModule.forFeature([PlayerPreferences]),
+        MongooseModule.forFeature([
+          {
+            name: PlayerPreferences.name,
+            schema: playerPreferencesSchema,
+          },
+        ]),
       ],
       providers: [PlayerPreferencesService],
     }).compile();

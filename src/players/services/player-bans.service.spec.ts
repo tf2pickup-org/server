@@ -1,15 +1,19 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { PlayerBansService } from './player-bans.service';
-import { getModelToken, TypegooseModule } from 'nestjs-typegoose';
-import { PlayerBan } from '../models/player-ban';
+import {
+  PlayerBan,
+  PlayerBanDocument,
+  playerBanSchema,
+} from '../models/player-ban';
 import { OnlinePlayersService } from './online-players.service';
 import { ObjectId } from 'mongodb';
 import { typegooseTestingModule } from '@/utils/testing-typegoose-module';
-import { ReturnModelType, DocumentType, mongoose } from '@typegoose/typegoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { PlayersService } from './players.service';
-import { Player } from '../models/player';
+import { Player, PlayerDocument, playerSchema } from '../models/player';
 import { Events } from '@/events/events';
+import { Error, Model, Types } from 'mongoose';
+import { getModelToken, MongooseModule } from '@nestjs/mongoose';
 
 jest.mock('./players.service');
 
@@ -22,12 +26,12 @@ class OnlinePlayersServiceStub {
 describe('PlayerBansService', () => {
   let service: PlayerBansService;
   let mongod: MongoMemoryServer;
-  let playerBanModel: ReturnModelType<typeof PlayerBan>;
-  let mockPlayerBan: DocumentType<PlayerBan>;
+  let playerBanModel: Model<PlayerBanDocument>;
+  let mockPlayerBan: PlayerBanDocument;
   let onlinePlayersService: OnlinePlayersServiceStub;
   let playersService: PlayersService;
-  let admin: DocumentType<Player>;
-  let player: DocumentType<Player>;
+  let admin: PlayerDocument;
+  let player: PlayerDocument;
   let events: Events;
 
   beforeAll(() => (mongod = new MongoMemoryServer()));
@@ -37,7 +41,16 @@ describe('PlayerBansService', () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [
         typegooseTestingModule(mongod),
-        TypegooseModule.forFeature([PlayerBan, Player]),
+        MongooseModule.forFeature([
+          {
+            name: Player.name,
+            schema: playerSchema,
+          },
+          {
+            name: PlayerBan.name,
+            schema: playerBanSchema,
+          },
+        ]),
       ],
       providers: [
         PlayerBansService,
@@ -48,7 +61,7 @@ describe('PlayerBansService', () => {
     }).compile();
 
     service = module.get<PlayerBansService>(PlayerBansService);
-    playerBanModel = module.get(getModelToken('PlayerBan'));
+    playerBanModel = module.get(getModelToken(PlayerBan.name));
     onlinePlayersService = module.get(OnlinePlayersService);
     playersService = module.get(PlayersService);
     events = module.get(Events);
@@ -91,8 +104,8 @@ describe('PlayerBansService', () => {
     describe('when the given ban does not exist', () => {
       it('should throw', async () => {
         await expect(
-          service.getById(new mongoose.Types.ObjectId().toString()),
-        ).rejects.toThrow(mongoose.Error.DocumentNotFoundError);
+          service.getById(new Types.ObjectId().toString()),
+        ).rejects.toThrow(Error.DocumentNotFoundError);
       });
     });
   });
@@ -169,7 +182,7 @@ describe('PlayerBansService', () => {
 
         invalidBan = {
           player: new ObjectId(),
-          admin,
+          admin: admin.id,
           start: new Date(),
           end,
           reason: 'just testing',

@@ -1,15 +1,15 @@
 import { typegooseTestingModule } from '@/utils/testing-typegoose-module';
 import { Test, TestingModule } from '@nestjs/testing';
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import { getModelToken, TypegooseModule } from 'nestjs-typegoose';
 import { DocumentsService } from './documents.service';
-import { Document } from '../models/document';
-import { mongoose, ReturnModelType } from '@typegoose/typegoose';
+import { Document, DocumentDocument, documentSchema } from '../models/document';
+import { Error, Model } from 'mongoose';
+import { getModelToken, MongooseModule } from '@nestjs/mongoose';
 
 describe('DocumentsService', () => {
   let service: DocumentsService;
   let mongod: MongoMemoryServer;
-  let documentModel: ReturnModelType<typeof Document>;
+  let documentModel: Model<DocumentDocument>;
 
   beforeAll(() => (mongod = new MongoMemoryServer()));
   afterAll(async () => await mongod.stop());
@@ -18,7 +18,9 @@ describe('DocumentsService', () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [
         typegooseTestingModule(mongod),
-        TypegooseModule.forFeature([Document]),
+        MongooseModule.forFeature([
+          { name: Document.name, schema: documentSchema },
+        ]),
       ],
       providers: [DocumentsService],
     }).compile();
@@ -64,7 +66,7 @@ describe('DocumentsService', () => {
     describe('when the given document does not exist', () => {
       it('should throw an error', async () => {
         await expect(service.getDocument('test')).rejects.toThrow(
-          mongoose.Error.DocumentNotFoundError,
+          Error.DocumentNotFoundError,
         );
       });
     });

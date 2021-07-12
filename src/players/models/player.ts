@@ -1,43 +1,43 @@
-import { Game } from '@/games/models/game';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Document, Types } from 'mongoose';
 import { Link } from '@/shared/models/link';
 import { MongooseDocument } from '@/utils/mongoose-document';
-import { prop, index, Ref } from '@typegoose/typegoose';
 import { Exclude, Expose, Transform, Type } from 'class-transformer';
-import { PlayerAvatar } from './player-avatar';
+import { PlayerAvatar, playerAvatarSchema } from './player-avatar';
 import { PlayerRole } from './player-role';
 
-@index({ steamId: 'hashed' })
+@Schema()
 export class Player extends MongooseDocument {
   @Expose()
   @Transform(({ value, obj }) => value ?? obj._id.toString())
   id?: string;
 
-  @prop({ required: true, unique: true, trim: true })
+  @Prop({ required: true, unique: true, trim: true })
   name!: string;
 
-  @prop({ unique: true })
+  @Prop({ unique: true })
   steamId?: string; // SteamID64 only
 
-  @prop({ default: () => new Date() })
+  @Prop({ default: () => new Date() })
   joinedAt?: Date;
 
   @Type(() => PlayerAvatar)
-  @prop()
+  @Prop({ type: playerAvatarSchema })
   avatar?: PlayerAvatar;
 
-  @prop({ type: () => [String], enum: PlayerRole, default: [] })
+  @Prop({ type: () => [String], enum: PlayerRole, default: [] })
   roles?: PlayerRole[];
 
   @Exclude({ toPlainOnly: true })
-  @prop({ default: false })
+  @Prop({ default: false })
   hasAcceptedRules?: boolean;
 
-  @prop({ index: true })
+  @Prop({ index: true })
   etf2lProfileId?: number;
 
   @Exclude({ toPlainOnly: true })
-  @prop({ ref: () => Game })
-  activeGame?: Ref<Game>;
+  @Prop({ type: Types.ObjectId, ref: 'Game' })
+  activeGame?: Types.ObjectId;
 
   @Expose()
   @Type(() => Link)
@@ -50,3 +50,6 @@ export class Player extends MongooseDocument {
     ];
   }
 }
+
+export type PlayerDocument = Player & Document;
+export const playerSchema = SchemaFactory.createForClass(Player);

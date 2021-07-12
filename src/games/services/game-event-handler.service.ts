@@ -2,20 +2,20 @@ import { Injectable, Logger } from '@nestjs/common';
 import { PlayersService } from '@/players/services/players.service';
 import { PlayerConnectionStatus } from '../models/player-connection-status';
 import { GameRuntimeService } from './game-runtime.service';
-import { InjectModel } from 'nestjs-typegoose';
-import { Game } from '../models/game';
-import { ReturnModelType } from '@typegoose/typegoose';
+import { Game, GameDocument } from '../models/game';
 import { serverCleanupDelay } from '@configs/game-servers';
 import { Events } from '@/events/events';
 import { SlotStatus } from '../models/slot-status';
 import { GameState } from '../models/game-state';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
 
 @Injectable()
 export class GameEventHandlerService {
   private logger = new Logger(GameEventHandlerService.name);
 
   constructor(
-    @InjectModel(Game) private gameModel: ReturnModelType<typeof Game>,
+    @InjectModel(Game.name) private gameModel: Model<GameDocument>,
     private playersService: PlayersService,
     private gameRuntimeService: GameRuntimeService,
     private events: Events,

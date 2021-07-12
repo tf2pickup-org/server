@@ -1,5 +1,5 @@
-import { mongoose } from '@typegoose/typegoose';
 import { DocumentNotFoundFilter } from './document-not-found.filter';
+import { Error } from 'mongoose';
 
 describe('DocumentNotFoundFilter', () => {
   it('should be defined', () => {
@@ -26,7 +26,7 @@ describe('DocumentNotFoundFilter', () => {
     };
 
     const filter = new DocumentNotFoundFilter();
-    filter.catch(new mongoose.Error.DocumentNotFoundError({}), host as any);
+    filter.catch(new Error.DocumentNotFoundError(''), host as any);
     expect(response.status).toHaveBeenCalledWith(404);
     expect(response.json).toHaveBeenCalledWith({
       statusCode: 404,

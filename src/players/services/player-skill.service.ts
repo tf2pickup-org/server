@@ -1,7 +1,5 @@
 import { Injectable, Inject, forwardRef, OnModuleInit } from '@nestjs/common';
-import { InjectModel } from 'nestjs-typegoose';
-import { PlayerSkill } from '../models/player-skill';
-import { ReturnModelType } from '@typegoose/typegoose';
+import { PlayerSkill, PlayerSkillDocument } from '../models/player-skill';
 import { PlayersService } from './players.service';
 import { Console, Command, createSpinner } from 'nestjs-console';
 import { createReadStream } from 'fs';
@@ -10,6 +8,8 @@ import { FuturePlayerSkillService } from './future-player-skill.service';
 import { createInterface } from 'readline';
 import { Etf2lProfileService } from './etf2l-profile.service';
 import { Events } from '@/events/events';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
 
 export type PlayerSkillType = PlayerSkill['skill'];
 
@@ -17,8 +17,8 @@ export type PlayerSkillType = PlayerSkill['skill'];
 @Console()
 export class PlayerSkillService implements OnModuleInit {
   constructor(
-    @InjectModel(PlayerSkill)
-    private playerSkillModel: ReturnModelType<typeof PlayerSkill>,
+    @InjectModel(PlayerSkill.name)
+    private playerSkillModel: Model<PlayerSkillDocument>,
     @Inject(forwardRef(() => PlayersService))
     private playersService: PlayersService,
     private queueConfigService: QueueConfigService,

@@ -1,8 +1,8 @@
-import { TypegooseModule } from 'nestjs-typegoose';
+import { MongooseModule } from '@nestjs/mongoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 
 export const typegooseTestingModule = (mongod?: MongoMemoryServer) =>
-  TypegooseModule.forRootAsync({
+  MongooseModule.forRootAsync({
     useFactory: async () => {
       mongod = mongod ?? new MongoMemoryServer();
       return {

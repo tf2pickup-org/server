@@ -16,7 +16,7 @@ import { Environment } from '@/environment/environment';
 import { Message } from 'discord.js';
 import { Events } from '@/events/events';
 import { SlotStatus } from '../models/slot-status';
-import { mongoose } from '@typegoose/typegoose';
+import { Types } from 'mongoose';
 
 /**
  * A service that handles player substitution logic.
@@ -36,7 +36,7 @@ export class PlayerSubstitutionService {
     private playerBansService: PlayerBansService,
     @Inject(forwardRef(() => GameRuntimeService))
     private gameRuntimeService: GameRuntimeService,
-    private queueSevice: QueueService,
+    private queueService: QueueService,
     @Optional() private discordService: DiscordService,
     private environment: Environment,
     private events: Events,
@@ -174,7 +174,7 @@ export class PlayerSubstitutionService {
     }
     // create new slot of the replacement player
     const replacementSlot = {
-      player: new mongoose.Types.ObjectId(replacementId),
+      player: new Types.ObjectId(replacementId),
       team: slot.team,
       gameClass: slot.gameClass,
     };
@@ -187,7 +187,7 @@ export class PlayerSubstitutionService {
     await game.save();
     this.events.gameChanges.next({ game });
     this.events.substituteRequestsChange.next();
-    this.queueSevice.kick(replacementId);
+    this.queueService.kick(replacementId);
 
     const replacee = await this.playersService.getById(replaceeId);
 

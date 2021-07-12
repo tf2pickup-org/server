@@ -1,35 +1,39 @@
-import { isRefType, prop, Ref } from '@typegoose/typegoose';
-import { Player } from './player';
 import { IsMongoId, IsString, IsNotEmpty } from 'class-validator';
 import { MongooseDocument } from '@/utils/mongoose-document';
 import { Expose, Transform, Type } from 'class-transformer';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Document, Types } from 'mongoose';
 
+@Schema()
 export class PlayerBan extends MongooseDocument {
   @Expose()
   @Transform(({ value, obj }) => value ?? obj._id?.toString())
   id?: string;
 
   @IsMongoId()
-  @Transform(({ value }) => (isRefType(value) ? value.toString() : value))
-  @prop({ ref: () => Player, required: true })
-  player!: Ref<Player>;
+  @Transform(({ value }) => value.toString())
+  @Prop({ ref: 'Player', required: true })
+  player!: Types.ObjectId;
 
   @IsMongoId()
-  @Transform(({ value }) => (isRefType(value) ? value.toString() : value))
-  @prop({ ref: () => Player, required: true })
-  admin!: Ref<Player>;
+  @Transform(({ value }) => value.toString())
+  @Prop({ ref: 'Player', required: true })
+  admin!: Types.ObjectId;
 
   @IsNotEmpty()
   @Type(() => Date)
-  @prop({ required: true, default: () => Date.now() })
+  @Prop({ required: true, default: () => Date.now() })
   start!: Date;
 
   @IsNotEmpty()
   @Type(() => Date)
-  @prop({ required: true })
+  @Prop({ required: true })
   end!: Date;
 
   @IsString()
-  @prop()
+  @Prop()
   reason?: string;
 }
+
+export type PlayerBanDocument = PlayerBan & Document;
+export const playerBanSchema = SchemaFactory.createForClass(PlayerBan);

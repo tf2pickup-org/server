@@ -1,10 +1,20 @@
-import { Player } from '@/players/models/player';
-import { prop, Ref } from '@typegoose/typegoose';
+import { Prop, raw, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Document, Types } from 'mongoose';
 
+@Schema()
 export class PlayerPreferences {
-  @prop({ ref: () => Player, unique: true })
-  player?: Ref<Player>;
+  @Prop({ ref: 'Player', unique: true })
+  player?: Types.ObjectId;
 
-  @prop({ type: String })
+  @Prop(
+    raw({
+      type: Map,
+      of: String,
+    }),
+  )
   preferences: Map<string, string>;
 }
+
+export type PlayerPreferencesDocument = PlayerPreferences & Document;
+export const playerPreferencesSchema =
+  SchemaFactory.createForClass(PlayerPreferences);

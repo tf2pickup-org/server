@@ -1,11 +1,20 @@
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
-import { prop, Ref } from '@typegoose/typegoose';
-import { Player } from './player';
+import { Prop, raw, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Document, Types } from 'mongoose';
 
+@Schema()
 export class PlayerSkill {
-  @prop({ ref: () => Player, unique: true })
-  player?: Ref<Player>;
+  @Prop({ ref: 'Player', unique: true })
+  player?: Types.ObjectId;
 
-  @prop({ type: Number })
+  @Prop(
+    raw({
+      type: Map,
+      of: Number,
+    }),
+  )
   skill?: Map<Tf2ClassName, number>;
 }
+
+export type PlayerSkillDocument = PlayerSkill & Document;
+export const playerSkillSchema = SchemaFactory.createForClass(PlayerSkill);

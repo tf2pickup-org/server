@@ -1,10 +1,14 @@
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { typegooseTestingModule } from '@/utils/testing-typegoose-module';
+import { getModelToken, MongooseModule } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
-import { ReturnModelType } from '@typegoose/typegoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import { getModelToken, TypegooseModule } from 'nestjs-typegoose';
-import { ConfigurationEntry } from '../models/configuration-entry';
+import { Model } from 'mongoose';
+import {
+  ConfigurationEntry,
+  ConfigurationEntryDocument,
+  configurationEntrySchema,
+} from '../models/configuration-entry';
 import { ConfigurationEntryKey } from '../models/configuration-entry-key';
 import { MumbleOptions } from '../models/mumble-options';
 import { ConfigurationService } from './configuration.service';
@@ -12,7 +16,7 @@ import { ConfigurationService } from './configuration.service';
 describe('ConfigurationService', () => {
   let service: ConfigurationService;
   let mongod: MongoMemoryServer;
-  let configurationEntryModel: ReturnModelType<typeof ConfigurationEntry>;
+  let configurationEntryModel: Model<ConfigurationEntryDocument>;
 
   beforeAll(() => (mongod = new MongoMemoryServer()));
   afterAll(async () => await mongod.stop());
@@ -21,7 +25,9 @@ describe('ConfigurationService', () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [
         typegooseTestingModule(mongod),
-        TypegooseModule.forFeature([ConfigurationEntry]),
+        MongooseModule.forFeature([
+          { name: ConfigurationEntry.name, schema: configurationEntrySchema },
+        ]),
       ],
       providers: [ConfigurationService],
     }).compile();

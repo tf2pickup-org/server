@@ -1,13 +1,16 @@
 import { typegooseTestingModule } from '@/utils/testing-typegoose-module';
+import { getModelToken, MongooseModule } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
-import { mongoose, ReturnModelType } from '@typegoose/typegoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import { getModelToken, TypegooseModule } from 'nestjs-typegoose';
+import { Error, Model, Types } from 'mongoose';
 import { LogForwarding } from '../diagnostic-checks/log-forwarding';
 import { RconConnection } from '../diagnostic-checks/rcon-connection';
 import { ServerDiscovery } from '../diagnostic-checks/server-discovery';
-import { DiagnosticRunStatus } from '../models/diagnostic-run-status';
-import { GameServerDiagnosticRun } from '../models/game-server-diagnostic-run';
+import {
+  GameServerDiagnosticRun,
+  GameServerDiagnosticRunDocument,
+  gameServerDiagnosticRunSchema,
+} from '../models/game-server-diagnostic-run';
 import { GameServerDiagnosticsService } from './game-server-diagnostics.service';
 import { GameServersService } from './game-servers.service';
 
@@ -19,9 +22,7 @@ jest.mock('../diagnostic-checks/server-discovery');
 describe('GameServerDiagnosticsService', () => {
   let service: GameServerDiagnosticsService;
   let mongod: MongoMemoryServer;
-  let gameServerDiagnosticRunModel: ReturnModelType<
-    typeof GameServerDiagnosticRun
-  >;
+  let gameServerDiagnosticRunModel: Model<GameServerDiagnosticRunDocument>;
 
   beforeAll(() => (mongod = new MongoMemoryServer()));
   afterAll(async () => await mongod.stop());
@@ -30,7 +31,12 @@ describe('GameServerDiagnosticsService', () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [
         typegooseTestingModule(mongod),
-        TypegooseModule.forFeature([GameServerDiagnosticRun]),
+        MongooseModule.forFeature([
+          {
+            name: GameServerDiagnosticRun.name,
+            schema: gameServerDiagnosticRunSchema,
+          },
+        ]),
       ],
       providers: [
         GameServerDiagnosticsService,
@@ -64,7 +70,7 @@ describe('GameServerDiagnosticsService', () => {
       beforeEach(async () => {
         id = (
           await gameServerDiagnosticRunModel.create({
-            gameServer: new mongoose.Types.ObjectId().toString(),
+            gameServer: new Types.ObjectId().toString(),
             checks: [],
           })
         ).id;
@@ -79,10 +85,8 @@ describe('GameServerDiagnosticsService', () => {
     describe('when the given run does not exist', () => {
       it('should throw an error', async () => {
         await expect(() =>
-          service.getDiagnosticRunById(
-            new mongoose.Types.ObjectId().toString(),
-          ),
-        ).rejects.toThrow(mongoose.Error.DocumentNotFoundError);
+          service.getDiagnosticRunById(new Types.ObjectId().toString()),
+        ).rejects.toThrow(Error.DocumentNotFoundError);
       });
     });
   });

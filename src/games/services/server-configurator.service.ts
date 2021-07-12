@@ -4,7 +4,6 @@ import { Game } from '../models/game';
 import { Environment } from '@/environment/environment';
 import { generate } from 'generate-password';
 import { PlayersService } from '@/players/services/players.service';
-import { QueueConfigService } from '@/queue/services/queue-config.service';
 import { RconFactoryService } from './rcon-factory.service';
 import {
   logAddressAdd,
@@ -24,7 +23,6 @@ import {
 import { deburr } from 'lodash';
 import { extractConVarValue } from '../utils/extract-con-var-value';
 import { Rcon } from 'rcon-client/lib';
-import { isRefType } from '@typegoose/typegoose';
 import { MapPoolService } from '@/queue/services/map-pool.service';
 import { ConfigurationService } from '@/configuration/services/configuration.service';
 
@@ -38,7 +36,6 @@ export class ServerConfiguratorService {
     private environment: Environment,
     @Inject(forwardRef(() => PlayersService))
     private playersService: PlayersService,
-    private queueConfigService: QueueConfigService,
     private rconFactoryService: RconFactoryService,
     private mapPoolService: MapPoolService,
     private configurationService: ConfigurationService,
@@ -87,9 +84,7 @@ export class ServerConfiguratorService {
       await rcon.send(setPassword(password));
 
       for (const slot of game.activeSlots()) {
-        const player = isRefType(slot.player)
-          ? await this.playersService.getById(slot.player)
-          : slot.player;
+        const player = await this.playersService.getById(slot.player);
 
         const playerName = deburr(player.name);
         const cmd = addGamePlayer(

@@ -1,51 +1,52 @@
-import { prop, Ref } from '@typegoose/typegoose';
-import { GameSlot } from './game-slot';
-import { GameServer } from '@/game-servers/models/game-server';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Document, Types } from 'mongoose';
+import { GameSlot, gameSlotSchema } from './game-slot';
 import { GameState } from './game-state';
 
+@Schema()
 export class Game {
   id: string;
 
-  @prop({ default: () => new Date() })
+  @Prop({ default: () => new Date() })
   launchedAt?: Date;
 
-  @prop({ required: true, unique: true })
+  @Prop({ required: true, unique: true })
   number!: number;
 
-  @prop({ type: () => [GameSlot], required: true })
+  @Prop({ type: [gameSlotSchema], required: true })
   slots!: GameSlot[];
 
-  @prop({ type: Number })
+  @Prop({ type: Number })
   assignedSkills?: Map<string, number>;
 
-  @prop({ required: true })
+  @Prop({ required: true })
   map!: string;
 
-  @prop({ index: true, enum: GameState, default: GameState.launching })
+  @Prop({ index: true, enum: GameState, default: GameState.launching })
   state?: GameState;
 
-  @prop()
+  @Prop()
   connectString?: string;
 
-  @prop()
+  @Prop()
   mumbleUrl?: string;
 
-  @prop()
+  @Prop()
   logsUrl?: string;
 
-  @prop()
+  @Prop()
   demoUrl?: string;
 
-  @prop()
+  @Prop()
   error?: string;
 
-  @prop({ ref: () => GameServer })
-  gameServer?: Ref<GameServer>;
+  @Prop({ ref: 'GameServer' })
+  gameServer?: Types.ObjectId;
 
-  @prop({ type: Number })
+  @Prop({ type: Number })
   score?: Map<string, number>;
 
-  @prop()
+  @Prop()
   stvConnectString?: string;
 
   findPlayerSlot(playerId: string) {
@@ -60,3 +61,6 @@ export class Game {
     );
   }
 }
+
+export type GameDocument = Game & Document;
+export const gameSchema = SchemaFactory.createForClass(Game);

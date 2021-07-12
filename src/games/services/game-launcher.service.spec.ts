@@ -4,8 +4,7 @@ import { GamesService } from './games.service';
 import { GameServersService } from '@/game-servers/services/game-servers.service';
 import { ServerConfiguratorService } from './server-configurator.service';
 import { Events } from '@/events/events';
-import { DocumentType } from '@typegoose/typegoose';
-import { GameServer } from '@/game-servers/models/game-server';
+import { GameServerDocument } from '@/game-servers/models/game-server';
 import { ConfigurationService } from '@/configuration/services/configuration.service';
 
 jest.mock('@/game-servers/services/game-servers.service');
@@ -81,7 +80,7 @@ describe('GameLauncherService', () => {
 
   beforeEach(() => {
     gameServersService.assignFreeGameServer.mockResolvedValue(
-      mockGameServer as DocumentType<GameServer>,
+      mockGameServer as GameServerDocument,
     );
   });
 

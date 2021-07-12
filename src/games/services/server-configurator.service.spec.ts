@@ -26,11 +26,11 @@ import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { MapPoolService } from '@/queue/services/map-pool.service';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { typegooseTestingModule } from '@/utils/testing-typegoose-module';
-import { getModelToken, TypegooseModule } from 'nestjs-typegoose';
-import { Player } from '@/players/models/player';
-import { ReturnModelType, DocumentType } from '@typegoose/typegoose';
+import { Player, PlayerDocument, playerSchema } from '@/players/models/player';
 import { Rcon } from 'rcon-client/lib';
 import { ConfigurationService } from '@/configuration/services/configuration.service';
+import { getModelToken, MongooseModule } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
 
 jest.mock('@/queue/services/map-pool.service');
 jest.mock('@/players/services/players.service');
@@ -63,7 +63,7 @@ const gameServer = {
 describe('ServerConfiguratorService', () => {
   let service: ServerConfiguratorService;
   let mongod: MongoMemoryServer;
-  let playerModel: ReturnModelType<typeof Player>;
+  let playerModel: Model<PlayerDocument>;
   let rconFactoryService: jest.Mocked<RconFactoryService>;
   let playersService: jest.Mocked<PlayersService>;
   let queueConfigService: QueueConfigServiceStub;
@@ -77,7 +77,12 @@ describe('ServerConfiguratorService', () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [
         typegooseTestingModule(mongod),
-        TypegooseModule.forFeature([Player]),
+        MongooseModule.forFeature([
+          {
+            name: Player.name,
+            schema: playerSchema,
+          },
+        ]),
       ],
       providers: [
         ServerConfiguratorService,
@@ -91,7 +96,7 @@ describe('ServerConfiguratorService', () => {
     }).compile();
 
     service = module.get<ServerConfiguratorService>(ServerConfiguratorService);
-    playerModel = module.get(getModelToken('Player'));
+    playerModel = module.get(getModelToken(Player.name));
     rconFactoryService = module.get(RconFactoryService);
     playersService = module.get(PlayersService);
     queueConfigService = module.get(QueueConfigService);
@@ -111,8 +116,8 @@ describe('ServerConfiguratorService', () => {
   });
 
   describe('#configureServer()', () => {
-    let player1: DocumentType<Player>;
-    let player2: DocumentType<Player>;
+    let player1: PlayerDocument;
+    let player2: PlayerDocument;
     let rcon: RconStub;
     let game: Game;
 
@@ -129,13 +134,13 @@ describe('ServerConfiguratorService', () => {
       game.number = 1;
       game.slots = [
         {
-          player: player1,
+          player: player1._id,
           team: Tf2Team.blu,
           gameClass: Tf2ClassName.soldier,
           status: SlotStatus.active,
         },
         {
-          player: player2,
+          player: player2._id,
           team: Tf2Team.red,
           gameClass: Tf2ClassName.soldier,
           status: SlotStatus.active,
@@ -210,13 +215,13 @@ describe('ServerConfiguratorService', () => {
       beforeEach(() => {
         game.slots = [
           {
-            player: player1,
+            player: player1._id,
             team: Tf2Team.blu,
             gameClass: Tf2ClassName.soldier,
             status: SlotStatus.active,
           },
           {
-            player: player2,
+            player: player2._id,
             team: Tf2Team.red,
             gameClass: Tf2ClassName.soldier,
             status: SlotStatus.replaced,
