@@ -1,23 +1,27 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { GameServersService } from './game-servers.service';
-import { TypegooseModule, getModelToken } from 'nestjs-typegoose';
-import { GameServer } from '../models/game-server';
-import { DocumentType, mongoose, ReturnModelType } from '@typegoose/typegoose';
+import {
+  GameServer,
+  GameServerDocument,
+  GameServerSchema,
+} from '../models/game-server';
 import { ObjectId } from 'mongodb';
 import { typegooseTestingModule } from '@/utils/testing-typegoose-module';
 import * as isServerOnline from '../utils/is-server-online';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { Events } from '@/events/events';
-import { Game } from '@/games/models/game';
+import { Game, GameDocument, gameSchema } from '@/games/models/game';
+import { Error, Model } from 'mongoose';
+import { getModelToken, MongooseModule } from '@nestjs/mongoose';
 
 jest.mock('dns');
 
 describe('GameServersService', () => {
   let service: GameServersService;
   let mongod: MongoMemoryServer;
-  let gameServerModel: ReturnModelType<typeof GameServer>;
-  let gameModel: ReturnModelType<typeof Game>;
-  let testGameServer: DocumentType<GameServer>;
+  let gameServerModel: Model<GameServerDocument>;
+  let gameModel: Model<GameDocument>;
+  let testGameServer: GameServerDocument;
   let events: Events;
 
   beforeAll(() => (mongod = new MongoMemoryServer()));
@@ -27,7 +31,10 @@ describe('GameServersService', () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [
         typegooseTestingModule(mongod),
-        TypegooseModule.forFeature([GameServer, Game]),
+        MongooseModule.forFeature([
+          { name: GameServer.name, schema: GameServerSchema },
+          { name: Game.name, schema: gameSchema },
+        ]),
       ],
       providers: [GameServersService, Events],
     }).compile();
@@ -212,7 +219,7 @@ describe('GameServersService', () => {
 
       it('should throw an error', async () => {
         await expect(service.findFreeGameServer()).rejects.toThrow(
-          mongoose.Error.DocumentNotFoundError,
+          Error.DocumentNotFoundError,
         );
       });
     });
@@ -225,7 +232,7 @@ describe('GameServersService', () => {
 
       it('should throw an error', async () => {
         await expect(service.findFreeGameServer()).rejects.toThrow(
-          mongoose.Error.DocumentNotFoundError,
+          Error.DocumentNotFoundError,
         );
       });
     });
@@ -238,7 +245,7 @@ describe('GameServersService', () => {
 
       it('should throw an error', async () => {
         await expect(service.findFreeGameServer()).rejects.toThrow(
-          mongoose.Error.DocumentNotFoundError,
+          Error.DocumentNotFoundError,
         );
       });
     });
@@ -258,7 +265,7 @@ describe('GameServersService', () => {
   });
 
   describe('#assignFreeGameServer()', () => {
-    let game: DocumentType<Game>;
+    let game: GameDocument;
 
     beforeEach(async () => {
       game = await gameModel.create({
@@ -303,7 +310,7 @@ describe('GameServersService', () => {
       it('should throw an error', async () => {
         await expect(
           service.releaseServer(new ObjectId().toString()),
-        ).rejects.toThrow(mongoose.Error.DocumentNotFoundError);
+        ).rejects.toThrow(Error.DocumentNotFoundError);
       });
     });
   });

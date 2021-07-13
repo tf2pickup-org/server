@@ -3,13 +3,13 @@ import { Events } from '@/events/events';
 import { GameServer } from '@/game-servers/models/game-server';
 import { Game } from '@/games/models/game';
 import { GameState } from '@/games/models/game-state';
-import { Player } from '@/players/models/player';
+import { Player, playerSchema } from '@/players/models/player';
 import { PlayersService } from '@/players/services/players.service';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { typegooseTestingModule } from '@/utils/testing-typegoose-module';
+import { MongooseModule } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import { TypegooseModule } from 'nestjs-typegoose';
 import { Subject } from 'rxjs';
 import { AdminNotificationsService } from './admin-notifications.service';
 import { DiscordService } from './discord.service';
@@ -41,7 +41,12 @@ describe('AdminNotificationsService', () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [
         typegooseTestingModule(mongod),
-        TypegooseModule.forFeature([Player]),
+        MongooseModule.forFeature([
+          {
+            name: Player.name,
+            schema: playerSchema,
+          },
+        ]),
       ],
       providers: [
         AdminNotificationsService,
@@ -154,8 +159,8 @@ describe('AdminNotificationsService', () => {
 
         events.playerBanAdded.next({
           ban: {
-            player,
-            admin,
+            player: player._id,
+            admin: admin._id,
             start: new Date(),
             end: new Date(),
             reason: 'FAKE_BAN',
@@ -185,8 +190,8 @@ describe('AdminNotificationsService', () => {
 
         events.playerBanRevoked.next({
           ban: {
-            player,
-            admin,
+            player: player._id,
+            admin: admin._id,
             start: new Date(),
             end: new Date(),
             reason: 'FAKE_BAN',

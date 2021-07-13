@@ -9,7 +9,6 @@ import { PlayerSkillType } from '@/players/services/player-skill.service';
 import { PlayersService } from '@/players/services/players.service';
 import { iconUrlPath } from '@configs/discord';
 import { Injectable, OnModuleInit } from '@nestjs/common';
-import { isRefType } from '@typegoose/typegoose';
 import { distinctUntilChanged, filter } from 'rxjs/operators';
 import {
   newPlayer,
@@ -142,12 +141,8 @@ export class AdminNotificationsService implements OnModuleInit {
   }
 
   private async onPlayerBanAdded(ban: PlayerBan) {
-    const admin = isRefType(ban.admin)
-      ? await this.playersService.getById(ban.admin)
-      : ban.admin;
-    const player = isRefType(ban.player)
-      ? await this.playersService.getById(ban.player)
-      : ban.player;
+    const admin = await this.playersService.getById(ban.admin);
+    const player = await this.playersService.getById(ban.player);
 
     this.discordService.getAdminsChannel()?.send({
       embed: playerBanAdded({
@@ -172,12 +167,8 @@ export class AdminNotificationsService implements OnModuleInit {
   }
 
   private async onPlayerBanRevoked(ban: PlayerBan) {
-    const admin = isRefType(ban.admin)
-      ? await this.playersService.getById(ban.admin)
-      : ban.admin;
-    const player = isRefType(ban.player)
-      ? await this.playersService.getById(ban.player)
-      : ban.player;
+    const admin = await this.playersService.getById(ban.admin);
+    const player = await this.playersService.getById(ban.player);
 
     this.discordService.getAdminsChannel()?.send({
       embed: playerBanRevoked({

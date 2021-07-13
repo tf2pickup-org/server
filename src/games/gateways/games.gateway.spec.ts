@@ -2,8 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { GamesGateway } from './games.gateway';
 import { PlayerSubstitutionService } from '../services/player-substitution.service';
 import { Events } from '@/events/events';
-import { Game } from '../models/game';
-import { DocumentType } from '@typegoose/typegoose';
+import { GameDocument } from '../models/game';
 import { Socket } from 'socket.io';
 import { AuthorizedWsClient } from '@/auth/ws-client';
 
@@ -13,7 +12,7 @@ jest.mock('socket.io');
 const mockGame = {
   id: 'FAKE_GAME_ID',
   state: 'launching',
-} as DocumentType<Game>;
+} as GameDocument;
 
 describe('GamesGateway', () => {
   let gateway: GamesGateway;

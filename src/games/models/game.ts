@@ -1,4 +1,4 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Prop, raw, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
 import { GameSlot, gameSlotSchema } from './game-slot';
 import { GameState } from './game-state';
@@ -16,7 +16,12 @@ export class Game {
   @Prop({ type: [gameSlotSchema], required: true })
   slots!: GameSlot[];
 
-  @Prop({ type: Number })
+  @Prop(
+    raw({
+      type: Map,
+      of: Number,
+    }),
+  )
   assignedSkills?: Map<string, number>;
 
   @Prop({ required: true })
@@ -43,7 +48,12 @@ export class Game {
   @Prop({ ref: 'GameServer' })
   gameServer?: Types.ObjectId;
 
-  @Prop({ type: Number })
+  @Prop(
+    raw({
+      type: Map,
+      of: Number,
+    }),
+  )
   score?: Map<string, number>;
 
   @Prop()

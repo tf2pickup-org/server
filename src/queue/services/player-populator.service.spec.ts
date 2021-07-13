@@ -1,14 +1,13 @@
-import { Player } from '@/players/models/player';
+import { Player, PlayerDocument, playerSchema } from '@/players/models/player';
 import { PlayersService } from '@/players/services/players.service';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { typegooseTestingModule } from '@/utils/testing-typegoose-module';
 import { Test, TestingModule } from '@nestjs/testing';
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import { TypegooseModule } from 'nestjs-typegoose';
 import { QueueSlot } from '../queue-slot';
 import { PlayerPopulatorService } from './player-populator.service';
-import { DocumentType } from '@typegoose/typegoose';
 import { plainToClass } from 'class-transformer';
+import { MongooseModule } from '@nestjs/mongoose';
 
 jest.mock('@/players/services/players.service');
 
@@ -16,7 +15,7 @@ describe('PlayerPopulatorService', () => {
   let service: PlayerPopulatorService;
   let mongod: MongoMemoryServer;
   let playersService: PlayersService;
-  let mockPlayer: DocumentType<Player>;
+  let mockPlayer: PlayerDocument;
 
   beforeAll(() => (mongod = new MongoMemoryServer()));
   afterAll(async () => await mongod.stop());
@@ -25,7 +24,12 @@ describe('PlayerPopulatorService', () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [
         typegooseTestingModule(mongod),
-        TypegooseModule.forFeature([Player]),
+        MongooseModule.forFeature([
+          {
+            name: Player.name,
+            schema: playerSchema,
+          },
+        ]),
       ],
       providers: [PlayerPopulatorService, PlayersService],
     }).compile();

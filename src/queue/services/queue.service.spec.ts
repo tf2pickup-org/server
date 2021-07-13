@@ -6,12 +6,11 @@ import { PlayerBansService } from '@/players/services/player-bans.service';
 import { GamesService } from '@/games/services/games.service';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { typegooseTestingModule } from '@/utils/testing-typegoose-module';
-import { Player } from '@/players/models/player';
-import { TypegooseModule } from 'nestjs-typegoose';
+import { Player, PlayerDocument, playerSchema } from '@/players/models/player';
 import { ObjectId } from 'mongodb';
-import { DocumentType } from '@typegoose/typegoose';
-import { Game } from '@/games/models/game';
+import { Game, gameSchema } from '@/games/models/game';
 import { Events } from '@/events/events';
+import { MongooseModule } from '@nestjs/mongoose';
 
 jest.mock('@/players/services/players.service');
 jest.mock('@/players/services/player-bans.service');
@@ -41,7 +40,7 @@ describe('QueueService', () => {
   let playerBansService: PlayerBansService;
   let gamesService: GamesService;
   let events: Events;
-  let player: DocumentType<Player>;
+  let player: PlayerDocument;
 
   beforeAll(() => (mongod = new MongoMemoryServer()));
   afterAll(async () => await mongod.stop());
@@ -50,7 +49,10 @@ describe('QueueService', () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [
         typegooseTestingModule(mongod),
-        TypegooseModule.forFeature([Player, Game]),
+        MongooseModule.forFeature([
+          { name: Player.name, schema: playerSchema },
+          { name: Game.name, schema: gameSchema },
+        ]),
       ],
       providers: [
         QueueService,
@@ -169,7 +171,7 @@ describe('QueueService', () => {
     });
 
     describe('when the player tries to join an already occupied slot', () => {
-      let player2: DocumentType<Player>;
+      let player2: PlayerDocument;
 
       beforeEach(async () => {
         // @ts-expect-error
@@ -324,7 +326,7 @@ describe('QueueService', () => {
   });
 
   describe('when the queue is in the ready state', () => {
-    let players: DocumentType<Player>[];
+    let players: PlayerDocument[];
 
     beforeEach(async () => {
       players = [];

@@ -10,16 +10,13 @@ import { Tf2Team } from '../models/tf2-team';
 import { ObjectId } from 'mongodb';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { typegooseTestingModule } from '@/utils/testing-typegoose-module';
-import { TypegooseModule } from 'nestjs-typegoose';
-import { Player } from '@/players/models/player';
-import { DocumentType } from '@typegoose/typegoose';
-import { Game } from '../models/game';
+import { Player, PlayerDocument, playerSchema } from '@/players/models/player';
+import { Game, GameDocument, gameSchema } from '../models/game';
 import { GameServer } from '@/game-servers/models/game-server';
-import { standardSchemaOptions } from '@/utils/standard-schema-options';
-import { removeGameAssignedSkills } from '@/utils/tojson-transform';
 import { Events } from '@/events/events';
 import { SlotStatus } from '../models/slot-status';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
+import { MongooseModule } from '@nestjs/mongoose';
 
 jest.mock('./games.service');
 jest.mock('@/game-servers/services/game-servers.service');
@@ -45,8 +42,8 @@ describe('GameRuntimeService', () => {
   let serverConfiguratorService: ServerConfiguratorService;
   let rconFactoryService: RconFactoryService;
   let mockGameServer: GameServer & { id: string };
-  let mockPlayers: DocumentType<Player>[];
-  let mockGame: DocumentType<Game>;
+  let mockPlayers: PlayerDocument[];
+  let mockGame: GameDocument;
   let events: Events;
 
   beforeAll(() => (mongod = new MongoMemoryServer()));
@@ -56,9 +53,9 @@ describe('GameRuntimeService', () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [
         typegooseTestingModule(mongod),
-        TypegooseModule.forFeature([
-          standardSchemaOptions(Game, removeGameAssignedSkills),
-          Player,
+        MongooseModule.forFeature([
+          { name: Game.name, schema: gameSchema },
+          { name: Player.name, schema: playerSchema },
         ]),
       ],
       providers: [
@@ -143,7 +140,7 @@ describe('GameRuntimeService', () => {
     });
 
     describe('when the game has no game server assigned', () => {
-      let anotherGame: DocumentType<Game>;
+      let anotherGame: GameDocument;
 
       beforeEach(async () => {
         // @ts-expect-error
@@ -256,7 +253,7 @@ describe('GameRuntimeService', () => {
     });
 
     describe('when the given game has no game server assigned', () => {
-      let anotherGame: DocumentType<Game>;
+      let anotherGame: GameDocument;
 
       beforeEach(async () => {
         // @ts-expect-error

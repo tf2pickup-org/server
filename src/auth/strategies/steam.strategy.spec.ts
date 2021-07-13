@@ -2,8 +2,8 @@ import { Environment } from '@/environment/environment';
 import { Player } from '@/players/models/player';
 import { PlayersService } from '@/players/services/players.service';
 import { Test, TestingModule } from '@nestjs/testing';
-import { mongoose } from '@typegoose/typegoose';
 import { SteamStrategy } from './steam.strategy';
+import { Error } from 'mongoose';
 
 const mockPlayer: Player = {
   id: 'FAKE_PLAYER_ID',
@@ -66,7 +66,7 @@ describe('SteamStrategy', () => {
     describe('when the player does not have an account', () => {
       beforeEach(() => {
         playersService.findBySteamId.mockImplementation((steamId) => {
-          throw new mongoose.Error.DocumentNotFoundError({ steamId });
+          throw new Error.DocumentNotFoundError(steamId);
         });
       });
 
