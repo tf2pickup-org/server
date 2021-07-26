@@ -3,7 +3,26 @@ import { Document, Types } from 'mongoose';
 import { GameSlot, gameSlotSchema } from './game-slot';
 import { GameState } from './game-state';
 
-@Schema()
+@Schema({
+  toJSON: {
+    versionKey: false,
+    transform: function (doc: Document, ret: any) {
+      if (ret._id && typeof ret._id === 'object' && ret._id.toString) {
+        if (typeof ret.id === 'undefined') {
+          ret.id = ret._id.toString();
+        }
+      }
+
+      if (typeof ret._id !== 'undefined') {
+        delete ret._id;
+      }
+
+      if (ret.assignedSkills) {
+        delete ret.assignedSkills;
+      }
+    },
+  },
+})
 export class Game {
   id: string;
 
@@ -59,18 +78,24 @@ export class Game {
   @Prop()
   stvConnectString?: string;
 
-  findPlayerSlot(playerId: string) {
-    return this.slots.find(
-      (s) => s.player.toString().localeCompare(playerId) === 0,
-    );
-  }
-
-  activeSlots() {
-    return this.slots.filter((slot) =>
-      slot.status.match(/active|waiting for substitute/),
-    );
-  }
+  findPlayerSlot: (playerId: string) => GameSlot;
+  activeSlots: () => GameSlot[];
 }
 
 export type GameDocument = Game & Document;
 export const gameSchema = SchemaFactory.createForClass(Game);
+
+gameSchema.methods.findPlayerSlot = function (
+  this: GameDocument,
+  playerId: string,
+): GameSlot {
+  return this.slots.find(
+    (s) => s.player.toString().localeCompare(playerId) === 0,
+  );
+};
+
+gameSchema.methods.activeSlots = function (this: GameDocument): GameSlot[] {
+  return this.slots.filter((slot) =>
+    slot.status.match(/active|waiting for substitute/),
+  );
+};

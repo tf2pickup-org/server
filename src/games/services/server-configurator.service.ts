@@ -26,7 +26,7 @@ import { Rcon } from 'rcon-client/lib';
 import { MapPoolService } from '@/queue/services/map-pool.service';
 import { ConfigurationService } from '@/configuration/services/configuration.service';
 
-const wait = () => new Promise((resolve) => setTimeout(resolve, 10 * 1000));
+const wait = () => new Promise((resolve) => setTimeout(resolve, 1000 * 10));
 
 @Injectable()
 export class ServerConfiguratorService {

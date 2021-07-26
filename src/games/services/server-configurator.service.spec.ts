@@ -20,7 +20,7 @@ import {
 } from '../utils/rcon-commands';
 import { QueueConfig } from '@/queue/queue-config';
 import { Tf2Team } from '../models/tf2-team';
-import { Game } from '../models/game';
+import { Game, GameDocument, gameSchema } from '../models/game';
 import { SlotStatus } from '../models/slot-status';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { MapPoolService } from '@/queue/services/map-pool.service';
@@ -60,10 +60,15 @@ const gameServer = {
   name: 'FAKE_SERVER',
 };
 
+function flushPromises() {
+  return new Promise((resolve) => setImmediate(resolve));
+}
+
 describe('ServerConfiguratorService', () => {
   let service: ServerConfiguratorService;
   let mongod: MongoMemoryServer;
   let playerModel: Model<PlayerDocument>;
+  let gameModel: Model<GameDocument>;
   let rconFactoryService: jest.Mocked<RconFactoryService>;
   let playersService: jest.Mocked<PlayersService>;
   let queueConfigService: QueueConfigServiceStub;
@@ -82,6 +87,10 @@ describe('ServerConfiguratorService', () => {
             name: Player.name,
             schema: playerSchema,
           },
+          {
+            name: Game.name,
+            schema: gameSchema,
+          },
         ]),
       ],
       providers: [
@@ -97,6 +106,7 @@ describe('ServerConfiguratorService', () => {
 
     service = module.get<ServerConfiguratorService>(ServerConfiguratorService);
     playerModel = module.get(getModelToken(Player.name));
+    gameModel = module.get(getModelToken(Game.name));
     rconFactoryService = module.get(RconFactoryService);
     playersService = module.get(PlayersService);
     queueConfigService = module.get(QueueConfigService);
@@ -129,71 +139,80 @@ describe('ServerConfiguratorService', () => {
         await playersService._createOne(),
       ];
 
-      game = new Game();
-      game.launchedAt = new Date();
-      game.number = 1;
-      game.slots = [
-        {
-          player: player1._id,
-          team: Tf2Team.blu,
-          gameClass: Tf2ClassName.soldier,
-          status: SlotStatus.active,
-        },
-        {
-          player: player2._id,
-          team: Tf2Team.red,
-          gameClass: Tf2ClassName.soldier,
-          status: SlotStatus.active,
-        },
-      ];
-      game.map = 'cp_badlands';
+      game = await gameModel.create({
+        launchedAt: new Date(),
+        number: 1,
+        slots: [
+          {
+            player: player1._id,
+            team: Tf2Team.blu,
+            gameClass: Tf2ClassName.soldier,
+            status: SlotStatus.active,
+          },
+          {
+            player: player2._id,
+            team: Tf2Team.red,
+            gameClass: Tf2ClassName.soldier,
+            status: SlotStatus.active,
+          },
+        ],
+        map: 'cp_badlands',
+      });
 
       rcon = new RconStub();
       rconFactoryService.createRcon.mockResolvedValue(rcon as unknown as Rcon);
       jest.useFakeTimers();
-      jest.spyOn(global, 'setTimeout').mockImplementation((cb: () => void) => {
-        cb();
-        return null;
-      });
     });
 
     afterEach(async () => {
       jest.useRealTimers();
       // @ts-expect-error
       await playersService._reset();
+      await gameModel.deleteMany({});
     });
 
     it('should execute correct rcon commands', async () => {
-      await service.configureServer(gameServer as any, game);
+      const ret = new Promise<void>((resolve) => {
+        service.configureServer(gameServer as any, game).then(() => {
+          expect(rcon.send).toHaveBeenCalledWith(
+            logAddressAdd('FAKE_RELAY_ADDRESS:1234'),
+          );
+          expect(rcon.send).toHaveBeenCalledWith(kickAll());
+          expect(rcon.send).toHaveBeenCalledWith(changelevel('cp_badlands'));
+          expect(rcon.send).toHaveBeenCalledWith(execConfig('etf2l_6v6_5cp'));
+          expect(rcon.send).toHaveBeenCalledWith(
+            expect.stringMatching(/^sv_password\s.+$/),
+          );
+          expect(rcon.send).toHaveBeenCalledWith(
+            addGamePlayer(
+              player1.steamId,
+              player1.name,
+              Tf2Team.blu,
+              Tf2ClassName.soldier,
+            ),
+          );
+          expect(rcon.send).toHaveBeenCalledWith(
+            addGamePlayer(
+              player2.steamId,
+              player2.name,
+              Tf2Team.red,
+              Tf2ClassName.soldier,
+            ),
+          );
+          expect(rcon.send).toHaveBeenCalledWith(enablePlayerWhitelist());
+          expect(rcon.send).toHaveBeenCalledWith(tvPort());
+          expect(rcon.send).toHaveBeenCalledWith(tvPassword());
 
-      expect(rcon.send).toHaveBeenCalledWith(
-        logAddressAdd('FAKE_RELAY_ADDRESS:1234'),
-      );
-      expect(rcon.send).toHaveBeenCalledWith(kickAll());
-      expect(rcon.send).toHaveBeenCalledWith(changelevel('cp_badlands'));
-      expect(rcon.send).toHaveBeenCalledWith(execConfig('etf2l_6v6_5cp'));
-      expect(rcon.send).toHaveBeenCalledWith(
-        expect.stringMatching(/^sv_password\s.+$/),
-      );
-      expect(rcon.send).toHaveBeenCalledWith(
-        addGamePlayer(
-          player1.steamId,
-          player1.name,
-          Tf2Team.blu,
-          Tf2ClassName.soldier,
-        ),
-      );
-      expect(rcon.send).toHaveBeenCalledWith(
-        addGamePlayer(
-          player2.steamId,
-          player2.name,
-          Tf2Team.red,
-          Tf2ClassName.soldier,
-        ),
-      );
-      expect(rcon.send).toHaveBeenCalledWith(enablePlayerWhitelist());
-      expect(rcon.send).toHaveBeenCalledWith(tvPort());
-      expect(rcon.send).toHaveBeenCalledWith(tvPassword());
+          resolve();
+        });
+      });
+
+      for (let i = 0; i < 3; i++) {
+        jest.runAllTimers();
+        await flushPromises();
+      }
+
+      return ret;
     });
 
     describe('when the whitelistId is set', () => {
@@ -204,10 +223,20 @@ describe('ServerConfiguratorService', () => {
       });
 
       it('should set the whitelist', async () => {
-        await service.configureServer(gameServer as any, game);
-        expect(rcon.send).toHaveBeenCalledWith(
-          tftrueWhitelistId('FAKE_WHITELIST_ID'),
-        );
+        const ret = service
+          .configureServer(gameServer as any, game)
+          .then(() => {
+            expect(rcon.send).toHaveBeenCalledWith(
+              tftrueWhitelistId('FAKE_WHITELIST_ID'),
+            );
+          });
+
+        for (let i = 0; i < 3; i++) {
+          jest.runAllTimers();
+          await flushPromises();
+        }
+
+        return ret;
       });
     });
 
@@ -230,30 +259,47 @@ describe('ServerConfiguratorService', () => {
       });
 
       it('should not add this player to the game', async () => {
-        await service.configureServer(gameServer as any, game);
+        const ret = service
+          .configureServer(gameServer as any, game)
+          .then(() => {
+            expect(rcon.send).toHaveBeenCalledWith(
+              addGamePlayer(
+                player1.steamId,
+                player1.name,
+                Tf2Team.blu,
+                Tf2ClassName.soldier,
+              ),
+            );
+            expect(rcon.send).not.toHaveBeenCalledWith(
+              addGamePlayer(
+                player2.steamId,
+                player2.name,
+                Tf2Team.red,
+                Tf2ClassName.soldier,
+              ),
+            );
+          });
 
-        expect(rcon.send).toHaveBeenCalledWith(
-          addGamePlayer(
-            player1.steamId,
-            player1.name,
-            Tf2Team.blu,
-            Tf2ClassName.soldier,
-          ),
-        );
-        expect(rcon.send).not.toHaveBeenCalledWith(
-          addGamePlayer(
-            player2.steamId,
-            player2.name,
-            Tf2Team.red,
-            Tf2ClassName.soldier,
-          ),
-        );
+        for (let i = 0; i < 3; i++) {
+          jest.runAllTimers();
+          await flushPromises();
+        }
+
+        return ret;
       });
     });
 
     it('should close the rcon connection', async () => {
-      await service.configureServer(gameServer as any, game as any);
-      expect(rcon.end).toHaveBeenCalled();
+      const ret = service
+        .configureServer(gameServer as any, game as any)
+        .then(() => {
+          expect(rcon.end).toHaveBeenCalled();
+        });
+      for (let i = 0; i < 3; i++) {
+        jest.runAllTimers();
+        await flushPromises();
+      }
+      return ret;
     });
 
     describe("when player's name contains non-english characters", () => {
@@ -262,19 +308,23 @@ describe('ServerConfiguratorService', () => {
         player1.name = 'mąły';
         await player1.save();
         jest.useFakeTimers();
-        jest
-          .spyOn(global, 'setTimeout')
-          .mockImplementation((cb: () => void) => {
-            cb();
-            return null;
-          });
       });
 
       it('should deburr player nicknames', async () => {
-        await service.configureServer(gameServer as any, game as any);
-        expect(rcon.send).toHaveBeenCalledWith(
-          addGamePlayer(player1.steamId, 'maly', Tf2Team.blu, 'soldier'),
-        );
+        const ret = service
+          .configureServer(gameServer as any, game as any)
+          .then(() => {
+            expect(rcon.send).toHaveBeenCalledWith(
+              addGamePlayer(player1.steamId, 'maly', Tf2Team.blu, 'soldier'),
+            );
+          });
+
+        for (let i = 0; i < 3; i++) {
+          jest.runAllTimers();
+          await flushPromises();
+        }
+
+        return ret;
       });
     });
 

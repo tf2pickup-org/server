@@ -78,8 +78,8 @@ describe('PlayerBansService', () => {
     end.setHours(end.getHours() + 1);
 
     mockPlayerBan = await playerBanModel.create({
-      player: player._id,
-      admin: admin._id,
+      player: player.id,
+      admin: admin.id,
       start: new Date(),
       end,
       reason: 'FAKE_BAN_REASON',

@@ -9,7 +9,7 @@ import { createInterface } from 'readline';
 import { Etf2lProfileService } from './etf2l-profile.service';
 import { Events } from '@/events/events';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 
 export type PlayerSkillType = PlayerSkill['skill'];
 
@@ -52,8 +52,11 @@ export class PlayerSkillService implements OnModuleInit {
     adminId?: string,
   ): Promise<PlayerSkillType> {
     const oldSkill =
-      (await this.playerSkillModel.findOne({ player: playerId }))?.skill ||
-      new Map();
+      (
+        await this.playerSkillModel.findOne({
+          player: new Types.ObjectId(playerId),
+        })
+      )?.skill || new Map();
     const newSkill = (
       await this.playerSkillModel.findOneAndUpdate(
         { player: playerId },
