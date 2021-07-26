@@ -9,10 +9,9 @@ import { JwtTokenPurpose } from '@/auth/jwt-token-purpose';
 import { GameServersService } from '@/game-servers/services/game-servers.service';
 import { GameServerDiagnosticsService } from '@/game-servers/services/game-server-diagnostics.service';
 import { DiagnosticRunStatus } from '@/game-servers/models/diagnostic-run-status';
-import { getModelToken } from 'nestjs-typegoose';
 import { Player } from '@/players/models/player';
-import { ReturnModelType } from '@typegoose/typegoose';
 import { GameServer } from '@/game-servers/models/game-server';
+import { getModelToken } from '@nestjs/mongoose';
 
 jest.mock('@/players/services/steam-api.service');
 jest.setTimeout(10000);
@@ -24,23 +23,27 @@ describe('Game server diagnostics (e2e)', () => {
   let faultyGameServerId: string;
   let diagnosticsService: GameServerDiagnosticsService;
 
-  const waitForDiagnosticRunToComplete = async (runId: string) => new Promise<void>(resolve => {
-    const isDone = async () => {
-      const run = await diagnosticsService.getDiagnosticRunById(runId);
-      return [DiagnosticRunStatus.completed, DiagnosticRunStatus.failed].includes(run.status);
-    };
+  const waitForDiagnosticRunToComplete = async (runId: string) =>
+    new Promise<void>((resolve) => {
+      const isDone = async () => {
+        const run = await diagnosticsService.getDiagnosticRunById(runId);
+        return [
+          DiagnosticRunStatus.completed,
+          DiagnosticRunStatus.failed,
+        ].includes(run.status);
+      };
 
-    const i = setInterval(async () => {
-      if (await isDone()) {
-        clearInterval(i);
-        resolve();
-      }
-    }, 1000);
-  });
+      const i = setInterval(async () => {
+        if (await isDone()) {
+          clearInterval(i);
+          resolve();
+        }
+      }, 1000);
+    });
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [ AppModule ],
+      imports: [AppModule],
     }).compile();
 
     app = moduleFixture.createNestApplication();
@@ -51,33 +54,44 @@ describe('Game server diagnostics (e2e)', () => {
 
   beforeAll(async () => {
     const playersService = app.get(PlayersService);
-    const maly = await playersService.createPlayer((await import('./steam-profiles')).maly);
+    const maly = await playersService.createPlayer(
+      (
+        await import('./steam-profiles')
+      ).maly,
+    );
 
     const authService = app.get(AuthService);
-    authToken = await authService.generateJwtToken(JwtTokenPurpose.auth, maly.id);
+    authToken = await authService.generateJwtToken(
+      JwtTokenPurpose.auth,
+      maly.id,
+    );
 
     const gameServersService = app.get(GameServersService);
-    workingGameServerId = (await gameServersService.addGameServer({
-      name: 'working game server',
-      address: '127.0.0.1',
-      port: '27015',
-      rconPassword: '123456',
-    })).id;
+    workingGameServerId = (
+      await gameServersService.addGameServer({
+        name: 'working game server',
+        address: '127.0.0.1',
+        port: '27015',
+        rconPassword: '123456',
+      })
+    ).id;
 
-    faultyGameServerId = (await gameServersService.addGameServer({
-      name: 'faulty game server',
-      address: '127.0.0.1',
-      port: '30987',
-      rconPassword: '1234',
-    })).id;
+    faultyGameServerId = (
+      await gameServersService.addGameServer({
+        name: 'faulty game server',
+        address: '127.0.0.1',
+        port: '30987',
+        rconPassword: '1234',
+      })
+    ).id;
   });
 
   afterAll(async () => {
-    const playerModel = app.get(getModelToken(Player.name)) as ReturnModelType<typeof Player>;
-    await playerModel.deleteMany({ });
+    const playerModel = app.get(getModelToken(Player.name));
+    await playerModel.deleteMany({});
 
-    const gameServerModel = app.get(getModelToken(GameServer.name)) as ReturnModelType<typeof GameServer>;
-    await gameServerModel.deleteMany({ });
+    const gameServerModel = app.get(getModelToken(GameServer.name));
+    await gameServerModel.deleteMany({});
 
     await app.close();
   });
@@ -86,7 +100,9 @@ describe('Game server diagnostics (e2e)', () => {
     let diagnosticRunId: string;
 
     beforeEach(async () => {
-      diagnosticRunId = await diagnosticsService.runDiagnostics(workingGameServerId);
+      diagnosticRunId = await diagnosticsService.runDiagnostics(
+        workingGameServerId,
+      );
     });
 
     afterEach(async () => {
@@ -100,12 +116,14 @@ describe('Game server diagnostics (e2e)', () => {
         .get(`/game-server-diagnostics/${diagnosticRunId}`)
         .auth(authToken, { type: 'bearer' })
         .expect(200)
-        .then(response => {
+        .then((response) => {
           const body = response.body;
           expect(body.id).toEqual(diagnosticRunId);
           expect(body.gameServer).toEqual(workingGameServerId);
           expect(body.status).toEqual('completed');
-          expect(body.checks.every(check => check.status === 'completed')).toBe(true);
+          expect(
+            body.checks.every((check) => check.status === 'completed'),
+          ).toBe(true);
         });
     });
   });
@@ -114,7 +132,9 @@ describe('Game server diagnostics (e2e)', () => {
     let diagnosticRunId: string;
 
     beforeEach(async () => {
-      diagnosticRunId = await diagnosticsService.runDiagnostics(faultyGameServerId);
+      diagnosticRunId = await diagnosticsService.runDiagnostics(
+        faultyGameServerId,
+      );
     });
 
     afterEach(async () => {
@@ -128,7 +148,7 @@ describe('Game server diagnostics (e2e)', () => {
         .get(`/game-server-diagnostics/${diagnosticRunId}`)
         .auth(authToken, { type: 'bearer' })
         .expect(200)
-        .then(response => {
+        .then((response) => {
           const body = response.body;
           expect(body.id).toEqual(diagnosticRunId);
           expect(body.gameServer).toEqual(faultyGameServerId);
