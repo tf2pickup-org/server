@@ -5,7 +5,7 @@ import { promisify } from 'util';
 import { isServerOnline } from '../utils/is-server-online';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { Mutex } from 'async-mutex';
-import { Game } from '@/games/models/game';
+import { GameDocument } from '@/games/models/game';
 import { Events } from '@/events/events';
 import { plainToClass } from 'class-transformer';
 import { InjectModel } from '@nestjs/mongoose';
@@ -112,7 +112,7 @@ export class GameServersService {
     );
   }
 
-  async assignFreeGameServer(game: DocumentType<Game>): Promise<GameServer> {
+  async assignFreeGameServer(game: GameDocument): Promise<GameServer> {
     return this.mutex.runExclusive(async () => {
       try {
         const gameServer = await this.updateGameServer(
