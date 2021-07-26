@@ -5,15 +5,20 @@ import { TwitchController } from './controllers/twitch.controller';
 import { TwitchAuthService } from './services/twitch-auth.service';
 import { AuthModule } from '@/auth/auth.module';
 import { TwitchGateway } from './gateways/twitch.gateway';
-import { TypegooseModule } from 'nestjs-typegoose';
-import { TwitchTvProfile } from './models/twitch-tv-profile';
+import {
+  TwitchTvProfile,
+  twitchTvProfileSchema,
+} from './models/twitch-tv-profile';
+import { MongooseModule } from '@nestjs/mongoose';
 
 @Module({
   imports: [
     HttpModule,
     PlayersModule,
     AuthModule,
-    TypegooseModule.forFeature([TwitchTvProfile]),
+    MongooseModule.forFeature([
+      { name: TwitchTvProfile.name, schema: twitchTvProfileSchema },
+    ]),
   ],
   providers: [TwitchService, TwitchAuthService, TwitchGateway],
   exports: [TwitchService],
