@@ -15,14 +15,17 @@ import { readFile } from 'fs';
 import { promisify } from 'util';
 import { PlayerPopulatorService } from './services/player-populator.service';
 import { MapPoolService } from './services/map-pool.service';
-import { TypegooseModule } from 'nestjs-typegoose';
-import { standardSchemaOptions } from '@/utils/standard-schema-options';
-import { Map } from './models/map';
+import { Map, mapSchema } from './models/map';
+import { MongooseModule } from '@nestjs/mongoose/dist';
 
 @Module({
   imports: [
-    TypegooseModule.forFeature([standardSchemaOptions(Map)]),
-
+    MongooseModule.forFeature([
+      {
+        name: Map.name,
+        schema: mapSchema,
+      },
+    ]),
     forwardRef(() => PlayersModule),
     forwardRef(() => GamesModule),
   ],

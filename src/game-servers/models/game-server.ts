@@ -1,46 +1,50 @@
-import { isRefType, prop, Ref } from '@typegoose/typegoose';
-import { Game } from '@/games/models/game';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Document, Types } from 'mongoose';
 import { MongooseDocument } from '@/utils/mongoose-document';
 import { Exclude, Expose, Transform } from 'class-transformer';
 
+@Schema()
 export class GameServer extends MongooseDocument {
   @Expose()
   @Transform(({ value, obj }) => value ?? obj._id?.toString())
   id?: string;
 
-  @prop({ default: () => new Date() })
+  @Prop({ default: () => new Date() })
   createdAt?: Date;
 
-  @prop({ required: true, trim: true })
+  @Prop({ required: true, trim: true })
   name!: string;
 
-  @prop({ required: true, trim: true })
+  @Prop({ required: true, trim: true })
   address!: string;
 
-  @prop({ required: true })
+  @Prop({ required: true })
   port!: string;
 
   @Exclude({ toPlainOnly: true })
-  @prop({ required: true })
+  @Prop({ required: true })
   rconPassword!: string;
 
-  @prop({ default: true })
+  @Prop({ default: true })
   isAvailable?: boolean; // is the server available for playing pickups
 
-  @prop({ default: false })
+  @Prop({ default: false })
   isOnline?: boolean; // was the server online last we checked
 
-  @prop({ type: () => [String], index: true })
+  @Prop({ type: () => [String], index: true })
   resolvedIpAddresses?: string[]; // for tracing game server logs
 
-  @prop()
+  @Prop()
   mumbleChannelName?: string;
 
-  @Transform(({ value }) => (isRefType(value) ? value.toString() : value))
-  @prop({ ref: () => Game })
-  game?: Ref<Game>; // currently running game
+  @Transform(({ value }) => value.toString())
+  @Prop({ type: Types.ObjectId, ref: 'Game' })
+  game?: Types.ObjectId; // currently running game
 
   @Exclude({ toPlainOnly: true })
-  @prop({ default: false })
+  @Prop({ default: false })
   deleted?: boolean;
 }
+
+export type GameServerDocument = GameServer & Document;
+export const GameServerSchema = SchemaFactory.createForClass(GameServer);

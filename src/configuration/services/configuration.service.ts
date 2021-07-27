@@ -1,8 +1,11 @@
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { Injectable, OnModuleInit } from '@nestjs/common';
-import { ReturnModelType } from '@typegoose/typegoose';
-import { InjectModel } from 'nestjs-typegoose';
-import { ConfigurationEntry } from '../models/configuration-entry';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import {
+  ConfigurationEntry,
+  ConfigurationEntryDocument,
+} from '../models/configuration-entry';
 import { ConfigurationEntryKey } from '../models/configuration-entry-key';
 import { MumbleOptions } from '../models/mumble-options';
 
@@ -16,8 +19,8 @@ type VoiceServer = MumbleOptions;
 @Injectable()
 export class ConfigurationService implements OnModuleInit {
   constructor(
-    @InjectModel(ConfigurationEntry)
-    private configurationEntryModel: ReturnModelType<typeof ConfigurationEntry>,
+    @InjectModel(ConfigurationEntry.name)
+    private configurationEntryModel: Model<ConfigurationEntryDocument>,
   ) {}
 
   async onModuleInit() {

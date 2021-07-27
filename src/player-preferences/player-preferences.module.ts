@@ -1,10 +1,20 @@
 import { Module } from '@nestjs/common';
-import { TypegooseModule } from 'nestjs-typegoose';
-import { PlayerPreferences } from './models/player-preferences';
+import { MongooseModule } from '@nestjs/mongoose';
+import {
+  PlayerPreferences,
+  playerPreferencesSchema,
+} from './models/player-preferences';
 import { PlayerPreferencesService } from './services/player-preferences.service';
 
 @Module({
-  imports: [TypegooseModule.forFeature([PlayerPreferences])],
+  imports: [
+    MongooseModule.forFeature([
+      {
+        name: PlayerPreferences.name,
+        schema: playerPreferencesSchema,
+      },
+    ]),
+  ],
   providers: [PlayerPreferencesService],
   exports: [PlayerPreferencesService],
 })

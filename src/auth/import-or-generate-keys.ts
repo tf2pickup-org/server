@@ -1,4 +1,3 @@
-import { mongoose, ReturnModelType } from '@typegoose/typegoose';
 import {
   createPrivateKey,
   createPublicKey,
@@ -6,9 +5,10 @@ import {
 } from 'crypto';
 import { promisify } from 'util';
 import { KeyName } from './key-name';
-import { Key } from './models/key';
+import { KeyDocument } from './models/key';
 import { KeyPair } from './key-pair';
 import { Logger } from '@nestjs/common';
+import { Error, Model } from 'mongoose';
 
 const generateKeyPair = promisify(generateKeyPairCb);
 
@@ -16,7 +16,7 @@ const generateKeyPair = promisify(generateKeyPairCb);
  * Try to fetch the key
  */
 export const importOrGenerateKeys = async (
-  keyModel: ReturnModelType<typeof Key>,
+  keyModel: Model<KeyDocument>,
   name: KeyName,
   passphrase: string,
 ): Promise<KeyPair> => {
@@ -38,7 +38,7 @@ export const importOrGenerateKeys = async (
     logger.debug(`${name} keys imported.`);
     return { publicKey, privateKey };
   } catch (error) {
-    if (error instanceof mongoose.Error.DocumentNotFoundError) {
+    if (error instanceof Error.DocumentNotFoundError) {
       logger.debug(`${name} keys not found, generating new ones...`);
 
       const keys = await generateKeyPair('ec', { namedCurve: 'secp521r1' });

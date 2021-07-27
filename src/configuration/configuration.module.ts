@@ -1,17 +1,18 @@
 import { Module } from '@nestjs/common';
-import { TypegooseModule } from 'nestjs-typegoose';
 import { ConfigurationService } from './services/configuration.service';
 import { ConfigurationController } from './controllers/configuration.controller';
-import { ConfigurationEntry } from './models/configuration-entry';
+import {
+  ConfigurationEntry,
+  configurationEntrySchema,
+} from './models/configuration-entry';
+import { MongooseModule } from '@nestjs/mongoose';
 
 @Module({
   imports: [
-    TypegooseModule.forFeature([
+    MongooseModule.forFeature([
       {
-        typegooseClass: ConfigurationEntry,
-        schemaOptions: {
-          collection: 'configuration',
-        },
+        name: ConfigurationEntry.name,
+        schema: configurationEntrySchema,
       },
     ]),
   ],

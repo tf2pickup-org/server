@@ -1,62 +1,101 @@
-import { prop, Ref } from '@typegoose/typegoose';
-import { GameSlot } from './game-slot';
-import { GameServer } from '@/game-servers/models/game-server';
+import { Prop, raw, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Document, Types } from 'mongoose';
+import { GameSlot, gameSlotSchema } from './game-slot';
 import { GameState } from './game-state';
 
+@Schema({
+  toJSON: {
+    versionKey: false,
+    transform: function (doc: Document, ret: any) {
+      if (ret._id && typeof ret._id === 'object' && ret._id.toString) {
+        if (typeof ret.id === 'undefined') {
+          ret.id = ret._id.toString();
+        }
+      }
+
+      if (typeof ret._id !== 'undefined') {
+        delete ret._id;
+      }
+
+      if (ret.assignedSkills) {
+        delete ret.assignedSkills;
+      }
+    },
+  },
+})
 export class Game {
   id: string;
 
-  @prop({ default: () => new Date() })
+  @Prop({ default: () => new Date() })
   launchedAt?: Date;
 
-  @prop({ required: true, unique: true })
+  @Prop({ required: true, unique: true })
   number!: number;
 
-  @prop({ type: () => [GameSlot], required: true })
+  @Prop({ type: [gameSlotSchema], required: true })
   slots!: GameSlot[];
 
-  @prop({ type: Number })
+  @Prop(
+    raw({
+      type: Map,
+      of: Number,
+    }),
+  )
   assignedSkills?: Map<string, number>;
 
-  @prop({ required: true })
+  @Prop({ required: true })
   map!: string;
 
-  @prop({ index: true, enum: GameState, default: GameState.launching })
+  @Prop({ index: true, enum: GameState, default: GameState.launching })
   state?: GameState;
 
-  @prop()
+  @Prop()
   connectString?: string;
 
-  @prop()
+  @Prop()
   mumbleUrl?: string;
 
-  @prop()
+  @Prop()
   logsUrl?: string;
 
-  @prop()
+  @Prop()
   demoUrl?: string;
 
-  @prop()
+  @Prop()
   error?: string;
 
-  @prop({ ref: () => GameServer })
-  gameServer?: Ref<GameServer>;
+  @Prop({ ref: 'GameServer' })
+  gameServer?: Types.ObjectId;
 
-  @prop({ type: Number })
+  @Prop(
+    raw({
+      type: Map,
+      of: Number,
+    }),
+  )
   score?: Map<string, number>;
 
-  @prop()
+  @Prop()
   stvConnectString?: string;
 
-  findPlayerSlot(playerId: string) {
-    return this.slots.find(
-      (s) => s.player.toString().localeCompare(playerId) === 0,
-    );
-  }
-
-  activeSlots() {
-    return this.slots.filter((slot) =>
-      slot.status.match(/active|waiting for substitute/),
-    );
-  }
+  findPlayerSlot: (playerId: string) => GameSlot;
+  activeSlots: () => GameSlot[];
 }
+
+export type GameDocument = Game & Document;
+export const gameSchema = SchemaFactory.createForClass(Game);
+
+gameSchema.methods.findPlayerSlot = function (
+  this: GameDocument,
+  playerId: string,
+): GameSlot {
+  return this.slots.find(
+    (s) => s.player.toString().localeCompare(playerId) === 0,
+  );
+};
+
+gameSchema.methods.activeSlots = function (this: GameDocument): GameSlot[] {
+  return this.slots.filter((slot) =>
+    slot.status.match(/active|waiting for substitute/),
+  );
+};

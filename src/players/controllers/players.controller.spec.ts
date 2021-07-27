@@ -16,10 +16,10 @@ import {
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { plainToClass } from 'class-transformer';
 import { PlayerBan } from '../models/player-ban';
-import { mongoose } from '@typegoose/typegoose';
 import { LinkedProfilesService } from '../services/linked-profiles.service';
 import { LinkedProfileProviderName } from '../types/linked-profile-provider-name';
 import { LinkedProfiles } from '../dto/linked-profiles';
+import { Types } from 'mongoose';
 
 jest.mock('../services/linked-profiles.service');
 
@@ -314,8 +314,8 @@ describe('Players Controller', () => {
 
   describe('#addPlayerBan()', () => {
     const ban = {
-      player: new mongoose.Types.ObjectId('5d448875b963ff7e00c6b6b3'),
-      admin: new mongoose.Types.ObjectId('5d448875b963ff7e00c6b6b3'),
+      player: new Types.ObjectId('5d448875b963ff7e00c6b6b3'),
+      admin: new Types.ObjectId('5d448875b963ff7e00c6b6b3'),
       start: new Date('2019-12-16T00:23:55.000Z'),
       end: new Date('2019-12-17T01:51:49.183Z'),
       reason: 'dupa',

@@ -5,23 +5,23 @@ import {
   Inject,
   forwardRef,
 } from '@nestjs/common';
-import { InjectModel } from 'nestjs-typegoose';
-import { PlayerBan } from '../models/player-ban';
-import { mongoose, ReturnModelType } from '@typegoose/typegoose';
+import { PlayerBan, PlayerBanDocument } from '../models/player-ban';
 import { merge } from 'rxjs';
 import { OnlinePlayersService } from './online-players.service';
 import { PlayersService } from './players.service';
 import { Events } from '@/events/events';
 import { plainToClass } from 'class-transformer';
 import { WebsocketEvent } from '@/websocket-event';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model, Types } from 'mongoose';
 
 @Injectable()
 export class PlayerBansService implements OnModuleInit {
   private logger = new Logger(PlayerBansService.name);
 
   constructor(
-    @InjectModel(PlayerBan)
-    private playerBanModel: ReturnModelType<typeof PlayerBan>,
+    @InjectModel(PlayerBan.name)
+    private playerBanModel: Model<PlayerBanDocument>,
     private onlinePlayersService: OnlinePlayersService,
     @Inject(forwardRef(() => PlayersService))
     private playersService: PlayersService,
@@ -61,7 +61,7 @@ export class PlayerBansService implements OnModuleInit {
   }
 
   async getPlayerActiveBans(
-    playerId: string | mongoose.Types.ObjectId,
+    playerId: string | Types.ObjectId,
   ): Promise<PlayerBan[]> {
     const plain = await this.playerBanModel
       .find({

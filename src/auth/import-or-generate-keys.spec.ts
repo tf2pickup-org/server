@@ -1,19 +1,19 @@
 import { Environment } from '@/environment/environment';
-import { typegooseTestingModule } from '@/utils/testing-typegoose-module';
+import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
+import { getModelToken, MongooseModule } from '@nestjs/mongoose';
 import { TestingModule, Test } from '@nestjs/testing';
-import { ReturnModelType } from '@typegoose/typegoose';
 import { generateKeyPair } from 'crypto';
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import { getModelToken, TypegooseModule } from 'nestjs-typegoose';
+import { Model } from 'mongoose';
 import { promisify } from 'util';
 import { importOrGenerateKeys } from './import-or-generate-keys';
 import { KeyName } from './key-name';
 import { KeyPair } from './key-pair';
-import { Key } from './models/key';
+import { Key, KeyDocument, keySchema } from './models/key';
 
 describe('importOrGenerateKeys()', () => {
   const mongod = new MongoMemoryServer();
-  let keyModel: ReturnModelType<typeof Key>;
+  let keyModel: Model<KeyDocument>;
   let environment: Partial<Environment>;
 
   beforeEach(() => {
@@ -25,8 +25,13 @@ describe('importOrGenerateKeys()', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [
-        typegooseTestingModule(mongod),
-        TypegooseModule.forFeature([Key]),
+        mongooseTestingModule(mongod),
+        MongooseModule.forFeature([
+          {
+            name: Key.name,
+            schema: keySchema,
+          },
+        ]),
       ],
       providers: [{ provide: Environment, useValue: environment }],
     }).compile();

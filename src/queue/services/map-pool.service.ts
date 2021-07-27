@@ -3,16 +3,16 @@ import { Validator } from 'jsonschema';
 import * as mapPoolSchema from '../map-pool.schema.json';
 import * as defaultMapPool from '../map-pool.default.json';
 import { Events } from '@/events/events';
-import { InjectModel } from 'nestjs-typegoose';
-import { ReturnModelType } from '@typegoose/typegoose';
-import { Map } from '../models/map';
+import { Map, MapDocument } from '../models/map';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
 
 @Injectable()
 export class MapPoolService implements OnModuleInit {
   private logger = new Logger(MapPoolService.name);
 
   constructor(
-    @InjectModel(Map) private mapModel: ReturnModelType<typeof Map>,
+    @InjectModel(Map.name) private mapModel: Model<MapDocument>,
     private events: Events,
   ) {
     new Validator().validate(defaultMapPool, mapPoolSchema, {

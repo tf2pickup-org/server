@@ -1,30 +1,37 @@
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Document, Types } from 'mongoose';
 import { MongooseDocument } from '@/utils/mongoose-document';
-import { isRefType, prop, Ref } from '@typegoose/typegoose';
 import { Expose, Transform, Type } from 'class-transformer';
-import { DiagnosticCheck } from './diagnostic-check';
+import { DiagnosticCheck, diagnosticCheckSchema } from './diagnostic-check';
 import { DiagnosticRunStatus } from './diagnostic-run-status';
-import { GameServer } from './game-server';
 
+@Schema()
 export class GameServerDiagnosticRun extends MongooseDocument {
   @Expose()
   @Transform(({ value, obj }) => value ?? obj._id?.toString())
   id?: string;
 
-  @prop({ default: () => new Date() })
+  @Prop({ default: () => new Date() })
   launchedAt?: Date;
 
-  @Transform(({ value }) => (isRefType(value) ? value.toString() : value))
-  @prop({ required: true, ref: () => GameServer })
-  gameServer: Ref<GameServer>;
+  @Transform(({ value }) => value.toString())
+  @Prop({ required: true, type: Types.ObjectId, ref: 'GameServer' })
+  gameServer: Types.ObjectId;
 
   @Type(() => DiagnosticCheck)
-  @prop({ required: true, type: () => [DiagnosticCheck], _id: false })
+  @Prop({ required: true, type: [diagnosticCheckSchema], _id: false })
   checks: DiagnosticCheck[];
 
-  @prop({ enum: DiagnosticRunStatus, default: DiagnosticRunStatus.pending })
+  @Prop({ enum: DiagnosticRunStatus, default: DiagnosticRunStatus.pending })
   status?: DiagnosticRunStatus;
 
   getCheckByName(name: string) {
     return this.checks.find((check) => check.name === name);
   }
 }
+
+export type GameServerDiagnosticRunDocument = GameServerDiagnosticRun &
+  Document;
+export const gameServerDiagnosticRunSchema = SchemaFactory.createForClass(
+  GameServerDiagnosticRun,
+);

@@ -1,8 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
-import { isRefType, ReturnModelType } from '@typegoose/typegoose';
+import { InjectModel } from '@nestjs/mongoose';
 import { classToClass, plainToClass } from 'class-transformer';
-import { InjectModel } from 'nestjs-typegoose';
+import { Model } from 'mongoose';
 import { from, Observable } from 'rxjs';
 import { concatMap, tap } from 'rxjs/operators';
 import { LogForwarding } from '../diagnostic-checks/log-forwarding';
@@ -11,7 +11,10 @@ import { ServerDiscovery } from '../diagnostic-checks/server-discovery';
 import { DiagnosticCheckRunner } from '../interfaces/diagnostic-check-runner';
 import { DiagnosticCheckStatus } from '../models/diagnostic-check-status';
 import { DiagnosticRunStatus } from '../models/diagnostic-run-status';
-import { GameServerDiagnosticRun } from '../models/game-server-diagnostic-run';
+import {
+  GameServerDiagnosticRun,
+  GameServerDiagnosticRunDocument,
+} from '../models/game-server-diagnostic-run';
 import { GameServersService } from './game-servers.service';
 
 @Injectable()
@@ -19,10 +22,8 @@ export class GameServerDiagnosticsService {
   private logger = new Logger(GameServerDiagnosticsService.name);
 
   constructor(
-    @InjectModel(GameServerDiagnosticRun)
-    private gameServerDiagnosticRunModel: ReturnModelType<
-      typeof GameServerDiagnosticRun
-    >,
+    @InjectModel(GameServerDiagnosticRun.name)
+    private gameServerDiagnosticRunModel: Model<GameServerDiagnosticRunDocument>,
     private gameServersService: GameServersService,
     private moduleRef: ModuleRef,
   ) {}
@@ -89,11 +90,9 @@ export class GameServerDiagnosticsService {
       let shouldStop = false;
 
       const fn = async () => {
-        const gameServer = isRefType(diagnosticRun.gameServer)
-          ? await this.gameServersService.getById(
-              diagnosticRun.gameServer.toString(),
-            )
-          : diagnosticRun.gameServer;
+        const gameServer = await this.gameServersService.getById(
+          diagnosticRun.gameServer.toString(),
+        );
 
         this.logger.log(`Starting diagnostics of ${gameServer.name}...`);
 

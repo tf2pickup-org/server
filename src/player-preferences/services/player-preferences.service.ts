@@ -1,15 +1,18 @@
 import { Injectable } from '@nestjs/common';
-import { ReturnModelType } from '@typegoose/typegoose';
-import { InjectModel } from 'nestjs-typegoose';
-import { PlayerPreferences } from '../models/player-preferences';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import {
+  PlayerPreferences,
+  PlayerPreferencesDocument,
+} from '../models/player-preferences';
 
 export type PreferencesType = Map<string, string>;
 
 @Injectable()
 export class PlayerPreferencesService {
   constructor(
-    @InjectModel(PlayerPreferences)
-    private playerPreferences: ReturnModelType<typeof PlayerPreferences>,
+    @InjectModel(PlayerPreferences.name)
+    private playerPreferences: Model<PlayerPreferencesDocument>,
   ) {}
 
   async getPlayerPreferences(playerId: string): Promise<PreferencesType> {

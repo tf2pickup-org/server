@@ -5,17 +5,17 @@ import { PassportModule } from '@nestjs/passport';
 import { SteamStrategy } from './strategies/steam.strategy';
 import { AuthController } from './controllers/auth.controller';
 import { authenticate } from 'passport';
-import { getModelToken, TypegooseModule } from 'nestjs-typegoose';
-import { RefreshToken } from './models/refresh-token';
+import { RefreshToken, refreshTokenSchema } from './models/refresh-token';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { AuthGateway } from './gateways/auth.gateway';
 import { setRedirectUrlCookie } from './middleware/set-redirect-url-cookie';
-import { Key } from './models/key';
+import { Key, KeyDocument, keySchema } from './models/key';
 import { Environment } from '@/environment/environment';
-import { ReturnModelType } from '@typegoose/typegoose';
 import { importOrGenerateKeys } from './import-or-generate-keys';
 import { KeyName } from './key-name';
 import { generate } from 'generate-password';
+import { getModelToken, MongooseModule } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
 
 const passportModule = PassportModule.register({
   defaultStrategy: 'jwt',
@@ -25,7 +25,10 @@ const passportModule = PassportModule.register({
 @Module({
   imports: [
     passportModule,
-    TypegooseModule.forFeature([RefreshToken, Key]),
+    MongooseModule.forFeature([
+      { name: Key.name, schema: keySchema },
+      { name: RefreshToken.name, schema: refreshTokenSchema },
+    ]),
 
     PlayersModule,
   ],
@@ -35,7 +38,7 @@ const passportModule = PassportModule.register({
       provide: 'AUTH_TOKEN_KEY',
       inject: [getModelToken(Key.name), Environment],
       useFactory: async (
-        keyModel: ReturnModelType<typeof Key>,
+        keyModel: Model<KeyDocument>,
         environment: Environment,
       ) =>
         await importOrGenerateKeys(
@@ -49,7 +52,7 @@ const passportModule = PassportModule.register({
       provide: 'REFRESH_TOKEN_KEY',
       inject: [getModelToken(Key.name), Environment],
       useFactory: async (
-        keyModel: ReturnModelType<typeof Key>,
+        keyModel: Model<KeyDocument>,
         environment: Environment,
       ) =>
         await importOrGenerateKeys(
@@ -67,7 +70,7 @@ const passportModule = PassportModule.register({
       provide: 'CONTEXT_TOKEN_KEY',
       inject: [getModelToken(Key.name), Environment],
       useFactory: async (
-        keyModel: ReturnModelType<typeof Key>,
+        keyModel: Model<KeyDocument>,
         environment: Environment,
       ) =>
         await importOrGenerateKeys(

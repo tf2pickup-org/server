@@ -1,20 +1,24 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { PlayerSkillService } from './player-skill.service';
-import { getModelToken, TypegooseModule } from 'nestjs-typegoose';
 import { PlayersService } from './players.service';
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import { typegooseTestingModule } from '@/utils/testing-typegoose-module';
-import { PlayerSkill } from '../models/player-skill';
-import { ReturnModelType, DocumentType } from '@typegoose/typegoose';
+import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
+import {
+  PlayerSkill,
+  PlayerSkillDocument,
+  playerSkillSchema,
+} from '../models/player-skill';
 import { ObjectId } from 'mongodb';
 import { QueueConfigService } from '@/queue/services/queue-config.service';
 import { FuturePlayerSkillService } from './future-player-skill.service';
 import { Etf2lProfileService } from './etf2l-profile.service';
-import { Player } from '../models/player';
+import { Player, PlayerDocument, playerSchema } from '../models/player';
 import { DiscordService } from '@/plugins/discord/services/discord.service';
 import { Environment } from '@/environment/environment';
 import { Events } from '@/events/events';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
+import { Model } from 'mongoose';
+import { getModelToken, MongooseModule } from '@nestjs/mongoose';
 
 jest.mock('./players.service');
 jest.mock('./future-player-skill.service');
@@ -33,9 +37,9 @@ const environment = {
 describe('PlayerSkillService', () => {
   let service: PlayerSkillService;
   let mongod: MongoMemoryServer;
-  let playerSkillModel: ReturnModelType<typeof PlayerSkill>;
-  let mockPlayer: DocumentType<Player>;
-  let mockPlayerSkill: DocumentType<PlayerSkill>;
+  let playerSkillModel: Model<PlayerSkillDocument>;
+  let mockPlayer: PlayerDocument;
+  let mockPlayerSkill: PlayerSkillDocument;
   let playersService: PlayersService;
   let futurePlayerSkillService: FuturePlayerSkillService;
   let events: Events;
@@ -46,8 +50,17 @@ describe('PlayerSkillService', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [
-        typegooseTestingModule(mongod),
-        TypegooseModule.forFeature([PlayerSkill, Player]),
+        mongooseTestingModule(mongod),
+        MongooseModule.forFeature([
+          {
+            name: PlayerSkill.name,
+            schema: playerSkillSchema,
+          },
+          {
+            name: Player.name,
+            schema: playerSchema,
+          },
+        ]),
       ],
       providers: [
         PlayerSkillService,
@@ -62,7 +75,7 @@ describe('PlayerSkillService', () => {
     }).compile();
 
     service = module.get<PlayerSkillService>(PlayerSkillService);
-    playerSkillModel = module.get(getModelToken('PlayerSkill'));
+    playerSkillModel = module.get(getModelToken(PlayerSkill.name));
     playersService = module.get(PlayersService);
     futurePlayerSkillService = module.get(FuturePlayerSkillService);
     events = module.get(Events);
@@ -93,7 +106,7 @@ describe('PlayerSkillService', () => {
 
   describe('upon player registration', () => {
     describe('when there is no future skill', () => {
-      let newPlayer: DocumentType<Player>;
+      let newPlayer: PlayerDocument;
 
       beforeEach(async () => {
         // @ts-expect-error
@@ -129,7 +142,7 @@ describe('PlayerSkillService', () => {
           playersService.playerRegistered.next(mockPlayer.id.toString());
           setTimeout(async () => {
             expect(
-              await playerSkillModel.findOne({ player: mockPlayer.id }),
+              await playerSkillModel.findOne({ player: mockPlayer._id }),
             ).toBeTruthy();
             resolve();
           }, 100);
@@ -146,7 +159,7 @@ describe('PlayerSkillService', () => {
 
   describe('#getPlayerSkill()', () => {
     it('should retrieve player skill', async () => {
-      const ret = await service.getPlayerSkill(mockPlayer.id);
+      const ret = await service.getPlayerSkill(mockPlayer._id);
       expect(ret.size).toEqual(1);
       expect(ret.get(Tf2ClassName.soldier)).toEqual(4);
     });

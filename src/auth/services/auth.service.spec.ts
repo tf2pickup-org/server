@@ -1,28 +1,34 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AuthService } from './auth.service';
-import { getModelToken, TypegooseModule } from 'nestjs-typegoose';
 import { generateKeyPairSync } from 'crypto';
 import { decode, sign, verify } from 'jsonwebtoken';
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import { RefreshToken } from '../models/refresh-token';
-import { ReturnModelType } from '@typegoose/typegoose';
-import { typegooseTestingModule } from '@/utils/testing-typegoose-module';
+import {
+  RefreshToken,
+  RefreshTokenDocument,
+  refreshTokenSchema,
+} from '../models/refresh-token';
+import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
 import { InvalidTokenError } from '../errors/invalid-token.error';
 import { JwtTokenPurpose } from '../jwt-token-purpose';
 import { KeyPair } from '../key-pair';
+import { Model } from 'mongoose';
+import { getModelToken, MongooseModule } from '@nestjs/mongoose';
 
 describe('AuthService', () => {
   const mongod = new MongoMemoryServer();
   let service: AuthService;
-  let refreshTokenModel: ReturnModelType<typeof RefreshToken>;
+  let refreshTokenModel: Model<RefreshTokenDocument>;
   let authKeys: KeyPair;
   let refreshKeys: KeyPair;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [
-        typegooseTestingModule(mongod),
-        TypegooseModule.forFeature([RefreshToken]),
+        mongooseTestingModule(mongod),
+        MongooseModule.forFeature([
+          { name: RefreshToken.name, schema: refreshTokenSchema },
+        ]),
       ],
       providers: [
         AuthService,

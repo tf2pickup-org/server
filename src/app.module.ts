@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { TypegooseModule } from 'nestjs-typegoose';
 import { Environment } from './environment/environment';
 import { AuthModule } from './auth/auth.module';
 import { PlayersModule } from './players/players.module';
@@ -24,6 +23,7 @@ import { ConfigurationModule } from './configuration/configuration.module';
 import { PluginsModule } from './plugins/plugins.module';
 import { LogReceiverModule } from './log-receiver/log-receiver.module';
 import { createMongoDbUri } from './utils/create-mongo-db-uri';
+import { MongooseModule } from '@nestjs/mongoose';
 
 @Module({
   imports: [
@@ -34,7 +34,7 @@ import { createMongoDbUri } from './utils/create-mongo-db-uri';
         abortEarly: true,
       },
     }),
-    TypegooseModule.forRootAsync({
+    MongooseModule.forRootAsync({
       imports: [EnvironmentModule],
       inject: [Environment],
       useFactory: async (environment: Environment) => ({

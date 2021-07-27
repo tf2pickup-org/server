@@ -1,7 +1,5 @@
 import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
-import { InjectModel } from 'nestjs-typegoose';
-import { ReturnModelType, DocumentType } from '@typegoose/typegoose';
-import { Game } from '../models/game';
+import { Game, GameDocument } from '../models/game';
 import { QueueSlot } from '@/queue/queue-slot';
 import { PlayerSlot, pickTeams } from '../utils/pick-teams';
 import { PlayersService } from '@/players/services/players.service';
@@ -15,6 +13,8 @@ import { SlotStatus } from '../models/slot-status';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { GameState } from '../models/game-state';
 import { ConfigurationService } from '@/configuration/services/configuration.service';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
 
 interface GameSortOptions {
   launchedAt: 1 | -1;
@@ -29,7 +29,7 @@ export class GamesService {
   private logger = new Logger(GamesService.name);
 
   constructor(
-    @InjectModel(Game) private gameModel: ReturnModelType<typeof Game>,
+    @InjectModel(Game.name) private gameModel: Model<GameDocument>,
     @Inject(forwardRef(() => PlayersService))
     private playersService: PlayersService,
     private playerSkillService: PlayerSkillService,
@@ -44,11 +44,11 @@ export class GamesService {
     return await this.gameModel.estimatedDocumentCount();
   }
 
-  async getById(gameId: string | ObjectId): Promise<DocumentType<Game>> {
+  async getById(gameId: string | ObjectId): Promise<GameDocument> {
     return await this.gameModel.findById(gameId);
   }
 
-  async getRunningGames(): Promise<DocumentType<Game>[]> {
+  async getRunningGames(): Promise<GameDocument[]> {
     return await this.gameModel.find({ state: /launching|started/ });
   }
 
@@ -106,7 +106,7 @@ export class GamesService {
       }, {});
   }
 
-  async getPlayerActiveGame(playerId: string): Promise<DocumentType<Game>> {
+  async getPlayerActiveGame(playerId: string): Promise<GameDocument> {
     return await this.gameModel.findOne({
       state: /launching|started/,
       slots: {
@@ -122,7 +122,7 @@ export class GamesService {
     queueSlots: QueueSlot[],
     map: string,
     friends: string[][] = [],
-  ): Promise<DocumentType<Game>> {
+  ): Promise<GameDocument> {
     if (!queueSlots.every((slot) => !!slot.playerId)) {
       throw new Error('queue not full');
     }
@@ -197,7 +197,7 @@ export class GamesService {
   /**
    * @returns Games that need player substitute.
    */
-  async getGamesWithSubstitutionRequests(): Promise<DocumentType<Game>[]> {
+  async getGamesWithSubstitutionRequests(): Promise<GameDocument[]> {
     return this.gameModel.find({
       state: { $in: [GameState.launching, GameState.started] },
       'slots.status': SlotStatus.waitingForSubstitute,
@@ -207,7 +207,7 @@ export class GamesService {
   /**
    * @returns Games with no game server assigned.
    */
-  async getOrphanedGames(): Promise<DocumentType<Game>[]> {
+  async getOrphanedGames(): Promise<GameDocument[]> {
     return this.gameModel.find({
       state: GameState.launching,
       gameServer: { $exists: false },

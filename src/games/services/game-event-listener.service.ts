@@ -4,7 +4,6 @@ import * as SteamID from 'steamid';
 import { GameEventHandlerService } from './game-event-handler.service';
 import { GameServersService } from '@/game-servers/services/game-servers.service';
 import { GamesService } from './games.service';
-import { isRefType } from '@typegoose/typegoose';
 
 interface GameEvent {
   /* name of the game event */
@@ -139,9 +138,7 @@ export class GameEventListenerService implements OnModuleInit {
       if (matches) {
         const gameServer =
           await this.gameSeversService.getGameServerByEventSource(eventSource);
-        const game = isRefType(gameServer.game)
-          ? await this.gamesService.getById(gameServer.game)
-          : gameServer.game;
+        const game = await this.gamesService.getById(gameServer.game);
         this.logger.debug(
           `#${game.number}/${gameServer.name}: ${gameEvent.name}`,
         );

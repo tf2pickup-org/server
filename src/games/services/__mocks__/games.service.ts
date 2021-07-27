@@ -1,19 +1,16 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { Injectable } from '@nestjs/common';
-import { InjectModel } from 'nestjs-typegoose';
-import { Game } from '@/games/models/game';
-import { ReturnModelType } from '@typegoose/typegoose';
+import { Game, GameDocument } from '@/games/models/game';
 import { Player } from '@/players/models/player';
-import { ObjectId } from 'mongodb';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
 
 @Injectable()
 export class GamesService {
   private lastGameId = 0;
 
-  constructor(
-    @InjectModel(Game) private gameModel: ReturnModelType<typeof Game>,
-  ) {}
+  constructor(@InjectModel(Game.name) private gameModel: Model<GameDocument>) {}
 
   async getById(gameId: string) {
     return await this.gameModel.findById(gameId);

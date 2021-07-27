@@ -1,12 +1,17 @@
-import { prop } from '@typegoose/typegoose';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Document } from 'mongoose';
 
+@Schema()
 export class Key {
-  @prop({ required: true, unique: true })
+  @Prop({ required: true, unique: true })
   name: string;
 
-  @prop({ required: true })
+  @Prop({ required: true })
   privateKeyEncoded: string;
 
-  @prop({ required: true })
+  @Prop({ required: true })
   publicKeyEncoded: string;
 }
+
+export type KeyDocument = Key & Document;
+export const keySchema = SchemaFactory.createForClass(Key);

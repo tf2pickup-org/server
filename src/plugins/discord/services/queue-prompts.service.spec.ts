@@ -6,18 +6,18 @@ import { promptPlayerThresholdRatio } from '@configs/discord';
 
 import { Environment } from '@/environment/environment';
 import { Events } from '@/events/events';
-import { Player } from '@/players/models/player';
+import { Player, playerSchema } from '@/players/models/player';
 import { PlayersService } from '@/players/services/players.service';
 import { QueueConfigService } from '@/queue/services/queue-config.service';
 import { QueueService } from '@/queue/services/queue.service';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
-import { typegooseTestingModule } from '@/utils/testing-typegoose-module';
+import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Message } from 'discord.js';
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import { TypegooseModule } from 'nestjs-typegoose';
 import { DiscordService } from './discord.service';
 import { QueuePromptsService } from './queue-prompts.service';
+import { MongooseModule } from '@nestjs/mongoose';
 
 jest.mock('./discord.service');
 jest.mock('@/queue/services/queue.service');
@@ -71,8 +71,13 @@ describe('QueuePromptsService', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [
-        typegooseTestingModule(mongod),
-        TypegooseModule.forFeature([Player]),
+        mongooseTestingModule(mongod),
+        MongooseModule.forFeature([
+          {
+            name: Player.name,
+            schema: playerSchema,
+          },
+        ]),
       ],
       providers: [
         QueuePromptsService,

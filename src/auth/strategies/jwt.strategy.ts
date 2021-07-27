@@ -2,8 +2,8 @@ import { Inject, Injectable } from '@nestjs/common';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { PassportStrategy } from '@nestjs/passport';
 import { PlayersService } from '@/players/services/players.service';
-import { mongoose } from '@typegoose/typegoose';
 import { KeyPair } from '../key-pair';
+import { Error } from 'mongoose';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
@@ -25,7 +25,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     try {
       return await this.playersService.getById(payload.id); // retrieve this via the @User() decorator
     } catch (error) {
-      if (error instanceof mongoose.Error.DocumentNotFoundError) {
+      if (error instanceof Error.DocumentNotFoundError) {
         return null;
       } else {
         throw error;

@@ -7,7 +7,7 @@ import { MapVoteService } from '@/queue/services/map-vote.service';
 import { BadRequestException } from '@nestjs/common';
 import { PlayerPreferencesService } from '@/player-preferences/services/player-preferences.service';
 import { LinkedProfilesService } from '@/players/services/linked-profiles.service';
-import { mongoose } from '@typegoose/typegoose';
+import { Types } from 'mongoose';
 
 jest.mock('@/player-preferences/services/player-preferences.service');
 jest.mock('@/players/services/linked-profiles.service');
@@ -83,7 +83,7 @@ describe('Profile Controller', () => {
     });
 
     it('should return active game id', async () => {
-      const gameId = new mongoose.Types.ObjectId();
+      const gameId = new Types.ObjectId();
       const player = {
         id: 'FAKE_ID',
         name: 'FAKE_USER_NAME',

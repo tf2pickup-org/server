@@ -1,11 +1,15 @@
 import { Module } from '@nestjs/common';
-import { TypegooseModule } from 'nestjs-typegoose';
+import { MongooseModule } from '@nestjs/mongoose';
 import { DocumentsController } from './controllers/documents.controller';
-import { Document } from './models/document';
+import { Document, documentSchema } from './models/document';
 import { DocumentsService } from './services/documents.service';
 
 @Module({
-  imports: [TypegooseModule.forFeature([Document])],
+  imports: [
+    MongooseModule.forFeature([
+      { name: Document.name, schema: documentSchema },
+    ]),
+  ],
   controllers: [DocumentsController],
   providers: [DocumentsService],
 })

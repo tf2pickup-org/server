@@ -1,14 +1,14 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
-import { mongoose, ReturnModelType } from '@typegoose/typegoose';
+import { InjectModel } from '@nestjs/mongoose';
 import { plainToClass } from 'class-transformer';
-import { InjectModel } from 'nestjs-typegoose';
-import { Document } from '../models/document';
+import { Error, Model } from 'mongoose';
+import { Document, DocumentDocument } from '../models/document';
 
 @Injectable()
 export class DocumentsService implements OnModuleInit {
   constructor(
-    @InjectModel(Document)
-    private documentModel: ReturnModelType<typeof Document>,
+    @InjectModel(Document.name)
+    private documentModel: Model<DocumentDocument>,
   ) {}
 
   async onModuleInit() {
@@ -16,7 +16,7 @@ export class DocumentsService implements OnModuleInit {
     try {
       await this.getDocument('rules');
     } catch (error) {
-      if (error instanceof mongoose.Error.DocumentNotFoundError) {
+      if (error instanceof Error.DocumentNotFoundError) {
         await this.saveDocument('rules', 'en', '');
       } else {
         throw error;

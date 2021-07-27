@@ -1,13 +1,16 @@
 import { MongooseDocument } from '@/utils/mongoose-document';
-import { prop } from '@typegoose/typegoose';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 
+@Schema()
 export class PlayerAvatar extends MongooseDocument {
-  @prop()
+  @Prop()
   small: string; // 32x32 px
 
-  @prop()
+  @Prop()
   medium: string; // 64x64 px
 
-  @prop()
+  @Prop()
   large: string; // 184x184 px
 }
+
+export const playerAvatarSchema = SchemaFactory.createForClass(PlayerAvatar);

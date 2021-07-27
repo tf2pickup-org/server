@@ -1,15 +1,15 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { InjectModel } from 'nestjs-typegoose';
-import { GameServer } from '../models/game-server';
-import { ReturnModelType, DocumentType, mongoose } from '@typegoose/typegoose';
+import { GameServer, GameServerDocument } from '../models/game-server';
 import { resolve as resolveCb } from 'dns';
 import { promisify } from 'util';
 import { isServerOnline } from '../utils/is-server-online';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { Mutex } from 'async-mutex';
-import { Game } from '@/games/models/game';
+import { GameDocument } from '@/games/models/game';
 import { Events } from '@/events/events';
 import { plainToClass } from 'class-transformer';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model, Error } from 'mongoose';
 
 const resolve = promisify(resolveCb);
 
@@ -19,8 +19,8 @@ export class GameServersService {
   private readonly mutex = new Mutex();
 
   constructor(
-    @InjectModel(GameServer)
-    private gameServerModel: ReturnModelType<typeof GameServer>,
+    @InjectModel(GameServer.name)
+    private gameServerModel: Model<GameServerDocument>,
     private events: Events,
   ) {}
 
@@ -112,7 +112,7 @@ export class GameServersService {
     );
   }
 
-  async assignFreeGameServer(game: DocumentType<Game>): Promise<GameServer> {
+  async assignFreeGameServer(game: GameDocument): Promise<GameServer> {
     return this.mutex.runExclusive(async () => {
       try {
         const gameServer = await this.updateGameServer(
@@ -126,7 +126,7 @@ export class GameServersService {
         this.events.gameChanges.next({ game: game.toJSON() });
         return gameServer;
       } catch (error) {
-        if (error instanceof mongoose.Error.DocumentNotFoundError) {
+        if (error instanceof Error.DocumentNotFoundError) {
           throw new Error('no free game server available');
         } else {
           throw error;

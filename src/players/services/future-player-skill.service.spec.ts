@@ -1,16 +1,20 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { FuturePlayerSkillService } from './future-player-skill.service';
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import { typegooseTestingModule } from '@/utils/testing-typegoose-module';
-import { TypegooseModule, getModelToken } from 'nestjs-typegoose';
-import { FuturePlayerSkill } from '../models/future-player-skill';
-import { ReturnModelType } from '@typegoose/typegoose';
+import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
+import {
+  FuturePlayerSkill,
+  FuturePlayerSkillDocument,
+  futurePlayerSkillSchema,
+} from '../models/future-player-skill';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
+import { Model } from 'mongoose';
+import { getModelToken, MongooseModule } from '@nestjs/mongoose';
 
 describe('FuturePlayerSkillService', () => {
   let service: FuturePlayerSkillService;
   let mongod: MongoMemoryServer;
-  let futurePlayerSkillModel: ReturnModelType<typeof FuturePlayerSkill>;
+  let futurePlayerSkillModel: Model<FuturePlayerSkillDocument>;
 
   beforeAll(() => (mongod = new MongoMemoryServer()));
   afterAll(async () => await mongod.stop());
@@ -18,14 +22,19 @@ describe('FuturePlayerSkillService', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [
-        typegooseTestingModule(mongod),
-        TypegooseModule.forFeature([FuturePlayerSkill]),
+        mongooseTestingModule(mongod),
+        MongooseModule.forFeature([
+          {
+            name: FuturePlayerSkill.name,
+            schema: futurePlayerSkillSchema,
+          },
+        ]),
       ],
       providers: [FuturePlayerSkillService],
     }).compile();
 
     service = module.get<FuturePlayerSkillService>(FuturePlayerSkillService);
-    futurePlayerSkillModel = module.get(getModelToken('FuturePlayerSkill'));
+    futurePlayerSkillModel = module.get(getModelToken(FuturePlayerSkill.name));
   });
 
   afterEach(async () => await futurePlayerSkillModel.deleteMany({}));

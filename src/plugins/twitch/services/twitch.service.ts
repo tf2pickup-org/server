@@ -8,13 +8,16 @@ import { TwitchGateway } from '../gateways/twitch.gateway';
 import { TwitchAuthService } from './twitch-auth.service';
 import { PlayerBansService } from '@/players/services/player-bans.service';
 import { twitchTvApiEndpoint } from '@configs/urls';
-import { InjectModel } from 'nestjs-typegoose';
-import { TwitchTvProfile } from '../models/twitch-tv-profile';
-import { isRefType, ReturnModelType } from '@typegoose/typegoose';
+import {
+  TwitchTvProfile,
+  TwitchTvProfileDocument,
+} from '../models/twitch-tv-profile';
 import { plainToClass } from 'class-transformer';
 import { LinkedProfilesService } from '@/players/services/linked-profiles.service';
 import { Events } from '@/events/events';
 import { promotedStreams } from '@configs/twitchtv';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
 
 interface TwitchGetUsersResponse {
   data: {
@@ -63,8 +66,8 @@ export class TwitchService implements OnModuleInit {
     private twitchGateway: TwitchGateway,
     private twitchAuthService: TwitchAuthService,
     private playerBansService: PlayerBansService,
-    @InjectModel(TwitchTvProfile)
-    private twitchTvProfileModel: ReturnModelType<typeof TwitchTvProfile>,
+    @InjectModel(TwitchTvProfile.name)
+    private twitchTvProfileModel: Model<TwitchTvProfileDocument>,
     private linkedProfilesService: LinkedProfilesService,
     private events: Events,
   ) {}
@@ -159,19 +162,15 @@ export class TwitchService implements OnModuleInit {
               viewerCount: stream.viewer_count,
             };
           } else {
-            const playerId = isRefType(profile.player)
-              ? profile.player
-              : profile.player.id;
-
             const bans = await this.playerBansService.getPlayerActiveBans(
-              playerId,
+              profile.player,
             );
 
             if (bans.length > 0) {
               return null;
             } else {
               return {
-                playerId: playerId.toString(),
+                playerId: profile.player.toString(),
                 id: stream.id,
                 userName: stream.user_name,
                 title: stream.title,
