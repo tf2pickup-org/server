@@ -20,7 +20,7 @@
   "dependencies": {
     "@hapi/joi": "17.1.1",
     "@nestjs/common": "7.6.18",
-    "@nestjs/config": "0.6.3",
+    "@nestjs/config": "1.0.1",
     "@nestjs/core": "7.6.18",
     "@nestjs/mongoose": "7.2.4",
     "@nestjs/passport": "7.1.6",
