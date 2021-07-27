@@ -14,7 +14,6 @@ import { ConfigModule } from '@nestjs/config';
 import validationSchema from './environment-validation-schema';
 import { ScheduleModule } from '@nestjs/schedule';
 import { DocumentsModule } from './documents/documents.module';
-import { ConsoleModule } from 'nestjs-console';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { EventsModule } from './events/events.module';
@@ -52,7 +51,6 @@ import { MongooseModule } from '@nestjs/mongoose';
       }),
     }),
     ScheduleModule.forRoot(),
-    ConsoleModule,
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'client'),
     }),

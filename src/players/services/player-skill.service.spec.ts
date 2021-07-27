@@ -65,11 +65,7 @@ describe('PlayerSkillService', () => {
       providers: [
         PlayerSkillService,
         PlayersService,
-        { provide: QueueConfigService, useClass: QueueConfigServiceStub },
         FuturePlayerSkillService,
-        Etf2lProfileService,
-        DiscordService,
-        { provide: Environment, useValue: environment },
         Events,
       ],
     }).compile();
@@ -199,18 +195,5 @@ describe('PlayerSkillService', () => {
           new Map([[Tf2ClassName.soldier, 2]]),
         );
       }));
-  });
-
-  describe('#importPlayerSkills()', () => {
-    it.todo('should fail when the file name is empty');
-    it.todo('should fail if the given file does not exist');
-
-    describe('when the player exists', () => {
-      it.todo('should import player skills');
-    });
-
-    describe('when the player does not exist', () => {
-      it.todo('should import player skills into the future skills');
-    });
   });
 });
