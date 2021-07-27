@@ -3,7 +3,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { MapPoolService } from './map-pool.service';
 import { Map, MapDocument, mapSchema } from '../models/map';
-import { typegooseTestingModule } from '@/utils/testing-typegoose-module';
+import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
 import { skip } from 'rxjs/operators';
 import { Model } from 'mongoose';
 import { getModelToken, MongooseModule } from '@nestjs/mongoose';
@@ -20,7 +20,7 @@ describe('MapPoolService', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [
-        typegooseTestingModule(mongod),
+        mongooseTestingModule(mongod),
         MongooseModule.forFeature([
           {
             name: Map.name,

@@ -6,7 +6,7 @@ import { GameState } from '@/games/models/game-state';
 import { Player, playerSchema } from '@/players/models/player';
 import { PlayersService } from '@/players/services/players.service';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
-import { typegooseTestingModule } from '@/utils/testing-typegoose-module';
+import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
 import { MongoMemoryServer } from 'mongodb-memory-server';
@@ -40,7 +40,7 @@ describe('AdminNotificationsService', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [
-        typegooseTestingModule(mongod),
+        mongooseTestingModule(mongod),
         MongooseModule.forFeature([
           {
             name: Player.name,

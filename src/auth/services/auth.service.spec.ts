@@ -8,7 +8,7 @@ import {
   RefreshTokenDocument,
   refreshTokenSchema,
 } from '../models/refresh-token';
-import { typegooseTestingModule } from '@/utils/testing-typegoose-module';
+import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
 import { InvalidTokenError } from '../errors/invalid-token.error';
 import { JwtTokenPurpose } from '../jwt-token-purpose';
 import { KeyPair } from '../key-pair';
@@ -25,7 +25,7 @@ describe('AuthService', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [
-        typegooseTestingModule(mongod),
+        mongooseTestingModule(mongod),
         MongooseModule.forFeature([
           { name: RefreshToken.name, schema: refreshTokenSchema },
         ]),

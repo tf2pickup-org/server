@@ -1,7 +1,7 @@
 import { MongooseModule } from '@nestjs/mongoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 
-export const typegooseTestingModule = (mongod?: MongoMemoryServer) =>
+export const mongooseTestingModule = (mongod?: MongoMemoryServer) =>
   MongooseModule.forRootAsync({
     useFactory: async () => {
       mongod = mongod ?? new MongoMemoryServer();

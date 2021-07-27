@@ -7,7 +7,7 @@ import {
 } from '../models/player-ban';
 import { OnlinePlayersService } from './online-players.service';
 import { ObjectId } from 'mongodb';
-import { typegooseTestingModule } from '@/utils/testing-typegoose-module';
+import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { PlayersService } from './players.service';
 import { Player, PlayerDocument, playerSchema } from '../models/player';
@@ -40,7 +40,7 @@ describe('PlayerBansService', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [
-        typegooseTestingModule(mongod),
+        mongooseTestingModule(mongod),
         MongooseModule.forFeature([
           {
             name: Player.name,

@@ -6,7 +6,7 @@ import {
   GameServerSchema,
 } from '../models/game-server';
 import { ObjectId } from 'mongodb';
-import { typegooseTestingModule } from '@/utils/testing-typegoose-module';
+import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
 import * as isServerOnline from '../utils/is-server-online';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { Events } from '@/events/events';
@@ -30,7 +30,7 @@ describe('GameServersService', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [
-        typegooseTestingModule(mongod),
+        mongooseTestingModule(mongod),
         MongooseModule.forFeature([
           { name: GameServer.name, schema: GameServerSchema },
           { name: Game.name, schema: gameSchema },

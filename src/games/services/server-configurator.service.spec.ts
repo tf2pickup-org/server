@@ -25,7 +25,7 @@ import { SlotStatus } from '../models/slot-status';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { MapPoolService } from '@/queue/services/map-pool.service';
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import { typegooseTestingModule } from '@/utils/testing-typegoose-module';
+import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
 import { Player, PlayerDocument, playerSchema } from '@/players/models/player';
 import { Rcon } from 'rcon-client/lib';
 import { ConfigurationService } from '@/configuration/services/configuration.service';
@@ -81,7 +81,7 @@ describe('ServerConfiguratorService', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [
-        typegooseTestingModule(mongod),
+        mongooseTestingModule(mongod),
         MongooseModule.forFeature([
           {
             name: Player.name,

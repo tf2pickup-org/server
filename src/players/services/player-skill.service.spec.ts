@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { PlayerSkillService } from './player-skill.service';
 import { PlayersService } from './players.service';
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import { typegooseTestingModule } from '@/utils/testing-typegoose-module';
+import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
 import {
   PlayerSkill,
   PlayerSkillDocument,
@@ -50,7 +50,7 @@ describe('PlayerSkillService', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [
-        typegooseTestingModule(mongod),
+        mongooseTestingModule(mongod),
         MongooseModule.forFeature([
           {
             name: PlayerSkill.name,

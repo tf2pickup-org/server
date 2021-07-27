@@ -5,7 +5,7 @@ import { QueueConfigService } from './queue-config.service';
 import { PlayerBansService } from '@/players/services/player-bans.service';
 import { GamesService } from '@/games/services/games.service';
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import { typegooseTestingModule } from '@/utils/testing-typegoose-module';
+import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
 import { Player, PlayerDocument, playerSchema } from '@/players/models/player';
 import { ObjectId } from 'mongodb';
 import { Game, gameSchema } from '@/games/models/game';
@@ -48,7 +48,7 @@ describe('QueueService', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [
-        typegooseTestingModule(mongod),
+        mongooseTestingModule(mongod),
         MongooseModule.forFeature([
           { name: Player.name, schema: playerSchema },
           { name: Game.name, schema: gameSchema },

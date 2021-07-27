@@ -9,7 +9,7 @@ import { say } from '../utils/rcon-commands';
 import { Tf2Team } from '../models/tf2-team';
 import { ObjectId } from 'mongodb';
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import { typegooseTestingModule } from '@/utils/testing-typegoose-module';
+import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
 import { Player, PlayerDocument, playerSchema } from '@/players/models/player';
 import { Game, GameDocument, gameSchema } from '../models/game';
 import { GameServer } from '@/game-servers/models/game-server';
@@ -52,7 +52,7 @@ describe('GameRuntimeService', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [
-        typegooseTestingModule(mongod),
+        mongooseTestingModule(mongod),
         MongooseModule.forFeature([
           { name: Game.name, schema: gameSchema },
           { name: Player.name, schema: playerSchema },

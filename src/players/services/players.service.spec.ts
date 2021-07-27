@@ -7,7 +7,7 @@ import { GamesService } from '@/games/services/games.service';
 import { OnlinePlayersService } from './online-players.service';
 import { Etf2lProfile } from '../etf2l-profile';
 import { Player, PlayerDocument, playerSchema } from '../models/player';
-import { typegooseTestingModule } from '@/utils/testing-typegoose-module';
+import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { SteamApiService } from './steam-api.service';
 import { ObjectId } from 'mongodb';
@@ -73,7 +73,7 @@ describe('PlayersService', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [
-        typegooseTestingModule(mongod),
+        mongooseTestingModule(mongod),
         MongooseModule.forFeature([
           {
             name: Player.name,

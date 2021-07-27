@@ -1,5 +1,5 @@
 import { Environment } from '@/environment/environment';
-import { typegooseTestingModule } from '@/utils/testing-typegoose-module';
+import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
 import { getModelToken, MongooseModule } from '@nestjs/mongoose';
 import { TestingModule, Test } from '@nestjs/testing';
 import { generateKeyPair } from 'crypto';
@@ -25,7 +25,7 @@ describe('importOrGenerateKeys()', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [
-        typegooseTestingModule(mongod),
+        mongooseTestingModule(mongod),
         MongooseModule.forFeature([
           {
             name: Key.name,

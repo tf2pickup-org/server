@@ -10,7 +10,7 @@ import { Environment } from '@/environment/environment';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { Player, PlayerDocument, playerSchema } from '@/players/models/player';
 import { ObjectId } from 'mongodb';
-import { typegooseTestingModule } from '@/utils/testing-typegoose-module';
+import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
 import { Game, GameDocument, gameSchema } from '../models/game';
 import { Events } from '@/events/events';
 import { SlotStatus } from '../models/slot-status';
@@ -52,7 +52,7 @@ describe('PlayerSubstitutionService', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [
-        typegooseTestingModule(mongod),
+        mongooseTestingModule(mongod),
         MongooseModule.forFeature([
           { name: Player.name, schema: playerSchema },
           { name: Game.name, schema: gameSchema },

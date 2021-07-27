@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { MapVoteService } from './map-vote.service';
 import { QueueService } from './queue.service';
 import { Events } from '@/events/events';
-import { typegooseTestingModule } from '@/utils/testing-typegoose-module';
+import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { Map, MapDocument, mapSchema } from '../models/map';
 import { skip } from 'rxjs/operators';
@@ -24,7 +24,7 @@ describe('MapVoteService', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [
-        typegooseTestingModule(mongod),
+        mongooseTestingModule(mongod),
         MongooseModule.forFeature([
           {
             name: Map.name,

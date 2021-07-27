@@ -3,7 +3,7 @@ import { GamesService } from './games.service';
 import { PlayersService } from '@/players/services/players.service';
 import { PlayerSkillService } from '@/players/services/player-skill.service';
 import { Player, PlayerDocument, playerSchema } from '@/players/models/player';
-import { typegooseTestingModule } from '@/utils/testing-typegoose-module';
+import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
 import { Game, GameDocument, gameSchema } from '../models/game';
 import { ObjectId } from 'mongodb';
 import { QueueSlot } from '@/queue/queue-slot';
@@ -54,7 +54,7 @@ describe('GamesService', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [
-        typegooseTestingModule(mongod),
+        mongooseTestingModule(mongod),
         MongooseModule.forFeature([
           { name: Game.name, schema: gameSchema },
           { name: Player.name, schema: playerSchema },

@@ -13,7 +13,7 @@ import {
   TwitchTvProfileDocument,
   twitchTvProfileSchema,
 } from '../models/twitch-tv-profile';
-import { typegooseTestingModule } from '@/utils/testing-typegoose-module';
+import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
 import { Player, playerSchema } from '@/players/models/player';
 import { LinkedProfilesService } from '@/players/services/linked-profiles.service';
 import { Events } from '@/events/events';
@@ -54,7 +54,7 @@ describe('TwitchService', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [
-        typegooseTestingModule(mongod),
+        mongooseTestingModule(mongod),
         MongooseModule.forFeature([
           { name: Player.name, schema: playerSchema },
           { name: TwitchTvProfile.name, schema: twitchTvProfileSchema },
