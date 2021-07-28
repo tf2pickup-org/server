@@ -11,6 +11,7 @@ import { Message } from 'discord.js';
 import { debounceTime } from 'rxjs/operators';
 import { queuePreview } from '../notifications';
 import { DiscordService } from './discord.service';
+import { URL } from 'url';
 
 @Injectable()
 export class QueuePromptsService implements OnModuleInit {
