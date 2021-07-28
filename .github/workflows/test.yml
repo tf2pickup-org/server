@@ -51,7 +51,7 @@ jobs:
       run: npm run test:ci
 
     - name: Upload test coverage info
-      uses: codecov/codecov-action@v1
+      uses: codecov/codecov-action@v2
 
     - name: Run e2e tests
       env:
@@ -72,7 +72,7 @@ jobs:
       run: npm run test:e2e
 
     - name: Upload test coverage info
-      uses: codecov/codecov-action@v1
+      uses: codecov/codecov-action@v2
 
     - name: Build
       run: npm run build
