@@ -3,7 +3,7 @@ import { TwitchService } from './twitch.service';
 import { PlayersService } from '@/players/services/players.service';
 import { HttpService } from '@nestjs/common';
 import { Environment } from '@/environment/environment';
-import { of } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { TwitchGateway } from '../gateways/twitch.gateway';
 import { TwitchAuthService } from './twitch-auth.service';
 import { PlayerBansService } from '@/players/services/player-bans.service';
@@ -27,7 +27,7 @@ jest.mock('@/players/services/players.service');
 jest.mock('@/players/services/linked-profiles.service');
 
 class HttpServiceStub {
-  get(url: string, options: any) {
+  get(url: string, options: any): Observable<any> {
     return of();
   }
 }
