@@ -14,7 +14,6 @@ import { Events } from '@/events/events';
 import { distinctUntilChanged } from 'rxjs/operators';
 import { PopulatePlayers } from '../decorators/populate-players.decorator';
 import { PlayerPopulatorService } from '../services/player-populator.service';
-import { AuthorizedWsClient } from '@/auth/ws-client';
 import { WebsocketEvent } from '@/websocket-event';
 
 @WebSocketGateway()
@@ -64,37 +63,37 @@ export class QueueGateway implements OnGatewayInit, OnModuleInit {
   @WsAuthorized()
   @PopulatePlayers()
   @SubscribeMessage('join queue')
-  async joinQueue(client: AuthorizedWsClient, payload: { slotId: number }) {
-    return await this.queueService.join(payload.slotId, client.request.user.id);
+  async joinQueue(client: Socket, payload: { slotId: number }) {
+    return await this.queueService.join(payload.slotId, client.user.id);
   }
 
   @WsAuthorized()
   @PopulatePlayers()
   @SubscribeMessage('leave queue')
-  leaveQueue(client: AuthorizedWsClient) {
-    return this.queueService.leave(client.request.user.id);
+  leaveQueue(client: Socket) {
+    return this.queueService.leave(client.user.id);
   }
 
   @WsAuthorized()
   @PopulatePlayers()
   @SubscribeMessage('player ready')
-  playerReady(client: AuthorizedWsClient) {
-    return this.queueService.readyUp(client.request.user.id);
+  playerReady(client: Socket) {
+    return this.queueService.readyUp(client.user.id);
   }
 
   @WsAuthorized()
   @SubscribeMessage('mark friend')
-  markFriend(client: AuthorizedWsClient, payload: { friendPlayerId: string }) {
+  markFriend(client: Socket, payload: { friendPlayerId: string }) {
     return this.friendsService.markFriend(
-      client.request.user.id,
+      client.user.id,
       payload.friendPlayerId,
     );
   }
 
   @WsAuthorized()
   @SubscribeMessage('vote for map')
-  voteForMap(client: AuthorizedWsClient, payload: { map: string }) {
-    this.mapVoteService.voteForMap(client.request.user.id, payload.map);
+  voteForMap(client: Socket, payload: { map: string }) {
+    this.mapVoteService.voteForMap(client.user.id, payload.map);
     return payload.map;
   }
 
