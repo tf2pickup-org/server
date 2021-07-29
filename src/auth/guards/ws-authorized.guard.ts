@@ -6,7 +6,7 @@ import { Socket } from 'socket.io';
 export class WsAuthorizedGuard implements CanActivate {
   canActivate(context: ExecutionContext): boolean {
     const client = context.switchToWs().getClient() as Socket;
-    if (client?.user) {
+    if (client.user) {
       return true;
     } else {
       throw new WsException('unauthorized');

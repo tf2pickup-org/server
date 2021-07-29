@@ -1,14 +1,10 @@
 import { WsAuthorizedGuard } from './ws-authorized.guard';
 
-const user = {
-  logged_in: false,
-};
+let client = {};
 
 const context = {
   switchToWs: () => ({
-    getClient: () => ({
-      request: { user },
-    }),
+    getClient: jest.fn().mockReturnValue(client),
   }),
 };
 
@@ -17,17 +13,27 @@ describe('WsAuthorizedGuard', () => {
     expect(new WsAuthorizedGuard()).toBeDefined();
   });
 
-  it('should deny if the user is not authenticated', () => {
-    user.logged_in = false;
-    const guard = new WsAuthorizedGuard();
-    expect(() => guard.canActivate(context as any)).toThrowError(
-      'unauthorized',
-    );
+  describe('when the user is not authenticated', () => {
+    beforeEach(() => {
+      client = {};
+    });
+
+    it('should deny', () => {
+      const guard = new WsAuthorizedGuard();
+      expect(() => guard.canActivate(context as any)).toThrowError(
+        'unauthorized',
+      );
+    });
   });
 
-  it('should pass if the user is authenticated', () => {
-    user.logged_in = true;
-    const guard = new WsAuthorizedGuard();
-    expect(guard.canActivate(context as any)).toBe(true);
+  describe('when the user is authenticated', () => {
+    beforeEach(() => {
+      client = { user: {} };
+    });
+
+    it('should pass', () => {
+      const guard = new WsAuthorizedGuard();
+      expect(guard.canActivate(context as any)).toBe(true);
+    });
   });
 });
