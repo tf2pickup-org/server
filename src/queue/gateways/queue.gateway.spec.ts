@@ -8,7 +8,6 @@ import { Events } from '@/events/events';
 import { Socket } from 'socket.io';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { PlayerPopulatorService } from '../services/player-populator.service';
-import { AuthorizedWsClient } from '@/auth/ws-client';
 import { Player } from '@/players/models/player';
 
 jest.mock('../services/queue.service');
@@ -101,7 +100,7 @@ describe('QueueGateway', () => {
   describe('#joinQueue()', () => {
     it('should join the queue', async () => {
       const ret = await gateway.joinQueue(
-        { request: { user: { id: 'FAKE_PLAYER_ID' } } } as AuthorizedWsClient,
+        { user: { id: 'FAKE_PLAYER_ID' } } as Socket,
         { slotId: 5 },
       );
       expect(queueService.join).toHaveBeenCalledWith(5, 'FAKE_PLAYER_ID');
@@ -119,8 +118,8 @@ describe('QueueGateway', () => {
   describe('#leaveQueue()', () => {
     it('should leave the queue', () => {
       const ret = gateway.leaveQueue({
-        request: { user: { id: 'FAKE_PLAYER_ID' } },
-      } as AuthorizedWsClient);
+        user: { id: 'FAKE_PLAYER_ID' },
+      } as Socket);
       expect(queueService.leave).toHaveBeenCalledWith('FAKE_PLAYER_ID');
       expect(ret).toEqual({
         id: 0,
@@ -134,8 +133,8 @@ describe('QueueGateway', () => {
   describe('#playerReady()', () => {
     it('should ready up the player', () => {
       const ret = gateway.playerReady({
-        request: { user: { id: 'FAKE_PLAYER_ID' } },
-      } as AuthorizedWsClient);
+        user: { id: 'FAKE_PLAYER_ID' },
+      } as Socket);
       expect(queueService.readyUp).toHaveBeenCalledWith('FAKE_PLAYER_ID');
       expect(ret).toEqual({
         id: 0,
@@ -148,10 +147,9 @@ describe('QueueGateway', () => {
 
   describe('#markFriend()', () => {
     it('should mark friend', async () => {
-      gateway.markFriend(
-        { request: { user: { id: 'FAKE_PLAYER_ID' } } } as AuthorizedWsClient,
-        { friendPlayerId: 'FAKE_FRIEND_ID' },
-      );
+      gateway.markFriend({ user: { id: 'FAKE_PLAYER_ID' } } as Socket, {
+        friendPlayerId: 'FAKE_FRIEND_ID',
+      });
       expect(friendsService.markFriend).toHaveBeenCalledWith(
         'FAKE_PLAYER_ID',
         'FAKE_FRIEND_ID',
@@ -162,7 +160,7 @@ describe('QueueGateway', () => {
   describe('#voteForMap()', () => {
     it('should vote for the map', () => {
       const ret = gateway.voteForMap(
-        { request: { user: { id: 'FAKE_PLAYER_ID' } } } as AuthorizedWsClient,
+        { user: { id: 'FAKE_PLAYER_ID' } } as Socket,
         { map: 'cp_badlands' },
       );
       expect(mapVoteService.voteForMap).toHaveBeenCalledWith(
