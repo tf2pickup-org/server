@@ -26,11 +26,11 @@ export class Etf2lProfileService {
           const response = error.response;
           switch (response.status) {
             case 404:
-              return throwError(new Error('no etf2l profile'));
+              return throwError(() => new Error('no etf2l profile'));
 
             default:
               return throwError(
-                new Error(`${response.status}: ${response.statusText}`),
+                () => new Error(`${response.status}: ${response.statusText}`),
               );
           }
         }),
@@ -40,11 +40,11 @@ export class Etf2lProfileService {
           } else {
             switch (response.status) {
               case 404:
-                return throwError(new Error('no etf2l profile'));
+                return throwError(() => new Error('no etf2l profile'));
 
               default:
                 return throwError(
-                  new Error(`${response.status}: ${response.statusText}`),
+                  () => new Error(`${response.status}: ${response.statusText}`),
                 );
             }
           }

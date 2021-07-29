@@ -41,7 +41,7 @@ export class SteamApiService {
         }),
         map((seconds) => floor(seconds / 60 / 60)),
         catchError((error) =>
-          throwError(new Tf2InGameHoursVerificationError(error)),
+          throwError(() => new Tf2InGameHoursVerificationError(error)),
         ),
       )
       .toPromise();
