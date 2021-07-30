@@ -25,7 +25,9 @@ export class GameServerDiagnosticRun extends MongooseDocument {
   @Prop({ enum: DiagnosticRunStatus, default: DiagnosticRunStatus.pending })
   status?: DiagnosticRunStatus;
 
-  getCheckByName: (name: string) => DiagnosticCheck;
+  getCheckByName(name: string) {
+    return this.checks.find((check) => check.name === name);
+  }
 }
 
 export type GameServerDiagnosticRunDocument = GameServerDiagnosticRun &
@@ -33,10 +35,3 @@ export type GameServerDiagnosticRunDocument = GameServerDiagnosticRun &
 export const gameServerDiagnosticRunSchema = SchemaFactory.createForClass(
   GameServerDiagnosticRun,
 );
-
-gameServerDiagnosticRunSchema.methods.getCheckByName = function (
-  this: GameServerDiagnosticRunDocument,
-  name: string,
-): DiagnosticCheck {
-  return this.checks.find((check) => check.name === name);
-};
