@@ -1,6 +1,5 @@
-import { Injectable, Inject, forwardRef, OnModuleInit } from '@nestjs/common';
+import { Injectable, OnModuleInit } from '@nestjs/common';
 import { PlayerSkill, PlayerSkillDocument } from '../models/player-skill';
-import { PlayersService } from './players.service';
 import { FuturePlayerSkillService } from './future-player-skill.service';
 import { Events } from '@/events/events';
 import { InjectModel } from '@nestjs/mongoose';
@@ -13,7 +12,6 @@ export class PlayerSkillService implements OnModuleInit {
   constructor(
     @InjectModel(PlayerSkill.name)
     private playerSkillModel: Model<PlayerSkillDocument>,
-    @Inject(forwardRef(() => PlayersService))
     private futurePlayerSkillService: FuturePlayerSkillService,
     private events: Events,
   ) {}
