@@ -2,7 +2,6 @@ import { Events } from '@/events/events';
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { Socket } from 'socket.io';
 import { PlayersGateway } from '../gateways/players.gateway';
-import { Player } from '../models/player';
 
 type SocketList = Socket[];
 
@@ -17,7 +16,7 @@ export class OnlinePlayersService implements OnModuleInit {
   onModuleInit() {
     this.playersGateway.playerConnected.subscribe((socket) => {
       if (socket.user) {
-        const player = socket.user as Player;
+        const player = socket.user;
         const sockets = this.sockets.get(player.id) || [];
         if (!sockets.includes(socket)) {
           this.logger.debug(`${player.name} connected`);
@@ -28,7 +27,7 @@ export class OnlinePlayersService implements OnModuleInit {
 
     this.playersGateway.playerDisconnected.subscribe((socket) => {
       if (socket.user) {
-        const player = socket.user as Player;
+        const player = socket.user;
         this.logger.debug(`${player.name} disconnected`);
         const sockets = this.getSocketsForPlayer(player.id);
         this.sockets.set(
