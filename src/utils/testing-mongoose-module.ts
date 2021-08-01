@@ -4,9 +4,9 @@ import { MongoMemoryServer } from 'mongodb-memory-server';
 export const mongooseTestingModule = (mongod?: MongoMemoryServer) =>
   MongooseModule.forRootAsync({
     useFactory: async () => {
-      mongod = mongod ?? new MongoMemoryServer();
+      mongod = mongod ?? (await MongoMemoryServer.create());
       return {
-        uri: await mongod.getUri(),
+        uri: mongod.getUri(),
         useNewUrlParser: true,
         useUnifiedTopology: true,
         useFindAndModify: false,

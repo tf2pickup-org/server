@@ -24,7 +24,7 @@ describe('GameServerDiagnosticsService', () => {
   let mongod: MongoMemoryServer;
   let gameServerDiagnosticRunModel: Model<GameServerDiagnosticRunDocument>;
 
-  beforeAll(() => (mongod = new MongoMemoryServer()));
+  beforeAll(async () => (mongod = await MongoMemoryServer.create()));
   afterAll(async () => await mongod.stop());
 
   beforeEach(async () => {

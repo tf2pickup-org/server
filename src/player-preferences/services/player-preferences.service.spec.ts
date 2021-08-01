@@ -16,7 +16,7 @@ describe('PlayerPreferencesService', () => {
   let mongod: MongoMemoryServer;
   let playerPreferencesModel: Model<PlayerPreferencesDocument>;
 
-  beforeAll(() => (mongod = new MongoMemoryServer()));
+  beforeAll(async () => (mongod = await MongoMemoryServer.create()));
   afterAll(async () => await mongod.stop());
 
   beforeEach(async () => {

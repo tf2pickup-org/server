@@ -37,7 +37,7 @@ describe('QueuePromptsService', () => {
   let discordService: DiscordService;
   let players: Player[];
 
-  beforeAll(() => (mongod = new MongoMemoryServer()));
+  beforeAll(async () => (mongod = await MongoMemoryServer.create()));
   afterAll(async () => await mongod.stop());
 
   beforeEach(() => {

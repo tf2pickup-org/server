@@ -34,7 +34,7 @@ describe('PlayerBansService', () => {
   let player: PlayerDocument;
   let events: Events;
 
-  beforeAll(() => (mongod = new MongoMemoryServer()));
+  beforeAll(async () => (mongod = await MongoMemoryServer.create()));
   afterAll(async () => mongod.stop());
 
   beforeEach(async () => {

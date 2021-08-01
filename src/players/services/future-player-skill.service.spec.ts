@@ -16,7 +16,7 @@ describe('FuturePlayerSkillService', () => {
   let mongod: MongoMemoryServer;
   let futurePlayerSkillModel: Model<FuturePlayerSkillDocument>;
 
-  beforeAll(() => (mongod = new MongoMemoryServer()));
+  beforeAll(async () => (mongod = await MongoMemoryServer.create()));
   afterAll(async () => await mongod.stop());
 
   beforeEach(async () => {

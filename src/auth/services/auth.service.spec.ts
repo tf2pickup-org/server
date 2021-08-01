@@ -16,11 +16,13 @@ import { Model } from 'mongoose';
 import { getModelToken, MongooseModule } from '@nestjs/mongoose';
 
 describe('AuthService', () => {
-  const mongod = new MongoMemoryServer();
+  let mongod: MongoMemoryServer;
   let service: AuthService;
   let refreshTokenModel: Model<RefreshTokenDocument>;
   let authKeys: KeyPair;
   let refreshKeys: KeyPair;
+
+  beforeAll(async () => (mongod = await MongoMemoryServer.create()));
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
