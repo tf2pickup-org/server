@@ -30,7 +30,7 @@ describe('AdminNotificationsService', () => {
   let sendSpy: jest.SpyInstance;
   let sentMessages: Subject<any>;
 
-  beforeAll(() => (mongod = new MongoMemoryServer()));
+  beforeAll(async () => (mongod = await MongoMemoryServer.create()));
   afterAll(async () => mongod.stop());
 
   beforeEach(() => {

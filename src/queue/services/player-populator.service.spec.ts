@@ -17,7 +17,7 @@ describe('PlayerPopulatorService', () => {
   let playersService: PlayersService;
   let mockPlayer: PlayerDocument;
 
-  beforeAll(() => (mongod = new MongoMemoryServer()));
+  beforeAll(async () => (mongod = await MongoMemoryServer.create()));
   afterAll(async () => await mongod.stop());
 
   beforeEach(async () => {

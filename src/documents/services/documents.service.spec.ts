@@ -11,7 +11,7 @@ describe('DocumentsService', () => {
   let mongod: MongoMemoryServer;
   let documentModel: Model<DocumentDocument>;
 
-  beforeAll(() => (mongod = new MongoMemoryServer()));
+  beforeAll(async () => (mongod = await MongoMemoryServer.create()));
   afterAll(async () => await mongod.stop());
 
   beforeEach(async () => {

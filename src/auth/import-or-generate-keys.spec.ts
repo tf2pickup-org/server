@@ -12,9 +12,11 @@ import { KeyPair } from './key-pair';
 import { Key, KeyDocument, keySchema } from './models/key';
 
 describe('importOrGenerateKeys()', () => {
-  const mongod = new MongoMemoryServer();
+  let mongod: MongoMemoryServer;
   let keyModel: Model<KeyDocument>;
   let environment: Partial<Environment>;
+
+  beforeAll(async () => (mongod = await MongoMemoryServer.create()));
 
   beforeEach(() => {
     environment = {

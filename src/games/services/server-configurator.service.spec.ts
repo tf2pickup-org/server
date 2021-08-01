@@ -75,7 +75,7 @@ describe('ServerConfiguratorService', () => {
   let mapPoolService: jest.Mocked<MapPoolService>;
   let configurationService: jest.Mocked<ConfigurationService>;
 
-  beforeAll(() => (mongod = new MongoMemoryServer()));
+  beforeAll(async () => (mongod = await MongoMemoryServer.create()));
   afterAll(async () => await mongod.stop());
 
   beforeEach(async () => {

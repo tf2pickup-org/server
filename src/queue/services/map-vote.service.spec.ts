@@ -18,7 +18,7 @@ describe('MapVoteService', () => {
   let queueService: jest.Mocked<QueueService>;
   let events: Events;
 
-  beforeAll(() => (mongod = new MongoMemoryServer()));
+  beforeAll(async () => (mongod = await MongoMemoryServer.create()));
   afterAll(async () => await mongod.stop());
 
   beforeEach(async () => {
