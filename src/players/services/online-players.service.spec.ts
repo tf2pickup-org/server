@@ -43,7 +43,7 @@ describe('OnlinePlayersService', () => {
 
       const socket = {
         id: 'FAKE_SOCKET_ID',
-        request: { user: { logged_in: true, id: 'FAKE_ID' } },
+        user: { id: 'FAKE_ID' },
       };
       playersGateway.playerConnected.next(socket);
       expect(service.getSocketsForPlayer('FAKE_ID')).toEqual([socket] as any);

@@ -4,7 +4,7 @@ import { PlayerSubstitutionService } from '../services/player-substitution.servi
 import { Events } from '@/events/events';
 import { GameDocument } from '../models/game';
 import { Socket } from 'socket.io';
-import { AuthorizedWsClient } from '@/auth/ws-client';
+import { Player } from '@/players/models/player';
 
 jest.mock('../services/player-substitution.service');
 jest.mock('socket.io');
@@ -50,8 +50,8 @@ describe('GamesGateway', () => {
     it('should replace the player', async () => {
       const ret = await gateway.replacePlayer(
         {
-          request: { user: { id: 'FAKE_REPLACEMENT_ID', logged_in: true } },
-        } as AuthorizedWsClient,
+          user: { id: 'FAKE_REPLACEMENT_ID' } as Player,
+        } as Socket,
         { gameId: 'FAKE_GAME_ID', replaceeId: 'FAKE_REPLACEE_ID' },
       );
       expect(playerSubstitutionService.replacePlayer).toHaveBeenCalledWith(

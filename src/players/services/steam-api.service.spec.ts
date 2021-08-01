@@ -65,7 +65,7 @@ describe('SteamApiService', () => {
       beforeEach(() => {
         jest
           .spyOn(httpService, 'get')
-          .mockReturnValue(throwError({ status: 500 } as any));
+          .mockReturnValue(throwError(() => ({ status: 500 } as any)));
       });
 
       it('should throw an error', async () => {
