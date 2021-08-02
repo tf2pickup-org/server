@@ -113,7 +113,7 @@ describe('TwitchService', () => {
         // @ts-expect-error
         player = await playersService._createOne();
         await twitchTvProfileModel.create({
-          player: player.id,
+          player: player._id,
           userId: '44322889',
           login: 'dallas',
           displayName: 'dallas',
@@ -214,7 +214,9 @@ describe('TwitchService', () => {
     it('should register twitch.tv profile', async () => {
       await service.saveUserProfile(player.id, 'FAKE_CODE');
 
-      const profile = await twitchTvProfileModel.findOne({ player: player.id });
+      const profile = await twitchTvProfileModel.findOne({
+        player: player._id,
+      });
       expect(profile).toBeTruthy();
       expect(profile.userId).toEqual('44322889');
       expect(profile.login).toEqual('dallas');

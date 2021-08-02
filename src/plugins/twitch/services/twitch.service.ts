@@ -18,6 +18,7 @@ import { Events } from '@/events/events';
 import { promotedStreams } from '@configs/twitchtv';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { ObjectId } from 'mongodb';
 
 interface TwitchGetUsersResponse {
   data: {
@@ -92,7 +93,7 @@ export class TwitchService implements OnModuleInit {
     return plainToClass(
       TwitchTvProfile,
       this.twitchTvProfileModel
-        .findOne({ player: playerId })
+        .findOne({ player: new ObjectId(playerId) })
         .orFail()
         .lean()
         .exec(),
@@ -116,7 +117,7 @@ export class TwitchService implements OnModuleInit {
     const token = await this.twitchAuthService.fetchUserAccessToken(code);
     const profile = await this.fetchUserProfile(token);
     await this.twitchTvProfileModel.create({
-      player: playerId,
+      player: new ObjectId(playerId),
       userId: profile.id,
       login: profile.login,
       displayName: profile.display_name,
