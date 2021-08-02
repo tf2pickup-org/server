@@ -9,6 +9,7 @@ import { SlotStatus } from '../models/slot-status';
 import { GameState } from '../models/game-state';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 
 @Injectable()
 export class GameEventHandlerService {
@@ -53,15 +54,8 @@ export class GameEventHandlerService {
       this.events.gameChanges.next({ game: game.toJSON() });
       this.events.substituteRequestsChange.next();
 
-      await Promise.all(
-        game.slots
-          .map((slot) => slot.player)
-          .map((playerId) =>
-            this.playersService.updatePlayer(playerId.toString(), {
-              $unset: { activeGame: 1 },
-            }),
-          ),
-      );
+      await this.freeAllMedics(game.id);
+      setTimeout(() => this.freeAllPlayers(game.id), 5000);
 
       setTimeout(
         () => this.gameRuntimeService.cleanupServer(game.gameServer.toString()),
@@ -173,5 +167,34 @@ export class GameEventHandlerService {
     }
 
     return game;
+  }
+
+  private async freeAllMedics(gameId: string) {
+    const game = await this.gameModel.findById(gameId);
+
+    await Promise.all(
+      game.slots
+        .filter((slot) => slot.gameClass === Tf2ClassName.medic)
+        .map((slot) => slot.player)
+        .map((playerId) =>
+          this.playersService.updatePlayer(playerId.toString(), {
+            $unset: { activeGame: 1 },
+          }),
+        ),
+    );
+  }
+
+  private async freeAllPlayers(gameId: string) {
+    const game = await this.gameModel.findById(gameId);
+
+    await Promise.all(
+      game.slots
+        .map((slot) => slot.player)
+        .map((playerId) =>
+          this.playersService.updatePlayer(playerId.toString(), {
+            $unset: { activeGame: 1 },
+          }),
+        ),
+    );
   }
 }
