@@ -1,3 +1,10 @@
+# [6.0.0-beta.1](https://github.com/tf2pickup-org/server/compare/6.0.0-beta.0...6.0.0-beta.1) (2021-08-02)
+
+
+### Bug Fixes
+
+* cors workaround socket adapter ([#1127](https://github.com/tf2pickup-org/server/issues/1127)) ([a462f08](https://github.com/tf2pickup-org/server/commit/a462f08522aff47a73079e1729ad71a255ab7087))
+
 # [6.0.0-beta.0](https://github.com/tf2pickup-org/server/compare/5.0.5...6.0.0-beta.0) (2021-08-02)
 
 
