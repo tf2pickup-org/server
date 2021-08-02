@@ -80,7 +80,7 @@ export class GamesService {
     const defaultOptions: GetPlayerGameCountOptions = { endedOnly: false };
     const _options = { ...defaultOptions, ...options };
 
-    let criteria: any = { 'slots.player': playerId };
+    let criteria: any = { 'slots.player': new ObjectId(playerId) };
     if (_options.endedOnly) {
       criteria = { ...criteria, state: 'ended' };
     }
