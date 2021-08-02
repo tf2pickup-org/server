@@ -14,6 +14,7 @@ import { SlotStatus } from '../models/slot-status';
 import { GameState } from '../models/game-state';
 import { Model } from 'mongoose';
 import { getModelToken, MongooseModule } from '@nestjs/mongoose';
+import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 
 jest.mock('@/players/services/players.service');
 jest.mock('@nestjs/config');
@@ -171,16 +172,39 @@ describe('GameEventHandlerService', () => {
         }));
     });
 
-    it('should remove assigned game from each player', async () => {
-      const game = await service.onMatchEnded(mockGame.id);
-      const players = await Promise.all(
-        game.slots
-          .map((slot) => slot.player)
-          .map((playerId) => playersService.getById(playerId.toString())),
-      );
-      expect(players.every((player) => player.activeGame === undefined)).toBe(
-        true,
-      );
+    describe('when there are medics in the game', () => {
+      beforeEach(async () => {
+        mockGame.slots[0].gameClass = Tf2ClassName.medic;
+        await mockGame.save();
+      });
+
+      it('should remove assigned game from medics immediately', async () => {
+        const game = await service.onMatchEnded(mockGame.id);
+        const players = await Promise.all(
+          game.slots
+            .filter((slot) => slot.gameClass === Tf2ClassName.medic)
+            .map((slot) => slot.player)
+            .map((playerId) => playersService.getById(playerId.toString())),
+        );
+        expect(players.every((player) => player.activeGame === undefined)).toBe(
+          true,
+        );
+      });
+
+      it('should remove assigned game from all players after 5 seconds', async () => {
+        jest.useFakeTimers();
+        const game = await service.onMatchEnded(mockGame.id);
+        jest.advanceTimersByTime(5000);
+        const players = await Promise.all(
+          game.slots
+            .map((slot) => slot.player)
+            .map((playerId) => playersService.getById(playerId.toString())),
+        );
+        expect(players.every((player) => player.activeGame === undefined)).toBe(
+          true,
+        );
+        jest.useRealTimers();
+      });
     });
   });
 
