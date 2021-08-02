@@ -1,3 +1,11 @@
+# [6.0.0-beta.2](https://github.com/tf2pickup-org/server/compare/6.0.0-beta.1...6.0.0-beta.2) (2021-08-02)
+
+
+### Bug Fixes
+
+* **games:** fix player game count ([#1128](https://github.com/tf2pickup-org/server/issues/1128)) ([2496367](https://github.com/tf2pickup-org/server/commit/249636756bae5e759c75e9306c6a7d54dc938aaf))
+* **twitch.tv:** fix fetching twich.tv linked profiles ([#1129](https://github.com/tf2pickup-org/server/issues/1129)) ([8a70189](https://github.com/tf2pickup-org/server/commit/8a701891d92ea562199eb9f3adb6e914a549eeab))
+
 # [6.0.0-beta.1](https://github.com/tf2pickup-org/server/compare/6.0.0-beta.0...6.0.0-beta.1) (2021-08-02)
 
 
