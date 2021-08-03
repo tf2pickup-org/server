@@ -155,7 +155,7 @@ describe('PlayerSkillService', () => {
 
   describe('#getPlayerSkill()', () => {
     it('should retrieve player skill', async () => {
-      const ret = await service.getPlayerSkill(mockPlayer._id);
+      const ret = await service.getPlayerSkill(mockPlayer.id);
       expect(ret.size).toEqual(1);
       expect(ret.get(Tf2ClassName.soldier)).toEqual(4);
     });

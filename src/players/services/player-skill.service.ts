@@ -4,6 +4,7 @@ import { FuturePlayerSkillService } from './future-player-skill.service';
 import { Events } from '@/events/events';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
+import { plainToClass } from 'class-transformer';
 
 export type PlayerSkillType = PlayerSkill['skill'];
 
@@ -28,11 +29,18 @@ export class PlayerSkillService implements OnModuleInit {
   }
 
   async getAll(): Promise<PlayerSkill[]> {
-    return await this.playerSkillModel.find({});
+    return plainToClass(
+      PlayerSkill,
+      await this.playerSkillModel.find({}).lean().exec(),
+    );
   }
 
   async getPlayerSkill(playerId: string): Promise<PlayerSkillType> {
-    return (await this.playerSkillModel.findOne({ player: playerId }))?.skill;
+    return (
+      await this.playerSkillModel.findOne({
+        player: new Types.ObjectId(playerId),
+      })
+    )?.skill;
   }
 
   async setPlayerSkill(
@@ -48,7 +56,7 @@ export class PlayerSkillService implements OnModuleInit {
       )?.skill || new Map();
     const newSkill = (
       await this.playerSkillModel.findOneAndUpdate(
-        { player: playerId },
+        { player: new Types.ObjectId(playerId) },
         { skill },
         { new: true, upsert: true },
       )
