@@ -8,7 +8,7 @@ import { Events } from '@/events/events';
 import { SlotStatus } from '../models/slot-status';
 import { GameState } from '../models/game-state';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 
 @Injectable()
@@ -24,7 +24,7 @@ export class GameEventHandlerService {
 
   async onMatchStarted(gameId: string) {
     const game = await this.gameModel.findOneAndUpdate(
-      { _id: gameId, state: GameState.launching },
+      { _id: new Types.ObjectId(gameId), state: GameState.launching },
       { state: GameState.started },
       { new: true },
     );
@@ -37,7 +37,7 @@ export class GameEventHandlerService {
 
   async onMatchEnded(gameId: string) {
     const game = await this.gameModel.findOneAndUpdate(
-      { _id: gameId, state: GameState.started },
+      { _id: new Types.ObjectId(gameId), state: GameState.started },
       {
         state: GameState.ended,
         'slots.$[element].status': `${SlotStatus.active}`,
@@ -70,7 +70,7 @@ export class GameEventHandlerService {
 
   async onLogsUploaded(gameId: string, logsUrl: string) {
     const game = await this.gameModel.findOneAndUpdate(
-      { _id: gameId },
+      { _id: new Types.ObjectId(gameId) },
       { logsUrl },
       { new: true },
     );
@@ -125,7 +125,7 @@ export class GameEventHandlerService {
   async onScoreReported(gameId: string, teamName: string, score: string) {
     const fixedTeamName = teamName.toLowerCase().substring(0, 3); // converts Red to 'red' and Blue to 'blu'
     const game = await this.gameModel.findOneAndUpdate(
-      { _id: gameId },
+      { _id: new Types.ObjectId(gameId) },
       { [`score.${fixedTeamName}`]: parseInt(score, 10) },
       { new: true },
     );
