@@ -53,7 +53,7 @@ export class PlayerBansService implements OnModuleInit {
     return plainToClass(
       PlayerBan,
       await this.playerBanModel
-        .find({ player: playerId })
+        .find({ player: new Types.ObjectId(playerId) })
         .sort({ start: -1 })
         .lean()
         .exec(),
@@ -65,7 +65,7 @@ export class PlayerBansService implements OnModuleInit {
   ): Promise<PlayerBan[]> {
     const plain = await this.playerBanModel
       .find({
-        player: playerId,
+        player: new Types.ObjectId(playerId),
         end: {
           $gte: new Date(),
         },
@@ -77,8 +77,12 @@ export class PlayerBansService implements OnModuleInit {
 
   async addPlayerBan(props: PlayerBan): Promise<PlayerBan> {
     const player = await this.playersService.getById(props.player.toString());
-    const { id } = await this.playerBanModel.create(props);
-    const addedBan = await this.getById(id);
+    const { id } = await this.playerBanModel.create({
+      ...props,
+      player: player._id,
+      admin: new Types.ObjectId(props.admin),
+    });
+    const addedBan = plainToClass(PlayerBan, await this.getById(id));
     this.logger.verbose(
       `ban added for player ${player.id} (reason: ${addedBan.reason})`,
     );
@@ -106,7 +110,9 @@ export class PlayerBansService implements OnModuleInit {
     return plainToClass(
       PlayerBan,
       await this.playerBanModel
-        .findOneAndUpdate({ _id: banId }, update, { new: true })
+        .findOneAndUpdate({ _id: new Types.ObjectId(banId) }, update, {
+          new: true,
+        })
         .orFail()
         .lean()
         .exec(),
