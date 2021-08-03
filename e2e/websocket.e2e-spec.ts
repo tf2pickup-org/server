@@ -65,7 +65,6 @@ describe('Websocket (e2e)', () => {
         JwtTokenPurpose.websocket,
         maly.id,
       );
-      console.log(token);
     });
 
     it('should be able to connect with the given auth token', async () =>
@@ -79,6 +78,37 @@ describe('Websocket (e2e)', () => {
           resolve();
         });
       }));
+
+    describe('and when he is connected', () => {
+      beforeEach(
+        async () =>
+          new Promise<void>((resolve, reject) => {
+            socket = io(
+              `http://localhost:${app.getHttpServer().address().port}`,
+              {
+                auth: { token: `Bearer ${token}` },
+              },
+            );
+            socket.on('connect_error', (error) => reject(error));
+            socket.on('connect', () => {
+              resolve();
+            });
+          }),
+      );
+
+      it('should receive profile update events', async () =>
+        new Promise<void>((resolve) => {
+          socket.on('profile update', (changes) => {
+            expect(changes).toMatchObject({
+              player: { name: 'maly updated', id: maly.id },
+            });
+            resolve();
+          });
+
+          const playersService = app.get(PlayersService);
+          playersService.updatePlayer(maly.id, { name: 'maly updated' });
+        }));
+    });
 
     it('should not be able to connect with a malformed auth token', async () =>
       new Promise<void>((resolve, reject) => {
