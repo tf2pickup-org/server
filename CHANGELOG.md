@@ -1,3 +1,10 @@
+# [6.0.0-beta.3](https://github.com/tf2pickup-org/server/compare/6.0.0-beta.2...6.0.0-beta.3) (2021-08-03)
+
+
+### Bug Fixes
+
+* **players:** player bans & skills queries ([#1130](https://github.com/tf2pickup-org/server/issues/1130)) ([652ad14](https://github.com/tf2pickup-org/server/commit/652ad1403a87ef9b7c616d37a8e049a0698f80f8))
+
 # [6.0.0-beta.2](https://github.com/tf2pickup-org/server/compare/6.0.0-beta.1...6.0.0-beta.2) (2021-08-02)
 
 
