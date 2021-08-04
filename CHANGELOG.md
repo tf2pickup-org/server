@@ -1,3 +1,11 @@
+# [6.0.0-beta.4](https://github.com/tf2pickup-org/server/compare/6.0.0-beta.3...6.0.0-beta.4) (2021-08-04)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @nestjs/passport to v8.0.1 ([#1132](https://github.com/tf2pickup-org/server/issues/1132)) ([3bf0b7f](https://github.com/tf2pickup-org/server/commit/3bf0b7fd419e9494355a9cac15a23257d4501364))
+* **games:** fix game references ([#1134](https://github.com/tf2pickup-org/server/issues/1134)) ([8bded35](https://github.com/tf2pickup-org/server/commit/8bded35316a7dff33432677a21ac20925753dda9))
+
 # [6.0.0-beta.3](https://github.com/tf2pickup-org/server/compare/6.0.0-beta.2...6.0.0-beta.3) (2021-08-03)
 
 
