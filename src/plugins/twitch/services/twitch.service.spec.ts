@@ -244,7 +244,7 @@ describe('TwitchService', () => {
       // @ts-expect-error
       player = await playersService._createOne();
       await twitchTvProfileModel.create({
-        player: player.id,
+        player: player._id,
         userId: '44322889',
         login: 'dallas',
         displayName: 'dallas',
@@ -254,7 +254,7 @@ describe('TwitchService', () => {
     });
 
     it('should return the deleted twitch.tv profile', async () => {
-      const profile = await service.deleteUserProfile(player.id);
+      const profile = await service.deleteUserProfile(`${player.id}`);
       expect(profile.player).toEqual(player.id);
     });
 
