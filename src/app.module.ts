@@ -23,6 +23,7 @@ import { PluginsModule } from './plugins/plugins.module';
 import { LogReceiverModule } from './log-receiver/log-receiver.module';
 import { createMongoDbUri } from './utils/create-mongo-db-uri';
 import { MongooseModule } from '@nestjs/mongoose';
+import { MigrationsModule } from './migrations/migrations.module';
 
 @Module({
   imports: [
@@ -69,6 +70,7 @@ import { MongooseModule } from '@nestjs/mongoose';
     ConfigurationModule,
     PluginsModule.configure(),
     LogReceiverModule,
+    MigrationsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
