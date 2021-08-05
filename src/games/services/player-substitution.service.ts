@@ -169,7 +169,7 @@ export class PlayerSubstitutionService {
       return game;
     }
 
-    if (await this.gamesService.getPlayerActiveGame(replacementId)) {
+    if (replacement.activeGame) {
       throw new Error('player is involved in a currently running game');
     }
     // create new slot of the replacement player

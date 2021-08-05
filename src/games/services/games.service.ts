@@ -106,18 +106,6 @@ export class GamesService {
       }, {});
   }
 
-  async getPlayerActiveGame(playerId: string): Promise<GameDocument> {
-    return await this.gameModel.findOne({
-      state: /launching|started/,
-      slots: {
-        $elemMatch: {
-          status: { $in: [SlotStatus.active, SlotStatus.waitingForSubstitute] },
-          player: playerId,
-        },
-      },
-    });
-  }
-
   async create(
     queueSlots: QueueSlot[],
     map: string,
