@@ -398,8 +398,8 @@ describe('PlayerSubstitutionService', () => {
 
     describe('when the given player is involved in another game', () => {
       beforeEach(async () => {
-        gamesService.getPlayerActiveGame = () =>
-          Promise.resolve({ id: new ObjectId().toString() } as any);
+        player3.activeGame = new ObjectId();
+        await player3.save();
       });
 
       it('should reject', async () => {
