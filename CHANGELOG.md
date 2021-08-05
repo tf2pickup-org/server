@@ -1,3 +1,12 @@
+# [6.0.0-beta.5](https://github.com/tf2pickup-org/server/compare/6.0.0-beta.4...6.0.0-beta.5) (2021-08-05)
+
+
+### Bug Fixes
+
+* add mumble server configuration migration ([#1141](https://github.com/tf2pickup-org/server/issues/1141)) ([bef790e](https://github.com/tf2pickup-org/server/commit/bef790e50573c6d9573ccc90679a24ef0a939c0e))
+* **games:** fix player connection status ([#1139](https://github.com/tf2pickup-org/server/issues/1139)) ([8dbdd59](https://github.com/tf2pickup-org/server/commit/8dbdd59bcb85fcae0ab7a47e6e036220d2785fd3))
+* **twitch.tv:** fix disconnecting the profile ([#1140](https://github.com/tf2pickup-org/server/issues/1140)) ([2707458](https://github.com/tf2pickup-org/server/commit/270745813ea0b278f300fcd15116bddae623ef80))
+
 # [6.0.0-beta.4](https://github.com/tf2pickup-org/server/compare/6.0.0-beta.3...6.0.0-beta.4) (2021-08-04)
 
 
