@@ -3,18 +3,23 @@ import { QueueService } from './queue.service';
 import { PlayersService } from '@/players/services/players.service';
 import { QueueConfigService } from './queue-config.service';
 import { PlayerBansService } from '@/players/services/player-bans.service';
-import { GamesService } from '@/games/services/games.service';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
 import { Player, PlayerDocument, playerSchema } from '@/players/models/player';
 import { ObjectId } from 'mongodb';
-import { Game, gameSchema } from '@/games/models/game';
 import { Events } from '@/events/events';
 import { MongooseModule } from '@nestjs/mongoose';
+import { NoSuchPlayerError } from '../errors/no-such-player.error';
+import { PlayerHasNotAcceptedRulesError } from '../errors/player-has-not-accepted-rules.error';
+import { PlayerIsBannedError } from '../errors/player-is-banned.error';
+import { PlayerInvolvedInGameError } from '../errors/player-involved-in-game.error';
+import { NoSuchSlotError } from '../errors/no-such-slot.error';
+import { SlotOccupiedError } from '../errors/slot-occupied.error';
+import { PlayerNotInTheQueueError } from '../errors/player-not-in-the-queue.error';
+import { WrongQueueStateError } from '../errors/wrong-queue-state.error';
 
 jest.mock('@/players/services/players.service');
 jest.mock('@/players/services/player-bans.service');
-jest.mock('@/games/services/games.service');
 
 class QueueConfigServiceStub {
   queueConfig = {
@@ -38,7 +43,6 @@ describe('QueueService', () => {
   let mongod: MongoMemoryServer;
   let playersService: PlayersService;
   let playerBansService: PlayerBansService;
-  let gamesService: GamesService;
   let events: Events;
   let player: PlayerDocument;
 
@@ -51,14 +55,12 @@ describe('QueueService', () => {
         mongooseTestingModule(mongod),
         MongooseModule.forFeature([
           { name: Player.name, schema: playerSchema },
-          { name: Game.name, schema: gameSchema },
         ]),
       ],
       providers: [
         QueueService,
         PlayersService,
         PlayerBansService,
-        GamesService,
         Events,
         { provide: QueueConfigService, useClass: QueueConfigServiceStub },
       ],
@@ -67,7 +69,6 @@ describe('QueueService', () => {
     service = module.get<QueueService>(QueueService);
     playersService = module.get(PlayersService);
     playerBansService = module.get(PlayerBansService);
-    gamesService = module.get(GamesService);
     events = module.get(Events);
   });
 
@@ -115,10 +116,9 @@ describe('QueueService', () => {
 
   describe('#join()', () => {
     it("should fail if the given player doesn't exist", async () => {
-      jest.spyOn(playersService, 'getById').mockResolvedValue(null);
-      await expect(
-        service.join(0, new ObjectId().toString()),
-      ).rejects.toThrowError('no such player');
+      await expect(service.join(0, new ObjectId().toString())).rejects.toThrow(
+        NoSuchPlayerError,
+      );
     });
 
     describe('when the player has not accepted rules', () => {
@@ -128,8 +128,8 @@ describe('QueueService', () => {
       });
 
       it('should fail', async () => {
-        await expect(service.join(0, player.id)).rejects.toThrowError(
-          'player has not accepted rules',
+        await expect(service.join(0, player.id)).rejects.toThrow(
+          PlayerHasNotAcceptedRulesError,
         );
       });
     });
@@ -142,30 +142,29 @@ describe('QueueService', () => {
       });
 
       it('should fail', async () => {
-        await expect(service.join(0, player.id)).rejects.toThrowError(
-          'player is banned',
+        await expect(service.join(0, player.id)).rejects.toThrow(
+          PlayerIsBannedError,
         );
       });
     });
 
     describe('when the player is playing a game', () => {
-      beforeEach(() => {
-        jest
-          .spyOn(gamesService, 'getPlayerActiveGame')
-          .mockResolvedValue({ number: 1, state: 'started' } as any);
+      beforeEach(async () => {
+        player.activeGame = new ObjectId();
+        await player.save();
       });
 
       it('should fail', async () => {
-        await expect(service.join(0, player.id)).rejects.toThrowError(
-          'player involved in a currently active game',
+        await expect(service.join(0, player.id)).rejects.toThrow(
+          PlayerInvolvedInGameError,
         );
       });
     });
 
     describe('when the player tries to join an invalid slot', () => {
       it('should fail', async () => {
-        await expect(service.join(1234567, player.id)).rejects.toThrowError(
-          'no such slot',
+        await expect(service.join(1234567, player.id)).rejects.toThrow(
+          NoSuchSlotError,
         );
       });
     });
@@ -183,13 +182,13 @@ describe('QueueService', () => {
       });
 
       it('should fail when trying to take a slot that was already occupied', async () => {
-        await expect(service.join(0, player.id)).rejects.toThrowError(
-          'slot occupied',
+        await expect(service.join(0, player.id)).rejects.toThrow(
+          SlotOccupiedError,
         );
       });
     });
 
-    it('should store add the player to the given slot', async () => {
+    it('should add the player to the given slot', async () => {
       const slots = await service.join(0, player.id);
       const slot = slots.find((s) => s.playerId === player.id);
       expect(slot).toBeDefined();
@@ -279,8 +278,8 @@ describe('QueueService', () => {
       });
 
       it('should throw an error', () => {
-        expect(() => service.leave(player.id)).toThrowError(
-          'slot already free',
+        expect(() => service.leave(player.id)).toThrow(
+          PlayerNotInTheQueueError,
         );
       });
     });
@@ -318,9 +317,7 @@ describe('QueueService', () => {
       });
 
       it('should fail', async () => {
-        expect(() => service.readyUp(player.id)).toThrowError(
-          'queue not ready',
-        );
+        expect(() => service.readyUp(player.id)).toThrow(WrongQueueStateError);
       });
     });
   });

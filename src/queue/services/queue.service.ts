@@ -10,10 +10,19 @@ import { QueueSlot } from '@/queue/queue-slot';
 import { PlayersService } from '@/players/services/players.service';
 import { QueueConfigService } from './queue-config.service';
 import { PlayerBansService } from '@/players/services/player-bans.service';
-import { GamesService } from '@/games/services/games.service';
 import { QueueState } from '../queue-state';
 import { readyUpTimeout, readyStateTimeout } from '@configs/queue';
 import { Events } from '@/events/events';
+import { Error } from 'mongoose';
+import { NoSuchPlayerError } from '../errors/no-such-player.error';
+import { PlayerHasNotAcceptedRulesError } from '../errors/player-has-not-accepted-rules.error';
+import { PlayerIsBannedError } from '../errors/player-is-banned.error';
+import { PlayerInvolvedInGameError } from '../errors/player-involved-in-game.error';
+import { NoSuchSlotError } from '../errors/no-such-slot.error';
+import { SlotOccupiedError } from '../errors/slot-occupied.error';
+import { CannotLeaveAtThisQueueStateError } from '../errors/cannot-leave-at-this-queue-state.error';
+import { PlayerNotInTheQueueError } from '../errors/player-not-in-the-queue.error';
+import { WrongQueueStateError } from '../errors/wrong-queue-state.error';
 
 @Injectable()
 export class QueueService implements OnModuleInit, OnModuleDestroy {
@@ -40,7 +49,6 @@ export class QueueService implements OnModuleInit, OnModuleDestroy {
     private playersService: PlayersService,
     private queueConfigService: QueueConfigService,
     private playerBansService: PlayerBansService,
-    @Inject(forwardRef(() => GamesService)) private gamesService: GamesService,
     private events: Events,
   ) {}
 
@@ -89,70 +97,73 @@ export class QueueService implements OnModuleInit, OnModuleDestroy {
    * @param {string} playerId ID of the player who joins the queue.
    */
   async join(slotId: number, playerId: string): Promise<QueueSlot[]> {
-    if (this.state === 'launching') {
-      throw new Error('cannot join the queue at this stage');
+    try {
+      if (this.state === 'launching') {
+        throw new Error('cannot join the queue at this stage');
+      }
+
+      const player = await this.playersService.getById(playerId);
+      if (!player.hasAcceptedRules) {
+        throw new PlayerHasNotAcceptedRulesError(playerId);
+      }
+
+      const bans = await this.playerBansService.getPlayerActiveBans(playerId);
+      if (bans.length > 0) {
+        throw new PlayerIsBannedError(playerId);
+      }
+
+      if (player.activeGame) {
+        throw new PlayerInvolvedInGameError(playerId);
+      }
+
+      const targetSlot = this.getSlotById(slotId);
+      if (!targetSlot) {
+        throw new NoSuchSlotError(slotId);
+      }
+
+      if (targetSlot.playerId) {
+        throw new SlotOccupiedError(slotId);
+      }
+
+      // remove player from any slot(s) he could be occupying
+      const oldSlots = this.slots.filter((s) => s.playerId === playerId);
+      oldSlots.forEach((s) => this.clearSlot(s));
+
+      targetSlot.playerId = playerId;
+
+      if (
+        this.state === 'ready' ||
+        this.playerCount === this.requiredPlayerCount
+      ) {
+        targetSlot.ready = true;
+      }
+
+      this.logger.debug(
+        `player ${player.name} joined the queue (slotId=${targetSlot.id}, gameClass=${targetSlot.gameClass})`,
+      );
+
+      // is player joining instead of only changing slots?
+      if (oldSlots.length === 0) {
+        this.events.playerJoinsQueue.next({ playerId });
+      }
+
+      const slots = [targetSlot, ...oldSlots];
+      this.events.queueSlotsChange.next({ slots });
+      return slots;
+    } catch (error) {
+      if (error instanceof Error.DocumentNotFoundError) {
+        throw new NoSuchPlayerError(playerId);
+      } else {
+        throw error;
+      }
     }
-
-    const player = await this.playersService.getById(playerId);
-    if (!player) {
-      throw new Error('no such player');
-    }
-
-    if (!player.hasAcceptedRules) {
-      throw new Error('player has not accepted rules');
-    }
-
-    const bans = await this.playerBansService.getPlayerActiveBans(playerId);
-    if (bans.length > 0) {
-      throw new Error('player is banned');
-    }
-
-    const game = await this.gamesService.getPlayerActiveGame(playerId);
-    if (game) {
-      throw new Error('player involved in a currently active game');
-    }
-
-    const targetSlot = this.getSlotById(slotId);
-    if (!targetSlot) {
-      throw new Error('no such slot');
-    }
-
-    if (targetSlot.playerId) {
-      throw new Error('slot occupied');
-    }
-
-    // remove player from any slot(s) he could be occupying
-    const oldSlots = this.slots.filter((s) => s.playerId === playerId);
-    oldSlots.forEach((s) => this.clearSlot(s));
-
-    targetSlot.playerId = playerId;
-
-    if (
-      this.state === 'ready' ||
-      this.playerCount === this.requiredPlayerCount
-    ) {
-      targetSlot.ready = true;
-    }
-
-    this.logger.debug(
-      `player ${player.name} joined the queue (slotId=${targetSlot.id}, gameClass=${targetSlot.gameClass})`,
-    );
-
-    // is player joining instead of only changing slots?
-    if (oldSlots.length === 0) {
-      this.events.playerJoinsQueue.next({ playerId });
-    }
-
-    const slots = [targetSlot, ...oldSlots];
-    this.events.queueSlotsChange.next({ slots });
-    return slots;
   }
 
   leave(playerId: string): QueueSlot {
     const slot = this.findSlotByPlayerId(playerId);
     if (slot) {
       if (slot.ready && this.state !== 'waiting') {
-        throw new Error('cannot leave at this stage');
+        throw new CannotLeaveAtThisQueueStateError(this.state);
       }
 
       this.clearSlot(slot);
@@ -161,7 +172,7 @@ export class QueueService implements OnModuleInit, OnModuleDestroy {
       this.events.queueSlotsChange.next({ slots: [slot] });
       return slot;
     } else {
-      throw new Error('slot already free');
+      throw new PlayerNotInTheQueueError(playerId);
     }
   }
 
@@ -189,7 +200,7 @@ export class QueueService implements OnModuleInit, OnModuleDestroy {
 
   readyUp(playerId: string): QueueSlot {
     if (this.state !== 'ready') {
-      throw new Error('queue not ready');
+      throw new WrongQueueStateError(this.state);
     }
 
     const slot = this.findSlotByPlayerId(playerId);
