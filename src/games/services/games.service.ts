@@ -136,7 +136,7 @@ export class GamesService {
     }, {});
     const slots = pickTeams(shuffle(players), { friends }).map((s) => ({
       ...s,
-      player: s.playerId,
+      player: new ObjectId(s.playerId),
     }));
     const gameNo = await this.getNextGameNumber();
 
