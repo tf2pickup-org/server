@@ -1,3 +1,15 @@
+# [6.0.0](https://github.com/tf2pickup-org/server/compare/6.0.0-beta.5...6.0.0) (2021-08-05)
+
+
+### Bug Fixes
+
+* **deps:** update nest monorepo to v8.0.6 ([#1138](https://github.com/tf2pickup-org/server/issues/1138)) ([0dfbdb0](https://github.com/tf2pickup-org/server/commit/0dfbdb0b66efc8de83da314038271f28b307c217))
+
+
+### Features
+
+* **migrations:** add migrations module ([#1143](https://github.com/tf2pickup-org/server/issues/1143)) ([576ac21](https://github.com/tf2pickup-org/server/commit/576ac2188c72d3ddba61f27e816aea20ed20a01c))
+
 # [6.0.0-beta.5](https://github.com/tf2pickup-org/server/compare/6.0.0-beta.4...6.0.0-beta.5) (2021-08-05)
 
 
