@@ -130,7 +130,7 @@ export class TwitchService implements OnModuleInit {
     const ret = plainToClass(
       TwitchTvProfile,
       await this.twitchTvProfileModel
-        .findOneAndDelete({ player: playerId })
+        .findOneAndDelete({ player: new ObjectId(playerId) })
         .orFail()
         .lean()
         .exec(),
