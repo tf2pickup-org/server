@@ -1,3 +1,10 @@
+## [6.0.1](https://github.com/tf2pickup-org/server/compare/6.0.0...6.0.1) (2021-08-05)
+
+
+### Bug Fixes
+
+* **games:** get rid of GamesService.getPlayerActiveGames() ([#1144](https://github.com/tf2pickup-org/server/issues/1144)) ([857ec72](https://github.com/tf2pickup-org/server/commit/857ec72b69a2520bf685c5deea2af993da1b3b35))
+
 # [6.0.0](https://github.com/tf2pickup-org/server/compare/6.0.0-beta.5...6.0.0) (2021-08-05)
 
 
