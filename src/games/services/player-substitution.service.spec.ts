@@ -447,7 +447,7 @@ describe('PlayerSubstitutionService', () => {
       expect(spy).toHaveBeenCalled();
     });
 
-    it('should assing active game to the replacement player', async () => {
+    it('should assign active game to the replacement player', async () => {
       await service.replacePlayer(mockGame.id, player1.id, player3.id);
       const player = await playersService.getById(player3.id);
       expect(player.activeGame).toEqual(mockGame.id);
