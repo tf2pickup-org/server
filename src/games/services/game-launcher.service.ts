@@ -7,6 +7,7 @@ import { Events } from '@/events/events';
 import { GameState } from '../models/game-state';
 import { ConfigurationService } from '@/configuration/services/configuration.service';
 import { generateLogsecret } from '@/game-servers/utils/generate-logsecret';
+import { GameServer } from '@/game-servers/models/game-server';
 
 /**
  * This service is responsible for launching a single game.
@@ -94,5 +95,16 @@ export class GameLauncherService {
   private async getMumbleUrl(gameServerChannelName: string) {
     const mumbleOptions = await this.configurationService.getVoiceServer();
     return `mumble://${mumbleOptions.url}:${mumbleOptions.port}/${mumbleOptions.channelName}/${gameServerChannelName}`;
+  }
+
+  private async getVoiceChannelUrl(gameServer: GameServer) {
+    const voiceServer = await this.configurationService.getVoiceServer();
+    switch (voiceServer.type) {
+      case 'null':
+        return '';
+
+      case 'mumble':
+        return `mumble://${voiceServer.url}:${voiceServer.port}/${voiceServer.channelName}/${gameServer.mumbleChannelName}/{team}`;
+    }
   }
 }

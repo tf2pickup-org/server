@@ -14,7 +14,7 @@ const defaultDefaultPlayerSkill = new Map(
   Object.keys(Tf2ClassName).map((className) => [className, 1]),
 );
 
-type VoiceServer = MumbleOptions;
+type VoiceServer = { type: 'null' } | MumbleOptions;
 
 @Injectable()
 export class ConfigurationService implements OnModuleInit {
@@ -38,10 +38,7 @@ export class ConfigurationService implements OnModuleInit {
       this.loadDefault(
         ConfigurationEntryKey.voiceServer,
         JSON.stringify({
-          type: 'mumble',
-          url: 'melkor.tf',
-          port: 64738,
-          channelName: 'tf2pickup',
+          type: 'no voice server',
         }),
       ),
     ]);
