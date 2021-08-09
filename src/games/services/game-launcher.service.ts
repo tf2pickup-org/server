@@ -5,9 +5,7 @@ import { ServerConfiguratorService } from './server-configurator.service';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { Events } from '@/events/events';
 import { GameState } from '../models/game-state';
-import { ConfigurationService } from '@/configuration/services/configuration.service';
 import { generateLogsecret } from '@/game-servers/utils/generate-logsecret';
-import { GameServer } from '@/game-servers/models/game-server';
 
 /**
  * This service is responsible for launching a single game.
@@ -24,7 +22,6 @@ export class GameLauncherService {
     private gameServersService: GameServersService,
     private serverConfiguratorService: ServerConfiguratorService,
     private events: Events,
-    private configurationService: ConfigurationService,
   ) {}
 
   /**
@@ -61,14 +58,7 @@ export class GameLauncherService {
       game.logSecret = generateLogsecret();
       await game.save();
 
-      // step 3: set mumble url
-      const mumbleUrl = await this.getMumbleUrl(gameServer.mumbleChannelName);
-      this.logger.verbose(`game #${game.number} mumble url: ${mumbleUrl}`);
-      game.mumbleUrl = mumbleUrl;
-      await game.save();
-      this.events.gameChanges.next({ game: game.toJSON() });
-
-      // step 4: configure server
+      // step 3: configure server
       const { connectString, stvConnectString } =
         await this.serverConfiguratorService.configureServer(gameServer, game);
       game.connectString = connectString;
@@ -89,22 +79,6 @@ export class GameLauncherService {
     for (const game of orphanedGames) {
       this.logger.verbose(`launching game #${game.number}...`);
       this.launch(game.id);
-    }
-  }
-
-  private async getMumbleUrl(gameServerChannelName: string) {
-    const mumbleOptions = await this.configurationService.getVoiceServer();
-    return `mumble://${mumbleOptions.url}:${mumbleOptions.port}/${mumbleOptions.channelName}/${gameServerChannelName}`;
-  }
-
-  private async getVoiceChannelUrl(gameServer: GameServer) {
-    const voiceServer = await this.configurationService.getVoiceServer();
-    switch (voiceServer.type) {
-      case 'null':
-        return '';
-
-      case 'mumble':
-        return `mumble://${voiceServer.url}:${voiceServer.port}/${voiceServer.channelName}/${gameServer.mumbleChannelName}/{team}`;
     }
   }
 }

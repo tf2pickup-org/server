@@ -57,18 +57,6 @@ export class Game {
   connectString?: string;
 
   @Prop()
-  mumbleUrl?: string;
-
-  /**
-   * Voice channel direct URL template.
-   * It can contain the following variables:
-   *   {team} - BLU or RED
-   *   {username} - the player name
-   */
-  @Prop()
-  voiceChannelUrl?: string;
-
-  @Prop()
   logsUrl?: string;
 
   @Prop()

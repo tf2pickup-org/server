@@ -5,10 +5,8 @@ import { GameServersService } from '@/game-servers/services/game-servers.service
 import { ServerConfiguratorService } from './server-configurator.service';
 import { Events } from '@/events/events';
 import { GameServerDocument } from '@/game-servers/models/game-server';
-import { ConfigurationService } from '@/configuration/services/configuration.service';
 
 jest.mock('@/game-servers/services/game-servers.service');
-jest.mock('@/configuration/services/configuration.service');
 
 const mockGame = {
   id: 'FAKE_GAME_ID',
@@ -54,7 +52,6 @@ describe('GameLauncherService', () => {
   let gamesService: GamesServiceStub;
   let gameServersService: jest.Mocked<GameServersService>;
   let serverConfiguratorService: ServerConfiguratorServiceStub;
-  let configurationService: jest.Mocked<ConfigurationService>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -67,7 +64,6 @@ describe('GameLauncherService', () => {
           useClass: ServerConfiguratorServiceStub,
         },
         Events,
-        ConfigurationService,
       ],
     }).compile();
 
@@ -75,7 +71,6 @@ describe('GameLauncherService', () => {
     gamesService = module.get(GamesService);
     gameServersService = module.get(GameServersService);
     serverConfiguratorService = module.get(ServerConfiguratorService);
-    configurationService = module.get(ConfigurationService);
   });
 
   beforeEach(() => {
@@ -89,15 +84,6 @@ describe('GameLauncherService', () => {
   });
 
   describe('#launch()', () => {
-    beforeEach(() => {
-      configurationService.getVoiceServer.mockResolvedValue({
-        type: 'mumble',
-        url: 'mumble.melkor.tf',
-        port: 64738,
-        channelName: 'tf2pickuppl',
-      });
-    });
-
     describe('when the game does not exist', () => {
       beforeEach(() => {
         jest.spyOn(gamesService, 'getById').mockResolvedValue(null);
@@ -119,13 +105,6 @@ describe('GameLauncherService', () => {
       );
       expect(ret.connectString).toEqual('FAKE_CONNECT_STRING');
       expect(ret.stvConnectString).toEqual('FAKE_STV_CONNECT_STRING');
-    });
-
-    it('should setup a valid mumble url', async () => {
-      const ret = await service.launch('FAKE_GAME_ID');
-      expect(ret.mumbleUrl).toEqual(
-        'mumble://mumble.melkor.tf:64738/tf2pickuppl/FAKE_SERVER_MUMBLE_CHANNEL_NAME',
-      );
     });
   });
 
