@@ -88,6 +88,20 @@ export class GamesController {
     }
   }
 
+  @Get(':id/connect-info')
+  @Auth()
+  async getConnectInfo(
+    @Param('id', ObjectIdValidationPipe) gameId: string,
+    @User() player: Player,
+  ) {
+    return {
+      voiceChannelUrl: await this.gamesService.getVoiceChannelUrl(
+        gameId,
+        player.id,
+      ),
+    };
+  }
+
   @Get(':id/skills')
   @Auth(PlayerRole.admin)
   async getGameSkills(@Param('id', ObjectIdValidationPipe) gameId: string) {

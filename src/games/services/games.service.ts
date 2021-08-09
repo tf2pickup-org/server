@@ -15,6 +15,7 @@ import { GameState } from '../models/game-state';
 import { ConfigurationService } from '@/configuration/services/configuration.service';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { GameServersService } from '@/game-servers/services/game-servers.service';
 
 interface GameSortOptions {
   launchedAt: 1 | -1;
@@ -38,6 +39,7 @@ export class GamesService {
     private gameLauncherService: GameLauncherService,
     private events: Events,
     private configurationService: ConfigurationService,
+    private gameServersService: GameServersService,
   ) {}
 
   async getGameCount(): Promise<number> {
@@ -204,6 +206,40 @@ export class GamesService {
       state: GameState.launching,
       gameServer: { $exists: false },
     });
+  }
+
+  async getVoiceChannelUrl(
+    gameId: string,
+    userId: string,
+  ): Promise<string | null> {
+    const voiceServer = await this.configurationService.getVoiceServer();
+
+    switch (voiceServer.type) {
+      case 'null':
+        return null;
+
+      case 'mumble': {
+        const game = await this.getById(gameId);
+        if (!game.gameServer) {
+          return null;
+        }
+
+        const player = await this.playersService.getById(userId);
+        const slot = game.findPlayerSlot(userId);
+        const gameServer = await this.gameServersService.getById(
+          game.gameServer.toString(),
+        );
+
+        const url = new URL(`http://${voiceServer.url}`);
+        url.pathname = `${voiceServer.channelName}/${
+          gameServer.mumbleChannelName
+        }/${slot.team.toUpperCase()}`;
+        url.username = player.name.replace(/\s+/g, '_');
+        url.password = voiceServer.password;
+        url.protocol = 'mumble:';
+        return url.toString();
+      }
+    }
   }
 
   private async queueSlotToPlayerSlot(
