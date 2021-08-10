@@ -181,6 +181,18 @@ describe('GameRuntimeService', () => {
       expect(releaseSpy).toHaveBeenCalledWith(mockGameServer.id);
     });
 
+    it('should free the players', async () => {
+      await service.forceEnd(mockGame.id);
+      const players = await Promise.all(
+        mockGame.slots
+          .map((s) => s.player)
+          .map((playerId) => playersService.getById(playerId)),
+      );
+      expect(players.every((player) => player.activeGame === undefined)).toBe(
+        true,
+      );
+    });
+
     it('should emit the gameChanges event', async () =>
       new Promise<void>((resolve) => {
         events.gameChanges.subscribe(({ game, adminId }) => {

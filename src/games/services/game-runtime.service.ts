@@ -74,6 +74,16 @@ export class GameRuntimeService {
     this.events.gameChanges.next({ game, adminId });
     this.events.substituteRequestsChange.next();
 
+    await Promise.all(
+      game.slots
+        .map((slot) => slot.player)
+        .map((playerId) =>
+          this.playersService.updatePlayer(playerId.toString(), {
+            $unset: { activeGame: 1 },
+          }),
+        ),
+    );
+
     if (game.gameServer) {
       await this.cleanupServer(game.gameServer.toString());
     }
