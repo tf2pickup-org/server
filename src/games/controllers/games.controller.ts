@@ -94,11 +94,13 @@ export class GamesController {
     @Param('id', ObjectIdValidationPipe) gameId: string,
     @User() player: Player,
   ) {
+    const game = await this.gamesService.getById(gameId);
     return {
       voiceChannelUrl: await this.gamesService.getVoiceChannelUrl(
         gameId,
         player.id,
       ),
+      connectString: game.connectString,
     };
   }
 

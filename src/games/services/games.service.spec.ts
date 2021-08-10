@@ -18,11 +18,14 @@ import { GameState } from '../models/game-state';
 import { ConfigurationService } from '@/configuration/services/configuration.service';
 import { Model } from 'mongoose';
 import { getModelToken, MongooseModule } from '@nestjs/mongoose';
+import { GameServersService } from '@/game-servers/services/game-servers.service';
+import { GameServer } from '@/game-servers/models/game-server';
 
 jest.mock('@/players/services/players.service');
 jest.mock('@/players/services/player-skill.service');
 jest.mock('./game-launcher.service');
 jest.mock('@/configuration/services/configuration.service');
+jest.mock('@/game-servers/services/game-servers.service');
 
 class QueueConfigServiceStub {
   queueConfig = {
@@ -47,6 +50,7 @@ describe('GamesService', () => {
   let events: Events;
   let playerSkillService: jest.Mocked<PlayerSkillService>;
   let configurationService: jest.Mocked<ConfigurationService>;
+  let gameServersService: jest.Mocked<GameServersService>;
 
   beforeAll(async () => (mongod = await MongoMemoryServer.create()));
   afterAll(async () => await mongod.stop());
@@ -68,6 +72,7 @@ describe('GamesService', () => {
         GameLauncherService,
         Events,
         ConfigurationService,
+        GameServersService,
       ],
     }).compile();
 
@@ -78,6 +83,7 @@ describe('GamesService', () => {
     events = module.get(Events);
     playerSkillService = module.get(PlayerSkillService);
     configurationService = module.get(ConfigurationService);
+    gameServersService = module.get(GameServersService);
   });
 
   afterEach(async () => {
@@ -505,6 +511,66 @@ describe('GamesService', () => {
       expect(ret).toBeTruthy();
       expect(ret.length).toBe(1);
       expect(ret[0].number).toBe(1);
+    });
+  });
+
+  describe('#getVoiceChannelUrl()', () => {
+    let game: GameDocument;
+    let player: PlayerDocument;
+    let gameServer: GameServer;
+
+    beforeEach(async () => {
+      // @ts-expect-error
+      player = await playersService._createOne();
+
+      gameServer = {
+        mumbleChannelName: '7',
+      } as GameServer;
+
+      gameServersService.getById.mockResolvedValue(gameServer);
+
+      game = await gameModel.create({
+        number: 1,
+        map: 'cp_badlands',
+        slots: [
+          {
+            player: player._id,
+            team: Tf2Team.blu,
+            gameClass: Tf2ClassName.scout,
+            status: SlotStatus.active,
+          },
+        ],
+        gameServer: new ObjectId(),
+      });
+    });
+
+    describe('when the voice server is null', () => {
+      beforeEach(() => {
+        configurationService.getVoiceServer.mockResolvedValue({ type: 'null' });
+      });
+
+      it('should return null', async () => {
+        expect(await service.getVoiceChannelUrl(game.id, player.id)).toBe(null);
+      });
+    });
+
+    describe('when the voice server is a mumble server', () => {
+      beforeEach(async () => {
+        configurationService.getVoiceServer.mockResolvedValue({
+          type: 'mumble',
+          url: 'melkor.tf',
+          port: 64738,
+          password: 'FAKE_PASSWORD',
+          channelName: 'FAKE_CHANNEL_NAME',
+        });
+      });
+
+      it('should return direct mumble channel url', async () => {
+        const url = await service.getVoiceChannelUrl(game.id, player.id);
+        expect(url).toEqual(
+          'mumble://fake_player_1:FAKE_PASSWORD@melkor.tf/FAKE_CHANNEL_NAME/7/BLU',
+        );
+      });
     });
   });
 });

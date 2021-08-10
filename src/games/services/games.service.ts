@@ -230,7 +230,7 @@ export class GamesService {
           game.gameServer.toString(),
         );
 
-        const url = new URL(`http://${voiceServer.url}`);
+        const url = new URL(`mumble://${voiceServer.url}`);
         url.pathname = `${voiceServer.channelName}/${
           gameServer.mumbleChannelName
         }/${slot.team.toUpperCase()}`;
