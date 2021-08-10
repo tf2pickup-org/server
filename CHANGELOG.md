@@ -1,3 +1,12 @@
+## [6.0.2](https://github.com/tf2pickup-org/server/compare/6.0.1...6.0.2) (2021-08-10)
+
+
+### Bug Fixes
+
+* **deps:** update dependency mongoose to v5.13.6 ([#1153](https://github.com/tf2pickup-org/server/issues/1153)) ([daff935](https://github.com/tf2pickup-org/server/commit/daff935055de9f6f9a662035937e1d42623d8a4c))
+* **games:** assign game to the replacement player ([#1147](https://github.com/tf2pickup-org/server/issues/1147)) ([a6a074d](https://github.com/tf2pickup-org/server/commit/a6a074da47dee2b61a3ffed0d3f44662e3debb90))
+* **games:** free players after a game is force-ended ([#1157](https://github.com/tf2pickup-org/server/issues/1157)) ([cf34756](https://github.com/tf2pickup-org/server/commit/cf34756d081010e6e64c3d59fdfbfe403d275e53))
+
 ## [6.0.1](https://github.com/tf2pickup-org/server/compare/6.0.0...6.0.1) (2021-08-05)
 
 
