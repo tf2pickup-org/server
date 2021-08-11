@@ -31,7 +31,7 @@ const mockGameServer = {
   id: 'FAKE_GAME_SERVER_ID',
   _id: 'FAKE_GAME_SERVER_ID',
   name: 'FAKE_GAME_SERVER',
-  mumbleChannelName: 'FAKE_SERVER_MUMBLE_CHANNEL_NAME',
+  voiceChannelName: 'FAKE_SERVER_MUMBLE_CHANNEL_NAME',
   game: undefined,
   save: () => null,
 };
