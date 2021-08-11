@@ -7,14 +7,12 @@ import {
   ConfigurationEntryDocument,
 } from '../models/configuration-entry';
 import { ConfigurationEntryKey } from '../models/configuration-entry-key';
-import { MumbleOptions } from '../models/mumble-options';
+import { VoiceServer } from '../models/voice-server';
 
 // this name wtf
 const defaultDefaultPlayerSkill = new Map(
   Object.keys(Tf2ClassName).map((className) => [className, 1]),
 );
-
-type VoiceServer = { type: 'null' } | MumbleOptions;
 
 @Injectable()
 export class ConfigurationService implements OnModuleInit {
