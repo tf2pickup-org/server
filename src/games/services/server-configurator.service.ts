@@ -19,6 +19,7 @@ import {
   tvPort,
   tvPassword,
   tftrueWhitelistId,
+  svLogsecret,
 } from '../utils/rcon-commands';
 import { deburr } from 'lodash';
 import { extractConVarValue } from '../utils/extract-con-var-value';
@@ -51,6 +52,9 @@ export class ServerConfiguratorService {
     let rcon: Rcon;
     try {
       rcon = await this.rconFactoryService.createRcon(server);
+
+      this.logger.debug(`[${server.name}] logsecret is ${game.logSecret}`);
+      await rcon.send(svLogsecret(game.logSecret));
 
       const logAddress = `${this.environment.logRelayAddress}:${this.environment.logRelayPort}`;
       this.logger.debug(`[${server.name}] adding log address ${logAddress}...`);

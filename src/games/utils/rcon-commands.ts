@@ -40,6 +40,10 @@ export function kickAll() {
   return 'kickall';
 }
 
+export function svLogsecret(logSecret: string) {
+  return `sv_logsecret ${logSecret}`;
+}
+
 export function logAddressAdd(logAddress: string) {
   return `logaddress_add ${logAddress}`;
 }

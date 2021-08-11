@@ -2,7 +2,6 @@ import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { LogReceiver, LogMessage } from 'srcds-log-receiver';
 import * as SteamID from 'steamid';
 import { GameEventHandlerService } from './game-event-handler.service';
-import { GameServersService } from '@/game-servers/services/game-servers.service';
 import { GamesService } from './games.service';
 
 interface GameEvent {
@@ -108,7 +107,6 @@ export class GameEventListenerService implements OnModuleInit {
 
   constructor(
     private gameEventHandlerService: GameEventHandlerService,
-    private gameSeversService: GameServersService,
     private gamesService: GamesService,
     private logReceiver: LogReceiver,
   ) {}
@@ -121,27 +119,17 @@ export class GameEventListenerService implements OnModuleInit {
     this.logReceiver.on('data', (msg: LogMessage) => {
       if (msg.isValid) {
         this.logger.debug(msg.message);
-        this.testForGameEvent(msg.message, {
-          address: msg.receivedFrom.address,
-          port: msg.receivedFrom.port,
-        });
+        this.testForGameEvent(msg.message, msg.password);
       }
     });
   }
 
-  private async testForGameEvent(
-    message: string,
-    eventSource: { address: string; port: number },
-  ) {
+  private async testForGameEvent(message: string, logSecret: string) {
     for (const gameEvent of this.gameEvents) {
       const matches = message.match(gameEvent.regex);
       if (matches) {
-        const gameServer =
-          await this.gameSeversService.getGameServerByEventSource(eventSource);
-        const game = await this.gamesService.getById(gameServer.game);
-        this.logger.debug(
-          `#${game.number}/${gameServer.name}: ${gameEvent.name}`,
-        );
+        const game = await this.gamesService.getByLogSecret(logSecret);
+        this.logger.debug(`#${game.number}: ${gameEvent.name}`);
         gameEvent.handle(game.id, matches);
         break;
       }
