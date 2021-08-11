@@ -238,7 +238,7 @@ export class GamesService {
 
         const url = new URL(`mumble://${voiceServer.url}`);
         url.pathname = `${voiceServer.channelName}/${
-          gameServer.mumbleChannelName
+          gameServer.voiceChannelName
         }/${slot.team.toUpperCase()}`;
         url.username = player.name.replace(/\s+/g, '_');
         url.password = voiceServer.password;

@@ -585,7 +585,7 @@ describe('GamesService', () => {
           await game.save();
 
           gameServer = {
-            mumbleChannelName: '7',
+            voiceChannelName: '7',
           } as GameServer;
           gameServersService.getById.mockResolvedValue(gameServer);
         });
