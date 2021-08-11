@@ -4,8 +4,9 @@ import { GamesService } from '../services/games.service';
 import { Game } from '../models/game';
 import { GameRuntimeService } from '../services/game-runtime.service';
 import { PlayerSubstitutionService } from '../services/player-substitution.service';
-import { NotFoundException } from '@nestjs/common';
+import { NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { Player } from '@/players/models/player';
+import { PlayerNotInThisGameError } from '../errors/player-not-in-this-game.error';
 
 jest.mock('../services/game-runtime.service');
 jest.mock('../services/player-substitution.service');
@@ -39,6 +40,9 @@ class GamesServiceStub {
   }
   getPlayerGameCount(playerId: string) {
     return Promise.resolve(1);
+  }
+  getVoiceChannelUrl(gameId: string, playerId: string) {
+    return Promise.resolve(null);
   }
 }
 
@@ -159,6 +163,26 @@ describe('Games Controller', () => {
         await expect(controller.getGame('FAKE_GAME_ID')).rejects.toThrow(
           NotFoundException,
         );
+      });
+    });
+  });
+
+  describe('#getConnectInfo()', () => {
+    describe('when the player does not take part in the game', () => {
+      beforeEach(() => {
+        jest
+          .spyOn(gamesService, 'getVoiceChannelUrl')
+          .mockRejectedValue(
+            new PlayerNotInThisGameError('FAKE_PLAYER_ID', 'FAKE_GAME_ID'),
+          );
+      });
+
+      it('should reject with 401', async () => {
+        await expect(
+          controller.getConnectInfo('FAKE_GAME_ID', {
+            id: 'FAKE_PLAYER_ID',
+          } as Player),
+        ).rejects.toThrow(UnauthorizedException);
       });
     });
   });

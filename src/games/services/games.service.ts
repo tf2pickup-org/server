@@ -16,6 +16,7 @@ import { ConfigurationService } from '@/configuration/services/configuration.ser
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { GameServersService } from '@/game-servers/services/game-servers.service';
+import { PlayerNotInThisGameError } from '../errors/player-not-in-this-game.error';
 
 interface GameSortOptions {
   launchedAt: 1 | -1;
@@ -210,8 +211,16 @@ export class GamesService {
 
   async getVoiceChannelUrl(
     gameId: string,
-    userId: string,
+    playerId: string,
   ): Promise<string | null> {
+    const game = await this.getById(gameId);
+    const player = await this.playersService.getById(playerId);
+    const slot = game.findPlayerSlot(playerId);
+
+    if (!slot) {
+      throw new PlayerNotInThisGameError(playerId, gameId);
+    }
+
     const voiceServer = await this.configurationService.getVoiceServer();
 
     switch (voiceServer.type) {
@@ -219,13 +228,10 @@ export class GamesService {
         return null;
 
       case 'mumble': {
-        const game = await this.getById(gameId);
         if (!game.gameServer) {
           return null;
         }
 
-        const player = await this.playersService.getById(userId);
-        const slot = game.findPlayerSlot(userId);
         const gameServer = await this.gameServersService.getById(
           game.gameServer.toString(),
         );

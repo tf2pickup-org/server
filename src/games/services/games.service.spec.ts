@@ -20,6 +20,7 @@ import { Model } from 'mongoose';
 import { getModelToken, MongooseModule } from '@nestjs/mongoose';
 import { GameServersService } from '@/game-servers/services/game-servers.service';
 import { GameServer } from '@/game-servers/models/game-server';
+import { PlayerNotInThisGameError } from '../errors/player-not-in-this-game.error';
 
 jest.mock('@/players/services/players.service');
 jest.mock('@/players/services/player-skill.service');
@@ -517,17 +518,10 @@ describe('GamesService', () => {
   describe('#getVoiceChannelUrl()', () => {
     let game: GameDocument;
     let player: PlayerDocument;
-    let gameServer: GameServer;
 
     beforeEach(async () => {
       // @ts-expect-error
       player = await playersService._createOne();
-
-      gameServer = {
-        mumbleChannelName: '7',
-      } as GameServer;
-
-      gameServersService.getById.mockResolvedValue(gameServer);
 
       game = await gameModel.create({
         number: 1,
@@ -540,7 +534,21 @@ describe('GamesService', () => {
             status: SlotStatus.active,
           },
         ],
-        gameServer: new ObjectId(),
+      });
+    });
+
+    describe('when a player is not part of the game', () => {
+      let anotherPlayer: PlayerDocument;
+
+      beforeEach(async () => {
+        // @ts-expect-error
+        anotherPlayer = await playersService._createOne();
+      });
+
+      it('should throw an error', async () => {
+        await expect(
+          service.getVoiceChannelUrl(game.id, anotherPlayer.id),
+        ).rejects.toThrow(PlayerNotInThisGameError);
       });
     });
 
@@ -565,11 +573,29 @@ describe('GamesService', () => {
         });
       });
 
-      it('should return direct mumble channel url', async () => {
-        const url = await service.getVoiceChannelUrl(game.id, player.id);
-        expect(url).toEqual(
-          'mumble://fake_player_1:FAKE_PASSWORD@melkor.tf/FAKE_CHANNEL_NAME/7/BLU',
-        );
+      it('should return null', async () => {
+        expect(await service.getVoiceChannelUrl(game.id, player.id)).toBe(null);
+      });
+
+      describe('when a game server is assigned', () => {
+        let gameServer: GameServer;
+
+        beforeEach(async () => {
+          game.gameServer = new ObjectId();
+          await game.save();
+
+          gameServer = {
+            mumbleChannelName: '7',
+          } as GameServer;
+          gameServersService.getById.mockResolvedValue(gameServer);
+        });
+
+        it('should return direct mumble channel url', async () => {
+          const url = await service.getVoiceChannelUrl(game.id, player.id);
+          expect(url).toEqual(
+            'mumble://fake_player_1:FAKE_PASSWORD@melkor.tf/FAKE_CHANNEL_NAME/7/BLU',
+          );
+        });
       });
     });
   });

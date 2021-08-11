@@ -8,6 +8,7 @@ import {
   Post,
   HttpCode,
   DefaultValuePipe,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { GamesService } from '../services/games.service';
 import { ObjectIdValidationPipe } from '@/shared/pipes/object-id-validation.pipe';
@@ -19,6 +20,7 @@ import { Game } from '../models/game';
 import { User } from '@/auth/decorators/user.decorator';
 import { Player } from '@/players/models/player';
 import { PlayerRole } from '@/players/models/player-role';
+import { PlayerNotInThisGameError } from '../errors/player-not-in-this-game.error';
 
 const sortOptions: string[] = [
   'launched_at',
@@ -94,14 +96,24 @@ export class GamesController {
     @Param('id', ObjectIdValidationPipe) gameId: string,
     @User() player: Player,
   ) {
-    const game = await this.gamesService.getById(gameId);
-    return {
-      voiceChannelUrl: await this.gamesService.getVoiceChannelUrl(
-        gameId,
-        player.id,
-      ),
-      connectString: game.connectString,
-    };
+    try {
+      const game = await this.gamesService.getById(gameId);
+      return {
+        voiceChannelUrl: await this.gamesService.getVoiceChannelUrl(
+          gameId,
+          player.id,
+        ),
+        connectString: game.connectString,
+      };
+    } catch (error) {
+      if (error instanceof PlayerNotInThisGameError) {
+        throw new UnauthorizedException(
+          'player does not take part in this game',
+        );
+      } else {
+        throw error;
+      }
+    }
   }
 
   @Get(':id/skills')
