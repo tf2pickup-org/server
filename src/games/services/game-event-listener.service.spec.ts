@@ -3,47 +3,31 @@ import { GameEventListenerService } from './game-event-listener.service';
 import { Environment } from '@/environment/environment';
 import { GameEventHandlerService } from './game-event-handler.service';
 import { GamesService } from './games.service';
-import { LogReceiver } from 'srcds-log-receiver';
-import { EventEmitter } from 'events';
 import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { getModelToken, MongooseModule } from '@nestjs/mongoose';
 import { Game, GameDocument, gameSchema } from '../models/game';
 import { Model } from 'mongoose';
+import { LogReceiverService } from '@/log-receiver/services/log-receiver.service';
+import { Subject } from 'rxjs';
 
 jest.mock('./game-event-handler.service');
 jest.mock('./games.service');
+jest.mock('@/log-receiver/services/log-receiver.service');
 
 class EnvironmentStub {
   logRelayAddress = '0.0.0.0';
   logRelayPort = '1234';
 }
 
-class LogReceiverStub extends EventEmitter {
-  opts = {
-    address: '127.0.0.1',
-    port: 1234,
-  };
-
-  mockEvent(message: string) {
-    this.emit('data', {
-      isValid: true,
-      password: 'SOME_LOG_SECRET',
-      message,
-    });
-  }
-}
-
-const waitABit = async () => new Promise((resolve) => setTimeout(resolve, 10));
-
 describe('GameEventListenerService', () => {
   let service: GameEventListenerService;
   let gameEventHandlerService: GameEventHandlerService;
-  let logReceiver: LogReceiverStub;
   let mongod: MongoMemoryServer;
   let gamesService: GamesService;
   let gameModel: Model<GameDocument>;
   let game: GameDocument;
+  let logReceiverService: jest.Mocked<LogReceiverService>;
 
   beforeAll(async () => (mongod = await MongoMemoryServer.create()));
   afterAll(async () => await mongod.stop());
@@ -64,15 +48,18 @@ describe('GameEventListenerService', () => {
         { provide: Environment, useClass: EnvironmentStub },
         GameEventHandlerService,
         GamesService,
-        { provide: LogReceiver, useClass: LogReceiverStub },
+        LogReceiverService,
       ],
     }).compile();
 
     service = module.get<GameEventListenerService>(GameEventListenerService);
     gameEventHandlerService = module.get(GameEventHandlerService);
-    logReceiver = module.get(LogReceiver);
     gameModel = module.get(getModelToken(Game.name));
     gamesService = module.get(GamesService);
+    logReceiverService = module.get(LogReceiverService);
+
+    // @ts-expect-error
+    logReceiverService.data = new Subject<any>();
 
     service.onModuleInit();
   });
@@ -103,9 +90,10 @@ describe('GameEventListenerService', () => {
             resolve();
             return null;
           });
-        logReceiver.mockEvent(
-          '01/26/2020 - 20:40:20: World triggered "Round_Start"',
-        );
+        (logReceiverService.data as Subject<any>).next({
+          payload: '01/26/2020 - 20:40:20: World triggered "Round_Start"',
+          password: 'SOME_LOG_SECRET',
+        });
       }));
 
     it('match ended', async () =>
@@ -117,9 +105,11 @@ describe('GameEventListenerService', () => {
             resolve();
             return null;
           });
-        logReceiver.mockEvent(
-          '01/26/2020 - 20:38:49: World triggered "Game_Over" reason "Reached Time Limit"',
-        );
+        (logReceiverService.data as Subject<any>).next({
+          payload:
+            '01/26/2020 - 20:38:49: World triggered "Game_Over" reason "Reached Time Limit"',
+          password: 'SOME_LOG_SECRET',
+        });
       }));
 
     it('logs uploaded', async () =>
@@ -132,9 +122,11 @@ describe('GameEventListenerService', () => {
             resolve();
             return null;
           });
-        logReceiver.mockEvent(
-          '01/26/2020 - 20:38:52: [TFTrue] The log is available here: http://logs.tf/2458457. Type !log to view it.',
-        );
+        (logReceiverService.data as Subject<any>).next({
+          payload:
+            '01/26/2020 - 20:38:52: [TFTrue] The log is available here: http://logs.tf/2458457. Type !log to view it.',
+          password: 'SOME_LOG_SECRET',
+        });
       }));
 
     it('demo uploaded', async () =>
@@ -147,9 +139,11 @@ describe('GameEventListenerService', () => {
             resolve();
             return null;
           });
-        logReceiver.mockEvent(
-          '06/19/2020 - 00:04:28: [demos.tf]: STV available at: https://demos.tf/427407',
-        );
+        (logReceiverService.data as Subject<any>).next({
+          payload:
+            '06/19/2020 - 00:04:28: [demos.tf]: STV available at: https://demos.tf/427407',
+          password: 'SOME_LOG_SECRET',
+        });
       }));
 
     it('player connected', async () =>
@@ -162,9 +156,11 @@ describe('GameEventListenerService', () => {
             resolve();
             return null;
           });
-        logReceiver.mockEvent(
-          '01/26/2020 - 20:03:44: "mały #tf2pickup.pl<366><[U:1:114143419]><>" connected, address "83.29.150.132:27005"',
-        );
+        (logReceiverService.data as Subject<any>).next({
+          payload:
+            '01/26/2020 - 20:03:44: "mały #tf2pickup.pl<366><[U:1:114143419]><>" connected, address "83.29.150.132:27005"',
+          password: 'SOME_LOG_SECRET',
+        });
       }));
 
     it('player joined team', async () =>
@@ -177,9 +173,11 @@ describe('GameEventListenerService', () => {
             resolve();
             return null;
           });
-        logReceiver.mockEvent(
-          '01/26/2020 - 20:03:51: "maly<366><[U:1:114143419]><Unassigned>" joined team "Blue"',
-        );
+        (logReceiverService.data as Subject<any>).next({
+          payload:
+            '01/26/2020 - 20:03:51: "maly<366><[U:1:114143419]><Unassigned>" joined team "Blue"',
+          password: 'SOME_LOG_SECRET',
+        });
       }));
 
     it('player disconnected', async () =>
@@ -192,9 +190,11 @@ describe('GameEventListenerService', () => {
             resolve();
             return null;
           });
-        logReceiver.mockEvent(
-          '01/26/2020 - 20:38:43: "maly<366><[U:1:114143419]><Blue>" disconnected (reason "Disconnect by user.")',
-        );
+        (logReceiverService.data as Subject<any>).next({
+          payload:
+            '01/26/2020 - 20:38:43: "maly<366><[U:1:114143419]><Blue>" disconnected (reason "Disconnect by user.")',
+          password: 'SOME_LOG_SECRET',
+        });
       }));
 
     it('score reported', async () =>
@@ -208,24 +208,11 @@ describe('GameEventListenerService', () => {
             resolve();
             return null;
           });
-        logReceiver.mockEvent(
-          '01/26/2020 - 20:38:49: Team "Blue" final score "2" with "3" players',
-        );
+        (logReceiverService.data as Subject<any>).next({
+          payload:
+            '01/26/2020 - 20:38:49: Team "Blue" final score "2" with "3" players',
+          password: 'SOME_LOG_SECRET',
+        });
       }));
   });
-
-  it('should discard invalid messages', async () =>
-    new Promise<void>((resolve) => {
-      const spy = jest.spyOn(gameEventHandlerService, 'onMatchStarted');
-      logReceiver.emit('data', {
-        isValid: false,
-        password: 'SOME_LOG_SECRET',
-        message: '01/26/2020 - 20:40:20: World triggered "Round_Start"',
-      });
-
-      setTimeout(() => {
-        expect(spy).not.toHaveBeenCalled();
-        resolve();
-      }, 1000);
-    }));
 });

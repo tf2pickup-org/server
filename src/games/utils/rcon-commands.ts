@@ -40,7 +40,7 @@ export function kickAll() {
   return 'kickall';
 }
 
-export function svLogsecret(logSecret: string) {
+export function svLogsecret(logSecret = '0') {
   return `sv_logsecret ${logSecret}`;
 }
 

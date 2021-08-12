@@ -6,7 +6,7 @@ import { Cron } from '@nestjs/schedule';
 import { Events } from '@/events/events';
 import { GameState } from '../models/game-state';
 import { ConfigurationService } from '@/configuration/services/configuration.service';
-import { generate } from 'generate-password';
+import { generateLogsecret } from '@/game-servers/utils/generate-logsecret';
 
 /**
  * This service is responsible for launching a single game.
@@ -57,7 +57,7 @@ export class GameLauncherService {
       );
 
       // step 2: generate logsecret
-      game.logSecret = generate({ length: 8 });
+      game.logSecret = generateLogsecret();
       await game.save();
 
       // step 3: set mumble url

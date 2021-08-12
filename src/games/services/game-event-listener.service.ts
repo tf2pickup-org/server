@@ -1,5 +1,5 @@
+import { LogReceiverService } from '@/log-receiver/services/log-receiver.service';
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import { LogReceiver, LogMessage } from 'srcds-log-receiver';
 import * as SteamID from 'steamid';
 import { GameEventHandlerService } from './game-event-handler.service';
 import { GamesService } from './games.service';
@@ -108,19 +108,13 @@ export class GameEventListenerService implements OnModuleInit {
   constructor(
     private gameEventHandlerService: GameEventHandlerService,
     private gamesService: GamesService,
-    private logReceiver: LogReceiver,
+    private logReceiverService: LogReceiverService,
   ) {}
 
   onModuleInit() {
-    this.logger.verbose(
-      `listening for incoming logs at ${this.logReceiver.opts.address}:${this.logReceiver.opts.port}`,
-    );
-
-    this.logReceiver.on('data', (msg: LogMessage) => {
-      if (msg.isValid) {
-        this.logger.debug(msg.message);
-        this.testForGameEvent(msg.message, msg.password);
-      }
+    this.logReceiverService.data.subscribe((data) => {
+      this.logger.debug(data.payload);
+      this.testForGameEvent(data.payload, data.password);
     });
   }
 
