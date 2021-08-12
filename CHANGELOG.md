@@ -1,3 +1,16 @@
+# [6.1.0](https://github.com/tf2pickup-org/server/compare/6.0.2...6.1.0) (2021-08-12)
+
+
+### Bug Fixes
+
+* **deps:** update dependency mongoose to v5.13.7 ([#1160](https://github.com/tf2pickup-org/server/issues/1160)) ([7303ddc](https://github.com/tf2pickup-org/server/commit/7303ddc4bbaa6ce1be656ea92f2a44421426df25))
+
+
+### Features
+
+* add bball config ([#1162](https://github.com/tf2pickup-org/server/issues/1162)) ([1e6de8f](https://github.com/tf2pickup-org/server/commit/1e6de8fa63b9b02dc08418233e0c7ee4f81e42fc))
+* **games:** use logsecret to match game events ([#1161](https://github.com/tf2pickup-org/server/issues/1161)) ([7382df3](https://github.com/tf2pickup-org/server/commit/7382df3382dc4678d50fb353229f9f97fa86b457))
+
 ## [6.0.2](https://github.com/tf2pickup-org/server/compare/6.0.1...6.0.2) (2021-08-10)
 
 
