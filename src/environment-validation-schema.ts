@@ -17,7 +17,7 @@ export default object({
   SUPER_USER: string()
     .required()
     .pattern(/^\d{17}$/, { name: 'SteamID64' }),
-  QUEUE_CONFIG: string().valid('test', '6v6', '9v9').default('6v6'),
+  QUEUE_CONFIG: string().valid('test', '6v6', '9v9', 'bball').default('6v6'),
   LOG_RELAY_ADDRESS: string().required(),
   LOG_RELAY_PORT: number().required(),
   DISCORD_BOT_TOKEN: any().optional(),
