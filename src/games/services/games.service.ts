@@ -48,6 +48,10 @@ export class GamesService {
     return await this.gameModel.findById(gameId);
   }
 
+  async getByLogSecret(logSecret: string): Promise<GameDocument> {
+    return await this.gameModel.findOne({ logSecret });
+  }
+
   async getRunningGames(): Promise<GameDocument[]> {
     return await this.gameModel.find({ state: /launching|started/ });
   }

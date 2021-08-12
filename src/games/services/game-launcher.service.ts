@@ -6,6 +6,7 @@ import { Cron } from '@nestjs/schedule';
 import { Events } from '@/events/events';
 import { GameState } from '../models/game-state';
 import { ConfigurationService } from '@/configuration/services/configuration.service';
+import { generateLogsecret } from '@/game-servers/utils/generate-logsecret';
 
 /**
  * This service is responsible for launching a single game.
@@ -55,14 +56,18 @@ export class GameLauncherService {
         `using server ${gameServer.name} for game #${game.number}`,
       );
 
-      // step 2: set mumble url
+      // step 2: generate logsecret
+      game.logSecret = generateLogsecret();
+      await game.save();
+
+      // step 3: set mumble url
       const mumbleUrl = await this.getMumbleUrl(gameServer.mumbleChannelName);
       this.logger.verbose(`game #${game.number} mumble url: ${mumbleUrl}`);
       game.mumbleUrl = mumbleUrl;
       await game.save();
       this.events.gameChanges.next({ game: game.toJSON() });
 
-      // step 3: configure server
+      // step 4: configure server
       const { connectString, stvConnectString } =
         await this.serverConfiguratorService.configureServer(gameServer, game);
       game.connectString = connectString;

@@ -1,11 +1,16 @@
 import { Environment } from '@/environment/environment';
-import { logAddressAdd, logAddressDel } from '@/games/utils/rcon-commands';
+import {
+  logAddressAdd,
+  logAddressDel,
+  svLogsecret,
+} from '@/games/utils/rcon-commands';
+import { LogReceiverService } from '@/log-receiver/services/log-receiver.service';
 import { Injectable, Scope } from '@nestjs/common';
 import { generate } from 'generate-password';
 import { Rcon } from 'rcon-client/lib';
-import { LogMessage, LogReceiver } from 'srcds-log-receiver';
 import { DiagnosticCheckResult } from '../interfaces/diagnostic-check-result';
 import { DiagnosticCheckRunner } from '../interfaces/diagnostic-check-runner';
+import { generateLogsecret } from '../utils/generate-logsecret';
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -15,7 +20,7 @@ export class LogForwarding implements DiagnosticCheckRunner {
   critical = true;
 
   constructor(
-    private logReceiver: LogReceiver,
+    private logReceiverService: LogReceiverService,
     private environment: Environment,
   ) {}
 
@@ -30,21 +35,25 @@ export class LogForwarding implements DiagnosticCheckRunner {
     }
 
     return new Promise((resolve) => {
+      const logSecret = generateLogsecret();
       const secret = generate({ length: 32, numbers: true });
       const timer = setTimeout(
         () =>
           resolve({
             success: false,
             reportedErrors: [
-              `No logs received over the UDP protocol on port ${this.logReceiver.opts.port}. Check your firewall settings.`,
+              `No logs received over the UDP protocol on port ${this.environment.logRelayPort}. Check your firewall settings.`,
             ],
             reportedWarnings: [],
           }),
         5000,
       );
 
-      this.logReceiver.on('data', (data: LogMessage) => {
-        if (new RegExp(`Console.+say\\s"${secret}"$`).test(data.message)) {
+      const subscription = this.logReceiverService.data.subscribe((data) => {
+        if (
+          data.password === logSecret &&
+          new RegExp(`Console.+say\\s"${secret}"$`).test(data.payload)
+        ) {
           clearTimeout(timer);
           resolve({
             success: true,
@@ -56,10 +65,13 @@ export class LogForwarding implements DiagnosticCheckRunner {
 
       const logAddress = `${this.environment.logRelayAddress}:${this.environment.logRelayPort}`;
       rcon
-        .send(logAddressAdd(logAddress))
+        .send(svLogsecret(logSecret))
+        .then(() => rcon.send(logAddressAdd(logAddress)))
         .then(() => sleep(1000))
         .then(() => rcon.send(`say ${secret}`))
-        .then(() => rcon.send(logAddressDel(logAddress)));
+        .then(() => rcon.send(logAddressDel(logAddress)))
+        .then(() => rcon.send(svLogsecret()))
+        .then(() => subscription.unsubscribe());
     });
   }
 }

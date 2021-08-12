@@ -20,6 +20,10 @@ import { GameState } from './game-state';
       if (ret.assignedSkills) {
         delete ret.assignedSkills;
       }
+
+      if (ret.logSecret) {
+        delete ret.logSecret;
+      }
     },
   },
 })
@@ -77,6 +81,9 @@ export class Game {
 
   @Prop()
   stvConnectString?: string;
+
+  @Prop({ unique: true, sparse: true })
+  logSecret?: string;
 
   findPlayerSlot: (playerId: string) => GameSlot;
   activeSlots: () => GameSlot[];

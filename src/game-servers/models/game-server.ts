@@ -31,9 +31,6 @@ export class GameServer extends MongooseDocument {
   @Prop({ default: false })
   isOnline?: boolean; // was the server online last we checked
 
-  @Prop({ type: () => [String], index: true })
-  resolvedIpAddresses?: string[]; // for tracing game server logs
-
   @Prop()
   mumbleChannelName?: string;
 

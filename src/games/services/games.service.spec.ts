@@ -116,6 +116,25 @@ describe('GamesService', () => {
     });
   });
 
+  describe('#getByLogSecret()', () => {
+    let game: GameDocument;
+
+    beforeEach(async () => {
+      game = await gameModel.create({
+        number: 1,
+        map: 'cp_badlands',
+        slots: [],
+        logSecret: 'FAKE_LOG_SECRET',
+      });
+    });
+
+    it('should get the game by its logsecret', async () => {
+      const ret = await service.getByLogSecret('FAKE_LOG_SECRET');
+      expect(ret.id).toEqual(game.id);
+      expect(ret.toJSON().logSecret).toBe(undefined);
+    });
+  });
+
   describe('#getRunningGames()', () => {
     let launchingGame: GameDocument;
     let runningGame: GameDocument;

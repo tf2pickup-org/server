@@ -16,6 +16,10 @@ export class GamesService {
     return await this.gameModel.findById(gameId);
   }
 
+  async getByLogSecret(logSecret: string): Promise<GameDocument> {
+    return await this.gameModel.findOne({ logSecret });
+  }
+
   async update(gameId: string, update: Partial<Game>) {
     return await this.gameModel.findByIdAndUpdate(gameId, update, {
       new: true,
