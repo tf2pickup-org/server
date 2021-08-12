@@ -82,7 +82,7 @@ export class Game {
   @Prop()
   stvConnectString?: string;
 
-  @Prop({ unique: true })
+  @Prop({ unique: true, sparse: true })
   logSecret?: string;
 
   findPlayerSlot: (playerId: string) => GameSlot;
