@@ -142,30 +142,8 @@ describe('GameServersService', () => {
         });
       });
 
-      it('should resolve ip addresses', () => {
-        expect(gameServer.resolvedIpAddresses).toEqual(['1.2.3.4']);
-      });
-
       it('should save the mumble channel', () => {
         expect(gameServer.mumbleChannelName).toEqual('some mumble channel');
-      });
-    });
-
-    describe('when the address is a raw IP address', () => {
-      let gameServer: GameServer;
-
-      beforeEach(async () => {
-        gameServer = await service.addGameServer({
-          name: 'test game server',
-          address: '151.80.108.144',
-          port: '27017',
-          rconPassword: 'test rcon password',
-          mumbleChannelName: 'some mumble channel name',
-        });
-      });
-
-      it('should store the ip address', () => {
-        expect(gameServer.resolvedIpAddresses).toEqual(['151.80.108.144']);
       });
     });
 
@@ -312,16 +290,6 @@ describe('GameServersService', () => {
           service.releaseServer(new ObjectId().toString()),
         ).rejects.toThrow(Error.DocumentNotFoundError);
       });
-    });
-  });
-
-  describe('#getGameServerByEventSource()', () => {
-    it('should return the correct server', async () => {
-      const server = await service.getGameServerByEventSource({
-        address: '127.0.0.1',
-        port: 27015,
-      });
-      expect(server.id).toEqual(testGameServer.id);
     });
   });
 

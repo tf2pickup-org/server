@@ -1,7 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { GameServer, GameServerDocument } from '../models/game-server';
-import { resolve as resolveCb } from 'dns';
-import { promisify } from 'util';
 import { isServerOnline } from '../utils/is-server-online';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { Mutex } from 'async-mutex';
@@ -10,8 +8,6 @@ import { Events } from '@/events/events';
 import { plainToClass } from 'class-transformer';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Error } from 'mongoose';
-
-const resolve = promisify(resolveCb);
 
 @Injectable()
 export class GameServersService {
@@ -42,21 +38,6 @@ export class GameServersService {
     params: GameServer,
     adminId?: string,
   ): Promise<GameServer> {
-    if (
-      /^(?!0)(?!.*\.$)((1?\d?\d|25[0-5]|2[0-4]\d)(\.|$)){4}$/.test(
-        params.address,
-      )
-    ) {
-      // raw ip address was given
-      params.resolvedIpAddresses = [params.address];
-    } else {
-      const resolvedIpAddresses = await resolve(params.address);
-      this.logger.verbose(
-        `resolved addresses for ${params.address}: ${resolvedIpAddresses}`,
-      );
-      params.resolvedIpAddresses = resolvedIpAddresses;
-    }
-
     if (!params.mumbleChannelName) {
       const latestServer = await this.gameServerModel
         .findOne({ mumbleChannelName: { $ne: null }, deleted: false })
@@ -149,24 +130,6 @@ export class GameServersService {
       `game server ${gameServerId} (${gameServer.name}) marked as free`,
     );
     return gameServer;
-  }
-
-  async getGameServerByEventSource(eventSource: {
-    address: string;
-    port: number;
-  }): Promise<GameServer> {
-    return plainToClass(
-      GameServer,
-      await this.gameServerModel
-        .findOne({
-          deleted: false,
-          resolvedIpAddresses: eventSource.address,
-          port: `${eventSource.port}`,
-        })
-        .orFail()
-        .lean()
-        .exec(),
-    );
   }
 
   @Cron(CronExpression.EVERY_MINUTE)
