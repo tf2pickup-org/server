@@ -1,0 +1,9 @@
+{
+  "teamCount": 2,
+  "classes": [
+    {
+      "name": "soldier",
+      "count": 2
+    }
+  ]
+}
