@@ -20,7 +20,7 @@ export class LogForwarding implements DiagnosticCheckRunner {
   critical = true;
 
   constructor(
-    private logReceiver: LogReceiverService,
+    private logReceiverService: LogReceiverService,
     private environment: Environment,
   ) {}
 
@@ -49,7 +49,7 @@ export class LogForwarding implements DiagnosticCheckRunner {
         5000,
       );
 
-      const subscription = this.logReceiver.data.subscribe((data) => {
+      const subscription = this.logReceiverService.data.subscribe((data) => {
         if (
           data.password === logSecret &&
           new RegExp(`Console.+say\\s"${secret}"$`).test(data.payload)
