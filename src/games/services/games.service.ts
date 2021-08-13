@@ -18,6 +18,7 @@ import { Model } from 'mongoose';
 import { GameServersService } from '@/game-servers/services/game-servers.service';
 import { PlayerNotInThisGameError } from '../errors/player-not-in-this-game.error';
 import { URL } from 'url';
+import { GameInWrongStateError } from '../errors/game-in-wrong-state.error';
 
 interface GameSortOptions {
   launchedAt: 1 | -1;
@@ -215,6 +216,10 @@ export class GamesService {
     playerId: string,
   ): Promise<string | null> {
     const game = await this.getById(gameId);
+    if (![GameState.launching, GameState.started].includes(game.state)) {
+      throw new GameInWrongStateError(game.state);
+    }
+
     const player = await this.playersService.getById(playerId);
     const slot = game.findPlayerSlot(playerId);
 

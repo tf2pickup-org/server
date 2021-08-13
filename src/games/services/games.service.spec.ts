@@ -21,6 +21,7 @@ import { getModelToken, MongooseModule } from '@nestjs/mongoose';
 import { GameServersService } from '@/game-servers/services/game-servers.service';
 import { GameServer } from '@/game-servers/models/game-server';
 import { PlayerNotInThisGameError } from '../errors/player-not-in-this-game.error';
+import { GameInWrongStateError } from '../errors/game-in-wrong-state.error';
 
 jest.mock('@/players/services/players.service');
 jest.mock('@/players/services/player-skill.service');
@@ -534,6 +535,19 @@ describe('GamesService', () => {
             status: SlotStatus.active,
           },
         ],
+      });
+    });
+
+    describe('when the game is not running', () => {
+      beforeEach(async () => {
+        game.state = GameState.ended;
+        await game.save();
+      });
+
+      it('should throw an error', async () => {
+        await expect(
+          service.getVoiceChannelUrl(game.id, player.id),
+        ).rejects.toThrow(GameInWrongStateError);
       });
     });
 
