@@ -24,6 +24,10 @@ import { GameState } from './game-state';
       if (ret.logSecret) {
         delete ret.logSecret;
       }
+
+      if (ret.connectString) {
+        delete ret.connectString;
+      }
     },
   },
 })
