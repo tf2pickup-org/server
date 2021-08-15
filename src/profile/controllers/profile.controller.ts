@@ -36,7 +36,7 @@ export class ProfileController {
   async getProfile(@User() user: Player): Promise<Profile> {
     return new Profile({
       player: user,
-      activeGameId: user.activeGame?.toString(),
+      activeGameId: user.activeGame?.toString() ?? null,
       bans: await this.playerBansService.getPlayerActiveBans(user.id),
       mapVote: this.mapVoteService.playerVote(user.id),
       preferences: await this.playerPreferencesService.getPlayerPreferences(

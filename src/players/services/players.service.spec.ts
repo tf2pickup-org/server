@@ -4,7 +4,6 @@ import { Environment } from '@/environment/environment';
 import { Etf2lProfileService } from './etf2l-profile.service';
 import { SteamProfile } from '../steam-profile';
 import { GamesService } from '@/games/services/games.service';
-import { OnlinePlayersService } from './online-players.service';
 import { Etf2lProfile } from '../etf2l-profile';
 import { Player, PlayerDocument, playerSchema } from '../models/player';
 import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
@@ -13,8 +12,6 @@ import { SteamApiService } from './steam-api.service';
 import { ObjectId } from 'mongodb';
 import { Events } from '@/events/events';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
-import { WebsocketEvent } from '@/websocket-event';
-import { Socket } from 'socket.io';
 import { InsufficientTf2InGameHoursError } from '../errors/insufficient-tf2-in-game-hours.error';
 import { Tf2InGameHoursVerificationError } from '../errors/tf2-in-game-hours-verification.error';
 import { PlayerRole } from '../models/player-role';
@@ -23,7 +20,6 @@ import { Error, Model } from 'mongoose';
 import { getModelToken, MongooseModule } from '@nestjs/mongoose';
 
 jest.mock('./etf2l-profile.service');
-jest.mock('./online-players.service');
 jest.mock('@/configuration/services/configuration.service');
 
 class EnvironmentStub {
@@ -61,10 +57,8 @@ describe('PlayersService', () => {
   let environment: EnvironmentStub;
   let etf2lProfileService: jest.Mocked<Etf2lProfileService>;
   let gamesService: GamesServiceStub;
-  let onlinePlayersService: jest.Mocked<OnlinePlayersService>;
   let steamApiService: SteamApiServiceStub;
   let events: Events;
-  let socket: Socket;
   let configurationService: jest.Mocked<ConfigurationService>;
 
   beforeAll(async () => (mongod = await MongoMemoryServer.create()));
@@ -86,7 +80,6 @@ describe('PlayersService', () => {
         { provide: Environment, useClass: EnvironmentStub },
         Etf2lProfileService,
         { provide: GamesService, useClass: GamesServiceStub },
-        OnlinePlayersService,
         { provide: SteamApiService, useClass: SteamApiServiceStub },
         Events,
         ConfigurationService,
@@ -98,7 +91,6 @@ describe('PlayersService', () => {
     environment = module.get(Environment);
     etf2lProfileService = module.get(Etf2lProfileService);
     gamesService = module.get(GamesService);
-    onlinePlayersService = module.get(OnlinePlayersService);
     steamApiService = module.get(SteamApiService);
     events = module.get(Events);
     configurationService = module.get(ConfigurationService);
@@ -120,9 +112,6 @@ describe('PlayersService', () => {
       id: 112758,
       name: 'maly',
     });
-
-    socket = { emit: jest.fn() } as any;
-    onlinePlayersService.getSocketsForPlayer.mockReturnValue([socket]);
   });
 
   beforeEach(async () => {
@@ -379,21 +368,15 @@ describe('PlayersService', () => {
       expect(ret2.roles).toEqual([]);
     });
 
-    it('should emit updated player over websocket', async () => {
-      await service.updatePlayer(mockPlayer.id, { name: 'NEW_NAME' }, admin.id);
-      expect(socket.emit).toHaveBeenCalledWith(WebsocketEvent.profileUpdate, {
-        player: expect.objectContaining({ name: 'NEW_NAME' }),
-      });
-    });
-
-    describe("when a change doesn't affect JSON output", () => {
-      it('should not emit updated player over websocket', async () => {
-        await service.updatePlayer(mockPlayer.id, {
-          activeGame: new ObjectId(),
+    it('should emit playerUpdated event', async () =>
+      new Promise<void>((resolve) => {
+        events.playerUpdates.subscribe(({ newPlayer }) => {
+          expect(newPlayer.id).toEqual(mockPlayer.id);
+          expect(newPlayer.name).toEqual('NEW_NAME');
+          resolve();
         });
-        expect(socket.emit).not.toHaveBeenCalled();
-      });
-    });
+        service.updatePlayer(mockPlayer.id, { name: 'NEW_NAME' }, admin.id);
+      }));
 
     describe('when the given player does not exist', () => {
       it('should reject', async () => {

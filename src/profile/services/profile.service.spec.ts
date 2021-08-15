@@ -1,8 +1,10 @@
 import { Events } from '@/events/events';
+import { Player } from '@/players/models/player';
 import { LinkedProfilesService } from '@/players/services/linked-profiles.service';
 import { OnlinePlayersService } from '@/players/services/online-players.service';
 import { WebsocketEvent } from '@/websocket-event';
 import { Test, TestingModule } from '@nestjs/testing';
+import { Types } from 'mongoose';
 import { ProfileService } from './profile.service';
 
 jest.mock('@/players/services/online-players.service');
@@ -50,5 +52,34 @@ describe('ProfileService', () => {
       onlinePlayersService.getSocketsForPlayer.mockReturnValue([socket as any]);
       linkedProfilesService.getLinkedProfiles.mockResolvedValue([]);
       events.linkedProfilesChanged.next({ playerId: 'FAKE_PLAYER_ID' });
+    }));
+
+  it('should update profile when active game is updated', async () =>
+    new Promise<void>((resolve) => {
+      const socket = {
+        emit: jest.fn().mockImplementation((eventName, data) => {
+          expect(eventName).toEqual(WebsocketEvent.profileUpdate);
+          expect(data).toMatchObject({
+            activeGameId: null,
+          });
+          resolve();
+        }),
+      };
+
+      onlinePlayersService.getSocketsForPlayer.mockReturnValue([socket as any]);
+
+      const oldPlayer = new Player();
+      oldPlayer.id = 'FAKE_PLAYER_ID';
+      oldPlayer.name = 'FAKE_PLAYER_NAME';
+      oldPlayer.activeGame = new Types.ObjectId();
+
+      const newPlayer = new Player();
+      newPlayer.id = 'FAKE_PLAYER_ID';
+      newPlayer.name = 'FAKE_PLAYER_NAME';
+
+      events.playerUpdates.next({
+        oldPlayer,
+        newPlayer,
+      });
     }));
 });

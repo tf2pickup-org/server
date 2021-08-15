@@ -79,7 +79,10 @@ describe('Profile Controller', () => {
         mapVote: 'cp_badlands',
         preferences: new Map([['sound-volume', '0.5']]),
       };
-      expect(await controller.getProfile(profile.player)).toEqual(profile);
+      expect(await controller.getProfile(profile.player)).toEqual({
+        ...profile,
+        activeGameId: null,
+      });
     });
 
     it('should return active game id', async () => {
