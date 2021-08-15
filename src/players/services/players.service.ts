@@ -16,18 +16,14 @@ import { SteamApiService } from './steam-api.service';
 import { ObjectId } from 'mongodb';
 import { PlayerAvatar } from '../models/player-avatar';
 import { Events } from '@/events/events';
-import { classToPlain, plainToClass } from 'class-transformer';
+import { plainToClass } from 'class-transformer';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
-import { OnlinePlayersService } from './online-players.service';
-import { WebsocketEvent } from '@/websocket-event';
 import { Error, Model, UpdateQuery } from 'mongoose';
 import { Tf2InGameHoursVerificationError } from '../errors/tf2-in-game-hours-verification.error';
 import { AccountBannedError } from '../errors/account-banned.error';
 import { InsufficientTf2InGameHoursError } from '../errors/insufficient-tf2-in-game-hours.error';
 import { PlayerRole } from '../models/player-role';
 import { ConfigurationService } from '@/configuration/services/configuration.service';
-import { filter, map } from 'rxjs/operators';
-import { isEqual } from 'lodash';
 import { InjectModel } from '@nestjs/mongoose';
 
 type ForceCreatePlayerOptions = Pick<Player, 'steamId' | 'name'>;
@@ -43,7 +39,6 @@ export class PlayersService implements OnModuleInit {
     @Inject(forwardRef(() => GamesService)) private gamesService: GamesService,
     private steamApiService: SteamApiService,
     private events: Events,
-    private onlinePlayersService: OnlinePlayersService,
     private configurationService: ConfigurationService,
   ) {}
 
@@ -60,24 +55,6 @@ export class PlayersService implements OnModuleInit {
         throw error;
       }
     }
-
-    this.events.playerUpdates
-      .pipe(
-        map(({ oldPlayer, newPlayer }) => ({
-          oldPlayer: classToPlain(oldPlayer),
-          newPlayer: classToPlain(newPlayer),
-        })),
-        filter(({ oldPlayer, newPlayer }) => !isEqual(newPlayer, oldPlayer)),
-      )
-      .subscribe(({ newPlayer }) => {
-        this.onlinePlayersService
-          .getSocketsForPlayer(newPlayer.id)
-          .forEach((socket) =>
-            socket.emit(WebsocketEvent.profileUpdate, {
-              player: newPlayer,
-            }),
-          );
-      });
   }
 
   async getAll(): Promise<Player[]> {
