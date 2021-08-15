@@ -9,6 +9,8 @@ import {
   HttpCode,
   DefaultValuePipe,
   UnauthorizedException,
+  ClassSerializerInterceptor,
+  UseInterceptors,
 } from '@nestjs/common';
 import { GamesService } from '../services/games.service';
 import { ObjectIdValidationPipe } from '@/shared/pipes/object-id-validation.pipe';
@@ -21,6 +23,7 @@ import { User } from '@/auth/decorators/user.decorator';
 import { Player } from '@/players/models/player';
 import { PlayerRole } from '@/players/models/player-role';
 import { PlayerNotInThisGameError } from '../errors/player-not-in-this-game.error';
+import { ConnectInfo } from '../dto/connect-info';
 
 const sortOptions: string[] = [
   'launched_at',
@@ -92,19 +95,22 @@ export class GamesController {
 
   @Get(':id/connect-info')
   @Auth()
+  @UseInterceptors(ClassSerializerInterceptor)
   async getConnectInfo(
     @Param('id', ObjectIdValidationPipe) gameId: string,
     @User() player: Player,
-  ) {
+  ): Promise<ConnectInfo> {
     try {
       const game = await this.gamesService.getById(gameId);
-      return {
+      return new ConnectInfo({
+        gameId: game.id,
+        connectInfoVersion: game.connectInfoVersion,
+        connectString: game.connectString,
         voiceChannelUrl: await this.gamesService.getVoiceChannelUrl(
           gameId,
           player.id,
         ),
-        connectString: game.connectString,
-      };
+      });
     } catch (error) {
       if (error instanceof PlayerNotInThisGameError) {
         throw new UnauthorizedException(
