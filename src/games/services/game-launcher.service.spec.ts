@@ -5,27 +5,15 @@ import { GameServersService } from '@/game-servers/services/game-servers.service
 import { ServerConfiguratorService } from './server-configurator.service';
 import { Events } from '@/events/events';
 import { GameServerDocument } from '@/game-servers/models/game-server';
+import { MongoMemoryServer } from 'mongodb-memory-server';
+import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
+import { getModelToken, MongooseModule } from '@nestjs/mongoose';
+import { Game, GameDocument, gameSchema } from '../models/game';
+import { Model, Types } from 'mongoose';
 
 jest.mock('@/game-servers/services/game-servers.service');
-
-const mockGame = {
-  id: 'FAKE_GAME_ID',
-  _id: 'FAKE_GAME_ID',
-  number: 2,
-  state: 'launching',
-  gameServer: null,
-  save: () => Promise.resolve(),
-  toJSON: () => this,
-};
-
-class GamesServiceStub {
-  getById() {
-    return new Promise((resolve) => resolve(mockGame));
-  }
-  getOrphanedGames() {
-    return new Promise((resolve) => resolve([mockGame]));
-  }
-}
+jest.mock('./games.service');
+jest.mock('./server-configurator.service');
 
 const mockGameServer = {
   id: 'FAKE_GAME_SERVER_ID',
@@ -36,33 +24,34 @@ const mockGameServer = {
   save: () => null,
 };
 
-class ServerConfiguratorServiceStub {
-  configureServer(server: any, game: any) {
-    return new Promise((resolve) =>
-      resolve({
-        connectString: 'FAKE_CONNECT_STRING',
-        stvConnectString: 'FAKE_STV_CONNECT_STRING',
-      }),
-    );
-  }
-}
-
 describe('GameLauncherService', () => {
   let service: GameLauncherService;
-  let gamesService: GamesServiceStub;
+  let gamesService: jest.Mocked<GamesService>;
   let gameServersService: jest.Mocked<GameServersService>;
-  let serverConfiguratorService: ServerConfiguratorServiceStub;
+  let serverConfiguratorService: jest.Mocked<ServerConfiguratorService>;
+  let mongod: MongoMemoryServer;
+  let game: GameDocument;
+  let gameModel: Model<GameDocument>;
+
+  beforeAll(async () => (mongod = await MongoMemoryServer.create()));
+  afterAll(async () => await mongod.stop());
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
+      imports: [
+        mongooseTestingModule(mongod),
+        MongooseModule.forFeature([
+          {
+            name: Game.name,
+            schema: gameSchema,
+          },
+        ]),
+      ],
       providers: [
         GameLauncherService,
-        { provide: GamesService, useClass: GamesServiceStub },
+        GamesService,
         GameServersService,
-        {
-          provide: ServerConfiguratorService,
-          useClass: ServerConfiguratorServiceStub,
-        },
+        ServerConfiguratorService,
         Events,
       ],
     }).compile();
@@ -71,12 +60,27 @@ describe('GameLauncherService', () => {
     gamesService = module.get(GamesService);
     gameServersService = module.get(GameServersService);
     serverConfiguratorService = module.get(ServerConfiguratorService);
+    gameModel = module.get(getModelToken(Game.name));
   });
 
-  beforeEach(() => {
+  beforeEach(async () => {
     gameServersService.assignFreeGameServer.mockResolvedValue(
       mockGameServer as GameServerDocument,
     );
+
+    serverConfiguratorService.configureServer.mockResolvedValue({
+      connectString: 'FAKE_CONNECT_STRING',
+      stvConnectString: 'FAKE_STV_CONNECT_STRING',
+    });
+
+    // @ts-expect-error
+    game = await gamesService._createOne();
+    game.gameServer = new Types.ObjectId();
+    await game.save();
+  });
+
+  afterEach(async () => {
+    await gameModel.deleteMany({});
   });
 
   it('should be defined', () => {
@@ -85,34 +89,39 @@ describe('GameLauncherService', () => {
 
   describe('#launch()', () => {
     describe('when the game does not exist', () => {
-      beforeEach(() => {
-        jest.spyOn(gamesService, 'getById').mockResolvedValue(null);
-      });
-
       it('should throw', async () => {
-        await expect(service.launch('FAKE_GAME_ID')).rejects.toThrowError(
-          'no such game',
-        );
+        await expect(
+          service.launch(new Types.ObjectId().toString()),
+        ).rejects.toThrowError('no such game');
       });
     });
 
     it('should configure the game server', async () => {
-      const spy = jest.spyOn(serverConfiguratorService, 'configureServer');
-      const ret = await service.launch('FAKE_GAME_ID');
-      expect(spy).toHaveBeenCalledWith(
+      const ret = await service.launch(game.id);
+      expect(serverConfiguratorService.configureServer).toHaveBeenCalledWith(
         expect.objectContaining({ id: mockGameServer.id }),
-        expect.objectContaining({ id: mockGame.id }),
+        expect.objectContaining({ id: game.id }),
       );
       expect(ret.connectString).toEqual('FAKE_CONNECT_STRING');
       expect(ret.stvConnectString).toEqual('FAKE_STV_CONNECT_STRING');
     });
+
+    it('should increment connectInfoVersion', async () => {
+      const v = game.connectInfoVersion;
+      const ret = await service.launch(game.id);
+      expect(ret.connectInfoVersion).toEqual(v + 1);
+    });
   });
 
   describe('#launchOrphanedGames()', () => {
+    beforeEach(() => {
+      gamesService.getOrphanedGames.mockResolvedValue([game]);
+    });
+
     it('should launch orphaned games', async () => {
       const spy = jest.spyOn(service, 'launch');
       await service.launchOrphanedGames();
-      expect(spy).toHaveBeenCalledWith('FAKE_GAME_ID');
+      expect(spy).toHaveBeenCalledWith(game.id);
     });
   });
 });

@@ -63,6 +63,7 @@ export class GameLauncherService {
         await this.serverConfiguratorService.configureServer(gameServer, game);
       game.connectString = connectString;
       game.stvConnectString = stvConnectString;
+      game.connectInfoVersion += 1;
       await game.save();
       this.events.gameChanges.next({ game: game.toJSON() });
 

@@ -39,7 +39,7 @@ describe('GameRuntimeService', () => {
   let playersService: PlayersService;
   let gamesService: GamesService;
   let gameServersService: jest.Mocked<GameServersService>;
-  let serverConfiguratorService: ServerConfiguratorService;
+  let serverConfiguratorService: jest.Mocked<ServerConfiguratorService>;
   let rconFactoryService: RconFactoryService;
   let mockGameServer: GameServer & { id: string };
   let mockPlayers: PlayerDocument[];
@@ -102,11 +102,10 @@ describe('GameRuntimeService', () => {
     mockGame.gameServer = new ObjectId(mockGameServer.id);
     await mockGame.save();
 
-    serverConfiguratorService.configureServer = () =>
-      Promise.resolve({
-        connectString: 'FAKE_CONNECT_STRING',
-        stvConnectString: 'FAKE_STV_CONNECT_STRING',
-      });
+    serverConfiguratorService.configureServer.mockResolvedValue({
+      connectString: 'FAKE_CONNECT_STRING',
+      stvConnectString: 'FAKE_STV_CONNECT_STRING',
+    });
   });
 
   afterEach(async () => {
@@ -122,13 +121,18 @@ describe('GameRuntimeService', () => {
 
   describe('#reconfigure()', () => {
     it('should configure the server again', async () => {
-      const spy = jest.spyOn(serverConfiguratorService, 'configureServer');
       const ret = await service.reconfigure(mockGame.id);
-      expect(spy).toHaveBeenCalledWith(
+      expect(serverConfiguratorService.configureServer).toHaveBeenCalledWith(
         expect.objectContaining({ id: mockGameServer.id }),
         expect.objectContaining({ id: mockGame.id }),
       );
       expect(ret.connectString).toEqual('FAKE_CONNECT_STRING');
+    });
+
+    it('should bump connect info version', async () => {
+      const v = mockGame.connectInfoVersion;
+      const ret = await service.reconfigure(mockGame.id);
+      expect(ret.connectInfoVersion > v).toBe(true);
     });
 
     describe('when the given game does not exist', () => {
@@ -156,8 +160,9 @@ describe('GameRuntimeService', () => {
 
     describe('when an rcon error occurs', () => {
       beforeEach(() => {
-        serverConfiguratorService.configureServer = () =>
-          Promise.reject(new Error('FAKE_RCON_ERROR'));
+        serverConfiguratorService.configureServer.mockRejectedValue(
+          new Error('FAKE_RCON_ERROR'),
+        );
       });
 
       it('should handle the error', async () => {
@@ -221,8 +226,9 @@ describe('GameRuntimeService', () => {
 
     describe('when an rcon error occurs', () => {
       beforeEach(() => {
-        serverConfiguratorService.configureServer = () =>
-          Promise.reject(new Error('FAKE_RCON_ERROR'));
+        serverConfiguratorService.configureServer.mockRejectedValue(
+          new Error('FAKE_RCON_ERROR'),
+        );
       });
 
       it('should handle the error', async () => {

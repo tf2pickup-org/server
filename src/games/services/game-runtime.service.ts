@@ -38,6 +38,7 @@ export class GameRuntimeService {
     this.logger.verbose(`game #${game.number} is being reconfigured`);
 
     game.connectString = null;
+    game.connectInfoVersion += 1;
     await game.save();
     this.events.gameChanges.next({ game });
 
@@ -48,6 +49,7 @@ export class GameRuntimeService {
       const { connectString } =
         await this.serverConfiguratorService.configureServer(gameServer, game);
       game.connectString = connectString;
+      game.connectInfoVersion += 1;
       await game.save();
       this.events.gameChanges.next({ game });
     } catch (e) {

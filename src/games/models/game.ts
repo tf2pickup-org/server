@@ -56,6 +56,12 @@ export class Game {
   @Prop()
   connectString?: string;
 
+  @Prop({ default: 0 })
+  connectInfoVersion: number;
+
+  @Prop()
+  stvConnectString?: string;
+
   @Prop()
   logsUrl?: string;
 
@@ -75,9 +81,6 @@ export class Game {
     }),
   )
   score?: Map<string, number>;
-
-  @Prop()
-  stvConnectString?: string;
 
   @Prop({ unique: true, sparse: true })
   logSecret?: string;
