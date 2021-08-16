@@ -168,6 +168,27 @@ describe('Games Controller', () => {
   });
 
   describe('#getConnectInfo()', () => {
+    beforeEach(() => {
+      jest.spyOn(gamesService, 'getById').mockResolvedValue({
+        id: 'FAKE_ID',
+        connectInfoVersion: 1,
+        connectString: 'FAKE_CONNECT_STRING',
+      } as Game);
+      jest
+        .spyOn(gamesService, 'getVoiceChannelUrl')
+        .mockResolvedValue('FAKE_VOICE_CHANNEL_URL');
+    });
+
+    it('should return connect info', async () => {
+      const ret = await controller.getConnectInfo('FAKE_ID', {
+        id: 'FAKE_PLAYER_ID',
+      } as Player);
+      expect(ret.gameId).toEqual('FAKE_ID');
+      expect(ret.connectInfoVersion).toEqual(1);
+      expect(ret.connectString).toEqual('FAKE_CONNECT_STRING');
+      expect(ret.voiceChannelUrl).toEqual('FAKE_VOICE_CHANNEL_URL');
+    });
+
     describe('when the player does not take part in the game', () => {
       beforeEach(() => {
         jest
