@@ -7,7 +7,7 @@ import { QueueService } from '../services/queue.service';
 import { WsAuthorized } from '@/auth/decorators/ws-authorized.decorator';
 import { Socket } from 'socket.io';
 import { MapVoteService } from '../services/map-vote.service';
-import { OnModuleInit } from '@nestjs/common';
+import { OnModuleInit, UseFilters } from '@nestjs/common';
 import { QueueAnnouncementsService } from '../services/queue-announcements.service';
 import { FriendsService } from '../services/friends.service';
 import { Events } from '@/events/events';
@@ -15,6 +15,7 @@ import { distinctUntilChanged } from 'rxjs/operators';
 import { PopulatePlayers } from '../decorators/populate-players.decorator';
 import { PlayerPopulatorService } from '../services/player-populator.service';
 import { WebsocketEvent } from '@/websocket-event';
+import { AllExceptionsFilter } from '@/shared/filters/all-exceptions.filter';
 
 @WebSocketGateway()
 export class QueueGateway implements OnGatewayInit, OnModuleInit {
@@ -60,6 +61,7 @@ export class QueueGateway implements OnGatewayInit, OnModuleInit {
     });
   }
 
+  @UseFilters(AllExceptionsFilter)
   @WsAuthorized()
   @PopulatePlayers()
   @SubscribeMessage('join queue')
@@ -67,6 +69,7 @@ export class QueueGateway implements OnGatewayInit, OnModuleInit {
     return await this.queueService.join(payload.slotId, client.user.id);
   }
 
+  @UseFilters(AllExceptionsFilter)
   @WsAuthorized()
   @PopulatePlayers()
   @SubscribeMessage('leave queue')
@@ -74,6 +77,7 @@ export class QueueGateway implements OnGatewayInit, OnModuleInit {
     return this.queueService.leave(client.user.id);
   }
 
+  @UseFilters(AllExceptionsFilter)
   @WsAuthorized()
   @PopulatePlayers()
   @SubscribeMessage('player ready')
@@ -81,6 +85,7 @@ export class QueueGateway implements OnGatewayInit, OnModuleInit {
     return this.queueService.readyUp(client.user.id);
   }
 
+  @UseFilters(AllExceptionsFilter)
   @WsAuthorized()
   @SubscribeMessage('mark friend')
   markFriend(client: Socket, payload: { friendPlayerId: string }) {
@@ -90,6 +95,7 @@ export class QueueGateway implements OnGatewayInit, OnModuleInit {
     );
   }
 
+  @UseFilters(AllExceptionsFilter)
   @WsAuthorized()
   @SubscribeMessage('vote for map')
   voteForMap(client: Socket, payload: { map: string }) {
