@@ -23,6 +23,7 @@ describe('AuthService', () => {
   let refreshKeys: KeyPair;
 
   beforeAll(async () => (mongod = await MongoMemoryServer.create()));
+  afterAll(async () => await mongod.stop());
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({

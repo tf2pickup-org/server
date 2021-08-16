@@ -17,6 +17,7 @@ describe('importOrGenerateKeys()', () => {
   let environment: Partial<Environment>;
 
   beforeAll(async () => (mongod = await MongoMemoryServer.create()));
+  afterAll(async () => await mongod.stop());
 
   beforeEach(() => {
     environment = {
