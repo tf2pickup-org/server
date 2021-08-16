@@ -1,3 +1,11 @@
+## [6.1.1](https://github.com/tf2pickup-org/server/compare/6.1.0...6.1.1) (2021-08-16)
+
+
+### Bug Fixes
+
+* **profile:** update active game id properly ([#1167](https://github.com/tf2pickup-org/server/issues/1167)) ([11e6009](https://github.com/tf2pickup-org/server/commit/11e6009374c8024824b6376f98348695625f5984))
+* **queue:** handle gateway exceptions gracefully ([#1168](https://github.com/tf2pickup-org/server/issues/1168)) ([6727ed9](https://github.com/tf2pickup-org/server/commit/6727ed902d0ad2cbd91d2b83fbaeac9f05d82dbd))
+
 # [6.1.0](https://github.com/tf2pickup-org/server/compare/6.0.2...6.1.0) (2021-08-12)
 
 
