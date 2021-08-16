@@ -36,7 +36,7 @@ export class ConfigurationService implements OnModuleInit {
       this.loadDefault(
         ConfigurationEntryKey.voiceServer,
         JSON.stringify({
-          type: 'no voice server',
+          type: 'null',
         }),
       ),
     ]);
