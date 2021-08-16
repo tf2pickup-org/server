@@ -1,3 +1,10 @@
+## [6.1.2](https://github.com/tf2pickup-org/server/compare/6.1.1...6.1.2) (2021-08-16)
+
+
+### Bug Fixes
+
+* **players:** verbose tf2 in-game hours verification logging ([#1170](https://github.com/tf2pickup-org/server/issues/1170)) ([5f3c6ef](https://github.com/tf2pickup-org/server/commit/5f3c6ef735cf5f228378b7a8f88d10e6920bcbff))
+
 ## [6.1.1](https://github.com/tf2pickup-org/server/compare/6.1.0...6.1.1) (2021-08-16)
 
 
