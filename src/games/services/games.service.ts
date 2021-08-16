@@ -247,7 +247,9 @@ export class GamesService {
           gameServer.voiceChannelName
         }/${slot.team.toUpperCase()}`;
         url.username = player.name.replace(/\s+/g, '_');
-        url.password = voiceServer.password;
+        if (voiceServer.password) {
+          url.password = voiceServer.password;
+        }
         url.protocol = 'mumble:';
         return url.toString();
       }

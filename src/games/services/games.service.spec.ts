@@ -577,12 +577,11 @@ describe('GamesService', () => {
     });
 
     describe('when the voice server is a mumble server', () => {
-      beforeEach(async () => {
+      beforeEach(() => {
         configurationService.getVoiceServer.mockResolvedValue({
           type: 'mumble',
           url: 'melkor.tf',
           port: 64738,
-          password: 'FAKE_PASSWORD',
           channelName: 'FAKE_CHANNEL_NAME',
         });
       });
@@ -607,8 +606,27 @@ describe('GamesService', () => {
         it('should return direct mumble channel url', async () => {
           const url = await service.getVoiceChannelUrl(game.id, player.id);
           expect(url).toEqual(
-            'mumble://fake_player_1:FAKE_PASSWORD@melkor.tf/FAKE_CHANNEL_NAME/7/BLU',
+            'mumble://fake_player_1@melkor.tf/FAKE_CHANNEL_NAME/7/BLU',
           );
+        });
+
+        describe('when the mumble server has a password', () => {
+          beforeEach(() => {
+            configurationService.getVoiceServer.mockResolvedValue({
+              type: 'mumble',
+              url: 'melkor.tf',
+              port: 64738,
+              channelName: 'FAKE_CHANNEL_NAME',
+              password: 'FAKE_SERVER_PASSWORD',
+            });
+          });
+
+          it('should handle the password in the url', async () => {
+            const url = await service.getVoiceChannelUrl(game.id, player.id);
+            expect(url).toEqual(
+              'mumble://fake_player_1:FAKE_SERVER_PASSWORD@melkor.tf/FAKE_CHANNEL_NAME/7/BLU',
+            );
+          });
         });
       });
     });
