@@ -4,15 +4,15 @@ import { AuthService } from '@/auth/services/auth.service';
 import { Player } from '@/players/models/player';
 import { PlayersService } from '@/players/services/players.service';
 import { INestApplication } from '@nestjs/common';
-import { getModelToken } from '@nestjs/mongoose';
 import { Test } from '@nestjs/testing';
 import { io, Socket } from 'socket.io-client';
+import { players } from './test-data';
 
 jest.mock('@/players/services/steam-api.service');
 
 describe('Websocket (e2e)', () => {
   let app: INestApplication;
-  let maly: Player;
+  let player: Player;
   let socket: Socket;
 
   beforeAll(async () => {
@@ -26,16 +26,10 @@ describe('Websocket (e2e)', () => {
 
   beforeAll(async () => {
     const playersService = app.get(PlayersService);
-    maly = await playersService.createPlayer(
-      (
-        await import('./steam-profiles')
-      ).maly,
-    );
+    player = await playersService.findBySteamId(players[0]);
   });
 
   afterAll(async () => {
-    const playerModel = app.get(getModelToken(Player.name));
-    await playerModel.deleteMany({});
     await app.close();
   });
 
@@ -63,7 +57,7 @@ describe('Websocket (e2e)', () => {
       const authService = app.get(AuthService);
       token = await authService.generateJwtToken(
         JwtTokenPurpose.websocket,
-        maly.id,
+        player.id,
       );
     });
 
@@ -100,13 +94,13 @@ describe('Websocket (e2e)', () => {
         new Promise<void>((resolve) => {
           socket.on('profile update', (changes) => {
             expect(changes).toMatchObject({
-              player: { name: 'maly updated', id: maly.id },
+              player: { name: 'maly updated', id: player.id },
             });
             resolve();
           });
 
           const playersService = app.get(PlayersService);
-          playersService.updatePlayer(maly.id, { name: 'maly updated' });
+          playersService.updatePlayer(player.id, { name: 'maly updated' });
         }));
     });
 

@@ -7,7 +7,7 @@ import {
 import { resolve } from 'path';
 import { createMongoDbUri } from '../src/utils/create-mongo-db-uri';
 
-const setup = async () => {
+const restoreSnapshot = async () => {
   config();
 
   const mongoConnector = new MongoDBDuplexConnector({
@@ -41,4 +41,4 @@ const setup = async () => {
   console.log(`${process.env.MONGODB_DB}: snapshot restored`);
 };
 
-export default setup;
+restoreSnapshot();
