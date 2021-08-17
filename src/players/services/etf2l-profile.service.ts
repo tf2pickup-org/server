@@ -1,7 +1,8 @@
-import { Injectable, HttpService } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { Etf2lProfile } from '../etf2l-profile';
 import { switchMap, catchError } from 'rxjs/operators';
 import { of, throwError } from 'rxjs';
+import { HttpService } from '@nestjs/axios';
 
 interface Etf2lPlayerResponse {
   player: Etf2lProfile;

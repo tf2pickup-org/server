@@ -1,4 +1,4 @@
-import { Injectable, HttpService, OnModuleInit, Logger } from '@nestjs/common';
+import { Injectable, OnModuleInit, Logger } from '@nestjs/common';
 import { TwitchStream } from '../models/twitch-stream';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { Environment } from '@/environment/environment';
@@ -19,6 +19,7 @@ import { promotedStreams } from '@configs/twitchtv';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { ObjectId } from 'mongodb';
+import { HttpService } from '@nestjs/axios';
 
 interface TwitchGetUsersResponse {
   data: {
