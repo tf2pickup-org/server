@@ -11,9 +11,6 @@ import { GameServerDiagnosticsService } from '@/game-servers/services/game-serve
 import { DiagnosticRunStatus } from '@/game-servers/models/diagnostic-run-status';
 import { players, gameServer } from './test-data';
 
-jest.mock('@/players/services/steam-api.service');
-jest.setTimeout(10000);
-
 describe('Game server diagnostics (e2e)', () => {
   let app: INestApplication;
   let authToken: string;
@@ -37,6 +34,8 @@ describe('Game server diagnostics (e2e)', () => {
         }
       }, 1000);
     });
+
+  beforeAll(() => jest.setTimeout(10000));
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({

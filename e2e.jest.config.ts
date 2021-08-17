@@ -15,5 +15,6 @@ const config: Config.InitialOptions = {
   ],
   globalSetup: '<rootDir>/e2e/setup.ts',
   globalTeardown: '<rootDir>/e2e/teardown.ts',
+  slowTestThreshold: 10,
 };
 export default config;

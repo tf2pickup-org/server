@@ -1,15 +1,12 @@
 import { AppModule } from '@/app.module';
 import { JwtTokenPurpose } from '@/auth/jwt-token-purpose';
 import { AuthService } from '@/auth/services/auth.service';
-import { ConfigurationService } from '@/configuration/services/configuration.service';
 import { PlayersService } from '@/players/services/players.service';
 import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { io, Socket } from 'socket.io-client';
 import * as request from 'supertest';
 import { players } from './test-data';
-
-jest.mock('@/players/services/steam-api.service');
 
 const connectSocket = (port: number, token: string) =>
   new Promise<Socket>((resolve, reject) => {
@@ -34,6 +31,11 @@ describe('Launch game (e2e)', () => {
   let app: INestApplication;
   let clients: Client[];
 
+  // players[0] is the super-user
+  let authToken: string;
+  let newGameId: string;
+  let activeGameId: string;
+
   beforeAll(async () => {
     const moduleFixture = await Test.createTestingModule({
       imports: [AppModule],
@@ -41,9 +43,6 @@ describe('Launch game (e2e)', () => {
 
     app = moduleFixture.createNestApplication();
     await app.listen(3000);
-
-    const configurationService = app.get(ConfigurationService);
-    await configurationService.setEtf2lAccountRequired(false);
 
     clients = [];
     const playersService = app.get(PlayersService);
@@ -63,6 +62,21 @@ describe('Launch game (e2e)', () => {
       );
       clients.push({ playerId, socket });
     }
+
+    authToken = await authService.generateJwtToken(
+      JwtTokenPurpose.auth,
+      clients[0].playerId,
+    );
+  });
+
+  beforeAll(() => {
+    clients[0].socket.on('game created', (game) => {
+      newGameId = game.id;
+    });
+
+    clients[0].socket.on('profile update', (profile) => {
+      activeGameId = profile.activeGameId;
+    });
   });
 
   afterAll(async () => {
@@ -74,6 +88,7 @@ describe('Launch game (e2e)', () => {
   });
 
   it('should launch the game when 12 players join the game and ready up', async () => {
+    // all 12 players join the queue
     let lastSlotId = 0;
     for (let i = 0; i < 12; ++i) {
       clients[i].socket.emit('join queue', { slotId: lastSlotId++ });
@@ -97,16 +112,8 @@ describe('Launch game (e2e)', () => {
         ).toBe(true);
       });
 
-    let newGameId: string;
-    clients[0].socket.on('game created', (game) => {
-      newGameId = game.id;
-    });
-
-    let activeGameId: string;
-    clients[0].socket.on('profile update', (profile) => {
-      activeGameId = profile.activeGameId;
-    });
-
+    // queue is in ready state
+    // all 12 players ready up
     for (let i = 0; i < 12; ++i) {
       clients[i].socket.emit('player ready');
       await waitABit(150);
@@ -122,7 +129,9 @@ describe('Launch game (e2e)', () => {
         expect(body.slots.every((slot) => slot.player === null)).toBe(true);
       });
 
-    expect(newGameId).toBeDefined();
+    // the new game should be announced to all clients
+    expect(newGameId).toBeTruthy();
+    // the new game should be assigned to all players
     expect(activeGameId).toEqual(newGameId);
 
     await request(app.getHttpServer())
@@ -137,5 +146,23 @@ describe('Launch game (e2e)', () => {
             .every((playerId) => body.slots.find((s) => s.player === playerId)),
         ).toBe(true);
       });
+
+    // kill the game
+    await waitABit(500);
+    await request(app.getHttpServer())
+      .post(`/games/${newGameId}?force_end`)
+      .auth(authToken, { type: 'bearer' })
+      .expect(200);
+
+    await request(app.getHttpServer())
+      .get(`/games/${newGameId}`)
+      .expect(200)
+      .then((response) => {
+        const body = response.body;
+        expect(body.state).toEqual('interrupted');
+      });
+
+    // all players should be freed
+    expect(activeGameId).toBe(null);
   });
 });

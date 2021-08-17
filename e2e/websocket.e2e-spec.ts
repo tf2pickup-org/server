@@ -8,8 +8,6 @@ import { Test } from '@nestjs/testing';
 import { io, Socket } from 'socket.io-client';
 import { players } from './test-data';
 
-jest.mock('@/players/services/steam-api.service');
-
 describe('Websocket (e2e)', () => {
   let app: INestApplication;
   let player: Player;
