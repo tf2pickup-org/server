@@ -63,7 +63,7 @@ jobs:
         MONGODB_DB: 'tf2pickuppl_e2e_tests'
         STEAM_API_KEY: 'FAKE_API_KEY'
         KEY_STORE_PASSPHARE: 'a_password'
-        SUPER_USER: '76561198074409147'
+        SUPER_USER: '76561199195756652'
         QUEUE_CONFIG: '6v6'
         MUMBLE_SERVER_URL: 'melkor.tf'
         MUMBLE_CHANNEL_NAME: 'tf2pickup'
