@@ -5,7 +5,7 @@ import {
   LocalFileSystemDuplexConnector,
 } from 'mongodb-snapshot';
 import { resolve } from 'path';
-import { createMongoDbUri } from '../src/utils/create-mongo-db-uri';
+import { createMongoDbUri } from '../../src/utils/create-mongo-db-uri';
 
 const restoreSnapshot = async () => {
   config();
@@ -25,7 +25,7 @@ const restoreSnapshot = async () => {
 
   const localFileConnector = new LocalFileSystemDuplexConnector({
     connection: {
-      path: resolve(__dirname, 'snapshot.tar'),
+      path: resolve(__dirname, '..', 'snapshot.tar'),
     },
   });
 
