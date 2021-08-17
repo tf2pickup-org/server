@@ -1,6 +1,7 @@
-import { Injectable, HttpService, Logger } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { Environment } from '@/environment/environment';
 import { map } from 'rxjs/operators';
+import { HttpService } from '@nestjs/axios';
 
 interface TokenResponse {
   access_token: string;

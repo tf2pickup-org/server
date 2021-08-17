@@ -1,9 +1,10 @@
-import { Injectable, HttpService } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { Environment } from '@/environment/environment';
 import { map, switchMap, catchError } from 'rxjs/operators';
 import { floor } from 'lodash';
 import { of, throwError } from 'rxjs';
 import { Tf2InGameHoursVerificationError } from '../errors/tf2-in-game-hours-verification.error';
+import { HttpService } from '@nestjs/axios';
 
 interface UserStatsForGameResponse {
   playerstats: {

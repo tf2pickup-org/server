@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { TwitchAuthService } from './twitch-auth.service';
 import { Environment } from '@/environment/environment';
-import { HttpService } from '@nestjs/common';
+import { HttpService } from '@nestjs/axios';
 import { of } from 'rxjs';
 
 const environment = {

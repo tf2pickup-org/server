@@ -3,7 +3,7 @@ import { SteamApiService } from './steam-api.service';
 import { of, throwError } from 'rxjs';
 import { readFileSync } from 'fs';
 import { resolve } from 'path';
-import { HttpService } from '@nestjs/common';
+import { HttpService } from '@nestjs/axios';
 import { Environment } from '@/environment/environment';
 import { Tf2InGameHoursVerificationError } from '../errors/tf2-in-game-hours-verification.error';
 

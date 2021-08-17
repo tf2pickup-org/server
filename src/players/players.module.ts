@@ -1,4 +1,4 @@
-import { Module, HttpModule, forwardRef, CacheModule } from '@nestjs/common';
+import { Module, forwardRef, CacheModule } from '@nestjs/common';
 import { PlayersService } from './services/players.service';
 import { Etf2lProfileService } from './services/etf2l-profile.service';
 import { Player, playerSchema } from './models/player';
@@ -21,6 +21,7 @@ import {
 import { ConfigurationModule } from '@/configuration/configuration.module';
 import { LinkedProfilesService } from './services/linked-profiles.service';
 import { MongooseModule } from '@nestjs/mongoose';
+import { HttpModule } from '@nestjs/axios';
 
 @Module({
   imports: [

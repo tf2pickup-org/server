@@ -1,4 +1,4 @@
-import { Module, HttpModule } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { PlayersModule } from '@/players/players.module';
 import { TwitchService } from './services/twitch.service';
 import { TwitchController } from './controllers/twitch.controller';
@@ -10,6 +10,7 @@ import {
   twitchTvProfileSchema,
 } from './models/twitch-tv-profile';
 import { MongooseModule } from '@nestjs/mongoose';
+import { HttpModule } from '@nestjs/axios';
 
 @Module({
   imports: [
