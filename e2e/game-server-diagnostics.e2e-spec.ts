@@ -9,8 +9,6 @@ import { JwtTokenPurpose } from '@/auth/jwt-token-purpose';
 import { GameServersService } from '@/game-servers/services/game-servers.service';
 import { GameServerDiagnosticsService } from '@/game-servers/services/game-server-diagnostics.service';
 import { DiagnosticRunStatus } from '@/game-servers/models/diagnostic-run-status';
-import { GameServer } from '@/game-servers/models/game-server';
-import { getModelToken } from '@nestjs/mongoose';
 import { players, gameServer } from './test-data';
 
 jest.mock('@/players/services/steam-api.service');
@@ -73,8 +71,8 @@ describe('Game server diagnostics (e2e)', () => {
   });
 
   afterAll(async () => {
-    const gameServerModel = app.get(getModelToken(GameServer.name));
-    await gameServerModel.deleteOne({ _id: faultyGameServerId });
+    const gameServersService = app.get(GameServersService);
+    await gameServersService.removeGameServer(faultyGameServerId);
     await app.close();
   });
 
