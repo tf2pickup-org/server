@@ -168,7 +168,9 @@ describe('GameEventHandlerService', () => {
       // eslint-disable-next-line jest/expect-expect
       it('should emit the substituteRequestsChange event', async () =>
         new Promise<void>((resolve) => {
-          events.substituteRequestsChange.subscribe(resolve);
+          events.substituteRequestsChange.subscribe(() =>
+            setImmediate(resolve),
+          );
           service.onMatchEnded(mockGame.id);
         }));
     });
