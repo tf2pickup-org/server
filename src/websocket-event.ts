@@ -9,4 +9,7 @@ export enum WebsocketEvent {
   friendshipsUpdate = 'friendships update',
   mapVoteResultsUpdate = 'map vote results update',
   substituteRequestsUpdate = 'substitute requests update',
+
+  playerConnected = 'player connected',
+  playerDisconnected = 'player disconnected',
 }
