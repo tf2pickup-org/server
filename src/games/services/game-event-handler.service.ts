@@ -24,7 +24,7 @@ export class GameEventHandlerService implements OnModuleDestroy {
   ) {}
 
   onModuleDestroy() {
-    this.timers.forEach((t) => clearInterval(t));
+    this.timers.forEach((t) => clearTimeout(t));
   }
 
   async onMatchStarted(gameId: string) {
