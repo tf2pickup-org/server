@@ -73,6 +73,7 @@ describe('GameEventHandlerService', () => {
   });
 
   afterEach(async () => {
+    service.onModuleDestroy();
     // @ts-expect-error
     await gamesService._reset();
     // @ts-expect-error
@@ -167,7 +168,9 @@ describe('GameEventHandlerService', () => {
       // eslint-disable-next-line jest/expect-expect
       it('should emit the substituteRequestsChange event', async () =>
         new Promise<void>((resolve) => {
-          events.substituteRequestsChange.subscribe(resolve);
+          events.substituteRequestsChange.subscribe(() =>
+            setImmediate(resolve),
+          );
           service.onMatchEnded(mockGame.id);
         }));
     });

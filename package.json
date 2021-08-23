@@ -12,7 +12,7 @@
     "prod": "node dist/src/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\"",
     "test": "jest --watch",
-    "test:ci": "jest --ci --maxWorkers 4",
+    "test:ci": "NODE_ENV=test node --trace-warnings node_modules/.bin/jest --ci --runInBand --forceExit",
     "test:e2e": "NODE_ENV=test jest --config e2e.jest.config.ts --runInBand --forceExit",
     "release": "release-it"
   },

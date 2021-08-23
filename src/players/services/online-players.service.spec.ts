@@ -32,6 +32,7 @@ describe('OnlinePlayersService', () => {
   afterEach(() => jest.useRealTimers());
 
   beforeEach(() => service.onModuleInit());
+  afterEach(() => service.onModuleDestroy());
 
   it('should be defined', () => {
     expect(service).toBeDefined();

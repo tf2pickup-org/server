@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, OnModuleDestroy } from '@nestjs/common';
 import { PlayersService } from '@/players/services/players.service';
 import { PlayerConnectionStatus } from '../models/player-connection-status';
 import { GameRuntimeService } from './game-runtime.service';
@@ -12,8 +12,9 @@ import { Model, Types } from 'mongoose';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 
 @Injectable()
-export class GameEventHandlerService {
+export class GameEventHandlerService implements OnModuleDestroy {
   private logger = new Logger(GameEventHandlerService.name);
+  private timers: NodeJS.Timer[] = [];
 
   constructor(
     @InjectModel(Game.name) private gameModel: Model<GameDocument>,
@@ -21,6 +22,10 @@ export class GameEventHandlerService {
     private gameRuntimeService: GameRuntimeService,
     private events: Events,
   ) {}
+
+  onModuleDestroy() {
+    this.timers.forEach((t) => clearTimeout(t));
+  }
 
   async onMatchStarted(gameId: string) {
     const game = await this.gameModel.findOneAndUpdate(
@@ -55,11 +60,13 @@ export class GameEventHandlerService {
       this.events.substituteRequestsChange.next();
 
       await this.freeAllMedics(game.id);
-      setTimeout(() => this.freeAllPlayers(game.id), 5000);
-
-      setTimeout(
-        () => this.gameRuntimeService.cleanupServer(game.gameServer.toString()),
-        serverCleanupDelay,
+      this.timers.push(setTimeout(() => this.freeAllPlayers(game.id), 5000));
+      this.timers.push(
+        setTimeout(
+          () =>
+            this.gameRuntimeService.cleanupServer(game.gameServer.toString()),
+          serverCleanupDelay,
+        ),
       );
     } else {
       this.logger.warn(`no such game: ${gameId}`);
