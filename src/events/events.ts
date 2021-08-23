@@ -31,6 +31,7 @@ export class Events {
     newPlayer: Player;
     adminId?: string;
   }>();
+  readonly playerConnects = new Subject<{ playerId: string }>();
   readonly playerDisconnects = new Subject<{ playerId: string }>();
   readonly playerBanAdded = new Subject<{ ban: PlayerBan }>();
   readonly playerBanRevoked = new Subject<{

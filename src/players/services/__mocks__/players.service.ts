@@ -2,7 +2,7 @@ import { Subject } from 'rxjs';
 import { Player, PlayerDocument } from '@/players/models/player';
 import { Injectable } from '@nestjs/common';
 import { plainToClass } from 'class-transformer';
-import { Model, UpdateQuery } from 'mongoose';
+import { Model, Types, UpdateQuery } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 
 @Injectable()
@@ -18,6 +18,20 @@ export class PlayersService {
     return plainToClass(
       Player,
       await this.playerModel.findById(id).orFail().lean().exec(),
+    );
+  }
+
+  async getManyById(...ids: string[]): Promise<Player[]> {
+    return plainToClass(
+      Player,
+      await this.playerModel
+        .find({
+          _id: {
+            $in: ids.map((id) => Types.ObjectId(id)),
+          },
+        })
+        .lean()
+        .exec(),
     );
   }
 

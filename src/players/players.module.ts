@@ -22,6 +22,7 @@ import { ConfigurationModule } from '@/configuration/configuration.module';
 import { LinkedProfilesService } from './services/linked-profiles.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { HttpModule } from '@nestjs/axios';
+import { OnlinePlayersController } from './controllers/online-players.controller';
 
 @Module({
   imports: [
@@ -56,6 +57,10 @@ import { HttpModule } from '@nestjs/axios';
     OnlinePlayersService,
     LinkedProfilesService,
   ],
-  controllers: [PlayersController, HallOfFameController],
+  controllers: [
+    PlayersController,
+    HallOfFameController,
+    OnlinePlayersController,
+  ],
 })
 export class PlayersModule {}
