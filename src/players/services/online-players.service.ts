@@ -1,15 +1,21 @@
 import { Events } from '@/events/events';
-import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  OnModuleDestroy,
+  OnModuleInit,
+} from '@nestjs/common';
 import { Socket } from 'socket.io';
 import { PlayersGateway } from '../gateways/players.gateway';
 
 type SocketList = Socket[];
 
 @Injectable()
-export class OnlinePlayersService implements OnModuleInit {
+export class OnlinePlayersService implements OnModuleInit, OnModuleDestroy {
   private readonly verifyPlayerTimeout = 10 * 1000; // 10 seconds
   private logger = new Logger(OnlinePlayersService.name);
   private sockets = new Map<string, SocketList>();
+  private timers: NodeJS.Timeout[] = [];
 
   constructor(private playersGateway: PlayersGateway, private events: Events) {}
 
@@ -34,12 +40,18 @@ export class OnlinePlayersService implements OnModuleInit {
           player.id,
           sockets.filter((s) => s !== socket),
         );
-        setTimeout(
-          () => this.verifyPlayer(player.id),
-          this.verifyPlayerTimeout,
+        this.timers.push(
+          setTimeout(
+            () => this.verifyPlayer(player.id),
+            this.verifyPlayerTimeout,
+          ),
         );
       }
     });
+  }
+
+  onModuleDestroy() {
+    this.timers.forEach((t) => clearTimeout(t));
   }
 
   getSocketsForPlayer(playerId: string) {

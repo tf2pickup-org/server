@@ -73,6 +73,7 @@ describe('GameEventHandlerService', () => {
   });
 
   afterEach(async () => {
+    service.onModuleDestroy();
     // @ts-expect-error
     await gamesService._reset();
     // @ts-expect-error

@@ -157,7 +157,7 @@ describe('GameRuntimeService', () => {
     describe('when an rcon error occurs', () => {
       beforeEach(() => {
         serverConfiguratorService.configureServer = () =>
-          Promise.reject('FAKE_RCON_ERROR');
+          Promise.reject(new Error('FAKE_RCON_ERROR'));
       });
 
       it('should handle the error', async () => {
@@ -222,7 +222,7 @@ describe('GameRuntimeService', () => {
     describe('when an rcon error occurs', () => {
       beforeEach(() => {
         serverConfiguratorService.configureServer = () =>
-          Promise.reject('FAKE_RCON_ERROR');
+          Promise.reject(new Error('FAKE_RCON_ERROR'));
       });
 
       it('should handle the error', async () => {
@@ -341,7 +341,7 @@ describe('GameRuntimeService', () => {
 
     describe('when an rcon error occurs', () => {
       beforeEach(() => {
-        rcon.send = () => Promise.reject('fake rcon error');
+        rcon.send = () => Promise.reject(new Error('fake rcon error'));
       });
 
       it('should close the RCON connection', async () => {

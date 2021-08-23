@@ -2,7 +2,7 @@ import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
 import { GamesService } from './games.service';
 import { GameServersService } from '@/game-servers/services/game-servers.service';
 import { ServerConfiguratorService } from './server-configurator.service';
-import { Cron } from '@nestjs/schedule';
+import { Cron, CronExpression } from '@nestjs/schedule';
 import { Events } from '@/events/events';
 import { GameState } from '../models/game-state';
 import { ConfigurationService } from '@/configuration/services/configuration.service';
@@ -82,7 +82,7 @@ export class GameLauncherService {
     }
   }
 
-  @Cron('30 * * * * *') // every minute
+  @Cron(CronExpression.EVERY_MINUTE) // every minute
   async launchOrphanedGames() {
     const orphanedGames = await this.gamesService.getOrphanedGames();
     for (const game of orphanedGames) {
