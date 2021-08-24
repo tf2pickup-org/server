@@ -10,7 +10,7 @@ import { OnModuleInit } from '@nestjs/common';
 import { Events } from '@/events/events';
 import { WebsocketEvent } from '@/websocket-event';
 import { PlayersService } from '../services/players.service';
-import { serialize } from 'class-transformer';
+import { classToPlain } from 'class-transformer';
 
 @WebSocketGateway()
 export class PlayersGateway
@@ -50,13 +50,13 @@ export class PlayersGateway
     this.events.playerConnects.subscribe(async ({ playerId }) =>
       this.socket.emit(
         WebsocketEvent.playerConnected,
-        serialize(await this.playersService.getById(playerId)),
+        classToPlain(await this.playersService.getById(playerId)),
       ),
     );
     this.events.playerDisconnects.subscribe(async ({ playerId }) =>
       this.socket.emit(
         WebsocketEvent.playerDisconnected,
-        serialize(await this.playersService.getById(playerId)),
+        classToPlain(await this.playersService.getById(playerId)),
       ),
     );
   }
