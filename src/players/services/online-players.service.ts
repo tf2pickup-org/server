@@ -16,6 +16,11 @@ export class OnlinePlayersService implements OnModuleInit, OnModuleDestroy {
   private logger = new Logger(OnlinePlayersService.name);
   private sockets = new Map<string, SocketList>();
   private timers: NodeJS.Timeout[] = [];
+  private _onlinePlayers = new Set<string>();
+
+  get onlinePlayers(): string[] {
+    return Array.from(this._onlinePlayers);
+  }
 
   constructor(private playersGateway: PlayersGateway, private events: Events) {}
 
@@ -27,6 +32,9 @@ export class OnlinePlayersService implements OnModuleInit, OnModuleDestroy {
         if (!sockets.includes(socket)) {
           this.logger.debug(`${player.name} connected`);
           this.sockets.set(player.id, [...sockets, socket]);
+          if (sockets.length === 0) {
+            this.events.playerConnects.next({ playerId: player.id });
+          }
         }
       }
     });
@@ -48,6 +56,13 @@ export class OnlinePlayersService implements OnModuleInit, OnModuleDestroy {
         );
       }
     });
+
+    this.events.playerConnects.subscribe(({ playerId }) =>
+      this._onlinePlayers.add(playerId),
+    );
+    this.events.playerDisconnects.subscribe(({ playerId }) =>
+      this._onlinePlayers.delete(playerId),
+    );
   }
 
   onModuleDestroy() {

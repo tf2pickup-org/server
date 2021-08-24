@@ -18,7 +18,7 @@ import { PlayerAvatar } from '../models/player-avatar';
 import { Events } from '@/events/events';
 import { plainToClass } from 'class-transformer';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
-import { Error, Model, UpdateQuery } from 'mongoose';
+import { Error, Model, Types, UpdateQuery } from 'mongoose';
 import { Tf2InGameHoursVerificationError } from '../errors/tf2-in-game-hours-verification.error';
 import { AccountBannedError } from '../errors/account-banned.error';
 import { InsufficientTf2InGameHoursError } from '../errors/insufficient-tf2-in-game-hours.error';
@@ -71,6 +71,20 @@ export class PlayersService implements OnModuleInit {
     return plainToClass(
       Player,
       await this.playerModel.findById(id).orFail().lean().exec(),
+    );
+  }
+
+  async getManyById(...ids: string[]): Promise<Player[]> {
+    return plainToClass(
+      Player,
+      await this.playerModel
+        .find({
+          _id: {
+            $in: ids.map((id) => Types.ObjectId(id)),
+          },
+        })
+        .lean()
+        .exec(),
     );
   }
 

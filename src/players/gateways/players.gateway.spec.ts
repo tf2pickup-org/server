@@ -1,16 +1,53 @@
+import { Events } from '@/events/events';
+import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
+import { WebsocketEvent } from '@/websocket-event';
+import { MongooseModule } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
+import { MongoMemoryServer } from 'mongodb-memory-server';
+import { Socket } from 'socket.io';
+import { Player, playerSchema } from '../models/player';
+import { PlayersService } from '../services/players.service';
 import { PlayersGateway } from './players.gateway';
+
+jest.mock('../services/players.service');
 
 describe('PlayersGateway', () => {
   let gateway: PlayersGateway;
+  let mongod: MongoMemoryServer;
+  let socket: Socket;
+  let events: Events;
+  let playersService: PlayersService;
+
+  beforeAll(async () => (mongod = await MongoMemoryServer.create()));
+  afterAll(async () => await mongod.stop());
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [PlayersGateway],
+      imports: [
+        mongooseTestingModule(mongod),
+        MongooseModule.forFeature([
+          {
+            name: Player.name,
+            schema: playerSchema,
+          },
+        ]),
+      ],
+      providers: [PlayersGateway, Events, PlayersService],
     }).compile();
 
     gateway = module.get<PlayersGateway>(PlayersGateway);
+    events = module.get(Events);
+    playersService = module.get(PlayersService);
+
+    socket = {
+      emit: jest.fn(),
+    } as unknown as Socket;
+    gateway.afterInit(socket);
+    gateway.onModuleInit();
   });
+
+  // @ts-expect-error
+  afterEach(async () => await playersService._reset());
 
   it('should be defined', () => {
     expect(gateway).toBeDefined();
@@ -35,4 +72,42 @@ describe('PlayersGateway', () => {
       });
       gateway.handleDisconnect(socket as any);
     }));
+
+  describe('when a player becomes online', () => {
+    let player: Player;
+
+    beforeEach(async () => {
+      // @ts-expect-error
+      player = await playersService._createOne();
+    });
+
+    it('should emit ws event', () =>
+      new Promise<void>((resolve) => {
+        socket.emit = jest.fn().mockImplementation((...args) => {
+          expect(args[0]).toEqual(WebsocketEvent.playerConnected);
+          expect(typeof args[1]).toBe('string');
+          resolve();
+        });
+        events.playerConnects.next({ playerId: player.id });
+      }));
+  });
+
+  describe('when a player disconnects', () => {
+    let player: Player;
+
+    beforeEach(async () => {
+      // @ts-expect-error
+      player = await playersService._createOne();
+    });
+
+    it('should emit ws event', () =>
+      new Promise<void>((resolve) => {
+        socket.emit = jest.fn().mockImplementation((...args) => {
+          expect(args[0]).toEqual(WebsocketEvent.playerDisconnected);
+          expect(typeof args[1]).toBe('string');
+          resolve();
+        });
+        events.playerDisconnects.next({ playerId: player.id });
+      }));
+  });
 });

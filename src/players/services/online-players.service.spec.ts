@@ -1,26 +1,28 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { OnlinePlayersService } from './online-players.service';
 import { PlayersGateway } from '../gateways/players.gateway';
-import { Subject } from 'rxjs';
 import { Events } from '@/events/events';
+import { Subject } from 'rxjs';
+import { Socket } from 'socket.io';
 
-class PlayersGatewayStub {
-  playerConnected = new Subject<any>();
-  playerDisconnected = new Subject<any>();
-}
+jest.mock('../gateways/players.gateway', () => ({
+  PlayersGateway: jest.fn().mockImplementation(() => ({
+    playerConnected: new Subject<Socket>(),
+    playerDisconnected: new Subject<Socket>(),
+  })),
+}));
 
 describe('OnlinePlayersService', () => {
   let service: OnlinePlayersService;
-  let playersGateway: PlayersGatewayStub;
+  let playersGateway: jest.Mocked<PlayersGateway> & {
+    playerConnected: Subject<Socket>;
+    playerDisconnected: Subject<Socket>;
+  };
   let events: Events;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        OnlinePlayersService,
-        { provide: PlayersGateway, useClass: PlayersGatewayStub },
-        Events,
-      ],
+      providers: [OnlinePlayersService, PlayersGateway, Events],
     }).compile();
 
     service = module.get<OnlinePlayersService>(OnlinePlayersService);
@@ -45,18 +47,21 @@ describe('OnlinePlayersService', () => {
       const socket = {
         id: 'FAKE_SOCKET_ID',
         user: { id: 'FAKE_ID' },
-      };
+      } as Socket;
       playersGateway.playerConnected.next(socket);
-      expect(service.getSocketsForPlayer('FAKE_ID')).toEqual([socket] as any);
+      expect(service.getSocketsForPlayer('FAKE_ID')).toEqual([socket]);
+      expect(service.onlinePlayers.includes('FAKE_ID')).toBe(true);
 
       playersGateway.playerConnected.next(socket);
-      expect(service.getSocketsForPlayer('FAKE_ID')).toEqual([socket] as any);
+      expect(service.getSocketsForPlayer('FAKE_ID')).toEqual([socket]);
+      expect(service.onlinePlayers.includes('FAKE_ID')).toBe(true);
 
       playersGateway.playerDisconnected.next(socket);
       expect(service.getSocketsForPlayer('FAKE_ID')).toEqual([]);
 
       events.playerDisconnects.subscribe(({ playerId }) => {
         expect(playerId).toEqual('FAKE_ID');
+        expect(service.onlinePlayers.includes('FAKE_ID')).toBe(false);
         resolve();
       });
 

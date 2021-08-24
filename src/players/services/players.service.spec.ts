@@ -154,6 +154,39 @@ describe('PlayersService', () => {
     });
   });
 
+  describe('#getManyById()', () => {
+    const players: string[] = [];
+
+    beforeEach(async () => {
+      players.push(
+        (
+          await playerModel.create({
+            name: 'FAKE_PLAYER_NAME_2',
+            steamId: 'FAKE_STEAM_ID_2',
+            etf2lProfileId: 2,
+            hasAcceptedRules: true,
+          })
+        ).id,
+      );
+      players.push(
+        (
+          await playerModel.create({
+            name: 'FAKE_PLAYER_NAME_3',
+            steamId: 'FAKE_STEAM_ID_3',
+            etf2lProfileId: 3,
+            hasAcceptedRules: true,
+          })
+        ).id,
+      );
+    });
+
+    it('should retrieve many players from the database', async () => {
+      const ret = await service.getManyById(...players);
+      expect(ret.length).toEqual(players.length);
+      expect(players.every((p) => ret.find((r) => r.id === p))).toBe(true);
+    });
+  });
+
   describe('#findBySteamId()', () => {
     it('should query playerModel', async () => {
       const player = await service.findBySteamId('FAKE_STEAM_ID');

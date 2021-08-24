@@ -165,14 +165,12 @@ describe('GameEventHandlerService', () => {
         );
       });
 
-      // eslint-disable-next-line jest/expect-expect
-      it('should emit the substituteRequestsChange event', async () =>
-        new Promise<void>((resolve) => {
-          events.substituteRequestsChange.subscribe(() =>
-            setImmediate(resolve),
-          );
-          service.onMatchEnded(mockGame.id);
-        }));
+      it('should emit the subsituteRequestsChange event', async () => {
+        let eventEmitted = false;
+        events.substituteRequestsChange.subscribe(() => (eventEmitted = true));
+        await service.onMatchEnded(mockGame.id);
+        expect(eventEmitted).toBe(true);
+      });
     });
 
     describe('when there are medics in the game', () => {
