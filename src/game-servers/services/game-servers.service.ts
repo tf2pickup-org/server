@@ -38,16 +38,16 @@ export class GameServersService {
     params: GameServer,
     adminId?: string,
   ): Promise<GameServer> {
-    if (!params.mumbleChannelName) {
+    if (!params.voiceChannelName) {
       const latestServer = await this.gameServerModel
-        .findOne({ mumbleChannelName: { $ne: null }, deleted: false })
+        .findOne({ voiceChannelName: { $ne: null }, deleted: false })
         .sort({ createdAt: -1 })
         .exec();
       if (latestServer) {
-        const id = parseInt(latestServer.mumbleChannelName, 10) + 1;
-        params.mumbleChannelName = `${id}`;
+        const id = parseInt(latestServer.voiceChannelName, 10) + 1;
+        params.voiceChannelName = `${id}`;
       } else {
-        params.mumbleChannelName = '1';
+        params.voiceChannelName = '1';
       }
     }
 

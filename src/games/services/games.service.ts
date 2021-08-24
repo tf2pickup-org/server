@@ -15,6 +15,10 @@ import { GameState } from '../models/game-state';
 import { ConfigurationService } from '@/configuration/services/configuration.service';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { GameServersService } from '@/game-servers/services/game-servers.service';
+import { PlayerNotInThisGameError } from '../errors/player-not-in-this-game.error';
+import { URL } from 'url';
+import { GameInWrongStateError } from '../errors/game-in-wrong-state.error';
 
 interface GameSortOptions {
   launchedAt: 1 | -1;
@@ -38,6 +42,7 @@ export class GamesService {
     private gameLauncherService: GameLauncherService,
     private events: Events,
     private configurationService: ConfigurationService,
+    private gameServersService: GameServersService,
   ) {}
 
   async getGameCount(): Promise<number> {
@@ -204,6 +209,51 @@ export class GamesService {
       state: GameState.launching,
       gameServer: { $exists: false },
     });
+  }
+
+  async getVoiceChannelUrl(
+    gameId: string,
+    playerId: string,
+  ): Promise<string | null> {
+    const game = await this.getById(gameId);
+    if (![GameState.launching, GameState.started].includes(game.state)) {
+      throw new GameInWrongStateError(game.state);
+    }
+
+    const player = await this.playersService.getById(playerId);
+    const slot = game.findPlayerSlot(playerId);
+
+    if (!slot) {
+      throw new PlayerNotInThisGameError(playerId, gameId);
+    }
+
+    const voiceServer = await this.configurationService.getVoiceServer();
+
+    switch (voiceServer.type) {
+      case 'null':
+        return null;
+
+      case 'mumble': {
+        if (!game.gameServer) {
+          return null;
+        }
+
+        const gameServer = await this.gameServersService.getById(
+          game.gameServer.toString(),
+        );
+
+        const url = new URL(`mumble://${voiceServer.url}`);
+        url.pathname = `${voiceServer.channelName}/${
+          gameServer.voiceChannelName
+        }/${slot.team.toUpperCase()}`;
+        url.username = player.name.replace(/\s+/g, '_');
+        if (voiceServer.password) {
+          url.password = voiceServer.password;
+        }
+        url.protocol = 'mumble:';
+        return url.toString();
+      }
+    }
   }
 
   private async queueSlotToPlayerSlot(

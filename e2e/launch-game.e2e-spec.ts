@@ -147,6 +147,15 @@ describe('Launch game (e2e)', () => {
         ).toBe(true);
       });
 
+    await request(app.getHttpServer())
+      .get(`/games/${newGameId}/connect-info`)
+      .expect(401);
+
+    await request(app.getHttpServer())
+      .get(`/games/${newGameId}/connect-info`)
+      .auth(authToken, { type: 'bearer' })
+      .expect(200);
+
     // kill the game
     await waitABit(500);
     await request(app.getHttpServer())

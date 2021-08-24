@@ -84,6 +84,10 @@ describe('ConfigurationService', () => {
     expect(await service.setMinimumTf2InGameHours(1000)).toEqual(1000);
   });
 
+  it('should set default voice server to null', async () => {
+    expect(await service.getVoiceServer()).toEqual({ type: 'null' });
+  });
+
   it('should set voice server', async () => {
     const voiceServer: MumbleOptions = {
       type: 'mumble',

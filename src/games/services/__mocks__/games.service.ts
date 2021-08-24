@@ -5,6 +5,7 @@ import { Player } from '@/players/models/player';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { GameState } from '@/games/models/game-state';
 
 @Injectable()
 export class GamesService {
@@ -29,6 +30,8 @@ export class GamesService {
   async getPlayerActiveGame(playerId: string) {
     return Promise.resolve(null);
   }
+
+  getOrphanedGames = jest.fn();
 
   async _createOne(players?: Player[]) {
     let lastTeamId = 0;

@@ -1,9 +1,9 @@
 import { Equals } from 'class-validator';
 import { ConfigurationEntryKey } from '../models/configuration-entry-key';
-import { MumbleOptions } from '../models/mumble-options';
+import { VoiceServer as VoiceServerOptions } from '../models/voice-server';
 
 export class VoiceServer {
-  constructor(value: MumbleOptions) {
+  constructor(value: VoiceServerOptions) {
     this.key = ConfigurationEntryKey.voiceServer;
     this.value = value;
   }
@@ -11,5 +11,5 @@ export class VoiceServer {
   @Equals(ConfigurationEntryKey.voiceServer)
   key: string;
 
-  value: MumbleOptions;
+  value: VoiceServerOptions;
 }

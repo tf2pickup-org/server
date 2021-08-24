@@ -7,14 +7,12 @@ import {
   ConfigurationEntryDocument,
 } from '../models/configuration-entry';
 import { ConfigurationEntryKey } from '../models/configuration-entry-key';
-import { MumbleOptions } from '../models/mumble-options';
+import { VoiceServer } from '../models/voice-server';
 
 // this name wtf
 const defaultDefaultPlayerSkill = new Map(
   Object.keys(Tf2ClassName).map((className) => [className, 1]),
 );
-
-type VoiceServer = MumbleOptions;
 
 @Injectable()
 export class ConfigurationService implements OnModuleInit {
@@ -38,10 +36,7 @@ export class ConfigurationService implements OnModuleInit {
       this.loadDefault(
         ConfigurationEntryKey.voiceServer,
         JSON.stringify({
-          type: 'mumble',
-          url: 'melkor.tf',
-          port: 64738,
-          channelName: 'tf2pickup',
+          type: 'null',
         }),
       ),
     ]);

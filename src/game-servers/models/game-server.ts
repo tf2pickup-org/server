@@ -32,7 +32,7 @@ export class GameServer extends MongooseDocument {
   isOnline?: boolean; // was the server online last we checked
 
   @Prop()
-  mumbleChannelName?: string;
+  voiceChannelName?: string;
 
   @Transform(({ value }) => value.toString())
   @Prop({ type: Types.ObjectId, ref: 'Game' })

@@ -24,6 +24,10 @@ import { GameState } from './game-state';
       if (ret.logSecret) {
         delete ret.logSecret;
       }
+
+      if (ret.connectString) {
+        delete ret.connectString;
+      }
     },
   },
 })
@@ -56,8 +60,11 @@ export class Game {
   @Prop()
   connectString?: string;
 
+  @Prop({ default: 0 })
+  connectInfoVersion: number;
+
   @Prop()
-  mumbleUrl?: string;
+  stvConnectString?: string;
 
   @Prop()
   logsUrl?: string;
@@ -78,9 +85,6 @@ export class Game {
     }),
   )
   score?: Map<string, number>;
-
-  @Prop()
-  stvConnectString?: string;
 
   @Prop({ unique: true, sparse: true })
   logSecret?: string;

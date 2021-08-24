@@ -105,7 +105,7 @@ describe('GameServersService', () => {
       });
 
       it('should assign mumble channel name', () => {
-        expect(gameServer.mumbleChannelName).toEqual('1');
+        expect(gameServer.voiceChannelName).toEqual('1');
       });
     });
 
@@ -113,7 +113,7 @@ describe('GameServersService', () => {
       let gameServer: GameServer;
 
       beforeEach(async () => {
-        testGameServer.mumbleChannelName = '1';
+        testGameServer.voiceChannelName = '1';
         await testGameServer.save();
 
         gameServer = await service.addGameServer({
@@ -125,7 +125,7 @@ describe('GameServersService', () => {
       });
 
       it('should assign the next mumble channel', async () => {
-        expect(gameServer.mumbleChannelName).toEqual('2');
+        expect(gameServer.voiceChannelName).toEqual('2');
       });
     });
 
@@ -138,12 +138,12 @@ describe('GameServersService', () => {
           address: 'fake_game_server_address',
           port: '27017',
           rconPassword: 'test rcon password',
-          mumbleChannelName: 'some mumble channel',
+          voiceChannelName: 'some mumble channel',
         });
       });
 
       it('should save the mumble channel', () => {
-        expect(gameServer.mumbleChannelName).toEqual('some mumble channel');
+        expect(gameServer.voiceChannelName).toEqual('some mumble channel');
       });
     });
 
@@ -161,7 +161,7 @@ describe('GameServersService', () => {
             address: '127.0.0.1',
             port: '27017',
             rconPassword: 'test rcon password',
-            mumbleChannelName: '',
+            voiceChannelName: '',
           },
           'FAKE_ADMIN_ID',
         );

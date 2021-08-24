@@ -18,11 +18,16 @@ import { GameState } from '../models/game-state';
 import { ConfigurationService } from '@/configuration/services/configuration.service';
 import { Model } from 'mongoose';
 import { getModelToken, MongooseModule } from '@nestjs/mongoose';
+import { GameServersService } from '@/game-servers/services/game-servers.service';
+import { GameServer } from '@/game-servers/models/game-server';
+import { PlayerNotInThisGameError } from '../errors/player-not-in-this-game.error';
+import { GameInWrongStateError } from '../errors/game-in-wrong-state.error';
 
 jest.mock('@/players/services/players.service');
 jest.mock('@/players/services/player-skill.service');
 jest.mock('./game-launcher.service');
 jest.mock('@/configuration/services/configuration.service');
+jest.mock('@/game-servers/services/game-servers.service');
 
 class QueueConfigServiceStub {
   queueConfig = {
@@ -47,6 +52,7 @@ describe('GamesService', () => {
   let events: Events;
   let playerSkillService: jest.Mocked<PlayerSkillService>;
   let configurationService: jest.Mocked<ConfigurationService>;
+  let gameServersService: jest.Mocked<GameServersService>;
 
   beforeAll(async () => (mongod = await MongoMemoryServer.create()));
   afterAll(async () => await mongod.stop());
@@ -68,6 +74,7 @@ describe('GamesService', () => {
         GameLauncherService,
         Events,
         ConfigurationService,
+        GameServersService,
       ],
     }).compile();
 
@@ -78,6 +85,7 @@ describe('GamesService', () => {
     events = module.get(Events);
     playerSkillService = module.get(PlayerSkillService);
     configurationService = module.get(ConfigurationService);
+    gameServersService = module.get(GameServersService);
   });
 
   afterEach(async () => {
@@ -505,6 +513,122 @@ describe('GamesService', () => {
       expect(ret).toBeTruthy();
       expect(ret.length).toBe(1);
       expect(ret[0].number).toBe(1);
+    });
+  });
+
+  describe('#getVoiceChannelUrl()', () => {
+    let game: GameDocument;
+    let player: PlayerDocument;
+
+    beforeEach(async () => {
+      // @ts-expect-error
+      player = await playersService._createOne();
+
+      game = await gameModel.create({
+        number: 1,
+        map: 'cp_badlands',
+        slots: [
+          {
+            player: player._id,
+            team: Tf2Team.blu,
+            gameClass: Tf2ClassName.scout,
+            status: SlotStatus.active,
+          },
+        ],
+      });
+    });
+
+    describe('when the game is not running', () => {
+      beforeEach(async () => {
+        game.state = GameState.ended;
+        await game.save();
+      });
+
+      it('should throw an error', async () => {
+        await expect(
+          service.getVoiceChannelUrl(game.id, player.id),
+        ).rejects.toThrow(GameInWrongStateError);
+      });
+    });
+
+    describe('when a player is not part of the game', () => {
+      let anotherPlayer: PlayerDocument;
+
+      beforeEach(async () => {
+        // @ts-expect-error
+        anotherPlayer = await playersService._createOne();
+      });
+
+      it('should throw an error', async () => {
+        await expect(
+          service.getVoiceChannelUrl(game.id, anotherPlayer.id),
+        ).rejects.toThrow(PlayerNotInThisGameError);
+      });
+    });
+
+    describe('when the voice server is null', () => {
+      beforeEach(() => {
+        configurationService.getVoiceServer.mockResolvedValue({ type: 'null' });
+      });
+
+      it('should return null', async () => {
+        expect(await service.getVoiceChannelUrl(game.id, player.id)).toBe(null);
+      });
+    });
+
+    describe('when the voice server is a mumble server', () => {
+      beforeEach(() => {
+        configurationService.getVoiceServer.mockResolvedValue({
+          type: 'mumble',
+          url: 'melkor.tf',
+          port: 64738,
+          channelName: 'FAKE_CHANNEL_NAME',
+        });
+      });
+
+      it('should return null', async () => {
+        expect(await service.getVoiceChannelUrl(game.id, player.id)).toBe(null);
+      });
+
+      describe('when a game server is assigned', () => {
+        let gameServer: GameServer;
+
+        beforeEach(async () => {
+          game.gameServer = new ObjectId();
+          await game.save();
+
+          gameServer = {
+            voiceChannelName: '7',
+          } as GameServer;
+          gameServersService.getById.mockResolvedValue(gameServer);
+        });
+
+        it('should return direct mumble channel url', async () => {
+          const url = await service.getVoiceChannelUrl(game.id, player.id);
+          expect(url).toEqual(
+            'mumble://fake_player_1@melkor.tf/FAKE_CHANNEL_NAME/7/BLU',
+          );
+        });
+
+        describe('when the mumble server has a password', () => {
+          beforeEach(() => {
+            configurationService.getVoiceServer.mockResolvedValue({
+              type: 'mumble',
+              url: 'melkor.tf',
+              port: 64738,
+              channelName: 'FAKE_CHANNEL_NAME',
+              password: 'FAKE_SERVER_PASSWORD',
+            });
+          });
+
+          it('should handle the password in the url', async () => {
+            const url = await service.getVoiceChannelUrl(game.id, player.id);
+            expect(url).toEqual(
+              'mumble://fake_player_1:FAKE_SERVER_PASSWORD@melkor.tf/FAKE_CHANNEL_NAME/7/BLU',
+            );
+          });
+        });
+      });
     });
   });
 });

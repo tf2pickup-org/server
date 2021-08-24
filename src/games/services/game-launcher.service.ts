@@ -5,7 +5,6 @@ import { ServerConfiguratorService } from './server-configurator.service';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { Events } from '@/events/events';
 import { GameState } from '../models/game-state';
-import { ConfigurationService } from '@/configuration/services/configuration.service';
 import { generateLogsecret } from '@/game-servers/utils/generate-logsecret';
 
 /**
@@ -23,7 +22,6 @@ export class GameLauncherService {
     private gameServersService: GameServersService,
     private serverConfiguratorService: ServerConfiguratorService,
     private events: Events,
-    private configurationService: ConfigurationService,
   ) {}
 
   /**
@@ -60,18 +58,12 @@ export class GameLauncherService {
       game.logSecret = generateLogsecret();
       await game.save();
 
-      // step 3: set mumble url
-      const mumbleUrl = await this.getMumbleUrl(gameServer.mumbleChannelName);
-      this.logger.verbose(`game #${game.number} mumble url: ${mumbleUrl}`);
-      game.mumbleUrl = mumbleUrl;
-      await game.save();
-      this.events.gameChanges.next({ game: game.toJSON() });
-
-      // step 4: configure server
+      // step 3: configure server
       const { connectString, stvConnectString } =
         await this.serverConfiguratorService.configureServer(gameServer, game);
       game.connectString = connectString;
       game.stvConnectString = stvConnectString;
+      game.connectInfoVersion += 1;
       await game.save();
       this.events.gameChanges.next({ game: game.toJSON() });
 
@@ -89,10 +81,5 @@ export class GameLauncherService {
       this.logger.verbose(`launching game #${game.number}...`);
       this.launch(game.id);
     }
-  }
-
-  private async getMumbleUrl(gameServerChannelName: string) {
-    const mumbleOptions = await this.configurationService.getVoiceServer();
-    return `mumble://${mumbleOptions.url}:${mumbleOptions.port}/${mumbleOptions.channelName}/${gameServerChannelName}`;
   }
 }
