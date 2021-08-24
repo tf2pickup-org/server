@@ -85,7 +85,7 @@ describe('PlayersGateway', () => {
       new Promise<void>((resolve) => {
         socket.emit = jest.fn().mockImplementation((...args) => {
           expect(args[0]).toEqual(WebsocketEvent.playerConnected);
-          expect(typeof args[1]).toBe('string');
+          expect(args[1].id).toEqual(player.id);
           resolve();
         });
         events.playerConnects.next({ playerId: player.id });
@@ -104,7 +104,7 @@ describe('PlayersGateway', () => {
       new Promise<void>((resolve) => {
         socket.emit = jest.fn().mockImplementation((...args) => {
           expect(args[0]).toEqual(WebsocketEvent.playerDisconnected);
-          expect(typeof args[1]).toBe('string');
+          expect(args[1].id).toEqual(player.id);
           resolve();
         });
         events.playerDisconnects.next({ playerId: player.id });
