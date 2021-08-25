@@ -23,10 +23,12 @@ export class OnlinePlayersController {
     const userWantsToBeOnline = async (
       playerId: string,
     ): Promise<Player | null> => {
-      const preferences =
-        await this.playerPreferencesService.getPlayerPreferences(playerId);
       const showOnlineStatus =
-        (preferences.get('showOnlineStatus') ?? 'true') === 'true';
+        (await this.playerPreferencesService.getPlayerSinglePreference(
+          playerId,
+          'showOnlineStatus',
+          'true',
+        )) === 'true';
       if (showOnlineStatus) {
         return await this.playersService.getById(playerId);
       } else {

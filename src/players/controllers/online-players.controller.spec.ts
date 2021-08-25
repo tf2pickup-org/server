@@ -44,7 +44,9 @@ describe('OnlinePlayersController', () => {
     playersService = module.get(PlayersService);
     playerPreferencesService = module.get(PlayerPreferencesService);
 
-    playerPreferencesService.getPlayerPreferences.mockResolvedValue(new Map());
+    playerPreferencesService.getPlayerSinglePreference.mockResolvedValue(
+      'true',
+    );
   });
 
   // @ts-expect-error
@@ -84,8 +86,8 @@ describe('OnlinePlayersController', () => {
     });
 
     it("should respect user's show online status preference", async () => {
-      playerPreferencesService.getPlayerPreferences.mockResolvedValue(
-        new Map([['showOnlineStatus', 'false']]),
+      playerPreferencesService.getPlayerSinglePreference.mockResolvedValue(
+        'false',
       );
       const ret = await controller.getOnlinePlayers();
       expect(ret.length).toBe(0);
