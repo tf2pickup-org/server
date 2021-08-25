@@ -31,6 +31,7 @@ export class QueueService implements OnModuleInit, OnModuleDestroy {
 
   private logger = new Logger(QueueService.name);
   private timer?: NodeJS.Timer;
+  private immediates: NodeJS.Immediate[] = [];
 
   get requiredPlayerCount(): number {
     return this.slots.length;
@@ -55,7 +56,7 @@ export class QueueService implements OnModuleInit, OnModuleDestroy {
   onModuleInit() {
     this.resetSlots();
     this.events.queueSlotsChange.subscribe(() =>
-      setImmediate(() => this.maybeUpdateState()),
+      this.immediates.push(setImmediate(() => this.maybeUpdateState())),
     );
     this.events.queueStateChange.subscribe(({ state }) =>
       this.onStateChange(state),
@@ -70,6 +71,7 @@ export class QueueService implements OnModuleInit, OnModuleDestroy {
 
   onModuleDestroy() {
     clearTimeout(this.timer);
+    this.immediates.forEach((i) => clearImmediate(i));
   }
 
   getSlotById(id: number): QueueSlot {
@@ -242,6 +244,7 @@ export class QueueService implements OnModuleInit, OnModuleDestroy {
   private onStateChange(state: QueueState) {
     switch (state) {
       case 'ready':
+        clearTimeout(this.timer);
         this.timer = setTimeout(() => this.onReadyUpTimeout(), readyUpTimeout);
         break;
 
@@ -293,6 +296,7 @@ export class QueueService implements OnModuleInit, OnModuleDestroy {
     const nextTimeout = readyStateTimeout - readyUpTimeout;
 
     if (nextTimeout > 0) {
+      clearTimeout(this.timer);
       this.timer = setTimeout(() => this.unreadyQueue(), nextTimeout);
     } else {
       this.unreadyQueue();
