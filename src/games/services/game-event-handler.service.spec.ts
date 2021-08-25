@@ -132,7 +132,7 @@ describe('GameEventHandlerService', () => {
     });
 
     it('should eventually cleanup the server', async () => {
-      jest.useFakeTimers();
+      jest.useFakeTimers('legacy');
       const spy = jest.spyOn(gameRuntimeService, 'cleanupServer');
       await service.onMatchEnded(mockGame.id);
 
@@ -193,7 +193,7 @@ describe('GameEventHandlerService', () => {
       });
 
       it('should remove assigned game from all players after 5 seconds', async () => {
-        jest.useFakeTimers();
+        jest.useFakeTimers('legacy');
         const game = await service.onMatchEnded(mockGame.id);
         jest.advanceTimersByTime(5000);
         const players = await Promise.all(

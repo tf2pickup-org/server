@@ -161,7 +161,7 @@ describe('ServerConfiguratorService', () => {
 
       rcon = new RconStub();
       rconFactoryService.createRcon.mockResolvedValue(rcon as unknown as Rcon);
-      jest.useFakeTimers();
+      jest.useFakeTimers('legacy');
     });
 
     afterEach(async () => {
@@ -307,7 +307,7 @@ describe('ServerConfiguratorService', () => {
         jest.useRealTimers();
         player1.name = 'mąły';
         await player1.save();
-        jest.useFakeTimers();
+        jest.useFakeTimers('legacy');
       });
 
       it('should deburr player nicknames', async () => {
