@@ -71,6 +71,41 @@ describe('PlayerPreferencesService', () => {
     });
   });
 
+  describe('#getPlayerSinglePreference()', () => {
+    describe('when the preference does not exist', () => {
+      it('should return default value', async () => {
+        const playerId = new ObjectId().toString();
+        const ret = await service.getPlayerSinglePreference(
+          playerId,
+          'showOnlineStatus',
+          'true',
+        );
+        expect(ret).toEqual('true');
+      });
+    });
+
+    describe('when the preference exists', () => {
+      let playerId: string;
+
+      beforeEach(async () => {
+        playerId = new ObjectId().toString();
+        await playerPreferencesModel.create({
+          player: playerId,
+          preferences: new Map([['showOnlineStatus', 'false']]),
+        });
+      });
+
+      it('should return the value', async () => {
+        const ret = await service.getPlayerSinglePreference(
+          playerId,
+          'showOnlineStatus',
+          'true',
+        );
+        expect(ret).toEqual('false');
+      });
+    });
+  });
+
   describe('#updatePlayerPreferences()', () => {
     let playerId: string;
 

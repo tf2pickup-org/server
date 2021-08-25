@@ -23,6 +23,7 @@ import { LinkedProfilesService } from './services/linked-profiles.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { HttpModule } from '@nestjs/axios';
 import { OnlinePlayersController } from './controllers/online-players.controller';
+import { PlayerPreferencesModule } from '@/player-preferences/player-preferences.module';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { OnlinePlayersController } from './controllers/online-players.controller
     forwardRef(() => GamesModule),
     forwardRef(() => QueueModule),
     ConfigurationModule,
+    PlayerPreferencesModule,
   ],
   providers: [
     PlayersService,

@@ -11,6 +11,7 @@ import { Events } from '@/events/events';
 import { WebsocketEvent } from '@/websocket-event';
 import { PlayersService } from '../services/players.service';
 import { classToPlain } from 'class-transformer';
+import { PlayerPreferencesService } from '@/player-preferences/services/player-preferences.service';
 
 @WebSocketGateway()
 export class PlayersGateway
@@ -32,7 +33,11 @@ export class PlayersGateway
     return this._playerDisconnected.asObservable();
   }
 
-  constructor(private events: Events, private playersService: PlayersService) {}
+  constructor(
+    private events: Events,
+    private playersService: PlayersService,
+    private playerPreferencesService: PlayerPreferencesService,
+  ) {}
 
   handleConnection(socket: Socket) {
     this._playerConnected.next(socket);
@@ -47,17 +52,35 @@ export class PlayersGateway
   }
 
   onModuleInit() {
-    this.events.playerConnects.subscribe(async ({ playerId }) =>
-      this.socket.emit(
-        WebsocketEvent.playerConnected,
-        classToPlain(await this.playersService.getById(playerId)),
-      ),
-    );
-    this.events.playerDisconnects.subscribe(async ({ playerId }) =>
-      this.socket.emit(
-        WebsocketEvent.playerDisconnected,
-        classToPlain(await this.playersService.getById(playerId)),
-      ),
-    );
+    this.events.playerConnects.subscribe(async ({ playerId }) => {
+      const showOnlineStatus =
+        (await this.playerPreferencesService.getPlayerSinglePreference(
+          playerId,
+          'showOnlineStatus',
+          'true',
+        )) === 'true';
+      if (showOnlineStatus) {
+        this.socket.emit(
+          WebsocketEvent.playerConnected,
+          classToPlain(await this.playersService.getById(playerId)),
+        );
+      }
+    });
+
+    this.events.playerDisconnects.subscribe(async ({ playerId }) => {
+      const showOnlineStatus =
+        (await this.playerPreferencesService.getPlayerSinglePreference(
+          playerId,
+          'showOnlineStatus',
+          'true',
+        )) === 'true';
+
+      if (showOnlineStatus) {
+        this.socket.emit(
+          WebsocketEvent.playerDisconnected,
+          classToPlain(await this.playersService.getById(playerId)),
+        );
+      }
+    });
   }
 }

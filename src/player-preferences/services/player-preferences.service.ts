@@ -22,6 +22,15 @@ export class PlayerPreferencesService {
     );
   }
 
+  async getPlayerSinglePreference(
+    playerId: string,
+    key: string,
+    defaultValue?: string,
+  ): Promise<string> {
+    const preferences = await this.getPlayerPreferences(playerId);
+    return preferences.get(key) ?? defaultValue;
+  }
+
   async updatePlayerPreferences(
     playerId: string,
     preferences: PreferencesType,

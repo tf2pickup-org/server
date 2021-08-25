@@ -1,3 +1,4 @@
+import { PlayerPreferencesService } from '@/player-preferences/services/player-preferences.service';
 import {
   ClassSerializerInterceptor,
   Controller,
@@ -13,13 +14,30 @@ export class OnlinePlayersController {
   constructor(
     private onlinePlayersService: OnlinePlayersService,
     private playersService: PlayersService,
+    private playerPreferencesService: PlayerPreferencesService,
   ) {}
 
   @Get()
   @UseInterceptors(ClassSerializerInterceptor)
   async getOnlinePlayers(): Promise<Player[]> {
-    return this.playersService.getManyById(
-      ...this.onlinePlayersService.onlinePlayers,
-    );
+    const userWantsToBeOnline = async (
+      playerId: string,
+    ): Promise<Player | null> => {
+      const preferences =
+        await this.playerPreferencesService.getPlayerPreferences(playerId);
+      const showOnlineStatus =
+        (preferences.get('showOnlineStatus') ?? 'true') === 'true';
+      if (showOnlineStatus) {
+        return await this.playersService.getById(playerId);
+      } else {
+        return null;
+      }
+    };
+
+    return (
+      await Promise.all(
+        this.onlinePlayersService.onlinePlayers.map(userWantsToBeOnline),
+      )
+    ).filter((player) => player !== null);
   }
 }

@@ -1,4 +1,5 @@
 import { Events } from '@/events/events';
+import { PlayerPreferencesService } from '@/player-preferences/services/player-preferences.service';
 import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
 import { WebsocketEvent } from '@/websocket-event';
 import { MongooseModule } from '@nestjs/mongoose';
@@ -10,6 +11,7 @@ import { PlayersService } from '../services/players.service';
 import { PlayersGateway } from './players.gateway';
 
 jest.mock('../services/players.service');
+jest.mock('@/player-preferences/services/player-preferences.service');
 
 describe('PlayersGateway', () => {
   let gateway: PlayersGateway;
@@ -17,6 +19,7 @@ describe('PlayersGateway', () => {
   let socket: Socket;
   let events: Events;
   let playersService: PlayersService;
+  let playerPreferencesService: jest.Mocked<PlayerPreferencesService>;
 
   beforeAll(async () => (mongod = await MongoMemoryServer.create()));
   afterAll(async () => await mongod.stop());
@@ -32,12 +35,22 @@ describe('PlayersGateway', () => {
           },
         ]),
       ],
-      providers: [PlayersGateway, Events, PlayersService],
+      providers: [
+        PlayersGateway,
+        Events,
+        PlayersService,
+        PlayerPreferencesService,
+      ],
     }).compile();
 
     gateway = module.get<PlayersGateway>(PlayersGateway);
     events = module.get(Events);
     playersService = module.get(PlayersService);
+    playerPreferencesService = module.get(PlayerPreferencesService);
+
+    playerPreferencesService.getPlayerSinglePreference.mockResolvedValue(
+      'true',
+    );
 
     socket = {
       emit: jest.fn(),
@@ -90,6 +103,27 @@ describe('PlayersGateway', () => {
         });
         events.playerConnects.next({ playerId: player.id });
       }));
+
+    describe('but the user has showOnlineStatus set to false', () => {
+      beforeEach(() => {
+        playerPreferencesService.getPlayerSinglePreference.mockResolvedValue(
+          'false',
+        );
+      });
+
+      // eslint-disable-next-line jest/expect-expect
+      it('should not emit ws event', async () =>
+        new Promise<void>((resolve, reject) => {
+          // eslint-disable-next-line prefer-const
+          let timer: NodeJS.Timeout;
+          socket.emit = jest.fn().mockImplementation((...args) => {
+            clearTimeout(timer);
+            reject();
+          });
+          events.playerConnects.next({ playerId: player.id });
+          timer = setTimeout(resolve, 100);
+        }));
+    });
   });
 
   describe('when a player disconnects', () => {
@@ -109,5 +143,26 @@ describe('PlayersGateway', () => {
         });
         events.playerDisconnects.next({ playerId: player.id });
       }));
+
+    describe('but the user has showOnlineStatus set to false', () => {
+      beforeEach(() => {
+        playerPreferencesService.getPlayerSinglePreference.mockResolvedValue(
+          'false',
+        );
+      });
+
+      // eslint-disable-next-line jest/expect-expect
+      it('should not emit ws event', async () =>
+        new Promise<void>((resolve, reject) => {
+          // eslint-disable-next-line prefer-const
+          let timer: NodeJS.Timeout;
+          socket.emit = jest.fn().mockImplementation((...args) => {
+            clearTimeout(timer);
+            reject();
+          });
+          events.playerDisconnects.next({ playerId: player.id });
+          timer = setTimeout(resolve, 100);
+        }));
+    });
   });
 });
