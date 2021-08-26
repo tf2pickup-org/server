@@ -10,6 +10,7 @@ import { GameState } from '../models/game-state';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
+import { plainToClass } from 'class-transformer';
 
 @Injectable()
 export class GameEventHandlerService implements OnModuleDestroy {
@@ -27,85 +28,96 @@ export class GameEventHandlerService implements OnModuleDestroy {
     this.timers.forEach((t) => clearTimeout(t));
   }
 
-  async onMatchStarted(gameId: string) {
-    const game = await this.gameModel.findOneAndUpdate(
-      { _id: new Types.ObjectId(gameId), state: GameState.launching },
-      { state: GameState.started },
-      { new: true },
+  async onMatchStarted(gameId: string): Promise<Game> {
+    const game = plainToClass(
+      Game,
+      await this.gameModel
+        .findOneAndUpdate(
+          { _id: new Types.ObjectId(gameId), state: GameState.launching },
+          { state: GameState.started },
+          { new: true },
+        )
+        .orFail()
+        .lean()
+        .exec(),
     );
-    if (game) {
-      this.events.gameChanges.next({ game: game.toJSON() });
-    }
+
+    this.events.gameChanges.next({ game });
+    return game;
+  }
+
+  async onMatchEnded(gameId: string): Promise<Game> {
+    const game = plainToClass(
+      Game,
+      await this.gameModel
+        .findOneAndUpdate(
+          { _id: new Types.ObjectId(gameId), state: GameState.started },
+          {
+            state: GameState.ended,
+            'slots.$[element].status': `${SlotStatus.active}`,
+          },
+          {
+            new: true, // return updated document
+            arrayFilters: [
+              {
+                'element.status': { $eq: `${SlotStatus.waitingForSubstitute}` },
+              },
+            ],
+          },
+        )
+        .orFail()
+        .lean()
+        .exec(),
+    );
+
+    this.events.gameChanges.next({ game });
+    this.events.substituteRequestsChange.next();
+
+    await this.freeAllMedics(game.id);
+    this.timers.push(setTimeout(() => this.freeAllPlayers(game.id), 5000));
+    this.timers.push(
+      setTimeout(
+        () => this.gameRuntimeService.cleanupServer(game.gameServer.toString()),
+        serverCleanupDelay,
+      ),
+    );
 
     return game;
   }
 
-  async onMatchEnded(gameId: string) {
-    const game = await this.gameModel.findOneAndUpdate(
-      { _id: new Types.ObjectId(gameId), state: GameState.started },
-      {
-        state: GameState.ended,
-        'slots.$[element].status': `${SlotStatus.active}`,
-      },
-      {
-        new: true, // return updated document
-        arrayFilters: [
-          { 'element.status': { $eq: `${SlotStatus.waitingForSubstitute}` } },
-        ],
-      },
+  async onLogsUploaded(gameId: string, logsUrl: string): Promise<Game> {
+    const game = plainToClass(
+      Game,
+      await this.gameModel
+        .findOneAndUpdate(
+          { _id: new Types.ObjectId(gameId) },
+          { logsUrl },
+          { new: true },
+        )
+        .orFail()
+        .lean()
+        .exec(),
     );
 
-    if (game) {
-      this.events.gameChanges.next({ game: game.toJSON() });
-      this.events.substituteRequestsChange.next();
-
-      await this.freeAllMedics(game.id);
-      this.timers.push(setTimeout(() => this.freeAllPlayers(game.id), 5000));
-      this.timers.push(
-        setTimeout(
-          () =>
-            this.gameRuntimeService.cleanupServer(game.gameServer.toString()),
-          serverCleanupDelay,
-        ),
-      );
-    } else {
-      this.logger.warn(`no such game: ${gameId}`);
-    }
-
+    this.events.gameChanges.next({ game });
     return game;
   }
 
-  async onLogsUploaded(gameId: string, logsUrl: string) {
-    const game = await this.gameModel.findOneAndUpdate(
-      { _id: new Types.ObjectId(gameId) },
-      { logsUrl },
-      { new: true },
+  async onDemoUploaded(gameId: string, demoUrl: string): Promise<Game> {
+    const game = plainToClass(
+      Game,
+      await this.gameModel
+        .findByIdAndUpdate(gameId, { demoUrl }, { new: true })
+        .orFail()
+        .lean()
+        .exec(),
     );
-    if (game) {
-      this.events.gameChanges.next({ game: game.toJSON() });
-    } else {
-      this.logger.warn(`no such game: ${gameId}`);
-    }
 
+    this.events.gameChanges.next({ game });
     return game;
   }
 
-  async onDemoUploaded(gameId: string, demoUrl: string) {
-    const game = await this.gameModel.findByIdAndUpdate(
-      gameId,
-      { demoUrl },
-      { new: true },
-    );
-    if (game) {
-      this.events.gameChanges.next({ game: game.toJSON() });
-    } else {
-      this.logger.warn(`no such game: ${gameId}`);
-    }
-
-    return game;
-  }
-
-  async onPlayerJoining(gameId: string, steamId: string) {
+  async onPlayerJoining(gameId: string, steamId: string): Promise<Game> {
     return await this.setPlayerConnectionStatus(
       gameId,
       steamId,
@@ -113,7 +125,7 @@ export class GameEventHandlerService implements OnModuleDestroy {
     );
   }
 
-  async onPlayerConnected(gameId: string, steamId: string) {
+  async onPlayerConnected(gameId: string, steamId: string): Promise<Game> {
     return await this.setPlayerConnectionStatus(
       gameId,
       steamId,
@@ -121,7 +133,7 @@ export class GameEventHandlerService implements OnModuleDestroy {
     );
   }
 
-  async onPlayerDisconnected(gameId: string, steamId: string) {
+  async onPlayerDisconnected(gameId: string, steamId: string): Promise<Game> {
     return await this.setPlayerConnectionStatus(
       gameId,
       steamId,
@@ -129,19 +141,26 @@ export class GameEventHandlerService implements OnModuleDestroy {
     );
   }
 
-  async onScoreReported(gameId: string, teamName: string, score: string) {
+  async onScoreReported(
+    gameId: string,
+    teamName: string,
+    score: string,
+  ): Promise<Game> {
     const fixedTeamName = teamName.toLowerCase().substring(0, 3); // converts Red to 'red' and Blue to 'blu'
-    const game = await this.gameModel.findOneAndUpdate(
-      { _id: new Types.ObjectId(gameId) },
-      { [`score.${fixedTeamName}`]: parseInt(score, 10) },
-      { new: true },
+    const game = plainToClass(
+      Game,
+      await this.gameModel
+        .findOneAndUpdate(
+          { _id: new Types.ObjectId(gameId) },
+          { [`score.${fixedTeamName}`]: parseInt(score, 10) },
+          { new: true },
+        )
+        .orFail()
+        .lean()
+        .exec(),
     );
-    if (game) {
-      this.events.gameChanges.next({ game: game.toJSON() });
-    } else {
-      this.logger.warn(`no such game: ${gameId}`);
-    }
 
+    this.events.gameChanges.next({ game });
     return game;
   }
 
@@ -156,23 +175,25 @@ export class GameEventHandlerService implements OnModuleDestroy {
       return;
     }
 
-    const game = await this.gameModel.findByIdAndUpdate(
-      gameId,
-      {
-        'slots.$[element].connectionStatus': connectionStatus,
-      },
-      {
-        new: true, // return updated document
-        arrayFilters: [{ 'element.player': { $eq: player._id } }],
-      },
+    const game = plainToClass(
+      Game,
+      await this.gameModel
+        .findByIdAndUpdate(
+          gameId,
+          {
+            'slots.$[element].connectionStatus': connectionStatus,
+          },
+          {
+            new: true, // return updated document
+            arrayFilters: [{ 'element.player': { $eq: player._id } }],
+          },
+        )
+        .orFail()
+        .lean()
+        .exec(),
     );
 
-    if (game) {
-      this.events.gameChanges.next({ game: game.toJSON() });
-    } else {
-      this.logger.warn(`no such game: ${gameId}`);
-    }
-
+    this.events.gameChanges.next({ game });
     return game;
   }
 

@@ -26,32 +26,33 @@ export class GameRuntimeService {
   ) {}
 
   async reconfigure(gameId: string) {
-    const game = await this.gamesService.getById(gameId);
-    if (!game) {
-      throw new Error('no such game');
-    }
-
+    let game = await this.gamesService.getById(gameId);
     if (!game.gameServer) {
       throw new Error('this game has no server assigned');
     }
 
     this.logger.verbose(`game #${game.number} is being reconfigured`);
 
-    game.connectString = null;
-    game.connectInfoVersion += 1;
-    await game.save();
-    this.events.gameChanges.next({ game });
+    game = await this.gamesService.updateGame(game.id, {
+      $set: { connectString: null, stvConnectString: null },
+      $inc: { connectInfoVersion: 1 },
+    });
 
     const gameServer = await this.gameServersService.getById(
       game.gameServer.toString(),
     );
     try {
-      const { connectString } =
+      const { connectString, stvConnectString } =
         await this.serverConfiguratorService.configureServer(gameServer, game);
-      game.connectString = connectString;
-      game.connectInfoVersion += 1;
-      await game.save();
-      this.events.gameChanges.next({ game });
+      game = await this.gamesService.updateGame(game.id, {
+        $set: {
+          connectString,
+          stvConnectString,
+        },
+        $inc: {
+          connectInfoVersion: 1,
+        },
+      });
     } catch (e) {
       this.logger.error(e.message);
     }
@@ -61,12 +62,6 @@ export class GameRuntimeService {
 
   async forceEnd(gameId: string, adminId?: string) {
     const game = await this.gamesService.getById(gameId);
-    if (!game) {
-      throw new Error('no such game');
-    }
-
-    this.logger.verbose(`game #${game.number} force ended`);
-
     game.state = GameState.interrupted;
     game.error = 'ended by admin';
     game.slots
@@ -85,6 +80,8 @@ export class GameRuntimeService {
           }),
         ),
     );
+
+    this.logger.verbose(`game #${game.number} force ended`);
 
     if (game.gameServer) {
       await this.cleanupServer(game.gameServer.toString());
