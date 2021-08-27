@@ -7,9 +7,10 @@ import { Player, playerSchema } from '@/players/models/player';
 import { PlayersService } from '@/players/services/players.service';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
-import { MongooseModule } from '@nestjs/mongoose';
+import { getConnectionToken, MongooseModule } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
 import { MongoMemoryServer } from 'mongodb-memory-server';
+import { Connection } from 'mongoose';
 import { Subject } from 'rxjs';
 import { AdminNotificationsService } from './admin-notifications.service';
 import { DiscordService } from './discord.service';
@@ -29,6 +30,7 @@ describe('AdminNotificationsService', () => {
   let discordService: DiscordService;
   let sendSpy: jest.SpyInstance;
   let sentMessages: Subject<any>;
+  let connection: Connection;
 
   beforeAll(async () => (mongod = await MongoMemoryServer.create()));
   afterAll(async () => mongod.stop());
@@ -61,6 +63,7 @@ describe('AdminNotificationsService', () => {
     events = module.get(Events);
     playersService = module.get(PlayersService);
     discordService = module.get(DiscordService);
+    connection = module.get(getConnectionToken());
     sendSpy = jest
       .spyOn(discordService.getAdminsChannel(), 'send')
       .mockImplementation((message) => {
@@ -73,8 +76,11 @@ describe('AdminNotificationsService', () => {
     service.onModuleInit();
   });
 
-  // @ts-expect-error
-  afterEach(async () => await playersService._reset());
+  afterEach(async () => {
+    // @ts-expect-error
+    await playersService._reset();
+    await connection.close();
+  });
 
   afterEach(() => {
     sentMessages.complete();

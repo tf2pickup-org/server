@@ -15,8 +15,8 @@ import { Game, GameDocument, gameSchema } from '../models/game';
 import { Events } from '@/events/events';
 import { SlotStatus } from '../models/slot-status';
 import { GameState } from '../models/game-state';
-import { MongooseModule } from '@nestjs/mongoose';
-import { Error } from 'mongoose';
+import { getConnectionToken, MongooseModule } from '@nestjs/mongoose';
+import { Connection, Error } from 'mongoose';
 
 jest.mock('@/plugins/discord/services/discord.service');
 jest.mock('@/players/services/players.service');
@@ -45,6 +45,7 @@ describe('PlayerSubstitutionService', () => {
   let mockGame: GameDocument;
   let discordService: jest.Mocked<DiscordService>;
   let events: Events;
+  let connection: Connection;
 
   beforeAll(async () => (mongod = await MongoMemoryServer.create()));
   afterAll(async () => await mongod.stop());
@@ -79,6 +80,7 @@ describe('PlayerSubstitutionService', () => {
     queueService = module.get(QueueService);
     discordService = module.get(DiscordService);
     events = module.get(Events);
+    connection = module.get(getConnectionToken());
   });
 
   beforeEach(async () => {
@@ -102,6 +104,7 @@ describe('PlayerSubstitutionService', () => {
     await gamesService._reset();
     // @ts-expect-error
     await playersService._reset();
+    await connection.close();
   });
 
   it('should be defined', () => {

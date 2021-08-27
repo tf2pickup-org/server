@@ -16,8 +16,12 @@ import { InsufficientTf2InGameHoursError } from '../errors/insufficient-tf2-in-g
 import { Tf2InGameHoursVerificationError } from '../errors/tf2-in-game-hours-verification.error';
 import { PlayerRole } from '../models/player-role';
 import { ConfigurationService } from '@/configuration/services/configuration.service';
-import { Error, Model } from 'mongoose';
-import { getModelToken, MongooseModule } from '@nestjs/mongoose';
+import { Connection, Error, Model } from 'mongoose';
+import {
+  getConnectionToken,
+  getModelToken,
+  MongooseModule,
+} from '@nestjs/mongoose';
 
 jest.mock('./etf2l-profile.service');
 jest.mock('@/configuration/services/configuration.service');
@@ -60,6 +64,7 @@ describe('PlayersService', () => {
   let steamApiService: SteamApiServiceStub;
   let events: Events;
   let configurationService: jest.Mocked<ConfigurationService>;
+  let connection: Connection;
 
   beforeAll(async () => (mongod = await MongoMemoryServer.create()));
   afterAll(async () => await mongod.stop());
@@ -94,6 +99,7 @@ describe('PlayersService', () => {
     steamApiService = module.get(SteamApiService);
     events = module.get(Events);
     configurationService = module.get(ConfigurationService);
+    connection = module.get(getConnectionToken());
   });
 
   beforeEach(async () => {
@@ -118,7 +124,10 @@ describe('PlayersService', () => {
     await service.onModuleInit();
   });
 
-  afterEach(async () => await playerModel.deleteMany({}));
+  afterEach(async () => {
+    await playerModel.deleteMany({});
+    await connection.close();
+  });
 
   it('should be defined', () => {
     expect(service).toBeDefined();

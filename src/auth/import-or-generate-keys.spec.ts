@@ -1,10 +1,14 @@
 import { Environment } from '@/environment/environment';
 import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
-import { getModelToken, MongooseModule } from '@nestjs/mongoose';
+import {
+  getConnectionToken,
+  getModelToken,
+  MongooseModule,
+} from '@nestjs/mongoose';
 import { TestingModule, Test } from '@nestjs/testing';
 import { generateKeyPair } from 'crypto';
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import { Model } from 'mongoose';
+import { Connection, Model } from 'mongoose';
 import { promisify } from 'util';
 import { importOrGenerateKeys } from './import-or-generate-keys';
 import { KeyName } from './key-name';
@@ -15,6 +19,7 @@ describe('importOrGenerateKeys()', () => {
   let mongod: MongoMemoryServer;
   let keyModel: Model<KeyDocument>;
   let environment: Partial<Environment>;
+  let connection: Connection;
 
   beforeAll(async () => (mongod = await MongoMemoryServer.create()));
   afterAll(async () => await mongod.stop());
@@ -40,9 +45,13 @@ describe('importOrGenerateKeys()', () => {
     }).compile();
 
     keyModel = module.get(getModelToken(Key.name));
+    connection = module.get(getConnectionToken());
   });
 
-  afterEach(async () => await keyModel.deleteMany({}));
+  afterEach(async () => {
+    await keyModel.deleteMany({});
+    await connection.close();
+  });
 
   describe('when the key is in the database', () => {
     let generatedKeyPair: KeyPair;

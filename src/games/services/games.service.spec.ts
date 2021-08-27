@@ -16,12 +16,16 @@ import { SlotStatus } from '../models/slot-status';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { GameState } from '../models/game-state';
 import { ConfigurationService } from '@/configuration/services/configuration.service';
-import { Model } from 'mongoose';
-import { getModelToken, MongooseModule } from '@nestjs/mongoose';
 import { GameServersService } from '@/game-servers/services/game-servers.service';
 import { GameServer } from '@/game-servers/models/game-server';
 import { PlayerNotInThisGameError } from '../errors/player-not-in-this-game.error';
 import { GameInWrongStateError } from '../errors/game-in-wrong-state.error';
+import { Connection, Model } from 'mongoose';
+import {
+  getConnectionToken,
+  getModelToken,
+  MongooseModule,
+} from '@nestjs/mongoose';
 
 jest.mock('@/players/services/players.service');
 jest.mock('@/players/services/player-skill.service');
@@ -53,6 +57,7 @@ describe('GamesService', () => {
   let playerSkillService: jest.Mocked<PlayerSkillService>;
   let configurationService: jest.Mocked<ConfigurationService>;
   let gameServersService: jest.Mocked<GameServersService>;
+  let connection: Connection;
 
   beforeAll(async () => (mongod = await MongoMemoryServer.create()));
   afterAll(async () => await mongod.stop());
@@ -86,12 +91,14 @@ describe('GamesService', () => {
     playerSkillService = module.get(PlayerSkillService);
     configurationService = module.get(ConfigurationService);
     gameServersService = module.get(GameServersService);
+    connection = module.get(getConnectionToken());
   });
 
   afterEach(async () => {
     // @ts-expect-error
     await playersService._reset();
     await gameModel.deleteMany({});
+    await connection.close();
   });
 
   it('should be defined', () => {

@@ -8,13 +8,18 @@ import {
   futurePlayerSkillSchema,
 } from '../models/future-player-skill';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
-import { Model } from 'mongoose';
-import { getModelToken, MongooseModule } from '@nestjs/mongoose';
+import { Connection, Model } from 'mongoose';
+import {
+  getConnectionToken,
+  getModelToken,
+  MongooseModule,
+} from '@nestjs/mongoose';
 
 describe('FuturePlayerSkillService', () => {
   let service: FuturePlayerSkillService;
   let mongod: MongoMemoryServer;
   let futurePlayerSkillModel: Model<FuturePlayerSkillDocument>;
+  let connection: Connection;
 
   beforeAll(async () => (mongod = await MongoMemoryServer.create()));
   afterAll(async () => await mongod.stop());
@@ -35,9 +40,13 @@ describe('FuturePlayerSkillService', () => {
 
     service = module.get<FuturePlayerSkillService>(FuturePlayerSkillService);
     futurePlayerSkillModel = module.get(getModelToken(FuturePlayerSkill.name));
+    connection = module.get(getConnectionToken());
   });
 
-  afterEach(async () => await futurePlayerSkillModel.deleteMany({}));
+  afterEach(async () => {
+    await futurePlayerSkillModel.deleteMany({});
+    await connection.close();
+  });
 
   it('should be defined', () => {
     expect(service).toBeDefined();

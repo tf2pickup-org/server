@@ -5,14 +5,19 @@ import { MapPoolService } from './map-pool.service';
 import { Map, MapDocument, mapSchema } from '../models/map';
 import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
 import { skip } from 'rxjs/operators';
-import { Model } from 'mongoose';
-import { getModelToken, MongooseModule } from '@nestjs/mongoose';
+import { Connection, Model } from 'mongoose';
+import {
+  getConnectionToken,
+  getModelToken,
+  MongooseModule,
+} from '@nestjs/mongoose';
 
 describe('MapPoolService', () => {
   let service: MapPoolService;
   let mongod: MongoMemoryServer;
   let mapModel: Model<MapDocument>;
   let events: Events;
+  let connection: Connection;
 
   beforeAll(async () => (mongod = await MongoMemoryServer.create()));
   afterAll(async () => await mongod.stop());
@@ -34,10 +39,12 @@ describe('MapPoolService', () => {
     service = module.get<MapPoolService>(MapPoolService);
     mapModel = module.get(getModelToken(Map.name));
     events = module.get(Events);
+    connection = module.get(getConnectionToken());
   });
 
   afterEach(async () => {
     await mapModel.deleteMany({});
+    await connection.close();
   });
 
   it('should be defined', () => {

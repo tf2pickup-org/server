@@ -12,8 +12,12 @@ import { GamesService } from './games.service';
 import { Events } from '@/events/events';
 import { SlotStatus } from '../models/slot-status';
 import { GameState } from '../models/game-state';
-import { Model } from 'mongoose';
-import { getModelToken, MongooseModule } from '@nestjs/mongoose';
+import { Connection, Model } from 'mongoose';
+import {
+  getConnectionToken,
+  getModelToken,
+  MongooseModule,
+} from '@nestjs/mongoose';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 
 jest.mock('@/players/services/players.service');
@@ -32,6 +36,7 @@ describe('GameEventHandlerService', () => {
   let gameModel: Model<GameDocument>;
   let gamesService: GamesService;
   let events: Events;
+  let connection: Connection;
 
   beforeAll(async () => (mongod = await MongoMemoryServer.create()));
   afterAll(async () => await mongod.stop());
@@ -60,6 +65,7 @@ describe('GameEventHandlerService', () => {
     gameModel = module.get(getModelToken(Game.name));
     gamesService = module.get(GamesService);
     events = module.get(Events);
+    connection = module.get(getConnectionToken());
   });
 
   beforeEach(async () => {
@@ -78,6 +84,7 @@ describe('GameEventHandlerService', () => {
     await gamesService._reset();
     // @ts-expect-error
     await playersService._reset();
+    await connection.close();
   });
 
   it('should be defined', () => {
@@ -141,15 +148,15 @@ describe('GameEventHandlerService', () => {
       jest.useRealTimers();
     });
 
-    it('should emit the gameChanges events', async () =>
-      new Promise<void>((resolve) => {
-        events.gameChanges.subscribe(({ game }) => {
-          expect(game).toMatchObject({ id: mockGame.id, state: 'ended' });
-          resolve();
-        });
+    it('should emit the gameChanges events', async () => {
+      let event: Game;
+      events.gameChanges.subscribe(({ game }) => {
+        event = game;
+      });
 
-        service.onMatchEnded(mockGame.id);
-      }));
+      await service.onMatchEnded(mockGame.id);
+      expect(event).toMatchObject({ id: mockGame.id, state: 'ended' });
+    });
 
     describe('with player awaiting a substitute', () => {
       beforeEach(async () => {
@@ -165,9 +172,11 @@ describe('GameEventHandlerService', () => {
         );
       });
 
-      it('should emit the subsituteRequestsChange event', async () => {
+      it('should emit the substituteRequestsChange event', async () => {
         let eventEmitted = false;
-        events.substituteRequestsChange.subscribe(() => (eventEmitted = true));
+        events.substituteRequestsChange.subscribe(() => {
+          eventEmitted = true;
+        });
         await service.onMatchEnded(mockGame.id);
         expect(eventEmitted).toBe(true);
       });

@@ -29,8 +29,12 @@ import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
 import { Player, PlayerDocument, playerSchema } from '@/players/models/player';
 import { Rcon } from 'rcon-client/lib';
 import { ConfigurationService } from '@/configuration/services/configuration.service';
-import { getModelToken, MongooseModule } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import {
+  getConnectionToken,
+  getModelToken,
+  MongooseModule,
+} from '@nestjs/mongoose';
+import { Connection, Model } from 'mongoose';
 
 jest.mock('@/queue/services/map-pool.service');
 jest.mock('@/players/services/players.service');
@@ -74,6 +78,7 @@ describe('ServerConfiguratorService', () => {
   let queueConfigService: QueueConfigServiceStub;
   let mapPoolService: jest.Mocked<MapPoolService>;
   let configurationService: jest.Mocked<ConfigurationService>;
+  let connection: Connection;
 
   beforeAll(async () => (mongod = await MongoMemoryServer.create()));
   afterAll(async () => await mongod.stop());
@@ -112,6 +117,7 @@ describe('ServerConfiguratorService', () => {
     queueConfigService = module.get(QueueConfigService);
     mapPoolService = module.get(MapPoolService);
     configurationService = module.get(ConfigurationService);
+    connection = module.get(getConnectionToken());
   });
 
   beforeEach(() => {
@@ -120,6 +126,8 @@ describe('ServerConfiguratorService', () => {
     ]);
     configurationService.getWhitelistId.mockResolvedValue('');
   });
+
+  afterEach(async () => await connection.close());
 
   it('should be defined', () => {
     expect(service).toBeDefined();
