@@ -12,6 +12,7 @@ const config: InitialOptionsTsJest = {
   }),
   preset: 'ts-jest',
   testEnvironment: 'node',
+  setupFiles: ['trace-unhandled/register'],
 };
 
 export default config;
