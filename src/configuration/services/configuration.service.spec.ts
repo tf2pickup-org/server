@@ -1,9 +1,13 @@
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
-import { getModelToken, MongooseModule } from '@nestjs/mongoose';
+import {
+  getConnectionToken,
+  getModelToken,
+  MongooseModule,
+} from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import { Model } from 'mongoose';
+import { Connection, Model } from 'mongoose';
 import {
   ConfigurationEntry,
   ConfigurationEntryDocument,
@@ -17,6 +21,7 @@ describe('ConfigurationService', () => {
   let service: ConfigurationService;
   let mongod: MongoMemoryServer;
   let configurationEntryModel: Model<ConfigurationEntryDocument>;
+  let connection: Connection;
 
   beforeAll(async () => (mongod = await MongoMemoryServer.create()));
   afterAll(async () => await mongod.stop());
@@ -36,6 +41,7 @@ describe('ConfigurationService', () => {
     configurationEntryModel = module.get(
       getModelToken(ConfigurationEntry.name),
     );
+    connection = module.get(getConnectionToken());
   });
 
   beforeEach(async () => {
@@ -44,6 +50,7 @@ describe('ConfigurationService', () => {
 
   afterEach(async () => {
     await configurationEntryModel.deleteMany({});
+    await connection.close();
   });
 
   it('should be defined', () => {

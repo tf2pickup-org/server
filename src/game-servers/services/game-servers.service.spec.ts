@@ -11,8 +11,12 @@ import * as isServerOnline from '../utils/is-server-online';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { Events } from '@/events/events';
 import { Game, GameDocument, gameSchema } from '@/games/models/game';
-import { Error, Model } from 'mongoose';
-import { getModelToken, MongooseModule } from '@nestjs/mongoose';
+import { Connection, Error, Model } from 'mongoose';
+import {
+  getConnectionToken,
+  getModelToken,
+  MongooseModule,
+} from '@nestjs/mongoose';
 
 jest.mock('dns');
 
@@ -23,6 +27,7 @@ describe('GameServersService', () => {
   let gameModel: Model<GameDocument>;
   let testGameServer: GameServerDocument;
   let events: Events;
+  let connection: Connection;
 
   beforeAll(async () => (mongod = await MongoMemoryServer.create()));
   afterAll(async () => await mongod.stop());
@@ -43,6 +48,7 @@ describe('GameServersService', () => {
     gameServerModel = module.get(getModelToken(GameServer.name));
     gameModel = module.get(getModelToken(Game.name));
     events = module.get(Events);
+    connection = module.get(getConnectionToken());
   });
 
   beforeEach(async () => {
@@ -58,6 +64,7 @@ describe('GameServersService', () => {
   afterEach(async () => {
     await gameServerModel.deleteMany({});
     await gameModel.deleteMany({});
+    await connection.close();
   });
 
   it('should be defined', () => {

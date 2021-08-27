@@ -17,8 +17,12 @@ import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
 import { Player, playerSchema } from '@/players/models/player';
 import { LinkedProfilesService } from '@/players/services/linked-profiles.service';
 import { Events } from '@/events/events';
-import { Error, Model, Types } from 'mongoose';
-import { getModelToken, MongooseModule } from '@nestjs/mongoose';
+import { Connection, Error, Model, Types } from 'mongoose';
+import {
+  getConnectionToken,
+  getModelToken,
+  MongooseModule,
+} from '@nestjs/mongoose';
 
 jest.mock('../gateways/twitch.gateway');
 jest.mock('./twitch-auth.service');
@@ -47,6 +51,7 @@ describe('TwitchService', () => {
   let twitchTvProfileModel: Model<TwitchTvProfileDocument>;
   let linkedProfilesService: jest.Mocked<LinkedProfilesService>;
   let events: Events;
+  let connection: Connection;
 
   beforeAll(async () => (mongod = await MongoMemoryServer.create()));
   afterAll(async () => await mongod.stop());
@@ -81,10 +86,14 @@ describe('TwitchService', () => {
     twitchTvProfileModel = module.get(getModelToken(TwitchTvProfile.name));
     linkedProfilesService = module.get(LinkedProfilesService);
     events = module.get(Events);
+    connection = module.get(getConnectionToken());
   });
 
-  // @ts-expect-error
-  afterEach(async () => await playersService._reset());
+  afterEach(async () => {
+    // @ts-expect-error
+    await playersService._reset();
+    await connection.close();
+  });
 
   it('should be defined', () => {
     expect(service).toBeDefined();

@@ -8,7 +8,7 @@ import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
 import { Player, PlayerDocument, playerSchema } from '@/players/models/player';
 import { ObjectId } from 'mongodb';
 import { Events } from '@/events/events';
-import { MongooseModule } from '@nestjs/mongoose';
+import { getConnectionToken, MongooseModule } from '@nestjs/mongoose';
 import { NoSuchPlayerError } from '../errors/no-such-player.error';
 import { PlayerHasNotAcceptedRulesError } from '../errors/player-has-not-accepted-rules.error';
 import { PlayerIsBannedError } from '../errors/player-is-banned.error';
@@ -17,6 +17,7 @@ import { NoSuchSlotError } from '../errors/no-such-slot.error';
 import { SlotOccupiedError } from '../errors/slot-occupied.error';
 import { PlayerNotInTheQueueError } from '../errors/player-not-in-the-queue.error';
 import { WrongQueueStateError } from '../errors/wrong-queue-state.error';
+import { Connection } from 'mongoose';
 
 jest.mock('@/players/services/players.service');
 jest.mock('@/players/services/player-bans.service');
@@ -45,6 +46,7 @@ describe('QueueService', () => {
   let playerBansService: PlayerBansService;
   let events: Events;
   let player: PlayerDocument;
+  let connection: Connection;
 
   beforeAll(async () => (mongod = await MongoMemoryServer.create()));
   afterAll(async () => await mongod.stop());
@@ -70,6 +72,7 @@ describe('QueueService', () => {
     playersService = module.get(PlayersService);
     playerBansService = module.get(PlayerBansService);
     events = module.get(Events);
+    connection = module.get(getConnectionToken());
   });
 
   beforeEach(async () => {
@@ -85,6 +88,7 @@ describe('QueueService', () => {
     service.onModuleDestroy();
     // @ts-expect-error
     await playersService._reset();
+    await connection.close();
   });
 
   it('should be defined', () => {

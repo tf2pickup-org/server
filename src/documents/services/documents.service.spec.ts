@@ -3,13 +3,18 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { DocumentsService } from './documents.service';
 import { Document, DocumentDocument, documentSchema } from '../models/document';
-import { Error, Model } from 'mongoose';
-import { getModelToken, MongooseModule } from '@nestjs/mongoose';
+import { Connection, Error, Model } from 'mongoose';
+import {
+  getConnectionToken,
+  getModelToken,
+  MongooseModule,
+} from '@nestjs/mongoose';
 
 describe('DocumentsService', () => {
   let service: DocumentsService;
   let mongod: MongoMemoryServer;
   let documentModel: Model<DocumentDocument>;
+  let connection: Connection;
 
   beforeAll(async () => (mongod = await MongoMemoryServer.create()));
   afterAll(async () => await mongod.stop());
@@ -27,9 +32,13 @@ describe('DocumentsService', () => {
 
     service = module.get<DocumentsService>(DocumentsService);
     documentModel = module.get(getModelToken(Document.name));
+    connection = module.get(getConnectionToken());
   });
 
-  afterEach(async () => await documentModel.deleteMany({}));
+  afterEach(async () => {
+    await documentModel.deleteMany({});
+    await connection.close();
+  });
 
   it('should be defined', () => {
     expect(service).toBeDefined();

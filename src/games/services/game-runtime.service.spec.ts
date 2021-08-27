@@ -16,7 +16,8 @@ import { GameServer } from '@/game-servers/models/game-server';
 import { Events } from '@/events/events';
 import { SlotStatus } from '../models/slot-status';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
-import { MongooseModule } from '@nestjs/mongoose';
+import { getConnectionToken, MongooseModule } from '@nestjs/mongoose';
+import { Connection } from 'mongoose';
 
 jest.mock('./games.service');
 jest.mock('@/game-servers/services/game-servers.service');
@@ -45,6 +46,7 @@ describe('GameRuntimeService', () => {
   let mockPlayers: PlayerDocument[];
   let mockGame: GameDocument;
   let events: Events;
+  let connection: Connection;
 
   beforeAll(async () => (mongod = await MongoMemoryServer.create()));
   afterAll(async () => await mongod.stop());
@@ -76,6 +78,7 @@ describe('GameRuntimeService', () => {
     serverConfiguratorService = module.get(ServerConfiguratorService);
     rconFactoryService = module.get(RconFactoryService);
     events = module.get(Events);
+    connection = module.get(getConnectionToken());
   });
 
   beforeEach(async () => {
@@ -113,6 +116,7 @@ describe('GameRuntimeService', () => {
     await gamesService._reset();
     // @ts-expect-error
     await playersService._reset();
+    await connection.close();
   });
 
   it('should be defined', () => {

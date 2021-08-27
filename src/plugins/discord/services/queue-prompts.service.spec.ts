@@ -17,7 +17,8 @@ import { Message } from 'discord.js';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { DiscordService } from './discord.service';
 import { QueuePromptsService } from './queue-prompts.service';
-import { MongooseModule } from '@nestjs/mongoose';
+import { getConnectionToken, MongooseModule } from '@nestjs/mongoose';
+import { Connection } from 'mongoose';
 
 jest.mock('./discord.service');
 jest.mock('@/queue/services/queue.service');
@@ -36,6 +37,7 @@ describe('QueuePromptsService', () => {
   let playersService: PlayersService;
   let discordService: DiscordService;
   let players: Player[];
+  let connection: Connection;
 
   beforeAll(async () => (mongod = await MongoMemoryServer.create()));
   afterAll(async () => await mongod.stop());
@@ -95,6 +97,7 @@ describe('QueuePromptsService', () => {
     queueService = module.get(QueueService);
     playersService = module.get(PlayersService);
     discordService = module.get(DiscordService);
+    connection = module.get(getConnectionToken());
   });
 
   beforeEach(async () => {
@@ -148,6 +151,7 @@ describe('QueuePromptsService', () => {
   afterEach(async () => {
     // @ts-expect-error
     await playersService._reset();
+    await connection.close();
   });
 
   it('should be defined', () => {

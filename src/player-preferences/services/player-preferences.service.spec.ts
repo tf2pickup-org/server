@@ -8,13 +8,18 @@ import {
 } from '../models/player-preferences';
 import { PlayerPreferencesService } from './player-preferences.service';
 import { ObjectId } from 'mongodb';
-import { Model } from 'mongoose';
-import { getModelToken, MongooseModule } from '@nestjs/mongoose';
+import { Connection, Model } from 'mongoose';
+import {
+  getConnectionToken,
+  getModelToken,
+  MongooseModule,
+} from '@nestjs/mongoose';
 
 describe('PlayerPreferencesService', () => {
   let service: PlayerPreferencesService;
   let mongod: MongoMemoryServer;
   let playerPreferencesModel: Model<PlayerPreferencesDocument>;
+  let connection: Connection;
 
   beforeAll(async () => (mongod = await MongoMemoryServer.create()));
   afterAll(async () => await mongod.stop());
@@ -35,10 +40,12 @@ describe('PlayerPreferencesService', () => {
 
     service = module.get<PlayerPreferencesService>(PlayerPreferencesService);
     playerPreferencesModel = module.get(getModelToken(PlayerPreferences.name));
+    connection = module.get(getConnectionToken());
   });
 
   afterEach(async () => {
     await playerPreferencesModel.deleteMany({});
+    await connection.close();
   });
 
   it('should be defined', () => {

@@ -1,8 +1,12 @@
 import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
-import { getModelToken, MongooseModule } from '@nestjs/mongoose';
+import {
+  getConnectionToken,
+  getModelToken,
+  MongooseModule,
+} from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import { Error, Model, Types } from 'mongoose';
+import { Connection, Error, Model, Types } from 'mongoose';
 import { LogForwarding } from '../diagnostic-checks/log-forwarding';
 import { RconConnection } from '../diagnostic-checks/rcon-connection';
 import { ServerDiscovery } from '../diagnostic-checks/server-discovery';
@@ -23,6 +27,7 @@ describe('GameServerDiagnosticsService', () => {
   let service: GameServerDiagnosticsService;
   let mongod: MongoMemoryServer;
   let gameServerDiagnosticRunModel: Model<GameServerDiagnosticRunDocument>;
+  let connection: Connection;
 
   beforeAll(async () => (mongod = await MongoMemoryServer.create()));
   afterAll(async () => await mongod.stop());
@@ -53,10 +58,12 @@ describe('GameServerDiagnosticsService', () => {
     gameServerDiagnosticRunModel = module.get(
       getModelToken(GameServerDiagnosticRun.name),
     );
+    connection = module.get(getConnectionToken());
   });
 
   afterEach(async () => {
     await gameServerDiagnosticRunModel.deleteMany({});
+    await connection.close();
   });
 
   it('should be defined', () => {

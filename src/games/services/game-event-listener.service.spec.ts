@@ -5,9 +5,13 @@ import { GameEventHandlerService } from './game-event-handler.service';
 import { GamesService } from './games.service';
 import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import { getModelToken, MongooseModule } from '@nestjs/mongoose';
+import {
+  getConnectionToken,
+  getModelToken,
+  MongooseModule,
+} from '@nestjs/mongoose';
 import { Game, GameDocument, gameSchema } from '../models/game';
-import { Model } from 'mongoose';
+import { Connection, Model } from 'mongoose';
 import { LogReceiverService } from '@/log-receiver/services/log-receiver.service';
 import { Subject } from 'rxjs';
 
@@ -28,6 +32,7 @@ describe('GameEventListenerService', () => {
   let gameModel: Model<GameDocument>;
   let game: GameDocument;
   let logReceiverService: jest.Mocked<LogReceiverService>;
+  let connection: Connection;
 
   beforeAll(async () => (mongod = await MongoMemoryServer.create()));
   afterAll(async () => await mongod.stop());
@@ -57,6 +62,7 @@ describe('GameEventListenerService', () => {
     gameModel = module.get(getModelToken(Game.name));
     gamesService = module.get(GamesService);
     logReceiverService = module.get(LogReceiverService);
+    connection = module.get(getConnectionToken());
 
     // @ts-expect-error
     logReceiverService.data = new Subject<any>();
@@ -73,6 +79,7 @@ describe('GameEventListenerService', () => {
 
   afterEach(async () => {
     await gameModel.deleteMany({});
+    await connection.close();
   });
 
   it('should be defined', () => {

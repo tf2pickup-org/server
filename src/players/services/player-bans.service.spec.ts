@@ -12,8 +12,12 @@ import { MongoMemoryServer } from 'mongodb-memory-server';
 import { PlayersService } from './players.service';
 import { Player, PlayerDocument, playerSchema } from '../models/player';
 import { Events } from '@/events/events';
-import { Error, Model, Types } from 'mongoose';
-import { getModelToken, MongooseModule } from '@nestjs/mongoose';
+import { Connection, Error, Model, Types } from 'mongoose';
+import {
+  getConnectionToken,
+  getModelToken,
+  MongooseModule,
+} from '@nestjs/mongoose';
 
 jest.mock('./players.service');
 
@@ -33,6 +37,7 @@ describe('PlayerBansService', () => {
   let admin: PlayerDocument;
   let player: PlayerDocument;
   let events: Events;
+  let connection: Connection;
 
   beforeAll(async () => (mongod = await MongoMemoryServer.create()));
   afterAll(async () => mongod.stop());
@@ -65,6 +70,7 @@ describe('PlayerBansService', () => {
     onlinePlayersService = module.get(OnlinePlayersService);
     playersService = module.get(PlayersService);
     events = module.get(Events);
+    connection = module.get(getConnectionToken());
   });
 
   beforeEach(async () => {
@@ -88,8 +94,11 @@ describe('PlayerBansService', () => {
 
   beforeEach(() => service.onModuleInit());
 
-  // @ts-expect-error
-  afterEach(async () => await playersService._reset());
+  afterEach(async () => {
+    // @ts-expect-error
+    await playersService._reset();
+    await connection.close();
+  });
 
   it('should be defined', () => {
     expect(service).toBeDefined();

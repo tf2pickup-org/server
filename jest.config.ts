@@ -1,17 +1,23 @@
-// For a detailed explanation regarding each configuration property, visit:
-// https://jestjs.io/docs/en/configuration.html
-
-import type { Config } from '@jest/types';
+import type { InitialOptionsTsJest } from 'ts-jest/dist/types';
 import { defaults } from 'jest-config';
 import { pathsToModuleNameMapper } from 'ts-jest/utils';
 import { compilerOptions } from './tsconfig.json';
 
-const config: Config.InitialOptions = {
+const config: InitialOptionsTsJest = {
   ...defaults,
   collectCoverage: true,
   coverageDirectory: 'coverage',
-  moduleNameMapper: pathsToModuleNameMapper(compilerOptions.paths, { prefix: '<rootDir>/' }),
+  collectCoverageFrom: [
+    'src/**/*.(t|j)s',
+    '!src/**/*.spec.(t|j)s',
+    '!src/utils/testing-mongoose-module.ts',
+  ],
+  moduleNameMapper: pathsToModuleNameMapper(compilerOptions.paths, {
+    prefix: '<rootDir>/',
+  }),
   preset: 'ts-jest',
   testEnvironment: 'node',
+  setupFiles: ['trace-unhandled/register'],
 };
+
 export default config;

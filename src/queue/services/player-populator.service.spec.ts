@@ -7,7 +7,8 @@ import { MongoMemoryServer } from 'mongodb-memory-server';
 import { QueueSlot } from '../queue-slot';
 import { PlayerPopulatorService } from './player-populator.service';
 import { plainToClass } from 'class-transformer';
-import { MongooseModule } from '@nestjs/mongoose';
+import { getConnectionToken, MongooseModule } from '@nestjs/mongoose';
+import { Connection } from 'mongoose';
 
 jest.mock('@/players/services/players.service');
 
@@ -16,6 +17,7 @@ describe('PlayerPopulatorService', () => {
   let mongod: MongoMemoryServer;
   let playersService: PlayersService;
   let mockPlayer: PlayerDocument;
+  let connection: Connection;
 
   beforeAll(async () => (mongod = await MongoMemoryServer.create()));
   afterAll(async () => await mongod.stop());
@@ -36,6 +38,7 @@ describe('PlayerPopulatorService', () => {
 
     service = module.get<PlayerPopulatorService>(PlayerPopulatorService);
     playersService = module.get(PlayersService);
+    connection = module.get(getConnectionToken());
   });
 
   beforeEach(async () => {
@@ -46,6 +49,7 @@ describe('PlayerPopulatorService', () => {
   afterEach(async () => {
     // @ts-expect-error
     await playersService._reset();
+    await connection.close();
   });
 
   it('should be defined', () => {

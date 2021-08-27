@@ -12,8 +12,12 @@ import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
 import { InvalidTokenError } from '../errors/invalid-token.error';
 import { JwtTokenPurpose } from '../jwt-token-purpose';
 import { KeyPair } from '../key-pair';
-import { Model } from 'mongoose';
-import { getModelToken, MongooseModule } from '@nestjs/mongoose';
+import { Connection, Model } from 'mongoose';
+import {
+  getConnectionToken,
+  getModelToken,
+  MongooseModule,
+} from '@nestjs/mongoose';
 
 describe('AuthService', () => {
   let mongod: MongoMemoryServer;
@@ -21,6 +25,7 @@ describe('AuthService', () => {
   let refreshTokenModel: Model<RefreshTokenDocument>;
   let authKeys: KeyPair;
   let refreshKeys: KeyPair;
+  let connection: Connection;
 
   beforeAll(async () => (mongod = await MongoMemoryServer.create()));
   afterAll(async () => await mongod.stop());
@@ -58,9 +63,13 @@ describe('AuthService', () => {
     refreshTokenModel = module.get(getModelToken(RefreshToken.name));
     authKeys = module.get('AUTH_TOKEN_KEY');
     refreshKeys = module.get('REFRESH_TOKEN_KEY');
+    connection = module.get(getConnectionToken());
   });
 
-  afterEach(async () => await refreshTokenModel.deleteMany({}));
+  afterEach(async () => {
+    await refreshTokenModel.deleteMany({});
+    await connection.close();
+  });
 
   it('should be defined', () => {
     expect(service).toBeDefined();

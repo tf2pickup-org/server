@@ -6,8 +6,12 @@ import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { Map, MapDocument, mapSchema } from '../models/map';
 import { skip } from 'rxjs/operators';
-import { Model } from 'mongoose';
-import { getModelToken, MongooseModule } from '@nestjs/mongoose';
+import { Connection, Model } from 'mongoose';
+import {
+  getConnectionToken,
+  getModelToken,
+  MongooseModule,
+} from '@nestjs/mongoose';
 
 jest.mock('./queue.service');
 
@@ -17,6 +21,7 @@ describe('MapVoteService', () => {
   let mapModel: Model<MapDocument>;
   let queueService: jest.Mocked<QueueService>;
   let events: Events;
+  let connection: Connection;
 
   beforeAll(async () => (mongod = await MongoMemoryServer.create()));
   afterAll(async () => await mongod.stop());
@@ -39,6 +44,7 @@ describe('MapVoteService', () => {
     mapModel = module.get(getModelToken(Map.name));
     queueService = module.get(QueueService);
     events = module.get(Events);
+    connection = module.get(getConnectionToken());
   });
 
   beforeEach(async () => {
@@ -54,6 +60,7 @@ describe('MapVoteService', () => {
 
   afterEach(async () => {
     await mapModel.deleteMany({});
+    await connection.close();
   });
 
   it('should be defined', () => {

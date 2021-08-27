@@ -13,22 +13,16 @@ import { FuturePlayerSkillService } from './future-player-skill.service';
 import { Player, PlayerDocument, playerSchema } from '../models/player';
 import { Events } from '@/events/events';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
-import { Model } from 'mongoose';
-import { getModelToken, MongooseModule } from '@nestjs/mongoose';
+import { Connection, Model } from 'mongoose';
+import {
+  getConnectionToken,
+  getModelToken,
+  MongooseModule,
+} from '@nestjs/mongoose';
 
 jest.mock('./players.service');
 jest.mock('./future-player-skill.service');
 jest.mock('./etf2l-profile.service');
-
-class QueueConfigServiceStub {
-  queueConfig = {
-    classes: [{ name: 'soldier' }],
-  };
-}
-
-const environment = {
-  clientUrl: 'FAKE_CLIENT_URL',
-};
 
 describe('PlayerSkillService', () => {
   let service: PlayerSkillService;
@@ -39,6 +33,7 @@ describe('PlayerSkillService', () => {
   let playersService: PlayersService;
   let futurePlayerSkillService: FuturePlayerSkillService;
   let events: Events;
+  let connection: Connection;
 
   beforeAll(async () => (mongod = await MongoMemoryServer.create()));
   afterAll(async () => await mongod.stop());
@@ -71,6 +66,7 @@ describe('PlayerSkillService', () => {
     playersService = module.get(PlayersService);
     futurePlayerSkillService = module.get(FuturePlayerSkillService);
     events = module.get(Events);
+    connection = module.get(getConnectionToken());
 
     service.onModuleInit();
   });
@@ -90,6 +86,7 @@ describe('PlayerSkillService', () => {
     await playerSkillModel.deleteMany({});
     // @ts-expect-error
     await playersService._reset();
+    await connection.close();
   });
 
   it('should be defined', () => {
