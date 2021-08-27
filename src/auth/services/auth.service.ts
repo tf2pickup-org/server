@@ -21,8 +21,8 @@ export class AuthService implements OnModuleInit {
     @Inject('CONTEXT_TOKEN_KEY') private contextTokenKey: KeyPair,
   ) {}
 
-  onModuleInit() {
-    this.removeOldRefreshTokens();
+  async onModuleInit() {
+    await this.removeOldRefreshTokens();
   }
 
   async generateJwtToken(
