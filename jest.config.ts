@@ -13,6 +13,7 @@ const config: InitialOptionsTsJest = {
   preset: 'ts-jest',
   testEnvironment: 'node',
   setupFiles: ['trace-unhandled/register'],
+  collectCoverageFrom: ['<rootDir>/src/**/*.(t|j)s'],
 };
 
 export default config;
