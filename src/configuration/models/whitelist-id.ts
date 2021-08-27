@@ -5,7 +5,7 @@ import { ConfigurationEntryKey } from './configuration-entry-key';
 
 @Schema()
 export class WhitelistId extends MongooseDocument {
-  constructor(value: string) {
+  constructor(value = 'etf2l_6v6') {
     super();
     this.key = ConfigurationEntryKey.whitelistId;
     this.value = value;
@@ -20,5 +20,3 @@ export class WhitelistId extends MongooseDocument {
 }
 
 export const whitelistIdSchema = SchemaFactory.createForClass(WhitelistId);
-
-export const defaultWhitelistId = () => new WhitelistId('');

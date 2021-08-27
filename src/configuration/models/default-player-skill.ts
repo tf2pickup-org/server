@@ -10,6 +10,12 @@ export class DefaultPlayerSkill extends MongooseDocument {
   constructor() {
     super();
     this.key = ConfigurationEntryKey.defaultPlayerSkill;
+    this.value = new Map(
+      (Object.keys(Tf2ClassName) as Tf2ClassName[]).map((className) => [
+        className,
+        1,
+      ]),
+    );
   }
 
   @Equals(ConfigurationEntryKey.defaultPlayerSkill)
@@ -28,14 +34,3 @@ export class DefaultPlayerSkill extends MongooseDocument {
 
 export const defaultPlayerSkillSchema =
   SchemaFactory.createForClass(DefaultPlayerSkill);
-
-export const defaultDefaultPlayerSkill = () => {
-  const ret = new DefaultPlayerSkill();
-  ret.value = new Map(
-    (Object.keys(Tf2ClassName) as Tf2ClassName[]).map((className) => [
-      className,
-      1,
-    ]),
-  );
-  return ret;
-};

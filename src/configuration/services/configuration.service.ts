@@ -7,20 +7,11 @@ import {
   ConfigurationEntryDocument,
 } from '../models/configuration-entry';
 import { ConfigurationEntryKey } from '../models/configuration-entry-key';
-import {
-  defaultDefaultPlayerSkill,
-  DefaultPlayerSkill,
-} from '../models/default-player-skill';
-import {
-  defaultEtf2lAccountRequired,
-  Etf2lAccountRequired,
-} from '../models/etf2l-account-required';
-import {
-  defaultMinimumTf2InGameHours,
-  MinimumTf2InGameHours,
-} from '../models/minimum-tf2-in-game-hours';
-import { defaultVoiceServer, VoiceServer } from '../models/voice-server';
-import { defaultWhitelistId, WhitelistId } from '../models/whitelist-id';
+import { DefaultPlayerSkill } from '../models/default-player-skill';
+import { Etf2lAccountRequired } from '../models/etf2l-account-required';
+import { MinimumTf2InGameHours } from '../models/minimum-tf2-in-game-hours';
+import { VoiceServer } from '../models/voice-server';
+import { WhitelistId } from '../models/whitelist-id';
 
 @Injectable()
 export class ConfigurationService {
@@ -34,7 +25,7 @@ export class ConfigurationService {
       DefaultPlayerSkill,
       await this.get(
         ConfigurationEntryKey.defaultPlayerSkill,
-        classToPlain(defaultDefaultPlayerSkill()),
+        classToPlain(new DefaultPlayerSkill()),
       ),
     );
   }
@@ -42,7 +33,7 @@ export class ConfigurationService {
   async getWhitelistId(): Promise<WhitelistId> {
     return plainToClass(
       WhitelistId,
-      await this.get(ConfigurationEntryKey.whitelistId, defaultWhitelistId()),
+      await this.get(ConfigurationEntryKey.whitelistId, new WhitelistId()),
     );
   }
 
@@ -51,7 +42,7 @@ export class ConfigurationService {
       Etf2lAccountRequired,
       await this.get(
         ConfigurationEntryKey.etf2lAccountRequired,
-        defaultEtf2lAccountRequired(),
+        new Etf2lAccountRequired(),
       ),
     );
   }
@@ -61,7 +52,7 @@ export class ConfigurationService {
       MinimumTf2InGameHours,
       await this.get(
         ConfigurationEntryKey.minimumTf2InGameHours,
-        defaultMinimumTf2InGameHours(),
+        new MinimumTf2InGameHours(),
       ),
     );
   }
@@ -69,7 +60,10 @@ export class ConfigurationService {
   async getVoiceServer(): Promise<VoiceServer> {
     return plainToClass(
       VoiceServer,
-      await this.get(ConfigurationEntryKey.voiceServer, defaultVoiceServer()),
+      await this.get(
+        ConfigurationEntryKey.voiceServer,
+        classToPlain(new VoiceServer()),
+      ),
     );
   }
 

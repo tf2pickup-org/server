@@ -5,7 +5,7 @@ import { ConfigurationEntryKey } from './configuration-entry-key';
 
 @Schema()
 export class MinimumTf2InGameHours extends MongooseDocument {
-  constructor(minimumTf2InGameHours: number) {
+  constructor(minimumTf2InGameHours = 500) {
     super();
     this.key = ConfigurationEntryKey.minimumTf2InGameHours;
     this.value = minimumTf2InGameHours;
@@ -23,6 +23,3 @@ export class MinimumTf2InGameHours extends MongooseDocument {
 export const minimumTf2InGameHoursSchema = SchemaFactory.createForClass(
   MinimumTf2InGameHours,
 );
-
-export const defaultMinimumTf2InGameHours = () =>
-  new MinimumTf2InGameHours(500);

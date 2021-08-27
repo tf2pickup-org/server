@@ -5,7 +5,7 @@ import { ConfigurationEntryKey } from './configuration-entry-key';
 
 @Schema()
 export class Etf2lAccountRequired extends MongooseDocument {
-  constructor(etf2lAccountRequired: boolean) {
+  constructor(etf2lAccountRequired = true) {
     super();
     this.key = ConfigurationEntryKey.etf2lAccountRequired;
     this.value = etf2lAccountRequired;
@@ -21,5 +21,3 @@ export class Etf2lAccountRequired extends MongooseDocument {
 
 export const etf2lAccountRequiredSchema =
   SchemaFactory.createForClass(Etf2lAccountRequired);
-
-export const defaultEtf2lAccountRequired = () => new Etf2lAccountRequired(true);

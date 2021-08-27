@@ -47,5 +47,3 @@ export class VoiceServer extends MongooseDocument {
 }
 
 export const voiceServerSchema = SchemaFactory.createForClass(VoiceServer);
-
-export const defaultVoiceServer = () => new VoiceServer();

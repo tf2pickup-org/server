@@ -109,7 +109,7 @@ describe('ConfigurationService', () => {
   });
 
   it('should get default whitelist id', async () => {
-    expect((await service.getWhitelistId()).value).toEqual('');
+    expect((await service.getWhitelistId()).value).toEqual('etf2l_6v6');
   });
 
   it('should set whitelist id', async () => {
