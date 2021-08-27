@@ -14,7 +14,25 @@ import {
   configurationEntrySchema,
 } from '../models/configuration-entry';
 import { ConfigurationEntryKey } from '../models/configuration-entry-key';
-import { MumbleOptions } from '../models/mumble-options';
+import {
+  DefaultPlayerSkill,
+  defaultPlayerSkillSchema,
+} from '../models/default-player-skill';
+import {
+  Etf2lAccountRequired,
+  etf2lAccountRequiredSchema,
+} from '../models/etf2l-account-required';
+import {
+  MinimumTf2InGameHours,
+  minimumTf2InGameHoursSchema,
+} from '../models/minimum-tf2-in-game-hours';
+import {
+  MumbleOptions,
+  SelectedVoiceServer,
+  VoiceServer,
+  voiceServerSchema,
+} from '../models/voice-server';
+import { WhitelistId, whitelistIdSchema } from '../models/whitelist-id';
 import { ConfigurationService } from './configuration.service';
 
 describe('ConfigurationService', () => {
@@ -31,7 +49,32 @@ describe('ConfigurationService', () => {
       imports: [
         mongooseTestingModule(mongod),
         MongooseModule.forFeature([
-          { name: ConfigurationEntry.name, schema: configurationEntrySchema },
+          {
+            name: ConfigurationEntry.name,
+            schema: configurationEntrySchema,
+            discriminators: [
+              {
+                name: ConfigurationEntryKey.defaultPlayerSkill,
+                schema: defaultPlayerSkillSchema,
+              },
+              {
+                name: ConfigurationEntryKey.whitelistId,
+                schema: whitelistIdSchema,
+              },
+              {
+                name: ConfigurationEntryKey.etf2lAccountRequired,
+                schema: etf2lAccountRequiredSchema,
+              },
+              {
+                name: ConfigurationEntryKey.minimumTf2InGameHours,
+                schema: minimumTf2InGameHoursSchema,
+              },
+              {
+                name: ConfigurationEntryKey.voiceServer,
+                schema: voiceServerSchema,
+              },
+            ],
+          },
         ]),
       ],
       providers: [ConfigurationService],
@@ -42,10 +85,6 @@ describe('ConfigurationService', () => {
       getModelToken(ConfigurationEntry.name),
     );
     connection = module.get(getConnectionToken());
-  });
-
-  beforeEach(async () => {
-    await service.onModuleInit();
   });
 
   afterEach(async () => {
@@ -62,59 +101,65 @@ describe('ConfigurationService', () => {
   });
 
   it('should set default player skill', async () => {
-    expect(
-      await service.setDefaultPlayerSkill(new Map([[Tf2ClassName.soldier, 3]])),
-    ).toBeTruthy();
+    const defaultPlayerSkill = new DefaultPlayerSkill();
+    defaultPlayerSkill.value = new Map([[Tf2ClassName.soldier, 3]]);
+    await service.set(defaultPlayerSkill);
+    const ret = await service.getDefaultPlayerSkill();
+    expect(ret.value.get(Tf2ClassName.soldier)).toEqual(3);
   });
 
-  it('should get whitelist id', async () => {
-    expect(await service.getWhitelistId()).toEqual('');
+  it('should get default whitelist id', async () => {
+    expect((await service.getWhitelistId()).value).toEqual('');
   });
 
   it('should set whitelist id', async () => {
-    expect(await service.setWhitelistId('etf2l_6v6')).toEqual('etf2l_6v6');
+    const whitelistId = new WhitelistId('etf2l_6v6');
+    await service.set(whitelistId);
+    const ret = await service.getWhitelistId();
+    expect(ret.value).toEqual('etf2l_6v6');
   });
 
   it('should return whether etf2l account is required', async () => {
-    expect(await service.isEtf2lAccountRequired()).toBe(true);
+    expect((await service.isEtf2lAccountRequired()).value).toBe(true);
   });
 
   it('should set whether etf2l account is required', async () => {
-    expect(await service.setEtf2lAccountRequired(false)).toBe(false);
+    const etf2lAccountRequired = new Etf2lAccountRequired(false);
+    await service.set(etf2lAccountRequired);
+    const ret = await service.isEtf2lAccountRequired();
+    expect(ret.value).toBe(false);
   });
 
   it('should return minimum tf2 in-game hours', async () => {
-    expect(await service.getMinimumTf2InGameHours()).toEqual(500);
+    expect((await service.getMinimumTf2InGameHours()).value).toEqual(500);
   });
 
   it('should set minimum tf2 in-game hours', async () => {
-    expect(await service.setMinimumTf2InGameHours(1000)).toEqual(1000);
+    const minimumTf2InGameHours = new MinimumTf2InGameHours(1000);
+    await service.set(minimumTf2InGameHours);
+    const ret = await service.getMinimumTf2InGameHours();
+    expect(ret.value).toEqual(1000);
   });
 
-  it('should set default voice server to null', async () => {
-    expect(await service.getVoiceServer()).toEqual({ type: 'null' });
+  it('should get default voice server', async () => {
+    expect((await service.getVoiceServer()).type).toEqual(
+      SelectedVoiceServer.none,
+    );
   });
 
   it('should set voice server', async () => {
-    const voiceServer: MumbleOptions = {
-      type: 'mumble',
-      url: 'melkor.tf',
-      port: 64738,
-    };
-    expect(await service.setVoiceServer(voiceServer)).toEqual(voiceServer);
-  });
+    const voiceServer = new VoiceServer();
+    voiceServer.type = SelectedVoiceServer.mumble;
 
-  it('should retrieve voice server', async () => {
-    const voiceServer: MumbleOptions = {
-      type: 'mumble',
-      url: 'melkor.tf',
-      port: 64738,
-    };
-    await configurationEntryModel.updateOne(
-      { key: ConfigurationEntryKey.voiceServer },
-      { value: JSON.stringify(voiceServer) },
-      { upsert: true },
-    );
-    expect(await service.getVoiceServer()).toEqual(voiceServer);
+    const mumbleOptions = new MumbleOptions();
+    mumbleOptions.url = 'melkor.tf';
+    mumbleOptions.port = 64738;
+    voiceServer.mumble = mumbleOptions;
+
+    await service.set(voiceServer);
+
+    const ret = await service.getVoiceServer();
+    expect(ret.type).toEqual(SelectedVoiceServer.mumble);
+    expect(ret.mumble).toEqual(mumbleOptions);
   });
 });

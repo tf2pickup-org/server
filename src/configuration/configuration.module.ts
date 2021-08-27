@@ -6,6 +6,12 @@ import {
   configurationEntrySchema,
 } from './models/configuration-entry';
 import { MongooseModule } from '@nestjs/mongoose';
+import { ConfigurationEntryKey } from './models/configuration-entry-key';
+import { defaultPlayerSkillSchema } from './models/default-player-skill';
+import { whitelistIdSchema } from './models/whitelist-id';
+import { etf2lAccountRequiredSchema } from './models/etf2l-account-required';
+import { minimumTf2InGameHoursSchema } from './models/minimum-tf2-in-game-hours';
+import { voiceServerSchema } from './models/voice-server';
 
 @Module({
   imports: [
@@ -13,6 +19,28 @@ import { MongooseModule } from '@nestjs/mongoose';
       {
         name: ConfigurationEntry.name,
         schema: configurationEntrySchema,
+        discriminators: [
+          {
+            name: ConfigurationEntryKey.defaultPlayerSkill,
+            schema: defaultPlayerSkillSchema,
+          },
+          {
+            name: ConfigurationEntryKey.whitelistId,
+            schema: whitelistIdSchema,
+          },
+          {
+            name: ConfigurationEntryKey.etf2lAccountRequired,
+            schema: etf2lAccountRequiredSchema,
+          },
+          {
+            name: ConfigurationEntryKey.minimumTf2InGameHours,
+            schema: minimumTf2InGameHoursSchema,
+          },
+          {
+            name: ConfigurationEntryKey.voiceServer,
+            schema: voiceServerSchema,
+          },
+        ],
       },
     ]),
   ],

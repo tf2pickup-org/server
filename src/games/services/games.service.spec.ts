@@ -26,6 +26,12 @@ import {
   getModelToken,
   MongooseModule,
 } from '@nestjs/mongoose';
+import { DefaultPlayerSkill } from '@/configuration/models/default-player-skill';
+import {
+  MumbleOptions,
+  SelectedVoiceServer,
+  VoiceServer,
+} from '@/configuration/models/voice-server';
 
 jest.mock('@/players/services/players.service');
 jest.mock('@/players/services/player-skill.service');
@@ -288,13 +294,16 @@ describe('GamesService', () => {
         },
       ] as any;
 
+      const defaultPlayerSkill = new DefaultPlayerSkill();
+      defaultPlayerSkill.value = new Map([
+        [Tf2ClassName.scout, 2],
+        [Tf2ClassName.soldier, 3],
+        [Tf2ClassName.demoman, 4],
+        [Tf2ClassName.medic, 5],
+      ]);
+
       configurationService.getDefaultPlayerSkill.mockResolvedValue(
-        new Map([
-          [Tf2ClassName.scout, 2],
-          [Tf2ClassName.soldier, 3],
-          [Tf2ClassName.demoman, 4],
-          [Tf2ClassName.medic, 5],
-        ]),
+        defaultPlayerSkill,
       );
     });
 
@@ -575,7 +584,8 @@ describe('GamesService', () => {
 
     describe('when the voice server is null', () => {
       beforeEach(() => {
-        configurationService.getVoiceServer.mockResolvedValue({ type: 'null' });
+        const voiceServer = new VoiceServer();
+        configurationService.getVoiceServer.mockResolvedValue(voiceServer);
       });
 
       it('should return null', async () => {
@@ -585,12 +595,15 @@ describe('GamesService', () => {
 
     describe('when the voice server is a mumble server', () => {
       beforeEach(() => {
-        configurationService.getVoiceServer.mockResolvedValue({
-          type: 'mumble',
-          url: 'melkor.tf',
-          port: 64738,
-          channelName: 'FAKE_CHANNEL_NAME',
-        });
+        const voiceServer = new VoiceServer();
+        voiceServer.type = SelectedVoiceServer.mumble;
+        const mumble = new MumbleOptions();
+        mumble.url = 'melkor.tf';
+        mumble.port = 64738;
+        mumble.channelName = 'FAKE_CHANNEL_NAME';
+        voiceServer.mumble = mumble;
+
+        configurationService.getVoiceServer.mockResolvedValue(voiceServer);
       });
 
       it('should return null', async () => {
@@ -619,13 +632,16 @@ describe('GamesService', () => {
 
         describe('when the mumble server has a password', () => {
           beforeEach(() => {
-            configurationService.getVoiceServer.mockResolvedValue({
-              type: 'mumble',
-              url: 'melkor.tf',
-              port: 64738,
-              channelName: 'FAKE_CHANNEL_NAME',
-              password: 'FAKE_SERVER_PASSWORD',
-            });
+            const voiceServer = new VoiceServer();
+            voiceServer.type = SelectedVoiceServer.mumble;
+            const mumble = new MumbleOptions();
+            mumble.url = 'melkor.tf';
+            mumble.port = 64738;
+            mumble.channelName = 'FAKE_CHANNEL_NAME';
+            mumble.password = 'FAKE_SERVER_PASSWORD';
+            voiceServer.mumble = mumble;
+
+            configurationService.getVoiceServer.mockResolvedValue(voiceServer);
           });
 
           it('should handle the password in the url', async () => {

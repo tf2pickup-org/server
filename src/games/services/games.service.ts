@@ -19,6 +19,7 @@ import { GameServersService } from '@/game-servers/services/game-servers.service
 import { PlayerNotInThisGameError } from '../errors/player-not-in-this-game.error';
 import { URL } from 'url';
 import { GameInWrongStateError } from '../errors/game-in-wrong-state.error';
+import { SelectedVoiceServer } from '@/configuration/models/voice-server';
 
 interface GameSortOptions {
   launchedAt: 1 | -1;
@@ -230,10 +231,10 @@ export class GamesService {
     const voiceServer = await this.configurationService.getVoiceServer();
 
     switch (voiceServer.type) {
-      case 'null':
+      case SelectedVoiceServer.none:
         return null;
 
-      case 'mumble': {
+      case SelectedVoiceServer.mumble: {
         if (!game.gameServer) {
           return null;
         }
@@ -242,13 +243,13 @@ export class GamesService {
           game.gameServer.toString(),
         );
 
-        const url = new URL(`mumble://${voiceServer.url}`);
-        url.pathname = `${voiceServer.channelName}/${
+        const url = new URL(`mumble://${voiceServer.mumble.url}`);
+        url.pathname = `${voiceServer.mumble.channelName}/${
           gameServer.voiceChannelName
         }/${slot.team.toUpperCase()}`;
         url.username = player.name.replace(/\s+/g, '_');
-        if (voiceServer.password) {
-          url.password = voiceServer.password;
+        if (voiceServer.mumble.password) {
+          url.password = voiceServer.mumble.password;
         }
         url.protocol = 'mumble:';
         return url.toString();
@@ -270,8 +271,9 @@ export class GamesService {
       const skillForClass = skill.get(gameClass);
       return { playerId, gameClass, skill: skillForClass };
     } else {
-      const defaultPlayerSkill =
-        await this.configurationService.getDefaultPlayerSkill();
+      const defaultPlayerSkill = (
+        await this.configurationService.getDefaultPlayerSkill()
+      ).value;
       return { playerId, gameClass, skill: defaultPlayerSkill.get(gameClass) };
     }
   }

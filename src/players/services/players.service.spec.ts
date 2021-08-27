@@ -22,6 +22,8 @@ import {
   getModelToken,
   MongooseModule,
 } from '@nestjs/mongoose';
+import { Etf2lAccountRequired } from '@/configuration/models/etf2l-account-required';
+import { MinimumTf2InGameHours } from '@/configuration/models/minimum-tf2-in-game-hours';
 
 jest.mock('./etf2l-profile.service');
 jest.mock('@/configuration/services/configuration.service');
@@ -232,8 +234,12 @@ describe('PlayersService', () => {
     };
 
     beforeEach(() => {
-      configurationService.isEtf2lAccountRequired.mockResolvedValue(true);
-      configurationService.getMinimumTf2InGameHours.mockResolvedValue(500);
+      configurationService.isEtf2lAccountRequired.mockResolvedValue(
+        new Etf2lAccountRequired(true),
+      );
+      configurationService.getMinimumTf2InGameHours.mockResolvedValue(
+        new MinimumTf2InGameHours(500),
+      );
     });
 
     describe("when an ETF2L profile doesn't exist", () => {
@@ -337,7 +343,9 @@ describe('PlayersService', () => {
 
       describe('and nobody cares', () => {
         beforeEach(() => {
-          configurationService.getMinimumTf2InGameHours.mockResolvedValue(0);
+          configurationService.getMinimumTf2InGameHours.mockResolvedValue(
+            new MinimumTf2InGameHours(0),
+          );
         });
 
         it('should pass', async () => {
