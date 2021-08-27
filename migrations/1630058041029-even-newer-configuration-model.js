@@ -41,6 +41,8 @@ module.exports.up = (next) => {
       ]),
     )
     .then(([collection]) =>
+      // It's ok to wipe voice server configuration, as at the time of writing this migration, voice server
+      // configuration is not a part of any release yet.
       Promise.all([collection, collection.deleteOne({ key: 'voice server' })]),
     )
     .then(() => next());
