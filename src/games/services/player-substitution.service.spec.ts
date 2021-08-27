@@ -148,15 +148,15 @@ describe('PlayerSubstitutionService', () => {
       expect(slot.status).toEqual(SlotStatus.waitingForSubstitute);
     });
 
-    it('should emit the gameChanges event', async () =>
-      new Promise<void>((resolve) => {
-        events.gameChanges.subscribe(({ game }) => {
-          expect(game).toMatchObject({ id: mockGame.id });
-          resolve();
-        });
+    it('should emit the gameChanges event', async () => {
+      let event: Game;
+      events.gameChanges.subscribe(({ game }) => {
+        event = game;
+      });
 
-        service.substitutePlayer(mockGame.id, player1.id);
-      }));
+      await service.substitutePlayer(mockGame.id, player1.id);
+      expect(event).toMatchObject({ id: mockGame.id });
+    });
 
     describe('when the game has already ended', () => {
       beforeEach(async () => {
@@ -180,12 +180,15 @@ describe('PlayerSubstitutionService', () => {
       });
     });
 
-    // eslint-disable-next-line jest/expect-expect
-    it('should emit the substituteRequestsChange event', async () =>
-      new Promise<void>((resolve) => {
-        events.substituteRequestsChange.subscribe(resolve);
-        service.substitutePlayer(mockGame.id, player1.id);
-      }));
+    it('should emit the substituteRequestsChange event', async () => {
+      let eventEmitted = false;
+      events.substituteRequestsChange.subscribe(() => {
+        eventEmitted = true;
+      });
+
+      await service.substitutePlayer(mockGame.id, player1.id);
+      expect(eventEmitted).toBe(true);
+    });
 
     it('should do nothing if the player is already marked', async () => {
       const game1 = await service.substitutePlayer(mockGame.id, player1.id);
@@ -249,15 +252,16 @@ describe('PlayerSubstitutionService', () => {
       expect(slot.status).toEqual(SlotStatus.active);
     });
 
-    it('should emit the gameChanges event', async () =>
-      new Promise<void>((resolve) => {
-        events.gameChanges.subscribe(({ game }) => {
-          expect(game).toMatchObject({ id: mockGame.id });
-          resolve();
-        });
+    it('should emit the gameChanges event', async () => {
+      let event: Game;
 
-        service.cancelSubstitutionRequest(mockGame.id, player1.id);
-      }));
+      events.gameChanges.subscribe(({ game }) => {
+        event = game;
+      });
+
+      await service.cancelSubstitutionRequest(mockGame.id, player1.id);
+      expect(event).toMatchObject({ id: mockGame.id });
+    });
 
     describe('when the game is no longer running', () => {
       beforeEach(async () => {
@@ -273,12 +277,15 @@ describe('PlayerSubstitutionService', () => {
       });
     });
 
-    // eslint-disable-next-line jest/expect-expect
-    it('should emit the substituteRequestsChange event', async () =>
-      new Promise<void>((resolve) => {
-        events.substituteRequestsChange.subscribe(resolve);
-        service.cancelSubstitutionRequest(mockGame.id, player1.id);
-      }));
+    it('should emit the substituteRequestsChange event', async () => {
+      let eventEmitted = false;
+      events.substituteRequestsChange.subscribe(() => {
+        eventEmitted = true;
+      });
+
+      await service.cancelSubstitutionRequest(mockGame.id, player1.id);
+      expect(eventEmitted).toBe(true);
+    });
 
     it('should get rid of discord announcement', async () => {
       const spy = jest.spyOn(discordMessage, 'delete');
@@ -314,15 +321,15 @@ describe('PlayerSubstitutionService', () => {
       expect(replacementSlot.status).toEqual(SlotStatus.active);
     });
 
-    it('should emit the gameChanges event', async () =>
-      new Promise<void>((resolve) => {
-        events.gameChanges.subscribe(({ game }) => {
-          expect(game).toMatchObject({ id: mockGame.id });
-          resolve();
-        });
+    it('should emit the gameChanges event', async () => {
+      let event: Game;
+      events.gameChanges.subscribe(({ game }) => {
+        event = game;
+      });
 
-        service.replacePlayer(mockGame.id, player1.id, player3.id);
-      }));
+      await service.replacePlayer(mockGame.id, player1.id, player3.id);
+      expect(event).toMatchObject({ id: mockGame.id });
+    });
 
     it('should replace the player in-game', async () =>
       new Promise<void>((resolve) => {
@@ -414,12 +421,15 @@ describe('PlayerSubstitutionService', () => {
       });
     });
 
-    // eslint-disable-next-line jest/expect-expect
-    it('should emit the substituteRequestsChange event', async () =>
-      new Promise<void>((resolve) => {
-        events.substituteRequestsChange.subscribe(resolve);
-        service.replacePlayer(mockGame.id, player1.id, player3.id);
-      }));
+    it('should emit the substituteRequestsChange event', async () => {
+      let eventEmitted = false;
+      events.substituteRequestsChange.subscribe(() => {
+        eventEmitted = true;
+      });
+
+      await service.replacePlayer(mockGame.id, player1.id, player3.id);
+      expect(eventEmitted).toBe(true);
+    });
 
     it('should reject if the replacement player does not exist', async () => {
       await expect(
