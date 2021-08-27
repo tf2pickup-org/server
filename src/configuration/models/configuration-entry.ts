@@ -4,13 +4,11 @@ import { ConfigurationEntryKey } from './configuration-entry-key';
 
 @Schema({
   collection: 'configuration',
+  discriminatorKey: 'key',
 })
 export class ConfigurationEntry {
   @Prop({ enum: ConfigurationEntryKey, unique: true })
   key: ConfigurationEntryKey;
-
-  @Prop()
-  value: string;
 }
 
 export type ConfigurationEntryDocument = ConfigurationEntry & Document;

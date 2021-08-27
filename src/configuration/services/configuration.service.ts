@@ -1,141 +1,87 @@
-import { Tf2ClassName } from '@/shared/models/tf2-class-name';
-import { Injectable, OnModuleInit } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
+import { classToPlain, plainToClass } from 'class-transformer';
 import { Model } from 'mongoose';
 import {
   ConfigurationEntry,
   ConfigurationEntryDocument,
 } from '../models/configuration-entry';
 import { ConfigurationEntryKey } from '../models/configuration-entry-key';
+import { DefaultPlayerSkill } from '../models/default-player-skill';
+import { Etf2lAccountRequired } from '../models/etf2l-account-required';
+import { MinimumTf2InGameHours } from '../models/minimum-tf2-in-game-hours';
 import { VoiceServer } from '../models/voice-server';
-
-// this name wtf
-const defaultDefaultPlayerSkill = new Map(
-  Object.keys(Tf2ClassName).map((className) => [className, 1]),
-);
+import { WhitelistId } from '../models/whitelist-id';
 
 @Injectable()
-export class ConfigurationService implements OnModuleInit {
+export class ConfigurationService {
   constructor(
     @InjectModel(ConfigurationEntry.name)
     private configurationEntryModel: Model<ConfigurationEntryDocument>,
   ) {}
 
-  async onModuleInit() {
-    await Promise.all([
-      this.loadDefault(
+  async getDefaultPlayerSkill(): Promise<DefaultPlayerSkill> {
+    return plainToClass(
+      DefaultPlayerSkill,
+      await this.get(
         ConfigurationEntryKey.defaultPlayerSkill,
-        JSON.stringify(Object.fromEntries(defaultDefaultPlayerSkill.entries())),
+        classToPlain(new DefaultPlayerSkill()),
       ),
-      this.loadDefault(ConfigurationEntryKey.whitelistId, ''),
-      this.loadDefault(
+    );
+  }
+
+  async getWhitelistId(): Promise<WhitelistId> {
+    return plainToClass(
+      WhitelistId,
+      await this.get(ConfigurationEntryKey.whitelistId, new WhitelistId()),
+    );
+  }
+
+  async isEtf2lAccountRequired(): Promise<Etf2lAccountRequired> {
+    return plainToClass(
+      Etf2lAccountRequired,
+      await this.get(
         ConfigurationEntryKey.etf2lAccountRequired,
-        true.toString(),
+        new Etf2lAccountRequired(),
       ),
-      this.loadDefault(ConfigurationEntryKey.minimumTf2InGameHours, '500'),
-      this.loadDefault(
-        ConfigurationEntryKey.voiceServer,
-        JSON.stringify({
-          type: 'null',
-        }),
+    );
+  }
+
+  async getMinimumTf2InGameHours(): Promise<MinimumTf2InGameHours> {
+    return plainToClass(
+      MinimumTf2InGameHours,
+      await this.get(
+        ConfigurationEntryKey.minimumTf2InGameHours,
+        new MinimumTf2InGameHours(),
       ),
-    ]);
-  }
-
-  async getDefaultPlayerSkill(): Promise<Map<Tf2ClassName, number>> {
-    const value = await this.retrieve(ConfigurationEntryKey.defaultPlayerSkill);
-    return new Map(Object.entries(JSON.parse(value))) as Map<
-      Tf2ClassName,
-      number
-    >;
-  }
-
-  async setDefaultPlayerSkill(
-    defaultPlayerSkill: Map<Tf2ClassName, number>,
-  ): Promise<Map<Tf2ClassName, number>> {
-    await this.store(
-      ConfigurationEntryKey.defaultPlayerSkill,
-      JSON.stringify(Object.fromEntries(defaultPlayerSkill)),
     );
-    return defaultPlayerSkill;
-  }
-
-  async getWhitelistId(): Promise<string> {
-    return await this.retrieve(ConfigurationEntryKey.whitelistId);
-  }
-
-  async setWhitelistId(whitelistId: string): Promise<string> {
-    await this.store(ConfigurationEntryKey.whitelistId, whitelistId);
-    return whitelistId;
-  }
-
-  async isEtf2lAccountRequired(): Promise<boolean> {
-    return (
-      (await this.retrieve(ConfigurationEntryKey.etf2lAccountRequired)) ===
-      'true'
-    );
-  }
-
-  async setEtf2lAccountRequired(
-    etf2lAccountRequired: boolean,
-  ): Promise<boolean> {
-    await this.store(
-      ConfigurationEntryKey.etf2lAccountRequired,
-      etf2lAccountRequired.toString(),
-    );
-    return etf2lAccountRequired;
-  }
-
-  async getMinimumTf2InGameHours(): Promise<number> {
-    return parseInt(
-      await this.retrieve(ConfigurationEntryKey.minimumTf2InGameHours),
-      10,
-    );
-  }
-
-  async setMinimumTf2InGameHours(
-    minimumTf2InGameHours: number,
-  ): Promise<number> {
-    await this.store(
-      ConfigurationEntryKey.minimumTf2InGameHours,
-      minimumTf2InGameHours.toString(),
-    );
-    return minimumTf2InGameHours;
   }
 
   async getVoiceServer(): Promise<VoiceServer> {
-    return JSON.parse(await this.retrieve(ConfigurationEntryKey.voiceServer));
-  }
-
-  async setVoiceServer(voiceServer: VoiceServer): Promise<VoiceServer> {
-    await this.store(
-      ConfigurationEntryKey.voiceServer,
-      JSON.stringify(voiceServer),
+    return plainToClass(
+      VoiceServer,
+      await this.get(
+        ConfigurationEntryKey.voiceServer,
+        classToPlain(new VoiceServer()),
+      ),
     );
-    return voiceServer;
   }
 
-  private async retrieve(key: ConfigurationEntryKey): Promise<string> {
-    const ret = await this.configurationEntryModel
-      .findOne({ key })
-      .orFail()
-      .lean()
-      .exec();
-    return ret.value;
-  }
-
-  private async store(key: ConfigurationEntryKey, value: string) {
-    await this.configurationEntryModel
-      .updateOne({ key }, { value }, { upsert: true })
-      .lean()
-      .exec();
-  }
-
-  private async loadDefault(key: ConfigurationEntryKey, value: string) {
+  private async get(key: ConfigurationEntryKey, defaultValue: any) {
     try {
-      await this.retrieve(key);
+      return await this.configurationEntryModel
+        .findOne({ key })
+        .orFail()
+        .lean()
+        .exec();
     } catch (error) {
-      await this.store(key, value);
+      return defaultValue;
     }
+  }
+
+  async set(entry: ConfigurationEntry) {
+    await this.configurationEntryModel.updateOne({ key: entry.key }, entry, {
+      upsert: true,
+    });
   }
 }

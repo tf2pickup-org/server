@@ -9,102 +9,82 @@ import {
   UseInterceptors,
   ValidationPipe,
 } from '@nestjs/common';
-import { DefaultPlayerSkill } from '../dto/default-player-skill';
-import { Etf2lAccountRequired } from '../dto/etf2l-account-required';
-import { MinimumTf2InGameHours } from '../dto/minimum-tf2-in-game-hours';
-import { VoiceServer } from '../dto/voice-server';
-import { WhitelistId } from '../dto/whitelist-id';
+import { DefaultPlayerSkill } from '../models/default-player-skill';
+import { Etf2lAccountRequired } from '../models/etf2l-account-required';
+import { MinimumTf2InGameHours } from '../models/minimum-tf2-in-game-hours';
+import { VoiceServer } from '../models/voice-server';
+import { WhitelistId } from '../models/whitelist-id';
 import { ConfigurationService } from '../services/configuration.service';
 
 @Controller('configuration')
+@UseInterceptors(ClassSerializerInterceptor)
 export class ConfigurationController {
   constructor(private configurationService: ConfigurationService) {}
 
   @Get('default-player-skill')
-  @UseInterceptors(ClassSerializerInterceptor)
   async getDefaultPlayerSkill() {
-    return new DefaultPlayerSkill(
-      await this.configurationService.getDefaultPlayerSkill(),
-    );
+    return this.configurationService.getDefaultPlayerSkill();
   }
 
   @Put('default-player-skill')
   @Auth(PlayerRole.admin)
-  @UseInterceptors(ClassSerializerInterceptor)
   async setDefaultPlayerSkill(
     @Body(new ValidationPipe({ transform: true }))
-    { value }: DefaultPlayerSkill,
+    defaultPlayerSkill: DefaultPlayerSkill,
   ) {
-    return new DefaultPlayerSkill(
-      await this.configurationService.setDefaultPlayerSkill(value),
-    );
+    await this.configurationService.set(defaultPlayerSkill);
+    return this.getDefaultPlayerSkill();
   }
 
   @Get('whitelist-id')
-  @UseInterceptors(ClassSerializerInterceptor)
   async getWhitelistId() {
-    return new WhitelistId(await this.configurationService.getWhitelistId());
+    return await this.configurationService.getWhitelistId();
   }
 
   @Put('whitelist-id')
   @Auth(PlayerRole.admin)
-  @UseInterceptors(ClassSerializerInterceptor)
-  async setWhitelistId(@Body(new ValidationPipe()) { value }: WhitelistId) {
-    return new WhitelistId(
-      await this.configurationService.setWhitelistId(value),
-    );
+  async setWhitelistId(@Body(new ValidationPipe()) whitelistId: WhitelistId) {
+    await this.configurationService.set(whitelistId);
+    return this.getWhitelistId();
   }
 
   @Get('etf2l-account-required')
-  @UseInterceptors(ClassSerializerInterceptor)
   async isEtf2lAccountRequired() {
-    return new Etf2lAccountRequired(
-      await this.configurationService.isEtf2lAccountRequired(),
-    );
+    return await this.configurationService.isEtf2lAccountRequired();
   }
 
   @Put('etf2l-account-required')
   @Auth(PlayerRole.admin)
-  @UseInterceptors(ClassSerializerInterceptor)
   async setEtf2lAccountRequired(
-    @Body(new ValidationPipe()) { value }: Etf2lAccountRequired,
+    @Body(new ValidationPipe()) etf2lAccountRequired: Etf2lAccountRequired,
   ) {
-    return new Etf2lAccountRequired(
-      await this.configurationService.setEtf2lAccountRequired(value),
-    );
+    await this.configurationService.set(etf2lAccountRequired);
+    return this.isEtf2lAccountRequired();
   }
 
   @Get('minimum-tf2-in-game-hours')
-  @UseInterceptors(ClassSerializerInterceptor)
   async getMinimumTf2InGameHours() {
-    return new MinimumTf2InGameHours(
-      await this.configurationService.getMinimumTf2InGameHours(),
-    );
+    return await this.configurationService.getMinimumTf2InGameHours();
   }
 
   @Put('minimum-tf2-in-game-hours')
   @Auth(PlayerRole.admin)
-  @UseInterceptors(ClassSerializerInterceptor)
   async setMinimumTf2InGameHours(
-    @Body(new ValidationPipe()) { value }: MinimumTf2InGameHours,
+    @Body(new ValidationPipe()) minimumTf2InGameHours: MinimumTf2InGameHours,
   ) {
-    return new MinimumTf2InGameHours(
-      await this.configurationService.setMinimumTf2InGameHours(value),
-    );
+    await this.configurationService.set(minimumTf2InGameHours);
+    return this.getMinimumTf2InGameHours();
   }
 
   @Get('voice-server')
-  @UseInterceptors(ClassSerializerInterceptor)
   async getVoiceServer() {
-    return new VoiceServer(await this.configurationService.getVoiceServer());
+    return await this.configurationService.getVoiceServer();
   }
 
   @Put('voice-server')
   @Auth(PlayerRole.admin)
-  @UseInterceptors(ClassSerializerInterceptor)
-  async setVoiceServer(@Body(new ValidationPipe()) { value }: VoiceServer) {
-    return new VoiceServer(
-      await this.configurationService.setVoiceServer(value),
-    );
+  async setVoiceServer(@Body(new ValidationPipe()) voiceServer: VoiceServer) {
+    await this.configurationService.set(voiceServer);
+    return this.getVoiceServer();
   }
 }

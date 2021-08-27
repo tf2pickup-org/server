@@ -1,19 +1,64 @@
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { Test, TestingModule } from '@nestjs/testing';
-import { DefaultPlayerSkill } from '../dto/default-player-skill';
-import { Etf2lAccountRequired } from '../dto/etf2l-account-required';
-import { MinimumTf2InGameHours } from '../dto/minimum-tf2-in-game-hours';
-import { VoiceServer } from '../dto/voice-server';
-import { WhitelistId } from '../dto/whitelist-id';
-import { MumbleOptions } from '../models/mumble-options';
+import { mocked } from 'ts-jest/utils';
+import { ConfigurationEntry } from '../models/configuration-entry';
+import { ConfigurationEntryKey } from '../models/configuration-entry-key';
+import { DefaultPlayerSkill } from '../models/default-player-skill';
+import { Etf2lAccountRequired } from '../models/etf2l-account-required';
+import { MinimumTf2InGameHours } from '../models/minimum-tf2-in-game-hours';
+import {
+  MumbleOptions,
+  SelectedVoiceServer,
+  VoiceServer,
+} from '../models/voice-server';
+import { WhitelistId } from '../models/whitelist-id';
 import { ConfigurationService } from '../services/configuration.service';
 import { ConfigurationController } from './configuration.controller';
 
-jest.mock('../services/configuration.service');
+jest.mock('../services/configuration.service', () => ({
+  ConfigurationService: jest.fn().mockImplementation(() => {
+    const mockConfiguration = new Map();
+    return {
+      set: jest.fn().mockImplementation((entry: ConfigurationEntry) => {
+        mockConfiguration.set(entry.key, entry);
+        return Promise.resolve();
+      }),
+      getDefaultPlayerSkill: jest
+        .fn()
+        .mockImplementation(() =>
+          mockConfiguration.get(ConfigurationEntryKey.defaultPlayerSkill),
+        ),
+      getWhitelistId: jest
+        .fn()
+        .mockImplementation(() =>
+          mockConfiguration.get(ConfigurationEntryKey.whitelistId),
+        ),
+      isEtf2lAccountRequired: jest
+        .fn()
+        .mockImplementation(() =>
+          mockConfiguration.get(ConfigurationEntryKey.etf2lAccountRequired),
+        ),
+      getMinimumTf2InGameHours: jest
+        .fn()
+        .mockImplementation(() =>
+          mockConfiguration.get(ConfigurationEntryKey.minimumTf2InGameHours),
+        ),
+      getVoiceServer: jest
+        .fn()
+        .mockImplementation(() =>
+          mockConfiguration.get(ConfigurationEntryKey.voiceServer),
+        ),
+    };
+  }),
+}));
 
 describe('ConfigurationController', () => {
   let controller: ConfigurationController;
   let configurationService: jest.Mocked<ConfigurationService>;
+
+  beforeEach(() => {
+    mocked(ConfigurationService).mockClear();
+  });
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -30,164 +75,159 @@ describe('ConfigurationController', () => {
   });
 
   describe('#getDefaultPlayerSkill()', () => {
-    const defaultPlayerSkill = new Map([
-      [Tf2ClassName.soldier, 2],
-      [Tf2ClassName.scout, 4],
-    ]);
+    let defaultPlayerSkill: DefaultPlayerSkill;
 
     beforeEach(() => {
-      configurationService.getDefaultPlayerSkill.mockResolvedValue(
-        defaultPlayerSkill,
-      );
+      defaultPlayerSkill = new DefaultPlayerSkill();
+      configurationService.set(defaultPlayerSkill);
     });
 
     it('should return default player skill', async () => {
       expect(await controller.getDefaultPlayerSkill()).toEqual(
-        new DefaultPlayerSkill(defaultPlayerSkill),
+        defaultPlayerSkill,
       );
     });
   });
 
   describe('#setDefaultPlayerSkill()', () => {
-    const defaultPlayerSkill = new Map([[Tf2ClassName.medic, 5]]);
+    let defaultPlayerSkill: DefaultPlayerSkill;
 
     beforeEach(() => {
-      configurationService.setDefaultPlayerSkill.mockResolvedValue(
-        defaultPlayerSkill,
-      );
+      defaultPlayerSkill = new DefaultPlayerSkill();
+      defaultPlayerSkill.value = new Map([[Tf2ClassName.medic, 5]]);
     });
 
     it('should set default player skill', async () => {
-      const ret = await controller.setDefaultPlayerSkill(
-        new DefaultPlayerSkill(new Map([[Tf2ClassName.medic, 5]])),
-      );
-      expect(ret).toEqual(new DefaultPlayerSkill(defaultPlayerSkill));
-      expect(configurationService.setDefaultPlayerSkill).toHaveBeenCalledWith(
+      const ret = await controller.setDefaultPlayerSkill(defaultPlayerSkill);
+      expect(ret).toEqual(defaultPlayerSkill);
+      expect(await controller.getDefaultPlayerSkill()).toEqual(
         defaultPlayerSkill,
       );
     });
   });
 
   describe('#getWhitelistId()', () => {
+    let whitelistId: WhitelistId;
+
     beforeEach(() => {
-      configurationService.getWhitelistId.mockResolvedValue('etf2l_6v6');
+      whitelistId = new WhitelistId('etf2l_6v6');
+      configurationService.set(whitelistId);
     });
 
     it('should return the whitelist id', async () => {
-      expect(await controller.getWhitelistId()).toEqual(
-        new WhitelistId('etf2l_6v6'),
-      );
+      expect(await controller.getWhitelistId()).toEqual(whitelistId);
     });
   });
 
   describe('#setWhitelistId()', () => {
+    let whitelistId: WhitelistId;
+
     beforeEach(() => {
-      configurationService.setWhitelistId.mockResolvedValue('etf2l_6v6');
+      whitelistId = new WhitelistId('etf2l_6v6');
     });
 
     it('should set the whitelist id', async () => {
-      const ret = await controller.setWhitelistId(new WhitelistId('etf2l_6v6'));
-      expect(ret).toEqual(new WhitelistId('etf2l_6v6'));
-      expect(configurationService.setWhitelistId).toHaveBeenCalledWith(
-        'etf2l_6v6',
-      );
+      const ret = await controller.setWhitelistId(whitelistId);
+      expect(ret).toEqual(whitelistId);
+      expect(await controller.getWhitelistId()).toEqual(whitelistId);
     });
   });
 
   describe('#isEtf2lAccountRequired()', () => {
+    let etf2lAccountRequired: Etf2lAccountRequired;
+
     beforeEach(() => {
-      configurationService.isEtf2lAccountRequired.mockResolvedValue(true);
+      etf2lAccountRequired = new Etf2lAccountRequired(true);
+      configurationService.set(etf2lAccountRequired);
     });
 
     it('should return the value', async () => {
       expect(await controller.isEtf2lAccountRequired()).toEqual(
-        new Etf2lAccountRequired(true),
+        etf2lAccountRequired,
       );
     });
   });
 
   describe('#setEtf2lAccountRequired()', () => {
+    let etf2lAccountRequired: Etf2lAccountRequired;
+
     beforeEach(() => {
-      configurationService.setEtf2lAccountRequired.mockResolvedValue(false);
+      etf2lAccountRequired = new Etf2lAccountRequired(true);
     });
 
     it('should set the value', async () => {
       const ret = await controller.setEtf2lAccountRequired(
-        new Etf2lAccountRequired(false),
+        etf2lAccountRequired,
       );
-      expect(ret).toEqual(new Etf2lAccountRequired(false));
-      expect(configurationService.setEtf2lAccountRequired).toHaveBeenCalledWith(
-        false,
+      expect(ret).toEqual(etf2lAccountRequired);
+      expect(await controller.isEtf2lAccountRequired()).toEqual(
+        etf2lAccountRequired,
       );
     });
   });
 
   describe('#getMinimumTf2InGameHours()', () => {
+    let minimumTf2InGameHours: MinimumTf2InGameHours;
+
     beforeEach(() => {
-      configurationService.getMinimumTf2InGameHours.mockResolvedValue(500);
+      minimumTf2InGameHours = new MinimumTf2InGameHours(500);
+      configurationService.set(minimumTf2InGameHours);
     });
 
     it('should return the value', async () => {
       expect(await controller.getMinimumTf2InGameHours()).toEqual(
-        new MinimumTf2InGameHours(500),
+        minimumTf2InGameHours,
       );
     });
   });
 
   describe('#setMinimumTf2InGameHours()', () => {
+    let minimumTf2InGameHours: MinimumTf2InGameHours;
+
     beforeEach(() => {
-      configurationService.setMinimumTf2InGameHours.mockResolvedValue(1000);
+      minimumTf2InGameHours = new MinimumTf2InGameHours(1000);
     });
 
     it('should set the value', async () => {
       const ret = await controller.setMinimumTf2InGameHours(
-        new MinimumTf2InGameHours(1000),
+        minimumTf2InGameHours,
       );
-      expect(ret).toEqual(new MinimumTf2InGameHours(1000));
-      expect(
-        configurationService.setMinimumTf2InGameHours,
-      ).toHaveBeenCalledWith(1000);
+      expect(ret).toEqual(minimumTf2InGameHours);
+      expect(await controller.getMinimumTf2InGameHours()).toEqual(
+        minimumTf2InGameHours,
+      );
     });
   });
 
-  describe('#getVoiceSErver()', () => {
+  describe('#getVoiceServer()', () => {
+    let voiceServer: VoiceServer;
+
     beforeEach(() => {
-      configurationService.getVoiceServer.mockResolvedValue({
-        type: 'mumble',
-        url: 'mumble.melkor.tf',
-        port: 64738,
-      });
+      voiceServer = new VoiceServer();
+      configurationService.set(voiceServer);
     });
 
     it('should return the value', async () => {
-      expect(await controller.getVoiceServer()).toEqual(
-        new VoiceServer({
-          type: 'mumble',
-          url: 'mumble.melkor.tf',
-          port: 64738,
-        }),
-      );
+      expect(await controller.getVoiceServer()).toEqual(voiceServer);
     });
   });
 
   describe('#setVoiceServer', () => {
+    let voiceServer: VoiceServer;
+
     beforeEach(() => {
-      configurationService.setVoiceServer.mockImplementation((value) =>
-        Promise.resolve(value),
-      );
+      voiceServer = new VoiceServer();
+      const mumble = new MumbleOptions();
+      mumble.url = 'melkor.tf';
+      mumble.port = 64738;
+      voiceServer.mumble = mumble;
+      voiceServer.type = SelectedVoiceServer.mumble;
     });
 
     it('should set the voice server config', async () => {
-      const voiceServer: MumbleOptions = {
-        type: 'mumble',
-        url: 'mumble.melkor.tf',
-        port: 64738,
-      };
-      const ret = await controller.setVoiceServer(new VoiceServer(voiceServer));
-      expect(configurationService.setVoiceServer).toHaveBeenCalledWith(
-        voiceServer,
-      );
-      expect(ret).toEqual(new VoiceServer(voiceServer));
+      const ret = await controller.setVoiceServer(voiceServer);
+      expect(ret).toEqual(voiceServer);
+      expect(await controller.getVoiceServer()).toEqual(voiceServer);
     });
   });
 });

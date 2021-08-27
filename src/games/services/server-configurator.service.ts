@@ -47,7 +47,8 @@ export class ServerConfiguratorService {
     this.logger.debug(
       `[${server.name}] using rcon password ${server.rconPassword}`,
     );
-    const whitelistId = await this.configurationService.getWhitelistId();
+    const whitelistId = (await this.configurationService.getWhitelistId())
+      .value;
 
     let rcon: Rcon;
     try {

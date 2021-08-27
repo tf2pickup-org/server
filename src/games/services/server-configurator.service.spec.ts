@@ -35,6 +35,7 @@ import {
   MongooseModule,
 } from '@nestjs/mongoose';
 import { Connection, Model } from 'mongoose';
+import { WhitelistId } from '@/configuration/models/whitelist-id';
 
 jest.mock('@/queue/services/map-pool.service');
 jest.mock('@/players/services/players.service');
@@ -124,7 +125,7 @@ describe('ServerConfiguratorService', () => {
     mapPoolService.getMaps.mockResolvedValue([
       { name: 'cp_badlands', execConfig: 'etf2l_6v6_5cp' },
     ]);
-    configurationService.getWhitelistId.mockResolvedValue('');
+    configurationService.getWhitelistId.mockResolvedValue(new WhitelistId(''));
   });
 
   afterEach(async () => await connection.close());
@@ -226,7 +227,7 @@ describe('ServerConfiguratorService', () => {
     describe('when the whitelistId is set', () => {
       beforeEach(() => {
         configurationService.getWhitelistId.mockResolvedValue(
-          'FAKE_WHITELIST_ID',
+          new WhitelistId('FAKE_WHITELIST_ID'),
         );
       });
 
