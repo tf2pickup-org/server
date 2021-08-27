@@ -7,6 +7,11 @@ const config: InitialOptionsTsJest = {
   ...defaults,
   collectCoverage: true,
   coverageDirectory: 'coverage',
+  collectCoverageFrom: [
+    'src/**/*.(t|j)s',
+    '!src/**/*.spec.(t|j)s',
+    '!src/utils/testing-mongoose-module.ts',
+  ],
   moduleNameMapper: pathsToModuleNameMapper(compilerOptions.paths, {
     prefix: '<rootDir>/',
   }),
@@ -17,6 +22,5 @@ const config: InitialOptionsTsJest = {
   globalTeardown: '<rootDir>/e2e/teardown.ts',
   slowTestThreshold: 10,
   setupFiles: ['trace-unhandled/register'],
-  collectCoverageFrom: ['<rootDir>/src/**/*.(t|j)s'],
 };
 export default config;
