@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { plainToClass } from 'class-transformer';
+import { classToPlain, plainToClass } from 'class-transformer';
 import { Model } from 'mongoose';
 import {
   ConfigurationEntry,
@@ -34,7 +34,7 @@ export class ConfigurationService {
       DefaultPlayerSkill,
       await this.get(
         ConfigurationEntryKey.defaultPlayerSkill,
-        defaultDefaultPlayerSkill(),
+        classToPlain(defaultDefaultPlayerSkill()),
       ),
     );
   }

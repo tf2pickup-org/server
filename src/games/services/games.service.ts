@@ -229,7 +229,6 @@ export class GamesService {
     }
 
     const voiceServer = await this.configurationService.getVoiceServer();
-
     switch (voiceServer.type) {
       case SelectedVoiceServer.none:
         return null;
