@@ -104,7 +104,7 @@ export class GameServersService {
           ).id,
           { game: game._id },
         );
-        await this.gamesService.updateGame(game.id, {
+        await this.gamesService.update(game.id, {
           gameServer: gameServer._id,
         });
         return gameServer;

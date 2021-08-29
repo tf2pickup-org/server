@@ -191,7 +191,7 @@ export class GamesService {
     return game;
   }
 
-  async updateGame(
+  async update(
     gameId: string | ObjectId,
     update: UpdateQuery<Game>,
     adminId?: string,

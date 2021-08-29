@@ -10,6 +10,10 @@ import { Rcon } from 'rcon-client/lib';
 import { Events } from '@/events/events';
 import { SlotStatus } from '../models/slot-status';
 import { GameState } from '../models/game-state';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { Game, GameDocument } from '../models/game';
+import { plainToClass } from 'class-transformer';
 
 @Injectable()
 export class GameRuntimeService {
@@ -23,6 +27,7 @@ export class GameRuntimeService {
     @Inject(forwardRef(() => PlayersService))
     private playersService: PlayersService,
     private events: Events,
+    @InjectModel(Game.name) private gameModel: Model<GameDocument>,
   ) {}
 
   async reconfigure(gameId: string) {
@@ -33,7 +38,7 @@ export class GameRuntimeService {
 
     this.logger.verbose(`game #${game.number} is being reconfigured`);
 
-    game = await this.gamesService.updateGame(game.id, {
+    game = await this.gamesService.update(game.id, {
       $set: { connectString: null, stvConnectString: null },
       $inc: { connectInfoVersion: 1 },
     });
@@ -44,7 +49,7 @@ export class GameRuntimeService {
     try {
       const { connectString, stvConnectString } =
         await this.serverConfiguratorService.configureServer(gameServer, game);
-      game = await this.gamesService.updateGame(game.id, {
+      game = await this.gamesService.update(game.id, {
         $set: {
           connectString,
           stvConnectString,
@@ -61,13 +66,28 @@ export class GameRuntimeService {
   }
 
   async forceEnd(gameId: string, adminId?: string) {
-    const game = await this.gamesService.getById(gameId);
-    game.state = GameState.interrupted;
-    game.error = 'ended by admin';
-    game.slots
-      .filter((s) => s.status === SlotStatus.waitingForSubstitute)
-      .forEach((s) => (s.status = SlotStatus.active));
-    await game.save();
+    const game = plainToClass(
+      Game,
+      await this.gameModel
+        .findByIdAndUpdate(
+          gameId,
+          {
+            state: GameState.interrupted,
+            error: 'ended by admin',
+            'slots.$[element].status': SlotStatus.active,
+          },
+          {
+            new: true,
+            arrayFilters: [
+              { 'element.status': { $eq: SlotStatus.waitingForSubstitute } },
+            ],
+          },
+        )
+        .orFail()
+        .lean()
+        .exec(),
+    );
+
     this.events.gameChanges.next({ game, adminId });
     this.events.substituteRequestsChange.next();
 
@@ -96,10 +116,6 @@ export class GameRuntimeService {
     replacementSlot: GameSlot,
   ) {
     const game = await this.gamesService.getById(gameId);
-    if (!game) {
-      throw new Error('no such game');
-    }
-
     if (!game.gameServer) {
       throw new Error('this game has no server assigned');
     }

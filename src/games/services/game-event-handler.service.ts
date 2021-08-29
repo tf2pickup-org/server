@@ -11,6 +11,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { plainToClass } from 'class-transformer';
+import { GamesService } from './games.service';
 
 @Injectable()
 export class GameEventHandlerService implements OnModuleDestroy {
@@ -22,6 +23,7 @@ export class GameEventHandlerService implements OnModuleDestroy {
     private playersService: PlayersService,
     private gameRuntimeService: GameRuntimeService,
     private events: Events,
+    private gamesService: GamesService,
   ) {}
 
   onModuleDestroy() {
@@ -86,35 +88,11 @@ export class GameEventHandlerService implements OnModuleDestroy {
   }
 
   async onLogsUploaded(gameId: string, logsUrl: string): Promise<Game> {
-    const game = plainToClass(
-      Game,
-      await this.gameModel
-        .findOneAndUpdate(
-          { _id: new Types.ObjectId(gameId) },
-          { logsUrl },
-          { new: true },
-        )
-        .orFail()
-        .lean()
-        .exec(),
-    );
-
-    this.events.gameChanges.next({ game });
-    return game;
+    return this.gamesService.update(gameId, { logsUrl });
   }
 
   async onDemoUploaded(gameId: string, demoUrl: string): Promise<Game> {
-    const game = plainToClass(
-      Game,
-      await this.gameModel
-        .findByIdAndUpdate(gameId, { demoUrl }, { new: true })
-        .orFail()
-        .lean()
-        .exec(),
-    );
-
-    this.events.gameChanges.next({ game });
-    return game;
+    return this.gamesService.update(gameId, { demoUrl });
   }
 
   async onPlayerJoining(gameId: string, steamId: string): Promise<Game> {
@@ -147,21 +125,9 @@ export class GameEventHandlerService implements OnModuleDestroy {
     score: string,
   ): Promise<Game> {
     const fixedTeamName = teamName.toLowerCase().substring(0, 3); // converts Red to 'red' and Blue to 'blu'
-    const game = plainToClass(
-      Game,
-      await this.gameModel
-        .findOneAndUpdate(
-          { _id: new Types.ObjectId(gameId) },
-          { [`score.${fixedTeamName}`]: parseInt(score, 10) },
-          { new: true },
-        )
-        .orFail()
-        .lean()
-        .exec(),
-    );
-
-    this.events.gameChanges.next({ game });
-    return game;
+    return this.gamesService.update(gameId, {
+      [`score.${fixedTeamName}`]: parseInt(score, 10),
+    });
   }
 
   private async setPlayerConnectionStatus(

@@ -49,13 +49,13 @@ export class GameLauncherService {
 
       // step 2: generate logsecret
       const logSecret = generateLogsecret();
-      game = await this.gamesService.updateGame(game.id, { logSecret });
+      game = await this.gamesService.update(game.id, { logSecret });
 
       // step 3: configure server
       const { connectString, stvConnectString } =
         await this.serverConfiguratorService.configureServer(gameServer, game);
 
-      game = await this.gamesService.updateGame(game.id, {
+      game = await this.gamesService.update(game.id, {
         $set: {
           connectString,
           stvConnectString,
