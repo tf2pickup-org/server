@@ -20,9 +20,6 @@ import { Types } from 'mongoose';
 
 /**
  * A service that handles player substitution logic.
- *
- * @export
- * @class PlayerSubstitutionService
  */
 @Injectable()
 export class PlayerSubstitutionService {
@@ -62,12 +59,12 @@ export class PlayerSubstitutionService {
     }
 
     const player = await this.playersService.getById(playerId);
+    slot.status = SlotStatus.waitingForSubstitute;
+    await game.save();
     this.logger.debug(
       `player ${player.name} taking part in game #${game.number} is marked as 'waiting for substitute'`,
     );
 
-    slot.status = SlotStatus.waitingForSubstitute;
-    await game.save();
     this.events.gameChanges.next({ game: game.toJSON() });
     this.events.substituteRequestsChange.next();
 
@@ -93,6 +90,11 @@ export class PlayerSubstitutionService {
 
       this.discordNotifications.set(playerId, message);
     }
+
+    this.gameRuntimeService.sayChat(
+      game.gameServer.toString(),
+      `Looking for replacement for ${player.name}...`,
+    );
 
     return game;
   }
