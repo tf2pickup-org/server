@@ -5,6 +5,7 @@ import { ConfigurationEntryKey } from './configuration-entry-key';
 
 export enum SelectedVoiceServer {
   none = 'none',
+  staticLink = 'static link',
   mumble = 'mumble',
 }
 
@@ -41,6 +42,9 @@ export class VoiceServer extends MongooseDocument {
     required: true,
   })
   type: SelectedVoiceServer;
+
+  @Prop()
+  staticLink?: string;
 
   @Prop({ type: mumbleOptionsSchema, _id: false })
   mumble?: MumbleOptions;
