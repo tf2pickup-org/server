@@ -180,6 +180,14 @@ describe('PlayerSubstitutionService', () => {
       });
     });
 
+    it('should announce looking for the replacement in the game', async () => {
+      await service.substitutePlayer(mockGame.id, player1.id);
+      expect(gameRuntimeService.sayChat).toHaveBeenCalledWith(
+        mockGame.gameServer.toString(),
+        'Looking for replacement for fake_player_1...',
+      );
+    });
+
     it('should emit the substituteRequestsChange event', async () => {
       let eventEmitted = false;
       events.substituteRequestsChange.subscribe(() => {
