@@ -21,7 +21,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: Game.name, schema: gameSchema }]),
-    GameServersModule,
+    forwardRef(() => GameServersModule),
     forwardRef(() => PlayersModule),
     QueueModule,
 

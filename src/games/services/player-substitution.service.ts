@@ -20,6 +20,9 @@ import { Model, Types } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { Game, GameDocument } from '../models/game';
 import { plainToClass } from 'class-transformer';
+import { PlayerNotInThisGameError } from '../errors/player-not-in-this-game.error';
+import { GameInWrongStateError } from '../errors/game-in-wrong-state.error';
+import { WrongGameSlotStatusError } from '../errors/wrong-game-slot-status.error';
 
 /**
  * A service that handles player substitution logic.
@@ -51,15 +54,15 @@ export class PlayerSubstitutionService {
     let game = await this.gamesService.getById(gameId);
     const slot = game.findPlayerSlot(playerId);
     if (!slot) {
-      throw new Error('no such player');
+      throw new PlayerNotInThisGameError(playerId, gameId);
     }
 
-    if (!/launching|started/.test(game.state)) {
-      throw new Error('the game has already ended');
+    if (!game.isInProgress()) {
+      throw new GameInWrongStateError(gameId, game.state);
     }
 
     if (slot.status === SlotStatus.replaced) {
-      throw new Error('this player has already been replaced');
+      throw new WrongGameSlotStatusError(gameId, playerId, slot.status);
     }
 
     if (slot.status === SlotStatus.waitingForSubstitute) {
@@ -131,15 +134,15 @@ export class PlayerSubstitutionService {
     let game = await this.gamesService.getById(gameId);
     const slot = game.findPlayerSlot(playerId);
     if (!slot) {
-      throw new Error('no such player');
+      throw new PlayerNotInThisGameError(playerId, gameId);
     }
 
-    if (!/launching|started/.test(game.state)) {
-      throw new Error('the game has already ended');
+    if (!game.isInProgress()) {
+      throw new GameInWrongStateError(gameId, game.state);
     }
 
     if (slot.status === SlotStatus.replaced) {
-      throw new Error('this player has already been replaced');
+      throw new WrongGameSlotStatusError(gameId, playerId, slot.status);
     }
 
     if (slot.status === SlotStatus.active) {
@@ -195,7 +198,7 @@ export class PlayerSubstitutionService {
       throw new Error('player is banned');
     }
 
-    const game = await this.gamesService.getById(gameId);
+    let game = await this.gamesService.getById(gameId);
     const slot = game.slots.find(
       (slot) =>
         slot.status === SlotStatus.waitingForSubstitute &&
@@ -206,8 +209,26 @@ export class PlayerSubstitutionService {
     }
 
     if (replaceeId === replacementId) {
-      slot.status = SlotStatus.active;
-      await game.save();
+      game = plainToClass(
+        Game,
+        await this.gameModel
+          .findByIdAndUpdate(
+            gameId,
+            {
+              'slots.$[element].status': SlotStatus.active,
+            },
+            {
+              new: true,
+              arrayFilters: [
+                { 'element.player': { $eq: new Types.ObjectId(replaceeId) } },
+              ],
+            },
+          )
+          .orFail()
+          .lean()
+          .exec(),
+      );
+
       this.events.gameChanges.next({ game });
       this.events.substituteRequestsChange.next();
       await this.deleteDiscordAnnouncement(replaceeId);
@@ -218,6 +239,7 @@ export class PlayerSubstitutionService {
     if (replacement.activeGame) {
       throw new Error('player is involved in a currently running game');
     }
+
     // create new slot of the replacement player
     const replacementSlot = {
       player: new Types.ObjectId(replacementId),
@@ -225,12 +247,29 @@ export class PlayerSubstitutionService {
       gameClass: slot.gameClass,
     };
 
-    game.slots.push(replacementSlot);
+    game = plainToClass(
+      Game,
+      await this.gameModel
+        .findByIdAndUpdate(
+          gameId,
+          {
+            $push: { slots: slot },
+            $set: {
+              'slots.$[element].status': SlotStatus.replaced,
+            },
+          },
+          {
+            new: true,
+            arrayFilters: [
+              { 'element.player': { $eq: new Types.ObjectId(replaceeId) } },
+            ],
+          },
+        )
+        .orFail()
+        .lean()
+        .exec(),
+    );
 
-    // update replacee
-    slot.status = SlotStatus.replaced;
-
-    await game.save();
     this.events.gameChanges.next({ game });
     this.events.substituteRequestsChange.next();
     this.queueService.kick(replacementId);

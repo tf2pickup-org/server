@@ -11,6 +11,7 @@ import {
   UnauthorizedException,
   ClassSerializerInterceptor,
   UseInterceptors,
+  UseFilters,
 } from '@nestjs/common';
 import { GamesService } from '../services/games.service';
 import { ObjectIdValidationPipe } from '@/shared/pipes/object-id-validation.pipe';
@@ -24,6 +25,7 @@ import { Player } from '@/players/models/player';
 import { PlayerRole } from '@/players/models/player-role';
 import { PlayerNotInThisGameError } from '../errors/player-not-in-this-game.error';
 import { ConnectInfo } from '../dto/connect-info';
+import { DocumentNotFoundFilter } from '@/shared/filters/document-not-found.filter';
 
 const sortOptions: string[] = [
   'launched_at',
@@ -84,6 +86,7 @@ export class GamesController {
   }
 
   @Get(':id')
+  @UseFilters(DocumentNotFoundFilter)
   async getGame(@Param('id', ObjectIdValidationPipe) gameId: string) {
     const game = await this.gamesService.getById(gameId);
     if (game) {
@@ -96,6 +99,7 @@ export class GamesController {
   @Get(':id/connect-info')
   @Auth()
   @UseInterceptors(ClassSerializerInterceptor)
+  @UseFilters(DocumentNotFoundFilter)
   async getConnectInfo(
     @Param('id', ObjectIdValidationPipe) gameId: string,
     @User() player: Player,
@@ -124,6 +128,7 @@ export class GamesController {
 
   @Get(':id/skills')
   @Auth(PlayerRole.admin)
+  @UseFilters(DocumentNotFoundFilter)
   async getGameSkills(@Param('id', ObjectIdValidationPipe) gameId: string) {
     const game = await this.gamesService.getById(gameId);
     if (game) {
@@ -135,6 +140,7 @@ export class GamesController {
 
   @Post(':id')
   @Auth(PlayerRole.admin)
+  @UseFilters(DocumentNotFoundFilter)
   @HttpCode(200)
   async takeAdminAction(
     @Param('id', ObjectIdValidationPipe) gameId: string,

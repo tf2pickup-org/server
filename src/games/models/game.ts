@@ -4,6 +4,7 @@ import { Exclude, Expose, Transform } from 'class-transformer';
 import { Document, Types } from 'mongoose';
 import { GameSlot, gameSlotSchema } from './game-slot';
 import { GameState } from './game-state';
+import { SlotStatus } from './slot-status';
 
 @Schema()
 export class Game extends MongooseDocument {
@@ -77,8 +78,14 @@ export class Game extends MongooseDocument {
 
   activeSlots(): GameSlot[] {
     return this.slots.filter((slot) =>
-      slot.status.match(/active|waiting for substitute/),
+      [SlotStatus.active, SlotStatus.waitingForSubstitute].includes(
+        slot.status,
+      ),
     );
+  }
+
+  isInProgress(): boolean {
+    return [GameState.launching, GameState.started].includes(this.state);
   }
 }
 

@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { GameServer, GameServerSchema } from './models/game-server';
 import { GameServersService } from './services/game-servers.service';
 import { GameServersController } from './controllers/game-servers.controller';
@@ -13,6 +13,7 @@ import { RconConnection } from './diagnostic-checks/rcon-connection';
 import { LogForwarding } from './diagnostic-checks/log-forwarding';
 import { LogReceiverModule } from '@/log-receiver/log-receiver.module';
 import { MongooseModule } from '@nestjs/mongoose';
+import { GamesModule } from '@/games/games.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { MongooseModule } from '@nestjs/mongoose';
       },
     ]),
     LogReceiverModule,
+    forwardRef(() => GamesModule),
   ],
   providers: [
     GameServersService,

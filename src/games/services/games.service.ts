@@ -44,6 +44,7 @@ export class GamesService {
     private gameLauncherService: GameLauncherService,
     private events: Events,
     private configurationService: ConfigurationService,
+    @Inject(forwardRef(() => GameServersService))
     private gameServersService: GameServersService,
   ) {}
 
@@ -276,7 +277,7 @@ export class GamesService {
   ): Promise<string | null> {
     const game = await this.getById(gameId);
     if (![GameState.launching, GameState.started].includes(game.state)) {
-      throw new GameInWrongStateError(game.state);
+      throw new GameInWrongStateError(gameId, game.state);
     }
 
     const player = await this.playersService.getById(playerId);

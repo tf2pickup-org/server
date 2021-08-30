@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { forwardRef, Inject, Injectable, Logger } from '@nestjs/common';
 import { GameServer, GameServerDocument } from '../models/game-server';
 import { isServerOnline } from '../utils/is-server-online';
 import { Cron, CronExpression } from '@nestjs/schedule';
@@ -18,6 +18,7 @@ export class GameServersService {
     @InjectModel(GameServer.name)
     private gameServerModel: Model<GameServerDocument>,
     private events: Events,
+    @Inject(forwardRef(() => GamesService))
     private gamesService: GamesService,
   ) {}
 
