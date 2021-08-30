@@ -1,6 +1,6 @@
 import { MongooseDocument } from '@/utils/mongoose-document';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Equals } from 'class-validator';
+import { Equals, IsUrl } from 'class-validator';
 import { ConfigurationEntryKey } from './configuration-entry-key';
 
 export enum SelectedVoiceServer {
@@ -43,6 +43,7 @@ export class VoiceServer extends MongooseDocument {
   })
   type: SelectedVoiceServer;
 
+  @IsUrl({ protocols: undefined })
   @Prop()
   staticLink?: string;
 

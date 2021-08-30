@@ -582,14 +582,30 @@ describe('GamesService', () => {
       });
     });
 
-    describe('when the voice server is null', () => {
+    describe('when the voice server is none', () => {
       beforeEach(() => {
         const voiceServer = new VoiceServer();
+        voiceServer.type = SelectedVoiceServer.none;
         configurationService.getVoiceServer.mockResolvedValue(voiceServer);
       });
 
       it('should return null', async () => {
         expect(await service.getVoiceChannelUrl(game.id, player.id)).toBe(null);
+      });
+    });
+
+    describe('when the voice server is a static link', () => {
+      beforeEach(() => {
+        const voiceServer = new VoiceServer();
+        voiceServer.type = SelectedVoiceServer.staticLink;
+        voiceServer.staticLink = 'SOME_STATIC_LINK';
+        configurationService.getVoiceServer.mockResolvedValue(voiceServer);
+      });
+
+      it('should return the static link', async () => {
+        expect(await service.getVoiceChannelUrl(game.id, player.id)).toEqual(
+          'SOME_STATIC_LINK',
+        );
       });
     });
 
