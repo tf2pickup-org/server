@@ -214,16 +214,13 @@ export class PlayerSubstitutionService {
       $unset: { activeGame: 1 },
     });
 
-    setImmediate(async () => {
-      const game = await this.gamesService.getById(gameId);
-      if (game.gameServer) {
-        this.gameRuntimeService.replacePlayer(
-          game.id,
-          replaceeId,
-          replacementSlot,
-        );
-      }
-    });
+    if (game.gameServer) {
+      this.gameRuntimeService.replacePlayer(
+        game.id,
+        replaceeId,
+        replacementSlot,
+      );
+    }
     return game;
   }
 
