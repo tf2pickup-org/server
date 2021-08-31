@@ -1,10 +1,11 @@
 import { MongooseDocument } from '@/utils/mongoose-document';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Equals } from 'class-validator';
+import { Equals, IsOptional, IsUrl } from 'class-validator';
 import { ConfigurationEntryKey } from './configuration-entry-key';
 
 export enum SelectedVoiceServer {
   none = 'none',
+  staticLink = 'static link',
   mumble = 'mumble',
 }
 
@@ -41,6 +42,11 @@ export class VoiceServer extends MongooseDocument {
     required: true,
   })
   type: SelectedVoiceServer;
+
+  @IsOptional()
+  @IsUrl({ protocols: undefined })
+  @Prop()
+  staticLink?: string;
 
   @Prop({ type: mumbleOptionsSchema, _id: false })
   mumble?: MumbleOptions;

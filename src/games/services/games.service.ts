@@ -233,6 +233,9 @@ export class GamesService {
       case SelectedVoiceServer.none:
         return null;
 
+      case SelectedVoiceServer.staticLink:
+        return voiceServer.staticLink;
+
       case SelectedVoiceServer.mumble: {
         if (!game.gameServer) {
           return null;
