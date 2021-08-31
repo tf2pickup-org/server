@@ -1,11 +1,3 @@
-<h1 align="center">
-  <a href="https://tf2pickup.pl">
-    <img src="https://tf2pickup.pl/assets/favicon.png" alt="tf2pickup.pl logo" width="200" height="200">
-  </a>
-</h1>
-
-<h2 align="center">tf2pickup.org</h2>
-
 <p align="center">
   <a href="https://github.com/tf2pickup-org/server/actions?query=workflow%3Atest">
     <img src="https://github.com/tf2pickup-org/server/workflows/test/badge.svg" alt="Test status">
@@ -24,58 +16,51 @@
   </a>
 </p>
 
+<h1 align="center">
+  <a href="https://tf2pickup.pl">
+    <img src="https://tf2pickup.pl/assets/favicon.png" alt="tf2pickup.org logo" width="128" height="128">
+  </a>
+</h1>
+
 <h3 align="center">The tf2pickup.org server</h3>
+
+<p align="center">
+  <a href="https://docs.tf2pickup.org/"><strong>Documentation »</strong></a>
+</p>
 
 ## About the project
 
-tf2pickup.org was created with a simple objective in mind. Make it as easy and accessible for twelve players to play a 6v6 pick-up game in Team Fortress 2 as possible. 
+tf2pickup.org was created with a simple objective in mind. Make it as easy and accessible for twelve players to play a 6v6 pick-up game in Team Fortress 2 as possible.
 
-## Prerequisites
 
-* a MongoDB database
-* Steam API key
-* one open UDP port for TF2 game server log relay
-* a Mumble server
-* *optionally* a Discord server
-* *optionally* twitch.tv client id & secret
-
-## Setup
+## Local deployment
 
 * clone the repository or download a zipped release of your choice
-* copy `sample.env` to `.env` and adjust your environment values
-* review configuration files in `configs/`
 * install dependencies
+* start required services
 
     ```bash
-    npm i
+    $ docker-compose up -d
     ```
 
-* build the project
+* copy `sample.env` to `.env` and adjust your environment values, mainly:
+  * `STEAM_API_KEY`,
+  * `SUPER_USER` - your SteamID64,
+  * `LOG_RELAY_ADDRESS` - your IP address in the local network.
+
+* run the server in development mode
 
     ```bash
-    npm run build
+    $ npm run dev
     ```
 
-## Running
+  The server is now listening on port 3000 by default.
 
-To launch the server application itself, you have a couple options:
 
-* launch the process in the shell manually
+## Using Docker
 
-    ```bash
-    node dist/src/main.js
-    ```
+There is a [Docker image](https://hub.docker.com/repository/docker/tf2pickuppl/server) available for you to run the production version of the application.
 
-    Note that you will probably want to run the process in a separate shell, i.e. tmux.
-
-* use process manager, i.e. `pm2`
-
-    ```bash
-    npm i -g pm2
-    pm2 start dist/src/main.js
-    ```
-
-The server process listens for incoming connections on port 3000.
 
 ## Contact
 
