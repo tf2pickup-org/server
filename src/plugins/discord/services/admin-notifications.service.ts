@@ -73,9 +73,17 @@ export class AdminNotificationsService implements OnModuleInit {
     this.events.gameServerAdded.subscribe(({ gameServer, adminId }) =>
       this.onGameServerAdded(gameServer, adminId),
     );
-    this.events.gameServerRemoved.subscribe(({ gameServer, adminId }) =>
-      this.onGameServerRemoved(gameServer, adminId),
-    );
+    this.events.gameServerUpdated
+      .pipe(
+        filter(
+          ({ oldGameServer, newGameServer }) =>
+            oldGameServer.deleted === false && newGameServer.deleted === true,
+        ),
+      )
+      .subscribe(({ newGameServer, adminId }) =>
+        this.onGameServerRemoved(newGameServer, adminId),
+      );
+
     this.events.gameChanges
       .pipe(
         distinctUntilChanged((x, y) => x.game.state === y.game.state),

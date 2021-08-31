@@ -61,25 +61,35 @@ export class GameServersService {
   async updateGameServer(
     gameServerId: string,
     update: Partial<GameServer>,
+    adminId?: string,
   ): Promise<GameServer> {
-    return plainToClass(
+    const oldGameServer = await this.getById(gameServerId);
+    const newGameServer = plainToClass(
       GameServer,
       await this.gameServerModel
         .findByIdAndUpdate(gameServerId, update, { new: true })
         .lean()
         .exec(),
     );
+    this.events.gameServerUpdated.next({
+      oldGameServer,
+      newGameServer,
+      adminId,
+    });
+    return newGameServer;
   }
 
   async removeGameServer(
     gameServerId: string,
     adminId?: string,
   ): Promise<GameServer> {
-    const gameServer = await this.updateGameServer(gameServerId, {
-      deleted: true,
-    });
-    this.events.gameServerRemoved.next({ gameServer, adminId });
-    return gameServer;
+    return this.updateGameServer(
+      gameServerId,
+      {
+        deleted: true,
+      },
+      adminId,
+    );
   }
 
   async findFreeGameServer(): Promise<GameServer> {

@@ -63,8 +63,9 @@ export class Events {
     gameServer: GameServer;
     adminId?: string;
   }>();
-  readonly gameServerRemoved = new Subject<{
-    gameServer: GameServer;
+  readonly gameServerUpdated = new Subject<{
+    oldGameServer: GameServer;
+    newGameServer: GameServer;
     adminId?: string;
   }>();
 
