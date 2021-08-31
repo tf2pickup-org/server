@@ -1,3 +1,11 @@
+<h1 align="center">
+  <a href="https://tf2pickup.pl">
+    <img src="https://tf2pickup.pl/assets/favicon.png" alt="tf2pickup.org logo" width="128" height="128">
+  </a>
+</h1>
+
+<h3 align="center">The tf2pickup.org server</h3>
+
 <p align="center">
   <a href="https://github.com/tf2pickup-org/server/actions?query=workflow%3Atest">
     <img src="https://github.com/tf2pickup-org/server/workflows/test/badge.svg" alt="Test status">
@@ -15,14 +23,6 @@
     <img src="https://img.shields.io/badge/project-wekan-%2300aecc.svg" alt="Wekan">
   </a>
 </p>
-
-<h1 align="center">
-  <a href="https://tf2pickup.pl">
-    <img src="https://tf2pickup.pl/assets/favicon.png" alt="tf2pickup.org logo" width="128" height="128">
-  </a>
-</h1>
-
-<h3 align="center">The tf2pickup.org server</h3>
 
 <p align="center">
   <a href="https://docs.tf2pickup.org/"><strong>Documentation »</strong></a>
