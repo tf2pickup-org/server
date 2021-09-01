@@ -7,6 +7,10 @@
 <h3 align="center">The tf2pickup.org server</h3>
 
 <p align="center">
+  <a href="https://github.com/tf2pickup-org/server/releases">
+    <img src="https://img.shields.io/github/v/release/tf2pickup-org/server" alt="Latest release>
+  </a>
+
   <a href="https://github.com/tf2pickup-org/server/actions?query=workflow%3Atest">
     <img src="https://github.com/tf2pickup-org/server/workflows/test/badge.svg" alt="Test status">
   </a>
@@ -59,7 +63,7 @@ tf2pickup.org was created with a simple objective in mind. Make it as easy and a
 
 ## Using Docker
 
-There is a [Docker image](https://hub.docker.com/repository/docker/tf2pickuppl/server) available for you to run the production version of the application.
+There is a [Docker image](https://hub.docker.com/r/tf2pickuppl/server) available for you to run the production version of the application.
 
 
 ## Contact
