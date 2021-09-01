@@ -91,10 +91,12 @@ export class PlayerSubstitutionService {
       this.discordNotifications.set(playerId, message);
     }
 
-    this.gameRuntimeService.sayChat(
-      game.gameServer.toString(),
-      `Looking for replacement for ${player.name}...`,
-    );
+    if (game.gameServer) {
+      this.gameRuntimeService.sayChat(
+        game.gameServer.toString(),
+        `Looking for replacement for ${player.name}...`,
+      );
+    }
 
     return game;
   }
