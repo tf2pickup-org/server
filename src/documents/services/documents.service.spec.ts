@@ -45,7 +45,7 @@ describe('DocumentsService', () => {
   });
 
   describe('#onModuleInit()', () => {
-    it('should create empty rules document', async () => {
+    it('should create default rules document', async () => {
       await service.onModuleInit();
       expect(
         await documentModel.findOne({ name: 'rules', language: 'en' }),
