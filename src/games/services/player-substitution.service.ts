@@ -70,12 +70,6 @@ export class PlayerSubstitutionService {
     }
 
     const player = await this.playersService.getById(playerId);
-    slot.status = SlotStatus.waitingForSubstitute;
-    await game.save();
-    this.logger.debug(
-      `player ${player.name} taking part in game #${game.number} is marked as 'waiting for substitute'`,
-    );
-
     game = plainToClass(
       Game,
       await this.gameModel
@@ -92,6 +86,10 @@ export class PlayerSubstitutionService {
         .orFail()
         .lean()
         .exec(),
+    );
+
+    this.logger.debug(
+      `player ${player.name} taking part in game #${game.number} is marked as 'waiting for substitute'`,
     );
 
     this.events.gameChanges.next({ game });
@@ -202,10 +200,12 @@ export class PlayerSubstitutionService {
     const slot = game.slots.find(
       (slot) =>
         slot.status === SlotStatus.waitingForSubstitute &&
-        slot.player === new Types.ObjectId(replaceeId),
+        slot.player.equals(replaceeId),
     );
+
     if (!slot) {
-      throw new Error(`no such slot (playerId: ${replaceeId})`);
+      console.log(game.slots);
+      throw new PlayerNotInThisGameError(replaceeId, gameId);
     }
 
     if (replaceeId === replacementId) {
@@ -247,13 +247,16 @@ export class PlayerSubstitutionService {
       gameClass: slot.gameClass,
     };
 
+    await this.gameModel.findByIdAndUpdate(gameId, {
+      $push: { slots: replacementSlot },
+    });
+
     game = plainToClass(
       Game,
       await this.gameModel
         .findByIdAndUpdate(
           gameId,
           {
-            $push: { slots: slot },
             $set: {
               'slots.$[element].status': SlotStatus.replaced,
             },
