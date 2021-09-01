@@ -8,7 +8,7 @@
 
 <p align="center">
   <a href="https://github.com/tf2pickup-org/server/releases">
-    <img src="https://img.shields.io/github/v/release/tf2pickup-org/server" alt="Latest release>
+    <img src="https://img.shields.io/github/v/release/tf2pickup-org/server" alt="Latest release">
   </a>
 
   <a href="https://github.com/tf2pickup-org/server/actions?query=workflow%3Atest">
