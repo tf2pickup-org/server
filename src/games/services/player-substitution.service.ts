@@ -91,10 +91,12 @@ export class PlayerSubstitutionService {
       this.discordNotifications.set(playerId, message);
     }
 
-    this.gameRuntimeService.sayChat(
-      game.gameServer.toString(),
-      `Looking for replacement for ${player.name}...`,
-    );
+    if (game.gameServer) {
+      this.gameRuntimeService.sayChat(
+        game.gameServer.toString(),
+        `Looking for replacement for ${player.name}...`,
+      );
+    }
 
     return game;
   }
@@ -193,10 +195,12 @@ export class PlayerSubstitutionService {
 
     const replacee = await this.playersService.getById(replaceeId);
 
-    this.gameRuntimeService.sayChat(
-      game.gameServer.toString(),
-      `${replacement.name} is replacing ${replacee.name} on ${replacementSlot.gameClass}.`,
-    );
+    if (game.gameServer) {
+      this.gameRuntimeService.sayChat(
+        game.gameServer.toString(),
+        `${replacement.name} is replacing ${replacee.name} on ${replacementSlot.gameClass}.`,
+      );
+    }
 
     await this.deleteDiscordAnnouncement(replaceeId);
 
@@ -212,13 +216,13 @@ export class PlayerSubstitutionService {
       $unset: { activeGame: 1 },
     });
 
-    setImmediate(() =>
+    if (game.gameServer) {
       this.gameRuntimeService.replacePlayer(
         game.id,
         replaceeId,
         replacementSlot,
-      ),
-    );
+      );
+    }
     return game;
   }
 
