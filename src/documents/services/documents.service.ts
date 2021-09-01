@@ -1,7 +1,9 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { plainToClass } from 'class-transformer';
+import { readFile } from 'fs/promises';
 import { Error, Model } from 'mongoose';
+import { join } from 'path';
 import { Document, DocumentDocument } from '../models/document';
 
 @Injectable()
@@ -17,7 +19,10 @@ export class DocumentsService implements OnModuleInit {
       await this.getDocument('rules');
     } catch (error) {
       if (error instanceof Error.DocumentNotFoundError) {
-        await this.saveDocument('rules', 'en', '');
+        const rules = await readFile(
+          join(__dirname, '..', 'default', 'rules.md'),
+        );
+        await this.saveDocument('rules', 'en', rules.toString());
       } else {
         throw error;
       }
