@@ -53,7 +53,7 @@ export class GameLauncherService {
 
       // step 3: configure server
       const { connectString, stvConnectString } =
-        await this.serverConfiguratorService.configureServer(gameServer, game);
+        await this.serverConfiguratorService.configureServer(game.id);
 
       game = await this.gamesService.update(game.id, {
         $set: {

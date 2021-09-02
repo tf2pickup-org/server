@@ -14,6 +14,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Game, GameDocument } from '../models/game';
 import { plainToClass } from 'class-transformer';
+import { GameServerNotAssignedError } from '../errors/game-server-not-assigned.error';
 
 @Injectable()
 export class GameRuntimeService {
@@ -43,12 +44,9 @@ export class GameRuntimeService {
       $inc: { connectInfoVersion: 1 },
     });
 
-    const gameServer = await this.gameServersService.getById(
-      game.gameServer.toString(),
-    );
     try {
       const { connectString, stvConnectString } =
-        await this.serverConfiguratorService.configureServer(gameServer, game);
+        await this.serverConfiguratorService.configureServer(game.id);
       game = await this.gamesService.update(game.id, {
         $set: {
           connectString,
@@ -117,7 +115,7 @@ export class GameRuntimeService {
   ) {
     const game = await this.gamesService.getById(gameId);
     if (!game.gameServer) {
-      throw new Error('this game has no server assigned');
+      throw new GameServerNotAssignedError(gameId);
     }
 
     const gameServer = await this.gameServersService.getById(
@@ -152,23 +150,16 @@ export class GameRuntimeService {
   }
 
   async cleanupServer(serverId: string) {
-    const gameServer = await this.gameServersService.getById(serverId);
-
     try {
-      await this.serverConfiguratorService.cleanupServer(gameServer);
+      await this.serverConfiguratorService.cleanupServer(serverId);
+      await this.gameServersService.releaseServer(serverId);
     } catch (e) {
       this.logger.error(e.message);
     }
-
-    await this.gameServersService.releaseServer(serverId);
   }
 
   async sayChat(gameServerId: string, message: string) {
     const gameServer = await this.gameServersService.getById(gameServerId);
-    if (!gameServer) {
-      throw new Error('game server does not exist');
-    }
-
     let rcon: Rcon;
     try {
       rcon = await this.rconFactoryService.createRcon(gameServer);

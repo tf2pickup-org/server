@@ -1,6 +1,4 @@
 import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
-import { GameServer } from '@/game-servers/models/game-server';
-import { Game } from '../models/game';
 import { Environment } from '@/environment/environment';
 import { generate } from 'generate-password';
 import { PlayersService } from '@/players/services/players.service';
@@ -26,6 +24,8 @@ import { extractConVarValue } from '../utils/extract-con-var-value';
 import { Rcon } from 'rcon-client/lib';
 import { MapPoolService } from '@/queue/services/map-pool.service';
 import { ConfigurationService } from '@/configuration/services/configuration.service';
+import { GamesService } from './games.service';
+import { GameServersService } from '@/game-servers/services/game-servers.service';
 
 const wait = () => new Promise((resolve) => setTimeout(resolve, 1000 * 10));
 
@@ -40,15 +40,18 @@ export class ServerConfiguratorService {
     private rconFactoryService: RconFactoryService,
     private mapPoolService: MapPoolService,
     private configurationService: ConfigurationService,
+    private gamesService: GamesService,
+    private gameServersService: GameServersService,
   ) {}
 
-  async configureServer(server: GameServer, game: Game) {
+  async configureServer(gameId: string) {
+    const game = await this.gamesService.getById(gameId);
+    const server = await this.gameServersService.getById(game.gameServer);
+
     this.logger.verbose(`configuring server ${server.name}...`);
     this.logger.debug(
       `[${server.name}] using rcon password ${server.rconPassword}`,
     );
-    const whitelistId = (await this.configurationService.getWhitelistId())
-      .value;
 
     let rcon: Rcon;
     try {
@@ -77,6 +80,8 @@ export class ServerConfiguratorService {
         await wait();
       }
 
+      const whitelistId = (await this.configurationService.getWhitelistId())
+        .value;
       if (whitelistId) {
         this.logger.debug(
           `[${server.name}] setting whitelist ${whitelistId}...`,
@@ -131,22 +136,23 @@ export class ServerConfiguratorService {
     }
   }
 
-  async cleanupServer(server: GameServer) {
+  async cleanupServer(gameServerId: string) {
+    const gameServer = await this.gameServersService.getById(gameServerId);
     let rcon: Rcon;
     try {
-      rcon = await this.rconFactoryService.createRcon(server);
+      rcon = await this.rconFactoryService.createRcon(gameServer);
 
       const logAddress = `${this.environment.logRelayAddress}:${this.environment.logRelayPort}`;
       this.logger.debug(
-        `[${server.name}] removing log address ${logAddress}...`,
+        `[${gameServer.name}] removing log address ${logAddress}...`,
       );
       await rcon.send(logAddressDel(logAddress));
       await rcon.send(delAllGamePlayers());
       await rcon.send(disablePlayerWhitelist());
-      this.logger.verbose(`[${server.name}] server cleaned up`);
+      this.logger.verbose(`[${gameServer.name}] server cleaned up`);
     } catch (error) {
       throw new Error(
-        `could not cleanup server ${server.name} (${error.message})`,
+        `could not cleanup server ${gameServer.name} (${error.message})`,
       );
     } finally {
       await rcon?.end();

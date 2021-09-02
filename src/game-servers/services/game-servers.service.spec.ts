@@ -17,8 +17,9 @@ import {
   getModelToken,
   MongooseModule,
 } from '@nestjs/mongoose';
+import { GamesService } from '@/games/services/games.service';
 
-jest.mock('dns');
+jest.mock('@/games/services/games.service');
 
 describe('GameServersService', () => {
   let service: GameServersService;
@@ -41,7 +42,7 @@ describe('GameServersService', () => {
           { name: Game.name, schema: gameSchema },
         ]),
       ],
-      providers: [GameServersService, Events],
+      providers: [GameServersService, Events, GamesService],
     }).compile();
 
     service = module.get<GameServersService>(GameServersService);
@@ -264,9 +265,10 @@ describe('GameServersService', () => {
     });
 
     it('should assign the server', async () => {
-      const gameServer = await service.assignFreeGameServer(game);
+      const gameServer = await service.assignFreeGameServer(game.id);
       expect(gameServer.game.toString()).toEqual(game.id);
-      expect(game.gameServer.toString()).toEqual(gameServer.id);
+      const updatedGame = await gameModel.findById(game.id);
+      expect(updatedGame.gameServer.toString()).toEqual(gameServer.id);
     });
 
     describe('when there are no free game servers', () => {
@@ -276,11 +278,13 @@ describe('GameServersService', () => {
           map: 'cp_badlands',
           slots: [],
         });
-        await service.assignFreeGameServer(game2);
+        await service.assignFreeGameServer(game2.id);
       });
 
       it('should throw', async () => {
-        await expect(service.assignFreeGameServer(game)).rejects.toThrowError();
+        await expect(
+          service.assignFreeGameServer(game.id),
+        ).rejects.toThrowError();
       });
     });
   });

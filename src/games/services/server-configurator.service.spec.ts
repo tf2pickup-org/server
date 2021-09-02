@@ -2,7 +2,6 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { ServerConfiguratorService } from './server-configurator.service';
 import { Environment } from '@/environment/environment';
 import { PlayersService } from '@/players/services/players.service';
-import { QueueConfigService } from '@/queue/services/queue-config.service';
 import { RconFactoryService } from './rcon-factory.service';
 import {
   logAddressAdd,
@@ -18,7 +17,6 @@ import {
   disablePlayerWhitelist,
   tftrueWhitelistId,
 } from '../utils/rcon-commands';
-import { QueueConfig } from '@/queue/queue-config';
 import { Tf2Team } from '../models/tf2-team';
 import { Game, GameDocument, gameSchema } from '../models/game';
 import { SlotStatus } from '../models/slot-status';
@@ -36,24 +34,21 @@ import {
 } from '@nestjs/mongoose';
 import { Connection, Model } from 'mongoose';
 import { WhitelistId } from '@/configuration/models/whitelist-id';
+import { GamesService } from './games.service';
+import { GameServersService } from '@/game-servers/services/game-servers.service';
+import { Events } from '@/events/events';
+import { GameServer } from '@/game-servers/models/game-server';
 
 jest.mock('@/queue/services/map-pool.service');
 jest.mock('@/players/services/players.service');
 jest.mock('./rcon-factory.service');
 jest.mock('@/configuration/services/configuration.service');
+jest.mock('./games.service');
+jest.mock('@/game-servers/services/game-servers.service');
 
 class EnvironmentStub {
   logRelayAddress = 'FAKE_RELAY_ADDRESS';
   logRelayPort = '1234';
-}
-
-class QueueConfigServiceStub {
-  queueConfig = {
-    maps: [{ name: 'cp_badlands', configName: '5cp' }],
-    configs: {
-      '5cp': 'etf2l_6v6_5cp',
-    },
-  } as Partial<QueueConfig>;
 }
 
 class RconStub {
@@ -61,8 +56,12 @@ class RconStub {
   end = jest.fn();
 }
 
-const gameServer = {
+const mockGameServer: GameServer = {
+  id: 'MOCK_GAME_SERVER',
   name: 'FAKE_SERVER',
+  address: '123.45.67.89',
+  port: '27015',
+  rconPassword: 'FAKE_RCON_PASSWORD',
 };
 
 function flushPromises() {
@@ -76,10 +75,11 @@ describe('ServerConfiguratorService', () => {
   let gameModel: Model<GameDocument>;
   let rconFactoryService: jest.Mocked<RconFactoryService>;
   let playersService: jest.Mocked<PlayersService>;
-  let queueConfigService: QueueConfigServiceStub;
   let mapPoolService: jest.Mocked<MapPoolService>;
   let configurationService: jest.Mocked<ConfigurationService>;
   let connection: Connection;
+  let gamesService: GamesService;
+  let gameServersService: jest.Mocked<GameServersService>;
 
   beforeAll(async () => (mongod = await MongoMemoryServer.create()));
   afterAll(async () => await mongod.stop());
@@ -103,10 +103,12 @@ describe('ServerConfiguratorService', () => {
         ServerConfiguratorService,
         { provide: Environment, useClass: EnvironmentStub },
         PlayersService,
-        { provide: QueueConfigService, useClass: QueueConfigServiceStub },
         RconFactoryService,
         MapPoolService,
         ConfigurationService,
+        Events,
+        GamesService,
+        GameServersService,
       ],
     }).compile();
 
@@ -115,10 +117,11 @@ describe('ServerConfiguratorService', () => {
     gameModel = module.get(getModelToken(Game.name));
     rconFactoryService = module.get(RconFactoryService);
     playersService = module.get(PlayersService);
-    queueConfigService = module.get(QueueConfigService);
     mapPoolService = module.get(MapPoolService);
     configurationService = module.get(ConfigurationService);
     connection = module.get(getConnectionToken());
+    gamesService = module.get(GamesService);
+    gameServersService = module.get(GameServersService);
   });
 
   beforeEach(() => {
@@ -126,6 +129,7 @@ describe('ServerConfiguratorService', () => {
       { name: 'cp_badlands', execConfig: 'etf2l_6v6_5cp' },
     ]);
     configurationService.getWhitelistId.mockResolvedValue(new WhitelistId(''));
+    gameServersService.getById.mockResolvedValue(mockGameServer);
   });
 
   afterEach(async () => await connection.close());
@@ -138,7 +142,7 @@ describe('ServerConfiguratorService', () => {
     let player1: PlayerDocument;
     let player2: PlayerDocument;
     let rcon: RconStub;
-    let game: Game;
+    let game: GameDocument;
 
     beforeEach(async () => {
       [player1, player2] = [
@@ -182,7 +186,7 @@ describe('ServerConfiguratorService', () => {
 
     it('should execute correct rcon commands', async () => {
       const ret = new Promise<void>((resolve) => {
-        service.configureServer(gameServer as any, game).then(() => {
+        service.configureServer(game.id).then(() => {
           expect(rcon.send).toHaveBeenCalledWith(
             logAddressAdd('FAKE_RELAY_ADDRESS:1234'),
           );
@@ -216,7 +220,7 @@ describe('ServerConfiguratorService', () => {
         });
       });
 
-      for (let i = 0; i < 3; i++) {
+      for (let i = 0; i < 5; i++) {
         jest.runAllTimers();
         await flushPromises();
       }
@@ -232,15 +236,13 @@ describe('ServerConfiguratorService', () => {
       });
 
       it('should set the whitelist', async () => {
-        const ret = service
-          .configureServer(gameServer as any, game)
-          .then(() => {
-            expect(rcon.send).toHaveBeenCalledWith(
-              tftrueWhitelistId('FAKE_WHITELIST_ID'),
-            );
-          });
+        const ret = service.configureServer(game.id).then(() => {
+          expect(rcon.send).toHaveBeenCalledWith(
+            tftrueWhitelistId('FAKE_WHITELIST_ID'),
+          );
+        });
 
-        for (let i = 0; i < 3; i++) {
+        for (let i = 0; i < 5; i++) {
           jest.runAllTimers();
           await flushPromises();
         }
@@ -250,7 +252,7 @@ describe('ServerConfiguratorService', () => {
     });
 
     describe('when one of the players is replaced', () => {
-      beforeEach(() => {
+      beforeEach(async () => {
         game.slots = [
           {
             player: player1._id,
@@ -265,31 +267,30 @@ describe('ServerConfiguratorService', () => {
             status: SlotStatus.replaced,
           },
         ];
+        await game.save();
       });
 
       it('should not add this player to the game', async () => {
-        const ret = service
-          .configureServer(gameServer as any, game)
-          .then(() => {
-            expect(rcon.send).toHaveBeenCalledWith(
-              addGamePlayer(
-                player1.steamId,
-                player1.name,
-                Tf2Team.blu,
-                Tf2ClassName.soldier,
-              ),
-            );
-            expect(rcon.send).not.toHaveBeenCalledWith(
-              addGamePlayer(
-                player2.steamId,
-                player2.name,
-                Tf2Team.red,
-                Tf2ClassName.soldier,
-              ),
-            );
-          });
+        const ret = service.configureServer(game.id).then(() => {
+          expect(rcon.send).toHaveBeenCalledWith(
+            addGamePlayer(
+              player1.steamId,
+              player1.name,
+              Tf2Team.blu,
+              Tf2ClassName.soldier,
+            ),
+          );
+          expect(rcon.send).not.toHaveBeenCalledWith(
+            addGamePlayer(
+              player2.steamId,
+              player2.name,
+              Tf2Team.red,
+              Tf2ClassName.soldier,
+            ),
+          );
+        });
 
-        for (let i = 0; i < 3; i++) {
+        for (let i = 0; i < 5; i++) {
           jest.runAllTimers();
           await flushPromises();
         }
@@ -299,12 +300,10 @@ describe('ServerConfiguratorService', () => {
     });
 
     it('should close the rcon connection', async () => {
-      const ret = service
-        .configureServer(gameServer as any, game as any)
-        .then(() => {
-          expect(rcon.end).toHaveBeenCalled();
-        });
-      for (let i = 0; i < 3; i++) {
+      const ret = service.configureServer(game.id).then(() => {
+        expect(rcon.end).toHaveBeenCalled();
+      });
+      for (let i = 0; i < 5; i++) {
         jest.runAllTimers();
         await flushPromises();
       }
@@ -320,15 +319,13 @@ describe('ServerConfiguratorService', () => {
       });
 
       it('should deburr player nicknames', async () => {
-        const ret = service
-          .configureServer(gameServer as any, game as any)
-          .then(() => {
-            expect(rcon.send).toHaveBeenCalledWith(
-              addGamePlayer(player1.steamId, 'maly', Tf2Team.blu, 'soldier'),
-            );
-          });
+        const ret = service.configureServer(game.id).then(() => {
+          expect(rcon.send).toHaveBeenCalledWith(
+            addGamePlayer(player1.steamId, 'maly', Tf2Team.blu, 'soldier'),
+          );
+        });
 
-        for (let i = 0; i < 3; i++) {
+        for (let i = 0; i < 5; i++) {
           jest.runAllTimers();
           await flushPromises();
         }
@@ -343,9 +340,7 @@ describe('ServerConfiguratorService', () => {
       });
 
       it('should close the rcon connection even though an RCON command failed', async () => {
-        await expect(
-          service.configureServer(gameServer as any, game as any),
-        ).rejects.toThrowError();
+        await expect(service.configureServer(game.id)).rejects.toThrowError();
         expect(rcon.end).toHaveBeenCalled();
       });
     });
@@ -360,7 +355,7 @@ describe('ServerConfiguratorService', () => {
     });
 
     it('should execute correct rcon commands', async () => {
-      await service.cleanupServer(gameServer as any);
+      await service.cleanupServer(mockGameServer.id);
 
       expect(rcon.send).toHaveBeenCalledWith(
         logAddressDel('FAKE_RELAY_ADDRESS:1234'),
@@ -370,7 +365,7 @@ describe('ServerConfiguratorService', () => {
     });
 
     it('should close the rcon connection', async () => {
-      await service.cleanupServer(gameServer as any);
+      await service.cleanupServer(mockGameServer.id);
       expect(rcon.end).toHaveBeenCalled();
     });
 
@@ -378,7 +373,7 @@ describe('ServerConfiguratorService', () => {
       rcon.send.mockRejectedValue('some random RCON error');
 
       await expect(
-        service.cleanupServer(gameServer as any),
+        service.cleanupServer(mockGameServer.id),
       ).rejects.toThrowError();
       expect(rcon.end).toHaveBeenCalled();
     });

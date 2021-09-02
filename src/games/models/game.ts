@@ -1,6 +1,6 @@
 import { MongooseDocument } from '@/utils/mongoose-document';
 import { Prop, raw, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Exclude, Expose, Transform } from 'class-transformer';
+import { Exclude, Expose, Transform, Type } from 'class-transformer';
 import { Document, Types } from 'mongoose';
 import { GameSlot, gameSlotSchema } from './game-slot';
 import { GameState } from './game-state';
@@ -58,6 +58,7 @@ export class Game extends MongooseDocument {
   @Prop({ ref: 'GameServer' })
   gameServer?: Types.ObjectId;
 
+  @Type(() => Number)
   @Prop(
     raw({
       type: Map,

@@ -15,8 +15,15 @@ import { Game, GameDocument, gameSchema } from '../models/game';
 import { Events } from '@/events/events';
 import { SlotStatus } from '../models/slot-status';
 import { GameState } from '../models/game-state';
-import { getConnectionToken, MongooseModule } from '@nestjs/mongoose';
-import { Connection, Error } from 'mongoose';
+import {
+  getConnectionToken,
+  getModelToken,
+  MongooseModule,
+} from '@nestjs/mongoose';
+import { Connection, Error, Model } from 'mongoose';
+import { PlayerNotInThisGameError } from '../errors/player-not-in-this-game.error';
+import { WrongGameSlotStatusError } from '../errors/wrong-game-slot-status.error';
+import { GameInWrongStateError } from '../errors/game-in-wrong-state.error';
 
 jest.mock('@/plugins/discord/services/discord.service');
 jest.mock('@/players/services/players.service');
@@ -46,6 +53,7 @@ describe('PlayerSubstitutionService', () => {
   let discordService: jest.Mocked<DiscordService>;
   let events: Events;
   let connection: Connection;
+  let gameModel: Model<GameDocument>;
 
   beforeAll(async () => (mongod = await MongoMemoryServer.create()));
   afterAll(async () => await mongod.stop());
@@ -81,6 +89,7 @@ describe('PlayerSubstitutionService', () => {
     discordService = module.get(DiscordService);
     events = module.get(Events);
     connection = module.get(getConnectionToken());
+    gameModel = module.get(getModelToken(Game.name));
   });
 
   beforeEach(async () => {
@@ -116,7 +125,7 @@ describe('PlayerSubstitutionService', () => {
       it('should throw an error', async () => {
         await expect(
           service.substitutePlayer(new ObjectId().toString(), player1.id),
-        ).rejects.toThrowError('no such game');
+        ).rejects.toThrow(Error.DocumentNotFoundError);
       });
     });
 
@@ -124,7 +133,7 @@ describe('PlayerSubstitutionService', () => {
       it('should throw an error', async () => {
         await expect(
           service.substitutePlayer(mockGame.id, new ObjectId().toString()),
-        ).rejects.toThrowError('no such player');
+        ).rejects.toThrow(PlayerNotInThisGameError);
       });
     });
 
@@ -137,7 +146,7 @@ describe('PlayerSubstitutionService', () => {
       it('should throw an error', async () => {
         await expect(
           service.substitutePlayer(mockGame.id, player1.id),
-        ).rejects.toThrowError('this player has already been replaced');
+        ).rejects.toThrow(WrongGameSlotStatusError);
       });
     });
 
@@ -160,15 +169,15 @@ describe('PlayerSubstitutionService', () => {
 
     describe('when the game has already ended', () => {
       beforeEach(async () => {
-        const game = await gamesService.getById(mockGame.id);
-        game.state = GameState.ended;
-        await game.save();
+        await gameModel.findByIdAndUpdate(mockGame.id, {
+          state: GameState.ended,
+        });
       });
 
       it('should reject', async () => {
         await expect(
           service.substitutePlayer(mockGame.id, player1.id),
-        ).rejects.toThrowError('the game has already ended');
+        ).rejects.toThrow(GameInWrongStateError);
       });
     });
 
@@ -224,7 +233,7 @@ describe('PlayerSubstitutionService', () => {
             new ObjectId().toString(),
             player1.id,
           ),
-        ).rejects.toThrowError('no such game');
+        ).rejects.toThrow(Error.DocumentNotFoundError);
       });
     });
 
@@ -235,7 +244,7 @@ describe('PlayerSubstitutionService', () => {
             mockGame.id,
             new ObjectId().toString(),
           ),
-        ).rejects.toThrowError('no such player');
+        ).rejects.toThrow(PlayerNotInThisGameError);
       });
     });
 
@@ -247,7 +256,7 @@ describe('PlayerSubstitutionService', () => {
       it('should throw an error', async () => {
         await expect(
           service.cancelSubstitutionRequest(mockGame.id, player1.id),
-        ).rejects.toThrowError('this player has already been replaced');
+        ).rejects.toThrow(WrongGameSlotStatusError);
       });
     });
 
@@ -273,15 +282,15 @@ describe('PlayerSubstitutionService', () => {
 
     describe('when the game is no longer running', () => {
       beforeEach(async () => {
-        const game = await gamesService.getById(mockGame.id);
-        game.state = GameState.ended;
-        await game.save();
+        await gameModel.findByIdAndUpdate(mockGame.id, {
+          state: GameState.ended,
+        });
       });
 
       it('should reject', async () => {
         await expect(
           service.cancelSubstitutionRequest(mockGame.id, player1.id),
-        ).rejects.toThrowError('the game has already ended');
+        ).rejects.toThrow(GameInWrongStateError);
       });
     });
 

@@ -204,7 +204,6 @@ export class PlayerSubstitutionService {
     );
 
     if (!slot) {
-      console.log(game.slots);
       throw new PlayerNotInThisGameError(replaceeId, gameId);
     }
 

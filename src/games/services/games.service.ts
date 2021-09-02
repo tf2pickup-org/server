@@ -201,6 +201,7 @@ export class GamesService {
       Game,
       await this.gameModel
         .findOneAndUpdate({ _id: gameId }, update, { new: true })
+        .orFail()
         .lean()
         .exec(),
     );

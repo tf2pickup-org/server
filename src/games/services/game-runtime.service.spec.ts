@@ -17,7 +17,9 @@ import { Events } from '@/events/events';
 import { SlotStatus } from '../models/slot-status';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { getConnectionToken, MongooseModule } from '@nestjs/mongoose';
-import { Connection } from 'mongoose';
+import { Connection, Error, Types } from 'mongoose';
+import { gameServer } from 'e2e/test-data';
+import { GameServerNotAssignedError } from '../errors/game-server-not-assigned.error';
 
 jest.mock('./games.service');
 jest.mock('@/game-servers/services/game-servers.service');
@@ -127,8 +129,7 @@ describe('GameRuntimeService', () => {
     it('should configure the server again', async () => {
       const ret = await service.reconfigure(mockGame.id);
       expect(serverConfiguratorService.configureServer).toHaveBeenCalledWith(
-        expect.objectContaining({ id: mockGameServer.id }),
-        expect.objectContaining({ id: mockGame.id }),
+        mockGame.id,
       );
       expect(ret.connectString).toEqual('FAKE_CONNECT_STRING');
     });
@@ -143,7 +144,7 @@ describe('GameRuntimeService', () => {
       it('should throw an error', async () => {
         await expect(
           service.reconfigure(new ObjectId().toString()),
-        ).rejects.toThrowError('no such game');
+        ).rejects.toThrow(Error.DocumentNotFoundError);
       });
     });
 
@@ -183,11 +184,13 @@ describe('GameRuntimeService', () => {
     });
 
     it('should clean up the game server', async () => {
-      const cleanupSpy = jest.spyOn(serverConfiguratorService, 'cleanupServer');
-      const releaseSpy = jest.spyOn(gameServersService, 'releaseServer');
       await service.forceEnd(mockGame.id);
-      expect(cleanupSpy).toHaveBeenCalledWith(mockGameServer);
-      expect(releaseSpy).toHaveBeenCalledWith(mockGameServer.id);
+      expect(serverConfiguratorService.cleanupServer).toHaveBeenCalledWith(
+        mockGameServer.id,
+      );
+      expect(gameServersService.releaseServer).toHaveBeenCalledWith(
+        mockGameServer.id,
+      );
     });
 
     it('should free the players', async () => {
@@ -224,7 +227,7 @@ describe('GameRuntimeService', () => {
       it('should reject', async () => {
         await expect(
           service.forceEnd(new ObjectId().toString()),
-        ).rejects.toThrowError('no such game');
+        ).rejects.toThrow(Error.DocumentNotFoundError);
       });
     });
 
@@ -269,8 +272,12 @@ describe('GameRuntimeService', () => {
 
       it('should throw an error', async () => {
         await expect(
-          service.replacePlayer('FAKE_GAME_ID', 'FAKE_REPLACEE_ID', null),
-        ).rejects.toThrowError('no such game');
+          service.replacePlayer(
+            new Types.ObjectId().toString(),
+            'FAKE_REPLACEE_ID',
+            null,
+          ),
+        ).rejects.toThrow(Error.DocumentNotFoundError);
       });
     });
 
@@ -289,7 +296,7 @@ describe('GameRuntimeService', () => {
             mockPlayers[0].id,
             mockPlayers[1].id,
           ),
-        ).rejects.toThrowError('this game has no server assigned');
+        ).rejects.toThrow(GameServerNotAssignedError);
       });
     });
 
@@ -333,13 +340,15 @@ describe('GameRuntimeService', () => {
 
     describe('when the given game server does not exist', () => {
       beforeEach(() => {
-        gameServersService.getById.mockResolvedValue(null);
+        gameServersService.getById.mockRejectedValue(
+          new Error.DocumentNotFoundError(''),
+        );
       });
 
       it('should throw an error', async () => {
         await expect(
           service.sayChat(mockGameServer.id, 'some message'),
-        ).rejects.toThrowError('game server does not exist');
+        ).rejects.toThrow(Error.DocumentNotFoundError);
       });
     });
 

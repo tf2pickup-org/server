@@ -6,7 +6,7 @@ import { Mutex } from 'async-mutex';
 import { Events } from '@/events/events';
 import { plainToClass } from 'class-transformer';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, Error } from 'mongoose';
+import { Model, Error, Types } from 'mongoose';
 import { GamesService } from '@/games/services/games.service';
 
 @Injectable()
@@ -29,7 +29,7 @@ export class GameServersService {
     );
   }
 
-  async getById(gameServerId: string): Promise<GameServer> {
+  async getById(gameServerId: string | Types.ObjectId): Promise<GameServer> {
     return plainToClass(
       GameServer,
       await this.gameServerModel.findById(gameServerId).orFail().lean().exec(),

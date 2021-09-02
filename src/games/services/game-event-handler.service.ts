@@ -8,7 +8,7 @@ import { Events } from '@/events/events';
 import { SlotStatus } from '../models/slot-status';
 import { GameState } from '../models/game-state';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, Types } from 'mongoose';
+import { Model, Types, Error } from 'mongoose';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { plainToClass } from 'class-transformer';
 import { GamesService } from './games.service';
@@ -30,22 +30,30 @@ export class GameEventHandlerService implements OnModuleDestroy {
     this.timers.forEach((t) => clearTimeout(t));
   }
 
-  async onMatchStarted(gameId: string): Promise<Game> {
-    const game = plainToClass(
-      Game,
-      await this.gameModel
-        .findOneAndUpdate(
-          { _id: new Types.ObjectId(gameId), state: GameState.launching },
-          { state: GameState.started },
-          { new: true },
-        )
-        .orFail()
-        .lean()
-        .exec(),
-    );
+  async onMatchStarted(gameId: string): Promise<Game | null> {
+    try {
+      const game = plainToClass(
+        Game,
+        await this.gameModel
+          .findOneAndUpdate(
+            { _id: new Types.ObjectId(gameId), state: GameState.launching },
+            { state: GameState.started },
+            { new: true },
+          )
+          .orFail()
+          .lean()
+          .exec(),
+      );
 
-    this.events.gameChanges.next({ game });
-    return game;
+      this.events.gameChanges.next({ game });
+      return game;
+    } catch (error) {
+      if (error instanceof Error.DocumentNotFoundError) {
+        return null;
+      } else {
+        throw error;
+      }
+    }
   }
 
   async onMatchEnded(gameId: string): Promise<Game> {
