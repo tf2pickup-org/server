@@ -18,6 +18,7 @@ export class Game extends MongooseDocument {
   @Prop({ required: true, unique: true })
   number!: number;
 
+  @Type(() => GameSlot)
   @Prop({ type: [gameSlotSchema], required: true })
   slots!: GameSlot[];
 
