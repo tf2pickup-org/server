@@ -10,6 +10,7 @@ import { Test } from '@nestjs/testing';
 import { io, Socket } from 'socket.io-client';
 import * as request from 'supertest';
 import { players } from './test-data';
+import { waitABit } from './utils/wait-a-bit';
 
 describe('Player substitutes another player (e2e)', () => {
   let app: INestApplication;
@@ -133,8 +134,12 @@ describe('Player substitutes another player (e2e)', () => {
   });
 
   afterAll(async () => {
+    await waitABit(1000);
+
     const gameRuntimeService = app.get(GameRuntimeService);
     await gameRuntimeService.forceEnd(gameId);
+
+    await waitABit(1000);
 
     playerSocket.disconnect();
     playerSocket = undefined;
