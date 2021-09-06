@@ -4,7 +4,6 @@ import {
   Query,
   ParseIntPipe,
   Param,
-  NotFoundException,
   Post,
   HttpCode,
   DefaultValuePipe,
