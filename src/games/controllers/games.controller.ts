@@ -26,6 +26,7 @@ import { PlayerRole } from '@/players/models/player-role';
 import { PlayerNotInThisGameError } from '../errors/player-not-in-this-game.error';
 import { ConnectInfo } from '../dto/connect-info';
 import { DocumentNotFoundFilter } from '@/shared/filters/document-not-found.filter';
+import { PaginatedGameList } from '../dto/paginated-game-list';
 
 const sortOptions: string[] = [
   'launched_at',
@@ -43,6 +44,7 @@ export class GamesController {
   ) {}
 
   @Get()
+  @UseInterceptors(ClassSerializerInterceptor)
   async getGames(
     @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
     @Query('offset', new DefaultValuePipe(0), ParseIntPipe) offset: number,
@@ -53,7 +55,7 @@ export class GamesController {
     )
     sort: string,
     @Query('playerId') playerId?: string,
-  ) {
+  ): Promise<PaginatedGameList> {
     let sortParam: { launchedAt: 1 | -1 };
     switch (sort) {
       case '-launched_at':
@@ -82,18 +84,16 @@ export class GamesController {
       ]);
     }
 
-    return { results, itemCount };
+    return new PaginatedGameList({ results, itemCount });
   }
 
   @Get(':id')
   @UseFilters(DocumentNotFoundFilter)
-  async getGame(@Param('id', ObjectIdValidationPipe) gameId: string) {
-    const game = await this.gamesService.getById(gameId);
-    if (game) {
-      return game;
-    } else {
-      throw new NotFoundException();
-    }
+  @UseInterceptors(ClassSerializerInterceptor)
+  async getGame(
+    @Param('id', ObjectIdValidationPipe) gameId: string,
+  ): Promise<Game> {
+    return this.gamesService.getById(gameId);
   }
 
   @Get(':id/connect-info')
@@ -130,12 +130,7 @@ export class GamesController {
   @Auth(PlayerRole.admin)
   @UseFilters(DocumentNotFoundFilter)
   async getGameSkills(@Param('id', ObjectIdValidationPipe) gameId: string) {
-    const game = await this.gamesService.getById(gameId);
-    if (game) {
-      return game.assignedSkills;
-    } else {
-      throw new NotFoundException();
-    }
+    return (await this.gamesService.getById(gameId)).assignedSkills;
   }
 
   @Post(':id')
