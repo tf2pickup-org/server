@@ -22,6 +22,7 @@ export class Game extends MongooseDocument {
   slots!: GameSlot[];
 
   @Exclude({ toPlainOnly: true })
+  @Type(() => Number)
   @Prop(
     raw({
       type: Map,

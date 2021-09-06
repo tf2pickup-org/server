@@ -303,7 +303,7 @@ describe('ServerConfiguratorService', () => {
       const ret = service.configureServer(game.id).then(() => {
         expect(rcon.end).toHaveBeenCalled();
       });
-      for (let i = 0; i < 5; i++) {
+      for (let i = 0; i < 6; i++) {
         jest.runAllTimers();
         await flushPromises();
       }

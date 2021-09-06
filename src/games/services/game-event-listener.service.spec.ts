@@ -14,6 +14,7 @@ import { Game, GameDocument, gameSchema } from '../models/game';
 import { Connection, Model } from 'mongoose';
 import { LogReceiverService } from '@/log-receiver/services/log-receiver.service';
 import { Subject } from 'rxjs';
+import { Events } from '@/events/events';
 
 jest.mock('./game-event-handler.service');
 jest.mock('./games.service');
@@ -54,6 +55,7 @@ describe('GameEventListenerService', () => {
         GameEventHandlerService,
         GamesService,
         LogReceiverService,
+        Events,
       ],
     }).compile();
 

@@ -9,7 +9,7 @@ import { MongoMemoryServer } from 'mongodb-memory-server';
 import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
 import { getModelToken, MongooseModule } from '@nestjs/mongoose';
 import { Game, GameDocument, gameSchema } from '../models/game';
-import { Model, Types } from 'mongoose';
+import { Model, Types, Error } from 'mongoose';
 
 jest.mock('@/game-servers/services/game-servers.service');
 jest.mock('./games.service');
@@ -92,15 +92,14 @@ describe('GameLauncherService', () => {
       it('should throw', async () => {
         await expect(
           service.launch(new Types.ObjectId().toString()),
-        ).rejects.toThrowError('no such game');
+        ).rejects.toThrow(Error.DocumentNotFoundError);
       });
     });
 
     it('should configure the game server', async () => {
       const ret = await service.launch(game.id);
       expect(serverConfiguratorService.configureServer).toHaveBeenCalledWith(
-        expect.objectContaining({ id: mockGameServer.id }),
-        expect.objectContaining({ id: game.id }),
+        game.id,
       );
       expect(ret.connectString).toEqual('FAKE_CONNECT_STRING');
       expect(ret.stvConnectString).toEqual('FAKE_STV_CONNECT_STRING');

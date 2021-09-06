@@ -266,10 +266,6 @@ describe('GameRuntimeService', () => {
     });
 
     describe('when the given game does not exist', () => {
-      beforeEach(() => {
-        jest.spyOn(gamesService, 'getById').mockResolvedValue(null);
-      });
-
       it('should throw an error', async () => {
         await expect(
           service.replacePlayer(
