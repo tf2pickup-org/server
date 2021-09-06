@@ -40,6 +40,7 @@ export class ServerConfiguratorService {
     private rconFactoryService: RconFactoryService,
     private mapPoolService: MapPoolService,
     private configurationService: ConfigurationService,
+    @Inject(forwardRef(() => GamesService))
     private gamesService: GamesService,
     private gameServersService: GameServersService,
   ) {}
