@@ -30,7 +30,7 @@ describe('GameEventHandlerService', () => {
   let service: GameEventHandlerService;
   let mongod: MongoMemoryServer;
   let playersService: PlayersService;
-  let gameRuntimeService: GameRuntimeService;
+  let gameRuntimeService: jest.Mocked<GameRuntimeService>;
   let player1: PlayerDocument;
   let player2: PlayerDocument;
   let mockGame: GameDocument;
@@ -144,11 +144,13 @@ describe('GameEventHandlerService', () => {
 
     it('should eventually cleanup the server', async () => {
       jest.useFakeTimers('legacy');
-      const spy = jest.spyOn(gameRuntimeService, 'cleanupServer');
       await service.onMatchEnded(mockGame.id);
 
+      jest.advanceTimersByTime(5000);
       jest.advanceTimersByTime(serverCleanupDelay);
-      expect(spy).toHaveBeenCalledWith(gameServerId.toString());
+      expect(gameRuntimeService.cleanupServer).toHaveBeenCalledWith(
+        gameServerId.toString(),
+      );
       jest.useRealTimers();
     });
 
