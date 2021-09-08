@@ -74,9 +74,7 @@ export class Game extends MongooseDocument {
   logSecret?: string;
 
   findPlayerSlot(playerId: string): GameSlot {
-    return this.slots.find(
-      (s) => s.player.toString().localeCompare(playerId) === 0,
-    );
+    return this.slots.find((s) => s.player.equals(playerId));
   }
 
   activeSlots(): GameSlot[] {

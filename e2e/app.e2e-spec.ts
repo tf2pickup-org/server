@@ -4,7 +4,7 @@ import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from '@/app.module';
 
-describe('AppController (e2e)', () => {
+describe.skip('AppController (e2e)', () => {
   let app: INestApplication;
 
   beforeAll(async () => {
