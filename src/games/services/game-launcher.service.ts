@@ -3,7 +3,6 @@ import { GamesService } from './games.service';
 import { GameServersService } from '@/game-servers/services/game-servers.service';
 import { ServerConfiguratorService } from './server-configurator.service';
 import { Cron, CronExpression } from '@nestjs/schedule';
-import { GameState } from '../models/game-state';
 import { generateLogsecret } from '@/game-servers/utils/generate-logsecret';
 import { Game } from '../models/game';
 

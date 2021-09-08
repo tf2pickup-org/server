@@ -194,6 +194,33 @@ describe('GamesService', () => {
     });
   });
 
+  describe('#getGames()', () => {
+    beforeEach(async () => {
+      await gameModel.create({
+        number: 1,
+        map: 'cp_badlands',
+        state: GameState.launching,
+        slots: [],
+      });
+      await gameModel.create({
+        number: 2,
+        map: 'cp_badlands',
+        state: GameState.launching,
+        slots: [],
+      });
+    });
+
+    it('should return games', async () => {
+      const ret = await service.getGames({ launchedAt: -1 }, 10, 0);
+      expect(ret.length).toEqual(2);
+    });
+
+    it('should honor limit', async () => {
+      const ret = await service.getGames({ launchedAt: -1 }, 1, 0);
+      expect(ret.length).toEqual(1);
+    });
+  });
+
   describe('#create()', () => {
     let slots: QueueSlot[];
 
