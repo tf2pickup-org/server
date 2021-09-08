@@ -139,11 +139,10 @@ describe('Player substitutes another player (e2e)', () => {
     const gameRuntimeService = app.get(GameRuntimeService);
     await gameRuntimeService.forceEnd(gameId);
 
-    await waitABit(1000);
-
     playerSocket.disconnect();
     playerSocket = undefined;
 
+    await waitABit(1000);
     await app.close();
   });
 
