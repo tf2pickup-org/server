@@ -32,7 +32,7 @@ export class GameLauncherService {
   async launch(gameId: string): Promise<Game> {
     let game = await this.gamesService.getById(gameId);
 
-    if ([GameState.ended, GameState.interrupted].includes(game.state)) {
+    if (!game.isInProgress()) {
       this.logger.warn(
         `trying to launch game #${game.number} that has already been ended`,
       );
