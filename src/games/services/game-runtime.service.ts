@@ -10,6 +10,11 @@ import { Rcon } from 'rcon-client/lib';
 import { Events } from '@/events/events';
 import { SlotStatus } from '../models/slot-status';
 import { GameState } from '../models/game-state';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { Game, GameDocument } from '../models/game';
+import { plainToClass } from 'class-transformer';
+import { GameServerNotAssignedError } from '../errors/game-server-not-assigned.error';
 
 @Injectable()
 export class GameRuntimeService {
@@ -23,35 +28,34 @@ export class GameRuntimeService {
     @Inject(forwardRef(() => PlayersService))
     private playersService: PlayersService,
     private events: Events,
+    @InjectModel(Game.name) private gameModel: Model<GameDocument>,
   ) {}
 
   async reconfigure(gameId: string) {
-    const game = await this.gamesService.getById(gameId);
-    if (!game) {
-      throw new Error('no such game');
-    }
-
+    let game = await this.gamesService.getById(gameId);
     if (!game.gameServer) {
       throw new Error('this game has no server assigned');
     }
 
     this.logger.verbose(`game #${game.number} is being reconfigured`);
 
-    game.connectString = null;
-    game.connectInfoVersion += 1;
-    await game.save();
-    this.events.gameChanges.next({ game });
+    game = await this.gamesService.update(game.id, {
+      $set: { connectString: null, stvConnectString: null },
+      $inc: { connectInfoVersion: 1 },
+    });
 
-    const gameServer = await this.gameServersService.getById(
-      game.gameServer.toString(),
-    );
     try {
-      const { connectString } =
-        await this.serverConfiguratorService.configureServer(gameServer, game);
-      game.connectString = connectString;
-      game.connectInfoVersion += 1;
-      await game.save();
-      this.events.gameChanges.next({ game });
+      const { connectString, stvConnectString } =
+        await this.serverConfiguratorService.configureServer(game.id);
+      game = await this.gamesService.update(game.id, {
+        $set: {
+          connectString,
+          stvConnectString,
+        },
+        $inc: {
+          connectInfoVersion: 1,
+        },
+      });
     } catch (e) {
       this.logger.error(e.message);
     }
@@ -60,19 +64,28 @@ export class GameRuntimeService {
   }
 
   async forceEnd(gameId: string, adminId?: string) {
-    const game = await this.gamesService.getById(gameId);
-    if (!game) {
-      throw new Error('no such game');
-    }
+    const game = plainToClass(
+      Game,
+      await this.gameModel
+        .findByIdAndUpdate(
+          gameId,
+          {
+            state: GameState.interrupted,
+            error: 'ended by admin',
+            'slots.$[element].status': SlotStatus.active,
+          },
+          {
+            new: true,
+            arrayFilters: [
+              { 'element.status': { $eq: SlotStatus.waitingForSubstitute } },
+            ],
+          },
+        )
+        .orFail()
+        .lean()
+        .exec(),
+    );
 
-    this.logger.verbose(`game #${game.number} force ended`);
-
-    game.state = GameState.interrupted;
-    game.error = 'ended by admin';
-    game.slots
-      .filter((s) => s.status === SlotStatus.waitingForSubstitute)
-      .forEach((s) => (s.status = SlotStatus.active));
-    await game.save();
     this.events.gameChanges.next({ game, adminId });
     this.events.substituteRequestsChange.next();
 
@@ -85,6 +98,8 @@ export class GameRuntimeService {
           }),
         ),
     );
+
+    this.logger.verbose(`game #${game.number} force ended`);
 
     if (game.gameServer) {
       await this.cleanupServer(game.gameServer.toString());
@@ -99,12 +114,8 @@ export class GameRuntimeService {
     replacementSlot: GameSlot,
   ) {
     const game = await this.gamesService.getById(gameId);
-    if (!game) {
-      throw new Error('no such game');
-    }
-
     if (!game.gameServer) {
-      throw new Error('this game has no server assigned');
+      throw new GameServerNotAssignedError(gameId);
     }
 
     const gameServer = await this.gameServersService.getById(
@@ -139,23 +150,16 @@ export class GameRuntimeService {
   }
 
   async cleanupServer(serverId: string) {
-    const gameServer = await this.gameServersService.getById(serverId);
-
     try {
-      await this.serverConfiguratorService.cleanupServer(gameServer);
+      await this.serverConfiguratorService.cleanupServer(serverId);
+      await this.gameServersService.releaseServer(serverId);
     } catch (e) {
       this.logger.error(e.message);
     }
-
-    await this.gameServersService.releaseServer(serverId);
   }
 
   async sayChat(gameServerId: string, message: string) {
     const gameServer = await this.gameServersService.getById(gameServerId);
-    if (!gameServer) {
-      throw new Error('game server does not exist');
-    }
-
     let rcon: Rcon;
     try {
       rcon = await this.rconFactoryService.createRcon(gameServer);

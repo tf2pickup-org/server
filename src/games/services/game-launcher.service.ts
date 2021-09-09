@@ -3,9 +3,8 @@ import { GamesService } from './games.service';
 import { GameServersService } from '@/game-servers/services/game-servers.service';
 import { ServerConfiguratorService } from './server-configurator.service';
 import { Cron, CronExpression } from '@nestjs/schedule';
-import { Events } from '@/events/events';
-import { GameState } from '../models/game-state';
 import { generateLogsecret } from '@/game-servers/utils/generate-logsecret';
+import { Game } from '../models/game';
 
 /**
  * This service is responsible for launching a single game.
@@ -21,7 +20,6 @@ export class GameLauncherService {
     @Inject(forwardRef(() => GamesService)) private gamesService: GamesService,
     private gameServersService: GameServersService,
     private serverConfiguratorService: ServerConfiguratorService,
-    private events: Events,
   ) {}
 
   /**
@@ -30,16 +28,10 @@ export class GameLauncherService {
    * @param {string} gameId The id of the game to be launched.
    * @memberof GameLauncherService
    */
-  async launch(gameId: string) {
-    const game = await this.gamesService.getById(gameId);
-    if (!game) {
-      throw new Error('no such game');
-    }
+  async launch(gameId: string): Promise<Game> {
+    let game = await this.gamesService.getById(gameId);
 
-    if (
-      game.state === GameState.ended ||
-      game.state === GameState.interrupted
-    ) {
+    if (!game.isInProgress()) {
       this.logger.warn(
         `trying to launch game #${game.number} that has already been ended`,
       );
@@ -48,24 +40,29 @@ export class GameLauncherService {
     try {
       // step 1: obtain a free server
       const gameServer = await this.gameServersService.assignFreeGameServer(
-        game,
+        game.id,
       );
       this.logger.verbose(
         `using server ${gameServer.name} for game #${game.number}`,
       );
 
       // step 2: generate logsecret
-      game.logSecret = generateLogsecret();
-      await game.save();
+      const logSecret = generateLogsecret();
+      game = await this.gamesService.update(game.id, { logSecret });
 
       // step 3: configure server
       const { connectString, stvConnectString } =
-        await this.serverConfiguratorService.configureServer(gameServer, game);
-      game.connectString = connectString;
-      game.stvConnectString = stvConnectString;
-      game.connectInfoVersion += 1;
-      await game.save();
-      this.events.gameChanges.next({ game: game.toJSON() });
+        await this.serverConfiguratorService.configureServer(game.id);
+
+      game = await this.gamesService.update(game.id, {
+        $set: {
+          connectString,
+          stvConnectString,
+        },
+        $inc: {
+          connectInfoVersion: 1,
+        },
+      });
 
       this.logger.verbose(`game #${game.number} initialized`);
       return game;

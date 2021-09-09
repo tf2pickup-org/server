@@ -7,6 +7,7 @@ import { Test } from '@nestjs/testing';
 import { io, Socket } from 'socket.io-client';
 import * as request from 'supertest';
 import { players } from './test-data';
+import { waitABit } from './utils/wait-a-bit';
 
 const connectSocket = (port: number, token: string) =>
   new Promise<Socket>((resolve, reject) => {
@@ -18,9 +19,6 @@ const connectSocket = (port: number, token: string) =>
       resolve(socket);
     });
   });
-
-const waitABit = (timeout: number) =>
-  new Promise((resolve) => setTimeout(resolve, timeout));
 
 interface Client {
   playerId: string;

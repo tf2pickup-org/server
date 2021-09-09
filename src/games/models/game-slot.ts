@@ -4,9 +4,14 @@ import { SlotStatus } from './slot-status';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Types } from 'mongoose';
+import { Exclude, Transform } from 'class-transformer';
 
 @Schema()
 export class GameSlot {
+  @Exclude({ toPlainOnly: true })
+  _id?: Types.ObjectId;
+
+  @Transform(({ value }) => value.toString(), { toPlainOnly: true })
   @Prop({ required: true, type: Types.ObjectId, ref: 'Player', index: true })
   player!: Types.ObjectId;
 

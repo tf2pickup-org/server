@@ -1,13 +1,13 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { forwardRef, Inject, Injectable, Logger } from '@nestjs/common';
 import { GameServer, GameServerDocument } from '../models/game-server';
 import { isServerOnline } from '../utils/is-server-online';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { Mutex } from 'async-mutex';
-import { GameDocument } from '@/games/models/game';
 import { Events } from '@/events/events';
 import { plainToClass } from 'class-transformer';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, Error } from 'mongoose';
+import { Model, Error, Types } from 'mongoose';
+import { GamesService } from '@/games/services/games.service';
 
 @Injectable()
 export class GameServersService {
@@ -18,6 +18,8 @@ export class GameServersService {
     @InjectModel(GameServer.name)
     private gameServerModel: Model<GameServerDocument>,
     private events: Events,
+    @Inject(forwardRef(() => GamesService))
+    private gamesService: GamesService,
   ) {}
 
   async getAllGameServers(): Promise<GameServer[]> {
@@ -27,7 +29,7 @@ export class GameServersService {
     );
   }
 
-  async getById(gameServerId: string): Promise<GameServer> {
+  async getById(gameServerId: string | Types.ObjectId): Promise<GameServer> {
     return plainToClass(
       GameServer,
       await this.gameServerModel.findById(gameServerId).orFail().lean().exec(),
@@ -93,18 +95,19 @@ export class GameServersService {
     );
   }
 
-  async assignFreeGameServer(game: GameDocument): Promise<GameServer> {
+  async assignFreeGameServer(gameId: string): Promise<GameServer> {
     return this.mutex.runExclusive(async () => {
       try {
+        const game = await this.gamesService.getById(gameId);
         const gameServer = await this.updateGameServer(
           (
             await this.findFreeGameServer()
           ).id,
           { game: game._id },
         );
-        game.gameServer = gameServer._id;
-        await game.save();
-        this.events.gameChanges.next({ game: game.toJSON() });
+        await this.gamesService.update(game.id, {
+          gameServer: gameServer._id,
+        });
         return gameServer;
       } catch (error) {
         if (error instanceof Error.DocumentNotFoundError) {

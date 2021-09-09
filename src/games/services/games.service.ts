@@ -14,12 +14,13 @@ import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { GameState } from '../models/game-state';
 import { ConfigurationService } from '@/configuration/services/configuration.service';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, UpdateQuery } from 'mongoose';
 import { GameServersService } from '@/game-servers/services/game-servers.service';
 import { PlayerNotInThisGameError } from '../errors/player-not-in-this-game.error';
 import { URL } from 'url';
 import { GameInWrongStateError } from '../errors/game-in-wrong-state.error';
 import { SelectedVoiceServer } from '@/configuration/models/voice-server';
+import { plainToClass } from 'class-transformer';
 
 interface GameSortOptions {
   launchedAt: 1 | -1;
@@ -43,6 +44,7 @@ export class GamesService {
     private gameLauncherService: GameLauncherService,
     private events: Events,
     private configurationService: ConfigurationService,
+    @Inject(forwardRef(() => GameServersService))
     private gameServersService: GameServersService,
   ) {}
 
@@ -50,24 +52,45 @@ export class GamesService {
     return await this.gameModel.estimatedDocumentCount();
   }
 
-  async getById(gameId: string | ObjectId): Promise<GameDocument> {
-    return await this.gameModel.findById(gameId);
+  async getById(gameId: string | ObjectId): Promise<Game> {
+    return plainToClass(
+      Game,
+      await this.gameModel.findById(gameId).orFail().lean().exec(),
+    );
   }
 
-  async getByLogSecret(logSecret: string): Promise<GameDocument> {
-    return await this.gameModel.findOne({ logSecret });
+  async getByLogSecret(logSecret: string): Promise<Game> {
+    return plainToClass(
+      Game,
+      await this.gameModel.findOne({ logSecret }).orFail().lean().exec(),
+    );
   }
 
-  async getRunningGames(): Promise<GameDocument[]> {
-    return await this.gameModel.find({ state: /launching|started/ });
+  async getRunningGames(): Promise<Game[]> {
+    return plainToClass(
+      Game,
+      await this.gameModel
+        .find({ state: { $in: [GameState.launching, GameState.started] } })
+        .lean()
+        .exec(),
+    );
   }
 
   async getGames(
     sort: GameSortOptions = { launchedAt: -1 },
     limit: number,
     skip: number,
-  ) {
-    return await this.gameModel.find().sort(sort).limit(limit).skip(skip);
+  ): Promise<Game[]> {
+    return plainToClass(
+      Game,
+      await this.gameModel
+        .find()
+        .sort(sort)
+        .limit(limit)
+        .skip(skip)
+        .lean()
+        .exec(),
+    );
   }
 
   async getPlayerGames(
@@ -75,12 +98,17 @@ export class GamesService {
     sort: GameSortOptions = { launchedAt: -1 },
     limit = 10,
     skip = 0,
-  ) {
-    return await this.gameModel
-      .find({ 'slots.player': new ObjectId(playerId) })
-      .sort(sort)
-      .limit(limit)
-      .skip(skip);
+  ): Promise<Game[]> {
+    return plainToClass(
+      Game,
+      await this.gameModel
+        .find({ 'slots.player': new ObjectId(playerId) })
+        .sort(sort)
+        .limit(limit)
+        .skip(skip)
+        .lean()
+        .exec(),
+    );
   }
 
   async getPlayerGameCount(
@@ -120,7 +148,7 @@ export class GamesService {
     queueSlots: QueueSlot[],
     map: string,
     friends: string[][] = [],
-  ): Promise<GameDocument> {
+  ): Promise<Game> {
     if (!queueSlots.every((slot) => !!slot.playerId)) {
       throw new Error('queue not full');
     }
@@ -138,15 +166,18 @@ export class GamesService {
     }));
     const gameNo = await this.getNextGameNumber();
 
-    const game = await this.gameModel.create({
-      number: gameNo,
-      map,
-      slots,
-      assignedSkills,
-    });
+    const id = (
+      await this.gameModel.create({
+        number: gameNo,
+        map,
+        slots,
+        assignedSkills,
+      })
+    )._id;
 
+    const game = await this.getById(id);
     this.logger.debug(`game #${game.number} created`);
-    this.events.gameCreated.next({ game: game.toJSON() });
+    this.events.gameCreated.next({ game });
 
     await Promise.all(
       game.slots
@@ -158,6 +189,23 @@ export class GamesService {
         ),
     );
 
+    return game;
+  }
+
+  async update(
+    gameId: string | ObjectId,
+    update: UpdateQuery<Game>,
+    adminId?: string,
+  ): Promise<Game> {
+    const game = plainToClass(
+      Game,
+      await this.gameModel
+        .findOneAndUpdate({ _id: gameId }, update, { new: true })
+        .orFail()
+        .lean()
+        .exec(),
+    );
+    this.events.gameChanges.next({ game, adminId });
     return game;
   }
 
@@ -195,21 +243,33 @@ export class GamesService {
   /**
    * @returns Games that need player substitute.
    */
-  async getGamesWithSubstitutionRequests(): Promise<GameDocument[]> {
-    return this.gameModel.find({
-      state: { $in: [GameState.launching, GameState.started] },
-      'slots.status': SlotStatus.waitingForSubstitute,
-    });
+  async getGamesWithSubstitutionRequests(): Promise<Game[]> {
+    return plainToClass(
+      Game,
+      await this.gameModel
+        .find({
+          state: { $in: [GameState.launching, GameState.started] },
+          'slots.status': SlotStatus.waitingForSubstitute,
+        })
+        .lean()
+        .exec(),
+    );
   }
 
   /**
    * @returns Games with no game server assigned.
    */
-  async getOrphanedGames(): Promise<GameDocument[]> {
-    return this.gameModel.find({
-      state: GameState.launching,
-      gameServer: { $exists: false },
-    });
+  async getOrphanedGames(): Promise<Game[]> {
+    return plainToClass(
+      Game,
+      await this.gameModel
+        .find({
+          state: GameState.launching,
+          gameServer: { $exists: false },
+        })
+        .lean()
+        .exec(),
+    );
   }
 
   async getVoiceChannelUrl(
@@ -218,7 +278,7 @@ export class GamesService {
   ): Promise<string | null> {
     const game = await this.getById(gameId);
     if (![GameState.launching, GameState.started].includes(game.state)) {
-      throw new GameInWrongStateError(game.state);
+      throw new GameInWrongStateError(gameId, game.state);
     }
 
     const player = await this.playersService.getById(playerId);

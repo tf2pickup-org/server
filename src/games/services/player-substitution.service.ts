@@ -16,7 +16,13 @@ import { Environment } from '@/environment/environment';
 import { Message } from 'discord.js';
 import { Events } from '@/events/events';
 import { SlotStatus } from '../models/slot-status';
-import { Types } from 'mongoose';
+import { Model, Types } from 'mongoose';
+import { InjectModel } from '@nestjs/mongoose';
+import { Game, GameDocument } from '../models/game';
+import { plainToClass } from 'class-transformer';
+import { PlayerNotInThisGameError } from '../errors/player-not-in-this-game.error';
+import { GameInWrongStateError } from '../errors/game-in-wrong-state.error';
+import { WrongGameSlotStatusError } from '../errors/wrong-game-slot-status.error';
 
 /**
  * A service that handles player substitution logic.
@@ -37,6 +43,7 @@ export class PlayerSubstitutionService {
     @Optional() private discordService: DiscordService,
     private environment: Environment,
     private events: Events,
+    @InjectModel(Game.name) private gameModel: Model<GameDocument>,
   ) {
     this.logger.verbose(
       `Discord plugin will ${this.discordService ? '' : 'not '}be used`,
@@ -44,14 +51,18 @@ export class PlayerSubstitutionService {
   }
 
   async substitutePlayer(gameId: string, playerId: string) {
-    const { game, slot } = await this.findPlayerSlot(gameId, playerId);
+    let game = await this.gamesService.getById(gameId);
+    const slot = game.findPlayerSlot(playerId);
+    if (!slot) {
+      throw new PlayerNotInThisGameError(playerId, gameId);
+    }
 
-    if (!/launching|started/.test(game.state)) {
-      throw new Error('the game has already ended');
+    if (!game.isInProgress()) {
+      throw new GameInWrongStateError(gameId, game.state);
     }
 
     if (slot.status === SlotStatus.replaced) {
-      throw new Error('this player has already been replaced');
+      throw new WrongGameSlotStatusError(gameId, playerId, slot.status);
     }
 
     if (slot.status === SlotStatus.waitingForSubstitute) {
@@ -59,13 +70,29 @@ export class PlayerSubstitutionService {
     }
 
     const player = await this.playersService.getById(playerId);
-    slot.status = SlotStatus.waitingForSubstitute;
-    await game.save();
+    game = plainToClass(
+      Game,
+      await this.gameModel
+        .findByIdAndUpdate(
+          gameId,
+          {
+            'slots.$[element].status': SlotStatus.waitingForSubstitute,
+          },
+          {
+            new: true,
+            arrayFilters: [{ 'element.player': { $eq: player._id } }],
+          },
+        )
+        .orFail()
+        .lean()
+        .exec(),
+    );
+
     this.logger.debug(
       `player ${player.name} taking part in game #${game.number} is marked as 'waiting for substitute'`,
     );
 
-    this.events.gameChanges.next({ game: game.toJSON() });
+    this.events.gameChanges.next({ game });
     this.events.substituteRequestsChange.next();
 
     const channel = this.discordService?.getPlayersChannel();
@@ -102,17 +129,21 @@ export class PlayerSubstitutionService {
   }
 
   async cancelSubstitutionRequest(gameId: string, playerId: string) {
-    const { game, slot } = await this.findPlayerSlot(gameId, playerId);
-
-    if (!/launching|started/.test(game.state)) {
-      throw new Error('the game has already ended');
+    let game = await this.gamesService.getById(gameId);
+    const slot = game.findPlayerSlot(playerId);
+    if (!slot) {
+      throw new PlayerNotInThisGameError(playerId, gameId);
     }
 
-    if (slot.status === 'replaced') {
-      throw new Error('this player has already been replaced');
+    if (!game.isInProgress()) {
+      throw new GameInWrongStateError(gameId, game.state);
     }
 
-    if (slot.status === 'active') {
+    if (slot.status === SlotStatus.replaced) {
+      throw new WrongGameSlotStatusError(gameId, playerId, slot.status);
+    }
+
+    if (slot.status === SlotStatus.active) {
       return game;
     }
 
@@ -121,8 +152,24 @@ export class PlayerSubstitutionService {
       `player ${player.name} taking part in game #${game.number} is marked as 'active'`,
     );
 
-    slot.status = SlotStatus.active;
-    await game.save();
+    game = plainToClass(
+      Game,
+      await this.gameModel
+        .findByIdAndUpdate(
+          gameId,
+          {
+            'slots.$[element].status': SlotStatus.active,
+          },
+          {
+            new: true,
+            arrayFilters: [{ 'element.player': { $eq: player._id } }],
+          },
+        )
+        .orFail()
+        .lean()
+        .exec(),
+    );
+
     this.events.gameChanges.next({ game });
     this.events.substituteRequestsChange.next();
 
@@ -149,23 +196,38 @@ export class PlayerSubstitutionService {
       throw new Error('player is banned');
     }
 
-    const game = await this.gamesService.getById(gameId);
-    if (!game) {
-      throw new Error('no such game');
-    }
-
+    let game = await this.gamesService.getById(gameId);
     const slot = game.slots.find(
       (slot) =>
         slot.status === SlotStatus.waitingForSubstitute &&
-        slot.player.toString().localeCompare(replaceeId) === 0,
+        slot.player.equals(replaceeId),
     );
+
     if (!slot) {
-      throw new Error(`no such slot (playerId: ${replaceeId})`);
+      throw new PlayerNotInThisGameError(replaceeId, gameId);
     }
 
     if (replaceeId === replacementId) {
-      slot.status = SlotStatus.active;
-      await game.save();
+      game = plainToClass(
+        Game,
+        await this.gameModel
+          .findByIdAndUpdate(
+            gameId,
+            {
+              'slots.$[element].status': SlotStatus.active,
+            },
+            {
+              new: true,
+              arrayFilters: [
+                { 'element.player': { $eq: new Types.ObjectId(replaceeId) } },
+              ],
+            },
+          )
+          .orFail()
+          .lean()
+          .exec(),
+      );
+
       this.events.gameChanges.next({ game });
       this.events.substituteRequestsChange.next();
       await this.deleteDiscordAnnouncement(replaceeId);
@@ -176,6 +238,7 @@ export class PlayerSubstitutionService {
     if (replacement.activeGame) {
       throw new Error('player is involved in a currently running game');
     }
+
     // create new slot of the replacement player
     const replacementSlot = {
       player: new Types.ObjectId(replacementId),
@@ -183,12 +246,32 @@ export class PlayerSubstitutionService {
       gameClass: slot.gameClass,
     };
 
-    game.slots.push(replacementSlot);
+    await this.gameModel.findByIdAndUpdate(gameId, {
+      $push: { slots: replacementSlot },
+    });
 
-    // update replacee
-    slot.status = SlotStatus.replaced;
+    game = plainToClass(
+      Game,
+      await this.gameModel
+        .findByIdAndUpdate(
+          gameId,
+          {
+            $set: {
+              'slots.$[element].status': SlotStatus.replaced,
+            },
+          },
+          {
+            new: true,
+            arrayFilters: [
+              { 'element.player': { $eq: new Types.ObjectId(replaceeId) } },
+            ],
+          },
+        )
+        .orFail()
+        .lean()
+        .exec(),
+    );
 
-    await game.save();
     this.events.gameChanges.next({ game });
     this.events.substituteRequestsChange.next();
     this.queueService.kick(replacementId);
@@ -224,20 +307,6 @@ export class PlayerSubstitutionService {
       );
     }
     return game;
-  }
-
-  private async findPlayerSlot(gameId: string, playerId: string) {
-    const game = await this.gamesService.getById(gameId);
-    if (!game) {
-      throw new Error('no such game');
-    }
-
-    const slot = game.findPlayerSlot(playerId);
-    if (!slot) {
-      throw new Error('no such player');
-    }
-
-    return { game, slot };
   }
 
   private async deleteDiscordAnnouncement(replaceeId: string) {

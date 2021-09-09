@@ -7,6 +7,7 @@ import { PlayerSubstitutionService } from '../services/player-substitution.servi
 import { NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { Player } from '@/players/models/player';
 import { PlayerNotInThisGameError } from '../errors/player-not-in-this-game.error';
+import { Error } from 'mongoose';
 
 jest.mock('../services/game-runtime.service');
 jest.mock('../services/player-substitution.service');
@@ -153,18 +154,6 @@ describe('Games Controller', () => {
       const ret = await controller.getGame('FAKE_ID');
       expect(ret).toEqual(gamesService.games[0]);
     });
-
-    describe('when requesting a non-existing game', () => {
-      beforeEach(() =>
-        jest.spyOn(gamesService, 'getById').mockResolvedValue(null),
-      );
-
-      it('should return 404', async () => {
-        await expect(controller.getGame('FAKE_GAME_ID')).rejects.toThrow(
-          NotFoundException,
-        );
-      });
-    });
   });
 
   describe('#getConnectInfo()', () => {
@@ -212,18 +201,6 @@ describe('Games Controller', () => {
     it('should return given game assigned skills', async () => {
       const ret = await controller.getGameSkills('FAKE_ID');
       expect(ret).toEqual(gamesService.games[0].assignedSkills);
-    });
-
-    describe('when requesting assigned skills for a non-existing game', () => {
-      beforeEach(() =>
-        jest.spyOn(gamesService, 'getById').mockResolvedValue(null),
-      );
-
-      it('should return 404', async () => {
-        await expect(controller.getGameSkills('FAKE_GAME_ID')).rejects.toThrow(
-          NotFoundException,
-        );
-      });
     });
   });
 

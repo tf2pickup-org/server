@@ -1,37 +1,15 @@
+import { MongooseDocument } from '@/utils/mongoose-document';
 import { Prop, raw, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Exclude, Expose, Transform, Type } from 'class-transformer';
 import { Document, Types } from 'mongoose';
 import { GameSlot, gameSlotSchema } from './game-slot';
 import { GameState } from './game-state';
+import { SlotStatus } from './slot-status';
 
-@Schema({
-  toJSON: {
-    versionKey: false,
-    transform: function (doc: Document, ret: any) {
-      if (ret._id && typeof ret._id === 'object' && ret._id.toString) {
-        if (typeof ret.id === 'undefined') {
-          ret.id = ret._id.toString();
-        }
-      }
-
-      if (typeof ret._id !== 'undefined') {
-        delete ret._id;
-      }
-
-      if (ret.assignedSkills) {
-        delete ret.assignedSkills;
-      }
-
-      if (ret.logSecret) {
-        delete ret.logSecret;
-      }
-
-      if (ret.connectString) {
-        delete ret.connectString;
-      }
-    },
-  },
-})
-export class Game {
+@Schema()
+export class Game extends MongooseDocument {
+  @Expose()
+  @Transform(({ value, obj }) => value ?? obj._id.toString())
   id: string;
 
   @Prop({ default: () => new Date() })
@@ -40,9 +18,12 @@ export class Game {
   @Prop({ required: true, unique: true })
   number!: number;
 
+  @Type(() => GameSlot)
   @Prop({ type: [gameSlotSchema], required: true })
   slots!: GameSlot[];
 
+  @Exclude({ toPlainOnly: true })
+  @Type(() => Number)
   @Prop(
     raw({
       type: Map,
@@ -57,6 +38,7 @@ export class Game {
   @Prop({ index: true, enum: GameState, default: GameState.launching })
   state?: GameState;
 
+  @Exclude({ toPlainOnly: true })
   @Prop()
   connectString?: string;
 
@@ -78,6 +60,7 @@ export class Game {
   @Prop({ ref: 'GameServer' })
   gameServer?: Types.ObjectId;
 
+  @Type(() => Number)
   @Prop(
     raw({
       type: Map,
@@ -86,27 +69,26 @@ export class Game {
   )
   score?: Map<string, number>;
 
+  @Exclude({ toPlainOnly: true })
   @Prop({ unique: true, sparse: true })
   logSecret?: string;
 
-  findPlayerSlot: (playerId: string) => GameSlot;
-  activeSlots: () => GameSlot[];
+  findPlayerSlot(playerId: string): GameSlot {
+    return this.slots.find((s) => s.player.equals(playerId));
+  }
+
+  activeSlots(): GameSlot[] {
+    return this.slots.filter((slot) =>
+      [SlotStatus.active, SlotStatus.waitingForSubstitute].includes(
+        slot.status,
+      ),
+    );
+  }
+
+  isInProgress(): boolean {
+    return [GameState.launching, GameState.started].includes(this.state);
+  }
 }
 
 export type GameDocument = Game & Document;
 export const gameSchema = SchemaFactory.createForClass(Game);
-
-gameSchema.methods.findPlayerSlot = function (
-  this: GameDocument,
-  playerId: string,
-): GameSlot {
-  return this.slots.find(
-    (s) => s.player.toString().localeCompare(playerId) === 0,
-  );
-};
-
-gameSchema.methods.activeSlots = function (this: GameDocument): GameSlot[] {
-  return this.slots.filter((slot) =>
-    slot.status.match(/active|waiting for substitute/),
-  );
-};

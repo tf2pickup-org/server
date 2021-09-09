@@ -32,6 +32,7 @@ import {
   SelectedVoiceServer,
   VoiceServer,
 } from '@/configuration/models/voice-server';
+import { retryWhen } from 'rxjs';
 
 jest.mock('@/players/services/players.service');
 jest.mock('@/players/services/player-skill.service');
@@ -133,7 +134,7 @@ describe('GamesService', () => {
 
     it('should get the game by its id', async () => {
       const ret = await service.getById(game.id);
-      expect(ret.toJSON()).toEqual(game.toJSON());
+      expect(ret.id).toEqual(game.id);
     });
   });
 
@@ -152,7 +153,7 @@ describe('GamesService', () => {
     it('should get the game by its logsecret', async () => {
       const ret = await service.getByLogSecret('FAKE_LOG_SECRET');
       expect(ret.id).toEqual(game.id);
-      expect(ret.toJSON().logSecret).toBe(undefined);
+      expect(ret.logSecret).toBe('FAKE_LOG_SECRET');
     });
   });
 
@@ -185,9 +186,38 @@ describe('GamesService', () => {
     it('should get only running games', async () => {
       const ret = await service.getRunningGames();
       expect(ret.length).toEqual(2);
-      expect(JSON.stringify(ret)).toEqual(
-        JSON.stringify([launchingGame, runningGame]),
-      );
+      expect(
+        [launchingGame.id, runningGame.id].every((id) =>
+          ret.find((g) => g.id === id),
+        ),
+      ).toBe(true);
+    });
+  });
+
+  describe('#getGames()', () => {
+    beforeEach(async () => {
+      await gameModel.create({
+        number: 1,
+        map: 'cp_badlands',
+        state: GameState.launching,
+        slots: [],
+      });
+      await gameModel.create({
+        number: 2,
+        map: 'cp_badlands',
+        state: GameState.launching,
+        slots: [],
+      });
+    });
+
+    it('should return games', async () => {
+      const ret = await service.getGames({ launchedAt: -1 }, 10, 0);
+      expect(ret.length).toEqual(2);
+    });
+
+    it('should honor limit', async () => {
+      const ret = await service.getGames({ launchedAt: -1 }, 1, 0);
+      expect(ret.length).toEqual(1);
     });
   });
 
@@ -322,31 +352,25 @@ describe('GamesService', () => {
 
     it('should create a game', async () => {
       const game = await service.create(slots, 'cp_fake');
-      expect(game.toObject()).toEqual(
-        expect.objectContaining({
-          number: 1,
-          map: 'cp_fake',
-          slots: expect.any(Array),
-          assignedSkills: expect.any(Object),
-          state: 'launching',
-          launchedAt: expect.any(Date),
-        }),
-      );
+      expect(game.number).toEqual(1);
+      expect(game.map).toEqual('cp_fake');
+      expect(game.state).toEqual(GameState.launching);
     });
 
-    it('should emit the gameCreated event', async () =>
-      new Promise<void>((resolve) => {
-        events.gameCreated.subscribe(({ game }) => {
-          expect(game).toMatchObject({
-            number: 1,
-            map: 'cp_fake',
-            state: 'launching',
-          });
-          resolve();
-        });
+    it('should emit the gameCreated event', async () => {
+      let createdGame: Game;
 
-        service.create(slots, 'cp_fake');
-      }));
+      events.gameCreated.subscribe(({ game }) => {
+        createdGame = game;
+      });
+
+      await service.create(slots, 'cp_fake');
+      expect(createdGame).toMatchObject({
+        number: 1,
+        map: 'cp_fake',
+        state: 'launching',
+      });
+    });
 
     describe('when skill for a player is defined', () => {
       beforeEach(() => {
@@ -369,7 +393,7 @@ describe('GamesService', () => {
 
     describe('when skill for the player is not defined', () => {
       it('should assign default skill', async () => {
-        const game = await service.create(slots, 'cp_fale');
+        const game = await service.create(slots, 'cp_fake');
         const scouts = game.slots.filter(
           (s) => s.gameClass === Tf2ClassName.scout,
         );

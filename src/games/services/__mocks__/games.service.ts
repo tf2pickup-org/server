@@ -5,30 +5,40 @@ import { Player } from '@/players/models/player';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { GameState } from '@/games/models/game-state';
+import { Events } from '@/events/events';
+
+const orig = jest.requireActual('../games.service');
+const OriginalGamesService = orig.GamesService;
 
 @Injectable()
 export class GamesService {
+  private _original = new OriginalGamesService(
+    this.gameModel,
+    null,
+    null,
+    null,
+    null,
+    this.events,
+    null,
+    null,
+  );
   private lastGameId = 0;
 
-  constructor(@InjectModel(Game.name) private gameModel: Model<GameDocument>) {}
+  constructor(
+    @InjectModel(Game.name) private gameModel: Model<GameDocument>,
+    private events: Events,
+  ) {}
 
   async getById(gameId: string) {
-    return await this.gameModel.findById(gameId);
+    return this._original.getById(gameId);
   }
 
-  async getByLogSecret(logSecret: string): Promise<GameDocument> {
-    return await this.gameModel.findOne({ logSecret });
+  async getByLogSecret(logSecret: string): Promise<Game> {
+    return this._original.getByLogSecret(logSecret);
   }
 
-  async update(gameId: string, update: Partial<Game>) {
-    return await this.gameModel.findByIdAndUpdate(gameId, update, {
-      new: true,
-    });
-  }
-
-  async getPlayerActiveGame(playerId: string) {
-    return Promise.resolve(null);
+  async update(gameId: string, update: Partial<Game>, adminId?: string) {
+    return this._original.update(gameId, update, adminId);
   }
 
   getOrphanedGames = jest.fn();
