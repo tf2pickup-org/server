@@ -276,7 +276,7 @@ describe('AdminNotificationsService', () => {
       }));
   });
 
-  describe('when the gameServerRemoved event emits', () => {
+  describe('when the gameServer is removed', () => {
     let admin: Player;
 
     beforeEach(async () => {
@@ -284,19 +284,24 @@ describe('AdminNotificationsService', () => {
       admin = await playersService._createOne();
     });
 
-    it('should send a message', async () =>
-      new Promise<void>((resolve) => {
-        sentMessages.subscribe((message) => {
-          expect(message.embed).toBeTruthy();
-          expect(message.embed.title).toEqual('Game server removed');
-          resolve();
-        });
+    it('should send a message', async () => {
+      sentMessages.subscribe((message) => {
+        expect(message.embed).toBeTruthy();
+        expect(message.embed.title).toEqual('Game server removed');
+      });
 
-        events.gameServerRemoved.next({
-          gameServer: { name: 'fake game server' } as GameServer,
-          adminId: admin.id,
-        });
-      }));
+      events.gameServerUpdated.next({
+        oldGameServer: {
+          name: 'fake game server',
+          deleted: false,
+        } as GameServer,
+        newGameServer: {
+          name: 'fake game server',
+          deleted: true,
+        } as GameServer,
+        adminId: admin.id,
+      });
+    });
   });
 
   describe('when a game is force-ended', () => {

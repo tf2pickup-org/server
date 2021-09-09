@@ -11,6 +11,7 @@ import {
   ClassSerializerInterceptor,
   UseFilters,
   HttpCode,
+  Patch,
 } from '@nestjs/common';
 import { GameServersService } from '../services/game-servers.service';
 import { ObjectIdValidationPipe } from '@/shared/pipes/object-id-validation.pipe';
@@ -22,6 +23,7 @@ import { Environment } from '@/environment/environment';
 import { User } from '@/auth/decorators/user.decorator';
 import { Player } from '@/players/models/player';
 import { PlayerRole } from '@/players/models/player-role';
+import { UpdateGameServer } from '../dto/update-game-server';
 
 @Controller('game-servers')
 export class GameServersController {
@@ -57,8 +59,26 @@ export class GameServersController {
     return this.gameServersService.addGameServer(gameServer, admin.id);
   }
 
+  @Patch(':id')
+  @Auth(PlayerRole.superUser)
+  @UsePipes(ValidationPipe)
+  @UseInterceptors(ClassSerializerInterceptor)
+  @UseFilters(DocumentNotFoundFilter)
+  async updateGameServer(
+    @Param('id', ObjectIdValidationPipe) gameServerId: string,
+    @Body() gameServer: UpdateGameServer,
+    @User() admin: Player,
+  ) {
+    return this.gameServersService.updateGameServer(
+      gameServerId,
+      gameServer,
+      admin.id,
+    );
+  }
+
   @Delete(':id')
   @Auth(PlayerRole.superUser)
+  @UseFilters(DocumentNotFoundFilter)
   async removeGameServer(
     @Param('id', ObjectIdValidationPipe) gameServerId: string,
     @User() admin: Player,
@@ -68,6 +88,7 @@ export class GameServersController {
 
   @Post(':id/diagnostics')
   @Auth(PlayerRole.superUser)
+  @UseFilters(DocumentNotFoundFilter)
   @HttpCode(202)
   async runDiagnostics(
     @Param('id', ObjectIdValidationPipe) gameServerId: string,

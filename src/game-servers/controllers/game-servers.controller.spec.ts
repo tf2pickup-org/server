@@ -94,6 +94,29 @@ describe('GameServers Controller', () => {
     });
   });
 
+  describe('#updateGameServer()', () => {
+    beforeEach(() => {
+      gameServersService.updateGameServer.mockImplementation(
+        (gameServerId, update) => {
+          return Promise.resolve({ ...mockGameServer, update });
+        },
+      );
+    });
+
+    it('should call the service', async () => {
+      await controller.updateGameServer(
+        'FAKE_ID',
+        { name: 'update game server' },
+        { id: 'FAKE_ADMIN_ID' } as Player,
+      );
+      expect(gameServersService.updateGameServer).toHaveBeenCalledWith(
+        'FAKE_ID',
+        { name: 'update game server' },
+        'FAKE_ADMIN_ID',
+      );
+    });
+  });
+
   describe('#removeGameServer()', () => {
     beforeEach(() => {
       gameServersService.removeGameServer.mockResolvedValue(mockGameServer);

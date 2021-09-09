@@ -176,6 +176,39 @@ describe('GameServersService', () => {
       }));
   });
 
+  describe('#updateGameServer()', () => {
+    it('should update the game server', async () => {
+      const ret = await service.updateGameServer(testGameServer.id, {
+        name: 'updated game server',
+      });
+      expect(ret.name).toEqual('updated game server');
+      expect((await gameServerModel.findById(testGameServer.id)).name).toEqual(
+        'updated game server',
+      );
+    });
+
+    it('should emit the gameServerUpdated event', async () => {
+      let givenGameServerId: string;
+      let givenGameServerName: string;
+      let givenAdminId: string;
+
+      events.gameServerUpdated.subscribe(({ newGameServer, adminId }) => {
+        givenGameServerId = newGameServer.id;
+        givenGameServerName = newGameServer.name;
+        givenAdminId = adminId;
+      });
+
+      await service.updateGameServer(
+        testGameServer.id,
+        { name: 'updated game server' },
+        'FAKE_ADMIN_ID',
+      );
+      expect(givenGameServerId).toEqual(testGameServer.id);
+      expect(givenGameServerName).toEqual('updated game server');
+      expect(givenAdminId).toEqual('FAKE_ADMIN_ID');
+    });
+  });
+
   describe('#removeGameServer()', () => {
     it('should mark the given game server as deleted', async () => {
       const ret = await service.removeGameServer(testGameServer.id);
@@ -183,16 +216,19 @@ describe('GameServersService', () => {
       expect((await gameServerModel.findById(ret.id)).deleted).toBe(true);
     });
 
-    it('should emit the gameServerRemoved event', async () =>
-      new Promise<void>((resolve) => {
-        events.gameServerRemoved.subscribe(({ gameServer, adminId }) => {
-          expect(gameServer.id).toEqual(testGameServer.id);
-          expect(adminId).toEqual('FAKE_ADMIN_ID');
-          resolve();
-        });
+    it('should emit the gameServerUpdated event', async () => {
+      let givenGameServerId: string;
+      let givenAdminId: string;
 
-        service.removeGameServer(testGameServer.id, 'FAKE_ADMIN_ID');
-      }));
+      events.gameServerUpdated.subscribe(({ newGameServer, adminId }) => {
+        givenGameServerId = newGameServer.id;
+        givenAdminId = adminId;
+      });
+
+      await service.removeGameServer(testGameServer.id, 'FAKE_ADMIN_ID');
+      expect(givenGameServerId).toEqual(testGameServer.id);
+      expect(givenAdminId).toEqual('FAKE_ADMIN_ID');
+    });
   });
 
   describe('#findFreeGameServer()', () => {
