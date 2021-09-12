@@ -4,6 +4,7 @@ import { Player } from '@/players/models/player';
 import { PlayerBan } from '@/players/models/player-ban';
 import { PlayerSkillType } from '@/players/services/player-skill.service';
 import { Map } from '@/queue/models/map';
+import { string } from '@hapi/joi';
 import { Injectable, Logger } from '@nestjs/common';
 import { Subject } from 'rxjs';
 import { MapVoteResult } from '../queue/map-vote-result';
@@ -57,6 +58,20 @@ export class Events {
 
   readonly gameCreated = new Subject<{ game: Game }>();
   readonly gameChanges = new Subject<{ game: Game; adminId?: string }>();
+
+  readonly substituteRequested = new Subject<{
+    gameId: string;
+    playerId: string;
+  }>();
+  readonly substituteCanceled = new Subject<{
+    gameId: string;
+    playerId: string;
+  }>();
+  readonly playerReplaced = new Subject<{
+    gameId: string;
+    replaceeId: string;
+    replacementId: string;
+  }>();
   readonly substituteRequestsChange = new Subject<void>();
 
   readonly gameServerAdded = new Subject<{

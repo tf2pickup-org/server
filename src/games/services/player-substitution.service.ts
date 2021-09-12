@@ -4,6 +4,7 @@ import {
   Inject,
   forwardRef,
   Optional,
+  OnModuleInit,
 } from '@nestjs/common';
 import { GamesService } from './games.service';
 import { PlayersService } from '@/players/services/players.service';
@@ -23,12 +24,13 @@ import { plainToClass } from 'class-transformer';
 import { PlayerNotInThisGameError } from '../errors/player-not-in-this-game.error';
 import { GameInWrongStateError } from '../errors/game-in-wrong-state.error';
 import { WrongGameSlotStatusError } from '../errors/wrong-game-slot-status.error';
+import { merge } from 'lodash';
 
 /**
  * A service that handles player substitution logic.
  */
 @Injectable()
-export class PlayerSubstitutionService {
+export class PlayerSubstitutionService implements OnModuleInit {
   private logger = new Logger(PlayerSubstitutionService.name);
   private discordNotifications = new Map<string, Message>(); // playerId <-> message pairs
 
@@ -48,6 +50,15 @@ export class PlayerSubstitutionService {
     this.logger.verbose(
       `Discord plugin will ${this.discordService ? '' : 'not '}be used`,
     );
+  }
+
+  onModuleInit() {
+    // all substitute events trigger the substituteRequestsChange event
+    merge(
+      this.events.substituteRequested,
+      this.events.substituteCanceled,
+      this.events.playerReplaced,
+    ).subscribe(() => this.events.substituteRequestsChange.next());
   }
 
   async substitutePlayer(gameId: string, playerId: string) {
@@ -93,7 +104,7 @@ export class PlayerSubstitutionService {
     );
 
     this.events.gameChanges.next({ game });
-    this.events.substituteRequestsChange.next();
+    this.events.substituteRequested.next({ gameId, playerId });
 
     const channel = this.discordService?.getPlayersChannel();
     if (channel) {
@@ -171,7 +182,7 @@ export class PlayerSubstitutionService {
     );
 
     this.events.gameChanges.next({ game });
-    this.events.substituteRequestsChange.next();
+    this.events.substituteCanceled.next({ gameId, playerId });
 
     const message = this.discordNotifications.get(playerId);
     if (message) {
@@ -229,7 +240,11 @@ export class PlayerSubstitutionService {
       );
 
       this.events.gameChanges.next({ game });
-      this.events.substituteRequestsChange.next();
+      this.events.playerReplaced.next({
+        gameId,
+        replaceeId,
+        replacementId,
+      });
       await this.deleteDiscordAnnouncement(replaceeId);
       this.logger.verbose(`player has taken his own slot`);
       return game;
@@ -273,7 +288,11 @@ export class PlayerSubstitutionService {
     );
 
     this.events.gameChanges.next({ game });
-    this.events.substituteRequestsChange.next();
+    this.events.playerReplaced.next({
+      gameId,
+      replaceeId,
+      replacementId,
+    });
     this.queueService.kick(replacementId);
 
     const replacee = await this.playersService.getById(replaceeId);
