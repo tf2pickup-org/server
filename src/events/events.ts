@@ -71,6 +71,9 @@ export class Events {
     replaceeId: string;
     replacementId: string;
   }>();
+  /**
+   * @deprecated
+   */
   readonly substituteRequestsChange = new Subject<void>();
 
   readonly gameServerAdded = new Subject<{
