@@ -4,7 +4,6 @@ import { Player } from '@/players/models/player';
 import { PlayerBan } from '@/players/models/player-ban';
 import { PlayerSkillType } from '@/players/services/player-skill.service';
 import { Map } from '@/queue/models/map';
-import { string } from '@hapi/joi';
 import { Injectable, Logger } from '@nestjs/common';
 import { Subject } from 'rxjs';
 import { MapVoteResult } from '../queue/map-vote-result';
