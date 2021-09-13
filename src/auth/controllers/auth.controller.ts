@@ -17,6 +17,8 @@ import { Player } from '@/players/models/player';
 import { JwtTokenPurpose } from '../jwt-token-purpose';
 import { Tf2InGameHoursVerificationError } from '@/players/errors/tf2-in-game-hours-verification.error';
 import { InsufficientTf2InGameHoursError } from '@/players/errors/insufficient-tf2-in-game-hours.error';
+import { NoEtf2lAccountError } from '@/players/errors/no-etf2l-account.error';
+import { AccountBannedError } from '@/players/errors/account-banned.error';
 
 @Controller('auth')
 export class AuthController {
@@ -93,6 +95,10 @@ export class AuthController {
       return 'cannot verify in-game hours for TF2';
     } else if (error instanceof InsufficientTf2InGameHoursError) {
       return 'not enough tf2 hours';
+    } else if (error instanceof NoEtf2lAccountError) {
+      return 'no etf2l profile';
+    } else if (error instanceof AccountBannedError) {
+      return 'etf2l banned';
     }
     return 'unknown';
   }

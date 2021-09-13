@@ -3,6 +3,7 @@ import { Etf2lProfile } from '../etf2l-profile';
 import { switchMap, catchError } from 'rxjs/operators';
 import { of, throwError } from 'rxjs';
 import { HttpService } from '@nestjs/axios';
+import { NoEtf2lAccountError } from '../errors/no-etf2l-account.error';
 
 interface Etf2lPlayerResponse {
   player: Etf2lProfile;
@@ -27,7 +28,7 @@ export class Etf2lProfileService {
           const response = error.response;
           switch (response.status) {
             case 404:
-              return throwError(() => new Error('no etf2l profile'));
+              return throwError(() => new NoEtf2lAccountError(steamId));
 
             default:
               return throwError(
@@ -41,7 +42,7 @@ export class Etf2lProfileService {
           } else {
             switch (response.status) {
               case 404:
-                return throwError(() => new Error('no etf2l profile'));
+                return throwError(() => new NoEtf2lAccountError(steamId));
 
               default:
                 return throwError(
