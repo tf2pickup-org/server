@@ -3,6 +3,7 @@ import { Etf2lProfileService } from './etf2l-profile.service';
 import { HttpService } from '@nestjs/axios';
 import { Etf2lProfile } from '../etf2l-profile';
 import { of } from 'rxjs';
+import { NoEtf2lAccountError } from '../errors/no-etf2l-account.error';
 
 const mockEtf2lProfile: Etf2lProfile = {
   id: 12345,
@@ -54,8 +55,8 @@ describe('Etf2lProfileService', () => {
       jest
         .spyOn(httpService, 'get')
         .mockReturnValue(of({ status: 404 } as any));
-      await expect(service.fetchPlayerInfo('')).rejects.toThrowError(
-        'no etf2l profile',
+      await expect(service.fetchPlayerInfo('')).rejects.toThrow(
+        NoEtf2lAccountError,
       );
     });
 
