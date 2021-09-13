@@ -18,6 +18,7 @@ describe('Player substitutes himself (e2e)', () => {
   let adminToken: string;
   let gameId: string;
   let playerSocket: Socket;
+  let substituteRequests: any[];
 
   beforeAll(async () => {
     const moduleFixture = await Test.createTestingModule({
@@ -48,6 +49,12 @@ describe('Player substitutes himself (e2e)', () => {
       {
         auth: { token: `Bearer ${playerToken}` },
       },
+    );
+
+    substituteRequests = [];
+    playerSocket.on(
+      'substitute requests update',
+      (requests) => (substituteRequests = requests),
     );
   });
 
@@ -147,6 +154,7 @@ describe('Player substitutes himself (e2e)', () => {
   });
 
   it('should substitute a player', async () => {
+    expect(substituteRequests.length).toEqual(0);
     const player = await playersService.findBySteamId(players[1]);
 
     // admin requests substitute
@@ -163,6 +171,8 @@ describe('Player substitutes himself (e2e)', () => {
         const slot = body.slots.find((s) => s.player === player.id);
         expect(slot.status).toEqual('waiting for substitute');
       });
+
+    expect(substituteRequests.length).toEqual(1);
 
     // player substitutes himself
     await new Promise<void>((resolve) => {
@@ -182,5 +192,7 @@ describe('Player substitutes himself (e2e)', () => {
         const body = response.body;
         expect(body.slots.every((s) => s.status === 'active')).toBe(true);
       });
+
+    expect(substituteRequests.length).toEqual(0);
   });
 });

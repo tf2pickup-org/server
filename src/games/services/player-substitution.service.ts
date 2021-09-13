@@ -24,7 +24,7 @@ import { plainToClass } from 'class-transformer';
 import { PlayerNotInThisGameError } from '../errors/player-not-in-this-game.error';
 import { GameInWrongStateError } from '../errors/game-in-wrong-state.error';
 import { WrongGameSlotStatusError } from '../errors/wrong-game-slot-status.error';
-import { merge } from 'lodash';
+import { merge } from 'rxjs';
 
 /**
  * A service that handles player substitution logic.
