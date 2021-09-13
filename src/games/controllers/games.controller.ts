@@ -156,6 +156,7 @@ export class GamesController {
       await this.playerSubstitutionService.substitutePlayer(
         gameId,
         substitutePlayerId,
+        admin.id,
       );
     }
 
@@ -163,6 +164,7 @@ export class GamesController {
       await this.playerSubstitutionService.cancelSubstitutionRequest(
         gameId,
         cancelSubstitutePlayerId,
+        admin.id,
       );
     }
   }

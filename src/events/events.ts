@@ -61,10 +61,12 @@ export class Events {
   readonly substituteRequested = new Subject<{
     gameId: string;
     playerId: string;
+    adminId?: string;
   }>();
   readonly substituteCanceled = new Subject<{
     gameId: string;
     playerId: string;
+    adminId?: string;
   }>();
   readonly playerReplaced = new Subject<{
     gameId: string;

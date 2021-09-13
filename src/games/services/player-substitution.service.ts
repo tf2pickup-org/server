@@ -61,7 +61,7 @@ export class PlayerSubstitutionService implements OnModuleInit {
     ).subscribe(() => this.events.substituteRequestsChange.next());
   }
 
-  async substitutePlayer(gameId: string, playerId: string) {
+  async substitutePlayer(gameId: string, playerId: string, adminId?: string) {
     let game = await this.gamesService.getById(gameId);
     const slot = game.findPlayerSlot(playerId);
     if (!slot) {
@@ -104,7 +104,7 @@ export class PlayerSubstitutionService implements OnModuleInit {
     );
 
     this.events.gameChanges.next({ game });
-    this.events.substituteRequested.next({ gameId, playerId });
+    this.events.substituteRequested.next({ gameId, playerId, adminId });
 
     const channel = this.discordService?.getPlayersChannel();
     if (channel) {
@@ -139,7 +139,11 @@ export class PlayerSubstitutionService implements OnModuleInit {
     return game;
   }
 
-  async cancelSubstitutionRequest(gameId: string, playerId: string) {
+  async cancelSubstitutionRequest(
+    gameId: string,
+    playerId: string,
+    adminId?: string,
+  ) {
     let game = await this.gamesService.getById(gameId);
     const slot = game.findPlayerSlot(playerId);
     if (!slot) {
@@ -182,7 +186,7 @@ export class PlayerSubstitutionService implements OnModuleInit {
     );
 
     this.events.gameChanges.next({ game });
-    this.events.substituteCanceled.next({ gameId, playerId });
+    this.events.substituteCanceled.next({ gameId, playerId, adminId });
 
     const message = this.discordNotifications.get(playerId);
     if (message) {
