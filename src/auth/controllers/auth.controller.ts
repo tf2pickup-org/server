@@ -15,6 +15,10 @@ import { Auth } from '../decorators/auth.decorator';
 import { redirectUrlCookieName } from '../middleware/set-redirect-url-cookie';
 import { Player } from '@/players/models/player';
 import { JwtTokenPurpose } from '../jwt-token-purpose';
+import { Tf2InGameHoursVerificationError } from '@/players/errors/tf2-in-game-hours-verification.error';
+import { InsufficientTf2InGameHoursError } from '@/players/errors/insufficient-tf2-in-game-hours.error';
+import { NoEtf2lAccountError } from '@/players/errors/no-etf2l-account.error';
+import { AccountBannedError } from '@/players/errors/account-banned.error';
 
 @Controller('auth')
 export class AuthController {
@@ -37,7 +41,8 @@ export class AuthController {
 
           if (error) {
             this.logger.warn(`Login error: ${error}`);
-            return res.redirect(`${url}/auth-error?error=${error.message}`);
+            const clientErrorCode = this.mapToClientError(error);
+            return res.redirect(`${url}/auth-error?error=${clientErrorCode}`);
           }
 
           if (!player) {
@@ -83,5 +88,18 @@ export class AuthController {
       user.id,
     );
     return { wsToken };
+  }
+
+  private mapToClientError(error: unknown): string {
+    if (error instanceof Tf2InGameHoursVerificationError) {
+      return 'cannot verify in-game hours for TF2';
+    } else if (error instanceof InsufficientTf2InGameHoursError) {
+      return 'not enough tf2 hours';
+    } else if (error instanceof NoEtf2lAccountError) {
+      return 'no etf2l profile';
+    } else if (error instanceof AccountBannedError) {
+      return 'etf2l banned';
+    }
+    return 'unknown';
   }
 }
