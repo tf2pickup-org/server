@@ -9,4 +9,5 @@ export enum Colors {
   GameServerAdded = '#d3ffa9',
   GameServerRemoved = '#ffa6a7',
   GameForceEnded = '#ff5e61',
+  SubstituteRequested = '#f1ff70',
 }
