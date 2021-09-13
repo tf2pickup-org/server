@@ -130,10 +130,16 @@ export class GamesService {
     playerId: string,
   ): Promise<{ [gameClass in Tf2ClassName]?: number }> {
     // FIXME store player stats in a separate model to avoid this query
-    const allGames = await this.gameModel.find({
-      'slots.player': new ObjectId(playerId),
-      state: GameState.ended,
-    });
+    const allGames = plainToClass(
+      Game,
+      await this.gameModel
+        .find({
+          'slots.player': new ObjectId(playerId),
+          state: GameState.ended,
+        })
+        .lean()
+        .exec(),
+    );
     return this.queueConfigService.queueConfig.classes
       .map((cls) => cls.name)
       .reduce((prev, gameClass) => {
