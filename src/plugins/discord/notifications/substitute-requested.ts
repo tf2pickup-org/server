@@ -31,7 +31,7 @@ export const substituteRequested = (options: SubstituteRequestedOptions) =>
     )
     .setTitle('Substitute requested')
     .setDescription(
-      `Game number: **[${options.game.number}](${options.game.url})**\nPlayer: **[${options.player.name}](${options.player.profileUrl})`,
+      `Game number: **[${options.game.number}](${options.game.url})**\nPlayer: **[${options.player.name}](${options.player.profileUrl})**`,
     )
     .setFooter(options.client.name, options.client.iconUrl)
     .setTimestamp();
