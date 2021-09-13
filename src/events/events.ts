@@ -57,6 +57,23 @@ export class Events {
 
   readonly gameCreated = new Subject<{ game: Game }>();
   readonly gameChanges = new Subject<{ game: Game; adminId?: string }>();
+
+  readonly substituteRequested = new Subject<{
+    gameId: string;
+    playerId: string;
+  }>();
+  readonly substituteCanceled = new Subject<{
+    gameId: string;
+    playerId: string;
+  }>();
+  readonly playerReplaced = new Subject<{
+    gameId: string;
+    replaceeId: string;
+    replacementId: string;
+  }>();
+  /**
+   * @deprecated
+   */
   readonly substituteRequestsChange = new Subject<void>();
 
   readonly gameServerAdded = new Subject<{

@@ -197,14 +197,17 @@ describe('PlayerSubstitutionService', () => {
       );
     });
 
-    it('should emit the substituteRequestsChange event', async () => {
-      let eventEmitted = false;
-      events.substituteRequestsChange.subscribe(() => {
-        eventEmitted = true;
+    it('should emit the substituteRequested event', async () => {
+      let emittedGameId: string;
+      let emittedPlayerId: string;
+      events.substituteRequested.subscribe(({ gameId, playerId }) => {
+        emittedGameId = gameId;
+        emittedPlayerId = playerId;
       });
 
       await service.substitutePlayer(mockGame.id, player1.id);
-      expect(eventEmitted).toBe(true);
+      expect(emittedGameId).toEqual(mockGame.id);
+      expect(emittedPlayerId).toEqual(player1.id);
     });
 
     it('should do nothing if the player is already marked', async () => {
@@ -294,14 +297,17 @@ describe('PlayerSubstitutionService', () => {
       });
     });
 
-    it('should emit the substituteRequestsChange event', async () => {
-      let eventEmitted = false;
-      events.substituteRequestsChange.subscribe(() => {
-        eventEmitted = true;
+    it('should emit the substituteCanceled event', async () => {
+      let emittedGameId: string;
+      let emittedPlayerId: string;
+      events.substituteCanceled.subscribe(({ gameId, playerId }) => {
+        emittedGameId = gameId;
+        emittedPlayerId = playerId;
       });
 
       await service.cancelSubstitutionRequest(mockGame.id, player1.id);
-      expect(eventEmitted).toBe(true);
+      expect(emittedGameId).toEqual(mockGame.id);
+      expect(emittedPlayerId).toEqual(player1.id);
     });
 
     it('should get rid of discord announcement', async () => {
@@ -438,14 +444,23 @@ describe('PlayerSubstitutionService', () => {
       });
     });
 
-    it('should emit the substituteRequestsChange event', async () => {
-      let eventEmitted = false;
-      events.substituteRequestsChange.subscribe(() => {
-        eventEmitted = true;
-      });
+    it('should emit the playerReplaced event', async () => {
+      let emittedGameId: string;
+      let emittedReplaceeId: string;
+      let emittedReplacementId: string;
+
+      events.playerReplaced.subscribe(
+        ({ gameId, replaceeId, replacementId }) => {
+          emittedGameId = gameId;
+          emittedReplaceeId = replaceeId;
+          emittedReplacementId = replacementId;
+        },
+      );
 
       await service.replacePlayer(mockGame.id, player1.id, player3.id);
-      expect(eventEmitted).toBe(true);
+      expect(emittedGameId).toEqual(mockGame.id);
+      expect(emittedReplaceeId).toEqual(player1.id);
+      expect(emittedReplacementId).toEqual(player3.id);
     });
 
     it('should reject if the replacement player does not exist', async () => {
