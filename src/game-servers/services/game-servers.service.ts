@@ -25,7 +25,7 @@ export class GameServersService {
   async getAllGameServers(): Promise<GameServer[]> {
     return plainToClass(
       GameServer,
-      await this.gameServerModel.find({ deleted: false }).lean().exec(),
+      await this.gameServerModel.find({ isOnline: true }).lean().exec(),
     );
   }
 
@@ -42,7 +42,7 @@ export class GameServersService {
   ): Promise<GameServer> {
     if (!params.voiceChannelName) {
       const latestServer = await this.gameServerModel
-        .findOne({ voiceChannelName: { $ne: null }, deleted: false })
+        .findOne({ voiceChannelName: { $ne: null } })
         .sort({ createdAt: -1 })
         .exec();
       if (latestServer) {
@@ -88,7 +88,7 @@ export class GameServersService {
     return this.updateGameServer(
       gameServerId,
       {
-        deleted: true,
+        isOnline: false,
       },
       adminId,
     );
@@ -98,7 +98,7 @@ export class GameServersService {
     return plainToClass(
       GameServer,
       await this.gameServerModel
-        .findOne({ deleted: false, isOnline: true, game: { $exists: false } })
+        .findOne({ isOnline: true, game: { $exists: false } })
         .orFail()
         .lean()
         .exec(),
@@ -146,7 +146,7 @@ export class GameServersService {
   }
 
   @Cron(CronExpression.EVERY_MINUTE)
-  async checkAllServers() {
+  async removeDeadGameServers() {
     this.logger.debug('checking all servers...');
     const allGameServers = await this.getAllGameServers();
     for (const server of allGameServers) {

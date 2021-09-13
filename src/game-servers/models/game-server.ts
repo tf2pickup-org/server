@@ -15,8 +15,17 @@ export class GameServer extends MongooseDocument {
   @Prop({ required: true, trim: true })
   name!: string;
 
+  /**
+   * The gameserver's public IP address.
+   */
   @Prop({ required: true, trim: true })
   address!: string;
+
+  /**
+   * The IP address of the gameserver's that the heartbeat came from.
+   */
+  @Prop()
+  internalIpAddress: string;
 
   @Prop({ required: true })
   port!: string;
@@ -37,10 +46,6 @@ export class GameServer extends MongooseDocument {
   @Transform(({ value }) => value.toString())
   @Prop({ type: Types.ObjectId, ref: 'Game' })
   game?: Types.ObjectId; // currently running game
-
-  @Exclude({ toPlainOnly: true })
-  @Prop({ default: false })
-  deleted?: boolean;
 }
 
 export type GameServerDocument = GameServer & Document;
