@@ -1,8 +1,9 @@
 import { Environment } from '@/environment/environment';
 import { Events } from '@/events/events';
 import { GameServer } from '@/game-servers/models/game-server';
-import { Game } from '@/games/models/game';
+import { Game, gameSchema } from '@/games/models/game';
 import { GameState } from '@/games/models/game-state';
+import { GamesService } from '@/games/services/games.service';
 import { Player, playerSchema } from '@/players/models/player';
 import { PlayersService } from '@/players/services/players.service';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
@@ -17,6 +18,7 @@ import { DiscordService } from './discord.service';
 
 jest.mock('./discord.service');
 jest.mock('@/players/services/players.service');
+jest.mock('@/games/services/games.service');
 
 const environment = {
   clientUrl: 'http://localhost',
@@ -31,6 +33,7 @@ describe('AdminNotificationsService', () => {
   let sendSpy: jest.SpyInstance;
   let sentMessages: Subject<any>;
   let connection: Connection;
+  let gamesService: GamesService;
 
   beforeAll(async () => (mongod = await MongoMemoryServer.create()));
   afterAll(async () => mongod.stop());
@@ -48,6 +51,10 @@ describe('AdminNotificationsService', () => {
             name: Player.name,
             schema: playerSchema,
           },
+          {
+            name: Game.name,
+            schema: gameSchema,
+          },
         ]),
       ],
       providers: [
@@ -56,6 +63,7 @@ describe('AdminNotificationsService', () => {
         Events,
         { provide: Environment, useValue: environment },
         PlayersService,
+        GamesService,
       ],
     }).compile();
 
@@ -64,6 +72,7 @@ describe('AdminNotificationsService', () => {
     playersService = module.get(PlayersService);
     discordService = module.get(DiscordService);
     connection = module.get(getConnectionToken());
+    gamesService = module.get(GamesService);
     sendSpy = jest
       .spyOn(discordService.getAdminsChannel(), 'send')
       .mockImplementation((message) => {
@@ -333,6 +342,38 @@ describe('AdminNotificationsService', () => {
             state: GameState.interrupted,
             id: 'FAKE_GAME_ID',
           } as Game,
+          adminId: admin.id,
+        });
+      }));
+  });
+
+  describe('when a player substitute is requested', () => {
+    let admin: Player;
+    let player: Player;
+    let game: Game;
+
+    beforeEach(async () => {
+      // @ts-expect-error
+      admin = await playersService._createOne();
+
+      // @ts-expect-error
+      player = await playersService._createOne();
+
+      // @ts-expect-error
+      game = await gamesService._createOne();
+    });
+
+    it('should send a notification', async () =>
+      new Promise<void>((resolve) => {
+        sentMessages.subscribe((message) => {
+          expect(message.embed).toBeTruthy();
+          expect(message.embed.title).toEqual('Substitute requested');
+          resolve();
+        });
+
+        events.substituteRequested.next({
+          gameId: game.id,
+          playerId: player.id,
           adminId: admin.id,
         });
       }));

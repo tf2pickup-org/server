@@ -22,6 +22,8 @@ import {
 } from '../notifications';
 import { DiscordService } from './discord.service';
 import { URL } from 'url';
+import { substituteRequested } from '../notifications/substitute-requested';
+import { GamesService } from '@/games/services/games.service';
 
 const playerSkillEqual = (
   oldSkill: PlayerSkillType,
@@ -51,6 +53,7 @@ export class AdminNotificationsService implements OnModuleInit {
     private events: Events,
     private environment: Environment,
     private playersService: PlayersService,
+    private gamesService: GamesService,
   ) {}
 
   onModuleInit() {
@@ -90,6 +93,12 @@ export class AdminNotificationsService implements OnModuleInit {
         filter(({ game }) => game.state === GameState.interrupted),
       )
       .subscribe(({ game, adminId }) => this.onGameForceEnded(game, adminId));
+
+    this.events.substituteRequested
+      .pipe(filter(({ adminId }) => !!adminId))
+      .subscribe(({ gameId, playerId, adminId }) =>
+        this.onSubstituteRequested(gameId, playerId, adminId),
+      );
   }
 
   private onPlayerRegisters(player: Player) {
@@ -305,6 +314,38 @@ export class AdminNotificationsService implements OnModuleInit {
         game: {
           number: `${game.number}`,
           url: `${this.environment.clientUrl}/game/${game.id}`,
+        },
+      }),
+    });
+  }
+
+  private async onSubstituteRequested(
+    gameId: string,
+    playerId: string,
+    adminId: string,
+  ) {
+    const admin = await this.playersService.getById(adminId);
+    const player = await this.playersService.getById(playerId);
+    const game = await this.gamesService.getById(gameId);
+
+    this.discordService.getAdminsChannel()?.send({
+      embed: substituteRequested({
+        player: {
+          name: player.name,
+          profileUrl: `${this.environment.clientUrl}/player/${player.id}`,
+        },
+        admin: {
+          name: admin.name,
+          profileUrl: `${this.environment.clientUrl}/player/${admin.id}`,
+          avatarUrl: admin.avatar?.small,
+        },
+        game: {
+          number: `${game.number}`,
+          url: `${this.environment.clientUrl}/game/${game.id}`,
+        },
+        client: {
+          name: new URL(this.environment.clientUrl).hostname,
+          iconUrl: `${this.environment.clientUrl}/${iconUrlPath}`,
         },
       }),
     });
