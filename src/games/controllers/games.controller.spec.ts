@@ -241,7 +241,11 @@ describe('Games Controller', () => {
         undefined,
         { id: 'FAKE_ADMIN_ID' } as Player,
       );
-      expect(spy).toHaveBeenCalledWith('FAKE_GAME_ID', 'FAKE_PLAYER_ID');
+      expect(spy).toHaveBeenCalledWith(
+        'FAKE_GAME_ID',
+        'FAKE_PLAYER_ID',
+        'FAKE_ADMIN_ID',
+      );
     });
 
     it('should cancel substitution request', async () => {
@@ -257,7 +261,11 @@ describe('Games Controller', () => {
         'FAKE_PLAYER_ID',
         { id: 'FAKE_ADMIN_ID' } as Player,
       );
-      expect(spy).toHaveBeenCalledWith('FAKE_GAME_ID', 'FAKE_PLAYER_ID');
+      expect(spy).toHaveBeenCalledWith(
+        'FAKE_GAME_ID',
+        'FAKE_PLAYER_ID',
+        'FAKE_ADMIN_ID',
+      );
     });
   });
 });
