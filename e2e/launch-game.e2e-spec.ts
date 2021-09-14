@@ -146,6 +146,19 @@ describe('Launch game (e2e)', () => {
       });
 
     await request(app.getHttpServer())
+      .get(`/games/${newGameId}/skills`)
+      .auth(authToken, { type: 'bearer' })
+      .expect(200)
+      .then((response) => {
+        const body = response.body;
+        expect(
+          clients
+            .map((p) => p.playerId)
+            .every((playerId) => body[playerId] === 1),
+        ).toBe(true);
+      });
+
+    await request(app.getHttpServer())
       .get(`/games/${newGameId}/connect-info`)
       .expect(401);
 
