@@ -4,6 +4,7 @@ import { AuthService } from '@/auth/services/auth.service';
 import { PlayersService } from '@/players/services/players.service';
 import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
+import { isNumber } from 'lodash';
 import { io, Socket } from 'socket.io-client';
 import * as request from 'supertest';
 import { players } from './test-data';
@@ -151,11 +152,10 @@ describe('Launch game (e2e)', () => {
       .expect(200)
       .then((response) => {
         const body = response.body;
-        console.log(body);
         expect(
           clients
             .map((p) => p.playerId)
-            .every((playerId) => body[playerId] === 1),
+            .every((playerId) => isNumber(body[playerId])),
         ).toBe(true);
       });
 
