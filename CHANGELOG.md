@@ -1,3 +1,10 @@
+## [7.0.1](https://github.com/tf2pickup-org/server/compare/7.0.0...7.0.1) (2021-09-14)
+
+
+### Bug Fixes
+
+* **discord:** import GamesModule ([#1225](https://github.com/tf2pickup-org/server/issues/1225)) ([dea1f3a](https://github.com/tf2pickup-org/server/commit/dea1f3a7f4e36eeefa2f23ff2a22c2930cb25f6b))
+
 # [7.0.0](https://github.com/tf2pickup-org/server/compare/6.1.2...7.0.0) (2021-09-14)
 
 
