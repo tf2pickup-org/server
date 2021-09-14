@@ -57,6 +57,7 @@ export class Game extends MongooseDocument {
   @Prop()
   error?: string;
 
+  @Transform(({ value }) => value.toString(), { toPlainOnly: true })
   @Prop({ ref: 'GameServer' })
   gameServer?: Types.ObjectId;
 
