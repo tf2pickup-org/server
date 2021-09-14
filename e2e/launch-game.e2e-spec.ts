@@ -4,6 +4,7 @@ import { AuthService } from '@/auth/services/auth.service';
 import { PlayersService } from '@/players/services/players.service';
 import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
+import { isString } from 'lodash';
 import { io, Socket } from 'socket.io-client';
 import * as request from 'supertest';
 import { players } from './test-data';
@@ -143,6 +144,7 @@ describe('Launch game (e2e)', () => {
             .map((p) => p.playerId)
             .every((playerId) => body.slots.find((s) => s.player === playerId)),
         ).toBe(true);
+        expect(isString(body.gameServer)).toBe(true);
       });
 
     await request(app.getHttpServer())
