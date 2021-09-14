@@ -144,7 +144,6 @@ describe('Launch game (e2e)', () => {
             .map((p) => p.playerId)
             .every((playerId) => body.slots.find((s) => s.player === playerId)),
         ).toBe(true);
-        expect(isString(body.gameServer)).toBe(true);
       });
 
     await request(app.getHttpServer())
