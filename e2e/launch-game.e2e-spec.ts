@@ -151,6 +151,7 @@ describe('Launch game (e2e)', () => {
       .expect(200)
       .then((response) => {
         const body = response.body;
+        console.log(body);
         expect(
           clients
             .map((p) => p.playerId)
