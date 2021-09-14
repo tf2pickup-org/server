@@ -1,3 +1,40 @@
+# [7.0.0](https://github.com/tf2pickup-org/server/compare/6.1.2...7.0.0) (2021-09-14)
+
+
+### Bug Fixes
+
+* **auth:** handle player registration errors properly ([#1220](https://github.com/tf2pickup-org/server/issues/1220)) ([dfe2aa4](https://github.com/tf2pickup-org/server/commit/dfe2aa4a332bc48cacbbc52d112826f9fdd43276))
+* **ci:** fix ci test stability ([#1185](https://github.com/tf2pickup-org/server/issues/1185)) ([d7132d0](https://github.com/tf2pickup-org/server/commit/d7132d0e8d8d25ee62ceec70aaead4539db869cf))
+* **deps:** pin dependency @nestjs/axios to 0.0.1 ([#1177](https://github.com/tf2pickup-org/server/issues/1177)) ([aa3921e](https://github.com/tf2pickup-org/server/commit/aa3921e3687b62452c7c4f08eea39f680c176e03))
+* **deps:** update dependency @nestjs/mongoose to v8.0.1 ([#1169](https://github.com/tf2pickup-org/server/issues/1169)) ([0cc4896](https://github.com/tf2pickup-org/server/commit/0cc4896b07d306752809f90144b64a6c853ef57d))
+* **deps:** update dependency async-mutex to v0.3.2 ([#1204](https://github.com/tf2pickup-org/server/issues/1204)) ([7cf812a](https://github.com/tf2pickup-org/server/commit/7cf812a96a683f3c2ad32088451544fe3c39a1c6))
+* **deps:** update dependency mongoose to v5.13.8 ([#1187](https://github.com/tf2pickup-org/server/issues/1187)) ([bf384f5](https://github.com/tf2pickup-org/server/commit/bf384f5b2ea259d88de5ae3f516d9960f152f4b1))
+* **deps:** update dependency mongoose to v5.13.9 ([#1213](https://github.com/tf2pickup-org/server/issues/1213)) ([2d814f0](https://github.com/tf2pickup-org/server/commit/2d814f0f35ccca62a8f7d74794bf8ab680eb7b68))
+* **discord:** player substitute request notification ([#1223](https://github.com/tf2pickup-org/server/issues/1223)) ([9b551fa](https://github.com/tf2pickup-org/server/commit/9b551fa71b41b424d64ae3d995185e13606e1d40))
+* **documents:** use default rules document ([#1210](https://github.com/tf2pickup-org/server/issues/1210)) ([7c9bdfc](https://github.com/tf2pickup-org/server/commit/7c9bdfc469ba877f4840eff1b7c5464a3c75a4f4))
+* **games:** add adminId to substitute events ([#1219](https://github.com/tf2pickup-org/server/issues/1219)) ([c73a09e](https://github.com/tf2pickup-org/server/commit/c73a09e19b1df68434c3d6f3f0f28373607288c5))
+* **games:** better player substitute events ([#1218](https://github.com/tf2pickup-org/server/issues/1218)) ([3865b18](https://github.com/tf2pickup-org/server/commit/3865b18d82b0ab49189a5df69def422a4a350c0f))
+* **games:** fix playerPlayedClassCount() ([#1224](https://github.com/tf2pickup-org/server/issues/1224)) ([485dbd3](https://github.com/tf2pickup-org/server/commit/485dbd38dff190069c9eb7332b2551624d374aa0))
+* get rid of HttpModule deprecation warnings ([#1175](https://github.com/tf2pickup-org/server/issues/1175)) ([528af27](https://github.com/tf2pickup-org/server/commit/528af275b60161f85cb74edf169bc8511ca8df4b))
+* **players:** online player events serialization ([#1189](https://github.com/tf2pickup-org/server/issues/1189)) ([cc82b61](https://github.com/tf2pickup-org/server/commit/cc82b611cdc90a8307b6ed6f5a583cc810937a78))
+
+
+* feat!(configuration): null voice server option (#1158) ([9d355ec](https://github.com/tf2pickup-org/server/commit/9d355ec6f5e2ed02e29e9164e8a2f7d8361e4f0a)), closes [#1158](https://github.com/tf2pickup-org/server/issues/1158)
+
+
+### Features
+
+* **configuration:** static link as voice server ([#1205](https://github.com/tf2pickup-org/server/issues/1205)) ([82c6acd](https://github.com/tf2pickup-org/server/commit/82c6acdf08ebfc413007d71286b082fffe0fa33f))
+* **game-servers:** update game server ([#1206](https://github.com/tf2pickup-org/server/issues/1206)) ([a119328](https://github.com/tf2pickup-org/server/commit/a11932802f444a0098063b03948c737203fb654c))
+* **games:** announce looking for substitute in game ([#1199](https://github.com/tf2pickup-org/server/issues/1199)) ([d32d49f](https://github.com/tf2pickup-org/server/commit/d32d49f57dcf2a30dc873347519ced1531847e2c))
+* **players:** online player list ([#1188](https://github.com/tf2pickup-org/server/issues/1188)) ([f09b17e](https://github.com/tf2pickup-org/server/commit/f09b17e49cd54c6ee80b905929366489c1de8025))
+
+
+### BREAKING CHANGES
+
+* Game.mumbleUrl is gone.
+* GameServer.mumbleChannelName is renamed to GameServer.voiceChannelName.
+
 ## [6.1.2](https://github.com/tf2pickup-org/server/compare/6.1.1...6.1.2) (2021-08-16)
 
 
