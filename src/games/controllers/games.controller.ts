@@ -128,6 +128,7 @@ export class GamesController {
   @Get(':id/skills')
   @Auth(PlayerRole.admin)
   @UseFilters(DocumentNotFoundFilter)
+  @UseInterceptors(ClassSerializerInterceptor)
   async getGameSkills(@Param('id', ObjectIdValidationPipe) gameId: string) {
     return (await this.gamesService.getById(gameId)).assignedSkills;
   }
