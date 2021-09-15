@@ -1,3 +1,11 @@
+## [7.0.2](https://github.com/tf2pickup-org/server/compare/7.0.1...7.0.2) (2021-09-15)
+
+
+### Bug Fixes
+
+* **games:** serialize game assigned skills properly ([#1227](https://github.com/tf2pickup-org/server/issues/1227)) ([028e763](https://github.com/tf2pickup-org/server/commit/028e7633d0a5a92fc69c23093661e59d482bbd39))
+* **games:** serialize gameServer properly ([#1226](https://github.com/tf2pickup-org/server/issues/1226)) ([5b5c5ed](https://github.com/tf2pickup-org/server/commit/5b5c5ed3853d44736490a428c38bb19b9fd34f0a))
+
 ## [7.0.1](https://github.com/tf2pickup-org/server/compare/7.0.0...7.0.1) (2021-09-14)
 
 
