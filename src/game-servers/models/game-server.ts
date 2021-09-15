@@ -24,6 +24,7 @@ export class GameServer extends MongooseDocument {
   /**
    * The IP address of the gameserver's that the heartbeat came from.
    */
+  @Exclude({ toPlainOnly: true })
   @Prop()
   internalIpAddress: string;
 
@@ -46,6 +47,9 @@ export class GameServer extends MongooseDocument {
   @Transform(({ value }) => value.toString())
   @Prop({ type: Types.ObjectId, ref: 'Game' })
   game?: Types.ObjectId; // currently running game
+
+  @Prop({ default: () => new Date() })
+  lastHeartbeatAt?: Date;
 }
 
 export type GameServerDocument = GameServer & Document;

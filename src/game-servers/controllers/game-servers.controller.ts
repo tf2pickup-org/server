@@ -54,10 +54,12 @@ export class GameServersController {
   @UseInterceptors(ClassSerializerInterceptor)
   async gameServerHeartbeat(
     @Body() heartbeat: GameServerHeartbeat,
-    @RealIp() ip: string,
+    @RealIp() internalIpAddress: string,
   ) {
-    console.log(ip);
-    // return this.gameServersService.addGameServer(gameServer, admin.id);
+    return this.gameServersService.heartbeat({
+      ...heartbeat,
+      internalIpAddress,
+    });
   }
 
   @Delete(':id')

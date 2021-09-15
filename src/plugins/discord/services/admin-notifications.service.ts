@@ -80,7 +80,7 @@ export class AdminNotificationsService implements OnModuleInit {
       .pipe(
         filter(
           ({ oldGameServer, newGameServer }) =>
-            oldGameServer.deleted === false && newGameServer.deleted === true,
+            oldGameServer.isOnline === true && newGameServer.isOnline === false,
         ),
       )
       .subscribe(({ newGameServer, adminId }) =>

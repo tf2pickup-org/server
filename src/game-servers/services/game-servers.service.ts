@@ -1,6 +1,5 @@
 import { forwardRef, Inject, Injectable, Logger } from '@nestjs/common';
 import { GameServer, GameServerDocument } from '../models/game-server';
-import { isServerOnline } from '../utils/is-server-online';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { Mutex } from 'async-mutex';
 import { Events } from '@/events/events';
@@ -8,6 +7,16 @@ import { plainToClass } from 'class-transformer';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Error, Types } from 'mongoose';
 import { GamesService } from '@/games/services/games.service';
+import { filter } from 'rxjs/operators';
+
+interface HeartbeatParams {
+  name: string;
+  address: string;
+  port: string;
+  rconPassword: string;
+  voiceChannelName?: string;
+  internalIpAddress: string;
+}
 
 @Injectable()
 export class GameServersService {
@@ -20,7 +29,39 @@ export class GameServersService {
     private events: Events,
     @Inject(forwardRef(() => GamesService))
     private gamesService: GamesService,
-  ) {}
+  ) {
+    this.events.gameServerAdded.subscribe(({ gameServer }) => {
+      this.logger.log(
+        `game server ${gameServer.name} (${gameServer.address}:${gameServer.port}) added`,
+      );
+    });
+
+    this.events.gameServerUpdated
+      .pipe(
+        filter(
+          ({ oldGameServer, newGameServer }) =>
+            oldGameServer.isOnline === false && newGameServer.isOnline === true,
+        ),
+      )
+      .subscribe(({ newGameServer }) => {
+        this.logger.log(
+          `game server ${newGameServer.name} (${newGameServer.address}:${newGameServer.port}) is back online`,
+        );
+      });
+
+    this.events.gameServerUpdated
+      .pipe(
+        filter(
+          ({ oldGameServer, newGameServer }) =>
+            oldGameServer.isOnline === true && newGameServer.isOnline === false,
+        ),
+      )
+      .subscribe(({ newGameServer }) => {
+        this.logger.log(
+          `game server ${newGameServer.name} (${newGameServer.address}:${newGameServer.port}) is offline`,
+        );
+      });
+  }
 
   async getAllGameServers(): Promise<GameServer[]> {
     return plainToClass(
@@ -36,28 +77,46 @@ export class GameServersService {
     );
   }
 
-  async addGameServer(
-    params: GameServer,
-    adminId?: string,
-  ): Promise<GameServer> {
-    if (!params.voiceChannelName) {
-      const latestServer = await this.gameServerModel
-        .findOne({ voiceChannelName: { $ne: null } })
-        .sort({ createdAt: -1 })
-        .exec();
-      if (latestServer) {
-        const id = parseInt(latestServer.voiceChannelName, 10) + 1;
-        params.voiceChannelName = `${id}`;
-      } else {
-        params.voiceChannelName = '1';
-      }
+  async heartbeat(params: HeartbeatParams): Promise<GameServer> {
+    const oldGameServer = plainToClass(
+      GameServer,
+      await this.gameServerModel
+        .findOne({
+          address: params.address,
+          port: params.port,
+        })
+        .lean()
+        .exec(),
+    );
+    const newGameServer = plainToClass(
+      GameServer,
+      await this.gameServerModel
+        .findOneAndUpdate(
+          {
+            address: params.address,
+            port: params.port,
+          },
+          {
+            name: params.name,
+            rconPassword: params.rconPassword,
+            voiceChannelName: params.voiceChannelName,
+            internalIpAddress: params.internalIpAddress,
+            isOnline: true,
+            lastHeartbeatAt: new Date(),
+          },
+          { upsert: true, new: true },
+        )
+        .lean()
+        .exec(),
+    );
+
+    if (!oldGameServer) {
+      this.events.gameServerAdded.next({ gameServer: newGameServer });
+    } else {
+      this.events.gameServerUpdated.next({ oldGameServer, newGameServer });
     }
 
-    const { id } = await this.gameServerModel.create(params);
-    const gameServer = await this.getById(id);
-    this.logger.log(`game server ${gameServer.name} added`);
-    this.events.gameServerAdded.next({ gameServer, adminId });
-    return gameServer;
+    return newGameServer;
   }
 
   async updateGameServer(
@@ -145,20 +204,29 @@ export class GameServersService {
     return gameServer;
   }
 
+  async getDeadGameServers(): Promise<GameServer[]> {
+    const fiveMinutesAgo = new Date();
+    fiveMinutesAgo.setMinutes(fiveMinutesAgo.getMinutes() - 5);
+
+    return plainToClass(
+      GameServer,
+      await this.gameServerModel
+        .find({
+          isOnline: true,
+          lastHeartbeatAt: {
+            $lt: fiveMinutesAgo,
+          },
+        })
+        .lean()
+        .exec(),
+    );
+  }
+
   @Cron(CronExpression.EVERY_MINUTE)
   async removeDeadGameServers() {
-    this.logger.debug('checking all servers...');
-    const allGameServers = await this.getAllGameServers();
-    for (const server of allGameServers) {
-      const isOnline = await isServerOnline(
-        server.address,
-        parseInt(server.port, 10),
-      );
-      await this.updateGameServer(server.id, { isOnline });
-      this.logger.debug(
-        `server ${server.name} is ${isOnline ? 'online' : 'offline'}`,
-      );
-      // TODO verify rcon password
-    }
+    const deadGameServers = await this.getDeadGameServers();
+    await Promise.all(
+      deadGameServers.map((gameServer) => this.removeGameServer(gameServer.id)),
+    );
   }
 }
