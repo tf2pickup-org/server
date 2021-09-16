@@ -99,6 +99,42 @@ describe('GameServersService', () => {
     });
   });
 
+  describe('#heartbeat()', () => {
+    describe('when adding a new gameserver', () => {
+      it('should add the gameserver', async () => {
+        const ret = await service.heartbeat({
+          name: 'test game server',
+          address: '193.70.80.2',
+          port: '27015',
+          rconPassword: '123456',
+          internalIpAddress: '127.0.0.1',
+        });
+        expect(ret).toBeTruthy();
+        expect(ret.name).toEqual('test game server');
+        expect(ret.isOnline).toBe(true);
+
+        expect(await gameServerModel.findById(ret.id)).toBeTruthy();
+      });
+
+      it('should emit gameServerAdded event', async () => {
+        let emittedGameServer: GameServer;
+        events.gameServerAdded.subscribe(({ gameServer }) => {
+          emittedGameServer = gameServer;
+        });
+        await service.heartbeat({
+          name: 'test game server',
+          address: '193.70.80.2',
+          port: '27015',
+          rconPassword: '123456',
+          internalIpAddress: '127.0.0.1',
+        });
+        expect(emittedGameServer).toBeTruthy();
+        expect(emittedGameServer.name).toEqual('test game server');
+        expect(emittedGameServer.isOnline).toBe(true);
+      });
+    });
+  });
+
   describe('#updateGameServer()', () => {
     it('should update the game server', async () => {
       const ret = await service.updateGameServer(testGameServer.id, {
