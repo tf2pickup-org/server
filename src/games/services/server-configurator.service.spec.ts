@@ -60,6 +60,7 @@ const mockGameServer: GameServer = {
   id: 'MOCK_GAME_SERVER',
   name: 'FAKE_SERVER',
   address: '123.45.67.89',
+  internalIpAddress: '127.0.0.1',
   port: '27015',
   rconPassword: 'FAKE_RCON_PASSWORD',
 };

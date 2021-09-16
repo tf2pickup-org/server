@@ -58,6 +58,7 @@ describe('GameServersService', () => {
       port: '27015',
       rconPassword: '123456',
       resolvedIpAddresses: ['127.0.0.1'],
+      isOnline: true,
     });
   });
 

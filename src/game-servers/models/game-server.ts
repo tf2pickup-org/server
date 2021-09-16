@@ -7,19 +7,19 @@ import { Exclude, Expose, Transform } from 'class-transformer';
 export class GameServer extends MongooseDocument {
   @Expose()
   @Transform(({ value, obj }) => value ?? obj._id?.toString())
-  id?: string;
+  id!: string;
 
   @Prop({ default: () => new Date() })
-  createdAt?: Date;
+  createdAt!: Date;
 
   @Prop({ required: true, trim: true })
-  name!: string;
+  name: string;
 
   /**
    * The gameserver's public IP address.
    */
   @Prop({ required: true, trim: true })
-  address!: string;
+  address: string;
 
   /**
    * The IP address of the gameserver's that the heartbeat came from.
@@ -29,17 +29,17 @@ export class GameServer extends MongooseDocument {
   internalIpAddress: string;
 
   @Prop({ required: true })
-  port!: string;
+  port: string;
 
   @Exclude({ toPlainOnly: true })
   @Prop({ required: true })
   rconPassword!: string;
 
   @Prop({ default: true })
-  isAvailable?: boolean; // is the server available for playing pickups
+  isAvailable!: boolean; // is the server available for playing pickups
 
   @Prop({ default: false })
-  isOnline?: boolean; // was the server online last we checked
+  isOnline!: boolean; // was the server online last we checked
 
   @Prop()
   voiceChannelName?: string;

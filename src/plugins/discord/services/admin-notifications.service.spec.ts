@@ -303,11 +303,11 @@ describe('AdminNotificationsService', () => {
       events.gameServerUpdated.next({
         oldGameServer: {
           name: 'fake game server',
-          deleted: false,
+          isOnline: true,
         } as GameServer,
         newGameServer: {
           name: 'fake game server',
-          deleted: true,
+          isOnline: false,
         } as GameServer,
         adminId: admin.id,
       });
