@@ -1,3 +1,11 @@
+## [7.0.3](https://github.com/tf2pickup-org/server/compare/7.0.2...7.0.3) (2021-09-16)
+
+
+### Bug Fixes
+
+* **deps:** update dependency passport-steam to v1.0.16 ([#1231](https://github.com/tf2pickup-org/server/issues/1231)) ([e90cf3d](https://github.com/tf2pickup-org/server/commit/e90cf3dd29621fe5fa81b36760f77b84ecf1f718))
+* **players:** more verbose error logging ([#1233](https://github.com/tf2pickup-org/server/issues/1233)) ([518a0f0](https://github.com/tf2pickup-org/server/commit/518a0f00e933933868e464e277d4f2920dabfba5))
+
 ## [7.0.2](https://github.com/tf2pickup-org/server/compare/7.0.1...7.0.2) (2021-09-15)
 
 
