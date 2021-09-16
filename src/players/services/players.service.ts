@@ -239,6 +239,7 @@ export class PlayersService implements OnModuleInit {
       const hoursInTf2 = await this.steamApiService.getTf2InGameHours(steamId);
       if (hoursInTf2 < minimumTf2InGameHours) {
         throw new InsufficientTf2InGameHoursError(
+          steamId,
           minimumTf2InGameHours,
           hoursInTf2,
         );
