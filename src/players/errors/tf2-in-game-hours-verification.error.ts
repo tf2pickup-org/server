@@ -1,5 +1,7 @@
 export class Tf2InGameHoursVerificationError extends Error {
-  constructor(public verificationErrorMessage: string) {
-    super(`cannot verify in-game hours for TF2 (${verificationErrorMessage})`);
+  constructor(public steamId: string, public verificationErrorMessage: string) {
+    super(
+      `cannot verify in-game hours for TF2 (steamId: ${steamId}, error: ${verificationErrorMessage})`,
+    );
   }
 }

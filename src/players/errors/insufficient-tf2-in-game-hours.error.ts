@@ -1,7 +1,11 @@
 export class InsufficientTf2InGameHoursError extends Error {
-  constructor(requiredHours: number, reportedHours: number) {
+  constructor(
+    public steamId: string,
+    public requiredHours: number,
+    public reportedHours: number,
+  ) {
     super(
-      `insufficient TF2 in-game hours (reported: ${reportedHours}, required: ${requiredHours})`,
+      `insufficient TF2 in-game hours (steamId: ${steamId}, reported: ${reportedHours}, required: ${requiredHours})`,
     );
   }
 }
