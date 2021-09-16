@@ -332,7 +332,7 @@ describe('PlayersService', () => {
       beforeEach(() => {
         jest
           .spyOn(steamApiService, 'getTf2InGameHours')
-          .mockRejectedValue(new Tf2InGameHoursVerificationError(''));
+          .mockRejectedValue(new Tf2InGameHoursVerificationError('', ''));
       });
 
       it('should deny', async () => {
