@@ -12,6 +12,10 @@ const mockGameServer: GameServer = {
   port: '27015',
   rconPassword: 'FAKE_RCON_PASSWORD',
   internalIpAddress: 'FAKE_INTERNAL_IP_ADDRESS',
+  id: 'FAKE_GAME_SERVER_ID',
+  createdAt: new Date(),
+  isAvailable: true,
+  isOnline: true,
 };
 
 jest.mock('../services/game-servers.service');

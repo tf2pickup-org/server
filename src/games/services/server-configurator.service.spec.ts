@@ -63,6 +63,9 @@ const mockGameServer: GameServer = {
   internalIpAddress: '127.0.0.1',
   port: '27015',
   rconPassword: 'FAKE_RCON_PASSWORD',
+  createdAt: new Date(),
+  isAvailable: true,
+  isOnline: true,
 };
 
 function flushPromises() {
