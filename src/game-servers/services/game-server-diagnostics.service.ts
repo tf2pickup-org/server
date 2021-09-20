@@ -7,7 +7,6 @@ import { from, Observable } from 'rxjs';
 import { concatMap, tap } from 'rxjs/operators';
 import { LogForwarding } from '../diagnostic-checks/log-forwarding';
 import { RconConnection } from '../diagnostic-checks/rcon-connection';
-import { ServerDiscovery } from '../diagnostic-checks/server-discovery';
 import { DiagnosticCheckRunner } from '../interfaces/diagnostic-check-runner';
 import { DiagnosticCheckStatus } from '../models/diagnostic-check-status';
 import { DiagnosticRunStatus } from '../models/diagnostic-run-status';
@@ -76,7 +75,6 @@ export class GameServerDiagnosticsService {
 
   async collectAllRunners(): Promise<DiagnosticCheckRunner[]> {
     return Promise.all([
-      this.moduleRef.resolve(ServerDiscovery),
       this.moduleRef.resolve(RconConnection),
       this.moduleRef.resolve(LogForwarding),
     ]);

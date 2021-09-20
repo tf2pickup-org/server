@@ -9,7 +9,6 @@ import { MongoMemoryServer } from 'mongodb-memory-server';
 import { Connection, Error, Model, Types } from 'mongoose';
 import { LogForwarding } from '../diagnostic-checks/log-forwarding';
 import { RconConnection } from '../diagnostic-checks/rcon-connection';
-import { ServerDiscovery } from '../diagnostic-checks/server-discovery';
 import {
   GameServerDiagnosticRun,
   GameServerDiagnosticRunDocument,
@@ -21,7 +20,6 @@ import { GameServersService } from './game-servers.service';
 jest.mock('./game-servers.service');
 jest.mock('../diagnostic-checks/log-forwarding');
 jest.mock('../diagnostic-checks/rcon-connection');
-jest.mock('../diagnostic-checks/server-discovery');
 
 describe('GameServerDiagnosticsService', () => {
   let service: GameServerDiagnosticsService;
@@ -46,7 +44,6 @@ describe('GameServerDiagnosticsService', () => {
       providers: [
         GameServerDiagnosticsService,
         GameServersService,
-        ServerDiscovery,
         RconConnection,
         LogForwarding,
       ],
