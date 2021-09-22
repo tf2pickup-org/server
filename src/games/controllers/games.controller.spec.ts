@@ -195,6 +195,22 @@ describe('Games Controller', () => {
         ).rejects.toThrow(UnauthorizedException);
       });
     });
+
+    describe('when the connect info is undefined', () => {
+      beforeEach(() => {
+        jest.spyOn(gamesService, 'getById').mockResolvedValue({
+          id: 'FAKE_ID',
+          connectInfoVersion: 1,
+        } as Game);
+      });
+
+      it('should return null', async () => {
+        const ret = await controller.getConnectInfo('FAKE_ID', {
+          id: 'FAKE_PLAYER_ID',
+        } as Player);
+        expect(ret.connectString).toBe(null);
+      });
+    });
   });
 
   describe('#getGameSkills()', () => {
