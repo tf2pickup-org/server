@@ -1,13 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { HeaderAPIKeyStrategy } from 'passport-headerapikey';
+import { AuthService } from '../services/auth.service';
 
 @Injectable()
 export class ApiKeyStrategy extends PassportStrategy(
   HeaderAPIKeyStrategy,
   'api-key',
 ) {
-  constructor() {
+  constructor(private authService: AuthService) {
     super(
       {
         header: 'Authorization',
@@ -26,7 +27,7 @@ export class ApiKeyStrategy extends PassportStrategy(
   }
 
   async validate(apiKey: string) {
-    if (apiKey !== '123456') {
+    if (apiKey !== (await this.authService.getApiKey())) {
       throw new Error('unauthorized');
     }
 

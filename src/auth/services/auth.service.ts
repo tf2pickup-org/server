@@ -7,6 +7,9 @@ import { JwtTokenPurpose } from '../jwt-token-purpose';
 import { KeyPair } from '../key-pair';
 import { InjectModel } from '@nestjs/mongoose';
 import { Error, Model } from 'mongoose';
+import { ApiKey, ApiKeyDocument } from '../models/api-key';
+import { ApiKeyPurpose } from '../api-key-purpose';
+import { ApiScope } from '../api-scope';
 
 @Injectable()
 export class AuthService implements OnModuleInit {
@@ -19,6 +22,9 @@ export class AuthService implements OnModuleInit {
     @Inject('REFRESH_TOKEN_KEY') private refreshTokenKey: KeyPair,
     @Inject('WEBSOCKET_SECRET') private websocketSecret: string,
     @Inject('CONTEXT_TOKEN_KEY') private contextTokenKey: KeyPair,
+    @InjectModel(ApiKey.name)
+    private apiKeyModel: Model<ApiKeyDocument>,
+    @Inject('API_KEY_TOKEN_KEY') private apiKeyTokenKey: KeyPair,
   ) {}
 
   async onModuleInit() {
@@ -138,6 +144,27 @@ export class AuthService implements OnModuleInit {
       iat: number;
       exp: number;
     };
+  }
+
+  async getApiKey(purpose: ApiKeyPurpose): Promise<string> {
+    return (await this.apiKeyModel.findOne({ purpose }).lean().exec()).apiKey;
+  }
+
+  async generateApiKey(purpose: ApiKeyPurpose): Promise<string> {
+    let scopes: ApiScope[] = [];
+    switch (purpose) {
+      case ApiKeyPurpose.gameServer:
+        scopes = [ApiScope.gameServers];
+        break;
+    }
+
+    const key = this.apiKeyTokenKey.privateKey.export({
+      format: 'pem',
+      type: 'pkcs8',
+    });
+    const apiKey = sign(scopes, key, { algorithm: 'ES512' });
+    await this.apiKeyModel.updateOne({ purpose }, { apiKey }, { upsert: true });
+    return this.getApiKey(purpose);
   }
 
   @Cron(CronExpression.EVERY_WEEK)
