@@ -1,3 +1,10 @@
+## [7.0.4](https://github.com/tf2pickup-org/server/compare/7.0.3...7.0.4) (2021-09-22)
+
+
+### Bug Fixes
+
+* **games:** connect string is null initially ([#1243](https://github.com/tf2pickup-org/server/issues/1243)) ([40662c0](https://github.com/tf2pickup-org/server/commit/40662c0d3ac9600634c1de779550d14673745e8d))
+
 ## [7.0.3](https://github.com/tf2pickup-org/server/compare/7.0.2...7.0.3) (2021-09-16)
 
 
