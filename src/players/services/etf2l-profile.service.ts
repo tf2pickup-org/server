@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Etf2lProfile } from '../etf2l-profile';
 import { switchMap, catchError } from 'rxjs/operators';
-import { of, throwError } from 'rxjs';
+import { firstValueFrom, of, throwError } from 'rxjs';
 import { HttpService } from '@nestjs/axios';
 import { NoEtf2lAccountError } from '../errors/no-etf2l-account.error';
 
@@ -21,7 +21,7 @@ export class Etf2lProfileService {
 
   // TODO This is steamId or etf2lProfileId
   async fetchPlayerInfo(steamId: string): Promise<Etf2lProfile> {
-    return this.httpService
+    const profile$ = this.httpService
       .get<Etf2lPlayerResponse>(`${this.etf2lEndpoint}/player/${steamId}.json`)
       .pipe(
         catchError((error) => {
@@ -51,7 +51,8 @@ export class Etf2lProfileService {
             }
           }
         }),
-      )
-      .toPromise();
+      );
+
+    return await firstValueFrom(profile$);
   }
 }

@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Environment } from '@/environment/environment';
 import { map, switchMap, catchError } from 'rxjs/operators';
 import { floor } from 'lodash';
-import { of, throwError } from 'rxjs';
+import { firstValueFrom, of, throwError } from 'rxjs';
 import { Tf2InGameHoursVerificationError } from '../errors/tf2-in-game-hours-verification.error';
 import { HttpService } from '@nestjs/axios';
 
@@ -28,7 +28,7 @@ export class SteamApiService {
   ) {}
 
   async getTf2InGameHours(steamId64: string): Promise<number> {
-    return this.httpService
+    const hours$ = this.httpService
       .get<UserStatsForGameResponse>(
         `${this.userStatsForGameEndpoint}/?appid=${this.tf2AppId}&key=${this.environment.steamApiKey}&steamid=${steamId64}&format=json`,
       )
@@ -46,7 +46,8 @@ export class SteamApiService {
             () => new Tf2InGameHoursVerificationError(steamId64, error),
           ),
         ),
-      )
-      .toPromise();
+      );
+
+    return await firstValueFrom(hours$);
   }
 }
