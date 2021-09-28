@@ -28,7 +28,7 @@ export class SteamApiService {
   ) {}
 
   async getTf2InGameHours(steamId64: string): Promise<number> {
-    const hours$ = this.httpService
+    const hours = this.httpService
       .get<UserStatsForGameResponse>(
         `${this.userStatsForGameEndpoint}/?appid=${this.tf2AppId}&key=${this.environment.steamApiKey}&steamid=${steamId64}&format=json`,
       )
@@ -48,6 +48,6 @@ export class SteamApiService {
         ),
       );
 
-    return await firstValueFrom(hours$);
+    return await firstValueFrom(hours);
   }
 }

@@ -21,7 +21,7 @@ export class Etf2lProfileService {
 
   // TODO This is steamId or etf2lProfileId
   async fetchPlayerInfo(steamId: string): Promise<Etf2lProfile> {
-    const profile$ = this.httpService
+    const profile = this.httpService
       .get<Etf2lPlayerResponse>(`${this.etf2lEndpoint}/player/${steamId}.json`)
       .pipe(
         catchError((error) => {
@@ -53,6 +53,6 @@ export class Etf2lProfileService {
         }),
       );
 
-    return await firstValueFrom(profile$);
+    return await firstValueFrom(profile);
   }
 }

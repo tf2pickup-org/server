@@ -48,7 +48,7 @@ export class TwitchAuthService {
   }
 
   async fetchUserAccessToken(code: string) {
-    const token$ = this.httpService
+    const token = this.httpService
       .post<TokenResponse>(
         `${twitchOauth2TokenUrl}` +
           `?client_id=${this.environment.twitchClientId}` +
@@ -59,7 +59,7 @@ export class TwitchAuthService {
       )
       .pipe(map((response) => response.data.access_token));
 
-    return await firstValueFrom(token$);
+    return await firstValueFrom(token);
   }
 
   async getAppAccessToken() {
@@ -83,7 +83,7 @@ export class TwitchAuthService {
   }
 
   private async fetchAppAccessToken() {
-    const appAccess$ = this.httpService
+    const appAccess = this.httpService
       .post<AppAccessTokenResponse>(
         twitchOauth2TokenUrl,
         {},
@@ -102,6 +102,6 @@ export class TwitchAuthService {
         })),
       );
 
-    return await firstValueFrom(appAccess$);
+    return await firstValueFrom(appAccess);
   }
 }
