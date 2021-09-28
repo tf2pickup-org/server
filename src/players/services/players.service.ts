@@ -119,7 +119,10 @@ export class PlayersService implements OnModuleInit {
     let etf2lProfile: Etf2lProfile;
     let name = steamProfile.displayName;
 
-    try {
+    const { value: isEtf2lAccountRequired } =
+      await this.configurationService.isEtf2lAccountRequired();
+
+    if (isEtf2lAccountRequired) {
       etf2lProfile = await this.etf2lProfileService.fetchPlayerInfo(
         steamProfile.id,
       );
@@ -132,13 +135,6 @@ export class PlayersService implements OnModuleInit {
       }
 
       name = etf2lProfile.name;
-    } catch (error) {
-      const isEtf2lAccountRequired = (
-        await this.configurationService.isEtf2lAccountRequired()
-      ).value;
-      if (isEtf2lAccountRequired) {
-        throw error;
-      }
     }
 
     const avatar: PlayerAvatar = {
