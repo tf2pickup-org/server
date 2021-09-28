@@ -228,27 +228,20 @@ export class PlayersService implements OnModuleInit {
   }
 
   private async verifyTf2InGameHours(steamId: string) {
-    const minimumTf2InGameHours = (
-      await this.configurationService.getMinimumTf2InGameHours()
-    ).value;
-    try {
-      const hoursInTf2 = await this.steamApiService.getTf2InGameHours(steamId);
-      if (hoursInTf2 < minimumTf2InGameHours) {
-        throw new InsufficientTf2InGameHoursError(
-          steamId,
-          minimumTf2InGameHours,
-          hoursInTf2,
-        );
-      }
-    } catch (error) {
-      if (
-        error instanceof Tf2InGameHoursVerificationError &&
-        minimumTf2InGameHours <= 0
-      ) {
-        return;
-      } else {
-        throw error;
-      }
+    const { value: minimumTf2InGameHours } =
+      await this.configurationService.getMinimumTf2InGameHours();
+
+    if (minimumTf2InGameHours <= 0) {
+      return;
+    }
+
+    const hoursInTf2 = await this.steamApiService.getTf2InGameHours(steamId);
+    if (hoursInTf2 < minimumTf2InGameHours) {
+      throw new InsufficientTf2InGameHoursError(
+        steamId,
+        minimumTf2InGameHours,
+        hoursInTf2,
+      );
     }
   }
 }
