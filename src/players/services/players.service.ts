@@ -169,19 +169,15 @@ export class PlayersService implements OnModuleInit {
   async forceCreatePlayer(
     playerData: ForceCreatePlayerOptions,
   ): Promise<Player> {
-    let etf2lProfile: Etf2lProfile;
-    try {
-      etf2lProfile = await this.etf2lProfileService.fetchPlayerInfo(
-        playerData.steamId,
-      );
-    } catch (error) {
-      etf2lProfile = undefined;
-    }
+    const etf2lProfile =
+      (await this.etf2lProfileService.fetchPlayerInfo(playerData.steamId)) ??
+      undefined;
 
     const { id } = await this.playerModel.create({
       etf2lProfileId: etf2lProfile?.id,
       ...playerData,
     });
+
     const player = await this.getById(id);
     this.logger.verbose(`created new player (name: ${player.name})`);
     this.events.playerRegisters.next({ player });
