@@ -19,7 +19,6 @@ import { Events } from '@/events/events';
 import { plainToClass } from 'class-transformer';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { Error, Model, Types, UpdateQuery } from 'mongoose';
-import { Tf2InGameHoursVerificationError } from '../errors/tf2-in-game-hours-verification.error';
 import { AccountBannedError } from '../errors/account-banned.error';
 import { InsufficientTf2InGameHoursError } from '../errors/insufficient-tf2-in-game-hours.error';
 import { PlayerRole } from '../models/player-role';
@@ -119,7 +118,10 @@ export class PlayersService implements OnModuleInit {
     let etf2lProfile: Etf2lProfile;
     let name = steamProfile.displayName;
 
-    try {
+    const { value: isEtf2lAccountRequired } =
+      await this.configurationService.isEtf2lAccountRequired();
+
+    if (isEtf2lAccountRequired) {
       etf2lProfile = await this.etf2lProfileService.fetchPlayerInfo(
         steamProfile.id,
       );
@@ -132,13 +134,6 @@ export class PlayersService implements OnModuleInit {
       }
 
       name = etf2lProfile.name;
-    } catch (error) {
-      const isEtf2lAccountRequired = (
-        await this.configurationService.isEtf2lAccountRequired()
-      ).value;
-      if (isEtf2lAccountRequired) {
-        throw error;
-      }
     }
 
     const avatar: PlayerAvatar = {
@@ -173,19 +168,15 @@ export class PlayersService implements OnModuleInit {
   async forceCreatePlayer(
     playerData: ForceCreatePlayerOptions,
   ): Promise<Player> {
-    let etf2lProfile: Etf2lProfile;
-    try {
-      etf2lProfile = await this.etf2lProfileService.fetchPlayerInfo(
-        playerData.steamId,
-      );
-    } catch (error) {
-      etf2lProfile = undefined;
-    }
+    const etf2lProfile = await this.etf2lProfileService
+      .fetchPlayerInfo(playerData.steamId)
+      .catch(() => undefined);
 
     const { id } = await this.playerModel.create({
       etf2lProfileId: etf2lProfile?.id,
       ...playerData,
     });
+
     const player = await this.getById(id);
     this.logger.verbose(`created new player (name: ${player.name})`);
     this.events.playerRegisters.next({ player });
@@ -232,27 +223,20 @@ export class PlayersService implements OnModuleInit {
   }
 
   private async verifyTf2InGameHours(steamId: string) {
-    const minimumTf2InGameHours = (
-      await this.configurationService.getMinimumTf2InGameHours()
-    ).value;
-    try {
-      const hoursInTf2 = await this.steamApiService.getTf2InGameHours(steamId);
-      if (hoursInTf2 < minimumTf2InGameHours) {
-        throw new InsufficientTf2InGameHoursError(
-          steamId,
-          minimumTf2InGameHours,
-          hoursInTf2,
-        );
-      }
-    } catch (error) {
-      if (
-        error instanceof Tf2InGameHoursVerificationError &&
-        minimumTf2InGameHours <= 0
-      ) {
-        return;
-      } else {
-        throw error;
-      }
+    const { value: minimumTf2InGameHours } =
+      await this.configurationService.getMinimumTf2InGameHours();
+
+    if (minimumTf2InGameHours <= 0) {
+      return;
+    }
+
+    const hoursInTf2 = await this.steamApiService.getTf2InGameHours(steamId);
+    if (hoursInTf2 < minimumTf2InGameHours) {
+      throw new InsufficientTf2InGameHoursError(
+        steamId,
+        minimumTf2InGameHours,
+        hoursInTf2,
+      );
     }
   }
 }

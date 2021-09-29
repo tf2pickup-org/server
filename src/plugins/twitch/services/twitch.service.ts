@@ -3,7 +3,7 @@ import { TwitchStream } from '../models/twitch-stream';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { Environment } from '@/environment/environment';
 import { map, distinctUntilChanged } from 'rxjs/operators';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, firstValueFrom } from 'rxjs';
 import { TwitchGateway } from '../gateways/twitch.gateway';
 import { TwitchAuthService } from './twitch-auth.service';
 import { PlayerBansService } from '@/players/services/player-bans.service';
@@ -103,15 +103,16 @@ export class TwitchService implements OnModuleInit {
 
   async fetchUserProfile(accessToken: string) {
     // https://dev.twitch.tv/docs/api/reference#get-users
-    return this.httpService
+    const token = this.httpService
       .get<TwitchGetUsersResponse>(`${twitchTvApiEndpoint}/users`, {
         headers: {
           Authorization: `Bearer ${accessToken}`,
           'Client-ID': this.environment.twitchClientId,
         },
       })
-      .pipe(map((response) => response.data.data[0]))
-      .toPromise();
+      .pipe(map((response) => response.data.data[0]));
+
+    return await firstValueFrom(token);
   }
 
   async saveUserProfile(playerId: string, code: string) {
@@ -147,6 +148,7 @@ export class TwitchService implements OnModuleInit {
       userIds: users.map((user) => user.userId),
       userLogins: promotedStreams,
     });
+
     const streams = (
       await Promise.all(
         rawStreams.map(async (stream) => {
@@ -184,6 +186,7 @@ export class TwitchService implements OnModuleInit {
         }),
       )
     ).filter((stream) => !!stream);
+
     this._streams.next(streams);
     this.logger.debug('streams refreshed');
   }
@@ -193,7 +196,7 @@ export class TwitchService implements OnModuleInit {
     userLogins: string[];
   }) {
     // https://dev.twitch.tv/docs/api/reference#get-streams
-    return this.httpService
+    const streams = this.httpService
       .get<TwitchGetStreamsResponse>(`${twitchTvApiEndpoint}/streams`, {
         params: {
           user_id: params.userIds,
@@ -204,7 +207,8 @@ export class TwitchService implements OnModuleInit {
           Authorization: `Bearer ${await this.twitchAuthService.getAppAccessToken()}`,
         },
       })
-      .pipe(map((response) => response.data.data))
-      .toPromise();
+      .pipe(map((response) => response.data.data));
+
+    return await firstValueFrom(streams);
   }
 }

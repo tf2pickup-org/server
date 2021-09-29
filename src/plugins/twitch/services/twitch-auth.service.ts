@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Environment } from '@/environment/environment';
 import { map } from 'rxjs/operators';
 import { HttpService } from '@nestjs/axios';
+import { firstValueFrom } from 'rxjs';
 
 interface TokenResponse {
   access_token: string;
@@ -47,7 +48,7 @@ export class TwitchAuthService {
   }
 
   async fetchUserAccessToken(code: string) {
-    return this.httpService
+    const token = this.httpService
       .post<TokenResponse>(
         `${twitchOauth2TokenUrl}` +
           `?client_id=${this.environment.twitchClientId}` +
@@ -56,8 +57,9 @@ export class TwitchAuthService {
           `&grant_type=authorization_code` +
           `&redirect_uri=${this.redirectUri}`,
       )
-      .pipe(map((response) => response.data.access_token))
-      .toPromise();
+      .pipe(map((response) => response.data.access_token));
+
+    return await firstValueFrom(token);
   }
 
   async getAppAccessToken() {
@@ -80,8 +82,8 @@ export class TwitchAuthService {
     return this.appAccessToken;
   }
 
-  private fetchAppAccessToken() {
-    return this.httpService
+  private async fetchAppAccessToken() {
+    const appAccess = this.httpService
       .post<AppAccessTokenResponse>(
         twitchOauth2TokenUrl,
         {},
@@ -98,7 +100,8 @@ export class TwitchAuthService {
           accessToken: response.data.access_token,
           expiresIn: response.data.expires_in,
         })),
-      )
-      .toPromise();
+      );
+
+    return await firstValueFrom(appAccess);
   }
 }
