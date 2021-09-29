@@ -122,13 +122,9 @@ export class PlayersService implements OnModuleInit {
       await this.configurationService.isEtf2lAccountRequired();
 
     if (isEtf2lAccountRequired) {
-      etf2lProfile = await this.etf2lProfileService
-        .fetchPlayerInfo(steamProfile.id)
-        .catch((err) => {
-          // Either we get a missing profile exception, or a 500 exception (from api).
-          // Just throw it to keep old behavior
-          throw err;
-        });
+      etf2lProfile = await this.etf2lProfileService.fetchPlayerInfo(
+        steamProfile.id,
+      );
 
       if (
         etf2lProfile.bans?.filter((ban) => ban.end > Date.now() / 1000).length >
