@@ -24,7 +24,6 @@ import { InsufficientTf2InGameHoursError } from '../errors/insufficient-tf2-in-g
 import { PlayerRole } from '../models/player-role';
 import { ConfigurationService } from '@/configuration/services/configuration.service';
 import { InjectModel } from '@nestjs/mongoose';
-import { NoEtf2lAccountError } from '../errors/no-etf2l-account.error';
 
 type ForceCreatePlayerOptions = Pick<Player, 'steamId' | 'name'>;
 
