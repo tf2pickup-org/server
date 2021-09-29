@@ -103,7 +103,7 @@ export class TwitchService implements OnModuleInit {
 
   async fetchUserProfile(accessToken: string) {
     // https://dev.twitch.tv/docs/api/reference#get-users
-    const accessToken = this.httpService
+    const token = this.httpService
       .get<TwitchGetUsersResponse>(`${twitchTvApiEndpoint}/users`, {
         headers: {
           Authorization: `Bearer ${accessToken}`,
@@ -112,7 +112,7 @@ export class TwitchService implements OnModuleInit {
       })
       .pipe(map((response) => response.data.data[0]));
 
-    return await firstValueFrom(accessToken);
+    return await firstValueFrom(token);
   }
 
   async saveUserProfile(playerId: string, code: string) {
