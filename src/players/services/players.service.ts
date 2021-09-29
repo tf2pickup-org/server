@@ -19,12 +19,12 @@ import { Events } from '@/events/events';
 import { plainToClass } from 'class-transformer';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { Error, Model, Types, UpdateQuery } from 'mongoose';
-import { Tf2InGameHoursVerificationError } from '../errors/tf2-in-game-hours-verification.error';
 import { AccountBannedError } from '../errors/account-banned.error';
 import { InsufficientTf2InGameHoursError } from '../errors/insufficient-tf2-in-game-hours.error';
 import { PlayerRole } from '../models/player-role';
 import { ConfigurationService } from '@/configuration/services/configuration.service';
 import { InjectModel } from '@nestjs/mongoose';
+import { NoEtf2lAccountError } from '../errors/no-etf2l-account.error';
 
 type ForceCreatePlayerOptions = Pick<Player, 'steamId' | 'name'>;
 
@@ -123,9 +123,13 @@ export class PlayersService implements OnModuleInit {
       await this.configurationService.isEtf2lAccountRequired();
 
     if (isEtf2lAccountRequired) {
-      etf2lProfile = await this.etf2lProfileService.fetchPlayerInfo(
-        steamProfile.id,
-      );
+      etf2lProfile = await this.etf2lProfileService
+        .fetchPlayerInfo(steamProfile.id)
+        .catch((err) => {
+          // Either we get a missing profile exception, or a 500 exception (from api).
+          // Just throw it to keep old behavior
+          throw err;
+        });
 
       if (
         etf2lProfile.bans?.filter((ban) => ban.end > Date.now() / 1000).length >
@@ -169,9 +173,9 @@ export class PlayersService implements OnModuleInit {
   async forceCreatePlayer(
     playerData: ForceCreatePlayerOptions,
   ): Promise<Player> {
-    const etf2lProfile =
-      (await this.etf2lProfileService.fetchPlayerInfo(playerData.steamId)) ??
-      undefined;
+    const etf2lProfile = await this.etf2lProfileService
+      .fetchPlayerInfo(playerData.steamId)
+      .catch(() => undefined);
 
     const { id } = await this.playerModel.create({
       etf2lProfileId: etf2lProfile?.id,
