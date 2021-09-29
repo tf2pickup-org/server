@@ -148,7 +148,7 @@ export class TwitchService implements OnModuleInit {
       userIds: users.map((user) => user.userId),
       userLogins: promotedStreams,
     });
-    
+
     const streams = (
       await Promise.all(
         rawStreams.map(async (stream) => {
