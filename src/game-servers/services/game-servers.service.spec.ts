@@ -72,6 +72,14 @@ describe('GameServersService', () => {
     expect(service).toBeDefined();
   });
 
+  describe('#onModuleInit()', () => {
+    it('should mark all gameservers as offline', async () => {
+      await service.onModuleInit();
+      const gameServer = await gameServerModel.findById(testGameServer.id);
+      expect(gameServer.isOnline).toBe(false);
+    });
+  });
+
   describe('#getAllServers()', () => {
     it('should return all game servers', async () => {
       const ret = await service.getAllGameServers();

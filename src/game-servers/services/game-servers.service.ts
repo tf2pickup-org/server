@@ -1,4 +1,10 @@
-import { forwardRef, Inject, Injectable, Logger } from '@nestjs/common';
+import {
+  forwardRef,
+  Inject,
+  Injectable,
+  Logger,
+  OnModuleInit,
+} from '@nestjs/common';
 import { GameServer, GameServerDocument } from '../models/game-server';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { Mutex } from 'async-mutex';
@@ -19,7 +25,7 @@ interface HeartbeatParams {
 }
 
 @Injectable()
-export class GameServersService {
+export class GameServersService implements OnModuleInit {
   private readonly logger = new Logger(GameServersService.name);
   private readonly mutex = new Mutex();
 
@@ -61,6 +67,18 @@ export class GameServersService {
           `game server ${newGameServer.name} (${newGameServer.address}:${newGameServer.port}) is offline`,
         );
       });
+  }
+
+  async onModuleInit() {
+    // Mark all gameservers as offline and wait for them to register themselves.
+    await this.gameServerModel.updateMany(
+      {},
+      {
+        $set: {
+          isOnline: false,
+        },
+      },
+    );
   }
 
   async getAllGameServers(): Promise<GameServer[]> {
