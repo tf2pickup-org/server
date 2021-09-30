@@ -1,23 +1,23 @@
+import { Environment } from '@/environment/environment';
 import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { HeaderAPIKeyStrategy } from 'passport-headerapikey';
-import { AuthService } from '../services/auth.service';
 
 @Injectable()
-export class ApiKeyStrategy extends PassportStrategy(
+export class SecretStrategy extends PassportStrategy(
   HeaderAPIKeyStrategy,
-  'api-key',
+  'secret',
 ) {
-  constructor(private authService: AuthService) {
+  constructor(private environment: Environment) {
     super(
       {
         header: 'Authorization',
-        prefix: 'api-key ',
+        prefix: 'secret ',
       },
       true,
-      async (apiKey, done) => {
+      async (secret, done) => {
         try {
-          const result = await this.validate(apiKey);
+          const result = await this.validate(secret);
           done(null, result);
         } catch (error) {
           done(error);
@@ -26,8 +26,8 @@ export class ApiKeyStrategy extends PassportStrategy(
     );
   }
 
-  async validate(apiKey: string) {
-    if (apiKey !== (await this.authService.getApiKey())) {
+  async validate(secret: string) {
+    if (secret !== this.environment.gameServerSecret) {
       throw new Error('unauthorized');
     }
 

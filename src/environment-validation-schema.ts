@@ -20,6 +20,7 @@ export default object({
   QUEUE_CONFIG: string().valid('test', '6v6', '9v9', 'bball').default('6v6'),
   LOG_RELAY_ADDRESS: string().required(),
   LOG_RELAY_PORT: number().required(),
+  GAME_SERVER_SECRET: string().required(),
   DISCORD_BOT_TOKEN: any().optional(),
   DISCORD_GUILD: any().optional(),
   DISCORD_QUEUE_NOTIFICATIONS_CHANNEL: any().optional(),

@@ -21,7 +21,7 @@ import { Environment } from '@/environment/environment';
 import { User } from '@/auth/decorators/user.decorator';
 import { Player } from '@/players/models/player';
 import { PlayerRole } from '@/players/models/player-role';
-import { ApiKey } from '@/auth/decorators/api-key.decorator';
+import { Secret } from '@/auth/decorators/secret.decorator';
 import { GameServerHeartbeat } from '../dto/game-server-heartbeat';
 import { RealIp } from 'nestjs-real-ip';
 
@@ -49,7 +49,7 @@ export class GameServersController {
   }
 
   @Post()
-  @ApiKey()
+  @Secret()
   @UsePipes(ValidationPipe)
   @UseInterceptors(ClassSerializerInterceptor)
   async gameServerHeartbeat(

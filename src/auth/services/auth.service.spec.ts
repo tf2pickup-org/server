@@ -18,7 +18,6 @@ import {
   getModelToken,
   MongooseModule,
 } from '@nestjs/mongoose';
-import { ApiKey, apiKeySchema } from '../models/api-key';
 
 describe('AuthService', () => {
   let mongod: MongoMemoryServer;
@@ -37,7 +36,6 @@ describe('AuthService', () => {
         mongooseTestingModule(mongod),
         MongooseModule.forFeature([
           { name: RefreshToken.name, schema: refreshTokenSchema },
-          { name: ApiKey.name, schema: apiKeySchema },
         ]),
       ],
       providers: [
@@ -255,21 +253,6 @@ describe('AuthService', () => {
       expect(service.verifyToken(JwtTokenPurpose.context, token).id).toEqual(
         'FAKE_USER_ID',
       );
-    });
-  });
-
-  describe('#getApiKey()', () => {
-    it('should return an api key', async () => {
-      expect(await service.getApiKey()).toBeTruthy();
-    });
-  });
-
-  describe('#generateApiKey()', () => {
-    it('should regenerate api key', async () => {
-      const oldApiKey = await service.getApiKey();
-      const newApiKey = await service.generateApiKey();
-      expect(oldApiKey).not.toEqual(newApiKey);
-      expect(await service.getApiKey()).toEqual(newApiKey);
     });
   });
 
