@@ -4,7 +4,6 @@ import { GameServersService } from '../services/game-servers.service';
 import { GameServer } from '../models/game-server';
 import { GameServerDiagnosticsService } from '../services/game-server-diagnostics.service';
 import { Environment } from '@/environment/environment';
-import { Player } from '@/players/models/player';
 
 const mockGameServer: GameServer = {
   name: 'FAKE_NAME',
@@ -73,22 +72,6 @@ describe('GameServers Controller', () => {
       const ret = await controller.getGameServer('FAKE_ID');
       expect(gameServersService.getById).toHaveBeenCalledWith('FAKE_ID');
       expect(ret).toEqual(mockGameServer);
-    });
-  });
-
-  describe('#removeGameServer()', () => {
-    beforeEach(() => {
-      gameServersService.removeGameServer.mockResolvedValue(mockGameServer);
-    });
-
-    it('should call the service', async () => {
-      await controller.removeGameServer('FAKE_ID', {
-        id: 'FAKE_ADMIN_ID',
-      } as Player);
-      expect(gameServersService.removeGameServer).toHaveBeenCalledWith(
-        'FAKE_ID',
-        'FAKE_ADMIN_ID',
-      );
     });
   });
 

@@ -6,7 +6,6 @@ import {
   Body,
   UsePipes,
   ValidationPipe,
-  Delete,
   UseInterceptors,
   ClassSerializerInterceptor,
   UseFilters,
@@ -18,8 +17,6 @@ import { Auth } from '@/auth/decorators/auth.decorator';
 import { DocumentNotFoundFilter } from '@/shared/filters/document-not-found.filter';
 import { GameServerDiagnosticsService } from '../services/game-server-diagnostics.service';
 import { Environment } from '@/environment/environment';
-import { User } from '@/auth/decorators/user.decorator';
-import { Player } from '@/players/models/player';
 import { PlayerRole } from '@/players/models/player-role';
 import { Secret } from '@/auth/decorators/secret.decorator';
 import { GameServerHeartbeat } from '../dto/game-server-heartbeat';
@@ -60,16 +57,6 @@ export class GameServersController {
       ...heartbeat,
       internalIpAddress,
     });
-  }
-
-  @Delete(':id')
-  @Auth(PlayerRole.superUser)
-  @UseFilters(DocumentNotFoundFilter)
-  async removeGameServer(
-    @Param('id', ObjectIdValidationPipe) gameServerId: string,
-    @User() admin: Player,
-  ) {
-    await this.gameServersService.removeGameServer(gameServerId, admin.id);
   }
 
   @Post(':id/diagnostics')
