@@ -176,9 +176,9 @@ describe('GameServersService', () => {
     });
   });
 
-  describe('#removeGameServer()', () => {
+  describe('#markAsOffline()', () => {
     it('should mark the given game server as offline', async () => {
-      const ret = await service.removeGameServer(testGameServer.id);
+      const ret = await service.markAsOffline(testGameServer.id);
       expect(ret.isOnline).toBe(false);
       expect((await gameServerModel.findById(ret.id)).isOnline).toBe(false);
     });
@@ -192,7 +192,7 @@ describe('GameServersService', () => {
         givenAdminId = adminId;
       });
 
-      await service.removeGameServer(testGameServer.id, 'FAKE_ADMIN_ID');
+      await service.markAsOffline(testGameServer.id, 'FAKE_ADMIN_ID');
       expect(givenGameServerId).toEqual(testGameServer.id);
       expect(givenAdminId).toEqual('FAKE_ADMIN_ID');
     });

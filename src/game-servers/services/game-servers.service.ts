@@ -158,7 +158,7 @@ export class GameServersService implements OnModuleInit {
     return newGameServer;
   }
 
-  async removeGameServer(
+  async markAsOffline(
     gameServerId: string,
     adminId?: string,
   ): Promise<GameServer> {
@@ -244,7 +244,7 @@ export class GameServersService implements OnModuleInit {
   async removeDeadGameServers() {
     const deadGameServers = await this.getDeadGameServers();
     await Promise.all(
-      deadGameServers.map((gameServer) => this.removeGameServer(gameServer.id)),
+      deadGameServers.map((gameServer) => this.markAsOffline(gameServer.id)),
     );
   }
 }
