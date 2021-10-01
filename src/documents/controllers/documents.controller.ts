@@ -41,6 +41,10 @@ export class DocumentsController {
     @Query('language', new DefaultValuePipe('en')) language: string,
     @Body() document: Document,
   ) {
-    return await this.documentsService.saveDocument(name, language, document.body);
+    return await this.documentsService.saveDocument(
+      name,
+      language,
+      document.body,
+    );
   }
 }
