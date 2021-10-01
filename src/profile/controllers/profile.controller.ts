@@ -51,7 +51,7 @@ export class ProfileController {
   @Auth()
   @Get('/preferences')
   async getPreferences(@User() user: Player) {
-    return this.playerPreferencesService.getPlayerPreferences(user.id);
+    return await this.playerPreferencesService.getPlayerPreferences(user.id);
   }
 
   @Auth()
@@ -60,7 +60,7 @@ export class ProfileController {
     @User() user: Player,
     @Body() preferences: { [key: string]: string },
   ) {
-    return this.playerPreferencesService.updatePlayerPreferences(
+    return await this.playerPreferencesService.updatePlayerPreferences(
       user.id,
       new Map(Object.entries(preferences)),
     );
