@@ -96,7 +96,7 @@ export class GameServersController {
     const id = await this.gameServerDiagnosticsService.runDiagnostics(
       gameServerId,
     );
-    
+
     return {
       diagnosticRunId: id,
       tracking: {
