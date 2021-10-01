@@ -18,7 +18,7 @@ export class OnlinePlayersController {
   @Get()
   @UseInterceptors(ClassSerializerInterceptor)
   async getOnlinePlayers(): Promise<Player[]> {
-    return this.playersService.getManyById(
+    return await this.playersService.getManyById(
       ...this.onlinePlayersService.onlinePlayers,
     );
   }
