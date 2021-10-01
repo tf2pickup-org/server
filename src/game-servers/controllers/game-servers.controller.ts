@@ -56,7 +56,7 @@ export class GameServersController {
     @Body() gameServer: AddGameServer,
     @User() admin: Player,
   ) {
-    return this.gameServersService.addGameServer(gameServer, admin.id);
+    return await this.gameServersService.addGameServer(gameServer, admin.id);
   }
 
   @Patch(':id')
@@ -69,7 +69,7 @@ export class GameServersController {
     @Body() gameServer: UpdateGameServer,
     @User() admin: Player,
   ) {
-    return this.gameServersService.updateGameServer(
+    return await this.gameServersService.updateGameServer(
       gameServerId,
       gameServer,
       admin.id,
@@ -96,6 +96,7 @@ export class GameServersController {
     const id = await this.gameServerDiagnosticsService.runDiagnostics(
       gameServerId,
     );
+    
     return {
       diagnosticRunId: id,
       tracking: {
