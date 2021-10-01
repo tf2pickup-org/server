@@ -71,13 +71,13 @@ export class QueueController {
 
   @Put('map_vote_results/scramble')
   @Auth(PlayerRole.admin)
-  scrambleMaps() {
-    return this.mapVoteService.scramble();
+  async scrambleMaps() {
+    return await this.mapVoteService.scramble();
   }
 
   @Get('announcements')
   async getSubstituteRequests() {
-    return this.queueAnnouncementsService.substituteRequests();
+    return await this.queueAnnouncementsService.substituteRequests();
   }
 
   @Get('friendships')
