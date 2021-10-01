@@ -92,7 +92,7 @@ export class GamesController {
   async getGame(
     @Param('id', ObjectIdValidationPipe) gameId: string,
   ): Promise<Game> {
-    return this.gamesService.getById(gameId);
+    return await this.gamesService.getById(gameId);
   }
 
   @Get(':id/connect-info')

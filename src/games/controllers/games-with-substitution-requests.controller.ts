@@ -13,6 +13,6 @@ export class GamesWithSubstitutionRequestsController {
   @Get()
   @UseInterceptors(ClassSerializerInterceptor)
   async getGamesWithSubstitutionRequests() {
-    return this.gamesService.getGamesWithSubstitutionRequests();
+    return await this.gamesService.getGamesWithSubstitutionRequests();
   }
 }
