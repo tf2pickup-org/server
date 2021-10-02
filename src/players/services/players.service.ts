@@ -130,7 +130,9 @@ export class PlayersService implements OnModuleInit {
         etf2lProfile.bans?.filter((ban) => ban.end > Date.now() / 1000).length >
         0
       ) {
-        throw new AccountBannedError(`account ${steamProfile.id} is banned on ETF2L`);
+        throw new AccountBannedError(
+          `account ${steamProfile.id} is banned on ETF2L`,
+        );
       }
 
       name = etf2lProfile.name;
