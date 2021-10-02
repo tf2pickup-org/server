@@ -281,7 +281,9 @@ describe('PlayersService', () => {
       it('should deny creating tf2pickup.pl profile', async () => {
         await expect(
           service.createPlayer(mockSteamProfile),
-        ).rejects.toThrowError(`account ${mockSteamProfile.id} is banned on ETF2L`);
+        ).rejects.toThrowError(
+          `account ${mockSteamProfile.id} is banned on ETF2L`,
+        );
       });
     });
 
