@@ -25,7 +25,7 @@ import { PlayerRole } from '../models/player-role';
 import { ConfigurationService } from '@/configuration/services/configuration.service';
 import { InjectModel } from '@nestjs/mongoose';
 
-type ForceCreatePlayerOptions = Pick<Player, 'steamId' | 'name'>;
+type ForceCreatePlayerOptions = Pick<Player, 'steamId' | 'name' | 'roles'>;
 
 @Injectable()
 export class PlayersService implements OnModuleInit {
@@ -120,7 +120,7 @@ export class PlayersService implements OnModuleInit {
         name: steamProfile.displayName,
         steamId: steamProfile.id,
         roles: [PlayerRole.superUser, PlayerRole.admin],
-      } as any);
+      });
     }
 
     await this.verifyTf2InGameHours(steamProfile.id);
