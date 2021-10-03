@@ -294,9 +294,10 @@ describe('PlayersService', () => {
       it('should force create the account', async () => {
         const forceCreateSpy = jest.spyOn(service, 'forceCreatePlayer');
 
-        await service.createPlayer(mockSteamProfile);
+        const player = await service.createPlayer(mockSteamProfile);
 
         expect(forceCreateSpy).toHaveBeenCalled();
+        expect(await playerModel.findById(player._id)).toBeTruthy();
       });
 
       it('should assign the super-user role', async () => {
