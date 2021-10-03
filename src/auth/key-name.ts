@@ -3,5 +3,4 @@ export enum KeyName {
   refresh = 'refresh',
   websocket = 'ws',
   context = 'context',
-  apiKey = 'apiKey',
 }

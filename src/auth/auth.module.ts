@@ -79,19 +79,6 @@ const passportModule = PassportModule.register({
           environment.keyStorePassphare,
         ),
     },
-    {
-      provide: 'API_KEY_TOKEN_KEY',
-      inject: [getModelToken(Key.name), Environment],
-      useFactory: async (
-        keyModel: Model<KeyDocument>,
-        environment: Environment,
-      ) =>
-        await importOrGenerateKeys(
-          keyModel,
-          KeyName.apiKey,
-          environment.keyStorePassphare,
-        ),
-    },
     AuthService,
     SteamStrategy,
     JwtStrategy,
