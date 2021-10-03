@@ -66,8 +66,8 @@ export class AdminNotificationsService implements OnModuleInit {
     this.events.playerBanAdded.subscribe(({ ban }) =>
       this.onPlayerBanAdded(ban),
     );
-    this.events.playerBanRevoked.subscribe(({ ban }) =>
-      this.onPlayerBanRevoked(ban),
+    this.events.playerBanRevoked.subscribe(({ ban, adminId }) =>
+      this.onPlayerBanRevoked(ban, adminId),
     );
     this.events.playerSkillChanged.subscribe(
       ({ playerId, oldSkill, newSkill, adminId }) =>
@@ -184,8 +184,8 @@ export class AdminNotificationsService implements OnModuleInit {
     });
   }
 
-  private async onPlayerBanRevoked(ban: PlayerBan) {
-    const admin = await this.playersService.getById(ban.admin);
+  private async onPlayerBanRevoked(ban: PlayerBan, adminId: string) {
+    const admin = await this.playersService.getById(adminId);
     const player = await this.playersService.getById(ban.player);
 
     this.discordService.getAdminsChannel()?.send({

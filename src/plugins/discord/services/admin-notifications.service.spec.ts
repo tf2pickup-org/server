@@ -11,7 +11,7 @@ import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
 import { getConnectionToken, MongooseModule } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import { Connection } from 'mongoose';
+import { Connection, Types } from 'mongoose';
 import { Subject } from 'rxjs';
 import { AdminNotificationsService } from './admin-notifications.service';
 import { DiscordService } from './discord.service';
@@ -211,6 +211,7 @@ describe('AdminNotificationsService', () => {
             end: new Date(),
             reason: 'FAKE_BAN',
           },
+          adminId: admin.id,
         });
       }));
   });
