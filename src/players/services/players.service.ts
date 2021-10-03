@@ -156,10 +156,7 @@ export class PlayersService implements OnModuleInit {
       steamId: steamProfile.id,
       name,
       avatar,
-      roles:
-        this.environment.superUser === steamProfile.id
-          ? [PlayerRole.superUser, PlayerRole.admin]
-          : [],
+      roles: [],
       etf2lProfileId: etf2lProfile?.id,
       hasAcceptedRules: false,
     });
