@@ -1,5 +1,5 @@
 export class AccountBannedError extends Error {
-  constructor(message: string) {
-    super(message);
+  constructor(steamId: string) {
+    super(`account is banned on ETF2L (steamId: ${steamId})`);
   }
 }
