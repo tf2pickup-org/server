@@ -56,6 +56,21 @@ class SteamApiServiceStub {
   }
 }
 
+// http://api.etf2l.org/player/129205
+const blacklistedProfile: Etf2lProfile = {
+  bans: [
+    {
+      end: 4294967295,
+      reason: 'Blacklisted',
+      start: 0,
+    },
+  ],
+  classes: ['Scout', 'Soldier', 'Sniper'],
+  country: 'Russia',
+  id: 129205,
+  name: 'Tixx',
+};
+
 describe('PlayersService', () => {
   let service: PlayersService;
   let mongod: MongoMemoryServer;
@@ -258,21 +273,6 @@ describe('PlayersService', () => {
     });
 
     describe('when the user has an ETF2L ban', () => {
-      // http://api.etf2l.org/player/129205
-      const blacklistedProfile: Etf2lProfile = {
-        bans: [
-          {
-            end: 4294967295,
-            reason: 'Blacklisted',
-            start: 0,
-          },
-        ],
-        classes: ['Scout', 'Soldier', 'Sniper'],
-        country: 'Russia',
-        id: 129205,
-        name: 'Tixx',
-      };
-
       beforeEach(() => {
         etf2lProfileService.fetchPlayerInfo.mockResolvedValue(
           blacklistedProfile,
@@ -286,9 +286,15 @@ describe('PlayersService', () => {
       });
     });
 
-    describe('when a super-user tries logging in', () => {
+    describe('when a super-user tries signing up', () => {
       beforeEach(() => {
         environment.superUser = 'FAKE_STEAM_ID_2';
+
+        jest.spyOn(steamApiService, 'getTf2InGameHours').mockResolvedValue(400);
+
+        etf2lProfileService.fetchPlayerInfo.mockResolvedValue(
+          blacklistedProfile,
+        );
       });
 
       it('should force create the account', async () => {
@@ -298,6 +304,7 @@ describe('PlayersService', () => {
 
         expect(forceCreateSpy).toHaveBeenCalled();
         expect(await playerModel.findById(player._id)).toBeTruthy();
+        expect(player.roles.includes(PlayerRole.superUser)).toBe(true);
       });
 
       it('should assign the super-user role', async () => {
