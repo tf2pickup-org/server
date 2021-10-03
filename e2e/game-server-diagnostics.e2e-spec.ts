@@ -1,6 +1,6 @@
 /* eslint-disable jest/expect-expect */
 import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
+import { ConsoleLogger, INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from '@/app.module';
 import { PlayersService } from '@/players/services/players.service';
@@ -8,12 +8,17 @@ import { AuthService } from '@/auth/services/auth.service';
 import { JwtTokenPurpose } from '@/auth/jwt-token-purpose';
 import { GameServerDiagnosticsService } from '@/game-servers/services/game-server-diagnostics.service';
 import { DiagnosticRunStatus } from '@/game-servers/models/diagnostic-run-status';
-import { players, gameServer } from './test-data';
+import { players } from './test-data';
+import { GameServersService } from '@/game-servers/services/game-servers.service';
+
+jest.setTimeout(70000);
 
 describe('Game server diagnostics (e2e)', () => {
   let app: INestApplication;
   let authToken: string;
   let diagnosticsService: GameServerDiagnosticsService;
+  let gameServersService: GameServersService;
+  let gameServer: string;
 
   const waitForDiagnosticRunToComplete = async (runId: string) =>
     new Promise<void>((resolve) => {
@@ -33,7 +38,17 @@ describe('Game server diagnostics (e2e)', () => {
       }, 1000);
     });
 
-  beforeAll(() => jest.setTimeout(10000));
+  const waitForGameServerToComeOnline = async () =>
+    new Promise<string>((resolve) => {
+      const i = setInterval(async () => {
+        try {
+          const gameServer = await gameServersService.findFreeGameServer();
+          clearInterval(i);
+          resolve(gameServer.id);
+          // eslint-disable-next-line no-empty
+        } catch (e) {}
+      }, 1000);
+    });
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -41,9 +56,13 @@ describe('Game server diagnostics (e2e)', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
-    await app.init();
+    app.useLogger(new ConsoleLogger());
+    await app.listen(3000);
 
     diagnosticsService = app.get(GameServerDiagnosticsService);
+    gameServersService = app.get(GameServersService);
+
+    gameServer = await waitForGameServerToComeOnline();
   });
 
   beforeAll(async () => {

@@ -22,6 +22,8 @@ services:
     image: tf2pickuppl/tf2-gameserver:latest
     environment:
       - 'RCON_PASSWORD=123456'
+      - 'TF2PICKUPORG_API_ADDRESS=127.0.0.1:3000'
+      - 'TF2PICKUPORG_SECRET=xxxxxx'
     network_mode: host
     stdin_open: true
     tty: true
