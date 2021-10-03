@@ -25,7 +25,7 @@ import { PlayerRole } from '../models/player-role';
 import { ConfigurationService } from '@/configuration/services/configuration.service';
 import { InjectModel } from '@nestjs/mongoose';
 
-type ForceCreatePlayerOptions = Pick<Player, 'steamId' | 'name'>;
+type ForceCreatePlayerOptions = Pick<Player, 'steamId' | 'name' | 'roles'>;
 
 @Injectable()
 export class PlayersService implements OnModuleInit {
@@ -113,6 +113,16 @@ export class PlayersService implements OnModuleInit {
   }
 
   async createPlayer(steamProfile: SteamProfile): Promise<Player> {
+    const superUserId = this.environment.superUser;
+
+    if (steamProfile.id === superUserId) {
+      return await this.forceCreatePlayer({
+        name: steamProfile.displayName,
+        steamId: steamProfile.id,
+        roles: [PlayerRole.superUser, PlayerRole.admin],
+      });
+    }
+
     await this.verifyTf2InGameHours(steamProfile.id);
 
     let etf2lProfile: Etf2lProfile;
@@ -142,19 +152,13 @@ export class PlayersService implements OnModuleInit {
       large: steamProfile.photos[2].value,
     };
 
-    const id = (
-      await this.playerModel.create({
-        steamId: steamProfile.id,
-        name,
-        avatar,
-        roles:
-          this.environment.superUser === steamProfile.id
-            ? [PlayerRole.superUser, PlayerRole.admin]
-            : [],
-        etf2lProfileId: etf2lProfile?.id,
-        hasAcceptedRules: false,
-      })
-    )._id;
+    const { _id: id } = await this.playerModel.create({
+      name,
+      avatar,
+      steamId: steamProfile.id,
+      etf2lProfileId: etf2lProfile?.id,
+      hasAcceptedRules: false,
+    });
 
     const player = await this.getById(id);
     this.logger.verbose(`created new player (name: ${player?.name})`);
