@@ -113,6 +113,15 @@ export class PlayersService implements OnModuleInit {
   }
 
   async createPlayer(steamProfile: SteamProfile): Promise<Player> {
+    const superUserId = this.environment.superUser;
+
+    if (steamProfile.id === superUserId) {
+      return await this.forceCreatePlayer({
+        name: steamProfile.displayName,
+        steamId: steamProfile.id,
+      });
+    }
+
     await this.verifyTf2InGameHours(steamProfile.id);
 
     let etf2lProfile: Etf2lProfile;
@@ -142,19 +151,17 @@ export class PlayersService implements OnModuleInit {
       large: steamProfile.photos[2].value,
     };
 
-    const id = (
-      await this.playerModel.create({
-        steamId: steamProfile.id,
-        name,
-        avatar,
-        roles:
-          this.environment.superUser === steamProfile.id
-            ? [PlayerRole.superUser, PlayerRole.admin]
-            : [],
-        etf2lProfileId: etf2lProfile?.id,
-        hasAcceptedRules: false,
-      })
-    )._id;
+    const { _id: id } = await this.playerModel.create({
+      steamId: steamProfile.id,
+      name,
+      avatar,
+      roles:
+        this.environment.superUser === steamProfile.id
+          ? [PlayerRole.superUser, PlayerRole.admin]
+          : [],
+      etf2lProfileId: etf2lProfile?.id,
+      hasAcceptedRules: false,
+    });
 
     const player = await this.getById(id);
     this.logger.verbose(`created new player (name: ${player?.name})`);
