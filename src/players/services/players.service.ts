@@ -119,7 +119,8 @@ export class PlayersService implements OnModuleInit {
       return await this.forceCreatePlayer({
         name: steamProfile.displayName,
         steamId: steamProfile.id,
-      });
+        roles: [PlayerRole.superUser, PlayerRole.admin],
+      } as any);
     }
 
     await this.verifyTf2InGameHours(steamProfile.id);
