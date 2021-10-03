@@ -24,6 +24,7 @@ import {
 } from '@nestjs/mongoose';
 import { Etf2lAccountRequired } from '@/configuration/models/etf2l-account-required';
 import { MinimumTf2InGameHours } from '@/configuration/models/minimum-tf2-in-game-hours';
+import { AccountBannedError } from '../errors/account-banned.error';
 
 jest.mock('./etf2l-profile.service');
 jest.mock('@/configuration/services/configuration.service');
@@ -279,9 +280,9 @@ describe('PlayersService', () => {
       });
 
       it('should deny creating tf2pickup.pl profile', async () => {
-        await expect(
-          service.createPlayer(mockSteamProfile),
-        ).rejects.toThrowError('this account is banned on ETF2L');
+        await expect(service.createPlayer(mockSteamProfile)).rejects.toThrow(
+          AccountBannedError,
+        );
       });
     });
 
