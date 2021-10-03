@@ -1,3 +1,15 @@
+## [7.0.5](https://github.com/tf2pickup-org/server/compare/7.0.4...7.0.5) (2021-10-03)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @nestjs/axios to v0.0.2 ([#1244](https://github.com/tf2pickup-org/server/issues/1244)) ([7a93366](https://github.com/tf2pickup-org/server/commit/7a93366587899b75ed650e582bf277042db7c038))
+* **deps:** update dependency rxjs to v7.3.1 ([#1266](https://github.com/tf2pickup-org/server/issues/1266)) ([da797c8](https://github.com/tf2pickup-org/server/commit/da797c89fba1b49ed65529a21bcdd8d365655353))
+* **deps:** update nest monorepo to v8.0.7 ([#1246](https://github.com/tf2pickup-org/server/issues/1246)) ([5c37845](https://github.com/tf2pickup-org/server/commit/5c378451afda7e89a2df2ecca828a2ab9fdecf0a))
+* **deps:** update nest monorepo to v8.0.8 ([#1254](https://github.com/tf2pickup-org/server/issues/1254)) ([04726dc](https://github.com/tf2pickup-org/server/commit/04726dc81e21835b2774a0e2c924973dc0c1bf7c))
+* **deps:** update nest monorepo to v8.0.9 ([#1264](https://github.com/tf2pickup-org/server/issues/1264)) ([eb8f4d6](https://github.com/tf2pickup-org/server/commit/eb8f4d6b6366795151b543c1dd0b283f828de4f6))
+* **discord:** fix revoked ban notification author ([#1268](https://github.com/tf2pickup-org/server/issues/1268)) ([10006c7](https://github.com/tf2pickup-org/server/commit/10006c78aaa225fc898a85e7518b226f800c3960))
+
 ## [7.0.4](https://github.com/tf2pickup-org/server/compare/7.0.3...7.0.4) (2021-09-22)
 
 
