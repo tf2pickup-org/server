@@ -298,11 +298,8 @@ describe('PlayersService', () => {
       });
 
       it('should force create the account', async () => {
-        const forceCreateSpy = jest.spyOn(service, 'forceCreatePlayer');
-
         const player = await service.createPlayer(mockSteamProfile);
 
-        expect(forceCreateSpy).toHaveBeenCalled();
         expect(await playerModel.findById(player._id)).toBeTruthy();
         expect(player.roles.includes(PlayerRole.superUser)).toBe(true);
       });
