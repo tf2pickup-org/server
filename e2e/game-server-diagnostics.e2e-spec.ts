@@ -41,12 +41,11 @@ describe('Game server diagnostics (e2e)', () => {
   const waitForGameServerToComeOnline = async () =>
     new Promise<string>((resolve) => {
       const i = setInterval(async () => {
-        try {
-          const gameServer = await gameServersService.findFreeGameServer();
+        const gameServers = await gameServersService.getAllGameServers();
+        if (gameServers.length > 0) {
           clearInterval(i);
-          resolve(gameServer.id);
-          // eslint-disable-next-line no-empty
-        } catch (e) {}
+          resolve(gameServers[0].id);
+        }
       }, 1000);
     });
 
