@@ -23,7 +23,7 @@ export class ConfigurationController {
 
   @Get('default-player-skill')
   async getDefaultPlayerSkill() {
-    return this.configurationService.getDefaultPlayerSkill();
+    return await this.configurationService.getDefaultPlayerSkill();
   }
 
   @Put('default-player-skill')
@@ -33,7 +33,7 @@ export class ConfigurationController {
     defaultPlayerSkill: DefaultPlayerSkill,
   ) {
     await this.configurationService.set(defaultPlayerSkill);
-    return this.getDefaultPlayerSkill();
+    return await this.getDefaultPlayerSkill();
   }
 
   @Get('whitelist-id')
@@ -45,7 +45,7 @@ export class ConfigurationController {
   @Auth(PlayerRole.admin)
   async setWhitelistId(@Body(new ValidationPipe()) whitelistId: WhitelistId) {
     await this.configurationService.set(whitelistId);
-    return this.getWhitelistId();
+    return await this.getWhitelistId();
   }
 
   @Get('etf2l-account-required')
@@ -59,7 +59,7 @@ export class ConfigurationController {
     @Body(new ValidationPipe()) etf2lAccountRequired: Etf2lAccountRequired,
   ) {
     await this.configurationService.set(etf2lAccountRequired);
-    return this.isEtf2lAccountRequired();
+    return await this.isEtf2lAccountRequired();
   }
 
   @Get('minimum-tf2-in-game-hours')
@@ -73,7 +73,7 @@ export class ConfigurationController {
     @Body(new ValidationPipe()) minimumTf2InGameHours: MinimumTf2InGameHours,
   ) {
     await this.configurationService.set(minimumTf2InGameHours);
-    return this.getMinimumTf2InGameHours();
+    return await this.getMinimumTf2InGameHours();
   }
 
   @Get('voice-server')
@@ -85,6 +85,6 @@ export class ConfigurationController {
   @Auth(PlayerRole.admin)
   async setVoiceServer(@Body(new ValidationPipe()) voiceServer: VoiceServer) {
     await this.configurationService.set(voiceServer);
-    return this.getVoiceServer();
+    return await this.getVoiceServer();
   }
 }

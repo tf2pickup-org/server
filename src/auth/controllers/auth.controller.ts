@@ -67,16 +67,14 @@ export class AuthController {
 
   @Post()
   async refreshToken(@Query('refresh_token') oldRefreshToken: string) {
-    if (oldRefreshToken !== undefined) {
-      try {
-        const { refreshToken, authToken } =
-          await this.authService.refreshTokens(oldRefreshToken);
-        return { refreshToken, authToken };
-      } catch (error) {
-        throw new BadRequestException(error.message);
-      }
-    } else {
+    if (!oldRefreshToken) {
       throw new BadRequestException('no valid operation specified');
+    }
+
+    try {
+      return await this.authService.refreshTokens(oldRefreshToken);
+    } catch (error) {
+      throw new BadRequestException(error.message);
     }
   }
 
@@ -87,6 +85,7 @@ export class AuthController {
       JwtTokenPurpose.websocket,
       user.id,
     );
+
     return { wsToken };
   }
 

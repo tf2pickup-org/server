@@ -202,7 +202,7 @@ export class PlayersController {
     }
 
     if (revoke !== undefined) {
-      return this.playerBansService.revokeBan(banId, user.id);
+      return await this.playerBansService.revokeBan(banId, user.id);
     }
   }
 

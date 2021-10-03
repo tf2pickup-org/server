@@ -65,7 +65,7 @@ export class TwitchController {
   @Auth()
   @UseInterceptors(ClassSerializerInterceptor)
   async disconnect(@User() user: Player): Promise<TwitchTvProfile> {
-    return this.twitchService.deleteUserProfile(user.id);
+    return await this.twitchService.deleteUserProfile(user.id);
   }
 
   @Get('streams')

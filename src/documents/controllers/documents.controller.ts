@@ -29,7 +29,7 @@ export class DocumentsController {
     @Param('name') name: string,
     @Query('language', new DefaultValuePipe('en')) language: string,
   ) {
-    return this.documentsService.getDocument(name, language);
+    return await this.documentsService.getDocument(name, language);
   }
 
   @Put(':name')
@@ -41,6 +41,10 @@ export class DocumentsController {
     @Query('language', new DefaultValuePipe('en')) language: string,
     @Body() document: Document,
   ) {
-    return this.documentsService.saveDocument(name, language, document.body);
+    return await this.documentsService.saveDocument(
+      name,
+      language,
+      document.body,
+    );
   }
 }

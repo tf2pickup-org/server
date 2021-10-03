@@ -26,6 +26,6 @@ export class GameServerDiagnosticsController {
   async getDiagnosticRun(
     @Param('id', ObjectIdValidationPipe) id: string,
   ): Promise<GameServerDiagnosticRun> {
-    return this.gameServerDiagnosticsService.getDiagnosticRunById(id);
+    return await this.gameServerDiagnosticsService.getDiagnosticRunById(id);
   }
 }
