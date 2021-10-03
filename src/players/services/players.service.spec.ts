@@ -286,6 +286,25 @@ describe('PlayersService', () => {
       });
     });
 
+    describe('when a super-user tries logging in', () => {
+      beforeEach(() => {
+        environment.superUser = 'FAKE_STEAM_ID_2';
+      });
+
+      it('should force create the account', async () => {
+        const forceCreateSpy = jest.spyOn(service, 'forceCreatePlayer');
+
+        await service.createPlayer(mockSteamProfile);
+
+        expect(forceCreateSpy).toHaveBeenCalled();
+      });
+
+      it('should assign the super-user role', async () => {
+        const ret = await service.createPlayer(mockSteamProfile);
+        expect(ret.roles.includes(PlayerRole.superUser)).toBe(true);
+      });
+    });
+
     it('should create new player', async () => {
       const ret = await service.createPlayer(mockSteamProfile);
       expect(ret).toMatchObject({
@@ -299,12 +318,6 @@ describe('PlayersService', () => {
         roles: [],
         etf2lProfileId: 112758,
       });
-    });
-
-    it('should assign the super-user role', async () => {
-      environment.superUser = 'FAKE_STEAM_ID_2';
-      const ret = await service.createPlayer(mockSteamProfile);
-      expect(ret.roles.includes(PlayerRole.superUser)).toBe(true);
     });
 
     it('should emit the playerRegisters event', async () =>
