@@ -153,10 +153,9 @@ export class PlayersService implements OnModuleInit {
     };
 
     const { _id: id } = await this.playerModel.create({
-      steamId: steamProfile.id,
       name,
       avatar,
-      roles: [],
+      steamId: steamProfile.id,
       etf2lProfileId: etf2lProfile?.id,
       hasAcceptedRules: false,
     });
