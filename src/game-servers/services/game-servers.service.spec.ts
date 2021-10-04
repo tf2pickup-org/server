@@ -73,7 +73,14 @@ describe('GameServersService', () => {
   });
 
   describe('#onModuleInit()', () => {
-    it('should mark all gameservers as offline', async () => {
+    beforeEach(async () => {
+      const fiveMinutesAgo = new Date();
+      fiveMinutesAgo.setMinutes(fiveMinutesAgo.getMinutes() - 5);
+      testGameServer.lastHeartbeatAt = fiveMinutesAgo;
+      await testGameServer.save();
+    });
+
+    it('should mark dead gameservers as offline', async () => {
       await service.onModuleInit();
       const gameServer = await gameServerModel.findById(testGameServer.id);
       expect(gameServer.isOnline).toBe(false);
