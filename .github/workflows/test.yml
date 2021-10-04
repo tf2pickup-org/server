@@ -12,7 +12,34 @@ on:
       - 'master'
 
 jobs:
-  tests:
+  unit-tests:
+    name: unit
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [14.x, 16.8.x]
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v2
+      with:
+        node-version: ${{ matrix.node-version }}
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Run unit test
+      run: npm run test:ci
+
+    - name: Upload test coverage info
+      uses: codecov/codecov-action@v2
+
+  e2e-tests:
+    name: end-to-end
     runs-on: ubuntu-latest
 
     strategy:
@@ -47,12 +74,6 @@ jobs:
     - name: Install dependencies
       run: npm install
 
-    - name: Run unit test
-      run: npm run test:ci
-
-    - name: Upload test coverage info
-      uses: codecov/codecov-action@v2
-
     - name: Run e2e tests
       env:
         API_URL: 'http://localhost:3000'
@@ -73,6 +94,26 @@ jobs:
 
     - name: Upload test coverage info
       uses: codecov/codecov-action@v2
+
+  build:
+    name: build
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [14.x, 16.8.x]
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v2
+      with:
+        node-version: ${{ matrix.node-version }}
+
+    - name: Install dependencies
+      run: npm install
 
     - name: Build
       run: npm run build
