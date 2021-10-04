@@ -70,15 +70,7 @@ export class GameServersService implements OnModuleInit {
   }
 
   async onModuleInit() {
-    // Mark all gameservers as offline and wait for them to register themselves.
-    await this.gameServerModel.updateMany(
-      {},
-      {
-        $set: {
-          isOnline: false,
-        },
-      },
-    );
+    await this.removeDeadGameServers();
   }
 
   async getAllGameServers(): Promise<GameServer[]> {
