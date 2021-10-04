@@ -2,11 +2,12 @@ import { Environment } from '@/environment/environment';
 import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { HeaderAPIKeyStrategy } from 'passport-headerapikey';
+import { SecretPurpose } from '../secret-purpose';
 
 @Injectable()
-export class SecretStrategy extends PassportStrategy(
+export class GameServerSecretStrategy extends PassportStrategy(
   HeaderAPIKeyStrategy,
-  'secret',
+  SecretPurpose.gameServer,
 ) {
   constructor(private environment: Environment) {
     super(

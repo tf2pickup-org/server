@@ -21,6 +21,7 @@ import { PlayerRole } from '@/players/models/player-role';
 import { Secret } from '@/auth/decorators/secret.decorator';
 import { GameServerHeartbeat } from '../dto/game-server-heartbeat';
 import { RealIp } from 'nestjs-real-ip';
+import { SecretPurpose } from '@/auth/secret-purpose';
 
 @Controller('game-servers')
 export class GameServersController {
@@ -46,7 +47,7 @@ export class GameServersController {
   }
 
   @Post()
-  @Secret()
+  @Secret(SecretPurpose.gameServer)
   @UsePipes(ValidationPipe)
   @UseInterceptors(ClassSerializerInterceptor)
   async gameServerHeartbeat(
