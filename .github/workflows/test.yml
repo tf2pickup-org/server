@@ -60,7 +60,7 @@ jobs:
           - 27020:27020/udp
         env:
           RCON_PASSWORD: '123456'
-          TF2PICKUPORG_API_ADDRESS: '127.0.0.1:3000'
+          TF2PICKUPORG_API_ADDRESS: 'host.docker.internal:3000'
           TF2PICKUPORG_SECRET: 'xxxxxx'
         options: --tty --add-host host.docker.internal:host-gateway
 
