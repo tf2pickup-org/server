@@ -132,7 +132,6 @@ export class GameServersService implements OnModuleInit {
   async updateGameServer(
     gameServerId: string,
     update: Partial<GameServer>,
-    adminId?: string,
   ): Promise<GameServer> {
     const oldGameServer = await this.getById(gameServerId);
     const newGameServer = plainToClass(
@@ -145,22 +144,14 @@ export class GameServersService implements OnModuleInit {
     this.events.gameServerUpdated.next({
       oldGameServer,
       newGameServer,
-      adminId,
     });
     return newGameServer;
   }
 
-  async markAsOffline(
-    gameServerId: string,
-    adminId?: string,
-  ): Promise<GameServer> {
-    return this.updateGameServer(
-      gameServerId,
-      {
-        isOnline: false,
-      },
-      adminId,
-    );
+  async markAsOffline(gameServerId: string): Promise<GameServer> {
+    return this.updateGameServer(gameServerId, {
+      isOnline: false,
+    });
   }
 
   async findFreeGameServer(): Promise<GameServer> {

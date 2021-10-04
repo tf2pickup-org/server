@@ -78,14 +78,10 @@ export class Events {
    */
   readonly substituteRequestsChange = new Subject<void>();
 
-  readonly gameServerAdded = new Subject<{
-    gameServer: GameServer;
-    adminId?: string;
-  }>();
+  readonly gameServerAdded = new Subject<{ gameServer: GameServer }>();
   readonly gameServerUpdated = new Subject<{
     oldGameServer: GameServer;
     newGameServer: GameServer;
-    adminId?: string;
   }>();
 
   constructor() {

@@ -1,7 +1,7 @@
 import { MessageEmbed } from 'discord.js';
 import { Colors } from './colors';
 
-interface GameServerAddedOptions {
+interface GameServerOnlineOptions {
   gameServer: {
     name: string;
     address: string;
@@ -13,10 +13,10 @@ interface GameServerAddedOptions {
   };
 }
 
-export const gameServerAdded = (options: GameServerAddedOptions) =>
+export const gameServerOnline = (options: GameServerOnlineOptions) =>
   new MessageEmbed()
     .setColor(Colors.GameServerAdded)
-    .setTitle('Game server added')
+    .setTitle('Game server is back online')
     .setDescription(
       [
         `Name: **${options.gameServer.name}**`,

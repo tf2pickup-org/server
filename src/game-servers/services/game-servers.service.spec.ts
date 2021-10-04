@@ -164,22 +164,17 @@ describe('GameServersService', () => {
     it('should emit the gameServerUpdated event', async () => {
       let givenGameServerId: string;
       let givenGameServerName: string;
-      let givenAdminId: string;
 
-      events.gameServerUpdated.subscribe(({ newGameServer, adminId }) => {
+      events.gameServerUpdated.subscribe(({ newGameServer }) => {
         givenGameServerId = newGameServer.id;
         givenGameServerName = newGameServer.name;
-        givenAdminId = adminId;
       });
 
-      await service.updateGameServer(
-        testGameServer.id,
-        { name: 'updated game server' },
-        'FAKE_ADMIN_ID',
-      );
+      await service.updateGameServer(testGameServer.id, {
+        name: 'updated game server',
+      });
       expect(givenGameServerId).toEqual(testGameServer.id);
       expect(givenGameServerName).toEqual('updated game server');
-      expect(givenAdminId).toEqual('FAKE_ADMIN_ID');
     });
   });
 
@@ -192,16 +187,13 @@ describe('GameServersService', () => {
 
     it('should emit the gameServerUpdated event', async () => {
       let givenGameServerId: string;
-      let givenAdminId: string;
 
-      events.gameServerUpdated.subscribe(({ newGameServer, adminId }) => {
+      events.gameServerUpdated.subscribe(({ newGameServer }) => {
         givenGameServerId = newGameServer.id;
-        givenAdminId = adminId;
       });
 
-      await service.markAsOffline(testGameServer.id, 'FAKE_ADMIN_ID');
+      await service.markAsOffline(testGameServer.id);
       expect(givenGameServerId).toEqual(testGameServer.id);
-      expect(givenAdminId).toEqual('FAKE_ADMIN_ID');
     });
   });
 
