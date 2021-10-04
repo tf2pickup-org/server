@@ -278,7 +278,7 @@ describe('AdminNotificationsService', () => {
       }));
   });
 
-  describe('when the gameServer is removed', () => {
+  describe('when the gameServer goes offline', () => {
     it('should send a message', async () => {
       sentMessages.subscribe((message) => {
         expect(message.embed).toBeTruthy();
@@ -293,6 +293,26 @@ describe('AdminNotificationsService', () => {
         newGameServer: {
           name: 'fake game server',
           isOnline: false,
+        } as GameServer,
+      });
+    });
+  });
+
+  describe('when the gameServer comes back online', () => {
+    it('should send a message', async () => {
+      sentMessages.subscribe((message) => {
+        expect(message.embed).toBeTruthy();
+        expect(message.embed.title).toEqual('Game server is back online');
+      });
+
+      events.gameServerUpdated.next({
+        oldGameServer: {
+          name: 'fake game server',
+          isOnline: false,
+        } as GameServer,
+        newGameServer: {
+          name: 'fake game server',
+          isOnline: true,
         } as GameServer,
       });
     });
