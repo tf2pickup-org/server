@@ -9180,7 +9180,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rxjs@npm:7.3.1, rxjs@npm:^7.2.0":
+"rxjs@npm:7.4.0":
+  version: 7.4.0
+  resolution: "rxjs@npm:7.4.0"
+  dependencies:
+    tslib: ~2.1.0
+  checksum: 6b33172a760dcad6882fdc836ee8cf1ebe160dd7eaad95c45a12338ffdaa96eb41e48e6c25bbd3d1fdf45075949ff447954bc17a9d01c688558a67967d09c114
+  languageName: node
+  linkType: hard
+
+"rxjs@npm:^7.2.0":
   version: 7.3.1
   resolution: "rxjs@npm:7.3.1"
   dependencies:
@@ -9401,7 +9410,7 @@ __metadata:
     reflect-metadata: 0.1.13
     release-it: 14.11.6
     rimraf: 3.0.2
-    rxjs: 7.3.1
+    rxjs: 7.4.0
     socket.io-client: 4.2.0
     steamid: 2.0.0
     supertest: 6.1.6
