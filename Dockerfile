@@ -2,7 +2,7 @@ FROM node:lts-alpine AS build
 WORKDIR /tf2pickup.pl
 
 COPY package*.json ./
-RUN npm install
+RUN yarn install --frozen-lockfile
 
 COPY . .
 RUN npm run build
@@ -16,7 +16,8 @@ ENV NODE_ENV=${NODE_ENV}
 
 COPY package*.json ./
 
-RUN npm install --only=production
+RUN yarn install \
+ && yarn cache clean
 
 COPY --from=build /tf2pickup.pl/configs ./configs
 COPY --from=build /tf2pickup.pl/dist ./dist
