@@ -5,7 +5,7 @@ COPY package*.json ./
 RUN yarn install --frozen-lockfile
 
 COPY . .
-RUN npm run build
+RUN yarn build
 
 
 FROM node:lts-alpine
@@ -24,6 +24,6 @@ COPY --from=build /tf2pickup.pl/dist ./dist
 COPY migrations ./migrations
 
 USER node
-CMD [ "npm", "run", "prod" ]
+CMD [ "yarn", "prod" ]
 
 EXPOSE 3000
