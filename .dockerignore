@@ -13,7 +13,7 @@ node_modules/
 .keystore
 .migrate
 .prettierrc
-.releast-it.json
+.release-it.json
 *.md
 docker-compose.yml
 *jest.config.ts
