@@ -6,24 +6,22 @@ import {
   Body,
   UsePipes,
   ValidationPipe,
-  Delete,
   UseInterceptors,
   ClassSerializerInterceptor,
   UseFilters,
   HttpCode,
-  Patch,
 } from '@nestjs/common';
 import { GameServersService } from '../services/game-servers.service';
 import { ObjectIdValidationPipe } from '@/shared/pipes/object-id-validation.pipe';
 import { Auth } from '@/auth/decorators/auth.decorator';
 import { DocumentNotFoundFilter } from '@/shared/filters/document-not-found.filter';
-import { AddGameServer } from '../dto/add-game-server';
 import { GameServerDiagnosticsService } from '../services/game-server-diagnostics.service';
 import { Environment } from '@/environment/environment';
-import { User } from '@/auth/decorators/user.decorator';
-import { Player } from '@/players/models/player';
 import { PlayerRole } from '@/players/models/player-role';
-import { UpdateGameServer } from '../dto/update-game-server';
+import { Secret } from '@/auth/decorators/secret.decorator';
+import { GameServerHeartbeat } from '../dto/game-server-heartbeat';
+import { RealIp } from 'nestjs-real-ip';
+import { SecretPurpose } from '@/auth/secret-purpose';
 
 @Controller('game-servers')
 export class GameServersController {
@@ -49,41 +47,17 @@ export class GameServersController {
   }
 
   @Post()
-  @Auth(PlayerRole.superUser)
+  @Secret(SecretPurpose.gameServer)
   @UsePipes(ValidationPipe)
   @UseInterceptors(ClassSerializerInterceptor)
-  async addGameServer(
-    @Body() gameServer: AddGameServer,
-    @User() admin: Player,
+  async gameServerHeartbeat(
+    @Body() heartbeat: GameServerHeartbeat,
+    @RealIp() internalIpAddress: string,
   ) {
-    return await this.gameServersService.addGameServer(gameServer, admin.id);
-  }
-
-  @Patch(':id')
-  @Auth(PlayerRole.superUser)
-  @UsePipes(ValidationPipe)
-  @UseInterceptors(ClassSerializerInterceptor)
-  @UseFilters(DocumentNotFoundFilter)
-  async updateGameServer(
-    @Param('id', ObjectIdValidationPipe) gameServerId: string,
-    @Body() gameServer: UpdateGameServer,
-    @User() admin: Player,
-  ) {
-    return await this.gameServersService.updateGameServer(
-      gameServerId,
-      gameServer,
-      admin.id,
-    );
-  }
-
-  @Delete(':id')
-  @Auth(PlayerRole.superUser)
-  @UseFilters(DocumentNotFoundFilter)
-  async removeGameServer(
-    @Param('id', ObjectIdValidationPipe) gameServerId: string,
-    @User() admin: Player,
-  ) {
-    await this.gameServersService.removeGameServer(gameServerId, admin.id);
+    return this.gameServersService.heartbeat({
+      ...heartbeat,
+      internalIpAddress,
+    });
   }
 
   @Post(':id/diagnostics')

@@ -8,7 +8,6 @@ import {
   gameServerDiagnosticRunSchema,
 } from './models/game-server-diagnostic-run';
 import { GameServerDiagnosticsController } from './controllers/game-server-diagnostics.controller';
-import { ServerDiscovery } from './diagnostic-checks/server-discovery';
 import { RconConnection } from './diagnostic-checks/rcon-connection';
 import { LogForwarding } from './diagnostic-checks/log-forwarding';
 import { LogReceiverModule } from '@/log-receiver/log-receiver.module';
@@ -30,7 +29,6 @@ import { GamesModule } from '@/games/games.module';
   providers: [
     GameServersService,
     GameServerDiagnosticsService,
-    ServerDiscovery,
     RconConnection,
     LogForwarding,
   ],

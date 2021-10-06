@@ -12,7 +12,7 @@ export class RconConnection implements DiagnosticCheckRunner {
     const createRcon = () =>
       new Promise((resolve, reject) => {
         const rcon = new Rcon({
-          host: gameServer.address,
+          host: gameServer.internalIpAddress,
           port: parseInt(gameServer.port, 10),
           password: gameServer.rconPassword,
           timeout: 30000,

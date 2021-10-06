@@ -64,6 +64,8 @@ describe('AuthService', () => {
     authKeys = module.get('AUTH_TOKEN_KEY');
     refreshKeys = module.get('REFRESH_TOKEN_KEY');
     connection = module.get(getConnectionToken());
+
+    await service.onModuleInit();
   });
 
   afterEach(async () => {

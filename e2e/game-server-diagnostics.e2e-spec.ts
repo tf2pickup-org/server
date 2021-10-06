@@ -6,16 +6,19 @@ import { AppModule } from '@/app.module';
 import { PlayersService } from '@/players/services/players.service';
 import { AuthService } from '@/auth/services/auth.service';
 import { JwtTokenPurpose } from '@/auth/jwt-token-purpose';
-import { GameServersService } from '@/game-servers/services/game-servers.service';
 import { GameServerDiagnosticsService } from '@/game-servers/services/game-server-diagnostics.service';
 import { DiagnosticRunStatus } from '@/game-servers/models/diagnostic-run-status';
-import { players, gameServer } from './test-data';
+import { players } from './test-data';
+import { GameServersService } from '@/game-servers/services/game-servers.service';
+
+jest.setTimeout(70000);
 
 describe('Game server diagnostics (e2e)', () => {
   let app: INestApplication;
   let authToken: string;
-  let faultyGameServerId: string;
   let diagnosticsService: GameServerDiagnosticsService;
+  let gameServersService: GameServersService;
+  let gameServer: string;
 
   const waitForDiagnosticRunToComplete = async (runId: string) =>
     new Promise<void>((resolve) => {
@@ -35,7 +38,16 @@ describe('Game server diagnostics (e2e)', () => {
       }, 1000);
     });
 
-  beforeAll(() => jest.setTimeout(10000));
+  const waitForGameServerToComeOnline = async () =>
+    new Promise<string>((resolve) => {
+      const i = setInterval(async () => {
+        const gameServers = await gameServersService.getAllGameServers();
+        if (gameServers.length > 0) {
+          clearInterval(i);
+          resolve(gameServers[0].id);
+        }
+      }, 1000);
+    });
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -43,9 +55,12 @@ describe('Game server diagnostics (e2e)', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
-    await app.init();
+    await app.listen(3000);
 
     diagnosticsService = app.get(GameServerDiagnosticsService);
+    gameServersService = app.get(GameServersService);
+
+    gameServer = await waitForGameServerToComeOnline();
   });
 
   beforeAll(async () => {
@@ -57,21 +72,9 @@ describe('Game server diagnostics (e2e)', () => {
       JwtTokenPurpose.auth,
       player.id,
     );
-
-    const gameServersService = app.get(GameServersService);
-    faultyGameServerId = (
-      await gameServersService.addGameServer({
-        name: 'faulty game server',
-        address: '127.0.0.1',
-        port: '30987',
-        rconPassword: '1234',
-      })
-    ).id;
   });
 
   afterAll(async () => {
-    const gameServersService = app.get(GameServersService);
-    await gameServersService.removeGameServer(faultyGameServerId);
     await app.close();
   });
 
@@ -101,35 +104,6 @@ describe('Game server diagnostics (e2e)', () => {
           expect(
             body.checks.every((check) => check.status === 'completed'),
           ).toBe(true);
-        });
-    });
-  });
-
-  describe('diagnostic run for a faulty game server', () => {
-    let diagnosticRunId: string;
-
-    beforeEach(async () => {
-      diagnosticRunId = await diagnosticsService.runDiagnostics(
-        faultyGameServerId,
-      );
-    });
-
-    afterEach(async () => {
-      await waitForDiagnosticRunToComplete(diagnosticRunId);
-    });
-
-    it('GET /game-server-diagnostics/:id', async () => {
-      await waitForDiagnosticRunToComplete(diagnosticRunId);
-
-      return request(app.getHttpServer())
-        .get(`/game-server-diagnostics/${diagnosticRunId}`)
-        .auth(authToken, { type: 'bearer' })
-        .expect(200)
-        .then((response) => {
-          const body = response.body;
-          expect(body.id).toEqual(diagnosticRunId);
-          expect(body.gameServer).toEqual(faultyGameServerId);
-          expect(body.status).toEqual('failed');
         });
     });
   });

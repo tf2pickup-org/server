@@ -4,13 +4,17 @@ import { GameServersService } from '../services/game-servers.service';
 import { GameServer } from '../models/game-server';
 import { GameServerDiagnosticsService } from '../services/game-server-diagnostics.service';
 import { Environment } from '@/environment/environment';
-import { Player } from '@/players/models/player';
 
 const mockGameServer: GameServer = {
   name: 'FAKE_NAME',
   address: 'FAKE_ADDRESS',
   port: '27015',
   rconPassword: 'FAKE_RCON_PASSWORD',
+  internalIpAddress: 'FAKE_INTERNAL_IP_ADDRESS',
+  id: 'FAKE_GAME_SERVER_ID',
+  createdAt: new Date(),
+  isAvailable: true,
+  isOnline: true,
 };
 
 jest.mock('../services/game-servers.service');
@@ -68,68 +72,6 @@ describe('GameServers Controller', () => {
       const ret = await controller.getGameServer('FAKE_ID');
       expect(gameServersService.getById).toHaveBeenCalledWith('FAKE_ID');
       expect(ret).toEqual(mockGameServer);
-    });
-  });
-
-  describe('#addGameServer()', () => {
-    beforeEach(() => {
-      gameServersService.addGameServer.mockResolvedValue(mockGameServer);
-    });
-
-    it('should add the game server', async () => {
-      const dto = {
-        name: 'FAKE_SERVER_NAME',
-        port: '27015',
-        address: 'FAKE_SERVER_ADDRESS',
-        rconPassword: 'FAKE_RCON_PASSWORD',
-      };
-      const ret = await controller.addGameServer(dto, {
-        id: 'FAKE_ADMIN_ID',
-      } as Player);
-      expect(gameServersService.addGameServer).toHaveBeenCalledWith(
-        dto,
-        'FAKE_ADMIN_ID',
-      );
-      expect(ret).toEqual(mockGameServer);
-    });
-  });
-
-  describe('#updateGameServer()', () => {
-    beforeEach(() => {
-      gameServersService.updateGameServer.mockImplementation(
-        (gameServerId, update) => {
-          return Promise.resolve({ ...mockGameServer, update });
-        },
-      );
-    });
-
-    it('should call the service', async () => {
-      await controller.updateGameServer(
-        'FAKE_ID',
-        { name: 'update game server' },
-        { id: 'FAKE_ADMIN_ID' } as Player,
-      );
-      expect(gameServersService.updateGameServer).toHaveBeenCalledWith(
-        'FAKE_ID',
-        { name: 'update game server' },
-        'FAKE_ADMIN_ID',
-      );
-    });
-  });
-
-  describe('#removeGameServer()', () => {
-    beforeEach(() => {
-      gameServersService.removeGameServer.mockResolvedValue(mockGameServer);
-    });
-
-    it('should call the service', async () => {
-      await controller.removeGameServer('FAKE_ID', {
-        id: 'FAKE_ADMIN_ID',
-      } as Player);
-      expect(gameServersService.removeGameServer).toHaveBeenCalledWith(
-        'FAKE_ID',
-        'FAKE_ADMIN_ID',
-      );
     });
   });
 

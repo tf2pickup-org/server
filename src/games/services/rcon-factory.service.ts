@@ -7,7 +7,7 @@ export class RconFactoryService {
   async createRcon(gameServer: GameServer): Promise<Rcon> {
     return new Promise((resolve, reject) => {
       const rcon = new Rcon({
-        host: gameServer.address,
+        host: gameServer.internalIpAddress,
         port: parseInt(gameServer.port, 10),
         password: gameServer.rconPassword,
         timeout: 30000,
