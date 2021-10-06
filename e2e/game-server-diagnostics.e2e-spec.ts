@@ -1,6 +1,6 @@
 /* eslint-disable jest/expect-expect */
 import { Test, TestingModule } from '@nestjs/testing';
-import { ConsoleLogger, INestApplication } from '@nestjs/common';
+import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from '@/app.module';
 import { PlayersService } from '@/players/services/players.service';
@@ -55,7 +55,6 @@ describe('Game server diagnostics (e2e)', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
-    app.useLogger(new ConsoleLogger());
     await app.listen(3000);
 
     diagnosticsService = app.get(GameServerDiagnosticsService);

@@ -1,5 +1,5 @@
 import { Environment } from '@/environment/environment';
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { HeaderAPIKeyStrategy } from 'passport-headerapikey';
 import { SecretPurpose } from '../secret-purpose';
@@ -16,9 +16,9 @@ export class GameServerSecretStrategy extends PassportStrategy(
         prefix: 'secret ',
       },
       true,
-      async (secret, done) => {
+      (secret, done) => {
         try {
-          const result = await this.validate(secret);
+          const result = this.validate(secret);
           done(null, result);
         } catch (error) {
           done(error);
@@ -27,9 +27,9 @@ export class GameServerSecretStrategy extends PassportStrategy(
     );
   }
 
-  async validate(secret: string) {
+  validate(secret: string) {
     if (secret !== this.environment.gameServerSecret) {
-      throw new Error('unauthorized');
+      throw new UnauthorizedException();
     }
 
     return true;
