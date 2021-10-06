@@ -95,5 +95,6 @@
     "ts-loader": "9.2.6",
     "ts-node": "10.2.1",
     "typescript": "4.3.5"
-  }
+  },
+  "packageManager": "yarn@3.0.2"
 }

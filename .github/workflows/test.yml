@@ -30,10 +30,10 @@ jobs:
         node-version: ${{ matrix.node-version }}
 
     - name: Install dependencies
-      run: npm install
+      run: yarn install --immutable
 
     - name: Run unit test
-      run: npm run test:ci
+      run: yarn test:ci
 
     - name: Upload test coverage info
       uses: codecov/codecov-action@v2
@@ -74,7 +74,7 @@ jobs:
         node-version: ${{ matrix.node-version }}
 
     - name: Install dependencies
-      run: npm install
+      run: yarn install --immutable
 
     - name: Run e2e tests
       env:
@@ -93,7 +93,7 @@ jobs:
         LOG_RELAY_ADDRESS: 'host.docker.internal'
         LOG_RELAY_PORT: '9871'
         GAME_SERVER_SECRET: 'xxxxxx'
-      run: npm run test:e2e
+      run: yarn test:e2e
 
     - name: Upload test coverage info
       uses: codecov/codecov-action@v2
@@ -116,7 +116,7 @@ jobs:
         node-version: ${{ matrix.node-version }}
 
     - name: Install dependencies
-      run: npm install
+      run: yarn install --immutable
 
     - name: Build
-      run: npm run build
+      run: yarn build
