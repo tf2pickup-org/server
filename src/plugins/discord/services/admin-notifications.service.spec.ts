@@ -264,13 +264,6 @@ describe('AdminNotificationsService', () => {
   });
 
   describe('when the gameServerAdded event emits', () => {
-    let admin: Player;
-
-    beforeEach(async () => {
-      // @ts-expect-error
-      admin = await playersService._createOne();
-    });
-
     it('should send a message', async () =>
       new Promise<void>((resolve) => {
         sentMessages.subscribe((message) => {
@@ -281,35 +274,46 @@ describe('AdminNotificationsService', () => {
 
         events.gameServerAdded.next({
           gameServer: { name: 'fake game server' } as GameServer,
-          adminId: admin.id,
         });
       }));
   });
 
-  describe('when the gameServer is removed', () => {
-    let admin: Player;
-
-    beforeEach(async () => {
-      // @ts-expect-error
-      admin = await playersService._createOne();
-    });
-
+  describe('when the gameServer goes offline', () => {
     it('should send a message', async () => {
       sentMessages.subscribe((message) => {
         expect(message.embed).toBeTruthy();
-        expect(message.embed.title).toEqual('Game server removed');
+        expect(message.embed.title).toEqual('Game server is offline');
       });
 
       events.gameServerUpdated.next({
         oldGameServer: {
           name: 'fake game server',
-          deleted: false,
+          isOnline: true,
         } as GameServer,
         newGameServer: {
           name: 'fake game server',
-          deleted: true,
+          isOnline: false,
         } as GameServer,
-        adminId: admin.id,
+      });
+    });
+  });
+
+  describe('when the gameServer comes back online', () => {
+    it('should send a message', async () => {
+      sentMessages.subscribe((message) => {
+        expect(message.embed).toBeTruthy();
+        expect(message.embed.title).toEqual('Game server is back online');
+      });
+
+      events.gameServerUpdated.next({
+        oldGameServer: {
+          name: 'fake game server',
+          isOnline: false,
+        } as GameServer,
+        newGameServer: {
+          name: 'fake game server',
+          isOnline: true,
+        } as GameServer,
       });
     });
   });

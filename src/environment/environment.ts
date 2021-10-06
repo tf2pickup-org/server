@@ -65,6 +65,10 @@ export class Environment {
     return this.configService.get<string>('LOG_RELAY_PORT');
   }
 
+  get gameServerSecret() {
+    return this.configService.get<string>('GAME_SERVER_SECRET');
+  }
+
   get discordBotToken() {
     return this.configService.get<string>('DISCORD_BOT_TOKEN');
   }

@@ -88,8 +88,12 @@ describe('GameRuntimeService', () => {
       id: new ObjectId().toString(),
       name: 'FAKE_GAME_SERVER',
       address: 'FAKE_ADDRESS',
+      internalIpAddress: 'FAKE_INTERNAL_IP_ADDRESS',
       port: '1234',
       rconPassword: 'FAKE_RCON_PASSWORD',
+      createdAt: new Date(),
+      isAvailable: true,
+      isOnline: true,
     };
 
     gameServersService.getById.mockResolvedValue(mockGameServer as any);

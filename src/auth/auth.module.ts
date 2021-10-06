@@ -16,6 +16,7 @@ import { KeyName } from './key-name';
 import { generate } from 'generate-password';
 import { getModelToken, MongooseModule } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { GameServerSecretStrategy } from './strategies/game-server-secret.strategy';
 
 const passportModule = PassportModule.register({
   defaultStrategy: 'jwt',
@@ -29,7 +30,6 @@ const passportModule = PassportModule.register({
       { name: Key.name, schema: keySchema },
       { name: RefreshToken.name, schema: refreshTokenSchema },
     ]),
-
     PlayersModule,
   ],
   providers: [
@@ -83,6 +83,7 @@ const passportModule = PassportModule.register({
     SteamStrategy,
     JwtStrategy,
     AuthGateway,
+    GameServerSecretStrategy,
   ],
   controllers: [AuthController],
   exports: [passportModule, AuthService],

@@ -17,8 +17,9 @@ import {
   playerSkillChanged,
   playerProfileUpdated,
   gameServerAdded,
-  gameServerRemoved,
+  gameServerOffline,
   gameForceEnded,
+  gameServerOnline,
 } from '../notifications';
 import { DiscordService } from './discord.service';
 import { URL } from 'url';
@@ -73,18 +74,28 @@ export class AdminNotificationsService implements OnModuleInit {
       ({ playerId, oldSkill, newSkill, adminId }) =>
         this.onPlayerSkillChanged(playerId, oldSkill, newSkill, adminId),
     );
-    this.events.gameServerAdded.subscribe(({ gameServer, adminId }) =>
-      this.onGameServerAdded(gameServer, adminId),
+    this.events.gameServerAdded.subscribe(({ gameServer }) =>
+      this.onGameServerAdded(gameServer),
     );
     this.events.gameServerUpdated
       .pipe(
         filter(
           ({ oldGameServer, newGameServer }) =>
-            oldGameServer.deleted === false && newGameServer.deleted === true,
+            oldGameServer.isOnline === true && newGameServer.isOnline === false,
         ),
       )
-      .subscribe(({ newGameServer, adminId }) =>
-        this.onGameServerRemoved(newGameServer, adminId),
+      .subscribe(({ newGameServer }) =>
+        this.onGameServerWentOffline(newGameServer),
+      );
+    this.events.gameServerUpdated
+      .pipe(
+        filter(
+          ({ oldGameServer, newGameServer }) =>
+            oldGameServer.isOnline === false && newGameServer.isOnline === true,
+        ),
+      )
+      .subscribe(({ newGameServer }) =>
+        this.onGameServerBackOnline(newGameServer),
       );
 
     this.events.gameChanges
@@ -248,20 +259,9 @@ export class AdminNotificationsService implements OnModuleInit {
     });
   }
 
-  private async onGameServerAdded(gameServer: GameServer, adminId: string) {
-    if (!adminId) {
-      return;
-    }
-
-    const admin = await this.playersService.getById(adminId);
-
+  private async onGameServerAdded(gameServer: GameServer) {
     this.discordService.getAdminsChannel()?.send({
       embed: gameServerAdded({
-        admin: {
-          name: admin.name,
-          profileUrl: `${this.environment.clientUrl}/player/${admin.id}`,
-          avatarUrl: admin.avatar?.small,
-        },
         gameServer,
         client: {
           name: new URL(this.environment.clientUrl).hostname,
@@ -271,20 +271,21 @@ export class AdminNotificationsService implements OnModuleInit {
     });
   }
 
-  private async onGameServerRemoved(gameServer: GameServer, adminId: string) {
-    if (!adminId) {
-      return;
-    }
-
-    const admin = await this.playersService.getById(adminId);
-
+  private async onGameServerWentOffline(gameServer: GameServer) {
     this.discordService.getAdminsChannel()?.send({
-      embed: gameServerRemoved({
-        admin: {
-          name: admin.name,
-          profileUrl: `${this.environment.clientUrl}/player/${admin.id}`,
-          avatarUrl: admin.avatar?.small,
+      embed: gameServerOffline({
+        gameServer,
+        client: {
+          name: new URL(this.environment.clientUrl).hostname,
+          iconUrl: `${this.environment.clientUrl}/${iconUrlPath}`,
         },
+      }),
+    });
+  }
+
+  private async onGameServerBackOnline(gameServer: GameServer) {
+    this.discordService.getAdminsChannel()?.send({
+      embed: gameServerOnline({
         gameServer,
         client: {
           name: new URL(this.environment.clientUrl).hostname,
