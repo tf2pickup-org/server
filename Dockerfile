@@ -1,8 +1,9 @@
 FROM node:lts-alpine AS build
 WORKDIR /tf2pickup.pl
 
-COPY package*.json ./
-RUN yarn install --frozen-lockfile
+COPY package.json yarn.lock .yarnrc.yml ./
+COPY .yarn .yarn
+RUN yarn install --immutable
 
 COPY . .
 RUN yarn build
@@ -14,7 +15,7 @@ WORKDIR /tf2pickup.pl
 ARG NODE_ENV=production
 ENV NODE_ENV=${NODE_ENV}
 
-COPY package*.json ./
+COPY package.json yarn.lock ./
 
 RUN yarn install \
  && yarn cache clean
