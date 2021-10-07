@@ -14,9 +14,7 @@ interface TokenResponse {
 
 interface AppAccessTokenResponse {
   access_token: string;
-  refresh_token: string;
   expires_in: number;
-  scope: string[];
   token_type: 'bearer';
 }
 
@@ -84,17 +82,13 @@ export class TwitchAuthService {
 
   private async fetchAppAccessToken() {
     const appAccess = this.httpService
-      .post<AppAccessTokenResponse>(
-        twitchOauth2TokenUrl,
-        {},
-        {
-          params: {
-            client_id: this.environment.twitchClientId,
-            client_secret: this.environment.twitchClientSecret,
-            grant_type: 'client_credentials',
-          },
+      .post<AppAccessTokenResponse>(twitchOauth2TokenUrl, undefined, {
+        params: {
+          client_id: this.environment.twitchClientId,
+          client_secret: this.environment.twitchClientSecret,
+          grant_type: 'client_credentials',
         },
-      )
+      })
       .pipe(
         map((response) => ({
           accessToken: response.data.access_token,
