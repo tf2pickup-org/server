@@ -1,3 +1,3 @@
 export const toValidMumbleChannelName = (name: string): string => {
-  return name.replaceAll(/[\s.]+/gi, '-').replaceAll(/#/gi, '');
+  return name.replace(/[\s.]+/gi, '-').replace(/#/gi, '');
 };
