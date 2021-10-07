@@ -21,6 +21,7 @@ import { URL } from 'url';
 import { GameInWrongStateError } from '../errors/game-in-wrong-state.error';
 import { SelectedVoiceServer } from '@/configuration/models/voice-server';
 import { plainToClass } from 'class-transformer';
+import { toValidMumbleChannelName } from '../utils/to-valid-mumble-channel-name';
 
 interface GameSortOptions {
   launchedAt: 1 | -1;
@@ -311,10 +312,14 @@ export class GamesService {
           game.gameServer.toString(),
         );
 
+        const voiceChannelName =
+          gameServer.voiceChannelName ??
+          toValidMumbleChannelName(gameServer.name);
+
         const url = new URL(`mumble://${voiceServer.mumble.url}`);
-        url.pathname = `${voiceServer.mumble.channelName}/${
-          gameServer.voiceChannelName
-        }/${slot.team.toUpperCase()}`;
+        url.pathname = `${
+          voiceServer.mumble.channelName
+        }/${voiceChannelName}/${slot.team.toUpperCase()}`;
         url.username = player.name.replace(/\s+/g, '_');
         if (voiceServer.mumble.password) {
           url.password = voiceServer.mumble.password;
