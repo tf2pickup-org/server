@@ -143,6 +143,7 @@ describe('ServerConfiguratorService', () => {
   });
 
   describe('#configureServer()', () => {
+    const stableTestCoefficient = 6;
     let player1: PlayerDocument;
     let player2: PlayerDocument;
     let rcon: RconStub;
@@ -224,7 +225,7 @@ describe('ServerConfiguratorService', () => {
         });
       });
 
-      for (let i = 0; i < 5; i++) {
+      for (let i = 0; i < stableTestCoefficient; i++) {
         jest.runAllTimers();
         await flushPromises();
       }
@@ -294,7 +295,7 @@ describe('ServerConfiguratorService', () => {
           );
         });
 
-        for (let i = 0; i < 5; i++) {
+        for (let i = 0; i < stableTestCoefficient; i++) {
           jest.runAllTimers();
           await flushPromises();
         }
@@ -307,7 +308,7 @@ describe('ServerConfiguratorService', () => {
       const ret = service.configureServer(game.id).then(() => {
         expect(rcon.end).toHaveBeenCalled();
       });
-      for (let i = 0; i < 6; i++) {
+      for (let i = 0; i < stableTestCoefficient; i++) {
         jest.runAllTimers();
         await flushPromises();
       }
@@ -329,7 +330,7 @@ describe('ServerConfiguratorService', () => {
           );
         });
 
-        for (let i = 0; i < 5; i++) {
+        for (let i = 0; i < stableTestCoefficient; i++) {
           jest.runAllTimers();
           await flushPromises();
         }
