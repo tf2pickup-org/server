@@ -691,6 +691,27 @@ describe('GamesService', () => {
             );
           });
         });
+
+        describe('when the game server is assigned, but has no voice channel name', () => {
+          let gameServer: GameServer;
+
+          beforeEach(async () => {
+            game.gameServer = new ObjectId();
+            await game.save();
+
+            gameServer = {
+              name: 'tf2pickup.pl #1',
+            } as GameServer;
+            gameServersService.getById.mockResolvedValue(gameServer);
+          });
+
+          it("should derive voice channel name from the game server's name", async () => {
+            const url = await service.getVoiceChannelUrl(game.id, player.id);
+            expect(url).toEqual(
+              'mumble://fake_player_1@melkor.tf/FAKE_CHANNEL_NAME/tf2pickup-pl-1/BLU',
+            );
+          });
+        });
       });
     });
   });
