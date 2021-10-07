@@ -1,3 +1,10 @@
+## [7.0.6](https://github.com/tf2pickup-pl/server/compare/7.0.5...7.0.6) (2021-10-07)
+
+
+### Bug Fixes
+
+* **twitch.tv:** fix streams not being refreshed ([#1281](https://github.com/tf2pickup-pl/server/issues/1281)) ([59fe4f9](https://github.com/tf2pickup-pl/server/commit/59fe4f93e065114c32347f53b8ceb59156aa5655))
+
 ## [7.0.5](https://github.com/tf2pickup-org/server/compare/7.0.4...7.0.5) (2021-10-03)
 
 
