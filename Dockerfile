@@ -19,13 +19,12 @@ ENV NODE_ENV=${NODE_ENV}
 COPY package.json yarn.lock .yarnrc.yml ./
 COPY .yarn/releases .yarn/releases
 COPY .yarn/plugins .yarn/plugins
-COPY --from=build /tf2pickup.pl/.yarn/cache .yarn/cache
 
 RUN yarn workspaces focus --production \
  && yarn cache clean
 
-COPY --from=build /tf2pickup.pl/configs ./configs
 COPY --from=build /tf2pickup.pl/dist ./dist
+COPY --from=build /tf2pickup.pl/configs/queue /tf2pickup.pl/configs/queue
 COPY migrations ./migrations
 
 USER node
