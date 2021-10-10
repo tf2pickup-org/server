@@ -5,18 +5,17 @@ import {
   LocalFileSystemDuplexConnector,
 } from 'mongodb-snapshot';
 import { resolve } from 'path';
-import { createMongoDbUri } from '../src/utils/create-mongo-db-uri';
+import { format, parse } from 'mongodb-uri';
 
 const setup = async () => {
   config();
 
+  const { database, ...uriData } = parse(process.env.MONGODB_URI);
+
   const mongoConnector = new MongoDBDuplexConnector({
     connection: {
-      uri: createMongoDbUri({
-        host: process.env.MONGODB_HOST,
-        port: process.env.MONGODB_PORT,
-      }),
-      dbname: process.env.MONGODB_DB,
+      uri: format(uriData),
+      dbname: database,
     },
     astarget: {
       remove_on_startup: true,
@@ -38,7 +37,7 @@ const setup = async () => {
     console.log(`remaining bytes to write: ${total - write}`);
   }
 
-  console.log(`${process.env.MONGODB_DB}: snapshot restored`);
+  console.log(`${database}: snapshot restored`);
 };
 
 export default setup;

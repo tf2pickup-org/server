@@ -17,24 +17,8 @@ export class Environment {
     return this.configService.get<string>('BOT_NAME');
   }
 
-  get mongoDbHost() {
-    return this.configService.get<string>('MONGODB_HOST');
-  }
-
-  get mongoDbPort() {
-    return this.configService.get<string>('MONGODB_PORT');
-  }
-
-  get mongoDbName() {
-    return this.configService.get<string>('MONGODB_DB');
-  }
-
-  get mongoDbUsername() {
-    return this.configService.get<string>('MONGODB_USERNAME');
-  }
-
-  get mongoDbPassword() {
-    return this.configService.get<string>('MONGODB_PASSWORD');
+  get mongoDbUri() {
+    return this.configService.get<string>('MONGODB_URI');
   }
 
   get steamApiKey() {

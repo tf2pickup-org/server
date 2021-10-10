@@ -21,9 +21,9 @@ import { PlayerPreferencesModule } from './player-preferences/player-preferences
 import { ConfigurationModule } from './configuration/configuration.module';
 import { PluginsModule } from './plugins/plugins.module';
 import { LogReceiverModule } from './log-receiver/log-receiver.module';
-import { createMongoDbUri } from './utils/create-mongo-db-uri';
 import { MongooseModule } from '@nestjs/mongoose';
 import { MigrationsModule } from './migrations/migrations.module';
+import { formatMongoose } from 'mongodb-uri';
 
 @Module({
   imports: [
@@ -38,13 +38,7 @@ import { MigrationsModule } from './migrations/migrations.module';
       imports: [EnvironmentModule],
       inject: [Environment],
       useFactory: async (environment: Environment) => ({
-        uri: createMongoDbUri({
-          host: environment.mongoDbHost,
-          port: environment.mongoDbPort,
-          database: environment.mongoDbName,
-          username: environment.mongoDbUsername,
-          password: environment.mongoDbPassword,
-        }),
+        uri: formatMongoose(environment.mongoDbUri),
         useNewUrlParser: true,
         useUnifiedTopology: true,
         useFindAndModify: false,

@@ -4,18 +4,17 @@ import {
   LocalFileSystemDuplexConnector,
 } from 'mongodb-snapshot';
 import { config } from 'dotenv';
-import { createMongoDbUri } from '../../src/utils/create-mongo-db-uri';
+import { format, parse } from 'mongodb-uri';
 
 async function dumpMongo2Localfile() {
   config();
 
+  const { database, ...uriData } = parse(process.env.MONGODB_URI);
+
   const mongo_connector = new MongoDBDuplexConnector({
     connection: {
-      uri: createMongoDbUri({
-        host: process.env.MONGODB_HOST,
-        port: process.env.MONGODB_PORT,
-      }),
-      dbname: process.env.MONGODB_DB,
+      uri: format(uriData),
+      dbname: database,
     },
   });
 

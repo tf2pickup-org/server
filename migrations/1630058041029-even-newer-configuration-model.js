@@ -7,17 +7,6 @@ const { MongoClient } = require('mongodb');
 module.exports.up = (next) => {
   config();
 
-  let credentials = '';
-  if (process.env.MONGODB_USERNAME) {
-    if (process.env.MONGODB_PASSWORD) {
-      credentials = `${process.env.MONGODB_USERNAME}:${process.env.MONGODB_PASSWORD}@`;
-    } else {
-      credentials = `${process.env.MONGODB_USERNAME}@`;
-    }
-  }
-
-  const uri = `mongodb://${credentials}${process.env.MONGODB_HOST}:${process.env.MONGODB_PORT}/${process.env.MONGODB_DB}`;
-
   const fixupConfigurationEntry = (collection, key) => {
     return collection
       .findOne({ key })
@@ -28,7 +17,7 @@ module.exports.up = (next) => {
       .catch(() => null);
   };
 
-  MongoClient.connect(uri, { useUnifiedTopology: true })
+  MongoClient.connect(process.env.MONGODB_URI, { useUnifiedTopology: true })
     .then((client) => client.db())
     .then((db) => db.collection('configuration'))
     .then((collection) =>
