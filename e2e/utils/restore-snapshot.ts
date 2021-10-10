@@ -4,19 +4,18 @@ import {
   MongoDBDuplexConnector,
   LocalFileSystemDuplexConnector,
 } from 'mongodb-snapshot';
+import { format, parse } from 'mongodb-uri';
 import { resolve } from 'path';
-import { createMongoDbUri } from '../../src/utils/create-mongo-db-uri';
 
 const restoreSnapshot = async () => {
   config();
 
+  const { database, ...uriData } = parse(process.env.MONGODB_URI);
+
   const mongoConnector = new MongoDBDuplexConnector({
     connection: {
-      uri: createMongoDbUri({
-        host: process.env.MONGODB_HOST,
-        port: process.env.MONGODB_PORT,
-      }),
-      dbname: process.env.MONGODB_DB,
+      uri: format(uriData),
+      dbname: database,
     },
     astarget: {
       remove_on_startup: true,

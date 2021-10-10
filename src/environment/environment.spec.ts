@@ -27,11 +27,7 @@ describe('Environment', () => {
     'API_URL',
     'CLIENT_URL',
     'BOT_NAME',
-    'MONGODB_HOST',
-    'MONGODB_PORT',
-    'MONGODB_DB',
-    'MONGODB_USERNAME',
-    'MONGODB_PASSWORD',
+    'MONGODB_URI',
     'STEAM_API_KEY',
     'KEY_STORE_PASSPHARE',
     'SUPER_USER',
@@ -50,8 +46,7 @@ describe('Environment', () => {
     const getterName = varName
       .toLowerCase()
       .replace(/_(.)/g, (_, p1) => p1.toString().toUpperCase())
-      .replace('mongodb', 'mongoDb')
-      .replace('mongoDbDb', 'mongoDbName');
+      .replace('mongodb', 'mongoDb');
 
     it(`should return value for ${getterName}`, () => {
       expect(environment[getterName]).toEqual(varName);

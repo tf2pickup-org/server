@@ -81,9 +81,7 @@ jobs:
         API_URL: 'http://localhost:3000'
         CLIENT_URL: 'http://localhost:4200'
         BOT_NAME: 'tf2pickup.pl'
-        MONGODB_HOST: 'localhost'
-        MONGODB_PORT: 27017
-        MONGODB_DB: 'tf2pickuppl_e2e_tests'
+        MONGODB_URI: 'mongodb://localhost:27017/tf2pickuppl_e2e_tests'
         STEAM_API_KEY: 'FAKE_API_KEY'
         KEY_STORE_PASSPHARE: 'a_password'
         SUPER_USER: '76561199195756652'

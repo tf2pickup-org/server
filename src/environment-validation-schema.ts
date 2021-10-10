@@ -7,11 +7,7 @@ export default object({
   API_URL: string().required(),
   CLIENT_URL: string().required(),
   BOT_NAME: string().required(),
-  MONGODB_HOST: string().required(),
-  MONGODB_PORT: number().required(),
-  MONGODB_DB: string().required(),
-  MONGODB_USERNAME: any().optional(),
-  MONGODB_PASSWORD: any().optional(),
+  MONGODB_URI: string().required().uri(),
   STEAM_API_KEY: string().required(),
   KEY_STORE_PASSPHARE: string().required(),
   SUPER_USER: string()
