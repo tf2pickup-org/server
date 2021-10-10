@@ -1719,6 +1719,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/mongodb-uri@npm:^0.9.1":
+  version: 0.9.1
+  resolution: "@types/mongodb-uri@npm:0.9.1"
+  checksum: 506e678f20c1fe80a909b7d2e10ec62fc6f7166e7a5688e029ac59a85973d46b7abe300188eb6110017b72a5f54640d1e5ad25caa6eb4e352cc7761fdf5ce6b1
+  languageName: node
+  linkType: hard
+
 "@types/mongodb@npm:^3.5.27":
   version: 3.6.20
   resolution: "@types/mongodb@npm:3.6.20"
@@ -7567,6 +7574,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"mongodb-uri@npm:^0.9.7":
+  version: 0.9.7
+  resolution: "mongodb-uri@npm:0.9.7"
+  checksum: a0fbc7ed6c11d4f9167c6e4af5e5e083667966846f71d310d2dd123850760ada8309b38176b9b96d3f3e65a7a98078ff9a3784b3a8d285f0a28f9aff01975b31
+  languageName: node
+  linkType: hard
+
 "mongodb@npm:3.6.11":
   version: 3.6.11
   resolution: "mongodb@npm:3.6.11"
@@ -9367,6 +9381,7 @@ __metadata:
     "@types/jsonschema": 1.1.1
     "@types/jsonwebtoken": 8.5.5
     "@types/lodash": 4.14.175
+    "@types/mongodb-uri": ^0.9.1
     "@types/mongoose": 5.11.96
     "@types/node": 14.17.21
     "@types/passport": 1.0.7
@@ -9399,6 +9414,7 @@ __metadata:
     moment: 2.29.1
     mongodb-memory-server: 7.4.3
     mongodb-snapshot: 1.4.0
+    mongodb-uri: ^0.9.7
     mongoose: 5.13.10
     nestjs-real-ip: 2.0.0
     passport: 0.5.0
