@@ -325,6 +325,7 @@ export class GamesService {
           url.password = voiceServer.mumble.password;
         }
         url.protocol = 'mumble:';
+        url.port = `${voiceServer.mumble.port}`;
         return url.toString();
       }
     }
