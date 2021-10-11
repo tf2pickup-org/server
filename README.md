@@ -41,6 +41,11 @@ tf2pickup.org was created with a simple objective in mind. Make it as easy and a
 
 * clone the repository or download a zipped release of your choice
 * install dependencies
+
+    ```bash
+    $ yarn install
+    ```
+
 * start required services
 
     ```bash
@@ -55,7 +60,7 @@ tf2pickup.org was created with a simple objective in mind. Make it as easy and a
 * run the server in development mode
 
     ```bash
-    $ npm run dev
+    $ yarn dev
     ```
 
   The server is now listening on port 3000 by default.
