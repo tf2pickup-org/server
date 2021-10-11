@@ -1,3 +1,33 @@
+# [8.0.0](https://github.com/tf2pickup-org/server/compare/7.0.5...8.0.0) (2021-10-11)
+
+
+### Bug Fixes
+
+* **build:** Dockerfile fixes ([#1284](https://github.com/tf2pickup-org/server/issues/1284)) ([3e88969](https://github.com/tf2pickup-org/server/commit/3e889695bb14692225c3b39fb9e6ec9b3a53546b))
+* **ci:** split tests to different jobs ([#1270](https://github.com/tf2pickup-org/server/issues/1270)) ([37beb19](https://github.com/tf2pickup-org/server/commit/37beb19cf6dfb54ed1e522cf7a5a803fc3142ccb))
+* **deps:** pin dependencies ([#1278](https://github.com/tf2pickup-org/server/issues/1278)) ([3646370](https://github.com/tf2pickup-org/server/commit/36463709d9f514746f5149a6c4e1006832470894))
+* **deps:** update dependency @nestjs/config to v1.0.2 ([#1272](https://github.com/tf2pickup-org/server/issues/1272)) ([f3926ed](https://github.com/tf2pickup-org/server/commit/f3926edfa5484e3879758a603aa35c47219e7113))
+* **deps:** update dependency mongoose to v5.13.10 ([#1276](https://github.com/tf2pickup-org/server/issues/1276)) ([27fe665](https://github.com/tf2pickup-org/server/commit/27fe665aad1053e75f40f821839d3ca071589f0f))
+* **deps:** update dependency passport to v0.5.0 ([#1245](https://github.com/tf2pickup-org/server/issues/1245)) ([b7877ad](https://github.com/tf2pickup-org/server/commit/b7877ad76697bb00db69af45cb1c972f0bd3daa6))
+* **deps:** update dependency rxjs to v7.4.0 ([#1280](https://github.com/tf2pickup-org/server/issues/1280)) ([2a48e00](https://github.com/tf2pickup-org/server/commit/2a48e00b711fe6f822585ad7a02f575856e23d13))
+* **environment:** use MONGODB_URI env ([#1290](https://github.com/tf2pickup-org/server/issues/1290)) ([32b6db4](https://github.com/tf2pickup-org/server/commit/32b6db48e5c18818fd08ec64b2617280783ece1e))
+* **games:** handle lack of GameServer.voiceChannelName ([#1283](https://github.com/tf2pickup-org/server/issues/1283)) ([951a465](https://github.com/tf2pickup-org/server/commit/951a46520e82d093a4cf3613315a46536120abd9))
+* **games:** respect voice server port ([#1291](https://github.com/tf2pickup-org/server/issues/1291)) ([05c5936](https://github.com/tf2pickup-org/server/commit/05c5936cb61c60fe2b1cc737fa888c35fbf1a1cb))
+* **players:** ignore checks for initial user ([#1269](https://github.com/tf2pickup-org/server/issues/1269)) ([0cd15ff](https://github.com/tf2pickup-org/server/commit/0cd15ff7d5c9c0e5c5bd9e93cb1439119896e7fe))
+* **twitch.tv:** fix streams not being refreshed ([#1281](https://github.com/tf2pickup-org/server/issues/1281)) ([f3b3ef6](https://github.com/tf2pickup-org/server/commit/f3b3ef6eb4b6db8649feedf74f85056ba07ddac1))
+
+
+### Features
+
+* **game-servers:** external gameserver registration ([#1229](https://github.com/tf2pickup-org/server/issues/1229)) ([c75f700](https://github.com/tf2pickup-org/server/commit/c75f700d5e7df522e4ab02f4bc341d05d82051f9))
+
+
+### BREAKING CHANGES
+
+* **environment:** MONGODB_* environment variables are removed in favor of
+MONGODB_URI
+* **game-servers:** Game server add, update and remove methods are removed. Instead, the heartbeat mechanism is implemented.
+
 ## [7.0.6](https://github.com/tf2pickup-pl/server/compare/7.0.5...7.0.6) (2021-10-07)
 
 
