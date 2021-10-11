@@ -666,7 +666,7 @@ describe('GamesService', () => {
         it('should return direct mumble channel url', async () => {
           const url = await service.getVoiceChannelUrl(game.id, player.id);
           expect(url).toEqual(
-            'mumble://fake_player_1@melkor.tf/FAKE_CHANNEL_NAME/7/BLU',
+            'mumble://fake_player_1@melkor.tf:64738/FAKE_CHANNEL_NAME/7/BLU',
           );
         });
 
@@ -687,7 +687,7 @@ describe('GamesService', () => {
           it('should handle the password in the url', async () => {
             const url = await service.getVoiceChannelUrl(game.id, player.id);
             expect(url).toEqual(
-              'mumble://fake_player_1:FAKE_SERVER_PASSWORD@melkor.tf/FAKE_CHANNEL_NAME/7/BLU',
+              'mumble://fake_player_1:FAKE_SERVER_PASSWORD@melkor.tf:64738/FAKE_CHANNEL_NAME/7/BLU',
             );
           });
         });
@@ -708,7 +708,7 @@ describe('GamesService', () => {
           it("should derive voice channel name from the game server's name", async () => {
             const url = await service.getVoiceChannelUrl(game.id, player.id);
             expect(url).toEqual(
-              'mumble://fake_player_1@melkor.tf/FAKE_CHANNEL_NAME/tf2pickup-pl-1/BLU',
+              'mumble://fake_player_1@melkor.tf:64738/FAKE_CHANNEL_NAME/tf2pickup-pl-1/BLU',
             );
           });
         });
