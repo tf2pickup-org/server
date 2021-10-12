@@ -7577,52 +7577,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mongodb@npm:3.6.11":
-  version: 3.6.11
-  resolution: "mongodb@npm:3.6.11"
-  dependencies:
-    bl: ^2.2.1
-    bson: ^1.1.4
-    denque: ^1.4.1
-    optional-require: ^1.0.3
-    safe-buffer: ^5.1.2
-    saslprep: ^1.0.0
-  dependenciesMeta:
-    saslprep:
-      optional: true
-  peerDependenciesMeta:
-    aws4:
-      optional: true
-    bson-ext:
-      optional: true
-    kerberos:
-      optional: true
-    mongodb-client-encryption:
-      optional: true
-    mongodb-extjson:
-      optional: true
-    snappy:
-      optional: true
-  checksum: cf63caec18d3685a0cd16798ca4373ce4c445083889d6e6f998c7a1fe0532f34eaa466cf2b86dd2d8e64f61875abf7f2ad8d8c9cbdbc4982fd32c288c019be61
-  languageName: node
-  linkType: hard
-
-"mongodb@npm:4.1.2":
-  version: 4.1.2
-  resolution: "mongodb@npm:4.1.2"
-  dependencies:
-    bson: ^4.5.2
-    denque: ^2.0.1
-    mongodb-connection-string-url: ^2.0.0
-    saslprep: ^1.0.3
-  dependenciesMeta:
-    saslprep:
-      optional: true
-  checksum: ea1e4ceebc594eaee0d4dcac5f293491752b1607c427e173f9f13a439823a6135b82fcdbe509f3d3bf78ef22f831ce71d5acdef0cbeb654c9b861f690ee48b83
-  languageName: node
-  linkType: hard
-
-"mongodb@npm:^3.5.8, mongodb@npm:^3.6.9":
+"mongodb@npm:3.7.2, mongodb@npm:^3.5.8, mongodb@npm:^3.6.9":
   version: 3.7.2
   resolution: "mongodb@npm:3.7.2"
   dependencies:
@@ -7652,6 +7607,21 @@ __metadata:
   languageName: node
   linkType: hard
 
+"mongodb@npm:4.1.2":
+  version: 4.1.2
+  resolution: "mongodb@npm:4.1.2"
+  dependencies:
+    bson: ^4.5.2
+    denque: ^2.0.1
+    mongodb-connection-string-url: ^2.0.0
+    saslprep: ^1.0.3
+  dependenciesMeta:
+    saslprep:
+      optional: true
+  checksum: ea1e4ceebc594eaee0d4dcac5f293491752b1607c427e173f9f13a439823a6135b82fcdbe509f3d3bf78ef22f831ce71d5acdef0cbeb654c9b861f690ee48b83
+  languageName: node
+  linkType: hard
+
 "mongoose-legacy-pluralize@npm:1.0.2":
   version: 1.0.2
   resolution: "mongoose-legacy-pluralize@npm:1.0.2"
@@ -7678,15 +7648,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mongoose@npm:5.13.10":
-  version: 5.13.10
-  resolution: "mongoose@npm:5.13.10"
+"mongoose@npm:5.13.11":
+  version: 5.13.11
+  resolution: "mongoose@npm:5.13.11"
   dependencies:
     "@types/bson": 1.x || 4.0.x
     "@types/mongodb": ^3.5.27
     bson: ^1.1.4
     kareem: 2.3.2
-    mongodb: 3.6.11
+    mongodb: 3.7.2
     mongoose-legacy-pluralize: 1.0.2
     mpath: 0.8.4
     mquery: 3.2.5
@@ -7696,7 +7666,7 @@ __metadata:
     safe-buffer: 5.2.1
     sift: 13.5.2
     sliced: 1.0.1
-  checksum: 5cbeb7266db6ab70f2e46cc44c9110a93068505617b78a75857d307ea0888888cb59e5fec8d91717df4fab6cb569cda1e5217464381093f6002a622c5c67437d
+  checksum: fd25ff648be110906b0095821771475b4b52d0e3dc81ce1053441d1ad2640fafebf5ca656102db26b2da98f4a0fdeccd189d04e548d99f2e963bf8f5e5ae15dd
   languageName: node
   linkType: hard
 
@@ -8069,7 +8039,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"optional-require@npm:^1.0.3, optional-require@npm:^1.1.8":
+"optional-require@npm:^1.1.8":
   version: 1.1.8
   resolution: "optional-require@npm:1.1.8"
   dependencies:
@@ -9411,7 +9381,7 @@ __metadata:
     mongodb-memory-server: 7.4.3
     mongodb-snapshot: 1.4.0
     mongodb-uri: 0.9.7
-    mongoose: 5.13.10
+    mongoose: 5.13.11
     nestjs-real-ip: 2.0.0
     passport: 0.5.0
     passport-headerapikey: 1.2.2
