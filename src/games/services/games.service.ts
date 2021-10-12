@@ -7,7 +7,7 @@ import { PlayerSkillService } from '@/players/services/player-skill.service';
 import { QueueConfigService } from '@/queue/services/queue-config.service';
 import { GameLauncherService } from './game-launcher.service';
 import { ObjectId } from 'mongodb';
-import { shuffle } from 'lodash';
+import { isEmpty, shuffle } from 'lodash';
 import { Events } from '@/events/events';
 import { SlotStatus } from '../models/slot-status';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
@@ -312,9 +312,9 @@ export class GamesService {
           game.gameServer.toString(),
         );
 
-        const voiceChannelName =
-          gameServer.voiceChannelName ??
-          toValidMumbleChannelName(gameServer.name);
+        const voiceChannelName = isEmpty(gameServer.voiceChannelName)
+          ? toValidMumbleChannelName(gameServer.name)
+          : gameServer.voiceChannelName;
 
         const url = new URL(`mumble://${voiceServer.mumble.url}`);
         url.pathname = `${
