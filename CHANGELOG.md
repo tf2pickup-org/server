@@ -1,3 +1,10 @@
+## [8.0.1](https://github.com/tf2pickup-org/server/compare/8.0.0...8.0.1) (2021-10-12)
+
+
+### Bug Fixes
+
+* **games:** fix voice channel name in case it's empty ([#1298](https://github.com/tf2pickup-org/server/issues/1298)) ([9928618](https://github.com/tf2pickup-org/server/commit/9928618e32f68bea13417b0cd8da64af6f9239e1))
+
 # [8.0.0](https://github.com/tf2pickup-org/server/compare/7.0.5...8.0.0) (2021-10-11)
 
 
