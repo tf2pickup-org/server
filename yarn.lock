@@ -1344,6 +1344,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@socket.io/component-emitter@npm:~3.0.0":
+  version: 3.0.0
+  resolution: "@socket.io/component-emitter@npm:3.0.0"
+  checksum: b5e909dbb16bcf27958d1bfb8319f3255f3a50f62fde78ecf9a584f39f916b928fdc5661519892eea912da082c6413d671c1e67bde70725c75ee62956aa67c26
+  languageName: node
+  linkType: hard
+
 "@szmarczak/http-timer@npm:^1.1.2":
   version: 1.1.2
   resolution: "@szmarczak/http-timer@npm:1.1.2"
@@ -2755,6 +2762,13 @@ __metadata:
   version: 0.1.4
   resolution: "base64-arraybuffer@npm:0.1.4"
   checksum: d249a929e27b2430d7ba1527e91a36e14da37ae2f80e350c4d696a038257718f8da07577e820e7262f86a0ecd573c283db10c46502080f53ae11bfdd99b6a029
+  languageName: node
+  linkType: hard
+
+"base64-arraybuffer@npm:~1.0.1":
+  version: 1.0.1
+  resolution: "base64-arraybuffer@npm:1.0.1"
+  checksum: 04b6fe6818b1c79774fa8aea169063521ad177f2ba04d2a4a0f00fca297d516319b551a3cda76050263da751b4ffb07d939fc1b5eb155f0e429659733e60afb0
   languageName: node
   linkType: hard
 
@@ -4216,30 +4230,38 @@ __metadata:
   languageName: node
   linkType: hard
 
-"engine.io-client@npm:~5.2.0":
-  version: 5.2.0
-  resolution: "engine.io-client@npm:5.2.0"
+"engine.io-client@npm:~6.0.1":
+  version: 6.0.1
+  resolution: "engine.io-client@npm:6.0.1"
   dependencies:
-    base64-arraybuffer: 0.1.4
-    component-emitter: ~1.3.0
+    "@socket.io/component-emitter": ~3.0.0
     debug: ~4.3.1
-    engine.io-parser: ~4.0.1
+    engine.io-parser: ~5.0.0
     has-cors: 1.1.0
     parseqs: 0.0.6
     parseuri: 0.0.6
-    ws: ~7.4.2
+    ws: ~8.2.3
     xmlhttprequest-ssl: ~2.0.0
     yeast: 0.1.2
-  checksum: 41b9e7c9db8cbf3d8d21994bfde5f1c2ddcf519543988efd04a8762ced1262ffe5da63c19e2901d0c799b1904c780b930cd3df75c90a56ae0b9fa8d6e6448213
+  checksum: a78367417c97c525688f4bcf395d4e00e48732913c07e28b4a73ba18d1ad2eb7369edf809435e9bbc9202a83df55f843404c42eea1275014d1fabd717a420db6
   languageName: node
   linkType: hard
 
-"engine.io-parser@npm:~4.0.0, engine.io-parser@npm:~4.0.1":
+"engine.io-parser@npm:~4.0.0":
   version: 4.0.3
   resolution: "engine.io-parser@npm:4.0.3"
   dependencies:
     base64-arraybuffer: 0.1.4
   checksum: 9e2db35acb6f2e8269a7c5cd8ca40d1cd7277e5c6472e7341d0f85a8d09a6788427c1f55cc5a8fa4a44213d89d2bd2494f230d0624605d88f7aae32651a3c44b
+  languageName: node
+  linkType: hard
+
+"engine.io-parser@npm:~5.0.0":
+  version: 5.0.0
+  resolution: "engine.io-parser@npm:5.0.0"
+  dependencies:
+    base64-arraybuffer: ~1.0.1
+  checksum: 248c66b7e9be967b9e459e90bc5b814acf68b379d5e7057d037a332eea0170a0c8fd5dac7b0735ea9a44fd077ee64201e03a539804958169dfacc2ad1ba33053
   languageName: node
   linkType: hard
 
@@ -9393,7 +9415,7 @@ __metadata:
     release-it: 14.11.6
     rimraf: 3.0.2
     rxjs: 7.4.0
-    socket.io-client: 4.2.0
+    socket.io-client: 4.3.0
     steamid: 2.0.0
     supertest: 6.1.6
     trace-unhandled: 2.0.1
@@ -9525,18 +9547,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"socket.io-client@npm:4.2.0":
-  version: 4.2.0
-  resolution: "socket.io-client@npm:4.2.0"
+"socket.io-client@npm:4.3.0":
+  version: 4.3.0
+  resolution: "socket.io-client@npm:4.3.0"
   dependencies:
-    "@types/component-emitter": ^1.2.10
+    "@socket.io/component-emitter": ~3.0.0
     backo2: ~1.0.2
-    component-emitter: ~1.3.0
     debug: ~4.3.2
-    engine.io-client: ~5.2.0
+    engine.io-client: ~6.0.1
     parseuri: 0.0.6
-    socket.io-parser: ~4.0.4
-  checksum: 8779ce1697081dd4253ff414c6b9f611cf004ec102cf8cfcfce50ae9245dc85a5c8a2c2584e11c5e523f638c2c45fc52831e92e99c2be9cbcdea2f3eb1054d3c
+    socket.io-parser: ~4.1.1
+  checksum: c59ed7c32df9a8aad139ffaa0b9360c058f26ffd0ffef075993a91f4eed610c55851a98969e0e53f69ceae11c9695525677da2da3059c4a75564246c1b5e575d
   languageName: node
   linkType: hard
 
@@ -9548,6 +9569,16 @@ __metadata:
     component-emitter: ~1.3.0
     debug: ~4.3.1
   checksum: c173b4f3747c51e2af802eca35212f4dcfa8fe55d7fdc07b9a01da1ecc956791c1bf6591e307952548eab69e6500bcfe27cea8aff1386b860d9bb51f98e4fafb
+  languageName: node
+  linkType: hard
+
+"socket.io-parser@npm:~4.1.1":
+  version: 4.1.1
+  resolution: "socket.io-parser@npm:4.1.1"
+  dependencies:
+    "@socket.io/component-emitter": ~3.0.0
+    debug: ~4.3.1
+  checksum: d762d01f372df393ef08fa409c62dffbc69bb9820eb78ee1d646e7679fff60a56366778d7bc78e044ffa4c1d85537d771292133506097d164ad3b9ff7f879ef1
   languageName: node
   linkType: hard
 
@@ -11029,6 +11060,21 @@ typescript@4.3.5:
     utf-8-validate:
       optional: true
   checksum: 3a990b32ed08c72070d5e8913e14dfcd831919205be52a3ff0b4cdd998c8d554f167c9df3841605cde8b11d607768cacab3e823c58c96a5c08c987e093eb767a
+  languageName: node
+  linkType: hard
+
+"ws@npm:~8.2.3":
+  version: 8.2.3
+  resolution: "ws@npm:8.2.3"
+  peerDependencies:
+    bufferutil: ^4.0.1
+    utf-8-validate: ^5.0.2
+  peerDependenciesMeta:
+    bufferutil:
+      optional: true
+    utf-8-validate:
+      optional: true
+  checksum: c869296ccb45f218ac6d32f8f614cd85b50a21fd434caf11646008eef92173be53490810c5c23aea31bc527902261fbfd7b062197eea341b26128d4be56a85e4
   languageName: node
   linkType: hard
 
