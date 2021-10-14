@@ -12,6 +12,7 @@ import { whitelistIdSchema } from './models/whitelist-id';
 import { etf2lAccountRequiredSchema } from './models/etf2l-account-required';
 import { minimumTf2InGameHoursSchema } from './models/minimum-tf2-in-game-hours';
 import { voiceServerSchema } from './models/voice-server';
+import { discordSchema } from './models/discord';
 
 @Module({
   imports: [
@@ -40,6 +41,10 @@ import { voiceServerSchema } from './models/voice-server';
             name: ConfigurationEntryKey.voiceServer,
             schema: voiceServerSchema,
           },
+          {
+            name: ConfigurationEntryKey.discord,
+            schema: discordSchema,
+          }
         ],
       },
     ]),

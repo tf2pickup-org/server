@@ -261,4 +261,29 @@ describe('Configuration (e2e)', () => {
       },
     });
   });
+
+  it('PUT /configuration/discord', async () => {
+    const response = await request(app.getHttpServer())
+      .put('/configuration/discord')
+      .auth(adminAuthToken, { type: 'bearer' })
+      .send({
+        key: 'discord',
+        servers: [
+          {
+            guildId: '516366706751438868',
+            queueNotificationsChannelId: '892138986406019132',
+          },
+        ],
+      });
+    const body = response.body;
+    expect(body).toEqual({
+      key: 'discord',
+      servers: [
+        {
+          guildId: '516366706751438868',
+          queueNotificationsChannelId: '892138986406019132',
+        },
+      ],
+    });
+  });
 });

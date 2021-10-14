@@ -8,6 +8,7 @@ import {
 } from '../models/configuration-entry';
 import { ConfigurationEntryKey } from '../models/configuration-entry-key';
 import { DefaultPlayerSkill } from '../models/default-player-skill';
+import { Discord } from '../models/discord';
 import { Etf2lAccountRequired } from '../models/etf2l-account-required';
 import { MinimumTf2InGameHours } from '../models/minimum-tf2-in-game-hours';
 import { VoiceServer } from '../models/voice-server';
@@ -63,6 +64,16 @@ export class ConfigurationService {
       await this.get(
         ConfigurationEntryKey.voiceServer,
         classToPlain(new VoiceServer()),
+      ),
+    );
+  }
+
+  async getDiscord(): Promise<Discord> {
+    return plainToClass(
+      Discord,
+      await this.get(
+        ConfigurationEntryKey.discord,
+        classToPlain(new Discord()),
       ),
     );
   }

@@ -10,6 +10,7 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { DefaultPlayerSkill } from '../models/default-player-skill';
+import { Discord } from '../models/discord';
 import { Etf2lAccountRequired } from '../models/etf2l-account-required';
 import { MinimumTf2InGameHours } from '../models/minimum-tf2-in-game-hours';
 import { VoiceServer } from '../models/voice-server';
@@ -86,5 +87,18 @@ export class ConfigurationController {
   async setVoiceServer(@Body(new ValidationPipe()) voiceServer: VoiceServer) {
     await this.configurationService.set(voiceServer);
     return await this.getVoiceServer();
+  }
+
+  @Get('discord')
+  @Auth(PlayerRole.admin)
+  async getDiscord() {
+    return await this.configurationService.getDiscord();
+  }
+
+  @Put('discord')
+  @Auth(PlayerRole.admin)
+  async setDiscord(@Body(new ValidationPipe()) discord: Discord) {
+    await this.configurationService.set(discord);
+    return await this.getDiscord();
   }
 }
