@@ -64,8 +64,6 @@ describe('AuthService', () => {
     authKeys = module.get('AUTH_TOKEN_KEY');
     refreshKeys = module.get('REFRESH_TOKEN_KEY');
     connection = module.get(getConnectionToken());
-
-    await service.onModuleInit();
   });
 
   afterEach(async () => {
@@ -253,26 +251,6 @@ describe('AuthService', () => {
       expect(service.verifyToken(JwtTokenPurpose.context, token).id).toEqual(
         'FAKE_USER_ID',
       );
-    });
-  });
-
-  describe('#removeOldRefreshTokens()', () => {
-    it('should remove old tokens', async () => {
-      const key = refreshKeys.privateKey.export({
-        format: 'pem',
-        type: 'pkcs8',
-      });
-      const token = sign({ id: 'FAKE_USER_ID' }, key, {
-        algorithm: 'ES512',
-        expiresIn: '7d',
-      });
-
-      const createdAt = new Date();
-      createdAt.setDate(createdAt.getDate() - 8);
-      await refreshTokenModel.create({ value: token, createdAt });
-
-      await service.removeOldRefreshTokens();
-      expect(await refreshTokenModel.findOne({ value: token })).toBeNull();
     });
   });
 });
