@@ -8,9 +8,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Error, Model } from 'mongoose';
 
 @Injectable()
-export class AuthService implements OnModuleInit {
-  private logger = new Logger(AuthService.name);
-
+export class AuthService {
   constructor(
     @InjectModel(RefreshToken.name)
     private refreshTokenModel: Model<RefreshTokenDocument>,
