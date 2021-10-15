@@ -1,7 +1,6 @@
 import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { sign, verify } from 'jsonwebtoken';
 import { RefreshToken, RefreshTokenDocument } from '../models/refresh-token';
-import { Cron, CronExpression } from '@nestjs/schedule';
 import { InvalidTokenError } from '../errors/invalid-token.error';
 import { JwtTokenPurpose } from '../jwt-token-purpose';
 import { KeyPair } from '../key-pair';
@@ -20,10 +19,6 @@ export class AuthService implements OnModuleInit {
     @Inject('WEBSOCKET_SECRET') private websocketSecret: string,
     @Inject('CONTEXT_TOKEN_KEY') private contextTokenKey: KeyPair,
   ) {}
-
-  async onModuleInit() {
-    await this.removeOldRefreshTokens();
-  }
 
   async generateJwtToken(
     purpose: JwtTokenPurpose,
@@ -138,22 +133,5 @@ export class AuthService implements OnModuleInit {
       iat: number;
       exp: number;
     };
-  }
-
-  @Cron(CronExpression.EVERY_WEEK)
-  async removeOldRefreshTokens() {
-    // refresh tokens are leased for one week
-    const oneWeekAgo = new Date();
-    oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
-
-    this.logger.verbose(
-      `removing refresh tokens that are older than ${oneWeekAgo.toString()}`,
-    );
-    const { n } = await this.refreshTokenModel.deleteMany({
-      createdAt: {
-        $lt: oneWeekAgo,
-      },
-    });
-    this.logger.verbose(`removed ${n} refresh token(s)`);
   }
 }
