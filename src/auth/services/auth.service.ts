@@ -1,4 +1,4 @@
-import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { sign, verify } from 'jsonwebtoken';
 import { RefreshToken, RefreshTokenDocument } from '../models/refresh-token';
 import { InvalidTokenError } from '../errors/invalid-token.error';
