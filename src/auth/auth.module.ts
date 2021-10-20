@@ -4,7 +4,7 @@ import { PlayersModule } from '@/players/players.module';
 import { PassportModule } from '@nestjs/passport';
 import { SteamStrategy } from './strategies/steam.strategy';
 import { AuthController } from './controllers/auth.controller';
-import { authenticate } from 'passport';
+import * as passport from 'passport';
 import { RefreshToken, refreshTokenSchema } from './models/refresh-token';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { AuthGateway } from './gateways/auth.gateway';
@@ -91,7 +91,7 @@ const passportModule = PassportModule.register({
 export class AuthModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer
-      .apply(setRedirectUrlCookie, authenticate('steam', { session: false }))
+      .apply(setRedirectUrlCookie, passport.authenticate('steam', { session: false }))
       .forRoutes('/auth/steam');
   }
 }
