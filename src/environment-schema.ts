@@ -8,7 +8,7 @@ const joi = new Proxy(Joi, {
 
 const { object, string, number, any } = joi;
 
-export const environmentValidationSchema = object({
+export const environmentSchema = object({
   NODE_ENV: string()
     .valid('development', 'production', 'test')
     .default('development'),
