@@ -6,7 +6,7 @@ export class RefreshToken {
   @Prop({ required: true, index: true })
   value!: string;
 
-  @Prop({ default: () => new Date() })
+  @Prop({ default: () => new Date(), expires: '1w' })
   public createdAt?: Date;
 }
 
