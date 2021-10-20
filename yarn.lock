@@ -7717,9 +7717,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mongoose@npm:5.13.11":
-  version: 5.13.11
-  resolution: "mongoose@npm:5.13.11"
+"mongoose@npm:5.13.12":
+  version: 5.13.12
+  resolution: "mongoose@npm:5.13.12"
   dependencies:
     "@types/bson": 1.x || 4.0.x
     "@types/mongodb": ^3.5.27
@@ -7735,7 +7735,7 @@ __metadata:
     safe-buffer: 5.2.1
     sift: 13.5.2
     sliced: 1.0.1
-  checksum: fd25ff648be110906b0095821771475b4b52d0e3dc81ce1053441d1ad2640fafebf5ca656102db26b2da98f4a0fdeccd189d04e548d99f2e963bf8f5e5ae15dd
+  checksum: 590e530fee730572a936c85da451beeefe9b03ba3dc26d7f3c1e0daac3272407588764aa4ca1a0d09ae32537b1b15c3c1b1f078b03982bd08a7523973ea41fc3
   languageName: node
   linkType: hard
 
@@ -9450,7 +9450,7 @@ __metadata:
     mongodb-memory-server: 7.4.4
     mongodb-snapshot: 1.4.0
     mongodb-uri: 0.9.7
-    mongoose: 5.13.11
+    mongoose: 5.13.12
     nestjs-real-ip: 2.0.0
     passport: 0.5.0
     passport-headerapikey: 1.2.2
