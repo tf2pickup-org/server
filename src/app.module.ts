@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { Environment } from './environment/environment';
 import { AuthModule } from './auth/auth.module';
 import { PlayersModule } from './players/players.module';
@@ -8,7 +7,6 @@ import { ProfileModule } from './profile/profile.module';
 import { QueueModule } from './queue/queue.module';
 import { GamesModule } from './games/games.module';
 import { GameServersModule } from './game-servers/game-servers.module';
-import { SharedModule } from './shared/shared.module';
 import { EnvironmentModule } from './environment/environment.module';
 import { ConfigModule } from '@nestjs/config';
 import validationSchema from './environment-validation-schema';
@@ -57,7 +55,6 @@ import { formatMongoose } from 'mongodb-uri';
     GameServersModule,
     GamesModule,
     QueueModule,
-    SharedModule,
     DocumentsModule,
     EventsModule,
     PlayerPreferencesModule,
@@ -67,6 +64,5 @@ import { formatMongoose } from 'mongodb-uri';
     MigrationsModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
 })
 export class AppModule {}
