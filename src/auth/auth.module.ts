@@ -91,7 +91,10 @@ const passportModule = PassportModule.register({
 export class AuthModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer
-      .apply(setRedirectUrlCookie, passport.authenticate('steam', { session: false }))
+      .apply(
+        setRedirectUrlCookie,
+        passport.authenticate('steam', { session: false }),
+      )
       .forRoutes('/auth/steam');
   }
 }

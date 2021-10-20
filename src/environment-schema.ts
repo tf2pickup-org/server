@@ -3,7 +3,7 @@ import * as Joi from 'joi';
 const joi = new Proxy(Joi, {
   get(o, name) {
     return o[name].bind(o);
-  }
+  },
 });
 
 const { object, string, number, any } = joi;
