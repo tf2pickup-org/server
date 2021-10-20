@@ -13,7 +13,7 @@ import * as SteamID from 'steamid';
 export class ObjectOrSteamIdPipe implements PipeTransform {
   transform(value: string) {
     try {
-      if (Types.ObjectId.isValid(value) || new SteamID(value).isValid()) {
+      if (Types.ObjectId.isValid(value) || new SteamID(value).isValidIndividual()) {
         return value;
       }
     } catch {
