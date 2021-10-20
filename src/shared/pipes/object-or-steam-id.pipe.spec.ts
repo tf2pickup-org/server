@@ -9,28 +9,28 @@ describe('ObjectOrSteamIdPipe', () => {
 
   describe('object id', () => {
     it('should pass valid object id', () => {
-        const id = new ObjectId().toString();
-        expect(new ObjectOrSteamIdPipe().transform(id)).toEqual(id);
-      });
-    
-      it('should deny invalid object id', () => {
-        expect(() =>
-          new ObjectOrSteamIdPipe().transform('some invalid object id'),
-        ).toThrow(BadRequestException);
-      });
-  })
+      const id = new ObjectId().toString();
+      expect(new ObjectOrSteamIdPipe().transform(id)).toEqual(id);
+    });
+
+    it('should deny invalid object id', () => {
+      expect(() =>
+        new ObjectOrSteamIdPipe().transform('some invalid object id'),
+      ).toThrow(BadRequestException);
+    });
+  });
 
   describe('steam id', () => {
     it('should pass valid steam id', () => {
-        const id = "76561198074409147";
+      const id = '76561198074409147';
 
-        expect(new ObjectOrSteamIdPipe().transform(id)).toEqual(id);
-      });
-    
-      it('should deny invalid object id', () => {
-        expect(() =>
-          new ObjectOrSteamIdPipe().transform('some invalid steam id'),
-        ).toThrow(BadRequestException);
-      });
-  })
+      expect(new ObjectOrSteamIdPipe().transform(id)).toEqual(id);
+    });
+
+    it('should deny invalid object id', () => {
+      expect(() =>
+        new ObjectOrSteamIdPipe().transform('some invalid steam id'),
+      ).toThrow(BadRequestException);
+    });
+  });
 });
