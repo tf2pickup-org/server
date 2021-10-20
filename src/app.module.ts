@@ -9,7 +9,7 @@ import { GamesModule } from './games/games.module';
 import { GameServersModule } from './game-servers/game-servers.module';
 import { EnvironmentModule } from './environment/environment.module';
 import { ConfigModule } from '@nestjs/config';
-import validationSchema from './environment-validation-schema';
+import { environmentSchema } from './environment-schema';
 import { ScheduleModule } from '@nestjs/schedule';
 import { DocumentsModule } from './documents/documents.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
@@ -27,7 +27,7 @@ import { formatMongoose } from 'mongodb-uri';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      validationSchema,
+      validationSchema: environmentSchema,
       validationOptions: {
         abortEarly: true,
       },

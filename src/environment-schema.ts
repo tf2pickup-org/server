@@ -1,6 +1,14 @@
-import { object, string, number, any } from '@hapi/joi';
+import * as Joi from 'joi';
 
-export default object({
+const joi = new Proxy(Joi, {
+  get(o, name) {
+    return o[name].bind(o);
+  },
+});
+
+const { object, string, number, any } = joi;
+
+export const environmentSchema = object({
   NODE_ENV: string()
     .valid('development', 'production', 'test')
     .default('development'),
