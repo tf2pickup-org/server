@@ -113,12 +113,12 @@ export class AdminNotificationsService implements OnModuleInit {
   }
 
   private onPlayerRegisters(player: Player) {
-    this.discordService.getAdminsChannel()?.send({
-      embed: newPlayer({
-        name: player.name,
-        profileUrl: `${this.environment.clientUrl}/player/${player.id}`,
-      }),
-    });
+    // this.discordService.getAdminsChannel()?.send({
+    //   embed: newPlayer({
+    //     name: player.name,
+    //     profileUrl: `${this.environment.clientUrl}/player/${player.id}`,
+    //   }),
+    // });
   }
 
   private async onPlayerUpdates(
@@ -148,76 +148,76 @@ export class AdminNotificationsService implements OnModuleInit {
       return; // skip empty notification
     }
 
-    this.discordService.getAdminsChannel()?.send({
-      embed: playerProfileUpdated({
-        player: {
-          name: oldPlayer.name,
-          profileUrl: `${this.environment.clientUrl}/player/${oldPlayer.id}`,
-          avatarUrl: newPlayer.avatar?.medium,
-        },
-        admin: {
-          name: admin.name,
-          profileUrl: `${this.environment.clientUrl}/player/${admin.id}`,
-          avatarUrl: admin.avatar?.small,
-        },
-        client: {
-          name: new URL(this.environment.clientUrl).hostname,
-          iconUrl: `${this.environment.clientUrl}/${iconUrlPath}`,
-        },
-        changes,
-      }),
-    });
+    // this.discordService.getAdminsChannel()?.send({
+    //   embed: playerProfileUpdated({
+    //     player: {
+    //       name: oldPlayer.name,
+    //       profileUrl: `${this.environment.clientUrl}/player/${oldPlayer.id}`,
+    //       avatarUrl: newPlayer.avatar?.medium,
+    //     },
+    //     admin: {
+    //       name: admin.name,
+    //       profileUrl: `${this.environment.clientUrl}/player/${admin.id}`,
+    //       avatarUrl: admin.avatar?.small,
+    //     },
+    //     client: {
+    //       name: new URL(this.environment.clientUrl).hostname,
+    //       iconUrl: `${this.environment.clientUrl}/${iconUrlPath}`,
+    //     },
+    //     changes,
+    //   }),
+    // });
   }
 
   private async onPlayerBanAdded(ban: PlayerBan) {
     const admin = await this.playersService.getById(ban.admin);
     const player = await this.playersService.getById(ban.player);
 
-    this.discordService.getAdminsChannel()?.send({
-      embed: playerBanAdded({
-        admin: {
-          name: admin.name,
-          profileUrl: `${this.environment.clientUrl}/player/${admin.id}`,
-          avatarUrl: admin.avatar?.small,
-        },
-        player: {
-          name: player.name,
-          profileUrl: `${this.environment.clientUrl}/player/${player.id}`,
-          avatarUrl: player.avatar?.medium,
-        },
-        client: {
-          name: new URL(this.environment.clientUrl).hostname,
-          iconUrl: `${this.environment.clientUrl}/${iconUrlPath}`,
-        },
-        reason: ban.reason,
-        ends: ban.end,
-      }),
-    });
+    // this.discordService.getAdminsChannel()?.send({
+    //   embed: playerBanAdded({
+    //     admin: {
+    //       name: admin.name,
+    //       profileUrl: `${this.environment.clientUrl}/player/${admin.id}`,
+    //       avatarUrl: admin.avatar?.small,
+    //     },
+    //     player: {
+    //       name: player.name,
+    //       profileUrl: `${this.environment.clientUrl}/player/${player.id}`,
+    //       avatarUrl: player.avatar?.medium,
+    //     },
+    //     client: {
+    //       name: new URL(this.environment.clientUrl).hostname,
+    //       iconUrl: `${this.environment.clientUrl}/${iconUrlPath}`,
+    //     },
+    //     reason: ban.reason,
+    //     ends: ban.end,
+    //   }),
+    // });
   }
 
   private async onPlayerBanRevoked(ban: PlayerBan, adminId: string) {
     const admin = await this.playersService.getById(adminId);
     const player = await this.playersService.getById(ban.player);
 
-    this.discordService.getAdminsChannel()?.send({
-      embed: playerBanRevoked({
-        admin: {
-          name: admin.name,
-          profileUrl: `${this.environment.clientUrl}/player/${admin.id}`,
-          avatarUrl: admin.avatar?.small,
-        },
-        player: {
-          name: player.name,
-          profileUrl: `${this.environment.clientUrl}/player/${player.id}`,
-          avatarUrl: player.avatar?.medium,
-        },
-        client: {
-          name: new URL(this.environment.clientUrl).hostname,
-          iconUrl: `${this.environment.clientUrl}/${iconUrlPath}`,
-        },
-        reason: ban.reason,
-      }),
-    });
+    // this.discordService.getAdminsChannel()?.send({
+    //   embed: playerBanRevoked({
+    //     admin: {
+    //       name: admin.name,
+    //       profileUrl: `${this.environment.clientUrl}/player/${admin.id}`,
+    //       avatarUrl: admin.avatar?.small,
+    //     },
+    //     player: {
+    //       name: player.name,
+    //       profileUrl: `${this.environment.clientUrl}/player/${player.id}`,
+    //       avatarUrl: player.avatar?.medium,
+    //     },
+    //     client: {
+    //       name: new URL(this.environment.clientUrl).hostname,
+    //       iconUrl: `${this.environment.clientUrl}/${iconUrlPath}`,
+    //     },
+    //     reason: ban.reason,
+    //   }),
+    // });
   }
 
   private async onPlayerSkillChanged(
@@ -237,62 +237,62 @@ export class AdminNotificationsService implements OnModuleInit {
     const player = await this.playersService.getById(playerId);
     const admin = await this.playersService.getById(adminId);
 
-    this.discordService.getAdminsChannel()?.send({
-      embed: playerSkillChanged({
-        admin: {
-          name: admin.name,
-          profileUrl: `${this.environment.clientUrl}/player/${admin.id}`,
-          avatarUrl: admin.avatar?.small,
-        },
-        player: {
-          name: player.name,
-          profileUrl: `${this.environment.clientUrl}/player/${player.id}`,
-          avatarUrl: player.avatar?.medium,
-        },
-        client: {
-          name: new URL(this.environment.clientUrl).hostname,
-          iconUrl: `${this.environment.clientUrl}/${iconUrlPath}`,
-        },
-        oldSkill,
-        newSkill,
-      }),
-    });
+    // this.discordService.getAdminsChannel()?.send({
+    //   embed: playerSkillChanged({
+    //     admin: {
+    //       name: admin.name,
+    //       profileUrl: `${this.environment.clientUrl}/player/${admin.id}`,
+    //       avatarUrl: admin.avatar?.small,
+    //     },
+    //     player: {
+    //       name: player.name,
+    //       profileUrl: `${this.environment.clientUrl}/player/${player.id}`,
+    //       avatarUrl: player.avatar?.medium,
+    //     },
+    //     client: {
+    //       name: new URL(this.environment.clientUrl).hostname,
+    //       iconUrl: `${this.environment.clientUrl}/${iconUrlPath}`,
+    //     },
+    //     oldSkill,
+    //     newSkill,
+    //   }),
+    // });
   }
 
   private async onGameServerAdded(gameServer: GameServer) {
-    this.discordService.getAdminsChannel()?.send({
-      embed: gameServerAdded({
-        gameServer,
-        client: {
-          name: new URL(this.environment.clientUrl).hostname,
-          iconUrl: `${this.environment.clientUrl}/${iconUrlPath}`,
-        },
-      }),
-    });
+    // this.discordService.getAdminsChannel()?.send({
+    //   embed: gameServerAdded({
+    //     gameServer,
+    //     client: {
+    //       name: new URL(this.environment.clientUrl).hostname,
+    //       iconUrl: `${this.environment.clientUrl}/${iconUrlPath}`,
+    //     },
+    //   }),
+    // });
   }
 
   private async onGameServerWentOffline(gameServer: GameServer) {
-    this.discordService.getAdminsChannel()?.send({
-      embed: gameServerOffline({
-        gameServer,
-        client: {
-          name: new URL(this.environment.clientUrl).hostname,
-          iconUrl: `${this.environment.clientUrl}/${iconUrlPath}`,
-        },
-      }),
-    });
+    // this.discordService.getAdminsChannel()?.send({
+    //   embed: gameServerOffline({
+    //     gameServer,
+    //     client: {
+    //       name: new URL(this.environment.clientUrl).hostname,
+    //       iconUrl: `${this.environment.clientUrl}/${iconUrlPath}`,
+    //     },
+    //   }),
+    // });
   }
 
   private async onGameServerBackOnline(gameServer: GameServer) {
-    this.discordService.getAdminsChannel()?.send({
-      embed: gameServerOnline({
-        gameServer,
-        client: {
-          name: new URL(this.environment.clientUrl).hostname,
-          iconUrl: `${this.environment.clientUrl}/${iconUrlPath}`,
-        },
-      }),
-    });
+    // this.discordService.getAdminsChannel()?.send({
+    //   embed: gameServerOnline({
+    //     gameServer,
+    //     client: {
+    //       name: new URL(this.environment.clientUrl).hostname,
+    //       iconUrl: `${this.environment.clientUrl}/${iconUrlPath}`,
+    //     },
+    //   }),
+    // });
   }
 
   private async onGameForceEnded(game: Game, adminId: string) {
@@ -301,23 +301,23 @@ export class AdminNotificationsService implements OnModuleInit {
     }
 
     const admin = await this.playersService.getById(adminId);
-    this.discordService.getAdminsChannel()?.send({
-      embed: gameForceEnded({
-        admin: {
-          name: admin.name,
-          profileUrl: `${this.environment.clientUrl}/player/${admin.id}`,
-          avatarUrl: admin.avatar?.small,
-        },
-        client: {
-          name: new URL(this.environment.clientUrl).hostname,
-          iconUrl: `${this.environment.clientUrl}/${iconUrlPath}`,
-        },
-        game: {
-          number: `${game.number}`,
-          url: `${this.environment.clientUrl}/game/${game.id}`,
-        },
-      }),
-    });
+    // this.discordService.getAdminsChannel()?.send({
+    //   embed: gameForceEnded({
+    //     admin: {
+    //       name: admin.name,
+    //       profileUrl: `${this.environment.clientUrl}/player/${admin.id}`,
+    //       avatarUrl: admin.avatar?.small,
+    //     },
+    //     client: {
+    //       name: new URL(this.environment.clientUrl).hostname,
+    //       iconUrl: `${this.environment.clientUrl}/${iconUrlPath}`,
+    //     },
+    //     game: {
+    //       number: `${game.number}`,
+    //       url: `${this.environment.clientUrl}/game/${game.id}`,
+    //     },
+    //   }),
+    // });
   }
 
   private async onSubstituteRequested(
@@ -329,26 +329,26 @@ export class AdminNotificationsService implements OnModuleInit {
     const player = await this.playersService.getById(playerId);
     const game = await this.gamesService.getById(gameId);
 
-    this.discordService.getAdminsChannel()?.send({
-      embed: substituteRequested({
-        player: {
-          name: player.name,
-          profileUrl: `${this.environment.clientUrl}/player/${player.id}`,
-        },
-        admin: {
-          name: admin.name,
-          profileUrl: `${this.environment.clientUrl}/player/${admin.id}`,
-          avatarUrl: admin.avatar?.small,
-        },
-        game: {
-          number: `${game.number}`,
-          url: `${this.environment.clientUrl}/game/${game.id}`,
-        },
-        client: {
-          name: new URL(this.environment.clientUrl).hostname,
-          iconUrl: `${this.environment.clientUrl}/${iconUrlPath}`,
-        },
-      }),
-    });
+    // this.discordService.getAdminsChannel()?.send({
+    //   embed: substituteRequested({
+    //     player: {
+    //       name: player.name,
+    //       profileUrl: `${this.environment.clientUrl}/player/${player.id}`,
+    //     },
+    //     admin: {
+    //       name: admin.name,
+    //       profileUrl: `${this.environment.clientUrl}/player/${admin.id}`,
+    //       avatarUrl: admin.avatar?.small,
+    //     },
+    //     game: {
+    //       number: `${game.number}`,
+    //       url: `${this.environment.clientUrl}/game/${game.id}`,
+    //     },
+    //     client: {
+    //       name: new URL(this.environment.clientUrl).hostname,
+    //       iconUrl: `${this.environment.clientUrl}/${iconUrlPath}`,
+    //     },
+    //   }),
+    // });
   }
 }

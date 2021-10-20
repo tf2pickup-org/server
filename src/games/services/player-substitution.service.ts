@@ -106,28 +106,28 @@ export class PlayerSubstitutionService implements OnModuleInit {
     this.events.gameChanges.next({ game });
     this.events.substituteRequested.next({ gameId, playerId, adminId });
 
-    const channel = this.discordService?.getPlayersChannel();
-    if (channel) {
-      const embed = substituteRequest({
-        gameNumber: game.number,
-        gameClass: slot.gameClass,
-        team: slot.team.toUpperCase(),
-        gameUrl: `${this.environment.clientUrl}/game/${game.id}`,
-      });
+    // const channel = this.discordService?.getPlayersChannel();
+    // if (channel) {
+    //   const embed = substituteRequest({
+    //     gameNumber: game.number,
+    //     gameClass: slot.gameClass,
+    //     team: slot.team.toUpperCase(),
+    //     gameUrl: `${this.environment.clientUrl}/game/${game.id}`,
+    //   });
 
-      const roleToMention = this.discordService.findRole(
-        this.environment.discordQueueNotificationsMentionRole,
-      );
-      let message: Message;
+    //   const roleToMention = this.discordService.findRole(
+    //     this.environment.discordQueueNotificationsMentionRole,
+    //   );
+    //   let message: Message;
 
-      if (roleToMention?.mentionable) {
-        message = await channel.send(`${roleToMention}`, { embed });
-      } else {
-        message = await channel.send({ embed });
-      }
+    //   if (roleToMention?.mentionable) {
+    //     message = await channel.send(`${roleToMention}`, { embed });
+    //   } else {
+    //     message = await channel.send({ embed });
+    //   }
 
-      this.discordNotifications.set(playerId, message);
-    }
+    //   this.discordNotifications.set(playerId, message);
+    // }
 
     if (game.gameServer) {
       this.gameRuntimeService.sayChat(

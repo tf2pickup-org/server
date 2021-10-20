@@ -1,24 +1,22 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import { Client, Guild, TextChannel, Role, Emoji } from 'discord.js';
+import { Client, Guild, TextChannel } from 'discord.js';
 import { Environment } from '@/environment/environment';
-import { version } from '../../../../package.json';
-import { emojisToInstall } from '../emojis-to-install';
+import { ConfigurationService } from '@/configuration/services/configuration.service';
 
 @Injectable()
 export class DiscordService implements OnModuleInit {
   private client = new Client();
-  private guild: Guild;
   private logger = new Logger(DiscordService.name);
 
-  constructor(private environment: Environment) {}
+  constructor(
+    private environment: Environment,
+    private configurationService: ConfigurationService,
+  ) {}
 
   onModuleInit() {
     if (this.environment.discordBotToken) {
       this.client.on('ready', () => {
         this.logger.log(`logged in as ${this.client.user.tag}`);
-        this.enable();
-        this.getAdminsChannel().send(`Server version ${version} started.`);
-        this.installEmojis();
       });
 
       this.client
@@ -27,68 +25,53 @@ export class DiscordService implements OnModuleInit {
     }
   }
 
-  getPlayersChannel(): TextChannel | null {
-    return this.findChannel(this.environment.discordQueueNotificationsChannel);
+  getAllGuilds(): Guild[] {
+    return [...this.client.guilds.cache.values()];
   }
 
-  getAdminsChannel(): TextChannel | null {
-    return this.findChannel(this.environment.discordAdminNotificationsChannel);
+  getTextChannelsForGuild(guildId: string): TextChannel[] {
+    const guild = this.client.guilds.cache.get(guildId);
+    return Array.from(guild.channels.cache.filter(c => c.isText()).values()) as TextChannel[];
   }
 
-  findRole(name: string): Role | null {
-    return this.guild?.roles?.cache.find((role) => role.name === name);
+  async getEnabledGuilds(): Promise<Guild[]> {
+    const guildIds = (await this.configurationService.getDiscord()).servers.map(server => server.guildId);
+    return this.getAllGuilds().filter(guild => guildIds.includes(guild.id));
   }
 
-  findEmoji(name: string): Emoji {
-    return this.guild?.emojis?.cache.find((emoji) => emoji.name === name);
-  }
-
-  private enable() {
-    this.guild = this.client.guilds.cache.find(
-      (guild) => guild.name === this.environment.discordGuild,
-    );
-    if (!this.guild?.available) {
-      this.logger.warn(
-        `guild '${this.environment.discordGuild}' is not available; discord notifications will not work`,
-      );
-    }
-  }
-
-  private findChannel(name: string) {
-    return this.guild?.channels?.cache
-      .filter((c) => c instanceof TextChannel)
-      .find((c) => (c as TextChannel).name === name) as TextChannel;
-  }
-
-  private async installEmojis() {
-    const installedEmojis: Emoji[] = [];
-
-    for (const emoji of emojisToInstall) {
-      const found = this.guild?.emojis.cache.find((e) => e.name === emoji.name);
-      if (!found) {
-        try {
-          const e = await this.guild.emojis.create(
-            emoji.sourceUrl,
-            emoji.name,
-            { reason: 'required by the tf2pickup.org server' },
-          );
-          installedEmojis.push(e);
-          this.logger.log(`Installed emoji ${emoji.name}`);
-        } catch (error) {
-          this.logger.error(
-            `Failed installing emoji '${emoji.name}' (${error}).`,
-          );
+  /**
+   * Get channels for admins' notifications for all enabled guilds.
+   */
+  async getAdminsChannels(): Promise<TextChannel[]> {
+    return (await this.configurationService.getDiscord()).servers
+      .map(server => {
+        if (server.adminNotificationsChannelId) {
+          const guild = this.client.guilds.cache.get(server.guildId);
+          return guild.channels.cache
+            .filter(c => c.isText())
+            .find(c => c.id === server.adminNotificationsChannelId) as TextChannel;
+        } else {
+          return null;
         }
-      }
-    }
+      })
+      .filter(c => c !== null);
+  }
 
-    if (installedEmojis.length > 0) {
-      this.getAdminsChannel()?.send(
-        `The following emoji${installedEmojis.length > 1 ? 's have' : ' has'}` +
-          ` been installed: ${installedEmojis
-            .map((e) => e.toString())
-            .join(' ')}`,
-      );
-    }
+  /**
+   * Get channels for queue notifications (join queue prompts, substitute requests) for all enabled guilds.
+   */
+  async getQueueNotificationsChannels(): Promise<TextChannel[]> {
+    return (await this.configurationService.getDiscord()).servers
+      .map(server => {
+        if (server.queueNotificationsChannelId) {
+          const guild = this.client.guilds.cache.get(server.guildId);
+          return guild.channels.cache
+            .filter(c => c.isText())
+            .find(c => c.id === server.queueNotificationsChannelId) as TextChannel;
+        } else {
+          return null;
+        }
+      })
+      .filter(c => c !== null);
   }
 }

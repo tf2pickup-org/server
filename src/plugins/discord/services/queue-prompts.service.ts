@@ -37,24 +37,24 @@ export class QueuePromptsService implements OnModuleInit {
     this.requiredPlayerCount = slots.length;
     const clientName = new URL(this.environment.clientUrl).hostname;
 
-    const embed = queuePreview({
-      iconUrl: `${this.environment.clientUrl}/${iconUrlPath}`,
-      clientName,
-      clientUrl: this.environment.clientUrl,
-      playerCount: this.queueService.playerCount,
-      requiredPlayerCount: this.queueService.requiredPlayerCount,
-      gameClassData: await this.slotsToGameClassData(slots),
-    });
+    // const embed = queuePreview({
+    //   iconUrl: `${this.environment.clientUrl}/${iconUrlPath}`,
+    //   clientName,
+    //   clientUrl: this.environment.clientUrl,
+    //   playerCount: this.queueService.playerCount,
+    //   requiredPlayerCount: this.queueService.requiredPlayerCount,
+    //   gameClassData: await this.slotsToGameClassData(slots),
+    // });
 
-    if (this.message) {
-      this.message.edit({ embed });
-    } else {
-      if (this.playerThresholdMet()) {
-        this.message = await this.discordService
-          .getPlayersChannel()
-          ?.send({ embed });
-      }
-    }
+    // if (this.message) {
+    //   this.message.edit({ embed });
+    // } else {
+    //   if (this.playerThresholdMet()) {
+        // this.message = await this.discordService
+        //   .getPlayersChannel()
+        //   ?.send({ embed });
+      // }
+    // }
   }
 
   private async slotsToGameClassData(slots: QueueSlot[]) {
@@ -71,7 +71,7 @@ export class QueuePromptsService implements OnModuleInit {
 
     return this.queueConfigService.queueConfig.classes.map((gameClass) => ({
       gameClass: gameClass.name,
-      emoji: this.discordService.findEmoji(`tf2${gameClass.name}`),
+      // emoji: this.discordService.findEmoji(`tf2${gameClass.name}`),
       playersRequired:
         gameClass.count * this.queueConfigService.queueConfig.teamCount,
       players: playerData.filter((p) => p.gameClass === gameClass.name),
@@ -87,16 +87,16 @@ export class QueuePromptsService implements OnModuleInit {
 
   @Cron(CronExpression.EVERY_5_MINUTES)
   async ensurePromptIsVisible() {
-    const messages = await this.discordService
-      .getPlayersChannel()
-      .messages.fetch({ limit: 1 });
-    if (
-      messages?.first()?.id !== this.message?.id &&
-      this.playerThresholdMet()
-    ) {
-      await this.message?.delete();
-      delete this.message;
-      this.refreshPrompt(this.queueService.slots);
-    }
+    // const messages = await this.discordService
+    //   .getPlayersChannel()
+    //   .messages.fetch({ limit: 1 });
+    // if (
+    //   messages?.first()?.id !== this.message?.id &&
+    //   this.playerThresholdMet()
+    // ) {
+    //   await this.message?.delete();
+    //   delete this.message;
+    //   this.refreshPrompt(this.queueService.slots);
+    // }
   }
 }

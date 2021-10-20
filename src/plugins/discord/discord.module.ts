@@ -5,6 +5,8 @@ import { DiscordService } from './services/discord.service';
 import { QueuePromptsService } from './services/queue-prompts.service';
 import { AdminNotificationsService } from './services/admin-notifications.service';
 import { GamesModule } from '@/games/games.module';
+import { DiscordController } from './controllers/discord.controller';
+import { ConfigurationModule } from '@/configuration/configuration.module';
 
 @Global()
 @Module({
@@ -12,8 +14,10 @@ import { GamesModule } from '@/games/games.module';
     forwardRef(() => QueueModule),
     forwardRef(() => PlayersModule),
     GamesModule,
+    ConfigurationModule,
   ],
   providers: [DiscordService, QueuePromptsService, AdminNotificationsService],
   exports: [DiscordService],
+  controllers: [DiscordController],
 })
 export class DiscordModule {}
