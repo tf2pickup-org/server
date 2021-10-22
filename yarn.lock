@@ -8455,13 +8455,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"passport-steam@npm:1.0.16":
-  version: 1.0.16
-  resolution: "passport-steam@npm:1.0.16"
+"passport-steam@npm:1.0.17":
+  version: 1.0.17
+  resolution: "passport-steam@npm:1.0.17"
   dependencies:
     "@passport-next/passport-openid": ^1.0.0
     steam-web: 0.4.0
-  checksum: ae677e1f78353579b0e04c561bea4466b2c3e0870e92c2b389f5727d1ec0643b750a98db6badfe64b0f8173561442fa901e519722b881a9d64a9c543ce1debb9
+  checksum: 6357a0102488c883afabec18c1fe0a10d14c3c4730d359a0ba3ca1e63dbb8e4dec8f00b1c047bc319f1204d6e58b34bbba00aa359455724f76ecc0909b04bf10
   languageName: node
   linkType: hard
 
@@ -9509,7 +9509,7 @@ __metadata:
     passport: 0.5.0
     passport-headerapikey: 1.2.2
     passport-jwt: 4.0.0
-    passport-steam: 1.0.16
+    passport-steam: 1.0.17
     prettier: 2.4.1
     rcon-client: 4.2.3
     reflect-metadata: 0.1.13
