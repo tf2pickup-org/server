@@ -1913,10 +1913,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/steamid@npm:2.0.0":
-  version: 2.0.0
-  resolution: "@types/steamid@npm:2.0.0"
-  checksum: 315804c18fedd02e9ade2cf267470ff2e26f9a0c20ad0d5cc87f7f228388a772e1e9446a6c007cff2d9cf7c8b1fa4e67989398cd4b55235b00ce8aab1b9bd4a0
+"@types/steamid@npm:2.0.1":
+  version: 2.0.1
+  resolution: "@types/steamid@npm:2.0.1"
+  checksum: eda57855c8cb62afe727a82079dc31b8afb7557859d62d91001ede2de979b70a29cfe10123adc43693d5b3dd0b9bae1b2a75f88fa2ee041806227ee454edf52f
   languageName: node
   linkType: hard
 
@@ -9477,7 +9477,7 @@ __metadata:
     "@types/passport-steam": 1.0.1
     "@types/socket.io": 3.0.1
     "@types/socketio-jwt-auth": 0.0.2
-    "@types/steamid": 2.0.0
+    "@types/steamid": 2.0.1
     "@types/supertest": 2.0.11
     "@typescript-eslint/eslint-plugin": 5.1.0
     "@typescript-eslint/parser": 5.1.0
