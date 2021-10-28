@@ -1,3 +1,14 @@
+## [8.0.2](https://github.com/tf2pickup-org/server/compare/8.0.1...8.0.2) (2021-10-28)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @nestjs/config to v1.0.3 ([#1332](https://github.com/tf2pickup-org/server/issues/1332)) ([b67e3ab](https://github.com/tf2pickup-org/server/commit/b67e3ab0ab2b3e41361edfe2e409ec95d82d5213))
+* **deps:** update dependency mongoose to v5.13.11 ([#1299](https://github.com/tf2pickup-org/server/issues/1299)) ([0b103f1](https://github.com/tf2pickup-org/server/commit/0b103f1166ce8cf7fa73ebda46717ebb00cea18d))
+* **deps:** update dependency mongoose to v5.13.12 ([#1320](https://github.com/tf2pickup-org/server/issues/1320)) ([03098a4](https://github.com/tf2pickup-org/server/commit/03098a451127775d0014bec19e953fddaa2aa0e3))
+* **deps:** update dependency passport-steam to v1.0.17 ([#1326](https://github.com/tf2pickup-org/server/issues/1326)) ([b32f5d3](https://github.com/tf2pickup-org/server/commit/b32f5d3bcb95a7cbf09b7e33e491394f56bd8bca))
+* **games:** always release the gameserver ([#1333](https://github.com/tf2pickup-org/server/issues/1333)) ([baca4b6](https://github.com/tf2pickup-org/server/commit/baca4b669a4b59eef973d235a281e656d4aaf6d9))
+
 ## [8.0.1](https://github.com/tf2pickup-org/server/compare/8.0.0...8.0.1) (2021-10-12)
 
 
