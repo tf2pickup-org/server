@@ -152,9 +152,10 @@ export class GameRuntimeService {
   async cleanupServer(serverId: string) {
     try {
       await this.serverConfiguratorService.cleanupServer(serverId);
-      await this.gameServersService.releaseServer(serverId);
     } catch (e) {
       this.logger.error(e.message);
+    } finally {
+      await this.gameServersService.releaseServer(serverId);
     }
   }
 
