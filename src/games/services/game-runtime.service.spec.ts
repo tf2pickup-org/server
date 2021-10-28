@@ -332,22 +332,30 @@ describe('GameRuntimeService', () => {
   describe('#cleanupServer()', () => {
     it('should cleanup the gameserver', async () => {
       await service.cleanupServer(mockGameServer.id);
-      expect(serverConfiguratorService.cleanupServer).toHaveBeenCalledWith(mockGameServer.id);
+      expect(serverConfiguratorService.cleanupServer).toHaveBeenCalledWith(
+        mockGameServer.id,
+      );
     });
 
     it('should release the gameserver', async () => {
       await service.cleanupServer(mockGameServer.id);
-      expect(gameServersService.releaseServer).toHaveBeenCalledWith(mockGameServer.id);
+      expect(gameServersService.releaseServer).toHaveBeenCalledWith(
+        mockGameServer.id,
+      );
     });
 
     describe('when server cleanup fails', () => {
       beforeEach(() => {
-        serverConfiguratorService.cleanupServer.mockRejectedValue(new Error('rcon error'));
+        serverConfiguratorService.cleanupServer.mockRejectedValue(
+          new Error('rcon error'),
+        );
       });
 
       it('should release the gameserver', async () => {
         await service.cleanupServer(mockGameServer.id);
-        expect(gameServersService.releaseServer).toHaveBeenCalledWith(mockGameServer.id);
+        expect(gameServersService.releaseServer).toHaveBeenCalledWith(
+          mockGameServer.id,
+        );
       });
     });
   });
