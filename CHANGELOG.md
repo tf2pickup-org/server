@@ -1,3 +1,10 @@
+## [8.0.3](https://github.com/tf2pickup-org/server/compare/8.0.2...8.0.3) (2021-10-29)
+
+
+### Bug Fixes
+
+* **auth:** fix passport authentication ([#1334](https://github.com/tf2pickup-org/server/issues/1334)) ([db26cdf](https://github.com/tf2pickup-org/server/commit/db26cdf75b3ddd072138d794e56969f5c8bf8de1))
+
 ## [8.0.2](https://github.com/tf2pickup-org/server/compare/8.0.1...8.0.2) (2021-10-28)
 
 
