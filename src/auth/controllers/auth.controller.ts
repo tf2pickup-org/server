@@ -7,7 +7,7 @@ import {
   Logger,
 } from '@nestjs/common';
 import { HttpAdapterHost } from '@nestjs/core';
-import { authenticate } from 'passport';
+import * as passport from 'passport';
 import { Environment } from '@/environment/environment';
 import { AuthService } from '../services/auth.service';
 import { User } from '../decorators/user.decorator';
@@ -35,7 +35,7 @@ export class AuthController {
     this.adapterHost.httpAdapter?.get(
       '/auth/steam/return',
       (req, res, next) => {
-        return authenticate('steam', async (error, player: Player) => {
+        return passport.authenticate('steam', async (error, player: Player) => {
           const url =
             req.cookies?.[redirectUrlCookieName] || this.environment.clientUrl;
 
