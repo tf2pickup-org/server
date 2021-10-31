@@ -15,6 +15,7 @@ const mockGameServer: GameServer = {
   createdAt: new Date(),
   isAvailable: true,
   isOnline: true,
+  priority: 1,
 };
 
 jest.mock('../services/game-servers.service');

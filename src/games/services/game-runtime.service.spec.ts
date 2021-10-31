@@ -94,6 +94,7 @@ describe('GameRuntimeService', () => {
       createdAt: new Date(),
       isAvailable: true,
       isOnline: true,
+      priority: 1,
     };
 
     gameServersService.getById.mockResolvedValue(mockGameServer as any);

@@ -66,6 +66,7 @@ const mockGameServer: GameServer = {
   createdAt: new Date(),
   isAvailable: true,
   isOnline: true,
+  priority: 1,
 };
 
 function flushPromises() {

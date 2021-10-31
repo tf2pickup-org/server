@@ -1,4 +1,4 @@
-import { IsOptional, IsPort, IsString } from 'class-validator';
+import { IsNumber, IsOptional, IsPort, IsString } from 'class-validator';
 
 export class GameServerHeartbeat {
   @IsString()
@@ -16,4 +16,8 @@ export class GameServerHeartbeat {
   @IsOptional()
   @IsString()
   voiceChannelName?: string;
+
+  @IsOptional()
+  @IsNumber()
+  priority?: number;
 }

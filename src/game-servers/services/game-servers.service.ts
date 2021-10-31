@@ -23,6 +23,7 @@ interface HeartbeatParams {
   rconPassword: string;
   voiceChannelName?: string;
   internalIpAddress: string;
+  priority?: number;
 }
 
 @Injectable()
@@ -114,6 +115,7 @@ export class GameServersService implements OnModuleInit {
             internalIpAddress: params.internalIpAddress,
             isOnline: true,
             lastHeartbeatAt: new Date(),
+            priority: params.priority,
           },
           { upsert: true, new: true },
         )
@@ -158,13 +160,17 @@ export class GameServersService implements OnModuleInit {
   async findFreeGameServer(): Promise<GameServer> {
     let availableGameServer: GameServer = null;
     // Fetch all game servers to determine which ones are free
-    const availableGameServers = await this.getAllGameServers();
+    const availableGameServers = plainToClass(
+      GameServer,
+      await this.gameServerModel
+        .find({ isOnline: true })
+        .sort({ priority: 1 })
+        .lean()
+        .exec(),
+    );
 
     // Iterate every server and confirm if the stored game is actually running
-    // We iterate from last to first to return the first available server of
-    // all available server instead of the last
-    for (let i = availableGameServers.length - 1; i > -1; i--) {
-      const gameServer = availableGameServers[i];
+    for (const gameServer of availableGameServers) {
       if (gameServer.game !== undefined) {
         const game = await this.gamesService.getById(gameServer.game);
 

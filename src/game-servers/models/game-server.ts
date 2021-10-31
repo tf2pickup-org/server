@@ -50,6 +50,9 @@ export class GameServer extends MongooseDocument {
 
   @Prop({ default: () => new Date() })
   lastHeartbeatAt?: Date;
+
+  @Prop({ default: 1 })
+  priority!: number;
 }
 
 export type GameServerDocument = GameServer & Document;
