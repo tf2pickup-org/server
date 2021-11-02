@@ -14,6 +14,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, Error, Types } from 'mongoose';
 import { GamesService } from '@/games/services/games.service';
 import { filter } from 'rxjs/operators';
+import { GameState } from '@/games/models/game-state';
 
 interface HeartbeatParams {
   name: string;
@@ -155,14 +156,41 @@ export class GameServersService implements OnModuleInit {
   }
 
   async findFreeGameServer(): Promise<GameServer> {
-    return plainToClass(
-      GameServer,
-      await this.gameServerModel
-        .findOne({ isOnline: true, game: { $exists: false } })
-        .orFail()
-        .lean()
-        .exec(),
-    );
+    let availableGameServer: GameServer = null;
+    // Fetch all game servers to determine which ones are free
+    const availableGameServers = await this.getAllGameServers();
+
+    // Iterate every server and confirm if the stored game is actually running
+    // We iterate from last to first to return the first available server of
+    // all available server instead of the last
+    for (let i = availableGameServers.length - 1; i > -1; i--) {
+      const gameServer = availableGameServers[i];
+      if (gameServer.game !== undefined) {
+        const game = await this.gamesService.getById(gameServer.game);
+
+        if (
+          game.state === GameState.ended ||
+          game.state === GameState.interrupted
+        ) {
+          this.logger.debug(
+            `game server ${gameServer.id} (${gameServer.name}) had the wrong state of a game`,
+          );
+
+          // Release the gameserver since the game it has stored actually finished
+          await this.releaseServer(gameServer.id);
+
+          availableGameServer = gameServer;
+        }
+      } else {
+        availableGameServer = gameServer;
+      }
+    }
+
+    if (availableGameServer !== null) {
+      return availableGameServer;
+    } else {
+      throw new Error.DocumentNotFoundError("No free servers available.");
+    }
   }
 
   async assignFreeGameServer(gameId: string): Promise<GameServer> {

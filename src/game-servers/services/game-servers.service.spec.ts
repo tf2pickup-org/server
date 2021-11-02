@@ -17,6 +17,7 @@ import {
   MongooseModule,
 } from '@nestjs/mongoose';
 import { GamesService } from '@/games/services/games.service';
+import { GameState } from '@/games/models/game-state';
 
 jest.mock('@/games/services/games.service');
 
@@ -200,7 +201,14 @@ describe('GameServersService', () => {
   describe('#findFreeGameServer()', () => {
     describe('when the server is online but taken', () => {
       beforeEach(async () => {
-        testGameServer.game = new ObjectId();
+        const game1 = await gameModel.create({
+          number: 2,
+          map: 'cp_badlands',
+          slots: [],
+          state: GameState.started
+        });
+
+        testGameServer.game = new ObjectId(game1.id);
         testGameServer.isOnline = true;
         await testGameServer.save();
       });
@@ -208,6 +216,28 @@ describe('GameServersService', () => {
       it('should throw an error', async () => {
         await expect(service.findFreeGameServer()).rejects.toThrow(
           Error.DocumentNotFoundError,
+        );
+      });
+    });
+
+    describe('when the server has a game, but that game ended', () => {
+      beforeEach(async () => {
+
+        const game2 = await gameModel.create({
+          number: 2,
+          map: 'cp_badlands',
+          slots: [],
+          state: GameState.ended
+        });
+
+        testGameServer.game = new ObjectId(game2.id);
+        testGameServer.isOnline = true;
+        await testGameServer.save();
+      });
+
+      it('should return this game server', async () => {
+        expect((await service.findFreeGameServer()).id).toEqual(
+          testGameServer.id,
         );
       });
     });
