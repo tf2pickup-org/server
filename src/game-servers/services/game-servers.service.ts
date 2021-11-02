@@ -168,9 +168,11 @@ export class GameServersService implements OnModuleInit {
       if (gameServer.game !== undefined) {
         const game = await this.gamesService.getById(gameServer.game);
 
+        // Check if the game either ended or was interrupted at least 2 minutes ago
         if (
-          game.state === GameState.ended ||
-          game.state === GameState.interrupted
+          (game.state === GameState.ended ||
+            game.state === GameState.interrupted) &&
+          game.endedAt.getTime() < Date.now() - 1000 * 60 * 2
         ) {
           this.logger.debug(
             `game server ${gameServer.id} (${gameServer.name}) had the wrong state of a game`,
@@ -189,7 +191,7 @@ export class GameServersService implements OnModuleInit {
     if (availableGameServer !== null) {
       return availableGameServer;
     } else {
-      throw new Error.DocumentNotFoundError("No free servers available.");
+      throw new Error('No free servers available.');
     }
   }
 

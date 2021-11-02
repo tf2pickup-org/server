@@ -71,6 +71,7 @@ export class GameRuntimeService {
           gameId,
           {
             state: GameState.interrupted,
+            endedAt: new Date(),
             error: 'ended by admin',
             'slots.$[element].status': SlotStatus.active,
           },

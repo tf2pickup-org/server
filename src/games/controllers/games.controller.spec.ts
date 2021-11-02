@@ -18,6 +18,8 @@ class GamesServiceStub {
       number: 1,
       map: 'cp_fake_rc1',
       state: 'ended',
+      launchedAt: new Date(1635884999789),
+      endedAt: new Date(1635888599789),
       assignedSkills: new Map([['FAKE_PLAYER_ID', 1]]),
     } as Game,
     {
