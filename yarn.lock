@@ -803,16 +803,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nestjs/axios@npm:0.0.2":
-  version: 0.0.2
-  resolution: "@nestjs/axios@npm:0.0.2"
+"@nestjs/axios@npm:0.0.3":
+  version: 0.0.3
+  resolution: "@nestjs/axios@npm:0.0.3"
   dependencies:
-    axios: 0.21.4
+    axios: 0.23.0
   peerDependencies:
     "@nestjs/common": ^7.0.0 || ^8.0.0
     reflect-metadata: ^0.1.12
     rxjs: ^6.0.0 || ^7.0.0
-  checksum: 2eb990358c0883f000b514224d3a14cfa78d9cb9eafba4a87f85404f62fe6e0e1a68c33d11b3cb75240acd3e7cbb7280d8540856e2d844795d5b8059c2360521
+  checksum: b45fd0f13704ad0043d2765339abe642b436ac715505f6138220507099cfb23fcd4f7d8336878666cd458158839499993b1e041f7eecafc905cc734f25ae3eec
   languageName: node
   linkType: hard
 
@@ -2723,21 +2723,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"axios@npm:0.21.4, axios@npm:^0.21.4":
-  version: 0.21.4
-  resolution: "axios@npm:0.21.4"
-  dependencies:
-    follow-redirects: ^1.14.0
-  checksum: 44245f24ac971e7458f3120c92f9d66d1fc695e8b97019139de5b0cc65d9b8104647db01e5f46917728edfc0cfd88eb30fc4c55e6053eef4ace76768ce95ff3c
-  languageName: node
-  linkType: hard
-
 "axios@npm:0.23.0":
   version: 0.23.0
   resolution: "axios@npm:0.23.0"
   dependencies:
     follow-redirects: ^1.14.4
   checksum: 879f61022bd825da2a7ebb72410bc528683ba54c140436baa0b924b7cab02ec0919fe64a04a546f482a75f5fd570b77884f9826764a95f2fd88265e61dcb70db
+  languageName: node
+  linkType: hard
+
+"axios@npm:^0.21.4":
+  version: 0.21.4
+  resolution: "axios@npm:0.21.4"
+  dependencies:
+    follow-redirects: ^1.14.0
+  checksum: 44245f24ac971e7458f3120c92f9d66d1fc695e8b97019139de5b0cc65d9b8104647db01e5f46917728edfc0cfd88eb30fc4c55e6053eef4ace76768ce95ff3c
   languageName: node
   linkType: hard
 
@@ -9491,7 +9491,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "server@workspace:."
   dependencies:
-    "@nestjs/axios": 0.0.2
+    "@nestjs/axios": 0.0.3
     "@nestjs/cli": 8.1.4
     "@nestjs/common": 8.1.2
     "@nestjs/config": 1.0.3
