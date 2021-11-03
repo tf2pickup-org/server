@@ -17,18 +17,3 @@ module.exports.up = (next) => {
     )
     .then(() => next());
 };
-
-module.exports.down = (next) => {
-  config();
-
-  MongoClient.connect(process.env.MONGODB_URI, { useUnifiedTopology: true })
-    .then((client) => client.db())
-    .then((db) => db.collection('games'))
-    .then((collection) =>
-      Promise.all([
-        collection,
-        collection.updateMany({}, { $unset: { endedAt: "" } }),
-      ]),
-    )
-    .then(() => next());
-};
