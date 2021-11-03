@@ -65,6 +65,7 @@ export class GameEventHandlerService implements OnModuleDestroy {
           { _id: new Types.ObjectId(gameId), state: GameState.started },
           {
             state: GameState.ended,
+            endedAt: new Date(),
             'slots.$[element].status': `${SlotStatus.active}`,
           },
           {

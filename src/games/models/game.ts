@@ -15,6 +15,9 @@ export class Game extends MongooseDocument {
   @Prop({ default: () => new Date() })
   launchedAt?: Date;
 
+  @Prop()
+  endedAt?: Date;
+
   @Prop({ required: true, unique: true })
   number!: number;
 
