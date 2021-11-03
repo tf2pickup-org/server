@@ -1,3 +1,12 @@
+## [8.0.4](https://github.com/tf2pickup-org/server/compare/8.0.3...8.0.4) (2021-11-03)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @nestjs/axios to v0.0.3 ([#1319](https://github.com/tf2pickup-org/server/issues/1319)) ([a56bbe0](https://github.com/tf2pickup-org/server/commit/a56bbe03440eb0f2a59530674692c91f33c7a1bb))
+* **deps:** update dependency @nestjs/config to v1.1.0 ([#1342](https://github.com/tf2pickup-org/server/issues/1342)) ([a08207b](https://github.com/tf2pickup-org/server/commit/a08207b90ec5cb1845fe7e97a88b24555caf885a))
+* **game-servers:** better available gameserver detection ([#1341](https://github.com/tf2pickup-org/server/issues/1341)) ([535b540](https://github.com/tf2pickup-org/server/commit/535b5404a688c388e29487b723d6d6fed31cbea1))
+
 ## [8.0.3](https://github.com/tf2pickup-org/server/compare/8.0.2...8.0.3) (2021-10-29)
 
 
