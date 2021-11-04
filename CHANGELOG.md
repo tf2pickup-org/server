@@ -1,3 +1,10 @@
+## [8.0.5](https://github.com/tf2pickup-org/server/compare/8.0.4...8.0.5) (2021-11-04)
+
+
+### Bug Fixes
+
+* **game-servers:** fix migration for mongodb 4.0 ([#1343](https://github.com/tf2pickup-org/server/issues/1343)) ([ac6f5b0](https://github.com/tf2pickup-org/server/commit/ac6f5b02db0ecb05e12f1e29ad75ef7b5c002690))
+
 ## [8.0.4](https://github.com/tf2pickup-org/server/compare/8.0.3...8.0.4) (2021-11-03)
 
 
