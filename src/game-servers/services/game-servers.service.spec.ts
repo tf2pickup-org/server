@@ -58,7 +58,6 @@ describe('GameServersService', () => {
       address: 'localhost',
       port: '27015',
       rconPassword: '123456',
-      resolvedIpAddresses: ['127.0.0.1'],
       isOnline: true,
     });
   });
@@ -283,6 +282,25 @@ describe('GameServersService', () => {
         expect((await service.findFreeGameServer()).id).toEqual(
           testGameServer.id,
         );
+      });
+    });
+
+    describe('when there are more then one game servers', () => {
+      beforeEach(async () => {
+        await gameServerModel.create({
+          name: 'TEST_GAME_SERVER_2',
+          address: 'localhost',
+          port: '27025',
+          rconPassword: '123456',
+          isOnline: true,
+          priority: 2,
+        });
+      });
+
+      it('should pick the one with the highest priority', async () => {
+        const gameServer = await service.findFreeGameServer();
+        expect(gameServer.name).toEqual('TEST_GAME_SERVER_2');
+        expect(gameServer.priority).toEqual(2);
       });
     });
   });
