@@ -1,4 +1,5 @@
-'use strict'
+/* eslint-disable @typescript-eslint/no-var-requires */
+'use strict';
 
 const { config } = require('dotenv');
 const { MongoClient } = require('mongodb');
@@ -12,8 +13,21 @@ module.exports.up = (next) => {
     .then((collection) =>
       Promise.all([
         collection,
-        collection.updateMany({}, { $set: { endedAt: { $add: ["$launchedAt", 1000 * 60 * 45]} } }),
+        collection.find({ endedAt: { $exists: false } }).toArray(),
       ]),
+    )
+    .then(([collection, servers]) =>
+      Promise.all(
+        servers.map((server) => {
+          const endedAt = new Date(
+            server.launchedAt.getTime() + 1000 * 60 * 45,
+          );
+          return collection.updateOne(
+            { _id: server._id },
+            { $set: { endedAt: endedAt } },
+          );
+        }),
+      ),
     )
     .then(() => next());
 };
