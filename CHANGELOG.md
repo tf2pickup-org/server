@@ -1,3 +1,15 @@
+# [8.1.0](https://github.com/tf2pickup-org/server/compare/8.0.5...8.1.0) (2021-11-05)
+
+
+### Bug Fixes
+
+* **game-servers:** fix heartbeat DTO ([#1345](https://github.com/tf2pickup-org/server/issues/1345)) ([48b1ad6](https://github.com/tf2pickup-org/server/commit/48b1ad6683a191e983763cf2bb1304ead16ed3b7))
+
+
+### Features
+
+* **game-servers:** add game server priority ([#1336](https://github.com/tf2pickup-org/server/issues/1336)) ([fe317da](https://github.com/tf2pickup-org/server/commit/fe317dab477c03bef59ab22fff96182ee54e94d6))
+
 ## [8.0.5](https://github.com/tf2pickup-org/server/compare/8.0.4...8.0.5) (2021-11-04)
 
 
