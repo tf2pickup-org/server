@@ -19,7 +19,7 @@ module.exports.up = (next) => {
         collection,
         collection.updateMany(
           {
-            role: null,
+            roles: { $exists: false },
           },
           {
             $set: { roles: [] },
