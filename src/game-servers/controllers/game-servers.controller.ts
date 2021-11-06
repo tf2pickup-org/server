@@ -56,7 +56,7 @@ export class GameServersController {
   ) {
     return this.gameServersService.heartbeat({
       ...heartbeat,
-      internalIpAddress,
+      internalIpAddress: heartbeat.internalIpAddress ?? internalIpAddress,
     });
   }
 

@@ -64,6 +64,57 @@ describe('GameServers Controller', () => {
     });
   });
 
+  describe('#gameServerHeartbeat()', () => {
+    beforeEach(() => {
+      gameServersService.heartbeat.mockResolvedValue(mockGameServer);
+    });
+
+    describe('when the caller does not provide its own internal IP address', () => {
+      it('should use automatically-recognized IP address', async () => {
+        const ret = await controller.gameServerHeartbeat(
+          {
+            name: 'FAKE_GAMESERVER_NAME',
+            address: 'FAKE_GAMESERVER_ADDRESS',
+            port: '27015',
+            rconPassword: 'FAKE_RCON_PASSWORD',
+          },
+          'FAKE_INTERNAL_ADDRESS',
+        );
+        expect(gameServersService.heartbeat).toHaveBeenCalledWith({
+          name: 'FAKE_GAMESERVER_NAME',
+          address: 'FAKE_GAMESERVER_ADDRESS',
+          port: '27015',
+          rconPassword: 'FAKE_RCON_PASSWORD',
+          internalIpAddress: 'FAKE_INTERNAL_ADDRESS',
+        });
+        expect(ret).toEqual(mockGameServer);
+      });
+    });
+
+    describe('when the caller specifies its own internal IP address', () => {
+      it('should use the provided address', async () => {
+        const ret = await controller.gameServerHeartbeat(
+          {
+            name: 'FAKE_GAMESERVER_NAME',
+            address: 'FAKE_GAMESERVER_ADDRESS',
+            port: '27015',
+            rconPassword: 'FAKE_RCON_PASSWORD',
+            internalIpAddress: 'FAKE_GAMESERVER_ADDRESS',
+          },
+          'FAKE_INTERNAL_ADDRESS',
+        );
+        expect(gameServersService.heartbeat).toHaveBeenCalledWith({
+          name: 'FAKE_GAMESERVER_NAME',
+          address: 'FAKE_GAMESERVER_ADDRESS',
+          port: '27015',
+          rconPassword: 'FAKE_RCON_PASSWORD',
+          internalIpAddress: 'FAKE_GAMESERVER_ADDRESS',
+        });
+        expect(ret).toEqual(mockGameServer);
+      });
+    });
+  });
+
   describe('#getGameServer()', () => {
     beforeEach(() => {
       gameServersService.getById.mockResolvedValue(mockGameServer);
