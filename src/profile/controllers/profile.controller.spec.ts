@@ -74,6 +74,7 @@ describe('Profile Controller', () => {
           steamId: 'FAKE_STEAM_ID',
           linkedProfilesUrl: '',
           _links: [],
+          roles: [],
         },
         bans: [],
         mapVote: 'cp_badlands',
@@ -94,6 +95,7 @@ describe('Profile Controller', () => {
         activeGame: gameId,
         linkedProfilesUrl: '',
         _links: [],
+        roles: [],
       };
       expect(await controller.getProfile(player)).toEqual(
         expect.objectContaining({ activeGameId: gameId.toString() }),

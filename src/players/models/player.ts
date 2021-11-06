@@ -26,7 +26,7 @@ export class Player extends MongooseDocument {
   avatar?: PlayerAvatar;
 
   @Prop({ type: () => [String], enum: PlayerRole, default: [] })
-  roles?: PlayerRole[];
+  roles!: PlayerRole[];
 
   @Exclude({ toPlainOnly: true })
   @Prop({ default: false })
