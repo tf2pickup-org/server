@@ -1,3 +1,10 @@
+# [8.2.0](https://github.com/tf2pickup-org/server/compare/8.1.1...8.2.0) (2021-11-06)
+
+
+### Features
+
+* **game-servers:** override internal gameserver address ([#1349](https://github.com/tf2pickup-org/server/issues/1349)) ([6dd1af0](https://github.com/tf2pickup-org/server/commit/6dd1af043817e218d6af52ecac8d202cbb252b9c))
+
 ## [8.1.1](https://github.com/tf2pickup-org/server/compare/8.1.0...8.1.1) (2021-11-06)
 
 
