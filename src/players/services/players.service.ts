@@ -25,7 +25,11 @@ import { PlayerRole } from '../models/player-role';
 import { ConfigurationService } from '@/configuration/services/configuration.service';
 import { InjectModel } from '@nestjs/mongoose';
 
-type ForceCreatePlayerOptions = Pick<Player, 'steamId' | 'name' | 'roles'>;
+interface ForceCreatePlayerOptions {
+  name: Player['name'];
+  steamId: Player['steamId'];
+  roles?: Player['roles'];
+}
 
 @Injectable()
 export class PlayersService implements OnModuleInit {

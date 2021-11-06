@@ -10,6 +10,7 @@ const mockPlayer: Player = {
   name: 'FAKE_PLAYER',
   steamId: 'FAKE_STEAM_ID',
   hasAcceptedRules: true,
+  roles: [],
   _links: [],
 };
 
