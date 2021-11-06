@@ -20,4 +20,8 @@ export class GameServerHeartbeat {
   @IsOptional()
   @IsNumberString()
   priority?: number;
+
+  @IsOptional()
+  @IsString()
+  internalIpAddress?: string;
 }
