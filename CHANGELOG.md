@@ -1,3 +1,10 @@
+## [8.1.1](https://github.com/tf2pickup-org/server/compare/8.1.0...8.1.1) (2021-11-06)
+
+
+### Bug Fixes
+
+* **players:** set proper roles property for players ([#1348](https://github.com/tf2pickup-org/server/issues/1348)) ([cb60e5e](https://github.com/tf2pickup-org/server/commit/cb60e5eb93863033d37c6b219e0749d6086f1e67))
+
 # [8.1.0](https://github.com/tf2pickup-org/server/compare/8.0.5...8.1.0) (2021-11-05)
 
 
