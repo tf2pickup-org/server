@@ -12,16 +12,13 @@ import { SteamIdPipe } from './steam-id.pipe';
 @Injectable()
 export class SteamOrObjectIdPipe implements PipeTransform<string, string> {
   transform(value: string) {
-    try {
-      if (
-        new SteamIdPipe().transform(value) ||
-        new ObjectIdValidationPipe().transform(value)
-      ) {
-        return value;
-      }
-      throw new BadRequestException('value is not a valid user steamid');
-    } catch {
-      throw new BadRequestException('value is not a valid user steamid');
+    if (
+      new SteamIdPipe().transform(value) ||
+      new ObjectIdValidationPipe().transform(value)
+    ) {
+      return value;
     }
+
+    throw new BadRequestException('value is not a valid steam or object id');
   }
 }
