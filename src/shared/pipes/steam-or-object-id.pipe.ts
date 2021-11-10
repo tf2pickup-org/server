@@ -13,8 +13,8 @@ import { SteamIdPipe } from './steam-id.pipe';
 export class SteamOrObjectIdPipe implements PipeTransform<string, string> {
   transform(value: string) {
     if (
-      new SteamIdPipe().transform(value) ||
-      new ObjectIdValidationPipe().transform(value)
+      !!new SteamIdPipe().transform(value) ||
+      !!new ObjectIdValidationPipe().transform(value)
     ) {
       return value;
     }
