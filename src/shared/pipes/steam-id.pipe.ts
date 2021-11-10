@@ -1,5 +1,4 @@
 import { Injectable, PipeTransform, BadRequestException } from '@nestjs/common';
-import { Types } from 'mongoose';
 import * as SteamID from 'steamid';
 
 /**
@@ -10,16 +9,15 @@ import * as SteamID from 'steamid';
  * @implements {PipeTransform}
  */
 @Injectable()
-export class ObjectOrSteamIdPipe implements PipeTransform {
+export class SteamIdPipe implements PipeTransform<string, string> {
   transform(value: string) {
     try {
-      if (Types.ObjectId.isValid(value) || new SteamID(value).isValidIndividual()) {
+      if (new SteamID(value).isValidIndividual()) {
         return value;
       }
+      throw new BadRequestException('value is not a valid user steamid');
     } catch {
-      // don't care about error
-      // needed because "new SteamID" throws a general "Error", but we want a "BadRequestException"
-      throw new BadRequestException('value is not a valid objectid or steamid');
+      throw new BadRequestException('value is not a valid user steamid');
     }
   }
 }
