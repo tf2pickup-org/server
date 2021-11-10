@@ -31,12 +31,19 @@ export class DiscordService implements OnModuleInit {
 
   getTextChannelsForGuild(guildId: string): TextChannel[] {
     const guild = this.client.guilds.cache.get(guildId);
-    return Array.from(guild.channels.cache.filter(c => c.isText()).values()) as TextChannel[];
+    return Array.from(
+      guild.channels.cache
+        .filter((c) => c.isText())
+        .filter((c) => !c.deleted)
+        .values(),
+    ) as TextChannel[];
   }
 
   async getEnabledGuilds(): Promise<Guild[]> {
-    const guildIds = (await this.configurationService.getDiscord()).servers.map(server => server.guildId);
-    return this.getAllGuilds().filter(guild => guildIds.includes(guild.id));
+    const guildIds = (await this.configurationService.getDiscord()).servers.map(
+      (server) => server.guildId,
+    );
+    return this.getAllGuilds().filter((guild) => guildIds.includes(guild.id));
   }
 
   /**
@@ -44,17 +51,19 @@ export class DiscordService implements OnModuleInit {
    */
   async getAdminsChannels(): Promise<TextChannel[]> {
     return (await this.configurationService.getDiscord()).servers
-      .map(server => {
+      .map((server) => {
         if (server.adminNotificationsChannelId) {
           const guild = this.client.guilds.cache.get(server.guildId);
           return guild.channels.cache
-            .filter(c => c.isText())
-            .find(c => c.id === server.adminNotificationsChannelId) as TextChannel;
+            .filter((c) => c.isText())
+            .find(
+              (c) => c.id === server.adminNotificationsChannelId,
+            ) as TextChannel;
         } else {
           return null;
         }
       })
-      .filter(c => c !== null);
+      .filter((c) => c !== null);
   }
 
   /**
@@ -62,16 +71,18 @@ export class DiscordService implements OnModuleInit {
    */
   async getQueueNotificationsChannels(): Promise<TextChannel[]> {
     return (await this.configurationService.getDiscord()).servers
-      .map(server => {
+      .map((server) => {
         if (server.queueNotificationsChannelId) {
           const guild = this.client.guilds.cache.get(server.guildId);
           return guild.channels.cache
-            .filter(c => c.isText())
-            .find(c => c.id === server.queueNotificationsChannelId) as TextChannel;
+            .filter((c) => c.isText())
+            .find(
+              (c) => c.id === server.queueNotificationsChannelId,
+            ) as TextChannel;
         } else {
           return null;
         }
       })
-      .filter(c => c !== null);
+      .filter((c) => c !== null);
   }
 }
