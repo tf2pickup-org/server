@@ -22,6 +22,7 @@ import { LogReceiverModule } from './log-receiver/log-receiver.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { MigrationsModule } from './migrations/migrations.module';
 import { formatMongoose } from 'mongodb-uri';
+import { StatisticsModule } from './statistics/statistics.module';
 
 @Module({
   imports: [
@@ -62,6 +63,7 @@ import { formatMongoose } from 'mongodb-uri';
     PluginsModule.configure(),
     LogReceiverModule,
     MigrationsModule,
+    StatisticsModule,
   ],
   controllers: [AppController],
 })
