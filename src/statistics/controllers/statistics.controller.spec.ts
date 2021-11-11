@@ -49,4 +49,36 @@ describe('StatisticsController', () => {
       ]);
     });
   });
+
+  describe('#getGameLaunchDays()', () => {
+    beforeEach(() => {
+      statisticsService.getGameLaunchTimeSpans.mockResolvedValue([
+        {
+          dayOfWeek: 5,
+          timeOfTheDay: 'afternoon',
+          count: 1,
+        },
+        {
+          dayOfWeek: 5,
+          timeOfTheDay: 'evening',
+          count: 2,
+        },
+      ]);
+    });
+
+    it('should return game launch time spans stats', async () => {
+      expect(await controller.getGameLaunchDays()).toEqual([
+        {
+          dayOfWeek: 5,
+          timeOfTheDay: 'afternoon',
+          count: 1,
+        },
+        {
+          dayOfWeek: 5,
+          timeOfTheDay: 'evening',
+          count: 2,
+        },
+      ]);
+    });
+  });
 });

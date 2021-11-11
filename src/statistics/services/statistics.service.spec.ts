@@ -73,4 +73,43 @@ describe('StatisticsService', () => {
       ]);
     });
   });
+
+  describe('#getGameLaunchTimeSpans()', () => {
+    beforeEach(async () => {
+      await gameModel.create([
+        {
+          number: 1,
+          launchedAt: new Date(2021, 10, 11, 13, 0),
+          map: 'cp_process_f7',
+        },
+        {
+          number: 2,
+          launchedAt: new Date(2021, 10, 11, 19, 0),
+          map: 'cp_process_f7',
+        },
+        {
+          number: 3,
+          launchedAt: new Date(2021, 10, 11, 22, 0),
+          map: 'cp_process_f7',
+        },
+      ]);
+
+      process.env.TZ = 'GMT';
+    });
+
+    it('should return game launch time spans', async () => {
+      expect(await service.getGameLaunchTimeSpans()).toEqual([
+        {
+          dayOfWeek: 5,
+          timeOfTheDay: 'afternoon',
+          count: 1,
+        },
+        {
+          dayOfWeek: 5,
+          timeOfTheDay: 'evening',
+          count: 2,
+        },
+      ]);
+    });
+  });
 });
