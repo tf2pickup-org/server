@@ -98,18 +98,15 @@ describe('StatisticsService', () => {
     });
 
     it('should return game launch time spans', async () => {
-      expect(await service.getGameLaunchTimeSpans()).toEqual([
-        {
-          dayOfWeek: 5,
-          timeOfTheDay: 'afternoon',
-          count: 1,
-        },
-        {
-          dayOfWeek: 5,
-          timeOfTheDay: 'evening',
-          count: 2,
-        },
-      ]);
+      const ret = await service.getGameLaunchTimeSpans();
+      expect(
+        ret.find((r) => r.dayOfWeek === 5 && r.timeOfTheDay === 'afternoon')
+          .count,
+      ).toBe(1);
+      expect(
+        ret.find((r) => r.dayOfWeek === 5 && r.timeOfTheDay === 'evening')
+          .count,
+      ).toBe(2);
     });
   });
 });
