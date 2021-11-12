@@ -26,6 +26,10 @@ jest.mock('@nestjs/config');
 jest.mock('./game-runtime.service');
 jest.mock('./games.service');
 
+function flushPromises() {
+  return new Promise((resolve) => setImmediate(resolve));
+}
+
 describe('GameEventHandlerService', () => {
   let service: GameEventHandlerService;
   let mongod: MongoMemoryServer;
@@ -147,7 +151,9 @@ describe('GameEventHandlerService', () => {
       await service.onMatchEnded(mockGame.id);
 
       jest.advanceTimersByTime(5000);
+      await flushPromises();
       jest.advanceTimersByTime(serverCleanupDelay);
+      await flushPromises();
       expect(gameRuntimeService.cleanupServer).toHaveBeenCalledWith(
         gameServerId.toString(),
       );
