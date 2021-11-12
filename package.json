@@ -30,7 +30,7 @@
     "@nestjs/websockets": "8.2.0",
     "app-root-path": "3.0.0",
     "async-mutex": "0.3.2",
-    "cache-manager": "3.4.4",
+    "cache-manager": "3.5.0",
     "class-transformer": "0.4.0",
     "class-validator": "0.13.1",
     "discord.js": "12.5.3",
