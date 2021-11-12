@@ -9,4 +9,9 @@ export class StatisticsController {
   async getPlayedMapsCount() {
     return await this.statisticsService.getPlayedMapsCount();
   }
+
+  @Get('game-launch-time-spans')
+  async getGameLaunchDays() {
+    return await this.statisticsService.getGameLaunchTimeSpans();
+  }
 }
