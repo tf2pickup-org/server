@@ -3094,14 +3094,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cache-manager@npm:3.5.0":
-  version: 3.5.0
-  resolution: "cache-manager@npm:3.5.0"
+"cache-manager@npm:3.6.0":
+  version: 3.6.0
+  resolution: "cache-manager@npm:3.6.0"
   dependencies:
     async: 3.2.0
     lodash: ^4.17.21
     lru-cache: 6.0.0
-  checksum: ce9b500d6842e4879a0829a41bd0d1350b7accc1be78e6d8ea985163c49208ba72f27ef4a3b4a0ff5c3ac75ad4f032e1d51cdb9b8f01c060509e2af40ba3aa78
+  checksum: c768d2b2927fb245b44a1dbf90d0815ad5318bfa1e4fc733e84a1538189227a4218dade7bfcad0a800e0b0c29e0338d79901cbe506e2e59f729155d73b7a3c51
   languageName: node
   linkType: hard
 
@@ -9539,7 +9539,7 @@ __metadata:
     "@typescript-eslint/parser": 5.3.1
     app-root-path: 3.0.0
     async-mutex: 0.3.2
-    cache-manager: 3.5.0
+    cache-manager: 3.6.0
     class-transformer: 0.4.0
     class-validator: 0.13.1
     copyfiles: 2.4.1
