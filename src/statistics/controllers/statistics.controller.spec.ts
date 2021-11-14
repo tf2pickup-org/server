@@ -81,4 +81,24 @@ describe('StatisticsController', () => {
       ]);
     });
   });
+
+  describe('#getGameLaunchesPerDay()', () => {
+    beforeEach(() => {
+      statisticsService.getGameLaunchesPerDay.mockResolvedValue([
+        {
+          day: '2012-11-11',
+          count: 2,
+        },
+      ]);
+    });
+
+    it('should return game launches per day', async () => {
+      expect(await controller.getGameLaunchesPerDay()).toEqual([
+        {
+          day: '2012-11-11',
+          count: 2,
+        },
+      ]);
+    });
+  });
 });

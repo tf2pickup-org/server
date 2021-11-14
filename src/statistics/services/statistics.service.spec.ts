@@ -109,4 +109,32 @@ describe('StatisticsService', () => {
       ).toBe(2);
     });
   });
+
+  describe('#getGameLaunchesPerDay()', () => {
+    beforeEach(async () => {
+      await gameModel.create([
+        {
+          number: 1,
+          launchedAt: new Date(2021, 10, 11, 13, 0),
+          map: 'cp_process_f7',
+        },
+        {
+          number: 2,
+          launchedAt: new Date(2021, 10, 11, 19, 0),
+          map: 'cp_process_f7',
+        },
+        {
+          number: 3,
+          launchedAt: new Date(2021, 10, 12, 22, 0),
+          map: 'cp_process_f7',
+        },
+      ]);
+    });
+
+    it('should return game launch per day count', async () => {
+      const ret = await service.getGameLaunchesPerDay();
+      expect(ret.find((r) => r.day === '2021-11-11').count).toBe(2);
+      expect(ret.find((r) => r.day === '2021-11-12').count).toBe(1);
+    });
+  });
 });
