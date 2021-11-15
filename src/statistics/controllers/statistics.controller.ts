@@ -14,4 +14,9 @@ export class StatisticsController {
   async getGameLaunchDays() {
     return await this.statisticsService.getGameLaunchTimeSpans();
   }
+
+  @Get('game-launches-per-day')
+  async getGameLaunchesPerDay() {
+    return await this.statisticsService.getGameLaunchesPerDay();
+  }
 }

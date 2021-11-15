@@ -4,6 +4,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { GameLaunchTimeSpan } from '../interfaces/game-launch-time-span';
 import { PlayedMapCount } from '../interfaces/played-map-count';
+import { GameLaunchesPerDay } from '../interfaces/game-launches-per-day';
 
 @Injectable()
 export class StatisticsService {
@@ -116,6 +117,39 @@ export class StatisticsService {
         $project: {
           dayOfWeek: '$_id.dayOfWeek',
           timeOfTheDay: '$_id.timeOfTheDay',
+          count: 1,
+          _id: 0,
+        },
+      },
+    ]);
+  }
+
+  async getGameLaunchesPerDay(): Promise<GameLaunchesPerDay[]> {
+    const after = new Date();
+    after.setFullYear(after.getFullYear() - 1);
+
+    return await this.gameModel.aggregate([
+      {
+        $match: {
+          launchedAt: {
+            $gte: after,
+          },
+        },
+      },
+      {
+        $group: {
+          _id: {
+            $dateToString: {
+              format: '%Y-%m-%d',
+              date: '$launchedAt',
+            },
+          },
+          count: { $sum: 1 },
+        },
+      },
+      {
+        $project: {
+          day: '$_id',
           count: 1,
           _id: 0,
         },
