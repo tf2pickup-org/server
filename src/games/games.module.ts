@@ -17,6 +17,7 @@ import { PlayerSubstitutionService } from './services/player-substitution.servic
 import { ConfigurationModule } from '@/configuration/configuration.module';
 import { LogReceiverModule } from '@/log-receiver/log-receiver.module';
 import { MongooseModule } from '@nestjs/mongoose';
+import { GameServerCleanUpService } from './services/game-server-clean-up.service';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { MongooseModule } from '@nestjs/mongoose';
     GameRuntimeService,
     GameEventHandlerService,
     PlayerSubstitutionService,
+    GameServerCleanUpService,
   ],
   exports: [GamesService],
   controllers: [GamesController, GamesWithSubstitutionRequestsController],

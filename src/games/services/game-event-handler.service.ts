@@ -3,7 +3,6 @@ import { PlayersService } from '@/players/services/players.service';
 import { PlayerConnectionStatus } from '../models/player-connection-status';
 import { GameRuntimeService } from './game-runtime.service';
 import { Game, GameDocument } from '../models/game';
-import { serverCleanupDelay } from '@configs/game-servers';
 import { Events } from '@/events/events';
 import { SlotStatus } from '../models/slot-status';
 import { GameState } from '../models/game-state';
@@ -82,18 +81,12 @@ export class GameEventHandlerService implements OnModuleDestroy {
         .exec(),
     );
 
+    this.logger.log(`game #${game.number} ended`);
     this.events.gameChanges.next({ game });
     this.events.substituteRequestsChange.next();
 
     await this.freeAllMedics(game.id);
     this.timers.push(setTimeout(() => this.freeAllPlayers(game.id), 5000));
-    this.timers.push(
-      setTimeout(
-        () => this.gameRuntimeService.cleanupServer(game.gameServer.toString()),
-        serverCleanupDelay,
-      ),
-    );
-
     return game;
   }
 

@@ -101,11 +101,6 @@ export class GameRuntimeService {
     );
 
     this.logger.verbose(`game #${game.number} force ended`);
-
-    if (game.gameServer) {
-      await this.cleanupServer(game.gameServer.toString());
-    }
-
     return game;
   }
 
@@ -147,16 +142,6 @@ export class GameRuntimeService {
       );
     } finally {
       await rcon?.end();
-    }
-  }
-
-  async cleanupServer(serverId: string) {
-    try {
-      await this.serverConfiguratorService.cleanupServer(serverId);
-    } catch (e) {
-      this.logger.error(e.message);
-    } finally {
-      await this.gameServersService.releaseServer(serverId);
     }
   }
 

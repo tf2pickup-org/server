@@ -188,16 +188,6 @@ describe('GameRuntimeService', () => {
       expect(ret.error).toEqual('ended by admin');
     });
 
-    it('should clean up the game server', async () => {
-      await service.forceEnd(mockGame.id);
-      expect(serverConfiguratorService.cleanupServer).toHaveBeenCalledWith(
-        mockGameServer.id,
-      );
-      expect(gameServersService.releaseServer).toHaveBeenCalledWith(
-        mockGameServer.id,
-      );
-    });
-
     it('should free the players', async () => {
       await service.forceEnd(mockGame.id);
       const players = await Promise.all(
@@ -327,37 +317,6 @@ describe('GameRuntimeService', () => {
         gameClass: Tf2ClassName.soldier,
       });
       expect(spy).toHaveBeenCalled();
-    });
-  });
-
-  describe('#cleanupServer()', () => {
-    it('should cleanup the gameserver', async () => {
-      await service.cleanupServer(mockGameServer.id);
-      expect(serverConfiguratorService.cleanupServer).toHaveBeenCalledWith(
-        mockGameServer.id,
-      );
-    });
-
-    it('should release the gameserver', async () => {
-      await service.cleanupServer(mockGameServer.id);
-      expect(gameServersService.releaseServer).toHaveBeenCalledWith(
-        mockGameServer.id,
-      );
-    });
-
-    describe('when server cleanup fails', () => {
-      beforeEach(() => {
-        serverConfiguratorService.cleanupServer.mockRejectedValue(
-          new Error('rcon error'),
-        );
-      });
-
-      it('should release the gameserver', async () => {
-        await service.cleanupServer(mockGameServer.id);
-        expect(gameServersService.releaseServer).toHaveBeenCalledWith(
-          mockGameServer.id,
-        );
-      });
     });
   });
 
