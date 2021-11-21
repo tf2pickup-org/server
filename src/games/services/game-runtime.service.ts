@@ -15,6 +15,7 @@ import { Model } from 'mongoose';
 import { Game, GameDocument } from '../models/game';
 import { plainToClass } from 'class-transformer';
 import { GameServerNotAssignedError } from '../errors/game-server-not-assigned.error';
+import { GameServerCleanUpService } from './game-server-clean-up.service';
 
 @Injectable()
 export class GameRuntimeService {
@@ -29,6 +30,7 @@ export class GameRuntimeService {
     private playersService: PlayersService,
     private events: Events,
     @InjectModel(Game.name) private gameModel: Model<GameDocument>,
+    private gameServerCleanUpService: GameServerCleanUpService,
   ) {}
 
   async reconfigure(gameId: string) {
@@ -101,6 +103,7 @@ export class GameRuntimeService {
     );
 
     this.logger.verbose(`game #${game.number} force ended`);
+    await this.gameServerCleanUpService.cleanupUnusedGameServers();
     return game;
   }
 
