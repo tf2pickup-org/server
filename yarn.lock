@@ -912,9 +912,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nestjs/config@npm:1.1.1":
-  version: 1.1.1
-  resolution: "@nestjs/config@npm:1.1.1"
+"@nestjs/config@npm:1.1.2":
+  version: 1.1.2
+  resolution: "@nestjs/config@npm:1.1.2"
   dependencies:
     dotenv: 10.0.0
     dotenv-expand: 5.1.0
@@ -926,7 +926,7 @@ __metadata:
     "@nestjs/common": ^7.0.0 || ^8.0.0
     reflect-metadata: ^0.1.13
     rxjs: ^6.0.0 || ^7.2.0
-  checksum: d46383a8266acb070cc8fd645578da27298c4da78f1ab9fd6180d8d24724115d3f0265441b41a0153a84118dc20832ffe2fa1e621fb16901be8939d78208e24e
+  checksum: 6dfe4371fa87e1be9e3610a514a39a8d89bad9dfc0470cc950204a5b6652f5de16dbd133c81c637f163ebc076eb3f06e75a0b24fe19b2558c20938fbc7ed82f7
   languageName: node
   linkType: hard
 
@@ -9566,7 +9566,7 @@ __metadata:
     "@nestjs/axios": 0.0.3
     "@nestjs/cli": 8.1.5
     "@nestjs/common": 8.2.3
-    "@nestjs/config": 1.1.1
+    "@nestjs/config": 1.1.2
     "@nestjs/core": 8.2.3
     "@nestjs/mongoose": 8.0.1
     "@nestjs/passport": 8.0.1
