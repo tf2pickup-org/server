@@ -14,7 +14,6 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, Error, Types } from 'mongoose';
 import { GamesService } from '@/games/services/games.service';
 import { filter } from 'rxjs/operators';
-import { GameState } from '@/games/models/game-state';
 
 interface HeartbeatParams {
   name: string;
@@ -158,47 +157,18 @@ export class GameServersService implements OnModuleInit {
   }
 
   async findFreeGameServer(): Promise<GameServer> {
-    let availableGameServer: GameServer = null;
-    // Fetch all game servers to determine which ones are free
-    const availableGameServers = plainToClass(
+    return plainToClass(
       GameServer,
       await this.gameServerModel
-        .find({ isOnline: true })
-        .sort({ priority: 1 })
+        .findOne(
+          { isOnline: true, game: { $exists: false } },
+          {},
+          { sort: { priority: -1 } },
+        )
+        .orFail()
         .lean()
         .exec(),
     );
-
-    // Iterate every server and confirm if the stored game is actually running
-    for (const gameServer of availableGameServers) {
-      if (gameServer.game !== undefined) {
-        const game = await this.gamesService.getById(gameServer.game);
-
-        // Check if the game either ended or was interrupted at least 2 minutes ago
-        if (
-          (game.state === GameState.ended ||
-            game.state === GameState.interrupted) &&
-          game.endedAt.getTime() < Date.now() - 1000 * 60 * 2
-        ) {
-          this.logger.debug(
-            `game server ${gameServer.id} (${gameServer.name}) had the wrong state of a game`,
-          );
-
-          // Release the gameserver since the game it has stored actually finished
-          await this.releaseServer(gameServer.id);
-
-          availableGameServer = gameServer;
-        }
-      } else {
-        availableGameServer = gameServer;
-      }
-    }
-
-    if (availableGameServer !== null) {
-      return availableGameServer;
-    } else {
-      throw new Error('No free servers available.');
-    }
   }
 
   async assignFreeGameServer(gameId: string): Promise<GameServer> {

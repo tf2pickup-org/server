@@ -217,50 +217,6 @@ describe('GameServersService', () => {
       });
     });
 
-    describe('when the server has a game, but that game ended long ago', () => {
-      beforeEach(async () => {
-        const game2 = await gameModel.create({
-          number: 2,
-          map: 'cp_badlands',
-          slots: [],
-          state: GameState.ended,
-          launchedAt: new Date(1635884999789),
-          endedAt: new Date(1635888599789),
-        });
-
-        testGameServer.game = new ObjectId(game2.id);
-        testGameServer.isOnline = true;
-        await testGameServer.save();
-      });
-
-      it('should return this game server', async () => {
-        expect((await service.findFreeGameServer()).id).toEqual(
-          testGameServer.id,
-        );
-      });
-    });
-
-    describe('when the server has a game, which ended just now', () => {
-      beforeEach(async () => {
-        const game3 = await gameModel.create({
-          number: 2,
-          map: 'cp_badlands',
-          slots: [],
-          state: GameState.ended,
-          launchedAt: new Date(1635884999789),
-          endedAt: new Date(),
-        });
-
-        testGameServer.game = new ObjectId(game3.id);
-        testGameServer.isOnline = true;
-        await testGameServer.save();
-      });
-
-      it('should throw an error', async () => {
-        await expect(service.findFreeGameServer()).rejects.toThrowError();
-      });
-    });
-
     describe('when the server is free but offline', () => {
       beforeEach(async () => {
         testGameServer.isOnline = false;

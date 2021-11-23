@@ -18,14 +18,15 @@ import { SlotStatus } from '../models/slot-status';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { getConnectionToken, MongooseModule } from '@nestjs/mongoose';
 import { Connection, Error, Types } from 'mongoose';
-import { gameServer } from 'e2e/test-data';
 import { GameServerNotAssignedError } from '../errors/game-server-not-assigned.error';
+import { GameServerCleanUpService } from './game-server-clean-up.service';
 
 jest.mock('./games.service');
 jest.mock('@/game-servers/services/game-servers.service');
 jest.mock('./server-configurator.service');
 jest.mock('./rcon-factory.service');
 jest.mock('@/players/services/players.service');
+jest.mock('./game-server-clean-up.service');
 
 class RconStub {
   send(cmd: string) {
@@ -49,6 +50,7 @@ describe('GameRuntimeService', () => {
   let mockGame: GameDocument;
   let events: Events;
   let connection: Connection;
+  let gameServerCleanUpService: jest.Mocked<GameServerCleanUpService>;
 
   beforeAll(async () => (mongod = await MongoMemoryServer.create()));
   afterAll(async () => await mongod.stop());
@@ -70,6 +72,7 @@ describe('GameRuntimeService', () => {
         RconFactoryService,
         PlayersService,
         Events,
+        GameServerCleanUpService,
       ],
     }).compile();
 
@@ -81,6 +84,7 @@ describe('GameRuntimeService', () => {
     rconFactoryService = module.get(RconFactoryService);
     events = module.get(Events);
     connection = module.get(getConnectionToken());
+    gameServerCleanUpService = module.get(GameServerCleanUpService);
   });
 
   beforeEach(async () => {
@@ -188,16 +192,6 @@ describe('GameRuntimeService', () => {
       expect(ret.error).toEqual('ended by admin');
     });
 
-    it('should clean up the game server', async () => {
-      await service.forceEnd(mockGame.id);
-      expect(serverConfiguratorService.cleanupServer).toHaveBeenCalledWith(
-        mockGameServer.id,
-      );
-      expect(gameServersService.releaseServer).toHaveBeenCalledWith(
-        mockGameServer.id,
-      );
-    });
-
     it('should free the players', async () => {
       await service.forceEnd(mockGame.id);
       const players = await Promise.all(
@@ -258,6 +252,13 @@ describe('GameRuntimeService', () => {
         const ret = await service.forceEnd(mockGame.id);
         expect(ret.slots[0].status).toEqual(SlotStatus.active);
       });
+    });
+
+    it('should clean up unsed game servers', async () => {
+      await service.forceEnd(mockGame.id);
+      expect(
+        gameServerCleanUpService.cleanupUnusedGameServers,
+      ).toHaveBeenCalled();
     });
   });
 
@@ -327,37 +328,6 @@ describe('GameRuntimeService', () => {
         gameClass: Tf2ClassName.soldier,
       });
       expect(spy).toHaveBeenCalled();
-    });
-  });
-
-  describe('#cleanupServer()', () => {
-    it('should cleanup the gameserver', async () => {
-      await service.cleanupServer(mockGameServer.id);
-      expect(serverConfiguratorService.cleanupServer).toHaveBeenCalledWith(
-        mockGameServer.id,
-      );
-    });
-
-    it('should release the gameserver', async () => {
-      await service.cleanupServer(mockGameServer.id);
-      expect(gameServersService.releaseServer).toHaveBeenCalledWith(
-        mockGameServer.id,
-      );
-    });
-
-    describe('when server cleanup fails', () => {
-      beforeEach(() => {
-        serverConfiguratorService.cleanupServer.mockRejectedValue(
-          new Error('rcon error'),
-        );
-      });
-
-      it('should release the gameserver', async () => {
-        await service.cleanupServer(mockGameServer.id);
-        expect(gameServersService.releaseServer).toHaveBeenCalledWith(
-          mockGameServer.id,
-        );
-      });
     });
   });
 

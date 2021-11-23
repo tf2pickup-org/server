@@ -146,20 +146,6 @@ describe('GameEventHandlerService', () => {
       expect(game.state).toEqual(GameState.ended);
     });
 
-    it('should eventually cleanup the server', async () => {
-      jest.useFakeTimers('legacy');
-      await service.onMatchEnded(mockGame.id);
-
-      jest.advanceTimersByTime(5000);
-      await flushPromises();
-      jest.advanceTimersByTime(serverCleanupDelay);
-      await flushPromises();
-      expect(gameRuntimeService.cleanupServer).toHaveBeenCalledWith(
-        gameServerId.toString(),
-      );
-      jest.useRealTimers();
-    });
-
     it('should emit the gameChanges events', async () => {
       let event: Game;
       events.gameChanges.subscribe(({ game }) => (event = game));
@@ -214,6 +200,7 @@ describe('GameEventHandlerService', () => {
         jest.useFakeTimers('legacy');
         const game = await service.onMatchEnded(mockGame.id);
         jest.advanceTimersByTime(5000);
+        await flushPromises();
         const players = await Promise.all(
           game.slots
             .map((slot) => slot.player)
