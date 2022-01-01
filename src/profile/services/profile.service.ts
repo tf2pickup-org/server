@@ -3,7 +3,7 @@ import { LinkedProfilesService } from '@/players/services/linked-profiles.servic
 import { OnlinePlayersService } from '@/players/services/online-players.service';
 import { WebsocketEvent } from '@/websocket-event';
 import { Injectable, OnModuleInit } from '@nestjs/common';
-import { classToPlain } from 'class-transformer';
+import { instanceToPlain } from 'class-transformer';
 import { isEqual } from 'lodash';
 import { map, filter } from 'rxjs';
 
@@ -31,8 +31,8 @@ export class ProfileService implements OnModuleInit {
     this.events.playerUpdates
       .pipe(
         map(({ oldPlayer, newPlayer }) => ({
-          oldPlayer: classToPlain(oldPlayer),
-          newPlayer: classToPlain(newPlayer),
+          oldPlayer: instanceToPlain(oldPlayer),
+          newPlayer: instanceToPlain(newPlayer),
         })),
         filter(({ oldPlayer, newPlayer }) => !isEqual(newPlayer, oldPlayer)),
       )

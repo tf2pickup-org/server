@@ -13,7 +13,7 @@ import { GameState } from '../models/game-state';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Game, GameDocument } from '../models/game';
-import { plainToClass } from 'class-transformer';
+import { plainToInstance } from 'class-transformer';
 import { GameServerNotAssignedError } from '../errors/game-server-not-assigned.error';
 import { GameServerCleanUpService } from './game-server-clean-up.service';
 
@@ -66,7 +66,7 @@ export class GameRuntimeService {
   }
 
   async forceEnd(gameId: string, adminId?: string) {
-    const game = plainToClass(
+    const game = plainToInstance(
       Game,
       await this.gameModel
         .findByIdAndUpdate(

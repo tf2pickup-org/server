@@ -9,7 +9,7 @@ import { PlayerSubstitutionService } from '../services/player-substitution.servi
 import { Inject, forwardRef, OnModuleInit } from '@nestjs/common';
 import { Events } from '@/events/events';
 import { WebsocketEvent } from '@/websocket-event';
-import { classToPlain } from 'class-transformer';
+import { instanceToPlain } from 'class-transformer';
 
 @WebSocketGateway()
 export class GamesGateway implements OnGatewayInit, OnModuleInit {
@@ -40,10 +40,10 @@ export class GamesGateway implements OnGatewayInit, OnModuleInit {
 
   onModuleInit() {
     this.events.gameCreated.subscribe(({ game }) =>
-      this.socket.emit(WebsocketEvent.gameCreated, classToPlain(game)),
+      this.socket.emit(WebsocketEvent.gameCreated, instanceToPlain(game)),
     );
     this.events.gameChanges.subscribe(({ game }) =>
-      this.socket.emit(WebsocketEvent.gameUpdated, classToPlain(game)),
+      this.socket.emit(WebsocketEvent.gameUpdated, instanceToPlain(game)),
     );
   }
 }

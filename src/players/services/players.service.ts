@@ -16,7 +16,7 @@ import { SteamApiService } from './steam-api.service';
 import { ObjectId } from 'mongodb';
 import { PlayerAvatar } from '../models/player-avatar';
 import { Events } from '@/events/events';
-import { plainToClass } from 'class-transformer';
+import { plainToInstance } from 'class-transformer';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { Error, Model, Types, UpdateQuery } from 'mongoose';
 import { AccountBannedError } from '../errors/account-banned.error';
@@ -61,7 +61,7 @@ export class PlayersService implements OnModuleInit {
   }
 
   async getAll(): Promise<Player[]> {
-    return plainToClass(
+    return plainToInstance(
       Player,
       await this.playerModel
         .find({ roles: { $ne: PlayerRole.bot } })
@@ -71,14 +71,14 @@ export class PlayersService implements OnModuleInit {
   }
 
   async getById(id: string | ObjectId): Promise<Player> {
-    return plainToClass(
+    return plainToInstance(
       Player,
       await this.playerModel.findById(id).orFail().lean().exec(),
     );
   }
 
   async getManyById(...ids: string[]): Promise<Player[]> {
-    return plainToClass(
+    return plainToInstance(
       Player,
       await this.playerModel
         .find({
@@ -92,21 +92,21 @@ export class PlayersService implements OnModuleInit {
   }
 
   async findBySteamId(steamId: string): Promise<Player> {
-    return plainToClass(
+    return plainToInstance(
       Player,
       await this.playerModel.findOne({ steamId }).orFail().lean().exec(),
     );
   }
 
   async findByEtf2lProfileId(etf2lProfileId: number): Promise<Player> {
-    return plainToClass(
+    return plainToInstance(
       Player,
       await this.playerModel.findOne({ etf2lProfileId }).orFail().lean().exec(),
     );
   }
 
   async findBot(): Promise<Player> {
-    return plainToClass(
+    return plainToInstance(
       Player,
       this.playerModel
         .findOne({ name: this.environment.botName })
@@ -197,7 +197,7 @@ export class PlayersService implements OnModuleInit {
     adminId?: string,
   ): Promise<Player> {
     const oldPlayer = await this.getById(playerId);
-    const newPlayer = plainToClass(
+    const newPlayer = plainToInstance(
       Player,
       await this.playerModel
         .findOneAndUpdate({ _id: playerId }, update, { new: true })

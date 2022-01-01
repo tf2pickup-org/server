@@ -10,7 +10,7 @@ import { merge } from 'rxjs';
 import { OnlinePlayersService } from './online-players.service';
 import { PlayersService } from './players.service';
 import { Events } from '@/events/events';
-import { plainToClass } from 'class-transformer';
+import { plainToInstance } from 'class-transformer';
 import { WebsocketEvent } from '@/websocket-event';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
@@ -43,14 +43,14 @@ export class PlayerBansService implements OnModuleInit {
   }
 
   async getById(banId: string): Promise<PlayerBan> {
-    return plainToClass(
+    return plainToInstance(
       PlayerBan,
       await this.playerBanModel.findById(banId).orFail().lean().exec(),
     );
   }
 
   async getPlayerBans(playerId: string): Promise<PlayerBan[]> {
-    return plainToClass(
+    return plainToInstance(
       PlayerBan,
       await this.playerBanModel
         .find({ player: new Types.ObjectId(playerId) })
@@ -72,7 +72,7 @@ export class PlayerBansService implements OnModuleInit {
       })
       .lean()
       .exec();
-    return plainToClass(PlayerBan, plain);
+    return plainToInstance(PlayerBan, plain);
   }
 
   async addPlayerBan(props: PlayerBan): Promise<PlayerBan> {
@@ -82,7 +82,7 @@ export class PlayerBansService implements OnModuleInit {
       player: player._id,
       admin: new Types.ObjectId(props.admin),
     });
-    const addedBan = plainToClass(PlayerBan, await this.getById(id));
+    const addedBan = plainToInstance(PlayerBan, await this.getById(id));
     this.logger.verbose(
       `ban added for player ${player.id} (reason: ${addedBan.reason})`,
     );
@@ -107,7 +107,7 @@ export class PlayerBansService implements OnModuleInit {
     banId: string,
     update: Partial<PlayerBan>,
   ): Promise<PlayerBan> {
-    return plainToClass(
+    return plainToInstance(
       PlayerBan,
       await this.playerBanModel
         .findOneAndUpdate({ _id: new Types.ObjectId(banId) }, update, {

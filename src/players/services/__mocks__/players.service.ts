@@ -1,7 +1,7 @@
 import { Subject } from 'rxjs';
 import { Player, PlayerDocument } from '@/players/models/player';
 import { Injectable } from '@nestjs/common';
-import { plainToClass } from 'class-transformer';
+import { plainToInstance } from 'class-transformer';
 import { Model, Types, UpdateQuery } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 
@@ -15,14 +15,14 @@ export class PlayersService {
   ) {}
 
   async getById(id: string) {
-    return plainToClass(
+    return plainToInstance(
       Player,
       await this.playerModel.findById(id).orFail().lean().exec(),
     );
   }
 
   async getManyById(...ids: string[]): Promise<Player[]> {
-    return plainToClass(
+    return plainToInstance(
       Player,
       await this.playerModel
         .find({
@@ -36,11 +36,11 @@ export class PlayersService {
   }
 
   async getAll() {
-    return plainToClass(Player, await this.playerModel.find().lean().exec());
+    return plainToInstance(Player, await this.playerModel.find().lean().exec());
   }
 
   async findBySteamId(steamId: string) {
-    return plainToClass(
+    return plainToInstance(
       Player,
       await this.playerModel.findOne({ steamId }).orFail().lean().exec(),
     );
@@ -51,7 +51,7 @@ export class PlayersService {
   }
 
   async updatePlayer(playerId: string, update: UpdateQuery<Player>) {
-    const newPlayer = plainToClass(
+    const newPlayer = plainToInstance(
       Player,
       await this.playerModel
         .findOneAndUpdate({ _id: playerId }, update, { new: true })

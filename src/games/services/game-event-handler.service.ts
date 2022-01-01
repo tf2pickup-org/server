@@ -9,7 +9,7 @@ import { GameState } from '../models/game-state';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types, Error } from 'mongoose';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
-import { plainToClass } from 'class-transformer';
+import { plainToInstance } from 'class-transformer';
 import { GamesService } from './games.service';
 
 @Injectable()
@@ -32,7 +32,7 @@ export class GameEventHandlerService implements OnModuleDestroy {
 
   async onMatchStarted(gameId: string): Promise<Game | null> {
     try {
-      const game = plainToClass(
+      const game = plainToInstance(
         Game,
         await this.gameModel
           .findOneAndUpdate(
@@ -57,7 +57,7 @@ export class GameEventHandlerService implements OnModuleDestroy {
   }
 
   async onMatchEnded(gameId: string): Promise<Game> {
-    const game = plainToClass(
+    const game = plainToInstance(
       Game,
       await this.gameModel
         .findOneAndUpdate(
@@ -144,7 +144,7 @@ export class GameEventHandlerService implements OnModuleDestroy {
       return;
     }
 
-    const game = plainToClass(
+    const game = plainToInstance(
       Game,
       await this.gameModel
         .findByIdAndUpdate(

@@ -1,6 +1,6 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { plainToClass } from 'class-transformer';
+import { plainToInstance } from 'class-transformer';
 import { readFile } from 'fs/promises';
 import { Error, Model } from 'mongoose';
 import { join } from 'path';
@@ -35,7 +35,7 @@ export class DocumentsService implements OnModuleInit {
       .orFail()
       .lean()
       .exec();
-    return plainToClass(Document, pojo);
+    return plainToInstance(Document, pojo);
   }
 
   async saveDocument(
@@ -51,6 +51,6 @@ export class DocumentsService implements OnModuleInit {
       )
       .lean()
       .exec();
-    return plainToClass(Document, pojo);
+    return plainToInstance(Document, pojo);
   }
 }

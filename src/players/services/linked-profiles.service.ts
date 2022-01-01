@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { classToPlain } from 'class-transformer';
+import { instanceToPlain } from 'class-transformer';
 import { LinkedProfile } from '../types/linked-profile';
 import { LinkedProfileProviderName } from '../types/linked-profile-provider-name';
 
@@ -22,7 +22,7 @@ export class LinkedProfilesService {
         this.linkedProfileProviders.map(async (provider) => {
           try {
             const profile = await provider.fetchProfile(playerId);
-            return { ...classToPlain(profile), provider: provider.name };
+            return { ...instanceToPlain(profile), provider: provider.name };
           } catch (_error) {
             return null;
           }
