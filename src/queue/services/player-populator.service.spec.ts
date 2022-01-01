@@ -6,7 +6,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { QueueSlot } from '../queue-slot';
 import { PlayerPopulatorService } from './player-populator.service';
-import { plainToClass } from 'class-transformer';
+import { plainToInstance } from 'class-transformer';
 import { getConnectionToken, MongooseModule } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 
@@ -82,7 +82,7 @@ describe('PlayerPopulatorService', () => {
         };
         expect(await service.populatePlayer(slot)).toEqual({
           ...slot,
-          player: plainToClass(Player, mockPlayer.toObject()),
+          player: plainToInstance(Player, mockPlayer.toObject()),
         });
       });
     });
@@ -118,7 +118,7 @@ describe('PlayerPopulatorService', () => {
           gameClass: Tf2ClassName.soldier,
           ready: false,
           playerId: mockPlayer.id,
-          player: plainToClass(Player, mockPlayer.toObject()),
+          player: plainToInstance(Player, mockPlayer.toObject()),
         },
       ]);
     });

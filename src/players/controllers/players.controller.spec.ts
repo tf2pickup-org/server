@@ -14,7 +14,7 @@ import {
   CacheModule,
 } from '@nestjs/common';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
-import { plainToClass } from 'class-transformer';
+import { plainToInstance } from 'class-transformer';
 import { PlayerBan } from '../models/player-ban';
 import { LinkedProfilesService } from '../services/linked-profiles.service';
 import { LinkedProfileProviderName } from '../types/linked-profile-provider-name';
@@ -24,7 +24,7 @@ import { Types } from 'mongoose';
 jest.mock('../services/linked-profiles.service');
 
 class PlayersServiceStub {
-  player = plainToClass(Player, {
+  player = plainToInstance(Player, {
     _id: 'FAKE_ID',
     name: 'FAKE_PLAYER_NAME',
     steamId: 'FAKE_STEAM_ID',

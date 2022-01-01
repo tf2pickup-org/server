@@ -12,7 +12,7 @@ import {
   TwitchTvProfile,
   TwitchTvProfileDocument,
 } from '../models/twitch-tv-profile';
-import { plainToClass } from 'class-transformer';
+import { plainToInstance } from 'class-transformer';
 import { LinkedProfilesService } from '@/players/services/linked-profiles.service';
 import { Events } from '@/events/events';
 import { promotedStreams } from '@configs/twitchtv';
@@ -91,7 +91,7 @@ export class TwitchService implements OnModuleInit {
   async getTwitchTvProfileByPlayerId(
     playerId: string,
   ): Promise<TwitchTvProfile> {
-    return plainToClass(
+    return plainToInstance(
       TwitchTvProfile,
       this.twitchTvProfileModel
         .findOne({ player: new ObjectId(playerId) })
@@ -129,7 +129,7 @@ export class TwitchService implements OnModuleInit {
   }
 
   async deleteUserProfile(playerId: string): Promise<TwitchTvProfile> {
-    const ret = plainToClass(
+    const ret = plainToInstance(
       TwitchTvProfile,
       await this.twitchTvProfileModel
         .findOneAndDelete({ player: new ObjectId(playerId) })

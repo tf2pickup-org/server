@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
 import { InjectModel } from '@nestjs/mongoose';
-import { classToClass, plainToClass } from 'class-transformer';
+import { instanceToInstance, plainToInstance } from 'class-transformer';
 import { Model } from 'mongoose';
 import { from, Observable } from 'rxjs';
 import { concatMap, tap } from 'rxjs/operators';
@@ -28,7 +28,7 @@ export class GameServerDiagnosticsService {
   ) {}
 
   async getDiagnosticRunById(id: string): Promise<GameServerDiagnosticRun> {
-    return plainToClass(
+    return plainToInstance(
       GameServerDiagnosticRun,
       await this.gameServerDiagnosticRunModel
         .findById(id)
@@ -95,7 +95,7 @@ export class GameServerDiagnosticsService {
         this.logger.log(`Starting diagnostics of ${gameServer.name}...`);
 
         const effects = new Map<string, any>();
-        let run = classToClass(diagnosticRun);
+        let run = instanceToInstance(diagnosticRun);
         run.status = DiagnosticRunStatus.running;
 
         for (const runner of runners) {
@@ -103,12 +103,12 @@ export class GameServerDiagnosticsService {
             break;
           }
 
-          run = classToClass(run);
+          run = instanceToInstance(run);
           let check = run.getCheckByName(runner.name);
           check.status = DiagnosticCheckStatus.running;
           subscriber.next(run);
 
-          run = classToClass(run);
+          run = instanceToInstance(run);
           check = run.getCheckByName(runner.name);
 
           const result = await runner.run({ gameServer, effects });
@@ -124,7 +124,7 @@ export class GameServerDiagnosticsService {
           }
         }
 
-        run = classToClass(run);
+        run = instanceToInstance(run);
         run.status = run.checks.every(
           (check) => check.status === DiagnosticCheckStatus.completed,
         )

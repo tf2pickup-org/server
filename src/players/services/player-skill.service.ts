@@ -4,7 +4,7 @@ import { FuturePlayerSkillService } from './future-player-skill.service';
 import { Events } from '@/events/events';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
-import { plainToClass } from 'class-transformer';
+import { plainToInstance } from 'class-transformer';
 
 export type PlayerSkillType = PlayerSkill['skill'];
 
@@ -29,7 +29,7 @@ export class PlayerSkillService implements OnModuleInit {
   }
 
   async getAll(): Promise<PlayerSkill[]> {
-    return plainToClass(
+    return plainToInstance(
       PlayerSkill,
       await this.playerSkillModel.find({}).lean().exec(),
     );

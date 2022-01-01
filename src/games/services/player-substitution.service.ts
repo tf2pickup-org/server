@@ -20,7 +20,7 @@ import { SlotStatus } from '../models/slot-status';
 import { Model, Types } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { Game, GameDocument } from '../models/game';
-import { plainToClass } from 'class-transformer';
+import { plainToInstance } from 'class-transformer';
 import { PlayerNotInThisGameError } from '../errors/player-not-in-this-game.error';
 import { GameInWrongStateError } from '../errors/game-in-wrong-state.error';
 import { WrongGameSlotStatusError } from '../errors/wrong-game-slot-status.error';
@@ -81,7 +81,7 @@ export class PlayerSubstitutionService implements OnModuleInit {
     }
 
     const player = await this.playersService.getById(playerId);
-    game = plainToClass(
+    game = plainToInstance(
       Game,
       await this.gameModel
         .findByIdAndUpdate(
@@ -167,7 +167,7 @@ export class PlayerSubstitutionService implements OnModuleInit {
       `player ${player.name} taking part in game #${game.number} is marked as 'active'`,
     );
 
-    game = plainToClass(
+    game = plainToInstance(
       Game,
       await this.gameModel
         .findByIdAndUpdate(
@@ -223,7 +223,7 @@ export class PlayerSubstitutionService implements OnModuleInit {
     }
 
     if (replaceeId === replacementId) {
-      game = plainToClass(
+      game = plainToInstance(
         Game,
         await this.gameModel
           .findByIdAndUpdate(
@@ -269,7 +269,7 @@ export class PlayerSubstitutionService implements OnModuleInit {
       $push: { slots: replacementSlot },
     });
 
-    game = plainToClass(
+    game = plainToInstance(
       Game,
       await this.gameModel
         .findByIdAndUpdate(

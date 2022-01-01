@@ -20,7 +20,7 @@ import { PlayerNotInThisGameError } from '../errors/player-not-in-this-game.erro
 import { URL } from 'url';
 import { GameInWrongStateError } from '../errors/game-in-wrong-state.error';
 import { SelectedVoiceServer } from '@/configuration/models/voice-server';
-import { plainToClass } from 'class-transformer';
+import { plainToInstance } from 'class-transformer';
 import { toValidMumbleChannelName } from '../utils/to-valid-mumble-channel-name';
 
 interface GameSortOptions {
@@ -54,21 +54,21 @@ export class GamesService {
   }
 
   async getById(gameId: string | ObjectId): Promise<Game> {
-    return plainToClass(
+    return plainToInstance(
       Game,
       await this.gameModel.findById(gameId).orFail().lean().exec(),
     );
   }
 
   async getByLogSecret(logSecret: string): Promise<Game> {
-    return plainToClass(
+    return plainToInstance(
       Game,
       await this.gameModel.findOne({ logSecret }).orFail().lean().exec(),
     );
   }
 
   async getRunningGames(): Promise<Game[]> {
-    return plainToClass(
+    return plainToInstance(
       Game,
       await this.gameModel
         .find({ state: { $in: [GameState.launching, GameState.started] } })
@@ -82,7 +82,7 @@ export class GamesService {
     limit: number,
     skip: number,
   ): Promise<Game[]> {
-    return plainToClass(
+    return plainToInstance(
       Game,
       await this.gameModel
         .find()
@@ -100,7 +100,7 @@ export class GamesService {
     limit = 10,
     skip = 0,
   ): Promise<Game[]> {
-    return plainToClass(
+    return plainToInstance(
       Game,
       await this.gameModel
         .find({ 'slots.player': new ObjectId(playerId) })
@@ -131,7 +131,7 @@ export class GamesService {
     playerId: string,
   ): Promise<{ [gameClass in Tf2ClassName]?: number }> {
     // FIXME store player stats in a separate model to avoid this query
-    const allGames = plainToClass(
+    const allGames = plainToInstance(
       Game,
       await this.gameModel
         .find({
@@ -204,7 +204,7 @@ export class GamesService {
     update: UpdateQuery<Game>,
     adminId?: string,
   ): Promise<Game> {
-    const game = plainToClass(
+    const game = plainToInstance(
       Game,
       await this.gameModel
         .findOneAndUpdate({ _id: gameId }, update, { new: true })
@@ -251,7 +251,7 @@ export class GamesService {
    * @returns Games that need player substitute.
    */
   async getGamesWithSubstitutionRequests(): Promise<Game[]> {
-    return plainToClass(
+    return plainToInstance(
       Game,
       await this.gameModel
         .find({
@@ -267,7 +267,7 @@ export class GamesService {
    * @returns Games with no game server assigned.
    */
   async getOrphanedGames(): Promise<Game[]> {
-    return plainToClass(
+    return plainToInstance(
       Game,
       await this.gameModel
         .find({

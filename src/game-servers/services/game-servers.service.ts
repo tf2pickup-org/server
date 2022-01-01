@@ -9,7 +9,7 @@ import { GameServer, GameServerDocument } from '../models/game-server';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { Mutex } from 'async-mutex';
 import { Events } from '@/events/events';
-import { plainToClass } from 'class-transformer';
+import { plainToInstance } from 'class-transformer';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Error, Types } from 'mongoose';
 import { GamesService } from '@/games/services/games.service';
@@ -75,21 +75,21 @@ export class GameServersService implements OnModuleInit {
   }
 
   async getAllGameServers(): Promise<GameServer[]> {
-    return plainToClass(
+    return plainToInstance(
       GameServer,
       await this.gameServerModel.find({ isOnline: true }).lean().exec(),
     );
   }
 
   async getById(gameServerId: string | Types.ObjectId): Promise<GameServer> {
-    return plainToClass(
+    return plainToInstance(
       GameServer,
       await this.gameServerModel.findById(gameServerId).orFail().lean().exec(),
     );
   }
 
   async heartbeat(params: HeartbeatParams): Promise<GameServer> {
-    const oldGameServer = plainToClass(
+    const oldGameServer = plainToInstance(
       GameServer,
       await this.gameServerModel
         .findOne({
@@ -99,7 +99,7 @@ export class GameServersService implements OnModuleInit {
         .lean()
         .exec(),
     );
-    const newGameServer = plainToClass(
+    const newGameServer = plainToInstance(
       GameServer,
       await this.gameServerModel
         .findOneAndUpdate(
@@ -136,7 +136,7 @@ export class GameServersService implements OnModuleInit {
     update: Partial<GameServer>,
   ): Promise<GameServer> {
     const oldGameServer = await this.getById(gameServerId);
-    const newGameServer = plainToClass(
+    const newGameServer = plainToInstance(
       GameServer,
       await this.gameServerModel
         .findByIdAndUpdate(gameServerId, update, { new: true })
@@ -157,7 +157,7 @@ export class GameServersService implements OnModuleInit {
   }
 
   async findFreeGameServer(): Promise<GameServer> {
-    return plainToClass(
+    return plainToInstance(
       GameServer,
       await this.gameServerModel
         .findOne(
@@ -196,7 +196,7 @@ export class GameServersService implements OnModuleInit {
   }
 
   async releaseServer(gameServerId: string): Promise<GameServer> {
-    const gameServer = plainToClass(
+    const gameServer = plainToInstance(
       GameServer,
       await this.gameServerModel
         .findByIdAndUpdate(gameServerId, { $unset: { game: 1 } }, { new: true })
@@ -215,7 +215,7 @@ export class GameServersService implements OnModuleInit {
     const fiveMinutesAgo = new Date();
     fiveMinutesAgo.setMinutes(fiveMinutesAgo.getMinutes() - 5);
 
-    return plainToClass(
+    return plainToInstance(
       GameServer,
       await this.gameServerModel
         .find({

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { classToPlain, plainToClass } from 'class-transformer';
+import { instanceToPlain, plainToInstance } from 'class-transformer';
 import { Model } from 'mongoose';
 import {
   ConfigurationEntry,
@@ -21,24 +21,24 @@ export class ConfigurationService {
   ) {}
 
   async getDefaultPlayerSkill(): Promise<DefaultPlayerSkill> {
-    return plainToClass(
+    return plainToInstance(
       DefaultPlayerSkill,
       await this.get(
         ConfigurationEntryKey.defaultPlayerSkill,
-        classToPlain(new DefaultPlayerSkill()),
+        instanceToPlain(new DefaultPlayerSkill()),
       ),
     );
   }
 
   async getWhitelistId(): Promise<WhitelistId> {
-    return plainToClass(
+    return plainToInstance(
       WhitelistId,
       await this.get(ConfigurationEntryKey.whitelistId, new WhitelistId()),
     );
   }
 
   async isEtf2lAccountRequired(): Promise<Etf2lAccountRequired> {
-    return plainToClass(
+    return plainToInstance(
       Etf2lAccountRequired,
       await this.get(
         ConfigurationEntryKey.etf2lAccountRequired,
@@ -48,7 +48,7 @@ export class ConfigurationService {
   }
 
   async getMinimumTf2InGameHours(): Promise<MinimumTf2InGameHours> {
-    return plainToClass(
+    return plainToInstance(
       MinimumTf2InGameHours,
       await this.get(
         ConfigurationEntryKey.minimumTf2InGameHours,
@@ -58,11 +58,11 @@ export class ConfigurationService {
   }
 
   async getVoiceServer(): Promise<VoiceServer> {
-    return plainToClass(
+    return plainToInstance(
       VoiceServer,
       await this.get(
         ConfigurationEntryKey.voiceServer,
-        classToPlain(new VoiceServer()),
+        instanceToPlain(new VoiceServer()),
       ),
     );
   }
