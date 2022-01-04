@@ -1,5 +1,5 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import { Client, Guild, TextChannel } from 'discord.js';
+import { Client, Guild, Role, TextChannel } from 'discord.js';
 import { Environment } from '@/environment/environment';
 import { ConfigurationService } from '@/configuration/services/configuration.service';
 
@@ -35,12 +35,18 @@ export class DiscordService implements OnModuleInit {
       guild.channels.cache
         .filter((c) => c.isText())
         .filter((c) => !c.deleted)
+        .filter((c) => c.permissionsFor(this.client.user).has('VIEW_CHANNEL'))
         .values(),
     ) as TextChannel[];
   }
 
+  getRolesForGuild(guildId: string): Role[] {
+    const guild = this.client.guilds.cache.get(guildId);
+    return Array.from(guild.roles.cache.filter((r) => r.mentionable).values());
+  }
+
   async getEnabledGuilds(): Promise<Guild[]> {
-    const guildIds = (await this.configurationService.getDiscord()).servers.map(
+    const guildIds = (await this.configurationService.getDiscord()).guilds.map(
       (server) => server.guildId,
     );
     return this.getAllGuilds().filter((guild) => guildIds.includes(guild.id));
@@ -50,7 +56,7 @@ export class DiscordService implements OnModuleInit {
    * Get channels for admins' notifications for all enabled guilds.
    */
   async getAdminsChannels(): Promise<TextChannel[]> {
-    return (await this.configurationService.getDiscord()).servers
+    return (await this.configurationService.getDiscord()).guilds
       .map((server) => {
         if (server.adminNotificationsChannelId) {
           const guild = this.client.guilds.cache.get(server.guildId);
@@ -70,7 +76,7 @@ export class DiscordService implements OnModuleInit {
    * Get channels for queue notifications (join queue prompts, substitute requests) for all enabled guilds.
    */
   async getQueueNotificationsChannels(): Promise<TextChannel[]> {
-    return (await this.configurationService.getDiscord()).servers
+    return (await this.configurationService.getDiscord()).guilds
       .map((server) => {
         if (server.queueNotificationsChannelId) {
           const guild = this.client.guilds.cache.get(server.guildId);

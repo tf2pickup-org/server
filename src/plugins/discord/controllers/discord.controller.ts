@@ -9,6 +9,7 @@ import {
 } from '@nestjs/common';
 import { ChannelInfo } from '../dto/channel-info';
 import { GuildInfo } from '../dto/guild-info';
+import { RoleInfo } from '../dto/role-info';
 import { DiscordService } from '../services/discord.service';
 
 @Controller('discord')
@@ -27,5 +28,12 @@ export class DiscordController {
     return this.discordService
       .getTextChannelsForGuild(guildId)
       .map((c) => new ChannelInfo(c));
+  }
+
+  @Get('guilds/:guildId/roles')
+  getRoles(@Param('guildId') guildId: string): RoleInfo[] {
+    return this.discordService
+      .getRolesForGuild(guildId)
+      .map((r) => new RoleInfo(r));
   }
 }

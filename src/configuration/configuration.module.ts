@@ -44,7 +44,7 @@ import { discordSchema } from './models/discord';
           {
             name: ConfigurationEntryKey.discord,
             schema: discordSchema,
-          }
+          },
         ],
       },
     ]),

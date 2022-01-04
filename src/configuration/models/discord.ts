@@ -5,16 +5,28 @@ import { Equals } from 'class-validator';
 import { ConfigurationEntryKey } from './configuration-entry-key';
 
 @Schema()
-export class DiscordServerOptions {
+export class DiscordGuildOptions {
   @Prop({ required: true })
   guildId: string;
 
+  /**
+   * Where notifications for all the players are being sent.
+   * Set it to a falsy value to disable players notifications at all.
+   */
   @Prop()
   queueNotificationsChannelId?: string;
 
+  /**
+   * What role to mention in case there's a substitute needed.
+   * Set it to a falsy value to disable pinging any role.
+   */
   @Prop()
   substituteMentionRole?: string;
 
+  /**
+   * Where notifications for admins are being sent.
+   * Set it to a falsy value to disable admins notifications at all.
+   */
   @Prop()
   adminNotificationsChannelId?: string;
 
@@ -22,7 +34,8 @@ export class DiscordServerOptions {
   adminRole?: string;
 }
 
-const discordServerOptionsSchema = SchemaFactory.createForClass(DiscordServerOptions);
+const discordGuildOptionsSchema =
+  SchemaFactory.createForClass(DiscordGuildOptions);
 
 @Schema()
 export class Discord extends MongooseDocument {
@@ -34,9 +47,9 @@ export class Discord extends MongooseDocument {
   @Equals(ConfigurationEntryKey.discord)
   key: ConfigurationEntryKey.discord;
 
-  @Type(() => DiscordServerOptions)
-  @Prop({ type: [discordServerOptionsSchema], required: true, _id: false })
-  servers: DiscordServerOptions[];
+  @Type(() => DiscordGuildOptions)
+  @Prop({ type: [discordGuildOptionsSchema], required: true, _id: false })
+  guilds: DiscordGuildOptions[];
 }
 
 export const discordSchema = SchemaFactory.createForClass(Discord);
