@@ -88,7 +88,7 @@
     "mongodb-memory-server": "8.1.0",
     "mongodb-snapshot": "1.4.0",
     "prettier": "2.5.1",
-    "release-it": "14.12.1",
+    "release-it": "14.12.3",
     "socket.io-client": "4.4.1",
     "supertest": "6.2.1",
     "trace-unhandled": "2.0.1",
