@@ -9330,9 +9330,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"release-it@npm:14.12.1":
-  version: 14.12.1
-  resolution: "release-it@npm:14.12.1"
+"release-it@npm:14.12.3":
+  version: 14.12.3
+  resolution: "release-it@npm:14.12.3"
   dependencies:
     "@iarna/toml": 2.2.5
     "@octokit/rest": 18.12.0
@@ -9357,7 +9357,7 @@ __metadata:
     os-name: 4.0.1
     parse-json: 5.2.0
     semver: 7.3.5
-    shelljs: 0.8.4
+    shelljs: 0.8.5
     update-notifier: 5.1.0
     url-join: 4.0.1
     uuid: 8.3.2
@@ -9365,7 +9365,7 @@ __metadata:
     yargs-parser: 20.2.9
   bin:
     release-it: bin/release-it.js
-  checksum: c22d265ff42b6e35827466a0549f7faaca78e61af47cdd8656620421c92a8a949c4289b69027bb6524dc04429b371721652efce9757d0755de23e31b14160742
+  checksum: af4d48c83b024369143131fdea49c7f0e33038800934a451d2cfd7142800205033f811f08c835f4e7e99fcc4005a3504ee04bdbb78aaa09ecea6758d3df56a71
   languageName: node
   linkType: hard
 
@@ -9781,7 +9781,7 @@ __metadata:
     prettier: 2.5.1
     rcon-client: 4.2.3
     reflect-metadata: 0.1.13
-    release-it: 14.12.1
+    release-it: 14.12.3
     rimraf: 3.0.2
     rxjs: 7.5.2
     socket.io-client: 4.4.1
@@ -9836,19 +9836,6 @@ __metadata:
   version: 3.0.0
   resolution: "shebang-regex@npm:3.0.0"
   checksum: 1a2bcae50de99034fcd92ad4212d8e01eedf52c7ec7830eedcf886622804fe36884278f2be8be0ea5fde3fd1c23911643a4e0f726c8685b61871c8908af01222
-  languageName: node
-  linkType: hard
-
-"shelljs@npm:0.8.4":
-  version: 0.8.4
-  resolution: "shelljs@npm:0.8.4"
-  dependencies:
-    glob: ^7.0.0
-    interpret: ^1.0.0
-    rechoir: ^0.6.2
-  bin:
-    shjs: bin/shjs
-  checksum: 27f83206ef6a4f5b74a493726c3e6b4c3e07a9c2aac94c5e692d800a61353c18a8234967bd8523b1346abe718beb563843687fb57f466529ba06db3cae6f0bb3
   languageName: node
   linkType: hard
 
