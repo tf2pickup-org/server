@@ -4232,16 +4232,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"deprecated-obj@npm:2.0.0":
-  version: 2.0.0
-  resolution: "deprecated-obj@npm:2.0.0"
-  dependencies:
-    flat: ^5.0.2
-    lodash: ^4.17.20
-  checksum: 9ecb158b67a8e6c5717ac6195c7eaff70f087d0f2cdf750ed62525331fb1069186654d754b8b395a0ccb77bf6b22b57c00df91c0af00d110f635492d95cebf6a
-  languageName: node
-  linkType: hard
-
 "deprecation@npm:^2.0.0, deprecation@npm:^2.3.1":
   version: 2.3.1
   resolution: "deprecation@npm:2.3.1"
@@ -5119,15 +5109,6 @@ __metadata:
     flatted: ^3.1.0
     rimraf: ^3.0.2
   checksum: 4fdd10ecbcbf7d520f9040dd1340eb5dfe951e6f0ecf2252edeec03ee68d989ec8b9a20f4434270e71bcfd57800dc09b3344fca3966b2eb8f613072c7d9a2365
-  languageName: node
-  linkType: hard
-
-"flat@npm:^5.0.2":
-  version: 5.0.2
-  resolution: "flat@npm:5.0.2"
-  bin:
-    flat: cli.js
-  checksum: 12a1536ac746db74881316a181499a78ef953632ddd28050b7a3a43c62ef5462e3357c8c29d76072bb635f147f7a9a1f0c02efef6b4be28f8db62ceb3d5c7f5d
   languageName: node
   linkType: hard
 
@@ -7350,7 +7331,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lodash@npm:4.17.21, lodash@npm:^4.17.15, lodash@npm:^4.17.19, lodash@npm:^4.17.20, lodash@npm:^4.17.21, lodash@npm:^4.7.0":
+"lodash@npm:4.17.21, lodash@npm:^4.17.15, lodash@npm:^4.17.19, lodash@npm:^4.17.21, lodash@npm:^4.7.0":
   version: 4.17.21
   resolution: "lodash@npm:4.17.21"
   checksum: eb835a2e51d381e561e508ce932ea50a8e5a68f4ebdd771ea240d3048244a8d13658acbd502cd4829768c56f2e16bdd4340b9ea141297d472517b83868e677f7
@@ -9253,9 +9234,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"release-it@npm:14.12.3":
-  version: 14.12.3
-  resolution: "release-it@npm:14.12.3"
+"release-it@npm:14.12.4":
+  version: 14.12.4
+  resolution: "release-it@npm:14.12.4"
   dependencies:
     "@iarna/toml": 2.2.5
     "@octokit/rest": 18.12.0
@@ -9263,7 +9244,6 @@ __metadata:
     chalk: 4.1.2
     cosmiconfig: 7.0.1
     debug: 4.3.3
-    deprecated-obj: 2.0.0
     execa: 5.1.1
     form-data: 4.0.0
     git-url-parse: 11.6.0
@@ -9288,7 +9268,7 @@ __metadata:
     yargs-parser: 20.2.9
   bin:
     release-it: bin/release-it.js
-  checksum: af4d48c83b024369143131fdea49c7f0e33038800934a451d2cfd7142800205033f811f08c835f4e7e99fcc4005a3504ee04bdbb78aaa09ecea6758d3df56a71
+  checksum: 79b91a6059f5592827559150c920c92efa12e2ce91c4ca868795e62704fe70d2fade3fd855f5f6c66ad1f24789d3783536b84fb23907e752d87efa0938210806
   languageName: node
   linkType: hard
 
@@ -9704,7 +9684,7 @@ __metadata:
     prettier: 2.5.1
     rcon-client: 4.2.3
     reflect-metadata: 0.1.13
-    release-it: 14.12.3
+    release-it: 14.12.4
     rimraf: 3.0.2
     rxjs: 7.5.2
     socket.io-client: 4.4.1
