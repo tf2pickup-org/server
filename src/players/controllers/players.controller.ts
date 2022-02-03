@@ -18,7 +18,6 @@ import {
   CacheInterceptor,
   CacheTTL,
   ClassSerializerInterceptor,
-  UseFilters,
 } from '@nestjs/common';
 import { PlayersService } from '../services/players.service';
 import { ObjectIdValidationPipe } from '@/shared/pipes/object-id-validation.pipe';
@@ -30,12 +29,12 @@ import { PlayerBansService } from '../services/player-bans.service';
 import { PlayerBan } from '../models/player-ban';
 import { User } from '@/auth/decorators/user.decorator';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
-import { DocumentNotFoundFilter } from '@/shared/filters/document-not-found.filter';
 import { PlayerStats } from '../dto/player-stats';
 import { ForceCreatePlayer } from '../dto/force-create-player';
 import { PlayerRole } from '../models/player-role';
 import { LinkedProfilesService } from '../services/linked-profiles.service';
 import { LinkedProfiles } from '../dto/linked-profiles';
+import { PlayerByIdPipe } from '../pipes/player-by-id.pipe';
 
 @Controller('players')
 @UseInterceptors(CacheInterceptor)
@@ -56,9 +55,8 @@ export class PlayersController {
 
   @Get(':id')
   @UseInterceptors(ClassSerializerInterceptor)
-  @UseFilters(DocumentNotFoundFilter)
-  async getPlayer(@Param('id', ObjectIdValidationPipe) playerId: string) {
-    return this.playersService.getById(playerId);
+  async getPlayer(@Param('id', PlayerByIdPipe) player: Player) {
+    return player;
   }
 
   @Post()
@@ -73,17 +71,17 @@ export class PlayersController {
   @Auth(PlayerRole.admin)
   @UseInterceptors(ClassSerializerInterceptor)
   async updatePlayer(
-    @Param('id', ObjectIdValidationPipe) playerId: string,
-    @Body() player: Partial<Player>,
+    @Param('id', PlayerByIdPipe) player: Player,
+    @Body() update: Partial<Player>,
     @User() admin: Player,
   ) {
-    return await this.playersService.updatePlayer(playerId, player, admin.id);
+    return await this.playersService.updatePlayer(player.id, update, admin.id);
   }
 
   @Get(':id/games')
   @Header('Warning', '299 - "Deprecated API"')
   async getPlayerGames(
-    @Param('id', ObjectIdValidationPipe) playerId: string,
+    @Param('id', PlayerByIdPipe) player: Player,
     @Query('limit', ParseIntPipe) limit = 10,
     @Query('offset', ParseIntPipe) offset = 0,
     @Query('sort') sort = '-launched_at',
@@ -105,8 +103,8 @@ export class PlayersController {
     }
 
     const [results, itemCount] = await Promise.all([
-      this.gamesService.getPlayerGames(playerId, sortParam, limit, offset),
-      this.gamesService.getPlayerGameCount(playerId),
+      this.gamesService.getPlayerGames(player.id, sortParam, limit, offset),
+      this.gamesService.getPlayerGameCount(player.id),
     ]);
 
     return { results, itemCount };
@@ -116,9 +114,9 @@ export class PlayersController {
   @Get(':id/stats')
   @UseInterceptors(ClassSerializerInterceptor)
   async getPlayerStats(
-    @Param('id', ObjectIdValidationPipe) playerId: string,
+    @Param('id', PlayerByIdPipe) player: Player,
   ): Promise<PlayerStats> {
-    return await this.playersService.getPlayerStats(playerId);
+    return await this.playersService.getPlayerStats(player.id);
   }
 
   @Get('/all/skill')
@@ -129,8 +127,8 @@ export class PlayersController {
 
   @Get(':id/skill')
   @Auth(PlayerRole.admin)
-  async getPlayerSkill(@Param('id', ObjectIdValidationPipe) playerId: string) {
-    const skill = await this.playerSkillService.getPlayerSkill(playerId);
+  async getPlayerSkill(@Param('id', PlayerByIdPipe) player: Player) {
+    const skill = await this.playerSkillService.getPlayerSkill(player.id);
     if (skill) {
       return skill;
     } else {
@@ -142,7 +140,7 @@ export class PlayersController {
   @Auth(PlayerRole.admin)
   // todo validate skill
   async setPlayerSkill(
-    @Param('id', ObjectIdValidationPipe) playerId: string,
+    @Param('id', PlayerByIdPipe) player: Player,
     @Body() newSkill: { [className in Tf2ClassName]?: number },
     @User() user: Player,
   ) {
@@ -151,7 +149,7 @@ export class PlayersController {
       number
     >;
     return this.playerSkillService.setPlayerSkill(
-      playerId,
+      player.id,
       newSkillAsMap,
       user.id,
     );
@@ -160,8 +158,8 @@ export class PlayersController {
   @Get(':id/bans')
   @Auth(PlayerRole.admin)
   @UseInterceptors(ClassSerializerInterceptor)
-  async getPlayerBans(@Param('id', ObjectIdValidationPipe) playerId: string) {
-    return await this.playerBansService.getPlayerBans(playerId);
+  async getPlayerBans(@Param('id', PlayerByIdPipe) player: Player) {
+    return await this.playerBansService.getPlayerBans(player.id);
   }
 
   @Post(':id/bans')
@@ -182,22 +180,17 @@ export class PlayersController {
   @UseInterceptors(ClassSerializerInterceptor)
   @HttpCode(200)
   async updatePlayerBan(
-    @Param('playerId', ObjectIdValidationPipe) playerId: string,
+    @Param('id', PlayerByIdPipe) player: Player,
     @Param('banId', ObjectIdValidationPipe) banId: string,
     @Query('revoke') revoke: any,
     @User() user: Player,
   ) {
-    const player = await this.playersService.getById(playerId);
-    if (!player) {
-      throw new NotFoundException('player not found');
-    }
-
     const ban = await this.playerBansService.getById(banId);
     if (!ban) {
       throw new NotFoundException('ban not found');
     }
 
-    if (ban.player.toString() !== playerId) {
+    if (ban.player.toString() !== player.id) {
       throw new BadRequestException("the given ban is not of the user's");
     }
 
@@ -208,12 +201,10 @@ export class PlayersController {
 
   @Get(':id/linked-profiles')
   @UseInterceptors(ClassSerializerInterceptor)
-  async getPlayerLinkedProfiles(
-    @Param('id', ObjectIdValidationPipe) playerId: string,
-  ) {
+  async getPlayerLinkedProfiles(@Param('id', PlayerByIdPipe) player: Player) {
     const linkedProfiles = await this.linkedProfilesService.getLinkedProfiles(
-      playerId,
+      player.id,
     );
-    return new LinkedProfiles(playerId, linkedProfiles);
+    return new LinkedProfiles(player.id, linkedProfiles);
   }
 }
