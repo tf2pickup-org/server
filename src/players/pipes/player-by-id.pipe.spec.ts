@@ -1,8 +1,9 @@
 import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
+import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { getConnectionToken, MongooseModule } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import { Connection } from 'mongoose';
+import { Connection, Types } from 'mongoose';
 import { Player, PlayerDocument, playerSchema } from '../models/player';
 import { PlayersService } from '../services/players.service';
 import { PlayerByIdPipe } from './player-by-id.pipe';
@@ -74,6 +75,28 @@ describe('PlayerByIdPipe', () => {
     it('should fetch the player by steam id', async () => {
       const p = await pipe.transform(player.steamId);
       expect(p.id).toEqual(player.id);
+    });
+  });
+
+  describe('given an id of non-existing player', () => {
+    let playerId: string;
+
+    beforeEach(() => {
+      playerId = new Types.ObjectId().toString();
+    });
+
+    it('should throw a 404 error', async () => {
+      await expect(() => pipe.transform(playerId)).rejects.toThrow(
+        NotFoundException,
+      );
+    });
+  });
+
+  describe('given an invalid id', () => {
+    it('should throw a 400 error', async () => {
+      await expect(() => pipe.transform('invalidsteamid')).rejects.toThrow(
+        BadRequestException,
+      );
     });
   });
 });
