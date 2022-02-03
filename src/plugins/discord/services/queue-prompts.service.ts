@@ -50,10 +50,10 @@ export class QueuePromptsService implements OnModuleInit {
     //   this.message.edit({ embed });
     // } else {
     //   if (this.playerThresholdMet()) {
-        // this.message = await this.discordService
-        //   .getPlayersChannel()
-        //   ?.send({ embed });
-      // }
+    //     this.message = await this.discordService
+    //       .getPlayersChannel()
+    //       ?.send({ embed });
+    //   }
     // }
   }
 

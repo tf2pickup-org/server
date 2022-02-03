@@ -14,7 +14,7 @@ import { QueueService } from '@/queue/services/queue.service';
 import { DiscordService } from '@/plugins/discord/services/discord.service';
 import { substituteRequest } from '@/plugins/discord/notifications';
 import { Environment } from '@/environment/environment';
-import { Message } from 'discord.js';
+import { Message, Role, TextChannel } from 'discord.js';
 import { Events } from '@/events/events';
 import { SlotStatus } from '../models/slot-status';
 import { Model, Types } from 'mongoose';
@@ -25,6 +25,8 @@ import { PlayerNotInThisGameError } from '../errors/player-not-in-this-game.erro
 import { GameInWrongStateError } from '../errors/game-in-wrong-state.error';
 import { WrongGameSlotStatusError } from '../errors/wrong-game-slot-status.error';
 import { merge } from 'rxjs';
+import { ConfigurationService } from '@/configuration/services/configuration.service';
+import { GameSlot } from '../models/game-slot';
 
 /**
  * A service that handles player substitution logic.
@@ -32,7 +34,7 @@ import { merge } from 'rxjs';
 @Injectable()
 export class PlayerSubstitutionService implements OnModuleInit {
   private logger = new Logger(PlayerSubstitutionService.name);
-  private discordNotifications = new Map<string, Message>(); // playerId <-> message pairs
+  private discordNotifications = new Map<string, Message[]>(); // playerId <-> message pairs
 
   constructor(
     @Inject(forwardRef(() => GamesService)) private gamesService: GamesService,
@@ -46,6 +48,7 @@ export class PlayerSubstitutionService implements OnModuleInit {
     private environment: Environment,
     private events: Events,
     @InjectModel(Game.name) private gameModel: Model<GameDocument>,
+    private configurationService: ConfigurationService,
   ) {
     this.logger.verbose(
       `Discord plugin will ${this.discordService ? '' : 'not '}be used`,
@@ -61,7 +64,14 @@ export class PlayerSubstitutionService implements OnModuleInit {
     ).subscribe(() => this.events.substituteRequestsChange.next());
   }
 
-  async substitutePlayer(gameId: string, playerId: string, adminId?: string) {
+  /**
+   * Mark the given player as replaceable.
+   */
+  async substitutePlayer(
+    gameId: string,
+    playerId: string,
+    adminId?: string,
+  ): Promise<Game> {
     let game = await this.gamesService.getById(gameId);
     const slot = game.findPlayerSlot(playerId);
     if (!slot) {
@@ -85,7 +95,7 @@ export class PlayerSubstitutionService implements OnModuleInit {
       Game,
       await this.gameModel
         .findByIdAndUpdate(
-          gameId,
+          game.id,
           {
             'slots.$[element].status': SlotStatus.waitingForSubstitute,
           },
@@ -105,29 +115,7 @@ export class PlayerSubstitutionService implements OnModuleInit {
 
     this.events.gameChanges.next({ game });
     this.events.substituteRequested.next({ gameId, playerId, adminId });
-
-    // const channel = this.discordService?.getPlayersChannel();
-    // if (channel) {
-    //   const embed = substituteRequest({
-    //     gameNumber: game.number,
-    //     gameClass: slot.gameClass,
-    //     team: slot.team.toUpperCase(),
-    //     gameUrl: `${this.environment.clientUrl}/game/${game.id}`,
-    //   });
-
-    //   const roleToMention = this.discordService.findRole(
-    //     this.environment.discordQueueNotificationsMentionRole,
-    //   );
-    //   let message: Message;
-
-    //   if (roleToMention?.mentionable) {
-    //     message = await channel.send(`${roleToMention}`, { embed });
-    //   } else {
-    //     message = await channel.send({ embed });
-    //   }
-
-    //   this.discordNotifications.set(playerId, message);
-    // }
+    this.discordAnnounceSubstituteNeeded(game, slot);
 
     if (game.gameServer) {
       this.gameRuntimeService.sayChat(
@@ -188,11 +176,14 @@ export class PlayerSubstitutionService implements OnModuleInit {
     this.events.gameChanges.next({ game });
     this.events.substituteCanceled.next({ gameId, playerId, adminId });
 
-    const message = this.discordNotifications.get(playerId);
-    if (message) {
-      await message.delete({ reason: 'substitution request canceled' });
-      this.discordNotifications.delete(playerId);
-    }
+    await Promise.all(
+      this.discordNotifications
+        .get(playerId)
+        ?.map((message) =>
+          message.delete({ reason: 'substitution request canceled' }),
+        ),
+    );
+    this.discordNotifications.delete(playerId);
 
     return game;
   }
@@ -273,7 +264,7 @@ export class PlayerSubstitutionService implements OnModuleInit {
       Game,
       await this.gameModel
         .findByIdAndUpdate(
-          gameId,
+          game.id,
           {
             $set: {
               'slots.$[element].status': SlotStatus.replaced,
@@ -332,11 +323,58 @@ export class PlayerSubstitutionService implements OnModuleInit {
     return game;
   }
 
+  private async discordAnnounceSubstituteNeeded(game: Game, slot: GameSlot) {
+    const embed = substituteRequest({
+      gameNumber: game.number,
+      gameClass: slot.gameClass,
+      team: slot.team.toUpperCase(),
+      gameUrl: `${this.environment.clientUrl}/game/${game.id}`,
+    });
+
+    const discordConfig = await this.configurationService.getDiscord();
+    await Promise.all(
+      discordConfig.guilds
+        .filter((g) => g.queueNotificationsChannelId)
+        .map((g) => {
+          const guild = this.discordService.getGuild(g.guildId);
+          if (guild) {
+            const channel = guild.channels.cache.get(
+              g.queueNotificationsChannelId,
+            ) as TextChannel;
+
+            let role: Role = null;
+            if (g.substituteMentionRole) {
+              role = guild.roles.cache.get(g.substituteMentionRole);
+            }
+
+            return { channel, role };
+          } else {
+            return null;
+          }
+        })
+        .filter((c) => c !== null)
+        .filter(({ channel }) => channel !== null)
+        .map(async ({ channel, role }) => {
+          let message: Message;
+          if (role?.mentionable) {
+            message = await channel.send(`${role}`, { embed });
+          } else {
+            message = await channel.send({ embed });
+          }
+
+          const a = this.discordNotifications.get(slot.player.toString()) ?? [];
+          a.push(message);
+          this.discordNotifications.set(slot.player.toString(), a);
+        }),
+    );
+  }
+
   private async deleteDiscordAnnouncement(replaceeId: string) {
-    const message = this.discordNotifications.get(replaceeId);
-    if (message) {
-      await message.delete();
-      this.discordNotifications.delete(replaceeId);
-    }
+    await Promise.all(
+      this.discordNotifications
+        .get(replaceeId)
+        ?.map((message) => message.delete()),
+    );
+    this.discordNotifications.delete(replaceeId);
   }
 }

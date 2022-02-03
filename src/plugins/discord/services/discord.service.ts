@@ -52,6 +52,10 @@ export class DiscordService implements OnModuleInit {
     return this.getAllGuilds().filter((guild) => guildIds.includes(guild.id));
   }
 
+  getGuild(guildId: string): Guild {
+    return this.client.guilds.cache.get(guildId);
+  }
+
   /**
    * Get channels for admins' notifications for all enabled guilds.
    */
@@ -59,7 +63,7 @@ export class DiscordService implements OnModuleInit {
     return (await this.configurationService.getDiscord()).guilds
       .map((server) => {
         if (server.adminNotificationsChannelId) {
-          const guild = this.client.guilds.cache.get(server.guildId);
+          const guild = this.getGuild(server.guildId);
           return guild.channels.cache
             .filter((c) => c.isText())
             .find(
