@@ -46,6 +46,9 @@ class PlayersServiceStub {
   getById(id: string) {
     return new Promise((resolve) => resolve(this.player));
   }
+  findBySteamId(steamId: string) {
+    return new Promise((resolve) => resolve(this.player));
+  }
   forceCreatePlayer(player: Player) {
     return new Promise((resolve) => resolve(player));
   }
@@ -183,11 +186,28 @@ describe('Players Controller', () => {
   });
 
   describe('#getPlayer()', () => {
-    it('should return the player', async () => {
-      const spy = jest.spyOn(playersService, 'getById');
-      const ret = await controller.getPlayer('FAKE_ID');
-      expect(spy).toHaveBeenCalledWith('FAKE_ID');
-      expect(ret).toEqual(playersService.player as any);
+    describe('when looking up by object id', () => {
+      it('should return the player', async () => {
+        const spy = jest.spyOn(playersService, 'getById');
+        const ret = await controller.getPlayer({
+          type: 'object-id',
+          objectId: 'FAKE_ID',
+        });
+        expect(spy).toHaveBeenCalledWith('FAKE_ID');
+        expect(ret).toEqual(playersService.player as any);
+      });
+    });
+
+    describe('when looking up by steam id', () => {
+      it('should return the player', async () => {
+        const spy = jest.spyOn(playersService, 'findBySteamId');
+        const ret = await controller.getPlayer({
+          type: 'steam-id',
+          steamId64: '76561198074409147',
+        });
+        expect(spy).toHaveBeenCalledWith('76561198074409147');
+        expect(ret).toEqual(playersService.player);
+      });
     });
   });
 

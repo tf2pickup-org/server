@@ -36,6 +36,8 @@ import { ForceCreatePlayer } from '../dto/force-create-player';
 import { PlayerRole } from '../models/player-role';
 import { LinkedProfilesService } from '../services/linked-profiles.service';
 import { LinkedProfiles } from '../dto/linked-profiles';
+import { ObjectIdOrSteamIdPipe } from '@/shared/pipes/object-id-or-steam-id.pipe';
+import { ObjectIdOrSteamId } from '@/shared/models/object-id-or-steam-id';
 
 @Controller('players')
 @UseInterceptors(CacheInterceptor)
@@ -57,8 +59,16 @@ export class PlayersController {
   @Get(':id')
   @UseInterceptors(ClassSerializerInterceptor)
   @UseFilters(DocumentNotFoundFilter)
-  async getPlayer(@Param('id', ObjectIdValidationPipe) playerId: string) {
-    return this.playersService.getById(playerId);
+  async getPlayer(
+    @Param('id', ObjectIdOrSteamIdPipe) playerId: ObjectIdOrSteamId,
+  ) {
+    switch (playerId.type) {
+      case 'object-id':
+        return this.playersService.getById(playerId.objectId);
+
+      case 'steam-id':
+        return this.playersService.findBySteamId(playerId.steamId64);
+    }
   }
 
   @Post()
