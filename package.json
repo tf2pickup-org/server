@@ -35,7 +35,7 @@
     "class-validator": "0.13.2",
     "discord.js": "12.5.3",
     "generate-password": "1.7.0",
-    "helmet": "4.6.0",
+    "helmet": "5.0.2",
     "joi": "17.6.0",
     "jsonschema": "1.4.0",
     "jsonwebtoken": "8.5.1",
