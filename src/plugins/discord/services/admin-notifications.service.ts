@@ -9,7 +9,12 @@ import { PlayerSkillType } from '@/players/services/player-skill.service';
 import { PlayersService } from '@/players/services/players.service';
 import { iconUrlPath } from '@configs/discord';
 import { Injectable, OnModuleInit } from '@nestjs/common';
-import { distinctUntilChanged, filter } from 'rxjs/operators';
+import {
+  concatMap,
+  distinctUntilChanged,
+  filter,
+  groupBy,
+} from 'rxjs/operators';
 import {
   newPlayer,
   playerBanAdded,
@@ -100,8 +105,13 @@ export class AdminNotificationsService implements OnModuleInit {
 
     this.events.gameChanges
       .pipe(
-        distinctUntilChanged((x, y) => x.game.state === y.game.state),
-        filter(({ game }) => game.state === GameState.interrupted),
+        groupBy(({ game }) => game.id),
+        concatMap((group) =>
+          group.pipe(
+            distinctUntilChanged((x, y) => x.game.state === y.game.state),
+            filter(({ game }) => game.state === GameState.interrupted),
+          ),
+        ),
       )
       .subscribe(({ game, adminId }) => this.onGameForceEnded(game, adminId));
 

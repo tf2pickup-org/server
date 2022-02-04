@@ -352,6 +352,39 @@ describe('AdminNotificationsService', () => {
       }));
   });
 
+  describe('when a game does not really change', () => {
+    let admin: Player;
+
+    beforeEach(async () => {
+      // @ts-expect-error
+      admin = await playersService._createOne();
+    });
+
+    it('should not send any message', async () =>
+      new Promise<void>((resolve) => {
+        events.gameChanges.next({
+          game: {
+            number: 2,
+            state: GameState.started,
+            id: 'FAKE_GAME_2_ID',
+          } as Game,
+        });
+        events.gameChanges.next({
+          game: {
+            number: 1,
+            state: GameState.interrupted,
+            id: 'FAKE_GAME_ID',
+          } as Game,
+          adminId: admin.id,
+        });
+
+        setTimeout(() => {
+          expect(sendSpy).not.toHaveBeenCalled();
+          resolve();
+        }, 1000);
+      }));
+  });
+
   describe('when a player substitute is requested', () => {
     let admin: Player;
     let player: Player;
