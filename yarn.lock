@@ -3402,12 +3402,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"bson@npm:^4.6.0":
-  version: 4.6.0
-  resolution: "bson@npm:4.6.0"
+"bson@npm:^4.6.1":
+  version: 4.6.1
+  resolution: "bson@npm:4.6.1"
   dependencies:
     buffer: ^5.6.0
-  checksum: d38ca1b6c581d8667137c62258f22c0076575879c77f278c08282721844166afc0538d9fb4942976bb320a2e3dec3ddfae57b7ad52845bf7464bf997d3fdc5a2
+  checksum: 32c38400b0c5f85cf22c28b9f9bbc63b3c090c23a749a8c159db975f225161a7fe776f8a18ed1da3f58a9e7496ce2b7935753e9471f17c614bf02ebab145e052
   languageName: node
   linkType: hard
 
@@ -3575,10 +3575,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"camelcase@npm:^6.2.1":
-  version: 6.2.1
-  resolution: "camelcase@npm:6.2.1"
-  checksum: d876272ef76391ebf8442fb7ea1d77e80ae179ce1339e021a8731b4895fd190dc19e148e045469cff5825d4c089089f3fff34d804d3f49115d55af97dd6ac0af
+"camelcase@npm:^6.3.0":
+  version: 6.3.0
+  resolution: "camelcase@npm:6.3.0"
+  checksum: 8c96818a9076434998511251dcb2761a94817ea17dbdc37f47ac080bd088fc62c7369429a19e2178b993497132c8cbcf5cc1f44ba963e76782ba469c0474938d
   languageName: node
   linkType: hard
 
@@ -8137,29 +8137,29 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mongodb-connection-string-url@npm:^2.3.2":
-  version: 2.4.1
-  resolution: "mongodb-connection-string-url@npm:2.4.1"
+"mongodb-connection-string-url@npm:^2.4.1":
+  version: 2.4.2
+  resolution: "mongodb-connection-string-url@npm:2.4.2"
   dependencies:
     "@types/whatwg-url": ^8.2.1
     whatwg-url: ^11.0.0
-  checksum: 119c908ab543f75cf80e2b29b1034071d85d8c59a93515125b10bf97b428a1c051a1dc011388961fcc733fc48972a375d70d5a8e7faa0ac7c5ab701aff7678bd
+  checksum: aed2718840c79f8d6be35309e308bf4466a009256da6b02e6212abeef39ae27bf6101273580696e246e51ee4f7471e2d938c44e8f8a5194982092f692b37c571
   languageName: node
   linkType: hard
 
-"mongodb-memory-server-core@npm:8.2.0":
-  version: 8.2.0
-  resolution: "mongodb-memory-server-core@npm:8.2.0"
+"mongodb-memory-server-core@npm:8.3.0":
+  version: 8.3.0
+  resolution: "mongodb-memory-server-core@npm:8.3.0"
   dependencies:
     "@types/tmp": ^0.2.3
     async-mutex: ^0.3.2
-    camelcase: ^6.2.1
+    camelcase: ^6.3.0
     debug: ^4.3.3
     find-cache-dir: ^3.3.2
     get-port: ^5.1.1
     https-proxy-agent: ^5.0.0
     md5-file: ^5.0.0
-    mongodb: ^4.2.2
+    mongodb: ^4.3.1
     new-find-package-json: ^1.1.0
     semver: ^7.3.5
     tar-stream: ^2.1.4
@@ -8167,17 +8167,17 @@ __metadata:
     tslib: ^2.3.1
     uuid: ^8.3.1
     yauzl: ^2.10.0
-  checksum: f609157d3823c6494f995ccda432cc260766e68c6776d7dc194bc4b93eeb2508946c15fef50c49478a2f448be34834877175fe4f08dc71eb25244808a132fc7b
+  checksum: 94dd31b6860c44083dfd4875ba03784b832176d625ff22fd23b300405bc4153276f64ab4fa5bfb5ab2610189f8e8fc8a228e9b7791a2bd45d7f03f675dc0897c
   languageName: node
   linkType: hard
 
-"mongodb-memory-server@npm:8.2.0":
-  version: 8.2.0
-  resolution: "mongodb-memory-server@npm:8.2.0"
+"mongodb-memory-server@npm:8.3.0":
+  version: 8.3.0
+  resolution: "mongodb-memory-server@npm:8.3.0"
   dependencies:
-    mongodb-memory-server-core: 8.2.0
+    mongodb-memory-server-core: 8.3.0
     tslib: ^2.3.1
-  checksum: 570b9feff08c41a073ebb4ce188ca4d962b7d965550620254fbf48b3d0193e7e8c06d5e3cb6a8e87adca5d948631c4267ab170f8e8e84f87453fe35c168ff8b8
+  checksum: 300e7e8d78032baf2d4c54b799e4cae0e77c6cdc58119f82581ab4a214acb6ff61a30f3d43a81da4b2e162ec8f2a8f196eb72f1724f20830ca5aa1ba0700e5ae
   languageName: node
   linkType: hard
 
@@ -8249,18 +8249,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mongodb@npm:^4.2.2":
-  version: 4.2.2
-  resolution: "mongodb@npm:4.2.2"
+"mongodb@npm:^4.3.1":
+  version: 4.3.1
+  resolution: "mongodb@npm:4.3.1"
   dependencies:
-    bson: ^4.6.0
+    bson: ^4.6.1
     denque: ^2.0.1
-    mongodb-connection-string-url: ^2.3.2
+    mongodb-connection-string-url: ^2.4.1
     saslprep: ^1.0.3
+    socks: ^2.6.1
   dependenciesMeta:
     saslprep:
       optional: true
-  checksum: 645cc8889ee093c0d6479638aa4f5b3e587b84be5179a35993f0796fda6b25d22c4b6f7d5f27b4d23c3aacb694db2ff696ea0a5080ddc745508ffff95131f3b5
+  checksum: 5684b5481bfbf73e4628b8bad7018cd4436fdb23b9548fb38dece3e079b1716fe870d41070a505d13ae4d86c107315afaf34891ba2b64925eb4fa4cd5bb70300
   languageName: node
   linkType: hard
 
@@ -10043,7 +10044,7 @@ __metadata:
     lodash: 4.17.21
     migrate: 1.7.0
     moment: 2.29.1
-    mongodb-memory-server: 8.2.0
+    mongodb-memory-server: 8.3.0
     mongodb-snapshot: 1.4.0
     mongodb-uri: 0.9.7
     mongoose: 5.13.12
@@ -10176,7 +10177,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"smart-buffer@npm:^4.1.0":
+"smart-buffer@npm:^4.1.0, smart-buffer@npm:^4.2.0":
   version: 4.2.0
   resolution: "smart-buffer@npm:4.2.0"
   checksum: b5167a7142c1da704c0e3af85c402002b597081dd9575031a90b4f229ca5678e9a36e8a374f1814c8156a725d17008ae3bde63b92f9cfd132526379e580bec8b
@@ -10281,6 +10282,16 @@ __metadata:
     ip: ^1.1.5
     smart-buffer: ^4.1.0
   checksum: 2ca9d616e424f645838ebaabb04f85d94ea999e0f8393dc07f86c435af22ed88cb83958feeabd1bb7bc537c635ed47454255635502c6808a6df61af1f41af750
+  languageName: node
+  linkType: hard
+
+"socks@npm:^2.6.1":
+  version: 2.6.2
+  resolution: "socks@npm:2.6.2"
+  dependencies:
+    ip: ^1.1.5
+    smart-buffer: ^4.2.0
+  checksum: dd9194293059d737759d5c69273850ad4149f448426249325c4bea0e340d1cf3d266c3b022694b0dcf5d31f759de23657244c481fc1e8322add80b7985c36b5e
   languageName: node
   linkType: hard
 
