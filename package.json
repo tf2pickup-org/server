@@ -82,7 +82,7 @@
     "copyfiles": "2.4.1",
     "eslint": "8.8.0",
     "eslint-config-prettier": "8.3.0",
-    "eslint-plugin-jest": "26.0.0",
+    "eslint-plugin-jest": "26.1.0",
     "eslint-plugin-prettier": "4.0.0",
     "jest": "27.5.0",
     "mongodb-memory-server": "8.3.0",
