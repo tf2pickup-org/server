@@ -2,7 +2,6 @@ import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
 import { Environment } from '@/environment/environment';
 import { generate } from 'generate-password';
 import { PlayersService } from '@/players/services/players.service';
-import { RconFactoryService } from './rcon-factory.service';
 import {
   logAddressAdd,
   changelevel,
@@ -37,7 +36,6 @@ export class ServerConfiguratorService {
     private environment: Environment,
     @Inject(forwardRef(() => PlayersService))
     private playersService: PlayersService,
-    private rconFactoryService: RconFactoryService,
     private mapPoolService: MapPoolService,
     private configurationService: ConfigurationService,
     @Inject(forwardRef(() => GamesService))
@@ -50,13 +48,10 @@ export class ServerConfiguratorService {
     const server = await this.gameServersService.getById(game.gameServer);
 
     this.logger.verbose(`configuring server ${server.name}...`);
-    this.logger.debug(
-      `[${server.name}] using rcon password ${server.rconPassword}`,
-    );
 
     let rcon: Rcon;
     try {
-      rcon = await this.rconFactoryService.createRcon(server);
+      rcon = await server.rcon();
 
       this.logger.debug(`[${server.name}] logsecret is ${game.logSecret}`);
       await rcon.send(svLogsecret(game.logSecret));
@@ -141,7 +136,7 @@ export class ServerConfiguratorService {
     const gameServer = await this.gameServersService.getById(gameServerId);
     let rcon: Rcon;
     try {
-      rcon = await this.rconFactoryService.createRcon(gameServer);
+      rcon = await gameServer.rcon();
 
       const logAddress = `${this.environment.logRelayAddress}:${this.environment.logRelayPort}`;
       this.logger.debug(

@@ -14,7 +14,7 @@ import {
   GameServerDiagnosticRun,
   GameServerDiagnosticRunDocument,
 } from '../models/game-server-diagnostic-run';
-import { GameServersService } from './game-servers.service';
+import { GameServersService } from '../../../services/game-servers.service';
 
 @Injectable()
 export class GameServerDiagnosticsService {

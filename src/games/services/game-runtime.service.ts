@@ -2,7 +2,6 @@ import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
 import { GamesService } from './games.service';
 import { ServerConfiguratorService } from './server-configurator.service';
 import { GameServersService } from '@/game-servers/services/game-servers.service';
-import { RconFactoryService } from './rcon-factory.service';
 import { PlayersService } from '@/players/services/players.service';
 import { addGamePlayer, delGamePlayer, say } from '../utils/rcon-commands';
 import { GameSlot } from '../models/game-slot';
@@ -25,7 +24,6 @@ export class GameRuntimeService {
     @Inject(forwardRef(() => GamesService)) private gamesService: GamesService,
     private gameServersService: GameServersService,
     private serverConfiguratorService: ServerConfiguratorService,
-    private rconFactoryService: RconFactoryService,
     @Inject(forwardRef(() => PlayersService))
     private playersService: PlayersService,
     private events: Events,
@@ -123,7 +121,7 @@ export class GameRuntimeService {
     let rcon: Rcon;
 
     try {
-      rcon = await this.rconFactoryService.createRcon(gameServer);
+      rcon = await gameServer.rcon();
       const player = await this.playersService.getById(replacementSlot.player);
 
       const cmd = addGamePlayer(
@@ -152,7 +150,7 @@ export class GameRuntimeService {
     const gameServer = await this.gameServersService.getById(gameServerId);
     let rcon: Rcon;
     try {
-      rcon = await this.rconFactoryService.createRcon(gameServer);
+      rcon = await gameServer.rcon();
       await rcon.send(say(message));
     } catch (e) {
       this.logger.error(e.message);

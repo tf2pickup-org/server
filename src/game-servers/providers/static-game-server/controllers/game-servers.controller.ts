@@ -11,7 +11,7 @@ import {
   UseFilters,
   HttpCode,
 } from '@nestjs/common';
-import { GameServersService } from '../services/game-servers.service';
+import { GameServersService } from '../../../services/game-servers.service';
 import { ObjectIdValidationPipe } from '@/shared/pipes/object-id-validation.pipe';
 import { Auth } from '@/auth/decorators/auth.decorator';
 import { DocumentNotFoundFilter } from '@/shared/filters/document-not-found.filter';

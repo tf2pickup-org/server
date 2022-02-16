@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { GameServersController } from './game-servers.controller';
-import { GameServersService } from '../services/game-servers.service';
-import { GameServer } from '../models/game-server';
+import { GameServersService } from '../../../services/game-servers.service';
+import { GameServer } from '../../../models/game-server';
 import { GameServerDiagnosticsService } from '../services/game-server-diagnostics.service';
 import { Environment } from '@/environment/environment';
 

@@ -3,7 +3,7 @@ import { GamesService } from './games.service';
 import { GameServersService } from '@/game-servers/services/game-servers.service';
 import { ServerConfiguratorService } from './server-configurator.service';
 import { Cron, CronExpression } from '@nestjs/schedule';
-import { generateLogsecret } from '@/game-servers/utils/generate-logsecret';
+import { generateLogsecret } from '@/game-servers/providers/static-game-server/utils/generate-logsecret';
 import { Game } from '../models/game';
 
 /**
@@ -39,7 +39,7 @@ export class GameLauncherService {
 
     try {
       // step 1: obtain a free server
-      const gameServer = await this.gameServersService.assignFreeGameServer(
+      const gameServer = await this.gameServersService.assignGameServer(
         game.id,
       );
       this.logger.verbose(

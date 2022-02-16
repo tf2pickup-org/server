@@ -1,36 +1,32 @@
 import { forwardRef, Module } from '@nestjs/common';
-import { GameServer, GameServerSchema } from './models/game-server';
 import { GameServersService } from './services/game-servers.service';
-import { GameServersController } from './controllers/game-servers.controller';
-import { GameServerDiagnosticsService } from './services/game-server-diagnostics.service';
-import {
-  GameServerDiagnosticRun,
-  gameServerDiagnosticRunSchema,
-} from './models/game-server-diagnostic-run';
-import { GameServerDiagnosticsController } from './controllers/game-server-diagnostics.controller';
-import { RconConnection } from './diagnostic-checks/rcon-connection';
-import { LogForwarding } from './diagnostic-checks/log-forwarding';
+import { GameServersController } from './providers/static-game-server/controllers/game-servers.controller';
+import { GameServerDiagnosticsController } from './providers/static-game-server/controllers/game-server-diagnostics.controller';
 import { LogReceiverModule } from '@/log-receiver/log-receiver.module';
-import { MongooseModule } from '@nestjs/mongoose';
 import { GamesModule } from '@/games/games.module';
+import { StaticGameServerModule } from './providers/static-game-server/static-game-server.module';
+import { MongooseModule } from '@nestjs/mongoose';
+import { GameServer, GameServerSchema } from './models/game-server';
+import { GameServerProvider } from './models/game-server-provider';
+import { staticGameServerSchema } from './providers/static-game-server/models/static-game-server';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([
-      { name: GameServer.name, schema: GameServerSchema },
-      {
-        name: GameServerDiagnosticRun.name,
-        schema: gameServerDiagnosticRunSchema,
-      },
-    ]),
     LogReceiverModule,
     forwardRef(() => GamesModule),
-  ],
-  providers: [
-    GameServersService,
-    GameServerDiagnosticsService,
-    RconConnection,
-    LogForwarding,
+    StaticGameServerModule,
+    MongooseModule.forFeature([
+      {
+        name: GameServer.name,
+        schema: GameServerSchema,
+        discriminators: [
+          {
+            name: GameServerProvider.static,
+            schema: staticGameServerSchema,
+          },
+        ],
+      },
+    ]),
   ],
   exports: [GameServersService],
   controllers: [GameServersController, GameServerDiagnosticsController],
