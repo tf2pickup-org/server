@@ -23,7 +23,7 @@ export class StaticGameServer extends GameServer {
   isOnline!: boolean; // was the server online last we checked
 
   @Prop({ default: true })
-  clean!: boolean; // is the server cleaned up after the last game
+  isClean!: boolean; // is the server cleaned up after the last game
 
   @Prop({ default: () => new Date() })
   lastHeartbeatAt?: Date;

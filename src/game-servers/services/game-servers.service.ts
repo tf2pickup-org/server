@@ -4,9 +4,10 @@ import { Events } from '@/events/events';
 import { GamesService } from '@/games/services/games.service';
 import { GameServer, GameServerDocument } from '../models/game-server';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, Types, UpdateQuery } from 'mongoose';
+import { Error, Model, Types, UpdateQuery } from 'mongoose';
 import { instantiateGameServer } from '../instantiate-game-server';
 import { concatMap, distinctUntilChanged, filter, groupBy } from 'rxjs';
+import { StaticGameServersService } from '../providers/static-game-server/services/static-game-servers.service';
 
 @Injectable()
 export class GameServersService implements OnModuleInit {
@@ -18,6 +19,7 @@ export class GameServersService implements OnModuleInit {
     private gamesService: GamesService,
     @InjectModel(GameServer.name)
     private gameServerModel: Model<GameServerDocument>,
+    private staticGameServersService: StaticGameServersService,
   ) {}
 
   onModuleInit() {
@@ -61,12 +63,23 @@ export class GameServersService implements OnModuleInit {
     return newGameServer;
   }
 
-  async findFreeGameServer(): Promise<GameServer> {}
+  async findFreeGameServer(): Promise<GameServer> {
+    const staticGameServers =
+      await this.staticGameServersService.getCleanGameServers();
+    if (staticGameServers.length > 0) {
+      return staticGameServers[0];
+    }
+
+    throw new Error('no free game server available');
+  }
 
   async assignGameServer(gameId: string): Promise<GameServer> {
     return this.mutex.runExclusive(async () => {
       const game = await this.gamesService.getById(gameId);
       let gameServer = await this.findFreeGameServer();
+      this.logger.log(
+        `Using gameserver ${gameServer.name} for game #${game.number}`,
+      );
       gameServer = await this.updateGameServer(gameServer.id, {
         game: game._id,
       });

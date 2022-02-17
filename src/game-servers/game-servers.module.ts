@@ -14,7 +14,6 @@ import { staticGameServerSchema } from './providers/static-game-server/models/st
   imports: [
     LogReceiverModule,
     forwardRef(() => GamesModule),
-    StaticGameServerModule,
     MongooseModule.forFeature([
       {
         name: GameServer.name,
@@ -27,6 +26,7 @@ import { staticGameServerSchema } from './providers/static-game-server/models/st
         ],
       },
     ]),
+    StaticGameServerModule,
   ],
   exports: [GameServersService],
   controllers: [GameServersController, GameServerDiagnosticsController],

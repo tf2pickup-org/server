@@ -18,6 +18,8 @@ import {
 } from '@nestjs/mongoose';
 import { GamesService } from '@/games/services/games.service';
 import { GameState } from '@/games/models/game-state';
+import { StaticGameServersService } from '../providers/static-game-server/services/static-game-servers.service';
+import { StaticGameServer } from '../providers/static-game-server/models/static-game-server';
 
 jest.mock('@/games/services/games.service');
 
@@ -29,6 +31,7 @@ describe('GameServersService', () => {
   let testGameServer: GameServerDocument;
   let events: Events;
   let connection: Connection;
+  let staticGameServersService: jest.Mocked<StaticGameServersService>;
 
   beforeAll(async () => (mongod = await MongoMemoryServer.create()));
   afterAll(async () => await mongod.stop());
@@ -42,7 +45,12 @@ describe('GameServersService', () => {
           { name: Game.name, schema: gameSchema },
         ]),
       ],
-      providers: [GameServersService, Events, GamesService],
+      providers: [
+        GameServersService,
+        Events,
+        GamesService,
+        StaticGameServersService,
+      ],
     }).compile();
 
     service = module.get<GameServersService>(GameServersService);
@@ -50,6 +58,7 @@ describe('GameServersService', () => {
     gameModel = module.get(getModelToken(Game.name));
     events = module.get(Events);
     connection = module.get(getConnectionToken());
+    staticGameServersService = module.get(StaticGameServersService);
   });
 
   beforeEach(async () => {
@@ -72,81 +81,10 @@ describe('GameServersService', () => {
     expect(service).toBeDefined();
   });
 
-  describe('#onModuleInit()', () => {
-    beforeEach(async () => {
-      const fiveMinutesAgo = new Date();
-      fiveMinutesAgo.setMinutes(fiveMinutesAgo.getMinutes() - 5);
-      testGameServer.lastHeartbeatAt = fiveMinutesAgo;
-      await testGameServer.save();
-    });
-
-    it('should mark dead gameservers as offline', async () => {
-      await service.onModuleInit();
-      const gameServer = await gameServerModel.findById(testGameServer.id);
-      expect(gameServer.isOnline).toBe(false);
-    });
-  });
-
-  describe('#getAllServers()', () => {
-    it('should return all game servers', async () => {
-      const ret = await service.getAllGameServers();
-      expect(ret.length).toBe(1);
-      expect(ret[0].id).toEqual(testGameServer.id);
-    });
-
-    describe('when a server is deleted', () => {
-      beforeEach(async () => {
-        testGameServer.isOnline = false;
-        await testGameServer.save();
-      });
-
-      it('should not list dead server', async () => {
-        const ret = await service.getAllGameServers();
-        expect(ret.length).toBe(0);
-      });
-    });
-  });
-
   describe('#getById()', () => {
     it('should return the requested game server', async () => {
       const ret = await service.getById(testGameServer.id);
       expect(ret.id).toEqual(testGameServer.id);
-    });
-  });
-
-  describe('#heartbeat()', () => {
-    describe('when adding a new gameserver', () => {
-      it('should add the gameserver', async () => {
-        const ret = await service.heartbeat({
-          name: 'test game server',
-          address: '193.70.80.2',
-          port: '27015',
-          rconPassword: '123456',
-          internalIpAddress: '127.0.0.1',
-        });
-        expect(ret).toBeTruthy();
-        expect(ret.name).toEqual('test game server');
-        expect(ret.isOnline).toBe(true);
-
-        expect(await gameServerModel.findById(ret.id)).toBeTruthy();
-      });
-
-      it('should emit gameServerAdded event', async () => {
-        let emittedGameServer: GameServer;
-        events.gameServerAdded.subscribe(({ gameServer }) => {
-          emittedGameServer = gameServer;
-        });
-        await service.heartbeat({
-          name: 'test game server',
-          address: '193.70.80.2',
-          port: '27015',
-          rconPassword: '123456',
-          internalIpAddress: '127.0.0.1',
-        });
-        expect(emittedGameServer).toBeTruthy();
-        expect(emittedGameServer.name).toEqual('test game server');
-        expect(emittedGameServer.isOnline).toBe(true);
-      });
     });
   });
 
@@ -178,90 +116,38 @@ describe('GameServersService', () => {
     });
   });
 
-  describe('#markAsOffline()', () => {
-    it('should mark the given game server as offline', async () => {
-      const ret = await service.markAsOffline(testGameServer.id);
-      expect(ret.isOnline).toBe(false);
-      expect((await gameServerModel.findById(ret.id)).isOnline).toBe(false);
-    });
-
-    it('should emit the gameServerUpdated event', async () => {
-      let givenGameServerId: string;
-
-      events.gameServerUpdated.subscribe(({ newGameServer }) => {
-        givenGameServerId = newGameServer.id;
-      });
-
-      await service.markAsOffline(testGameServer.id);
-      expect(givenGameServerId).toEqual(testGameServer.id);
-    });
-  });
-
   describe('#findFreeGameServer()', () => {
-    describe('when the server is online but taken', () => {
-      beforeEach(async () => {
-        const game1 = await gameModel.create({
-          number: 2,
-          map: 'cp_badlands',
-          slots: [],
-          state: GameState.started,
-        });
-
-        testGameServer.game = new ObjectId(game1.id);
-        testGameServer.isOnline = true;
-        await testGameServer.save();
+    describe('when there is a static server available', () => {
+      beforeEach(() => {
+        staticGameServersService.getCleanGameServers.mockResolvedValue([
+          {
+            name: 'TEST_STATIC_GAME_SERVER',
+            address: 'localhost',
+            port: '27015',
+            rconPassword: '123456',
+            isOnline: true,
+          } as StaticGameServer,
+        ]);
       });
 
-      it('should throw an error', async () => {
-        await expect(service.findFreeGameServer()).rejects.toThrowError();
-      });
-    });
-
-    describe('when the server is free but offline', () => {
-      beforeEach(async () => {
-        testGameServer.isOnline = false;
-        await testGameServer.save();
-      });
-
-      it('should throw an error', async () => {
-        await expect(service.findFreeGameServer()).rejects.toThrowError();
-      });
-    });
-
-    describe('when the server is both free and online', () => {
-      beforeEach(async () => {
-        testGameServer.isOnline = true;
-        await testGameServer.save();
-      });
-
-      it('should return this game server', async () => {
-        expect((await service.findFreeGameServer()).id).toEqual(
-          testGameServer.id,
-        );
-      });
-    });
-
-    describe('when there are more then one game servers', () => {
-      beforeEach(async () => {
-        await gameServerModel.create({
-          name: 'TEST_GAME_SERVER_2',
-          address: 'localhost',
-          port: '27025',
-          rconPassword: '123456',
-          isOnline: true,
-          priority: 2,
-        });
-      });
-
-      it('should pick the one with the highest priority', async () => {
+      it('should return the game server', async () => {
         const gameServer = await service.findFreeGameServer();
-        expect(gameServer.name).toEqual('TEST_GAME_SERVER_2');
-        expect(gameServer.priority).toEqual(2);
+        expect(gameServer.name).toEqual('TEST_STATIC_GAME_SERVER');
+      });
+    });
+
+    describe('when there are no free game servers', () => {
+      beforeEach(() => {
+        staticGameServersService.getCleanGameServers.mockResolvedValue([]);
+      });
+
+      it('should throw an error', async () => {
+        await expect(service.findFreeGameServer()).rejects.toThrowError();
       });
     });
   });
 
-  describe('#assignFreeGameServer()', () => {
+  describe('#assignGameServer()', () => {
     let game: GameDocument;
 
     beforeEach(async () => {
@@ -270,13 +156,10 @@ describe('GameServersService', () => {
         map: 'cp_badlands',
         slots: [],
       });
-
-      testGameServer.isOnline = true;
-      await testGameServer.save();
     });
 
     it('should assign the server', async () => {
-      const gameServer = await service.assignFreeGameServer(game.id);
+      const gameServer = await service.assignGameServer(game.id);
       expect(gameServer.game.toString()).toEqual(game.id);
       const updatedGame = await gameModel.findById(game.id);
       expect(updatedGame.gameServer.toString()).toEqual(gameServer.id);
@@ -289,29 +172,19 @@ describe('GameServersService', () => {
           map: 'cp_badlands',
           slots: [],
         });
-        await service.assignFreeGameServer(game2.id);
+        await service.assignGameServer(game2.id);
       });
 
       it('should throw', async () => {
-        await expect(
-          service.assignFreeGameServer(game.id),
-        ).rejects.toThrowError();
+        await expect(service.assignGameServer(game.id)).rejects.toThrowError();
       });
     });
   });
 
-  describe('#releaseServer()', () => {
+  describe('#releaseGameServer()', () => {
     it('should remove the game property', async () => {
-      await service.releaseServer(testGameServer.id);
+      await service.releaseGameServer(testGameServer.id);
       expect((await service.getById(testGameServer.id)).game).toBe(undefined);
-    });
-
-    describe('when the game server does not exist', () => {
-      it('should throw an error', async () => {
-        await expect(
-          service.releaseServer(new ObjectId().toString()),
-        ).rejects.toThrow(Error.DocumentNotFoundError);
-      });
     });
   });
 });

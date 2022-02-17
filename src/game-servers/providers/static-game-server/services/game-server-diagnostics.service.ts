@@ -15,6 +15,7 @@ import {
   GameServerDiagnosticRunDocument,
 } from '../models/game-server-diagnostic-run';
 import { GameServersService } from '../../../services/game-servers.service';
+import { StaticGameServer } from '../models/static-game-server';
 
 @Injectable()
 export class GameServerDiagnosticsService {
@@ -88,9 +89,9 @@ export class GameServerDiagnosticsService {
       let shouldStop = false;
 
       const fn = async () => {
-        const gameServer = await this.gameServersService.getById(
+        const gameServer = (await this.gameServersService.getById(
           diagnosticRun.gameServer.toString(),
-        );
+        )) as StaticGameServer;
 
         this.logger.log(`Starting diagnostics of ${gameServer.name}...`);
 

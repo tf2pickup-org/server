@@ -53,6 +53,7 @@ export class StaticGameServersService implements OnModuleInit {
         );
       });
 
+    // log when a server is back online
     this.events.gameServerUpdated
       .pipe(
         filter(({ newGameServer }) => isStaticGameServer(newGameServer)),
@@ -68,6 +69,7 @@ export class StaticGameServersService implements OnModuleInit {
         );
       });
 
+    // log when a server is offline
     this.events.gameServerUpdated
       .pipe(
         filter(({ newGameServer }) => isStaticGameServer(newGameServer)),
@@ -83,6 +85,18 @@ export class StaticGameServersService implements OnModuleInit {
         );
       });
 
+    // mark the server as dirty when it's taken
+    this.events.gameServerUpdated
+      .pipe(
+        filter(({ newGameServer }) => isStaticGameServer(newGameServer)),
+        filter(
+          ({ oldGameServer, newGameServer }) =>
+            !oldGameServer.game && !!newGameServer.game,
+        ),
+      )
+      .subscribe(({ newGameServer }) => this.markAsDirty(newGameServer.id));
+
+    // cleanup the server when it's released
     this.events.gameServerUpdated
       .pipe(
         filter(({ newGameServer }) => isStaticGameServer(newGameServer)),
@@ -104,6 +118,22 @@ export class StaticGameServersService implements OnModuleInit {
       StaticGameServer,
       await this.gameServerModel
         .find({ provider: GameServerProvider.static, isOnline: true })
+        .lean()
+        .exec(),
+    );
+  }
+
+  async getCleanGameServers(): Promise<StaticGameServer[]> {
+    return plainToInstance(
+      StaticGameServer,
+      await this.gameServerModel
+        .find({
+          provider: GameServerProvider.static,
+          isOnline: true,
+          game: { $exists: false },
+          isClean: true,
+        })
+        .sort({ priority: -1 })
         .lean()
         .exec(),
     );
@@ -181,6 +211,13 @@ export class StaticGameServersService implements OnModuleInit {
     );
   }
 
+  async markAsDirty(gameServerId: string): Promise<GameServer> {
+    return await this.gameServersService.updateGameServer<StaticGameServer>(
+      gameServerId,
+      { isClean: false },
+    );
+  }
+
   async cleanupServer(gameServerId: string) {
     const gameServer = await this.gameServersService.getById(gameServerId);
     let rcon: Rcon;
@@ -196,7 +233,7 @@ export class StaticGameServersService implements OnModuleInit {
       await rcon.send(disablePlayerWhitelist());
       await this.gameServersService.updateGameServer<StaticGameServer>(
         gameServerId,
-        { clean: true },
+        { isClean: true },
       );
       this.logger.verbose(`[${gameServer.name}] server cleaned up`);
     } catch (error) {
