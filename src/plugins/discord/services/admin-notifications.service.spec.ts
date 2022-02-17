@@ -1,6 +1,8 @@
 import { Environment } from '@/environment/environment';
 import { Events } from '@/events/events';
 import { GameServer } from '@/game-servers/models/game-server';
+import { GameServerProvider } from '@/game-servers/models/game-server-provider';
+import { StaticGameServer } from '@/game-servers/providers/static-game-server/models/static-game-server';
 import { Game, gameSchema } from '@/games/models/game';
 import { GameState } from '@/games/models/game-state';
 import { GamesService } from '@/games/services/games.service';
@@ -273,7 +275,7 @@ describe('AdminNotificationsService', () => {
         });
 
         events.gameServerAdded.next({
-          gameServer: { name: 'fake game server' } as GameServer,
+          gameServer: { name: 'fake game server' } as StaticGameServer,
         });
       }));
   });
@@ -289,11 +291,13 @@ describe('AdminNotificationsService', () => {
         oldGameServer: {
           name: 'fake game server',
           isOnline: true,
-        } as GameServer,
+          provider: GameServerProvider.static,
+        } as StaticGameServer,
         newGameServer: {
           name: 'fake game server',
           isOnline: false,
-        } as GameServer,
+          provider: GameServerProvider.static,
+        } as StaticGameServer,
       });
     });
   });
@@ -309,11 +313,13 @@ describe('AdminNotificationsService', () => {
         oldGameServer: {
           name: 'fake game server',
           isOnline: false,
-        } as GameServer,
+          provider: GameServerProvider.static,
+        } as StaticGameServer,
         newGameServer: {
           name: 'fake game server',
           isOnline: true,
-        } as GameServer,
+          provider: GameServerProvider.static,
+        } as StaticGameServer,
       });
     });
   });

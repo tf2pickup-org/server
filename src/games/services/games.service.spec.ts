@@ -32,7 +32,7 @@ import {
   SelectedVoiceServer,
   VoiceServer,
 } from '@/configuration/models/voice-server';
-import { retryWhen } from 'rxjs';
+import { StaticGameServer } from '@/game-servers/providers/static-game-server/models/static-game-server';
 
 jest.mock('@/players/services/players.service');
 jest.mock('@/players/services/player-skill.service');
@@ -659,7 +659,7 @@ describe('GamesService', () => {
 
           gameServer = {
             voiceChannelName: '7',
-          } as GameServer;
+          } as StaticGameServer;
           gameServersService.getById.mockResolvedValue(gameServer);
         });
 

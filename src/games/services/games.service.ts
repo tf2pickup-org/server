@@ -312,9 +312,10 @@ export class GamesService {
           game.gameServer.toString(),
         );
 
-        const voiceChannelName = isEmpty(gameServer.voiceChannelName)
-          ? toValidMumbleChannelName(gameServer.name)
-          : gameServer.voiceChannelName;
+        // const voiceChannelName = isEmpty(gameServer.voiceChannelName)
+        //   ? toValidMumbleChannelName(gameServer.name)
+        //   : gameServer.voiceChannelName;
+        const voiceChannelName = toValidMumbleChannelName(gameServer.name);
 
         const url = new URL(`mumble://${voiceServer.mumble.url}`);
         url.pathname = `${

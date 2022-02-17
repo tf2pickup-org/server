@@ -3,7 +3,6 @@ import { GameRuntimeService } from './game-runtime.service';
 import { GamesService } from './games.service';
 import { GameServersService } from '@/game-servers/services/game-servers.service';
 import { ServerConfiguratorService } from './server-configurator.service';
-import { RconFactoryService } from './rcon-factory.service';
 import { PlayersService } from '@/players/services/players.service';
 import { say } from '../utils/rcon-commands';
 import { Tf2Team } from '../models/tf2-team';
@@ -19,14 +18,12 @@ import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { getConnectionToken, MongooseModule } from '@nestjs/mongoose';
 import { Connection, Error, Types } from 'mongoose';
 import { GameServerNotAssignedError } from '../errors/game-server-not-assigned.error';
-import { GameServerCleanUpService } from './game-server-clean-up.service';
+import { GameServerProvider } from '@/game-servers/models/game-server-provider';
 
 jest.mock('./games.service');
 jest.mock('@/game-servers/services/game-servers.service');
 jest.mock('./server-configurator.service');
-jest.mock('./rcon-factory.service');
 jest.mock('@/players/services/players.service');
-jest.mock('./game-server-clean-up.service');
 
 class RconStub {
   send(cmd: string) {
@@ -44,13 +41,11 @@ describe('GameRuntimeService', () => {
   let gamesService: GamesService;
   let gameServersService: jest.Mocked<GameServersService>;
   let serverConfiguratorService: jest.Mocked<ServerConfiguratorService>;
-  let rconFactoryService: RconFactoryService;
   let mockGameServer: GameServer & { id: string };
   let mockPlayers: PlayerDocument[];
   let mockGame: GameDocument;
   let events: Events;
   let connection: Connection;
-  let gameServerCleanUpService: jest.Mocked<GameServerCleanUpService>;
 
   beforeAll(async () => (mongod = await MongoMemoryServer.create()));
   afterAll(async () => await mongod.stop());
@@ -69,10 +64,8 @@ describe('GameRuntimeService', () => {
         GamesService,
         GameServersService,
         ServerConfiguratorService,
-        RconFactoryService,
         PlayersService,
         Events,
-        GameServerCleanUpService,
       ],
     }).compile();
 
@@ -81,10 +74,8 @@ describe('GameRuntimeService', () => {
     gamesService = module.get(GamesService);
     gameServersService = module.get(GameServersService);
     serverConfiguratorService = module.get(ServerConfiguratorService);
-    rconFactoryService = module.get(RconFactoryService);
     events = module.get(Events);
     connection = module.get(getConnectionToken());
-    gameServerCleanUpService = module.get(GameServerCleanUpService);
   });
 
   beforeEach(async () => {
@@ -92,14 +83,10 @@ describe('GameRuntimeService', () => {
       id: new ObjectId().toString(),
       name: 'FAKE_GAME_SERVER',
       address: 'FAKE_ADDRESS',
-      internalIpAddress: 'FAKE_INTERNAL_IP_ADDRESS',
       port: '1234',
-      rconPassword: 'FAKE_RCON_PASSWORD',
       createdAt: new Date(),
-      isAvailable: true,
-      isOnline: true,
-      priority: 1,
-    };
+      provider: GameServerProvider.static,
+    } as GameServer;
 
     gameServersService.getById.mockResolvedValue(mockGameServer as any);
 
@@ -252,13 +239,6 @@ describe('GameRuntimeService', () => {
         const ret = await service.forceEnd(mockGame.id);
         expect(ret.slots[0].status).toEqual(SlotStatus.active);
       });
-    });
-
-    it('should clean up unsed game servers', async () => {
-      await service.forceEnd(mockGame.id);
-      expect(
-        gameServerCleanUpService.cleanupUnusedGameServers,
-      ).toHaveBeenCalled();
     });
   });
 
