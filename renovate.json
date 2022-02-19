@@ -12,5 +12,6 @@
       "automerge": true
     }
   ],
-  "labels": ["renovate"]
+  "labels": ["renovate"],
+  "ignoreDeps": ["mongo"]
 }
