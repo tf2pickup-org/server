@@ -161,7 +161,7 @@ export class StaticGameServersService implements OnModuleInit {
           {
             name: params.name,
             rconPassword: params.rconPassword,
-            voiceChannelName: params.voiceChannelName,
+            customVoiceChannelName: params.voiceChannelName,
             internalIpAddress: params.internalIpAddress,
             isOnline: true,
             lastHeartbeatAt: new Date(),

@@ -3,8 +3,10 @@ import { GameServerProvider } from '@/game-servers/models/game-server-provider';
 import { createRcon } from '@/utils/create-rcon';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Exclude } from 'class-transformer';
+import { isEmpty } from 'lodash';
 import { Document } from 'mongoose';
 import { Rcon } from 'rcon-client/lib';
+import { toValidMumbleChannelName } from '../utils/to-valid-mumble-channel-name';
 
 @Schema()
 export class StaticGameServer extends GameServer {
@@ -31,12 +33,21 @@ export class StaticGameServer extends GameServer {
   @Prop({ default: 1 })
   priority!: number;
 
+  @Prop()
+  customVoiceChannelName?: string;
+
   async rcon(): Promise<Rcon> {
     return createRcon({
       host: this.internalIpAddress,
       port: parseInt(this.port, 10),
       rconPassword: this.rconPassword,
     });
+  }
+
+  async voiceChannelName(): Promise<string> {
+    return isEmpty(this.customVoiceChannelName)
+      ? toValidMumbleChannelName(this.name)
+      : this.customVoiceChannelName;
   }
 }
 

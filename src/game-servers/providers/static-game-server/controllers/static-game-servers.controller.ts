@@ -11,7 +11,6 @@ import {
   UseFilters,
   HttpCode,
 } from '@nestjs/common';
-import { GameServersService } from '../../../services/game-servers.service';
 import { ObjectIdValidationPipe } from '@/shared/pipes/object-id-validation.pipe';
 import { Auth } from '@/auth/decorators/auth.decorator';
 import { DocumentNotFoundFilter } from '@/shared/filters/document-not-found.filter';
@@ -22,11 +21,14 @@ import { Secret } from '@/auth/decorators/secret.decorator';
 import { GameServerHeartbeat } from '../dto/game-server-heartbeat';
 import { RealIp } from 'nestjs-real-ip';
 import { SecretPurpose } from '@/auth/secret-purpose';
+import { StaticGameServersService } from '../services/static-game-servers.service';
+import { GameServersService } from '@/game-servers/services/game-servers.service';
 
-@Controller('game-servers')
-export class GameServersController {
+@Controller('game-servers/static')
+export class StaticGameServersController {
   constructor(
     private gameServersService: GameServersService,
+    private staticGameServersService: StaticGameServersService,
     private gameServerDiagnosticsService: GameServerDiagnosticsService,
     private environment: Environment,
   ) {}
@@ -34,7 +36,7 @@ export class GameServersController {
   @Get()
   @UseInterceptors(ClassSerializerInterceptor)
   async getAllGameServers() {
-    return await this.gameServersService.getAllGameServers();
+    return await this.staticGameServersService.getAllGameServers();
   }
 
   @Get(':id')
@@ -54,7 +56,7 @@ export class GameServersController {
     @Body() heartbeat: GameServerHeartbeat,
     @RealIp() internalIpAddress: string,
   ) {
-    return this.gameServersService.heartbeat({
+    return this.staticGameServersService.heartbeat({
       ...heartbeat,
       internalIpAddress: heartbeat.internalIpAddress ?? internalIpAddress,
     });

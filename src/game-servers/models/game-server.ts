@@ -36,6 +36,10 @@ export class GameServer extends MongooseDocument {
   async rcon(): Promise<Rcon> {
     throw new Error('not implemented');
   }
+
+  async voiceChannelName(): Promise<string> {
+    throw new Error('not implemented');
+  }
 }
 
 export type GameServerDocument = GameServer & Document;

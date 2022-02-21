@@ -1,7 +1,5 @@
 import { forwardRef, Module } from '@nestjs/common';
 import { GameServersService } from './services/game-servers.service';
-import { GameServersController } from './providers/static-game-server/controllers/game-servers.controller';
-import { GameServerDiagnosticsController } from './providers/static-game-server/controllers/game-server-diagnostics.controller';
 import { LogReceiverModule } from '@/log-receiver/log-receiver.module';
 import { GamesModule } from '@/games/games.module';
 import { StaticGameServerModule } from './providers/static-game-server/static-game-server.module';
@@ -29,6 +27,5 @@ import { staticGameServerSchema } from './providers/static-game-server/models/st
     StaticGameServerModule,
   ],
   exports: [GameServersService],
-  controllers: [GameServersController, GameServerDiagnosticsController],
 })
 export class GameServersModule {}

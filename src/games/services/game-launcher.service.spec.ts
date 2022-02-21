@@ -4,25 +4,17 @@ import { GamesService } from './games.service';
 import { GameServersService } from '@/game-servers/services/game-servers.service';
 import { ServerConfiguratorService } from './server-configurator.service';
 import { Events } from '@/events/events';
-import { GameServerDocument } from '@/game-servers/models/game-server';
+import { GameServer } from '@/game-servers/models/game-server';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
 import { getModelToken, MongooseModule } from '@nestjs/mongoose';
 import { Game, GameDocument, gameSchema } from '../models/game';
 import { Model, Types, Error } from 'mongoose';
+import { GameServerProvider } from '@/game-servers/models/game-server-provider';
 
 jest.mock('@/game-servers/services/game-servers.service');
 jest.mock('./games.service');
 jest.mock('./server-configurator.service');
-
-const mockGameServer = {
-  id: 'FAKE_GAME_SERVER_ID',
-  _id: 'FAKE_GAME_SERVER_ID',
-  name: 'FAKE_GAME_SERVER',
-  voiceChannelName: 'FAKE_SERVER_MUMBLE_CHANNEL_NAME',
-  game: undefined,
-  save: () => null,
-};
 
 describe('GameLauncherService', () => {
   let service: GameLauncherService;
@@ -32,6 +24,7 @@ describe('GameLauncherService', () => {
   let mongod: MongoMemoryServer;
   let game: GameDocument;
   let gameModel: Model<GameDocument>;
+  let mockGameServer: jest.Mocked<GameServer>;
 
   beforeAll(async () => (mongod = await MongoMemoryServer.create()));
   afterAll(async () => await mongod.stop());
@@ -61,12 +54,23 @@ describe('GameLauncherService', () => {
     gameServersService = module.get(GameServersService);
     serverConfiguratorService = module.get(ServerConfiguratorService);
     gameModel = module.get(getModelToken(Game.name));
+
+    mockGameServer = {
+      id: 'FAKE_GAME_SERVER_ID',
+      provider: GameServerProvider.static,
+      createdAt: new Date(),
+      name: 'FAKE_GAME_SERVER',
+      address: 'localhost',
+      port: '27015',
+      rcon: jest.fn().mockRejectedValue(new Error('not implemented')),
+      voiceChannelName: jest
+        .fn()
+        .mockRejectedValue(new Error('not implemented')),
+    };
   });
 
   beforeEach(async () => {
-    gameServersService.assignFreeGameServer.mockResolvedValue(
-      mockGameServer as GameServerDocument,
-    );
+    gameServersService.assignGameServer.mockResolvedValue(mockGameServer);
 
     serverConfiguratorService.configureServer.mockResolvedValue({
       connectString: 'FAKE_CONNECT_STRING',

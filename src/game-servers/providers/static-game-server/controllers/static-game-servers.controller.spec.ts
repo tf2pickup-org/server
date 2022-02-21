@@ -1,31 +1,23 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { GameServersController } from './game-servers.controller';
+import { StaticGameServersController } from './static-game-servers.controller';
 import { GameServersService } from '../../../services/game-servers.service';
-import { GameServer } from '../../../models/game-server';
 import { GameServerDiagnosticsService } from '../services/game-server-diagnostics.service';
 import { Environment } from '@/environment/environment';
+import { GameServerProvider } from '@/game-servers/models/game-server-provider';
+import { StaticGameServersService } from '../services/static-game-servers.service';
+import { StaticGameServer } from '../models/static-game-server';
 
-const mockGameServer: GameServer = {
-  name: 'FAKE_NAME',
-  address: 'FAKE_ADDRESS',
-  port: '27015',
-  rconPassword: 'FAKE_RCON_PASSWORD',
-  internalIpAddress: 'FAKE_INTERNAL_IP_ADDRESS',
-  id: 'FAKE_GAME_SERVER_ID',
-  createdAt: new Date(),
-  isAvailable: true,
-  isOnline: true,
-  priority: 1,
-};
-
-jest.mock('../services/game-servers.service');
+jest.mock('../../../services/game-servers.service');
 jest.mock('../services/game-server-diagnostics.service');
+jest.mock('../services/static-game-servers.service');
 
 describe('GameServers Controller', () => {
-  let controller: GameServersController;
+  let controller: StaticGameServersController;
   let gameServersService: jest.Mocked<GameServersService>;
   let gameServerDiagnosticsService: jest.Mocked<GameServerDiagnosticsService>;
   let environment: Partial<Environment>;
+  let mockGameServer: jest.Mocked<StaticGameServer>;
+  let mockStaticGameServersService: jest.Mocked<StaticGameServersService>;
 
   beforeEach(() => {
     environment = {
@@ -39,13 +31,36 @@ describe('GameServers Controller', () => {
         GameServersService,
         GameServerDiagnosticsService,
         { provide: Environment, useValue: environment },
+        StaticGameServersService,
       ],
-      controllers: [GameServersController],
+      controllers: [StaticGameServersController],
     }).compile();
 
-    controller = module.get<GameServersController>(GameServersController);
+    controller = module.get<StaticGameServersController>(
+      StaticGameServersController,
+    );
     gameServersService = module.get(GameServersService);
     gameServerDiagnosticsService = module.get(GameServerDiagnosticsService);
+    mockStaticGameServersService = module.get(StaticGameServersService);
+  });
+
+  beforeEach(() => {
+    mockGameServer = {
+      id: 'FAKE_GAME_SERVER_ID',
+      provider: GameServerProvider.static,
+      createdAt: new Date(),
+      name: 'FAKE_GAME_SERVER',
+      address: 'localhost',
+      port: '27015',
+      rcon: jest.fn(),
+      voiceChannelName: jest.fn(),
+      internalIpAddress: 'localhost',
+      rconPassword: 'FAKE_RCON_PASSWORD',
+      isOnline: true,
+      isClean: true,
+      lastHeartbeatAt: new Date(),
+      priority: 1,
+    };
   });
 
   it('should be defined', () => {
@@ -54,19 +69,21 @@ describe('GameServers Controller', () => {
 
   describe('#getAllGameServers()', () => {
     beforeEach(() => {
-      gameServersService.getAllGameServers.mockResolvedValue([mockGameServer]);
+      mockStaticGameServersService.getAllGameServers.mockResolvedValue([
+        mockGameServer,
+      ]);
     });
 
     it('should call service', async () => {
       const ret = await controller.getAllGameServers();
-      expect(gameServersService.getAllGameServers).toHaveBeenCalled();
+      expect(mockStaticGameServersService.getAllGameServers).toHaveBeenCalled();
       expect(ret).toEqual([mockGameServer]);
     });
   });
 
   describe('#gameServerHeartbeat()', () => {
     beforeEach(() => {
-      gameServersService.heartbeat.mockResolvedValue(mockGameServer);
+      mockStaticGameServersService.heartbeat.mockResolvedValue(mockGameServer);
     });
 
     describe('when the caller does not provide its own internal IP address', () => {
@@ -80,7 +97,7 @@ describe('GameServers Controller', () => {
           },
           'FAKE_INTERNAL_ADDRESS',
         );
-        expect(gameServersService.heartbeat).toHaveBeenCalledWith({
+        expect(mockStaticGameServersService.heartbeat).toHaveBeenCalledWith({
           name: 'FAKE_GAMESERVER_NAME',
           address: 'FAKE_GAMESERVER_ADDRESS',
           port: '27015',
@@ -103,7 +120,7 @@ describe('GameServers Controller', () => {
           },
           'FAKE_INTERNAL_ADDRESS',
         );
-        expect(gameServersService.heartbeat).toHaveBeenCalledWith({
+        expect(mockStaticGameServersService.heartbeat).toHaveBeenCalledWith({
           name: 'FAKE_GAMESERVER_NAME',
           address: 'FAKE_GAMESERVER_ADDRESS',
           port: '27015',

@@ -19,20 +19,13 @@ import { getConnectionToken, MongooseModule } from '@nestjs/mongoose';
 import { Connection, Error, Types } from 'mongoose';
 import { GameServerNotAssignedError } from '../errors/game-server-not-assigned.error';
 import { GameServerProvider } from '@/game-servers/models/game-server-provider';
+import { Rcon } from 'rcon-client/lib';
 
 jest.mock('./games.service');
 jest.mock('@/game-servers/services/game-servers.service');
 jest.mock('./server-configurator.service');
 jest.mock('@/players/services/players.service');
-
-class RconStub {
-  send(cmd: string) {
-    return Promise.resolve();
-  }
-  end() {
-    return Promise.resolve();
-  }
-}
+jest.mock('rcon-client/lib');
 
 describe('GameRuntimeService', () => {
   let service: GameRuntimeService;
@@ -41,7 +34,7 @@ describe('GameRuntimeService', () => {
   let gamesService: GamesService;
   let gameServersService: jest.Mocked<GameServersService>;
   let serverConfiguratorService: jest.Mocked<ServerConfiguratorService>;
-  let mockGameServer: GameServer & { id: string };
+  let mockGameServer: jest.Mocked<GameServer>;
   let mockPlayers: PlayerDocument[];
   let mockGame: GameDocument;
   let events: Events;
@@ -86,7 +79,9 @@ describe('GameRuntimeService', () => {
       port: '1234',
       createdAt: new Date(),
       provider: GameServerProvider.static,
-    } as GameServer;
+      rcon: jest.fn().mockRejectedValue('not implemented'),
+      voiceChannelName: jest.fn(),
+    };
 
     gameServersService.getById.mockResolvedValue(mockGameServer as any);
 
@@ -243,12 +238,11 @@ describe('GameRuntimeService', () => {
   });
 
   describe('#replacePlayer()', () => {
-    let rcon: RconStub;
+    let rcon: jest.Mocked<Rcon>;
 
     beforeEach(() => {
-      rcon = new RconStub();
-      // @ts-expect-error
-      rconFactoryService.createRcon = () => Promise.resolve(rcon);
+      rcon = new (Rcon as any)();
+      mockGameServer.rcon.mockResolvedValue(rcon);
     });
 
     describe('when the given game does not exist', () => {
@@ -286,17 +280,16 @@ describe('GameRuntimeService', () => {
 
     describe('when an rcon error occurs', () => {
       beforeEach(() => {
-        rcon.send = () => Promise.reject('fake rcon error');
+        rcon.send.mockRejectedValue(new Error('fake rcon error'));
       });
 
       it('should close the RCON connection', async () => {
-        const spy = jest.spyOn(rcon, 'end');
         await service.replacePlayer(mockGame.id, mockPlayers[0].id, {
           player: new ObjectId(),
           team: Tf2Team.red,
           gameClass: Tf2ClassName.soldier,
         });
-        expect(spy).toHaveBeenCalled();
+        expect(rcon.end).toHaveBeenCalled();
       });
     });
 
@@ -312,12 +305,11 @@ describe('GameRuntimeService', () => {
   });
 
   describe('#sayChat()', () => {
-    let rcon: RconStub;
+    let rcon: jest.Mocked<Rcon>;
 
     beforeEach(() => {
-      rcon = new RconStub();
-      // @ts-expect-error
-      rconFactoryService.createRcon = () => Promise.resolve(rcon);
+      rcon = new (Rcon as any)();
+      mockGameServer.rcon.mockResolvedValue(rcon);
     });
 
     describe('when the given game server does not exist', () => {
@@ -335,20 +327,18 @@ describe('GameRuntimeService', () => {
     });
 
     it('should execute the correct commands', async () => {
-      const spy = jest.spyOn(rcon, 'send');
       await service.sayChat(mockGameServer.id, 'some message');
-      expect(spy).toHaveBeenCalledWith(say('some message'));
+      expect(rcon.send).toHaveBeenCalledWith(say('some message'));
     });
 
     describe('when an rcon error occurs', () => {
       beforeEach(() => {
-        rcon.send = () => Promise.reject(new Error('fake rcon error'));
+        rcon.send.mockRejectedValue(new Error('fake rcon error'));
       });
 
       it('should close the RCON connection', async () => {
-        const spy = jest.spyOn(rcon, 'end');
         await service.sayChat(mockGameServer.id, 'some message');
-        expect(spy).toHaveBeenCalled();
+        expect(rcon.end).toHaveBeenCalled();
       });
     });
   });

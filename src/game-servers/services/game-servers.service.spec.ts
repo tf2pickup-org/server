@@ -5,7 +5,6 @@ import {
   GameServerDocument,
   GameServerSchema,
 } from '../models/game-server';
-import { ObjectId } from 'mongodb';
 import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { Events } from '@/events/events';
@@ -17,11 +16,14 @@ import {
   MongooseModule,
 } from '@nestjs/mongoose';
 import { GamesService } from '@/games/services/games.service';
-import { GameState } from '@/games/models/game-state';
 import { StaticGameServersService } from '../providers/static-game-server/services/static-game-servers.service';
 import { StaticGameServer } from '../providers/static-game-server/models/static-game-server';
+import { GameServerProvider } from '../models/game-server-provider';
 
 jest.mock('@/games/services/games.service');
+jest.mock(
+  '../providers/static-game-server/services/static-game-servers.service',
+);
 
 describe('GameServersService', () => {
   let service: GameServersService;
@@ -63,11 +65,14 @@ describe('GameServersService', () => {
 
   beforeEach(async () => {
     testGameServer = await gameServerModel.create({
+      provider: GameServerProvider.static,
       name: 'TEST_GAME_SERVER',
       address: 'localhost',
       port: '27015',
+      internalIpAddress: '127.0.0.1',
       rconPassword: '123456',
       isOnline: true,
+      isClean: true,
     });
   });
 
@@ -156,6 +161,9 @@ describe('GameServersService', () => {
         map: 'cp_badlands',
         slots: [],
       });
+
+      const gs = (await service.getById(testGameServer.id)) as StaticGameServer;
+      staticGameServersService.getCleanGameServers.mockResolvedValue([gs]);
     });
 
     it('should assign the server', async () => {
@@ -167,12 +175,7 @@ describe('GameServersService', () => {
 
     describe('when there are no free game servers', () => {
       beforeEach(async () => {
-        const game2 = await gameModel.create({
-          number: 2,
-          map: 'cp_badlands',
-          slots: [],
-        });
-        await service.assignGameServer(game2.id);
+        staticGameServersService.getCleanGameServers.mockResolvedValue([]);
       });
 
       it('should throw', async () => {
