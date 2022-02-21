@@ -1112,16 +1112,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nestjs/axios@npm:0.0.5":
-  version: 0.0.5
-  resolution: "@nestjs/axios@npm:0.0.5"
+"@nestjs/axios@npm:0.0.6":
+  version: 0.0.6
+  resolution: "@nestjs/axios@npm:0.0.6"
   dependencies:
-    axios: 0.25.0
+    axios: 0.26.0
   peerDependencies:
     "@nestjs/common": ^7.0.0 || ^8.0.0
     reflect-metadata: ^0.1.12
     rxjs: ^6.0.0 || ^7.0.0
-  checksum: 24efde4fc548c12cb3de2b805be45cec1ea4edbd2488ddbf65d93caf2f829ed709c571858dd087d18a4b454eb62471afed76fca52e2852ce8a74b4fdf5029350
+  checksum: 4628d3c443b5de0f5644e38a52b877f84e592f4a71be8b2f88ad0d5f9b68a450dcd1c0313e59c09a02753b8f2773234c14901a553c60185f64c1ff68950aa97b
   languageName: node
   linkType: hard
 
@@ -3078,15 +3078,6 @@ __metadata:
   version: 1.0.0
   resolution: "at-least-node@npm:1.0.0"
   checksum: 463e2f8e43384f1afb54bc68485c436d7622acec08b6fad269b421cb1d29cebb5af751426793d0961ed243146fe4dc983402f6d5a51b720b277818dbf6f2e49e
-  languageName: node
-  linkType: hard
-
-"axios@npm:0.25.0":
-  version: 0.25.0
-  resolution: "axios@npm:0.25.0"
-  dependencies:
-    follow-redirects: ^1.14.7
-  checksum: 2a8a3787c05f2a0c9c3878f49782357e2a9f38945b93018fb0c4fd788171c43dceefbb577988628e09fea53952744d1ecebde234b561f1e703aa43e0a598a3ad
   languageName: node
   linkType: hard
 
@@ -5422,16 +5413,6 @@ __metadata:
     debug:
       optional: true
   checksum: d4ce74cf5c6f363168b97e706b914eb9ffb6bf4d4c6d8f8330b93088d9b90e566611ddbcf0e42c8ed5fd17598dfeda1d19230d3e9d6d6c6b4d1c10ec3a0b99be
-  languageName: node
-  linkType: hard
-
-"follow-redirects@npm:^1.14.7":
-  version: 1.14.7
-  resolution: "follow-redirects@npm:1.14.7"
-  peerDependenciesMeta:
-    debug:
-      optional: true
-  checksum: f6d03e5e30877431065bca0d1b2e3db93949eb799d368a5c07ea8a4b71205f0349a3f8f0191bf13a07c93885522834dca1dc8e527dc99a772c6911fba24edc5f
   languageName: node
   linkType: hard
 
@@ -9984,7 +9965,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "server@workspace:."
   dependencies:
-    "@nestjs/axios": 0.0.5
+    "@nestjs/axios": 0.0.6
     "@nestjs/cli": 8.2.1
     "@nestjs/common": 8.3.1
     "@nestjs/config": 1.2.0
