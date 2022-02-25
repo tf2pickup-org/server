@@ -1,4 +1,10 @@
-import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import {
+  forwardRef,
+  Inject,
+  Injectable,
+  Logger,
+  OnModuleInit,
+} from '@nestjs/common';
 import { Mutex } from 'async-mutex';
 import { Events } from '@/events/events';
 import { GamesService } from '@/games/services/games.service';
@@ -16,6 +22,7 @@ export class GameServersService implements OnModuleInit {
 
   constructor(
     private events: Events,
+    @Inject(forwardRef(() => GamesService))
     private gamesService: GamesService,
     @InjectModel(GameServer.name)
     private gameServerModel: Model<GameServerDocument>,

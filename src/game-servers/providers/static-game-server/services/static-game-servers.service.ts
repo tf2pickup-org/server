@@ -12,7 +12,13 @@ import {
   disablePlayerWhitelist,
 } from '@/games/utils/rcon-commands';
 import { serverCleanupDelay } from '@configs/game-servers';
-import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import {
+  forwardRef,
+  Inject,
+  Injectable,
+  Logger,
+  OnModuleInit,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { plainToInstance } from 'class-transformer';
@@ -42,6 +48,7 @@ export class StaticGameServersService implements OnModuleInit {
     @InjectModel(GameServer.name)
     private gameServerModel: Model<GameServerDocument>,
     private events: Events,
+    @Inject(forwardRef(() => GameServersService))
     private gameServersService: GameServersService,
     private environment: Environment,
   ) {

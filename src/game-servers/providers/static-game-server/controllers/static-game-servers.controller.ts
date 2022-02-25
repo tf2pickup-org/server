@@ -24,7 +24,7 @@ import { SecretPurpose } from '@/auth/secret-purpose';
 import { StaticGameServersService } from '../services/static-game-servers.service';
 import { GameServersService } from '@/game-servers/services/game-servers.service';
 
-@Controller('game-servers/static')
+@Controller(['game-servers/static', 'game-servers'])
 export class StaticGameServersController {
   constructor(
     private gameServersService: GameServersService,
