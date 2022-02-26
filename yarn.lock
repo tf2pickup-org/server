@@ -1798,10 +1798,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/cache-manager@npm:3.4.2":
-  version: 3.4.2
-  resolution: "@types/cache-manager@npm:3.4.2"
-  checksum: 121cad75d66da5e65aa9096dfe706d2ec696b20b6bd558128606063488dcedebdafaafc16b27ff620e1fd9c860ca64e088866f01e05cbaf0708a4d43b341c9d5
+"@types/cache-manager@npm:3.4.3":
+  version: 3.4.3
+  resolution: "@types/cache-manager@npm:3.4.3"
+  checksum: 0d01822a87eb8c1ea83dc45ee97139aad891764ffc9152170bb64981990b08f94a1e90549cbcbce83715f0712fc13c8b9ff922c240009f2b92482557becf66de
   languageName: node
   linkType: hard
 
@@ -9965,7 +9965,7 @@ __metadata:
     "@nestjs/testing": 8.3.1
     "@nestjs/websockets": 8.3.1
     "@release-it/conventional-changelog": 4.2.0
-    "@types/cache-manager": 3.4.2
+    "@types/cache-manager": 3.4.3
     "@types/express": 4.17.13
     "@types/helmet": 0.0.48
     "@types/jest": 27.4.1
