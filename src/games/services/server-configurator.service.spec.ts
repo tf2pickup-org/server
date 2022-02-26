@@ -144,7 +144,7 @@ describe('ServerConfiguratorService', () => {
   });
 
   describe('#configureServer()', () => {
-    const stableTestCoefficient = 6;
+    const stableTestCoefficient = 7;
     let player1: PlayerDocument;
     let player2: PlayerDocument;
     let rcon: RconStub;
