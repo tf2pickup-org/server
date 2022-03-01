@@ -10,5 +10,8 @@ export const instantiateGameServer = (
   switch (plain.provider) {
     case GameServerProvider.static:
       return plainToInstance(StaticGameServer, plain);
+
+    default:
+      throw new Error(`unknown gameserver provider: ${plain.provider}`);
   }
 };

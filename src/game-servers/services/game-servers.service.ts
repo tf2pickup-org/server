@@ -52,9 +52,9 @@ export class GameServersService implements OnModuleInit {
     return instantiateGameServer(plain);
   }
 
-  async updateGameServer<Type extends GameServer = GameServer>(
+  async updateGameServer(
     gameServerId: string | Types.ObjectId,
-    update: UpdateQuery<Type>,
+    update: UpdateQuery<GameServer>,
   ): Promise<GameServer> {
     const oldGameServer = await this.getById(gameServerId);
     const newGameServer = instantiateGameServer(

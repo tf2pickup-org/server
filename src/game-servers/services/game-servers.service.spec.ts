@@ -3,7 +3,7 @@ import { GameServersService } from './game-servers.service';
 import {
   GameServer,
   GameServerDocument,
-  GameServerSchema,
+  gameServerSchema,
 } from '../models/game-server';
 import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
 import { MongoMemoryServer } from 'mongodb-memory-server';
@@ -17,8 +17,12 @@ import {
 } from '@nestjs/mongoose';
 import { GamesService } from '@/games/services/games.service';
 import { StaticGameServersService } from '../providers/static-game-server/services/static-game-servers.service';
-import { StaticGameServer } from '../providers/static-game-server/models/static-game-server';
+import {
+  StaticGameServer,
+  StaticGameServerDocument,
+} from '../providers/static-game-server/models/static-game-server';
 import { GameServerProvider } from '../models/game-server-provider';
+import { staticGameServerModelProvider } from '../providers/static-game-server/static-game-server-model.provider';
 
 jest.mock('@/games/services/games.service');
 jest.mock(
@@ -28,7 +32,7 @@ jest.mock(
 describe('GameServersService', () => {
   let service: GameServersService;
   let mongod: MongoMemoryServer;
-  let gameServerModel: Model<GameServerDocument>;
+  let staticGameServerModel: Model<StaticGameServerDocument>;
   let gameModel: Model<GameDocument>;
   let testGameServer: GameServerDocument;
   let events: Events;
@@ -43,7 +47,7 @@ describe('GameServersService', () => {
       imports: [
         mongooseTestingModule(mongod),
         MongooseModule.forFeature([
-          { name: GameServer.name, schema: GameServerSchema },
+          { name: GameServer.name, schema: gameServerSchema },
           { name: Game.name, schema: gameSchema },
         ]),
       ],
@@ -52,11 +56,12 @@ describe('GameServersService', () => {
         Events,
         GamesService,
         StaticGameServersService,
+        staticGameServerModelProvider,
       ],
     }).compile();
 
     service = module.get<GameServersService>(GameServersService);
-    gameServerModel = module.get(getModelToken(GameServer.name));
+    staticGameServerModel = module.get(getModelToken(StaticGameServer.name));
     gameModel = module.get(getModelToken(Game.name));
     events = module.get(Events);
     connection = module.get(getConnectionToken());
@@ -64,8 +69,7 @@ describe('GameServersService', () => {
   });
 
   beforeEach(async () => {
-    testGameServer = await gameServerModel.create({
-      provider: GameServerProvider.static,
+    testGameServer = await staticGameServerModel.create({
       name: 'TEST_GAME_SERVER',
       address: 'localhost',
       port: '27015',
@@ -77,7 +81,7 @@ describe('GameServersService', () => {
   });
 
   afterEach(async () => {
-    await gameServerModel.deleteMany({});
+    await staticGameServerModel.deleteMany({});
     await gameModel.deleteMany({});
     await connection.close();
   });
@@ -99,9 +103,9 @@ describe('GameServersService', () => {
         name: 'updated game server',
       });
       expect(ret.name).toEqual('updated game server');
-      expect((await gameServerModel.findById(testGameServer.id)).name).toEqual(
-        'updated game server',
-      );
+      expect(
+        (await staticGameServerModel.findById(testGameServer.id)).name,
+      ).toEqual('updated game server');
     });
 
     it('should emit the gameServerUpdated event', async () => {

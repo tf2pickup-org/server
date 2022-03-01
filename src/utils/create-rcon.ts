@@ -1,4 +1,4 @@
-import { Rcon } from 'rcon-client/lib';
+import { Rcon } from 'rcon-client';
 
 interface CreateRconOptions {
   host: string;

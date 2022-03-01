@@ -1,33 +1,24 @@
 import { Environment } from '@/environment/environment';
 import { Events } from '@/events/events';
-import {
-  GameServer,
-  GameServerDocument,
-} from '@/game-servers/models/game-server';
+import { instantiateGameServer } from '@/game-servers/instantiate-game-server';
 import { GameServerProvider } from '@/game-servers/models/game-server-provider';
-import { GameServersService } from '@/game-servers/services/game-servers.service';
 import {
   logAddressDel,
   delAllGamePlayers,
   disablePlayerWhitelist,
 } from '@/games/utils/rcon-commands';
 import { serverCleanupDelay } from '@configs/game-servers';
-import {
-  forwardRef,
-  Inject,
-  Injectable,
-  Logger,
-  OnModuleInit,
-} from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { plainToInstance } from 'class-transformer';
-import { Model } from 'mongoose';
+import { Model, Types, UpdateQuery } from 'mongoose';
 import { Rcon } from 'rcon-client/lib';
 import { delay, filter } from 'rxjs/operators';
 import {
   isStaticGameServer,
   StaticGameServer,
+  StaticGameServerDocument,
 } from '../models/static-game-server';
 
 interface HeartbeatParams {
@@ -45,11 +36,9 @@ export class StaticGameServersService implements OnModuleInit {
   private readonly logger = new Logger(StaticGameServersService.name);
 
   constructor(
-    @InjectModel(GameServer.name)
-    private gameServerModel: Model<GameServerDocument>,
+    @InjectModel(StaticGameServer.name)
+    private staticGameServerModel: Model<StaticGameServerDocument>,
     private events: Events,
-    @Inject(forwardRef(() => GameServersService))
-    private gameServersService: GameServersService,
     private environment: Environment,
   ) {
     this.events.gameServerAdded
@@ -120,25 +109,54 @@ export class StaticGameServersService implements OnModuleInit {
     await this.removeDeadGameServers();
   }
 
+  async getById(
+    gameServerId: string | Types.ObjectId,
+  ): Promise<StaticGameServer> {
+    const plain = await this.staticGameServerModel
+      .findById(gameServerId)
+      .orFail()
+      .lean()
+      .exec();
+    return instantiateGameServer(plain);
+  }
+
   async getAllGameServers(): Promise<StaticGameServer[]> {
     return plainToInstance(
       StaticGameServer,
-      await this.gameServerModel
+      await this.staticGameServerModel
         .find({ provider: GameServerProvider.static, isOnline: true })
         .lean()
         .exec(),
     );
   }
 
+  async updateGameServer(
+    gameServerId: string | Types.ObjectId,
+    update: UpdateQuery<StaticGameServer>,
+  ): Promise<StaticGameServer> {
+    const oldGameServer = await this.getById(gameServerId);
+    const newGameServer = instantiateGameServer(
+      await this.staticGameServerModel
+        .findByIdAndUpdate(gameServerId, update, { new: true })
+        .lean()
+        .exec(),
+    );
+    this.events.gameServerUpdated.next({
+      oldGameServer,
+      newGameServer,
+    });
+    return newGameServer;
+  }
+
   async getCleanGameServers(): Promise<StaticGameServer[]> {
     return plainToInstance(
       StaticGameServer,
-      await this.gameServerModel
+      await this.staticGameServerModel
         .find({
           provider: GameServerProvider.static,
           isOnline: true,
-          game: { $exists: false },
           isClean: true,
+          game: { $exists: false },
         })
         .sort({ priority: -1 })
         .lean()
@@ -149,7 +167,7 @@ export class StaticGameServersService implements OnModuleInit {
   async heartbeat(params: HeartbeatParams): Promise<StaticGameServer> {
     const oldGameServer = plainToInstance(
       StaticGameServer,
-      await this.gameServerModel
+      await this.staticGameServerModel
         .findOne({
           address: params.address,
           port: params.port,
@@ -159,7 +177,7 @@ export class StaticGameServersService implements OnModuleInit {
     );
     const newGameServer = plainToInstance(
       StaticGameServer,
-      await this.gameServerModel
+      await this.staticGameServerModel
         .findOneAndUpdate(
           {
             address: params.address,
@@ -196,7 +214,7 @@ export class StaticGameServersService implements OnModuleInit {
 
     return plainToInstance(
       StaticGameServer,
-      await this.gameServerModel
+      await this.staticGameServerModel
         .find({
           provider: GameServerProvider.static,
           isOnline: true,
@@ -209,24 +227,16 @@ export class StaticGameServersService implements OnModuleInit {
     );
   }
 
-  async markAsOffline(gameServerId: string): Promise<GameServer> {
-    return this.gameServersService.updateGameServer<StaticGameServer>(
-      gameServerId,
-      {
-        isOnline: false,
-      },
-    );
+  async markAsOffline(gameServerId: string): Promise<StaticGameServer> {
+    return this.updateGameServer(gameServerId, { isOnline: false });
   }
 
-  async markAsDirty(gameServerId: string): Promise<GameServer> {
-    return await this.gameServersService.updateGameServer<StaticGameServer>(
-      gameServerId,
-      { isClean: false },
-    );
+  async markAsDirty(gameServerId: string): Promise<StaticGameServer> {
+    return await this.updateGameServer(gameServerId, { isClean: false });
   }
 
   async cleanupServer(gameServerId: string) {
-    const gameServer = await this.gameServersService.getById(gameServerId);
+    const gameServer = await this.getById(gameServerId);
     let rcon: Rcon;
     try {
       rcon = await gameServer.rcon();
@@ -238,10 +248,7 @@ export class StaticGameServersService implements OnModuleInit {
       await rcon.send(logAddressDel(logAddress));
       await rcon.send(delAllGamePlayers());
       await rcon.send(disablePlayerWhitelist());
-      await this.gameServersService.updateGameServer<StaticGameServer>(
-        gameServerId,
-        { isClean: true },
-      );
+      await this.updateGameServer(gameServerId, { isClean: true });
       this.logger.verbose(`[${gameServer.name}] server cleaned up`);
     } catch (error) {
       throw new Error(

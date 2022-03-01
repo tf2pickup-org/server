@@ -5,7 +5,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Exclude } from 'class-transformer';
 import { isEmpty } from 'lodash';
 import { Document } from 'mongoose';
-import { Rcon } from 'rcon-client/lib';
+import { Rcon } from 'rcon-client';
 import { toValidMumbleChannelName } from '../utils/to-valid-mumble-channel-name';
 
 @Schema()

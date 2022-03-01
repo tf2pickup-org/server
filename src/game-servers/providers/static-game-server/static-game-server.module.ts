@@ -11,6 +11,7 @@ import {
 } from './models/game-server-diagnostic-run';
 import { GameServerDiagnosticsService } from './services/game-server-diagnostics.service';
 import { StaticGameServersService } from './services/static-game-servers.service';
+import { staticGameServerModelProvider } from './static-game-server-model.provider';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { StaticGameServersService } from './services/static-game-servers.service
   ],
   providers: [
     StaticGameServersService,
+    staticGameServerModelProvider,
     GameServerDiagnosticsService,
     RconConnection,
     LogForwarding,

@@ -5,14 +5,13 @@ import { Expose, Transform } from 'class-transformer';
 import { Rcon } from 'rcon-client/lib';
 import { GameServerProvider } from './game-server-provider';
 
-@Schema()
+@Schema({ discriminatorKey: 'provider' })
 export class GameServer extends MongooseDocument {
+  provider: GameServerProvider;
+
   @Expose()
   @Transform(({ value, obj }) => value ?? obj._id?.toString())
   id!: string;
-
-  @Prop({ enum: GameServerProvider })
-  provider: GameServerProvider;
 
   @Prop({ default: () => new Date() })
   createdAt!: Date;
@@ -33,14 +32,20 @@ export class GameServer extends MongooseDocument {
   @Prop({ type: Types.ObjectId, ref: 'Game' })
   game?: Types.ObjectId; // currently running game
 
+  /**
+   * Create a new RCON connection to the gameserver.
+   */
   async rcon(): Promise<Rcon> {
     throw new Error('not implemented');
   }
 
+  /**
+   * The name of the voice channel for this gameserver.
+   */
   async voiceChannelName(): Promise<string> {
     throw new Error('not implemented');
   }
 }
 
 export type GameServerDocument = GameServer & Document;
-export const GameServerSchema = SchemaFactory.createForClass(GameServer);
+export const gameServerSchema = SchemaFactory.createForClass(GameServer);
