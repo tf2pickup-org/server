@@ -7,13 +7,11 @@ import { StaticGameServersService } from '../services/static-game-servers.servic
 import { StaticGameServer } from '../models/static-game-server';
 import { staticGameServerProviderName } from '../static-game-server-provider-name';
 
-jest.mock('../../../services/game-servers.service');
 jest.mock('../services/game-server-diagnostics.service');
 jest.mock('../services/static-game-servers.service');
 
 describe('GameServers Controller', () => {
   let controller: StaticGameServersController;
-  let gameServersService: jest.Mocked<GameServersService>;
   let gameServerDiagnosticsService: jest.Mocked<GameServerDiagnosticsService>;
   let environment: Partial<Environment>;
   let mockGameServer: jest.Mocked<StaticGameServer>;
@@ -28,7 +26,6 @@ describe('GameServers Controller', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        GameServersService,
         GameServerDiagnosticsService,
         { provide: Environment, useValue: environment },
         StaticGameServersService,
@@ -39,7 +36,6 @@ describe('GameServers Controller', () => {
     controller = module.get<StaticGameServersController>(
       StaticGameServersController,
     );
-    gameServersService = module.get(GameServersService);
     gameServerDiagnosticsService = module.get(GameServerDiagnosticsService);
     mockStaticGameServersService = module.get(StaticGameServersService);
   });
@@ -129,18 +125,6 @@ describe('GameServers Controller', () => {
         });
         expect(ret).toEqual(mockGameServer);
       });
-    });
-  });
-
-  describe('#getGameServer()', () => {
-    beforeEach(() => {
-      gameServersService.getById.mockResolvedValue(mockGameServer);
-    });
-
-    it('should return the game server', async () => {
-      const ret = await controller.getGameServer('FAKE_ID');
-      expect(gameServersService.getById).toHaveBeenCalledWith('FAKE_ID');
-      expect(ret).toEqual(mockGameServer);
     });
   });
 

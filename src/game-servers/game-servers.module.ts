@@ -4,6 +4,7 @@ import { GamesModule } from '@/games/games.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { GameServer, gameServerSchema } from './models/game-server';
 import { GameServersProvidersModule } from './providers/game-servers-providers.module';
+import { GameServersController } from './controllers/game-servers.controller';
 
 const gameServerModelProvider = MongooseModule.forFeature([
   {
@@ -23,5 +24,6 @@ const gameServerModelProvider = MongooseModule.forFeature([
   ],
   providers: [GameServersService],
   exports: [GameServersService, gameServerModelProvider],
+  controllers: [GameServersController],
 })
 export class GameServersModule {}
