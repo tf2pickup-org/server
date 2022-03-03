@@ -124,7 +124,7 @@ export class GameServersService implements OnModuleInit {
     if (cls) {
       return plainToInstance(cls, plain);
     } else {
-      throw new Error(`unknown gameserver provider: ${plain.provider}`);
+      return plainToInstance(GameServer, plain);
     }
   }
 }

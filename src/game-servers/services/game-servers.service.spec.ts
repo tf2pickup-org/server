@@ -9,7 +9,7 @@ import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { Events } from '@/events/events';
 import { Game, GameDocument, gameSchema } from '@/games/models/game';
-import { Connection, Model } from 'mongoose';
+import { Connection, Model, Schema as MongooseSchema } from 'mongoose';
 import {
   getConnectionToken,
   getModelToken,
@@ -20,6 +20,7 @@ import {
 import { GamesService } from '@/games/services/games.service';
 import { Rcon } from 'rcon-client/lib';
 import { GameServerProvider } from '../game-server-provider';
+import { NotImplementedError } from '../errors/not-implemented.error';
 
 jest.mock('@/games/services/games.service');
 jest.mock('rcon-client', () => {
@@ -68,6 +69,7 @@ describe('GameServersService', () => {
   let events: Events;
   let connection: Connection;
   let testGameServerProvider: TestGameServerProvider;
+  let gameServerModel: Model<GameServerDocument>;
 
   beforeAll(async () => (mongod = await MongoMemoryServer.create()));
   afterAll(async () => await mongod.stop());
@@ -99,6 +101,7 @@ describe('GameServersService', () => {
     gameModel = module.get(getModelToken(Game.name));
     events = module.get(Events);
     connection = module.get(getConnectionToken());
+    gameServerModel = module.get(getModelToken(GameServer.name));
   });
 
   beforeEach(async () => {
@@ -125,9 +128,39 @@ describe('GameServersService', () => {
   });
 
   describe('#getById()', () => {
-    it('should return the requested game server', async () => {
-      const ret = await service.getById(testGameServer.id);
-      expect(ret.id).toEqual(testGameServer.id);
+    describe('when the provider is known', () => {
+      it('should return the requested game server', async () => {
+        const ret = await service.getById(testGameServer.id);
+        expect(ret.id).toEqual(testGameServer.id);
+        expect(ret instanceof TestGameServer).toBe(true);
+      });
+    });
+
+    describe('when the provider is unknown', () => {
+      let unknownGameServer: GameServerDocument;
+
+      beforeEach(async () => {
+        gameServerModel.discriminator(
+          'FAKE_UNKNOWN_PROVIDER',
+          new MongooseSchema({}),
+        );
+
+        unknownGameServer = await gameServerModel.create({
+          provider: 'FAKE_UNKNOWN_PROVIDER',
+          name: 'fake game server',
+          address: 'localhost',
+          port: '27015',
+        });
+      });
+
+      it('should instantiate the game server anyway', async () => {
+        const ret = await service.getById(unknownGameServer.id);
+        expect(ret.id).toEqual(unknownGameServer.id);
+        await expect(ret.rcon()).rejects.toThrow(NotImplementedError);
+        await expect(ret.voiceChannelName()).rejects.toThrow(
+          NotImplementedError,
+        );
+      });
     });
   });
 

@@ -1,8 +1,9 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, Error, Types } from 'mongoose';
+import { Document, Types } from 'mongoose';
 import { MongooseDocument } from '@/utils/mongoose-document';
 import { Expose, Transform } from 'class-transformer';
 import { Rcon } from 'rcon-client/lib';
+import { NotImplementedError } from '../errors/not-implemented.error';
 
 @Schema({ discriminatorKey: 'provider' })
 export class GameServer extends MongooseDocument {
@@ -35,14 +36,14 @@ export class GameServer extends MongooseDocument {
    * Create a new RCON connection to the gameserver.
    */
   async rcon(): Promise<Rcon> {
-    throw new Error('not implemented');
+    throw new NotImplementedError();
   }
 
   /**
    * The name of the voice channel for this gameserver.
    */
   async voiceChannelName(): Promise<string> {
-    throw new Error('not implemented');
+    throw new NotImplementedError();
   }
 }
 
