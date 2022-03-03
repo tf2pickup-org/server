@@ -18,8 +18,8 @@ import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { getConnectionToken, MongooseModule } from '@nestjs/mongoose';
 import { Connection, Error, Types } from 'mongoose';
 import { GameServerNotAssignedError } from '../errors/game-server-not-assigned.error';
-import { GameServerProvider } from '@/game-servers/models/game-server-provider';
 import { Rcon } from 'rcon-client/lib';
+import { staticGameServerProviderName } from '@/game-servers/providers/static-game-server/static-game-server-provider-name';
 
 jest.mock('./games.service');
 jest.mock('@/game-servers/services/game-servers.service');
@@ -78,7 +78,7 @@ describe('GameRuntimeService', () => {
       address: 'FAKE_ADDRESS',
       port: '1234',
       createdAt: new Date(),
-      provider: GameServerProvider.static,
+      provider: staticGameServerProviderName,
       rcon: jest.fn().mockRejectedValue('not implemented'),
       voiceChannelName: jest.fn(),
     };

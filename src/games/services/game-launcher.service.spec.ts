@@ -10,7 +10,7 @@ import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
 import { getModelToken, MongooseModule } from '@nestjs/mongoose';
 import { Game, GameDocument, gameSchema } from '../models/game';
 import { Model, Types, Error } from 'mongoose';
-import { GameServerProvider } from '@/game-servers/models/game-server-provider';
+import { staticGameServerProviderName } from '@/game-servers/providers/static-game-server/static-game-server-provider-name';
 
 jest.mock('@/game-servers/services/game-servers.service');
 jest.mock('./games.service');
@@ -57,7 +57,7 @@ describe('GameLauncherService', () => {
 
     mockGameServer = {
       id: 'FAKE_GAME_SERVER_ID',
-      provider: GameServerProvider.static,
+      provider: staticGameServerProviderName,
       createdAt: new Date(),
       name: 'FAKE_GAME_SERVER',
       address: 'localhost',

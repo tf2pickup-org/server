@@ -1,7 +1,8 @@
 import { Environment } from '@/environment/environment';
 import { Events } from '@/events/events';
-import { instantiateGameServer } from '@/game-servers/instantiate-game-server';
-import { GameServerProvider } from '@/game-servers/models/game-server-provider';
+import { GameServerProvider } from '@/game-servers/game-server-provider';
+import { GameServer } from '@/game-servers/models/game-server';
+import { GameServersService } from '@/game-servers/services/game-servers.service';
 import {
   logAddressDel,
   delAllGamePlayers,
@@ -20,6 +21,7 @@ import {
   StaticGameServer,
   StaticGameServerDocument,
 } from '../models/static-game-server';
+import { staticGameServerProviderName } from '../static-game-server-provider-name';
 
 interface HeartbeatParams {
   name: string;
@@ -32,7 +34,11 @@ interface HeartbeatParams {
 }
 
 @Injectable()
-export class StaticGameServersService implements OnModuleInit {
+export class StaticGameServersService
+  implements GameServerProvider, OnModuleInit
+{
+  readonly gameServerProviderName = staticGameServerProviderName;
+  readonly implementingClass = StaticGameServer;
   private readonly logger = new Logger(StaticGameServersService.name);
 
   constructor(
@@ -40,6 +46,7 @@ export class StaticGameServersService implements OnModuleInit {
     private staticGameServerModel: Model<StaticGameServerDocument>,
     private events: Events,
     private environment: Environment,
+    private gameServersService: GameServersService,
   ) {
     this.events.gameServerAdded
       .pipe(filter(({ gameServer }) => isStaticGameServer(gameServer)))
@@ -107,6 +114,7 @@ export class StaticGameServersService implements OnModuleInit {
 
   async onModuleInit() {
     await this.removeDeadGameServers();
+    this.gameServersService.registerProvider(this);
   }
 
   async getById(
@@ -117,16 +125,13 @@ export class StaticGameServersService implements OnModuleInit {
       .orFail()
       .lean()
       .exec();
-    return instantiateGameServer(plain);
+    return plainToInstance(StaticGameServer, plain);
   }
 
   async getAllGameServers(): Promise<StaticGameServer[]> {
     return plainToInstance(
       StaticGameServer,
-      await this.staticGameServerModel
-        .find({ provider: GameServerProvider.static, isOnline: true })
-        .lean()
-        .exec(),
+      await this.staticGameServerModel.find({ isOnline: true }).lean().exec(),
     );
   }
 
@@ -135,7 +140,8 @@ export class StaticGameServersService implements OnModuleInit {
     update: UpdateQuery<StaticGameServer>,
   ): Promise<StaticGameServer> {
     const oldGameServer = await this.getById(gameServerId);
-    const newGameServer = instantiateGameServer(
+    const newGameServer = plainToInstance(
+      StaticGameServer,
       await this.staticGameServerModel
         .findByIdAndUpdate(gameServerId, update, { new: true })
         .lean()
@@ -153,7 +159,6 @@ export class StaticGameServersService implements OnModuleInit {
       StaticGameServer,
       await this.staticGameServerModel
         .find({
-          provider: GameServerProvider.static,
           isOnline: true,
           isClean: true,
           game: { $exists: false },
@@ -162,6 +167,15 @@ export class StaticGameServersService implements OnModuleInit {
         .lean()
         .exec(),
     );
+  }
+
+  async findFirstFreeGameServer(): Promise<GameServer> {
+    const gameServers = await this.getCleanGameServers();
+    if (gameServers.length > 0) {
+      return gameServers[0];
+    } else {
+      throw new Error('no free game server available');
+    }
   }
 
   async heartbeat(params: HeartbeatParams): Promise<StaticGameServer> {
@@ -191,7 +205,6 @@ export class StaticGameServersService implements OnModuleInit {
             isOnline: true,
             lastHeartbeatAt: new Date(),
             priority: params.priority,
-            provider: GameServerProvider.static,
           },
           { upsert: true, new: true },
         )
@@ -216,7 +229,6 @@ export class StaticGameServersService implements OnModuleInit {
       StaticGameServer,
       await this.staticGameServerModel
         .find({
-          provider: GameServerProvider.static,
           isOnline: true,
           lastHeartbeatAt: {
             $lt: fiveMinutesAgo,

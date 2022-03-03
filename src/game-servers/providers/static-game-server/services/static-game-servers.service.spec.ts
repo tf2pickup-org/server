@@ -4,9 +4,8 @@ import {
   GameServer,
   gameServerSchema,
 } from '@/game-servers/models/game-server';
-import { GameServerProvider } from '@/game-servers/models/game-server-provider';
+import { GameServersService } from '@/game-servers/services/game-servers.service';
 import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
-import { serverCleanupDelay } from '@configs/game-servers';
 import {
   getConnectionToken,
   getModelToken,
@@ -22,6 +21,7 @@ import {
   StaticGameServerDocument,
 } from '../models/static-game-server';
 import { staticGameServerModelProvider } from '../static-game-server-model.provider';
+import { staticGameServerProviderName } from '../static-game-server-provider-name';
 import { StaticGameServersService } from './static-game-servers.service';
 
 jest.mock('@/environment/environment');
@@ -46,6 +46,8 @@ jest.mock('rxjs/operators', () => {
   };
 });
 
+jest.mock('@/game-servers/services/game-servers.service');
+
 const waitForDatabase = () =>
   new Promise((resolve) => setTimeout(resolve, 100));
 
@@ -56,6 +58,7 @@ describe('StaticGameServersService', () => {
   let staticGameServerModel: Model<StaticGameServerDocument>;
   let testGameServer: StaticGameServerDocument;
   let events: Events;
+  let gameServersService: jest.Mocked<GameServersService>;
 
   beforeAll(async () => (mongod = await MongoMemoryServer.create()));
   afterAll(async () => await mongod.stop());
@@ -76,6 +79,7 @@ describe('StaticGameServersService', () => {
         Events,
         Environment,
         staticGameServerModelProvider,
+        GameServersService,
       ],
     }).compile();
 
@@ -83,6 +87,7 @@ describe('StaticGameServersService', () => {
     connection = module.get(getConnectionToken());
     staticGameServerModel = module.get(getModelToken(StaticGameServer.name));
     events = module.get(Events);
+    gameServersService = module.get(GameServersService);
   });
 
   beforeEach(async () => {
@@ -202,6 +207,11 @@ describe('StaticGameServersService', () => {
       )) as StaticGameServerDocument;
       expect(gameServer.isOnline).toBe(false);
     });
+
+    it('should register itself as a plugin', async () => {
+      await service.onModuleInit();
+      expect(gameServersService.registerProvider).toHaveBeenCalledTimes(1);
+    });
   });
 
   describe('#getById(()', () => {
@@ -209,7 +219,7 @@ describe('StaticGameServersService', () => {
       const gameServer = await service.getById(testGameServer.id);
       expect(gameServer instanceof StaticGameServer).toBe(true);
       expect(gameServer.id).toEqual(testGameServer.id);
-      expect(gameServer.provider).toEqual(GameServerProvider.static);
+      expect(gameServer.provider).toEqual(staticGameServerProviderName);
     });
 
     describe('when a gameserver does not exist', () => {

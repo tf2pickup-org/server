@@ -3,9 +3,9 @@ import { StaticGameServersController } from './static-game-servers.controller';
 import { GameServersService } from '../../../services/game-servers.service';
 import { GameServerDiagnosticsService } from '../services/game-server-diagnostics.service';
 import { Environment } from '@/environment/environment';
-import { GameServerProvider } from '@/game-servers/models/game-server-provider';
 import { StaticGameServersService } from '../services/static-game-servers.service';
 import { StaticGameServer } from '../models/static-game-server';
+import { staticGameServerProviderName } from '../static-game-server-provider-name';
 
 jest.mock('../../../services/game-servers.service');
 jest.mock('../services/game-server-diagnostics.service');
@@ -47,7 +47,7 @@ describe('GameServers Controller', () => {
   beforeEach(() => {
     mockGameServer = {
       id: 'FAKE_GAME_SERVER_ID',
-      provider: GameServerProvider.static,
+      provider: staticGameServerProviderName,
       createdAt: new Date(),
       name: 'FAKE_GAME_SERVER',
       address: 'localhost',

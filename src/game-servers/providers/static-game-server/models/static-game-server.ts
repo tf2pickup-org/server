@@ -1,11 +1,11 @@
 import { GameServer } from '@/game-servers/models/game-server';
-import { GameServerProvider } from '@/game-servers/models/game-server-provider';
 import { createRcon } from '@/utils/create-rcon';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Exclude } from 'class-transformer';
 import { isEmpty } from 'lodash';
 import { Document } from 'mongoose';
 import { Rcon } from 'rcon-client';
+import { staticGameServerProviderName } from '../static-game-server-provider-name';
 import { toValidMumbleChannelName } from '../utils/to-valid-mumble-channel-name';
 
 @Schema()
@@ -58,5 +58,5 @@ export const staticGameServerSchema =
 export function isStaticGameServer(
   gameServer: GameServer,
 ): gameServer is StaticGameServer {
-  return gameServer.provider === GameServerProvider.static;
+  return gameServer.provider === staticGameServerProviderName;
 }

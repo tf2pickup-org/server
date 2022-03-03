@@ -37,7 +37,7 @@ import { GamesService } from './games.service';
 import { GameServersService } from '@/game-servers/services/game-servers.service';
 import { Events } from '@/events/events';
 import { GameServer } from '@/game-servers/models/game-server';
-import { GameServerProvider } from '@/game-servers/models/game-server-provider';
+import { staticGameServerProviderName } from '@/game-servers/providers/static-game-server/static-game-server-provider-name';
 
 jest.mock('@/queue/services/map-pool.service');
 jest.mock('@/players/services/players.service');
@@ -117,7 +117,7 @@ describe('ServerConfiguratorService', () => {
       name: 'FAKE_SERVER',
       address: '123.45.67.89',
       port: '27015',
-      provider: GameServerProvider.static,
+      provider: staticGameServerProviderName,
       createdAt: new Date(),
       rcon: jest.fn(),
       voiceChannelName: jest.fn(),

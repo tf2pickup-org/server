@@ -3,11 +3,10 @@ import { Document, Error, Types } from 'mongoose';
 import { MongooseDocument } from '@/utils/mongoose-document';
 import { Expose, Transform } from 'class-transformer';
 import { Rcon } from 'rcon-client/lib';
-import { GameServerProvider } from './game-server-provider';
 
 @Schema({ discriminatorKey: 'provider' })
 export class GameServer extends MongooseDocument {
-  provider: GameServerProvider;
+  provider: string;
 
   @Expose()
   @Transform(({ value, obj }) => value ?? obj._id?.toString())

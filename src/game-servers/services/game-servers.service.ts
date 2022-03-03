@@ -10,15 +10,20 @@ import { Events } from '@/events/events';
 import { GamesService } from '@/games/services/games.service';
 import { GameServer, GameServerDocument } from '../models/game-server';
 import { InjectModel } from '@nestjs/mongoose';
-import { Error, Model, Types, UpdateQuery } from 'mongoose';
-import { instantiateGameServer } from '../instantiate-game-server';
+import { Error, LeanDocument, Model, Types, UpdateQuery } from 'mongoose';
 import { concatMap, distinctUntilChanged, filter, groupBy } from 'rxjs';
-import { StaticGameServersService } from '../providers/static-game-server/services/static-game-servers.service';
+import { plainToInstance } from 'class-transformer';
+import { GameServerProvider } from '../game-server-provider';
+
+type GameServerConstructor = GameServerProvider['implementingClass'];
 
 @Injectable()
 export class GameServersService implements OnModuleInit {
   private readonly logger = new Logger(GameServersService.name);
   private readonly mutex = new Mutex();
+  private readonly providers: GameServerProvider[] = [];
+  private readonly discriminators: Map<string, GameServerConstructor> =
+    new Map();
 
   constructor(
     private events: Events,
@@ -26,7 +31,6 @@ export class GameServersService implements OnModuleInit {
     private gamesService: GamesService,
     @InjectModel(GameServer.name)
     private gameServerModel: Model<GameServerDocument>,
-    private staticGameServersService: StaticGameServersService,
   ) {}
 
   onModuleInit() {
@@ -43,13 +47,21 @@ export class GameServersService implements OnModuleInit {
       .subscribe(({ game }) => this.releaseGameServer(game.gameServer));
   }
 
+  registerProvider(provider: GameServerProvider) {
+    this.providers.push(provider);
+    this.discriminators.set(
+      provider.gameServerProviderName,
+      provider.implementingClass,
+    );
+  }
+
   async getById(gameServerId: string | Types.ObjectId): Promise<GameServer> {
     const plain = await this.gameServerModel
       .findById(gameServerId)
       .orFail()
       .lean()
       .exec();
-    return instantiateGameServer(plain);
+    return this.instantiateGameServer(plain);
   }
 
   async updateGameServer(
@@ -57,7 +69,7 @@ export class GameServersService implements OnModuleInit {
     update: UpdateQuery<GameServer>,
   ): Promise<GameServer> {
     const oldGameServer = await this.getById(gameServerId);
-    const newGameServer = instantiateGameServer(
+    const newGameServer = this.instantiateGameServer(
       await this.gameServerModel
         .findByIdAndUpdate(gameServerId, update, { new: true })
         .lean()
@@ -71,10 +83,12 @@ export class GameServersService implements OnModuleInit {
   }
 
   async findFreeGameServer(): Promise<GameServer> {
-    const staticGameServers =
-      await this.staticGameServersService.getCleanGameServers();
-    if (staticGameServers.length > 0) {
-      return staticGameServers[0];
+    for (const provider of this.providers) {
+      try {
+        return await provider.findFirstFreeGameServer();
+      } catch (error) {
+        continue;
+      }
     }
 
     throw new Error('no free game server available');
@@ -103,5 +117,14 @@ export class GameServersService implements OnModuleInit {
         game: 1,
       },
     });
+  }
+
+  private instantiateGameServer(plain: LeanDocument<GameServerDocument>) {
+    const cls = this.discriminators.get(plain.provider);
+    if (cls) {
+      return plainToInstance(cls, plain);
+    } else {
+      throw new Error(`unknown gameserver provider: ${plain.provider}`);
+    }
   }
 }
