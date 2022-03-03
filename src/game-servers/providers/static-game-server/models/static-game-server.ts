@@ -21,11 +21,17 @@ export class StaticGameServer extends GameServer {
   @Prop({ required: true })
   rconPassword!: string;
 
+  /**
+   * Was the server online last time we checked?
+   */
   @Prop({ default: false })
-  isOnline!: boolean; // was the server online last we checked
+  isOnline!: boolean;
 
+  /**
+   * Ss the server cleaned up after the last game?
+   */
   @Prop({ default: true })
-  isClean!: boolean; // is the server cleaned up after the last game
+  isClean!: boolean;
 
   @Prop({ default: () => new Date() })
   lastHeartbeatAt?: Date;
@@ -33,11 +39,14 @@ export class StaticGameServer extends GameServer {
   @Prop({ default: 1 })
   priority!: number;
 
+  /**
+   * Set by the sm_tf2pickuporg_voice_channel_name cvar.
+   */
   @Prop()
   customVoiceChannelName?: string;
 
   async rcon(): Promise<Rcon> {
-    return createRcon({
+    return await createRcon({
       host: this.internalIpAddress,
       port: parseInt(this.port, 10),
       rconPassword: this.rconPassword,
