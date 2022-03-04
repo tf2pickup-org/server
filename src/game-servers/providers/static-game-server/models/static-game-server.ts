@@ -28,7 +28,7 @@ export class StaticGameServer extends GameServer {
   isOnline!: boolean;
 
   /**
-   * Is the server cleaned up after the last game?
+   * Was the server cleaned up after the last game?
    */
   @Prop({ default: true })
   isClean!: boolean;
