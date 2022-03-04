@@ -117,6 +117,10 @@ describe('GameServersService', () => {
     service.registerProvider(testGameServerProvider);
   });
 
+  beforeEach(async () => {
+    await service.onModuleInit();
+  });
+
   afterEach(async () => {
     await testGameServerModel.deleteMany({});
     await gameModel.deleteMany({});

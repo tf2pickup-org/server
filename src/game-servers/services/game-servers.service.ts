@@ -26,11 +26,11 @@ export class GameServersService implements OnModuleInit {
     new Map();
 
   constructor(
+    @InjectModel(GameServer.name)
+    private gameServerModel: Model<GameServerDocument>,
     private events: Events,
     @Inject(forwardRef(() => GamesService))
     private gamesService: GamesService,
-    @InjectModel(GameServer.name)
-    private gameServerModel: Model<GameServerDocument>,
   ) {}
 
   onModuleInit() {
@@ -71,7 +71,6 @@ export class GameServersService implements OnModuleInit {
     gameServerId: string | Types.ObjectId,
     update: UpdateQuery<GameServer>,
   ): Promise<GameServer> {
-    console.log(update);
     const oldGameServer = await this.getById(gameServerId);
     const newGameServer = this.instantiateGameServer(
       await this.gameServerModel
