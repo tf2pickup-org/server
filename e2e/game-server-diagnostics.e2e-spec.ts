@@ -9,7 +9,7 @@ import { JwtTokenPurpose } from '@/auth/jwt-token-purpose';
 import { GameServerDiagnosticsService } from '@/game-servers/providers/static-game-server/services/game-server-diagnostics.service';
 import { DiagnosticRunStatus } from '@/game-servers/providers/static-game-server/models/diagnostic-run-status';
 import { players } from './test-data';
-import { GameServersService } from '@/game-servers/services/game-servers.service';
+import { StaticGameServersService } from '@/game-servers/providers/static-game-server/services/static-game-servers.service';
 
 jest.setTimeout(70000);
 
@@ -17,7 +17,7 @@ describe('Game server diagnostics (e2e)', () => {
   let app: INestApplication;
   let authToken: string;
   let diagnosticsService: GameServerDiagnosticsService;
-  let gameServersService: GameServersService;
+  let staticGameServersService: StaticGameServersService;
   let gameServer: string;
 
   const waitForDiagnosticRunToComplete = async (runId: string) =>
@@ -41,7 +41,7 @@ describe('Game server diagnostics (e2e)', () => {
   const waitForGameServerToComeOnline = async () =>
     new Promise<string>((resolve) => {
       const i = setInterval(async () => {
-        const gameServers = await gameServersService.getAllGameServers();
+        const gameServers = await staticGameServersService.getAllGameServers();
         if (gameServers.length > 0) {
           clearInterval(i);
           resolve(gameServers[0].id);
@@ -58,7 +58,7 @@ describe('Game server diagnostics (e2e)', () => {
     await app.listen(3000);
 
     diagnosticsService = app.get(GameServerDiagnosticsService);
-    gameServersService = app.get(GameServersService);
+    staticGameServersService = app.get(StaticGameServersService);
 
     gameServer = await waitForGameServerToComeOnline();
   });

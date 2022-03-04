@@ -10,7 +10,7 @@ import { Events } from '@/events/events';
 import { GamesService } from '@/games/services/games.service';
 import { GameServer, GameServerDocument } from '../models/game-server';
 import { InjectModel } from '@nestjs/mongoose';
-import { Error, LeanDocument, Model, Types, UpdateQuery } from 'mongoose';
+import { LeanDocument, Model, Types, UpdateQuery } from 'mongoose';
 import { concatMap, distinctUntilChanged, filter, groupBy } from 'rxjs';
 import { plainToInstance } from 'class-transformer';
 import { GameServerProvider } from '../game-server-provider';
@@ -41,10 +41,13 @@ export class GameServersService implements OnModuleInit {
           group.pipe(
             distinctUntilChanged((x, y) => x.game.state === y.game.state),
             filter(({ game }) => !game.isInProgress()),
+            filter(({ game }) => !!game.gameServer),
           ),
         ),
       )
-      .subscribe(({ game }) => this.releaseGameServer(game.gameServer));
+      .subscribe(
+        async ({ game }) => await this.releaseGameServer(game.gameServer),
+      );
   }
 
   registerProvider(provider: GameServerProvider) {
@@ -68,6 +71,7 @@ export class GameServersService implements OnModuleInit {
     gameServerId: string | Types.ObjectId,
     update: UpdateQuery<GameServer>,
   ): Promise<GameServer> {
+    console.log(update);
     const oldGameServer = await this.getById(gameServerId);
     const newGameServer = this.instantiateGameServer(
       await this.gameServerModel
@@ -112,7 +116,7 @@ export class GameServersService implements OnModuleInit {
   async releaseGameServer(
     gameServerId: string | Types.ObjectId,
   ): Promise<GameServer> {
-    return this.updateGameServer(gameServerId, {
+    return await this.updateGameServer(gameServerId, {
       $unset: {
         game: 1,
       },

@@ -206,7 +206,7 @@ export class StaticGameServersService
             lastHeartbeatAt: new Date(),
             priority: params.priority,
           },
-          { upsert: true, new: true },
+          { upsert: true, new: true, setDefaultsOnInsert: true },
         )
         .lean()
         .exec(),

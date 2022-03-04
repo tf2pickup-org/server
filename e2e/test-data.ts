@@ -13,5 +13,3 @@ export const players: string[] = [
   '76561199195188363',
   '76561199203544766',
 ];
-
-export const gameServer = '611b8acc28d42852eb53bd96';

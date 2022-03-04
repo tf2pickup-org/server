@@ -2,6 +2,7 @@ import { GameServersModule } from '@/game-servers/game-servers.module';
 import { LogReceiverModule } from '@/log-receiver/log-receiver.module';
 import { forwardRef, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
+import { GameServerDiagnosticsController } from './controllers/game-server-diagnostics.controller';
 import { StaticGameServersController } from './controllers/static-game-servers.controller';
 import { LogForwarding } from './diagnostic-checks/log-forwarding';
 import { RconConnection } from './diagnostic-checks/rcon-connection';
@@ -31,7 +32,11 @@ import { staticGameServerModelProvider } from './static-game-server-model.provid
     RconConnection,
     LogForwarding,
   ],
-  exports: [StaticGameServersService],
-  controllers: [StaticGameServersController],
+  exports: [
+    StaticGameServersService,
+    /** TODO v9.0 remove */
+    GameServerDiagnosticsService,
+  ],
+  controllers: [StaticGameServersController, GameServerDiagnosticsController],
 })
 export class StaticGameServerModule {}
