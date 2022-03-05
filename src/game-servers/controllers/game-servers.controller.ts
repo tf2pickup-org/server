@@ -36,7 +36,7 @@ export class GameServersController {
     private environment: Environment,
   ) {}
 
-  @Get()
+  @Get(':id')
   @UseInterceptors(ClassSerializerInterceptor)
   @UseFilters(DocumentNotFoundFilter)
   async getGameServer(

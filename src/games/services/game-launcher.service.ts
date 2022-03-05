@@ -76,7 +76,7 @@ export class GameLauncherService {
     const orphanedGames = await this.gamesService.getOrphanedGames();
     for (const game of orphanedGames) {
       this.logger.verbose(`launching game #${game.number}...`);
-      this.launch(game.id);
+      await this.launch(game.id);
     }
   }
 }
