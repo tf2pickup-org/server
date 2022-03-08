@@ -1112,16 +1112,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nestjs/axios@npm:0.0.6":
-  version: 0.0.6
-  resolution: "@nestjs/axios@npm:0.0.6"
+"@nestjs/axios@npm:0.0.7":
+  version: 0.0.7
+  resolution: "@nestjs/axios@npm:0.0.7"
   dependencies:
     axios: 0.26.0
   peerDependencies:
     "@nestjs/common": ^7.0.0 || ^8.0.0
     reflect-metadata: ^0.1.12
     rxjs: ^6.0.0 || ^7.0.0
-  checksum: 4628d3c443b5de0f5644e38a52b877f84e592f4a71be8b2f88ad0d5f9b68a450dcd1c0313e59c09a02753b8f2773234c14901a553c60185f64c1ff68950aa97b
+  checksum: e07a6606f1f4ad6d19e2c39531b29e16cb8d10a68dcf6c4d2204eb6d27c15f7aba5c2d43062e0d019fa06c6c79061e14bcafc3080b39862e1e87932162049982
   languageName: node
   linkType: hard
 
@@ -9942,7 +9942,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "server@workspace:."
   dependencies:
-    "@nestjs/axios": 0.0.6
+    "@nestjs/axios": 0.0.7
     "@nestjs/cli": 8.2.2
     "@nestjs/common": 8.4.0
     "@nestjs/config": 1.2.0
