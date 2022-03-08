@@ -57,7 +57,7 @@
   },
   "devDependencies": {
     "@nestjs/cli": "8.2.2",
-    "@nestjs/schematics": "8.0.7",
+    "@nestjs/schematics": "8.0.8",
     "@nestjs/testing": "8.4.0",
     "@release-it/conventional-changelog": "4.2.0",
     "@types/cache-manager": "3.4.3",
