@@ -8093,9 +8093,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mongodb-snapshot@npm:1.4.0":
-  version: 1.4.0
-  resolution: "mongodb-snapshot@npm:1.4.0"
+"mongodb-snapshot@npm:1.4.1":
+  version: 1.4.1
+  resolution: "mongodb-snapshot@npm:1.4.1"
   dependencies:
     bson: ^4.1.0
     joi: ^14.3.1
@@ -8105,7 +8105,7 @@ __metadata:
     rxjs-for-await: ^0.0.2
     tar-stream: ^2.1.2
     verror: ^1.10.0
-  checksum: 346222a71063916990b82a9856f236351258230151c96540ebd1da0d59bcf7b9fdf5c65dd66858a8cc99643d95ad4f5e4577eae65846999b92f3bd75bedab71c
+  checksum: 0ff4bd002d83fa87153d5c75860df11d200e8692f9430343ea446ab960b11730f1679557127fc7f04c042f0f0abe1727ab0af70bcf3cbca28e7060f39198c962
   languageName: node
   linkType: hard
 
@@ -9965,7 +9965,7 @@ __metadata:
     migrate: 1.7.0
     moment: 2.29.1
     mongodb-memory-server: 8.4.0
-    mongodb-snapshot: 1.4.0
+    mongodb-snapshot: 1.4.1
     mongodb-uri: 0.9.7
     mongoose: 5.13.12
     nestjs-real-ip: 2.0.0
