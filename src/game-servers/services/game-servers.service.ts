@@ -11,9 +11,10 @@ import { GamesService } from '@/games/services/games.service';
 import { GameServer, GameServerDocument } from '../models/game-server';
 import { InjectModel } from '@nestjs/mongoose';
 import { LeanDocument, Model, Types, UpdateQuery } from 'mongoose';
-import { concatMap, distinctUntilChanged, filter, groupBy } from 'rxjs';
+import { concatMap, filter, groupBy, take } from 'rxjs';
 import { plainToInstance } from 'class-transformer';
 import { GameServerProvider } from '../game-server-provider';
+import { Game } from '@/games/models/game';
 
 type GameServerConstructor = GameServerProvider['implementingClass'];
 
@@ -39,15 +40,12 @@ export class GameServersService implements OnModuleInit {
         groupBy(({ game }) => game.id),
         concatMap((group) =>
           group.pipe(
-            distinctUntilChanged((x, y) => x.game.state === y.game.state),
             filter(({ game }) => !game.isInProgress()),
-            filter(({ game }) => !!game.gameServer),
+            take(1),
           ),
         ),
       )
-      .subscribe(
-        async ({ game }) => await this.releaseGameServer(game.gameServer),
-      );
+      .subscribe(async ({ game }) => await this.maybeReleaseGameServer(game));
   }
 
   registerProvider(provider: GameServerProvider) {
@@ -112,14 +110,19 @@ export class GameServersService implements OnModuleInit {
     });
   }
 
-  async releaseGameServer(
-    gameServerId: string | Types.ObjectId,
-  ): Promise<GameServer> {
-    return await this.updateGameServer(gameServerId, {
-      $unset: {
-        game: 1,
-      },
-    });
+  async maybeReleaseGameServer(game: Game): Promise<void> {
+    if (!game.gameServer) {
+      return;
+    }
+
+    const gameServer = await this.getById(game.gameServer);
+    if (gameServer.game?.toString() === game.id) {
+      await this.updateGameServer(gameServer.id, {
+        $unset: {
+          game: 1,
+        },
+      });
+    }
   }
 
   private instantiateGameServer(plain: LeanDocument<GameServerDocument>) {

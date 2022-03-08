@@ -9,7 +9,7 @@ import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { Events } from '@/events/events';
 import { Game, GameDocument, gameSchema } from '@/games/models/game';
-import { Connection, Model, Schema as MongooseSchema } from 'mongoose';
+import { Connection, Model, Schema as MongooseSchema, Types } from 'mongoose';
 import {
   getConnectionToken,
   getModelToken,
@@ -250,10 +250,54 @@ describe('GameServersService', () => {
     });
   });
 
-  describe('#releaseGameServer()', () => {
-    it('should remove the game property', async () => {
-      await service.releaseGameServer(testGameServer.id);
-      expect((await service.getById(testGameServer.id)).game).toBe(undefined);
+  describe('#maybeReleaseGameServer()', () => {
+    describe('when the game has no gameserver assigned', () => {
+      it('should do nothing', async () => {
+        await service.maybeReleaseGameServer({} as Game);
+        const gs = await gameServerModel.findById(testGameServer.id);
+        expect(gs).toBeTruthy();
+      });
+    });
+
+    describe('when the game has a gameserver assigned', () => {
+      describe('and the gameserver has this game assigned as well', () => {
+        let gameId: Types.ObjectId;
+
+        beforeEach(async () => {
+          gameId = new Types.ObjectId();
+
+          testGameServer.game = gameId;
+          await testGameServer.save();
+        });
+
+        it('should release the gameserver', async () => {
+          await service.maybeReleaseGameServer({
+            gameServer: testGameServer.id,
+            id: gameId.toString(),
+          } as Game);
+          const gameServer = await gameServerModel.findById(testGameServer.id);
+          expect(gameServer.game).toBe(undefined);
+        });
+      });
+
+      describe('and the gameserver has another game assigned', () => {
+        let gameId: Types.ObjectId;
+
+        beforeEach(async () => {
+          gameId = new Types.ObjectId();
+          testGameServer.game = gameId;
+          await testGameServer.save();
+        });
+
+        it('should not release the gameserver', async () => {
+          await service.maybeReleaseGameServer({
+            gameServer: testGameServer.id,
+            id: new Types.ObjectId().toString(),
+          } as Game);
+          const gameServer = await gameServerModel.findById(testGameServer.id);
+          expect(gameServer.game).toEqual(gameId);
+        });
+      });
     });
   });
 });
