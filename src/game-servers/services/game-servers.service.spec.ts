@@ -22,6 +22,7 @@ import { Rcon } from 'rcon-client/lib';
 import { GameServerProvider } from '../game-server-provider';
 import { NotImplementedError } from '../errors/not-implemented.error';
 import { NoFreeGameServerAvailableError } from '../errors/no-free-game-server-available.error';
+import { GameState } from '@/games/models/game-state';
 
 jest.mock('@/games/services/games.service');
 jest.mock('rcon-client', () => {
@@ -300,6 +301,29 @@ describe('GameServersService', () => {
           const gameServer = await gameServerModel.findById(testGameServer.id);
           expect(gameServer.game).toEqual(gameId);
         });
+      });
+    });
+  });
+
+  describe('#checkForGameServersToRelease()', () => {
+    describe('when there are gameservers that are not properly released', () => {
+      beforeEach(async () => {
+        const game = await gameModel.create({
+          number: 1,
+          map: 'cp_badlands',
+          slots: [],
+        });
+        game.state = GameState.ended;
+        await game.save();
+
+        testGameServer.game = game._id;
+        await testGameServer.save();
+      });
+
+      it('should release the gameservers', async () => {
+        await service.checkForGameServersToRelease();
+        const gameServer = await service.getById(testGameServer.id);
+        expect(gameServer.game).toBe(undefined);
       });
     });
   });

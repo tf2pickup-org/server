@@ -16,6 +16,7 @@ import { plainToInstance } from 'class-transformer';
 import { GameServerProvider } from '../game-server-provider';
 import { Game } from '@/games/models/game';
 import { NoFreeGameServerAvailableError } from '../errors/no-free-game-server-available.error';
+import { Cron, CronExpression } from '@nestjs/schedule';
 
 type GameServerConstructor = GameServerProvider['implementingClass'];
 
@@ -124,6 +125,29 @@ export class GameServersService implements OnModuleInit {
         },
       });
     }
+  }
+
+  /**
+   * It may happen that the gameserver is not released when a game ends.
+   * Let's check that no gameserver is assigned to a game that is already over.
+   */
+  @Cron(CronExpression.EVERY_MINUTE)
+  async checkForGameServersToRelease() {
+    const gameServers = await this.gameServerModel.find({}).lean().exec();
+    await Promise.all(
+      gameServers.map(async (gameServer) => {
+        if (gameServer.game) {
+          const game = await this.gamesService.getById(gameServer.game);
+          if (!game.isInProgress()) {
+            await this.updateGameServer(gameServer._id, {
+              $unset: {
+                game: 1,
+              },
+            });
+          }
+        }
+      }),
+    );
   }
 
   private instantiateGameServer(plain: LeanDocument<GameServerDocument>) {
