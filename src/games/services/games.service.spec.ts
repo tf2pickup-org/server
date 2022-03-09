@@ -32,7 +32,7 @@ import {
   SelectedVoiceServer,
   VoiceServer,
 } from '@/configuration/models/voice-server';
-import { retryWhen } from 'rxjs';
+import { StaticGameServer } from '@/game-servers/providers/static-game-server/models/static-game-server';
 
 jest.mock('@/players/services/players.service');
 jest.mock('@/players/services/player-skill.service');
@@ -658,8 +658,8 @@ describe('GamesService', () => {
           await game.save();
 
           gameServer = {
-            voiceChannelName: '7',
-          } as GameServer;
+            voiceChannelName: () => Promise.resolve('7'),
+          } as StaticGameServer;
           gameServersService.getById.mockResolvedValue(gameServer);
         });
 
@@ -688,49 +688,6 @@ describe('GamesService', () => {
             const url = await service.getVoiceChannelUrl(game.id, player.id);
             expect(url).toEqual(
               'mumble://fake_player_1:FAKE_SERVER_PASSWORD@melkor.tf:64738/FAKE_CHANNEL_NAME/7/BLU',
-            );
-          });
-        });
-
-        describe('when the game server is assigned, but has no voice channel name', () => {
-          let gameServer: GameServer;
-
-          beforeEach(async () => {
-            game.gameServer = new ObjectId();
-            await game.save();
-
-            gameServer = {
-              name: 'tf2pickup.pl #1',
-            } as GameServer;
-            gameServersService.getById.mockResolvedValue(gameServer);
-          });
-
-          it("should derive voice channel name from the game server's name", async () => {
-            const url = await service.getVoiceChannelUrl(game.id, player.id);
-            expect(url).toEqual(
-              'mumble://fake_player_1@melkor.tf:64738/FAKE_CHANNEL_NAME/tf2pickup-pl-1/BLU',
-            );
-          });
-        });
-
-        describe('when the game server is assigned, but voice channel name is empty', () => {
-          let gameServer: GameServer;
-
-          beforeEach(async () => {
-            game.gameServer = new ObjectId();
-            await game.save();
-
-            gameServer = {
-              name: 'tf2pickup.pl #1',
-              voiceChannelName: '',
-            } as GameServer;
-            gameServersService.getById.mockResolvedValue(gameServer);
-          });
-
-          it("should derive voice channel name from the game server's name", async () => {
-            const url = await service.getVoiceChannelUrl(game.id, player.id);
-            expect(url).toEqual(
-              'mumble://fake_player_1@melkor.tf:64738/FAKE_CHANNEL_NAME/tf2pickup-pl-1/BLU',
             );
           });
         });

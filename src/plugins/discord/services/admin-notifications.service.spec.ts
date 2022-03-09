@@ -1,6 +1,7 @@
 import { Environment } from '@/environment/environment';
 import { Events } from '@/events/events';
-import { GameServer } from '@/game-servers/models/game-server';
+import { StaticGameServer } from '@/game-servers/providers/static-game-server/models/static-game-server';
+import { staticGameServerProviderName } from '@/game-servers/providers/static-game-server/static-game-server-provider-name';
 import { Game, gameSchema } from '@/games/models/game';
 import { GameState } from '@/games/models/game-state';
 import { GamesService } from '@/games/services/games.service';
@@ -11,7 +12,7 @@ import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
 import { getConnectionToken, MongooseModule } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import { Connection, Types } from 'mongoose';
+import { Connection } from 'mongoose';
 import { Subject } from 'rxjs';
 import { AdminNotificationsService } from './admin-notifications.service';
 import { DiscordService } from './discord.service';
@@ -273,7 +274,7 @@ describe('AdminNotificationsService', () => {
         });
 
         events.gameServerAdded.next({
-          gameServer: { name: 'fake game server' } as GameServer,
+          gameServer: { name: 'fake game server' } as StaticGameServer,
         });
       }));
   });
@@ -289,11 +290,13 @@ describe('AdminNotificationsService', () => {
         oldGameServer: {
           name: 'fake game server',
           isOnline: true,
-        } as GameServer,
+          provider: staticGameServerProviderName,
+        } as StaticGameServer,
         newGameServer: {
           name: 'fake game server',
           isOnline: false,
-        } as GameServer,
+          provider: staticGameServerProviderName,
+        } as StaticGameServer,
       });
     });
   });
@@ -309,11 +312,13 @@ describe('AdminNotificationsService', () => {
         oldGameServer: {
           name: 'fake game server',
           isOnline: false,
-        } as GameServer,
+          provider: staticGameServerProviderName,
+        } as StaticGameServer,
         newGameServer: {
           name: 'fake game server',
           isOnline: true,
-        } as GameServer,
+          provider: staticGameServerProviderName,
+        } as StaticGameServer,
       });
     });
   });

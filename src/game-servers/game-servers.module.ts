@@ -1,38 +1,29 @@
 import { forwardRef, Module } from '@nestjs/common';
-import { GameServer, GameServerSchema } from './models/game-server';
 import { GameServersService } from './services/game-servers.service';
-import { GameServersController } from './controllers/game-servers.controller';
-import { GameServerDiagnosticsService } from './services/game-server-diagnostics.service';
-import {
-  GameServerDiagnosticRun,
-  gameServerDiagnosticRunSchema,
-} from './models/game-server-diagnostic-run';
-import { GameServerDiagnosticsController } from './controllers/game-server-diagnostics.controller';
-import { RconConnection } from './diagnostic-checks/rcon-connection';
-import { LogForwarding } from './diagnostic-checks/log-forwarding';
-import { LogReceiverModule } from '@/log-receiver/log-receiver.module';
-import { MongooseModule } from '@nestjs/mongoose';
 import { GamesModule } from '@/games/games.module';
+import { MongooseModule } from '@nestjs/mongoose';
+import { GameServer, gameServerSchema } from './models/game-server';
+import { GameServersProvidersModule } from './providers/game-servers-providers.module';
+import { GameServersController } from './controllers/game-servers.controller';
+
+const gameServerModelProvider = MongooseModule.forFeature([
+  {
+    name: GameServer.name,
+    schema: gameServerSchema,
+    // Note: we are not declaring any discriminators here, despite it ought to be the
+    // NestJS' 'canonical' way. Instead, we're going for more modular approach and defining
+    // discriminators in each module.
+  },
+]);
 
 @Module({
   imports: [
-    MongooseModule.forFeature([
-      { name: GameServer.name, schema: GameServerSchema },
-      {
-        name: GameServerDiagnosticRun.name,
-        schema: gameServerDiagnosticRunSchema,
-      },
-    ]),
-    LogReceiverModule,
     forwardRef(() => GamesModule),
+    gameServerModelProvider,
+    GameServersProvidersModule.configure(),
   ],
-  providers: [
-    GameServersService,
-    GameServerDiagnosticsService,
-    RconConnection,
-    LogForwarding,
-  ],
-  exports: [GameServersService],
-  controllers: [GameServersController, GameServerDiagnosticsController],
+  providers: [GameServersService],
+  exports: [GameServersService, gameServerModelProvider],
+  controllers: [GameServersController],
 })
 export class GameServersModule {}

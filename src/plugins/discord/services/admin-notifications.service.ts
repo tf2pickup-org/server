@@ -30,6 +30,10 @@ import { DiscordService } from './discord.service';
 import { URL } from 'url';
 import { substituteRequested } from '../notifications/substitute-requested';
 import { GamesService } from '@/games/services/games.service';
+import {
+  isStaticGameServer,
+  StaticGameServer,
+} from '@/game-servers/providers/static-game-server/models/static-game-server';
 
 const playerSkillEqual = (
   oldSkill: PlayerSkillType,
@@ -84,9 +88,11 @@ export class AdminNotificationsService implements OnModuleInit {
     );
     this.events.gameServerUpdated
       .pipe(
+        filter(({ newGameServer }) => isStaticGameServer(newGameServer)),
         filter(
           ({ oldGameServer, newGameServer }) =>
-            oldGameServer.isOnline === true && newGameServer.isOnline === false,
+            (oldGameServer as StaticGameServer).isOnline === true &&
+            (newGameServer as StaticGameServer).isOnline === false,
         ),
       )
       .subscribe(({ newGameServer }) =>
@@ -94,9 +100,11 @@ export class AdminNotificationsService implements OnModuleInit {
       );
     this.events.gameServerUpdated
       .pipe(
+        filter(({ newGameServer }) => isStaticGameServer(newGameServer)),
         filter(
           ({ oldGameServer, newGameServer }) =>
-            oldGameServer.isOnline === false && newGameServer.isOnline === true,
+            (oldGameServer as StaticGameServer).isOnline === false &&
+            (newGameServer as StaticGameServer).isOnline === true,
         ),
       )
       .subscribe(({ newGameServer }) =>

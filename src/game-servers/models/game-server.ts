@@ -1,10 +1,14 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
 import { MongooseDocument } from '@/utils/mongoose-document';
-import { Exclude, Expose, Transform } from 'class-transformer';
+import { Expose, Transform } from 'class-transformer';
+import { Rcon } from 'rcon-client/lib';
+import { NotImplementedError } from '../errors/not-implemented.error';
 
-@Schema()
+@Schema({ discriminatorKey: 'provider' })
 export class GameServer extends MongooseDocument {
+  provider: string;
+
   @Expose()
   @Transform(({ value, obj }) => value ?? obj._id?.toString())
   id!: string;
@@ -21,39 +25,27 @@ export class GameServer extends MongooseDocument {
   @Prop({ required: true, trim: true })
   address: string;
 
-  /**
-   * The IP address of the gameserver's that the heartbeat came from.
-   */
-  @Exclude({ toPlainOnly: true })
-  @Prop()
-  internalIpAddress: string;
-
   @Prop({ required: true })
   port: string;
-
-  @Exclude({ toPlainOnly: true })
-  @Prop({ required: true })
-  rconPassword!: string;
-
-  @Prop({ default: true })
-  isAvailable!: boolean; // is the server available for playing pickups
-
-  @Prop({ default: false })
-  isOnline!: boolean; // was the server online last we checked
-
-  @Prop()
-  voiceChannelName?: string;
 
   @Transform(({ value }) => value.toString())
   @Prop({ type: Types.ObjectId, ref: 'Game' })
   game?: Types.ObjectId; // currently running game
 
-  @Prop({ default: () => new Date() })
-  lastHeartbeatAt?: Date;
+  /**
+   * Create a new RCON connection to the gameserver.
+   */
+  async rcon(): Promise<Rcon> {
+    throw new NotImplementedError();
+  }
 
-  @Prop({ default: 1 })
-  priority!: number;
+  /**
+   * The name of the voice channel for this gameserver.
+   */
+  async voiceChannelName(): Promise<string> {
+    throw new NotImplementedError();
+  }
 }
 
 export type GameServerDocument = GameServer & Document;
-export const GameServerSchema = SchemaFactory.createForClass(GameServer);
+export const gameServerSchema = SchemaFactory.createForClass(GameServer);

@@ -3,7 +3,6 @@ import { GameRuntimeService } from './game-runtime.service';
 import { GamesService } from './games.service';
 import { GameServersService } from '@/game-servers/services/game-servers.service';
 import { ServerConfiguratorService } from './server-configurator.service';
-import { RconFactoryService } from './rcon-factory.service';
 import { PlayersService } from '@/players/services/players.service';
 import { say } from '../utils/rcon-commands';
 import { Tf2Team } from '../models/tf2-team';
@@ -19,23 +18,14 @@ import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { getConnectionToken, MongooseModule } from '@nestjs/mongoose';
 import { Connection, Error, Types } from 'mongoose';
 import { GameServerNotAssignedError } from '../errors/game-server-not-assigned.error';
-import { GameServerCleanUpService } from './game-server-clean-up.service';
+import { Rcon } from 'rcon-client/lib';
+import { staticGameServerProviderName } from '@/game-servers/providers/static-game-server/static-game-server-provider-name';
 
 jest.mock('./games.service');
 jest.mock('@/game-servers/services/game-servers.service');
 jest.mock('./server-configurator.service');
-jest.mock('./rcon-factory.service');
 jest.mock('@/players/services/players.service');
-jest.mock('./game-server-clean-up.service');
-
-class RconStub {
-  send(cmd: string) {
-    return Promise.resolve();
-  }
-  end() {
-    return Promise.resolve();
-  }
-}
+jest.mock('rcon-client/lib');
 
 describe('GameRuntimeService', () => {
   let service: GameRuntimeService;
@@ -44,13 +34,11 @@ describe('GameRuntimeService', () => {
   let gamesService: GamesService;
   let gameServersService: jest.Mocked<GameServersService>;
   let serverConfiguratorService: jest.Mocked<ServerConfiguratorService>;
-  let rconFactoryService: RconFactoryService;
-  let mockGameServer: GameServer & { id: string };
+  let mockGameServer: jest.Mocked<GameServer>;
   let mockPlayers: PlayerDocument[];
   let mockGame: GameDocument;
   let events: Events;
   let connection: Connection;
-  let gameServerCleanUpService: jest.Mocked<GameServerCleanUpService>;
 
   beforeAll(async () => (mongod = await MongoMemoryServer.create()));
   afterAll(async () => await mongod.stop());
@@ -69,10 +57,8 @@ describe('GameRuntimeService', () => {
         GamesService,
         GameServersService,
         ServerConfiguratorService,
-        RconFactoryService,
         PlayersService,
         Events,
-        GameServerCleanUpService,
       ],
     }).compile();
 
@@ -81,10 +67,8 @@ describe('GameRuntimeService', () => {
     gamesService = module.get(GamesService);
     gameServersService = module.get(GameServersService);
     serverConfiguratorService = module.get(ServerConfiguratorService);
-    rconFactoryService = module.get(RconFactoryService);
     events = module.get(Events);
     connection = module.get(getConnectionToken());
-    gameServerCleanUpService = module.get(GameServerCleanUpService);
   });
 
   beforeEach(async () => {
@@ -92,13 +76,11 @@ describe('GameRuntimeService', () => {
       id: new ObjectId().toString(),
       name: 'FAKE_GAME_SERVER',
       address: 'FAKE_ADDRESS',
-      internalIpAddress: 'FAKE_INTERNAL_IP_ADDRESS',
       port: '1234',
-      rconPassword: 'FAKE_RCON_PASSWORD',
       createdAt: new Date(),
-      isAvailable: true,
-      isOnline: true,
-      priority: 1,
+      provider: staticGameServerProviderName,
+      rcon: jest.fn().mockRejectedValue('not implemented'),
+      voiceChannelName: jest.fn(),
     };
 
     gameServersService.getById.mockResolvedValue(mockGameServer as any);
@@ -253,22 +235,14 @@ describe('GameRuntimeService', () => {
         expect(ret.slots[0].status).toEqual(SlotStatus.active);
       });
     });
-
-    it('should clean up unsed game servers', async () => {
-      await service.forceEnd(mockGame.id);
-      expect(
-        gameServerCleanUpService.cleanupUnusedGameServers,
-      ).toHaveBeenCalled();
-    });
   });
 
   describe('#replacePlayer()', () => {
-    let rcon: RconStub;
+    let rcon: jest.Mocked<Rcon>;
 
     beforeEach(() => {
-      rcon = new RconStub();
-      // @ts-expect-error
-      rconFactoryService.createRcon = () => Promise.resolve(rcon);
+      rcon = new (Rcon as any)();
+      mockGameServer.rcon.mockResolvedValue(rcon);
     });
 
     describe('when the given game does not exist', () => {
@@ -306,17 +280,16 @@ describe('GameRuntimeService', () => {
 
     describe('when an rcon error occurs', () => {
       beforeEach(() => {
-        rcon.send = () => Promise.reject('fake rcon error');
+        rcon.send.mockRejectedValue(new Error('fake rcon error'));
       });
 
       it('should close the RCON connection', async () => {
-        const spy = jest.spyOn(rcon, 'end');
         await service.replacePlayer(mockGame.id, mockPlayers[0].id, {
           player: new ObjectId(),
           team: Tf2Team.red,
           gameClass: Tf2ClassName.soldier,
         });
-        expect(spy).toHaveBeenCalled();
+        expect(rcon.end).toHaveBeenCalled();
       });
     });
 
@@ -332,12 +305,11 @@ describe('GameRuntimeService', () => {
   });
 
   describe('#sayChat()', () => {
-    let rcon: RconStub;
+    let rcon: jest.Mocked<Rcon>;
 
     beforeEach(() => {
-      rcon = new RconStub();
-      // @ts-expect-error
-      rconFactoryService.createRcon = () => Promise.resolve(rcon);
+      rcon = new (Rcon as any)();
+      mockGameServer.rcon.mockResolvedValue(rcon);
     });
 
     describe('when the given game server does not exist', () => {
@@ -355,20 +327,18 @@ describe('GameRuntimeService', () => {
     });
 
     it('should execute the correct commands', async () => {
-      const spy = jest.spyOn(rcon, 'send');
       await service.sayChat(mockGameServer.id, 'some message');
-      expect(spy).toHaveBeenCalledWith(say('some message'));
+      expect(rcon.send).toHaveBeenCalledWith(say('some message'));
     });
 
     describe('when an rcon error occurs', () => {
       beforeEach(() => {
-        rcon.send = () => Promise.reject(new Error('fake rcon error'));
+        rcon.send.mockRejectedValue(new Error('fake rcon error'));
       });
 
       it('should close the RCON connection', async () => {
-        const spy = jest.spyOn(rcon, 'end');
         await service.sayChat(mockGameServer.id, 'some message');
-        expect(spy).toHaveBeenCalled();
+        expect(rcon.end).toHaveBeenCalled();
       });
     });
   });

@@ -2,7 +2,6 @@ import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
 import { GamesService } from './games.service';
 import { ServerConfiguratorService } from './server-configurator.service';
 import { GameServersService } from '@/game-servers/services/game-servers.service';
-import { RconFactoryService } from './rcon-factory.service';
 import { PlayersService } from '@/players/services/players.service';
 import { addGamePlayer, delGamePlayer, say } from '../utils/rcon-commands';
 import { GameSlot } from '../models/game-slot';
@@ -15,7 +14,6 @@ import { Model } from 'mongoose';
 import { Game, GameDocument } from '../models/game';
 import { plainToInstance } from 'class-transformer';
 import { GameServerNotAssignedError } from '../errors/game-server-not-assigned.error';
-import { GameServerCleanUpService } from './game-server-clean-up.service';
 
 @Injectable()
 export class GameRuntimeService {
@@ -25,12 +23,10 @@ export class GameRuntimeService {
     @Inject(forwardRef(() => GamesService)) private gamesService: GamesService,
     private gameServersService: GameServersService,
     private serverConfiguratorService: ServerConfiguratorService,
-    private rconFactoryService: RconFactoryService,
     @Inject(forwardRef(() => PlayersService))
     private playersService: PlayersService,
     private events: Events,
     @InjectModel(Game.name) private gameModel: Model<GameDocument>,
-    private gameServerCleanUpService: GameServerCleanUpService,
   ) {}
 
   async reconfigure(gameId: string) {
@@ -103,7 +99,6 @@ export class GameRuntimeService {
     );
 
     this.logger.verbose(`game #${game.number} force ended`);
-    await this.gameServerCleanUpService.cleanupUnusedGameServers();
     return game;
   }
 
@@ -123,7 +118,7 @@ export class GameRuntimeService {
     let rcon: Rcon;
 
     try {
-      rcon = await this.rconFactoryService.createRcon(gameServer);
+      rcon = await gameServer.rcon();
       const player = await this.playersService.getById(replacementSlot.player);
 
       const cmd = addGamePlayer(
@@ -152,7 +147,7 @@ export class GameRuntimeService {
     const gameServer = await this.gameServersService.getById(gameServerId);
     let rcon: Rcon;
     try {
-      rcon = await this.rconFactoryService.createRcon(gameServer);
+      rcon = await gameServer.rcon();
       await rcon.send(say(message));
     } catch (e) {
       this.logger.error(e.message);

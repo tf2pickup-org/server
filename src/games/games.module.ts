@@ -8,7 +8,6 @@ import { GamesController } from './controllers/games.controller';
 import { GamesGateway } from './gateways/games.gateway';
 import { ServerConfiguratorService } from './services/server-configurator.service';
 import { GameEventListenerService } from './services/game-event-listener.service';
-import { RconFactoryService } from './services/rcon-factory.service';
 import { GameLauncherService } from './services/game-launcher.service';
 import { GameRuntimeService } from './services/game-runtime.service';
 import { GameEventHandlerService } from './services/game-event-handler.service';
@@ -17,7 +16,6 @@ import { PlayerSubstitutionService } from './services/player-substitution.servic
 import { ConfigurationModule } from '@/configuration/configuration.module';
 import { LogReceiverModule } from '@/log-receiver/log-receiver.module';
 import { MongooseModule } from '@nestjs/mongoose';
-import { GameServerCleanUpService } from './services/game-server-clean-up.service';
 
 @Module({
   imports: [
@@ -34,12 +32,10 @@ import { GameServerCleanUpService } from './services/game-server-clean-up.servic
     GamesGateway,
     ServerConfiguratorService,
     GameEventListenerService,
-    RconFactoryService,
     GameLauncherService,
     GameRuntimeService,
     GameEventHandlerService,
     PlayerSubstitutionService,
-    GameServerCleanUpService,
   ],
   exports: [GamesService],
   controllers: [GamesController, GamesWithSubstitutionRequestsController],

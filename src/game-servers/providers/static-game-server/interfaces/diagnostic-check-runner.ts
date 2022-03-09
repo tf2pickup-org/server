@@ -1,4 +1,4 @@
-import { GameServer } from '../models/game-server';
+import { StaticGameServer } from '../models/static-game-server';
 import { DiagnosticCheckResult } from './diagnostic-check-result';
 
 export interface DiagnosticCheckRunner {
@@ -6,7 +6,7 @@ export interface DiagnosticCheckRunner {
   critical: boolean;
 
   run(params: {
-    gameServer: GameServer;
+    gameServer: StaticGameServer;
     effects: Map<string, any>;
   }): Promise<DiagnosticCheckResult>;
 }

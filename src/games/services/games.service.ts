@@ -7,7 +7,7 @@ import { PlayerSkillService } from '@/players/services/player-skill.service';
 import { QueueConfigService } from '@/queue/services/queue-config.service';
 import { GameLauncherService } from './game-launcher.service';
 import { ObjectId } from 'mongodb';
-import { isEmpty, shuffle } from 'lodash';
+import { shuffle } from 'lodash';
 import { Events } from '@/events/events';
 import { SlotStatus } from '../models/slot-status';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
@@ -21,7 +21,6 @@ import { URL } from 'url';
 import { GameInWrongStateError } from '../errors/game-in-wrong-state.error';
 import { SelectedVoiceServer } from '@/configuration/models/voice-server';
 import { plainToInstance } from 'class-transformer';
-import { toValidMumbleChannelName } from '../utils/to-valid-mumble-channel-name';
 
 interface GameSortOptions {
   launchedAt: 1 | -1;
@@ -312,10 +311,7 @@ export class GamesService {
           game.gameServer.toString(),
         );
 
-        const voiceChannelName = isEmpty(gameServer.voiceChannelName)
-          ? toValidMumbleChannelName(gameServer.name)
-          : gameServer.voiceChannelName;
-
+        const voiceChannelName = await gameServer.voiceChannelName();
         const url = new URL(`mumble://${voiceServer.mumble.url}`);
         url.pathname = `${
           voiceServer.mumble.channelName

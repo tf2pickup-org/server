@@ -2,7 +2,6 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { ServerConfiguratorService } from './server-configurator.service';
 import { Environment } from '@/environment/environment';
 import { PlayersService } from '@/players/services/players.service';
-import { RconFactoryService } from './rcon-factory.service';
 import {
   logAddressAdd,
   kickAll,
@@ -38,10 +37,10 @@ import { GamesService } from './games.service';
 import { GameServersService } from '@/game-servers/services/game-servers.service';
 import { Events } from '@/events/events';
 import { GameServer } from '@/game-servers/models/game-server';
+import { staticGameServerProviderName } from '@/game-servers/providers/static-game-server/static-game-server-provider-name';
 
 jest.mock('@/queue/services/map-pool.service');
 jest.mock('@/players/services/players.service');
-jest.mock('./rcon-factory.service');
 jest.mock('@/configuration/services/configuration.service');
 jest.mock('./games.service');
 jest.mock('@/game-servers/services/game-servers.service');
@@ -56,19 +55,6 @@ class RconStub {
   end = jest.fn();
 }
 
-const mockGameServer: GameServer = {
-  id: 'MOCK_GAME_SERVER',
-  name: 'FAKE_SERVER',
-  address: '123.45.67.89',
-  internalIpAddress: '127.0.0.1',
-  port: '27015',
-  rconPassword: 'FAKE_RCON_PASSWORD',
-  createdAt: new Date(),
-  isAvailable: true,
-  isOnline: true,
-  priority: 1,
-};
-
 function flushPromises() {
   return new Promise((resolve) => setImmediate(resolve));
 }
@@ -78,13 +64,13 @@ describe('ServerConfiguratorService', () => {
   let mongod: MongoMemoryServer;
   let playerModel: Model<PlayerDocument>;
   let gameModel: Model<GameDocument>;
-  let rconFactoryService: jest.Mocked<RconFactoryService>;
   let playersService: jest.Mocked<PlayersService>;
   let mapPoolService: jest.Mocked<MapPoolService>;
   let configurationService: jest.Mocked<ConfigurationService>;
   let connection: Connection;
   let gamesService: GamesService;
   let gameServersService: jest.Mocked<GameServersService>;
+  let mockGameServer: jest.Mocked<GameServer>;
 
   beforeAll(async () => (mongod = await MongoMemoryServer.create()));
   afterAll(async () => await mongod.stop());
@@ -108,7 +94,6 @@ describe('ServerConfiguratorService', () => {
         ServerConfiguratorService,
         { provide: Environment, useClass: EnvironmentStub },
         PlayersService,
-        RconFactoryService,
         MapPoolService,
         ConfigurationService,
         Events,
@@ -120,13 +105,23 @@ describe('ServerConfiguratorService', () => {
     service = module.get<ServerConfiguratorService>(ServerConfiguratorService);
     playerModel = module.get(getModelToken(Player.name));
     gameModel = module.get(getModelToken(Game.name));
-    rconFactoryService = module.get(RconFactoryService);
     playersService = module.get(PlayersService);
     mapPoolService = module.get(MapPoolService);
     configurationService = module.get(ConfigurationService);
     connection = module.get(getConnectionToken());
     gamesService = module.get(GamesService);
     gameServersService = module.get(GameServersService);
+
+    mockGameServer = {
+      id: 'MOCK_GAME_SERVER',
+      name: 'FAKE_SERVER',
+      address: '123.45.67.89',
+      port: '27015',
+      provider: staticGameServerProviderName,
+      createdAt: new Date(),
+      rcon: jest.fn(),
+      voiceChannelName: jest.fn(),
+    };
   });
 
   beforeEach(() => {
@@ -179,7 +174,7 @@ describe('ServerConfiguratorService', () => {
       });
 
       rcon = new RconStub();
-      rconFactoryService.createRcon.mockResolvedValue(rcon as unknown as Rcon);
+      mockGameServer.rcon.mockResolvedValue(rcon as unknown as Rcon);
       jest.useFakeTimers('legacy');
     });
 
@@ -357,7 +352,7 @@ describe('ServerConfiguratorService', () => {
 
     beforeEach(() => {
       rcon = new RconStub();
-      rconFactoryService.createRcon.mockResolvedValue(rcon as any);
+      mockGameServer.rcon.mockResolvedValue(rcon as unknown as Rcon);
     });
 
     it('should execute correct rcon commands', async () => {
