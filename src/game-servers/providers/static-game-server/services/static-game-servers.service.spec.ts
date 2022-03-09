@@ -50,7 +50,7 @@ jest.mock('rxjs/operators', () => {
 jest.mock('@/game-servers/services/game-servers.service');
 
 const waitForDatabase = () =>
-  new Promise((resolve) => setTimeout(resolve, 500));
+  new Promise((resolve) => setTimeout(resolve, 100));
 
 describe('StaticGameServersService', () => {
   let service: StaticGameServersService;
@@ -123,6 +123,8 @@ describe('StaticGameServersService', () => {
   });
 
   describe('when a gameserver is taken for a game', () => {
+    beforeEach(async () => await service.onModuleInit());
+
     beforeEach(async () => {
       const oldGameServer = plainToInstance(
         StaticGameServer,
@@ -156,6 +158,8 @@ describe('StaticGameServersService', () => {
   });
 
   describe('when a gameserver is freed', () => {
+    beforeEach(async () => await service.onModuleInit());
+
     beforeEach(async () => {
       testGameServer.game = new Types.ObjectId();
       testGameServer.isClean = false;
