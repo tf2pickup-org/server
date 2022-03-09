@@ -15,6 +15,7 @@ import { concatMap, filter, groupBy, take } from 'rxjs';
 import { plainToInstance } from 'class-transformer';
 import { GameServerProvider } from '../game-server-provider';
 import { Game } from '@/games/models/game';
+import { NoFreeGameServerAvailableError } from '../errors/no-free-game-server-available.error';
 
 type GameServerConstructor = GameServerProvider['implementingClass'];
 
@@ -92,7 +93,7 @@ export class GameServersService implements OnModuleInit {
       }
     }
 
-    throw new Error('no free game server available');
+    throw new NoFreeGameServerAvailableError();
   }
 
   async assignGameServer(gameId: string): Promise<GameServer> {

@@ -1,5 +1,6 @@
 import { Environment } from '@/environment/environment';
 import { Events } from '@/events/events';
+import { NoFreeGameServerAvailableError } from '@/game-servers/errors/no-free-game-server-available.error';
 import { GameServerProvider } from '@/game-servers/game-server-provider';
 import { GameServer } from '@/game-servers/models/game-server';
 import { GameServersService } from '@/game-servers/services/game-servers.service';
@@ -174,7 +175,7 @@ export class StaticGameServersService
     if (gameServers.length > 0) {
       return gameServers[0];
     } else {
-      throw new Error('no free game server available');
+      throw new NoFreeGameServerAvailableError();
     }
   }
 

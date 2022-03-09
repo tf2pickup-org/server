@@ -1,5 +1,6 @@
 import { Environment } from '@/environment/environment';
 import { Events } from '@/events/events';
+import { NoFreeGameServerAvailableError } from '@/game-servers/errors/no-free-game-server-available.error';
 import {
   GameServer,
   gameServerSchema,
@@ -297,6 +298,41 @@ describe('StaticGameServersService', () => {
       it('should return an empty array', async () => {
         const gameServers = await service.getCleanGameServers();
         expect(gameServers.length).toEqual(0);
+      });
+    });
+  });
+
+  describe('#findFirstGameServer()', () => {
+    describe('when there are clean gameservers', () => {
+      it('should return the first gameserver', async () => {
+        const gameServer = await service.findFirstFreeGameServer();
+        expect(gameServer.id).toEqual(testGameServer.id);
+      });
+    });
+
+    describe('when there are no clean gameservers', () => {
+      beforeEach(async () => {
+        testGameServer.isClean = false;
+        await testGameServer.save();
+      });
+
+      it('should throw an error', async () => {
+        await expect(service.findFirstFreeGameServer()).rejects.toThrow(
+          NoFreeGameServerAvailableError,
+        );
+      });
+    });
+
+    describe('when there are no online gameservers', () => {
+      beforeEach(async () => {
+        testGameServer.isOnline = false;
+        await testGameServer.save();
+      });
+
+      it('should throw an error', async () => {
+        await expect(service.findFirstFreeGameServer()).rejects.toThrow(
+          NoFreeGameServerAvailableError,
+        );
       });
     });
   });

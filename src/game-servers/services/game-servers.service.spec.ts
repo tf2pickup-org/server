@@ -21,6 +21,7 @@ import { GamesService } from '@/games/services/games.service';
 import { Rcon } from 'rcon-client/lib';
 import { GameServerProvider } from '../game-server-provider';
 import { NotImplementedError } from '../errors/not-implemented.error';
+import { NoFreeGameServerAvailableError } from '../errors/no-free-game-server-available.error';
 
 jest.mock('@/games/services/games.service');
 jest.mock('rcon-client', () => {
@@ -199,7 +200,9 @@ describe('GameServersService', () => {
   describe('#findFreeGameServer()', () => {
     describe('when there are no registered providers', () => {
       it('should throw an error', async () => {
-        await expect(service.findFreeGameServer()).rejects.toThrowError();
+        await expect(service.findFreeGameServer()).rejects.toThrow(
+          NoFreeGameServerAvailableError,
+        );
       });
     });
 
