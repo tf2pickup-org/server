@@ -1,4 +1,5 @@
 import { GameServer } from '@/game-servers/models/game-server';
+import { svLogsecret } from '@/games/utils/rcon-commands';
 import { createRcon } from '@/utils/create-rcon';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Exclude } from 'class-transformer';
@@ -6,6 +7,7 @@ import { isEmpty } from 'lodash';
 import { Document } from 'mongoose';
 import { Rcon } from 'rcon-client';
 import { staticGameServerProviderName } from '../static-game-server-provider-name';
+import { generateLogsecret } from '../utils/generate-logsecret';
 import { toValidMumbleChannelName } from '../utils/to-valid-mumble-channel-name';
 
 @Schema()
@@ -57,6 +59,18 @@ export class StaticGameServer extends GameServer {
     return isEmpty(this.customVoiceChannelName)
       ? toValidMumbleChannelName(this.name)
       : this.customVoiceChannelName;
+  }
+
+  async getLogsecret(): Promise<string> {
+    const logsecret = generateLogsecret();
+    let rcon: Rcon;
+    try {
+      rcon = await this.rcon();
+      await rcon.send(svLogsecret(logsecret));
+      return logsecret;
+    } finally {
+      await rcon?.end();
+    }
   }
 }
 

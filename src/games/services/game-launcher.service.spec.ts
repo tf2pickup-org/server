@@ -11,6 +11,7 @@ import { getModelToken, MongooseModule } from '@nestjs/mongoose';
 import { Game, GameDocument, gameSchema } from '../models/game';
 import { Model, Types, Error } from 'mongoose';
 import { staticGameServerProviderName } from '@/game-servers/providers/static-game-server/static-game-server-provider-name';
+import { NotImplementedError } from '@/game-servers/errors/not-implemented.error';
 
 jest.mock('@/game-servers/services/game-servers.service');
 jest.mock('./games.service');
@@ -66,6 +67,7 @@ describe('GameLauncherService', () => {
       voiceChannelName: jest
         .fn()
         .mockRejectedValue(new Error('not implemented')),
+      getLogsecret: jest.fn().mockResolvedValue('FAKE_LOGSECRET'),
     };
   });
 

@@ -3,7 +3,6 @@ import { GamesService } from './games.service';
 import { GameServersService } from '@/game-servers/services/game-servers.service';
 import { ServerConfiguratorService } from './server-configurator.service';
 import { Cron, CronExpression } from '@nestjs/schedule';
-import { generateLogsecret } from '@/game-servers/providers/static-game-server/utils/generate-logsecret';
 import { Game } from '../models/game';
 
 /**
@@ -46,8 +45,9 @@ export class GameLauncherService {
         `using server ${gameServer.name} for game #${game.number}`,
       );
 
-      // step 2: generate logsecret
-      const logSecret = generateLogsecret();
+      // step 2: obtain logsecret
+      const logSecret = await gameServer.getLogsecret();
+      this.logger.debug(`[${gameServer.name}] logsecret is ${game.logSecret}`);
       game = await this.gamesService.update(game.id, { logSecret });
 
       // step 3: configure server
