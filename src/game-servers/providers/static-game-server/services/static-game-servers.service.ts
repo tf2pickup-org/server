@@ -48,46 +48,10 @@ export class StaticGameServersService
     private events: Events,
     private environment: Environment,
     private gameServersService: GameServersService,
-  ) {
-    this.events.gameServerAdded
-      .pipe(filter(({ gameServer }) => isStaticGameServer(gameServer)))
-      .subscribe(({ gameServer }) => {
-        this.logger.log(
-          `game server ${gameServer.name} (${gameServer.address}:${gameServer.port}) added`,
-        );
-      });
+  ) {}
 
-    // log when a server is back online
-    this.events.gameServerUpdated
-      .pipe(
-        filter(({ newGameServer }) => isStaticGameServer(newGameServer)),
-        filter(
-          ({ oldGameServer, newGameServer }) =>
-            (oldGameServer as StaticGameServer).isOnline === false &&
-            (newGameServer as StaticGameServer).isOnline === true,
-        ),
-      )
-      .subscribe(({ newGameServer }) => {
-        this.logger.log(
-          `game server ${newGameServer.name} (${newGameServer.address}:${newGameServer.port}) is back online`,
-        );
-      });
-
-    // log when a server is offline
-    this.events.gameServerUpdated
-      .pipe(
-        filter(({ newGameServer }) => isStaticGameServer(newGameServer)),
-        filter(
-          ({ oldGameServer, newGameServer }) =>
-            (oldGameServer as StaticGameServer).isOnline === true &&
-            (newGameServer as StaticGameServer).isOnline === false,
-        ),
-      )
-      .subscribe(({ newGameServer }) => {
-        this.logger.log(
-          `game server ${newGameServer.name} (${newGameServer.address}:${newGameServer.port}) is offline`,
-        );
-      });
+  async onModuleInit() {
+    this.installLoggers();
 
     // mark the server as dirty when it's taken
     this.events.gameServerUpdated
@@ -111,9 +75,7 @@ export class StaticGameServersService
         delay(serverCleanupDelay),
       )
       .subscribe(({ newGameServer }) => this.cleanupServer(newGameServer.id));
-  }
 
-  async onModuleInit() {
     await this.removeDeadGameServers();
     this.gameServersService.registerProvider(this);
   }
@@ -278,5 +240,47 @@ export class StaticGameServersService
     await Promise.all(
       deadGameServers.map((gameServer) => this.markAsOffline(gameServer.id)),
     );
+  }
+
+  private installLoggers() {
+    this.events.gameServerAdded
+      .pipe(filter(({ gameServer }) => isStaticGameServer(gameServer)))
+      .subscribe(({ gameServer }) => {
+        this.logger.log(
+          `game server ${gameServer.name} (${gameServer.address}:${gameServer.port}) added`,
+        );
+      });
+
+    // log when a server is back online
+    this.events.gameServerUpdated
+      .pipe(
+        filter(({ newGameServer }) => isStaticGameServer(newGameServer)),
+        filter(
+          ({ oldGameServer, newGameServer }) =>
+            (oldGameServer as StaticGameServer).isOnline === false &&
+            (newGameServer as StaticGameServer).isOnline === true,
+        ),
+      )
+      .subscribe(({ newGameServer }) => {
+        this.logger.log(
+          `game server ${newGameServer.name} (${newGameServer.address}:${newGameServer.port}) is back online`,
+        );
+      });
+
+    // log when a server is offline
+    this.events.gameServerUpdated
+      .pipe(
+        filter(({ newGameServer }) => isStaticGameServer(newGameServer)),
+        filter(
+          ({ oldGameServer, newGameServer }) =>
+            (oldGameServer as StaticGameServer).isOnline === true &&
+            (newGameServer as StaticGameServer).isOnline === false,
+        ),
+      )
+      .subscribe(({ newGameServer }) => {
+        this.logger.log(
+          `game server ${newGameServer.name} (${newGameServer.address}:${newGameServer.port}) is offline`,
+        );
+      });
   }
 }
