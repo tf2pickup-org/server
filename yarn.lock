@@ -1568,9 +1568,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@release-it/conventional-changelog@npm:4.2.0":
-  version: 4.2.0
-  resolution: "@release-it/conventional-changelog@npm:4.2.0"
+"@release-it/conventional-changelog@npm:4.2.1":
+  version: 4.2.1
+  resolution: "@release-it/conventional-changelog@npm:4.2.1"
   dependencies:
     concat-stream: ^2.0.0
     conventional-changelog: ^3.1.25
@@ -1578,7 +1578,7 @@ __metadata:
     prepend-file: ^2.0.0
   peerDependencies:
     release-it: ^14.12.1
-  checksum: 24fe6050852c44c1da17edc104ac85988dc9c5af97f0628878061550dc046fa64df2f12f21a7c78b68976ab2ede41543451799161ebce2d29048dc3ed7614074
+  checksum: 5e14789681951159f6abfbd1fb5d4ec284d085d13bf34cd6f36c53d356af479c94be05bfb9fffe3bb7859769055d570adb8218bc99cbce5917a208c32813f03b
   languageName: node
   linkType: hard
 
@@ -9924,7 +9924,7 @@ __metadata:
     "@nestjs/serve-static": 2.2.2
     "@nestjs/testing": 8.4.0
     "@nestjs/websockets": 8.4.0
-    "@release-it/conventional-changelog": 4.2.0
+    "@release-it/conventional-changelog": 4.2.1
     "@types/cache-manager": 3.4.3
     "@types/express": 4.17.13
     "@types/helmet": 0.0.48
