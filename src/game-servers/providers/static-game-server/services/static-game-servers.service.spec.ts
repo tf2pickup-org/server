@@ -50,7 +50,7 @@ jest.mock('rxjs/operators', () => {
 jest.mock('@/game-servers/services/game-servers.service');
 
 const waitForDatabase = () =>
-  new Promise((resolve) => setTimeout(resolve, 100));
+  new Promise((resolve) => setTimeout(resolve, 500));
 
 describe('StaticGameServersService', () => {
   let service: StaticGameServersService;
