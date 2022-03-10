@@ -1,15 +1,16 @@
 version = 1
 
+test_patterns = [
+  "**/*.spec.ts",
+  "**/*.e2e-spec.ts"
+]
+
+exclude_patterns = [
+  "**/node_modules/**",
+  "migrations/**",
+  "**/__mocks__/**"
+]
+
 [[analyzers]]
 name = "javascript"
 enabled = true
-
-exclude_patterns = [
-  "**/node_modules/",
-  "**/__mocks__/"
-]
-
-test_patterns = [
-  "*.e2e-spec.ts*",
-  "*.spec.ts"
-]
