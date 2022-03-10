@@ -45,6 +45,13 @@ export class GameServer extends MongooseDocument {
   async voiceChannelName(): Promise<string> {
     throw new NotImplementedError();
   }
+
+  /**
+   * Obtain a logsecret that is configured for this gameserver.
+   */
+  async getLogsecret(): Promise<string> {
+    throw new NotImplementedError();
+  }
 }
 
 export type GameServerDocument = GameServer & Document;

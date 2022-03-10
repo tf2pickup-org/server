@@ -20,6 +20,7 @@ import { Connection, Error, Types } from 'mongoose';
 import { GameServerNotAssignedError } from '../errors/game-server-not-assigned.error';
 import { Rcon } from 'rcon-client/lib';
 import { staticGameServerProviderName } from '@/game-servers/providers/static-game-server/static-game-server-provider-name';
+import { NotImplementedError } from '@/game-servers/errors/not-implemented.error';
 
 jest.mock('./games.service');
 jest.mock('@/game-servers/services/game-servers.service');
@@ -81,6 +82,7 @@ describe('GameRuntimeService', () => {
       provider: staticGameServerProviderName,
       rcon: jest.fn().mockRejectedValue('not implemented'),
       voiceChannelName: jest.fn(),
+      getLogsecret: jest.fn().mockRejectedValue(new NotImplementedError()),
     };
 
     gameServersService.getById.mockResolvedValue(mockGameServer as any);
