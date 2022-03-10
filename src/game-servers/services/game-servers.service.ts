@@ -151,11 +151,7 @@ export class GameServersService implements OnModuleInit {
   }
 
   private instantiateGameServer(plain: LeanDocument<GameServerDocument>) {
-    const cls = this.discriminators.get(plain.provider);
-    if (cls) {
-      return plainToInstance(cls, plain);
-    } else {
-      return plainToInstance(GameServer, plain);
-    }
+    const cls = this.discriminators.get(plain.provider) ?? GameServer;
+    return plainToInstance(cls, plain);
   }
 }
