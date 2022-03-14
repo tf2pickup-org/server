@@ -47,8 +47,8 @@ export class GameLauncherService {
 
       // step 2: obtain logsecret
       const logSecret = await gameServer.getLogsecret();
-      this.logger.debug(`[${gameServer.name}] logsecret is ${game.logSecret}`);
       game = await this.gamesService.update(game.id, { logSecret });
+      this.logger.debug(`[${gameServer.name}] logsecret is ${game.logSecret}`);
 
       // step 3: configure server
       const { connectString, stvConnectString } =
