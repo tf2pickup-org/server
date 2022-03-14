@@ -1991,10 +1991,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/lodash@npm:4.14.179":
-  version: 4.14.179
-  resolution: "@types/lodash@npm:4.14.179"
-  checksum: 71faa0c8071732c2b7f0bd092850d3cea96fc7912055d57d819cf2ab399a64150e4190d8a4ea35a0905662ddc118be9d2abd55891d8047c085acf98608156149
+"@types/lodash@npm:4.14.180":
+  version: 4.14.180
+  resolution: "@types/lodash@npm:4.14.180"
+  checksum: fc42ae3473695cac6e91553f832fef8eb51a31c1c0381cafa81b00dc3efe18e279786bdda77caf0b90a8340ba2ba7aa46ae6541d69870565f775d04c89128bc1
   languageName: node
   linkType: hard
 
@@ -9933,7 +9933,7 @@ __metadata:
     "@types/jest": 27.4.1
     "@types/jsonschema": 1.1.1
     "@types/jsonwebtoken": 8.5.8
-    "@types/lodash": 4.14.179
+    "@types/lodash": 4.14.180
     "@types/mongodb-uri": 0.9.1
     "@types/mongoose": 5.11.96
     "@types/node": 16.11.26
