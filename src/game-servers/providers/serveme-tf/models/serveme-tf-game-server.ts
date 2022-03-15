@@ -27,19 +27,10 @@ class ServemeTfReservation {
   rcon: string;
 
   @Prop()
-  autoEnd: boolean;
-
-  @Prop()
   logsecret: string;
 
   @Prop()
   steamId: string;
-
-  @Prop()
-  deleteReservationUrl: string;
-
-  @Prop()
-  idleResetReservationUrl: string;
 }
 
 const servemeTfReservationSchema =

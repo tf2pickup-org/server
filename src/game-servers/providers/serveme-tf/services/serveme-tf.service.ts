@@ -54,8 +54,7 @@ export class ServemeTfService implements GameServerProvider, OnModuleInit {
 
   async findFirstFreeGameServer(): Promise<GameServer> {
     try {
-      const { reservation, actions } =
-        await this.servemeTfApiService.reserveServer();
+      const { reservation } = await this.servemeTfApiService.reserveServer();
       await this.servemeTfApiService.waitForServerToStart(reservation.id);
       const { id } = await this.servemeTfGameServerModel.create({
         name: reservation.server.name,
@@ -68,11 +67,8 @@ export class ServemeTfService implements GameServerProvider, OnModuleInit {
           serverId: reservation.server.id,
           password: reservation.password,
           rcon: reservation.rcon,
-          autoEnd: reservation.auto_end,
           logsecret: reservation.logsecret,
           steamId: reservation.steam_uid,
-          deleteReservationUrl: actions.delete,
-          idleResetReservationUrl: actions.idle_reset,
         },
       });
       return plainToInstance(
@@ -80,7 +76,7 @@ export class ServemeTfService implements GameServerProvider, OnModuleInit {
         await this.servemeTfGameServerModel.findById(id).lean().exec(),
       );
     } catch (error) {
-      this.logger.error(`Failed creating reservation (${error})`);
+      this.logger.error(`failed creating reservation: ${error}`);
       throw new NoFreeGameServerAvailableError();
     }
   }

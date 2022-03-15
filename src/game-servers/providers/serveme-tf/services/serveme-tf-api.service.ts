@@ -32,7 +32,7 @@ type ReservationStatus =
   | 'Starting'
   | 'Server updating, please be patient'
   | 'Ready'
-  | 'SDR Ready'
+  | 'SDR Ready' // should not happen
   | 'Ending'
   | 'Ended';
 
@@ -155,7 +155,7 @@ export class ServemeTfApiService {
         map((response) => response.data),
         tap((reservation) =>
           this.logger.log(
-            `serveme.tf reservation id ${reservation.reservation.id} (${reservation.reservation.server.name}) created`,
+            `serveme.tf reservation ${reservation.reservation.id} (${reservation.reservation.server.name}) created`,
           ),
         ),
       ),
@@ -166,14 +166,9 @@ export class ServemeTfApiService {
     return lastValueFrom(
       timer(1000, 1000).pipe(
         switchMap(() => this.fetchReservationDetails(reservationId)),
-        tap(console.log),
         map((reservation) => reservation.reservation.status),
         tap(console.log),
         takeWhile((status: ReservationStatus) => status !== 'Ready'),
-        // takeWhile(
-        //   (reservation: ServemeTfReservationDetailsResponse) =>
-        //     reservation.reservation.status !== 'Ready',
-        // ),
         map(() => null),
       ),
     );
@@ -198,7 +193,7 @@ export class ServemeTfApiService {
         }),
         tap((reservation) =>
           this.logger.log(
-            `serveme.tf reservation id ${reservation.reservation.id} (${reservation.reservation.server.name}) ended`,
+            `serveme.tf reservation ${reservation.reservation.id} (${reservation.reservation.server.name}) ended`,
           ),
         ),
       ),
