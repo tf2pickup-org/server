@@ -3,6 +3,7 @@ import { servemeTfApiEndpoint } from '@configs/urls';
 import { HttpService } from '@nestjs/axios';
 import { Injectable, Logger } from '@nestjs/common';
 import { AxiosRequestConfig } from 'axios';
+import { sample } from 'lodash';
 import {
   of,
   switchMap,
@@ -12,6 +13,7 @@ import {
   timer,
   takeWhile,
   lastValueFrom,
+  exhaustMap,
 } from 'rxjs';
 
 interface ServemeTfServerOption {
@@ -113,40 +115,24 @@ export class ServemeTfApiService {
   ) {}
 
   async reserveServer(): Promise<ServemeTfReservationDetailsResponse> {
-    let bounds: ReservationBounds;
-    let rcon: string;
-
     // https://github.com/Arie/serveme#api
     return await lastValueFrom(
-      of(`${servemeTfApiEndpoint}/new`).pipe(
-        switchMap((url) =>
-          this.httpService.get<ServemeTfEntryResponse>(url, this.config),
-        ),
-        map((response) => response.data),
-        tap((response) => (bounds = response.reservation)),
-        switchMap((entry) =>
-          this.httpService.post<ServemeTfFindServersResponse>(
-            entry.actions.find_servers,
-            {
-              reservation: entry.reservation,
-            },
-            this.config,
-          ),
-        ),
-        map((response) => response.data),
-        tap((response) => (rcon = response.reservation.rcon)),
+      this.fetchServers().pipe(
         switchMap((response) =>
           this.httpService.post<ServemeTfReservationDetailsResponse>(
             response.actions.create,
             {
               reservation: {
-                ...bounds,
-                rcon,
+                starts_at: response.reservation.starts_at,
+                ends_at: response.reservation.ends_at,
+                rcon: response.reservation.rcon,
                 password: 'test',
-                server_id:
-                  response.servers[
-                    Math.floor(Math.random() * response.servers.length)
-                  ].id,
+                server_id: sample(
+                  response.servers
+                    // make sure we dont' take a SDR server
+                    // https://partner.steamgames.com/doc/features/multiplayer/steamdatagramrelay
+                    .filter((server) => server.sdr === false),
+                ).id,
               },
             },
             this.config,
@@ -165,10 +151,15 @@ export class ServemeTfApiService {
   async waitForServerToStart(reservationId: number): Promise<void> {
     return lastValueFrom(
       timer(1000, 1000).pipe(
-        switchMap(() => this.fetchReservationDetails(reservationId)),
+        exhaustMap(() => this.fetchReservationDetails(reservationId)),
         map((reservation) => reservation.reservation.status),
-        tap(console.log),
-        takeWhile((status: ReservationStatus) => status !== 'Ready'),
+        takeWhile((status: ReservationStatus) =>
+          [
+            'Waiting to start',
+            'Starting',
+            'Server updating, please be patient',
+          ].includes(status),
+        ),
         map(() => null),
       ),
     );
@@ -197,6 +188,25 @@ export class ServemeTfApiService {
           ),
         ),
       ),
+    );
+  }
+
+  private fetchServers(): Observable<ServemeTfFindServersResponse> {
+    return of(`${servemeTfApiEndpoint}/new`).pipe(
+      switchMap((url) =>
+        this.httpService.get<ServemeTfEntryResponse>(url, this.config),
+      ),
+      map((response) => response.data),
+      switchMap((entry) =>
+        this.httpService.post<ServemeTfFindServersResponse>(
+          entry.actions.find_servers,
+          {
+            reservation: entry.reservation,
+          },
+          this.config,
+        ),
+      ),
+      map((response) => response.data),
     );
   }
 
