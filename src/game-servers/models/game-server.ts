@@ -52,6 +52,13 @@ export class GameServer extends MongooseDocument {
   async getLogsecret(): Promise<string> {
     throw new NotImplementedError();
   }
+
+  /**
+   * Start the gameserver (in case it needs to be started).
+   */
+  async start(): Promise<this> {
+    return Promise.resolve(this);
+  }
 }
 
 export type GameServerDocument = GameServer & Document;
