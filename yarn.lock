@@ -48,9 +48,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@angular-devkit/core@npm:13.2.6":
-  version: 13.2.6
-  resolution: "@angular-devkit/core@npm:13.2.6"
+"@angular-devkit/core@npm:13.3.0":
+  version: 13.3.0
+  resolution: "@angular-devkit/core@npm:13.3.0"
   dependencies:
     ajv: 8.9.0
     ajv-formats: 2.1.1
@@ -63,23 +63,23 @@ __metadata:
   peerDependenciesMeta:
     chokidar:
       optional: true
-  checksum: ec8589dbd7b2b1c444229be9915c6a1f5ddb3ee26dcc43612f930125d93c7b2be1aabba09e0ba46008883908cd908c7883e67d534313d979cb3ad86b30e06019
+  checksum: 131f8462b8be0a42dcac6c9369cc4b927fa3febd8cbe7099c969fc4ca816334ca9e5970a8fe1353e95b40fe35e8c5b96a759d9f0a3a8864fe4a20df9a8ec3d8b
   languageName: node
   linkType: hard
 
-"@angular-devkit/schematics-cli@npm:13.2.6":
-  version: 13.2.6
-  resolution: "@angular-devkit/schematics-cli@npm:13.2.6"
+"@angular-devkit/schematics-cli@npm:13.3.0":
+  version: 13.3.0
+  resolution: "@angular-devkit/schematics-cli@npm:13.3.0"
   dependencies:
-    "@angular-devkit/core": 13.2.6
-    "@angular-devkit/schematics": 13.2.6
+    "@angular-devkit/core": 13.3.0
+    "@angular-devkit/schematics": 13.3.0
     ansi-colors: 4.1.1
     inquirer: 8.2.0
     minimist: 1.2.5
     symbol-observable: 4.0.0
   bin:
     schematics: bin/schematics.js
-  checksum: a92bc0773031d6b6af339db430cea6469b7e7c98912eec48be7f5ce9cdc0edd2f72d556066ebdf2f90d5f3d2889fa3ddc08e273b3cc84d6429227d63a2a28b9a
+  checksum: ad918cfc803eab43b438b0b459d506c14def075c3ba1307cee17293953dd93a38208aec9e189463264c4a6777387f22e7602f1d259e32cc501d47ee2e50d9636
   languageName: node
   linkType: hard
 
@@ -107,16 +107,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@angular-devkit/schematics@npm:13.2.6":
-  version: 13.2.6
-  resolution: "@angular-devkit/schematics@npm:13.2.6"
+"@angular-devkit/schematics@npm:13.3.0":
+  version: 13.3.0
+  resolution: "@angular-devkit/schematics@npm:13.3.0"
   dependencies:
-    "@angular-devkit/core": 13.2.6
+    "@angular-devkit/core": 13.3.0
     jsonc-parser: 3.0.0
     magic-string: 0.25.7
     ora: 5.4.1
     rxjs: 6.6.7
-  checksum: 0aeade80952a08ddf461f6e3b8fb3643089e5691c5aecb3b330610a197cdb3b0b2f2032a131128d9355146ad6a46a10af2e986dd5eac7d93a7e89374e772a6da
+  checksum: 788b2647641319f7ad4274f3c999b99e356f56f6cb6314e790c4c0a51b10d572fe9e0c1e8e7a2db19b823981f933a8575c32305ba20874c10771f5350b534d13
   languageName: node
   linkType: hard
 
@@ -1125,13 +1125,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nestjs/cli@npm:8.2.3":
-  version: 8.2.3
-  resolution: "@nestjs/cli@npm:8.2.3"
+"@nestjs/cli@npm:8.2.4":
+  version: 8.2.4
+  resolution: "@nestjs/cli@npm:8.2.4"
   dependencies:
-    "@angular-devkit/core": 13.2.6
-    "@angular-devkit/schematics": 13.2.6
-    "@angular-devkit/schematics-cli": 13.2.6
+    "@angular-devkit/core": 13.3.0
+    "@angular-devkit/schematics": 13.3.0
+    "@angular-devkit/schematics-cli": 13.3.0
     "@nestjs/schematics": ^8.0.3
     chalk: 3.0.0
     chokidar: 3.5.3
@@ -1153,7 +1153,7 @@ __metadata:
     webpack-node-externals: 3.0.0
   bin:
     nest: bin/nest.js
-  checksum: 011de1c8a4bc20e140bb400438b85c99cae15d9db67d2f2c67bda8c651a10b8bbd7294f21deb4233c64cfc1e020d3b1bca2467425da82a55c5a428dd18d8a382
+  checksum: 85c270facfc04f98455c006ce18f9071f249d015cd40f5e2c13ef90ae9a78b8c3841c81d5f24f044c7f2523f9d98c7485f1e508a1ed69918488f4dde3c9efea1
   languageName: node
   linkType: hard
 
@@ -9963,7 +9963,7 @@ __metadata:
   resolution: "server@workspace:."
   dependencies:
     "@nestjs/axios": 0.0.7
-    "@nestjs/cli": 8.2.3
+    "@nestjs/cli": 8.2.4
     "@nestjs/common": 8.4.1
     "@nestjs/config": 1.2.1
     "@nestjs/core": 8.4.1
