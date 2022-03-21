@@ -10,7 +10,7 @@ import { Events } from '@/events/events';
 import { GamesService } from '@/games/services/games.service';
 import { GameServer, GameServerDocument } from '../models/game-server';
 import { InjectModel } from '@nestjs/mongoose';
-import { LeanDocument, Model, Types, UpdateQuery } from 'mongoose';
+import { Model, Types, UpdateQuery } from 'mongoose';
 import { concatMap, filter, groupBy, take } from 'rxjs';
 import { plainToInstance } from 'class-transformer';
 import { GameServerProvider } from '../game-server-provider';
@@ -69,7 +69,7 @@ export class GameServersService implements OnModuleInit {
 
   async updateGameServer(
     gameServerId: string | Types.ObjectId,
-    update: UpdateQuery<GameServer>,
+    update: UpdateQuery<GameServerDocument>,
   ): Promise<GameServer> {
     const oldGameServer = await this.getById(gameServerId);
     const newGameServer = this.instantiateGameServer(
@@ -150,7 +150,7 @@ export class GameServersService implements OnModuleInit {
     );
   }
 
-  private instantiateGameServer(plain: LeanDocument<GameServerDocument>) {
+  private instantiateGameServer(plain) {
     const cls = this.discriminators.get(plain.provider) ?? GameServer;
     return plainToInstance(cls, plain);
   }

@@ -100,7 +100,7 @@ export class StaticGameServersService
 
   async updateGameServer(
     gameServerId: string | Types.ObjectId,
-    update: UpdateQuery<StaticGameServer>,
+    update: UpdateQuery<StaticGameServerDocument>,
   ): Promise<StaticGameServer> {
     const oldGameServer = await this.getById(gameServerId);
     const newGameServer = plainToInstance(
