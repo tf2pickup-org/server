@@ -46,6 +46,9 @@ export class ServerConfiguratorService {
     const game = await this.gamesService.getById(gameId);
     const server = await this.gameServersService.getById(game.gameServer);
 
+    this.logger.verbose(`starting gameserver ${server.name}`);
+    await server.start();
+
     this.logger.verbose(`configuring server ${server.name}...`);
 
     let rcon: Rcon;

@@ -68,6 +68,7 @@ describe('GameLauncherService', () => {
         .fn()
         .mockRejectedValue(new Error('not implemented')),
       getLogsecret: jest.fn().mockResolvedValue('FAKE_LOGSECRET'),
+      start: jest.fn().mockResolvedValue(mockGameServer),
     };
   });
 

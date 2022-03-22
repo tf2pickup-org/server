@@ -122,6 +122,7 @@ describe('ServerConfiguratorService', () => {
       rcon: jest.fn(),
       voiceChannelName: jest.fn(),
       getLogsecret: jest.fn(),
+      start: jest.fn().mockResolvedValue(mockGameServer),
     };
   });
 
@@ -184,6 +185,17 @@ describe('ServerConfiguratorService', () => {
       // @ts-expect-error
       await playersService._reset();
       await gameModel.deleteMany({});
+    });
+
+    it('should wait for the gameserver to start', async () => {
+      const ret = service.configureServer(game.id).then(() => {
+        expect(mockGameServer.start).toHaveBeenCalledTimes(1);
+      });
+      for (let i = 0; i < stableTestCoefficient; i++) {
+        jest.runAllTimers();
+        await flushPromises();
+      }
+      return ret;
     });
 
     it('should execute correct rcon commands', async () => {

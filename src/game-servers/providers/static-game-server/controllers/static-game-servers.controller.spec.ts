@@ -57,6 +57,7 @@ describe('GameServers Controller', () => {
       isClean: true,
       lastHeartbeatAt: new Date(),
       priority: 1,
+      start: jest.fn().mockResolvedValue(mockGameServer),
     };
   });
 
