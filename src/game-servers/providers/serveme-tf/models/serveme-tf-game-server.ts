@@ -5,6 +5,8 @@ import { Exclude, Type } from 'class-transformer';
 import { Rcon } from 'rcon-client/lib';
 import { toValidMumbleChannelName } from '../../static-game-server/utils/to-valid-mumble-channel-name';
 import { Document } from 'mongoose';
+import { app } from '@/app';
+import { ServemeTfApiService } from '../services/serveme-tf-api.service';
 
 @Schema()
 class ServemeTfReservation {
@@ -58,6 +60,12 @@ export class ServemeTfGameServer extends GameServer {
 
   async getLogsecret(): Promise<string> {
     return this.reservation.logsecret;
+  }
+
+  async start(): Promise<this> {
+    const servemeTfApiService = await app.resolve(ServemeTfApiService);
+    await servemeTfApiService.waitForServerToStart(this.reservation.id);
+    return this;
   }
 }
 

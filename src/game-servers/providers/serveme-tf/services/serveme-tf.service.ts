@@ -55,7 +55,6 @@ export class ServemeTfService implements GameServerProvider, OnModuleInit {
   async findFirstFreeGameServer(): Promise<GameServer> {
     try {
       const { reservation } = await this.servemeTfApiService.reserveServer();
-      await this.servemeTfApiService.waitForServerToStart(reservation.id);
       const { id } = await this.servemeTfGameServerModel.create({
         name: reservation.server.name,
         address: reservation.server.ip,
