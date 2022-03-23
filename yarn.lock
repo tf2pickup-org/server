@@ -3346,6 +3346,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"brace-expansion@npm:^2.0.1":
+  version: 2.0.1
+  resolution: "brace-expansion@npm:2.0.1"
+  dependencies:
+    balanced-match: ^1.0.0
+  checksum: a61e7cd2e8a8505e9f0036b3b6108ba5e926b4b55089eeb5550cd04a471fe216c96d4fe7e4c7f995c728c554ae20ddfc4244cad10aef255e72b62930afd233d1
+  languageName: node
+  linkType: hard
+
 "braces@npm:^3.0.1, braces@npm:~3.0.2":
   version: 3.0.2
   resolution: "braces@npm:3.0.2"
@@ -3640,7 +3649,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"chalk@npm:^2.0.0, chalk@npm:^2.4.1":
+"chalk@npm:^2.0.0, chalk@npm:^2.4.2":
   version: 2.4.2
   resolution: "chalk@npm:2.4.2"
   dependencies:
@@ -3889,7 +3898,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"commander@npm:^2.19.0, commander@npm:^2.20.0":
+"commander@npm:^2.20.0, commander@npm:^2.20.3":
   version: 2.20.3
   resolution: "commander@npm:2.20.3"
   checksum: ab8c07884e42c3a8dbc5dd9592c606176c7eb5c1ca5ff274bcf907039b2c41de3626f684ea75ccf4d361ba004bbaff1f577d5384c155f3871e456bdf27becf9e
@@ -4656,17 +4665,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dotenv@npm:16.0.0":
+"dotenv@npm:16.0.0, dotenv@npm:^16.0.0":
   version: 16.0.0
   resolution: "dotenv@npm:16.0.0"
   checksum: 664cebb51f0a9a1d1b930f51f0271e72e26d62feaecc9dc03df39453dd494b4e724809ca480fb3ec3213382b1ed3f791aaeb83569a137f9329ce58efd4853dbf
-  languageName: node
-  linkType: hard
-
-"dotenv@npm:^6.1.0":
-  version: 6.2.0
-  resolution: "dotenv@npm:6.2.0"
-  checksum: d4aa189741ff45553038b0436dfdb79143c29760d3481b4b19d9f1c59fb8cc69190ab83674e07b32b3dd2ae477579619cde9f7586ea82086151dbbac5626c54c
   languageName: node
   linkType: hard
 
@@ -7849,18 +7851,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"migrate@npm:1.7.0":
-  version: 1.7.0
-  resolution: "migrate@npm:1.7.0"
+"migrate@npm:1.8.0":
+  version: 1.8.0
+  resolution: "migrate@npm:1.8.0"
   dependencies:
-    chalk: ^2.4.1
-    commander: ^2.19.0
+    chalk: ^2.4.2
+    commander: ^2.20.3
     dateformat: ^3.0.3
-    dotenv: ^6.1.0
+    dotenv: ^16.0.0
     inherits: ^2.0.3
-    minimatch: ^3.0.4
+    minimatch: ^5.0.1
     mkdirp: ^0.5.1
-    slug: ^0.9.2
+    slug: ^5.3.0
   bin:
     migrate: bin/migrate
     migrate-create: bin/migrate-create
@@ -7868,7 +7870,7 @@ __metadata:
     migrate-init: bin/migrate-init
     migrate-list: bin/migrate-list
     migrate-up: bin/migrate-up
-  checksum: c8f3b464965cb677e5b6a5fb04e00eb476dcd720943a81f47d12c3e41a0f528332d7f9c02ed1ba2205bf010fed0e29b6ce36aba6d31544f3e0c9b01774ab0540
+  checksum: 61eeaf5be81ec03bac8679dcc78b052b16e8fcd635d1c9dc80294ee47f5738163a78578c794b1b4329d079c582745bfe531ab8108a163e05814006ab2f86e566
   languageName: node
   linkType: hard
 
@@ -7956,6 +7958,15 @@ __metadata:
   dependencies:
     brace-expansion: ^1.1.7
   checksum: 66ac295f8a7b59788000ea3749938b0970344c841750abd96694f80269b926ebcafad3deeb3f1da2522978b119e6ae3a5869b63b13a7859a456b3408bd18a078
+  languageName: node
+  linkType: hard
+
+"minimatch@npm:^5.0.1":
+  version: 5.0.1
+  resolution: "minimatch@npm:5.0.1"
+  dependencies:
+    brace-expansion: ^2.0.1
+  checksum: b34b98463da4754bc526b244d680c69d4d6089451ebe512edaf6dd9eeed0279399cfa3edb19233513b8f830bf4bfcad911dddcdf125e75074100d52f724774f0
   languageName: node
   linkType: hard
 
@@ -10014,7 +10025,7 @@ __metadata:
     jsonschema: 1.4.0
     jsonwebtoken: 8.5.1
     lodash: 4.17.21
-    migrate: 1.7.0
+    migrate: 1.8.0
     moment: 2.29.1
     mongodb-memory-server: 8.4.1
     mongodb-snapshot: 1.4.1
@@ -10138,14 +10149,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"slug@npm:^0.9.2":
-  version: 0.9.4
-  resolution: "slug@npm:0.9.4"
-  dependencies:
-    unicode: ">= 0.3.1"
-  bin:
-    slug: bin/slug.js
-  checksum: bd262d8ca5527d4648531743f18a8694b1e1c554882df80af9117c911ef5e6d208a6d80161607656a39375d8e5b9e42bcc407cbcd030cd14cac17f0786b4a5d7
+"slug@npm:^5.3.0":
+  version: 5.3.0
+  resolution: "slug@npm:5.3.0"
+  checksum: 24fce3b96bc9c26f54f0cd4fc224b17113fa048574bd5ceb61d1a22d7a28f221ebf5a4d134a30087eadad24685a1e477c6f3d3b3004f246aed7e556455d59780
   languageName: node
   linkType: hard
 
@@ -11249,13 +11256,6 @@ __metadata:
   bin:
     uglifyjs: bin/uglifyjs
   checksum: 4d8e5c63b2c0455b598cc09ade538cd4fe6d68cb46a9bc563464d749650047592d96aff5a283c1c29a0c27a6ce8f9eb0b3a33525b3e7555b841a53b2b32d6219
-  languageName: node
-  linkType: hard
-
-"unicode@npm:>= 0.3.1":
-  version: 13.0.0
-  resolution: "unicode@npm:13.0.0"
-  checksum: cd7de54ebd6608641fcebd5f8940a37ba9ced376a4f1e0ef2b97b13a9fa136312102ecf0cbeaea769f90536e6c2a0bd362aa8d1205ff02625bdcc5d64d2b056b
   languageName: node
   linkType: hard
 
