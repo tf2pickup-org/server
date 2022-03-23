@@ -48,7 +48,6 @@ export class ServemeTfService implements GameServerProvider, OnModuleInit {
       );
 
     this.gameServersService.registerProvider(this);
-
     this.logger.log('serveme.tf integration enabled');
   }
 
