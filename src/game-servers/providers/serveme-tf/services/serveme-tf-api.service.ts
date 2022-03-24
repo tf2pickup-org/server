@@ -149,7 +149,7 @@ export class ServemeTfApiService {
   }
 
   async waitForServerToStart(reservationId: number): Promise<void> {
-    return lastValueFrom(
+    return await lastValueFrom(
       timer(1000, 1000).pipe(
         exhaustMap(() => this.fetchReservationDetails(reservationId)),
         map((reservation) => reservation.reservation.status),

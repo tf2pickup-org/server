@@ -29,7 +29,7 @@ export class ServemeTfService implements GameServerProvider, OnModuleInit {
     private events: Events,
   ) {}
 
-  async onModuleInit() {
+  onModuleInit() {
     // end the reservation when the game ends
     this.events.gameServerUpdated
       .pipe(
@@ -74,7 +74,7 @@ export class ServemeTfService implements GameServerProvider, OnModuleInit {
         await this.servemeTfGameServerModel.findById(id).lean().exec(),
       );
     } catch (error) {
-      this.logger.error(`failed creating reservation: ${error}`);
+      this.logger.error(`failed creating reservation: ${error.toString()}`);
       throw new NoFreeGameServerAvailableError();
     }
   }
