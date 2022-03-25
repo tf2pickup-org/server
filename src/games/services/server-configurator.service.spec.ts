@@ -51,8 +51,10 @@ class EnvironmentStub {
 }
 
 class RconStub {
+  authenticated = true;
   send = jest.fn().mockResolvedValue(null);
   end = jest.fn();
+  connect = jest.fn();
 }
 
 function flushPromises() {
