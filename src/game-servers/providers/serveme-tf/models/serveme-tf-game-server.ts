@@ -63,7 +63,7 @@ export class ServemeTfGameServer extends GameServer {
   }
 
   async start(): Promise<this> {
-    const servemeTfApiService = await app.resolve(ServemeTfApiService);
+    const servemeTfApiService = app.get(ServemeTfApiService);
     await servemeTfApiService.waitForServerToStart(this.reservation.id);
     return this;
   }
