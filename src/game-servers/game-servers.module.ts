@@ -18,9 +18,9 @@ const gameServerModelProvider = MongooseModule.forFeature([
 
 @Module({
   imports: [
-    forwardRef(() => GamesModule),
     gameServerModelProvider,
     GameServersProvidersModule.configure(),
+    forwardRef(() => GamesModule),
   ],
   providers: [GameServersService],
   exports: [GameServersService, gameServerModelProvider],
