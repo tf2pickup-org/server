@@ -1,7 +1,12 @@
 import { app } from '@/app';
+import { GameServer } from '@/game-servers/models/game-server';
 import { createRcon } from '@/utils/create-rcon';
-import { plainToClass } from 'class-transformer';
-import { ServemeTfGameServer } from './serveme-tf-game-server';
+import { plainToClass, plainToInstance } from 'class-transformer';
+import { StaticGameServer } from '../../static-game-server/models/static-game-server';
+import {
+  isServemeTfGameServer,
+  ServemeTfGameServer,
+} from './serveme-tf-game-server';
 
 jest.mock('@/utils/create-rcon');
 jest.mock('@/app', () => ({
@@ -64,6 +69,54 @@ describe('ServemeTfGameServer', () => {
     it('should wait for the server to start', async () => {
       await gameServer.start();
       expect(servemeTfApiService.waitForServerToStart).toHaveBeenCalledWith(42);
+    });
+  });
+});
+
+describe('#isServemeTfGameServer()', () => {
+  let gameServer: GameServer;
+
+  describe('when the server is a ServemeTfGameServer instance', () => {
+    beforeEach(() => {
+      gameServer = plainToClass(ServemeTfGameServer, {
+        provider: 'serveme.tf',
+        id: 'FAKE_GAME_SERVER_ID',
+        createdAt: new Date(),
+        name: 'NewBrigade #16',
+        address: 'FAKE_ADDRESS',
+        port: '27015',
+        reservation: {
+          id: 42,
+          startsAt: new Date(),
+          endsAt: new Date(Date.now() + 2 * 60 * 60 * 1000),
+          serverId: 128,
+          password: 'FAKE_SERVER_PASSWORD',
+          rcon: 'FAKE_RCON_PASSWORD',
+          logsecret: 'FAKE_LOGSECRET',
+          steamId: 'FAKE_STEAM_ID',
+        },
+      });
+    });
+
+    it('should return true', () => {
+      expect(isServemeTfGameServer(gameServer)).toBe(true);
+    });
+  });
+
+  describe('when the server is not a ServemeTfGameServer instance', () => {
+    beforeEach(() => {
+      gameServer = plainToInstance(StaticGameServer, {
+        provider: 'static',
+        id: 'FAKE_GAME_SERVER_ID',
+        createdAt: new Date(),
+        name: 'tf2pickup.org #1',
+        address: 'FAKE_ADDRESS',
+        port: '27015',
+      });
+    });
+
+    it('should return false', () => {
+      expect(isServemeTfGameServer(gameServer)).toBe(false);
     });
   });
 });
