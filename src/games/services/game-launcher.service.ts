@@ -4,6 +4,7 @@ import { GameServersService } from '@/game-servers/services/game-servers.service
 import { ServerConfiguratorService } from './server-configurator.service';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { Game } from '../models/game';
+import { Mutex } from 'async-mutex';
 
 /**
  * This service is responsible for launching a single game.
@@ -14,6 +15,7 @@ import { Game } from '../models/game';
 @Injectable()
 export class GameLauncherService {
   private logger = new Logger(GameLauncherService.name);
+  private mutex = new Mutex();
 
   constructor(
     @Inject(forwardRef(() => GamesService)) private gamesService: GamesService,
@@ -28,6 +30,23 @@ export class GameLauncherService {
    * @memberof GameLauncherService
    */
   async launch(gameId: string): Promise<Game> {
+    return await this.mutex.runExclusive(
+      async () => await this.doLaunch(gameId),
+    );
+  }
+
+  @Cron(CronExpression.EVERY_MINUTE)
+  async launchOrphanedGames() {
+    return await this.mutex.runExclusive(async () => {
+      const orphanedGames = await this.gamesService.getOrphanedGames();
+      for (const game of orphanedGames) {
+        this.logger.verbose(`launching game #${game.number}...`);
+        await this.doLaunch(game.id);
+      }
+    });
+  }
+
+  private async doLaunch(gameId: string): Promise<Game> {
     let game = await this.gamesService.getById(gameId);
 
     if (!game.isInProgress()) {
@@ -47,8 +66,8 @@ export class GameLauncherService {
 
       // step 2: obtain logsecret
       const logSecret = await gameServer.getLogsecret();
-      this.logger.debug(`[${gameServer.name}] logsecret is ${game.logSecret}`);
       game = await this.gamesService.update(game.id, { logSecret });
+      this.logger.debug(`[${gameServer.name}] logsecret is ${game.logSecret}`);
 
       // step 3: configure server
       const { connectString, stvConnectString } =
@@ -68,15 +87,6 @@ export class GameLauncherService {
       return game;
     } catch (error) {
       this.logger.error(`Error launching game #${game.number}: ${error}`);
-    }
-  }
-
-  @Cron(CronExpression.EVERY_MINUTE) // every minute
-  async launchOrphanedGames() {
-    const orphanedGames = await this.gamesService.getOrphanedGames();
-    for (const game of orphanedGames) {
-      this.logger.verbose(`launching game #${game.number}...`);
-      await this.launch(game.id);
     }
   }
 }
