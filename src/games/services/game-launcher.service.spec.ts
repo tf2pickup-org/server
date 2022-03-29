@@ -124,9 +124,10 @@ describe('GameLauncherService', () => {
     });
 
     it('should launch orphaned games', async () => {
-      const spy = jest.spyOn(service, 'launch');
       await service.launchOrphanedGames();
-      expect(spy).toHaveBeenCalledWith(game.id);
+      expect(serverConfiguratorService.configureServer).toHaveBeenCalledWith(
+        game.id,
+      );
     });
   });
 });
