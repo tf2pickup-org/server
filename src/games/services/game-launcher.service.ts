@@ -30,14 +30,14 @@ export class GameLauncherService {
    * @memberof GameLauncherService
    */
   async launch(gameId: string): Promise<Game> {
-    return await this.mutex.runExclusive(async () => {
-      return await this.doLaunch(gameId);
-    });
+    return await this.mutex.runExclusive(
+      async () => await this.doLaunch(gameId),
+    );
   }
 
   @Cron(CronExpression.EVERY_MINUTE)
   async launchOrphanedGames() {
-    this.mutex.runExclusive(async () => {
+    return await this.mutex.runExclusive(async () => {
       const orphanedGames = await this.gamesService.getOrphanedGames();
       for (const game of orphanedGames) {
         this.logger.verbose(`launching game #${game.number}...`);

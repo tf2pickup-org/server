@@ -7,11 +7,14 @@ import { Events } from '@/events/events';
 import { GameServer } from '@/game-servers/models/game-server';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
-import { getModelToken, MongooseModule } from '@nestjs/mongoose';
+import {
+  getConnectionToken,
+  getModelToken,
+  MongooseModule,
+} from '@nestjs/mongoose';
 import { Game, GameDocument, gameSchema } from '../models/game';
-import { Model, Types, Error } from 'mongoose';
+import { Model, Types, Error, Connection } from 'mongoose';
 import { staticGameServerProviderName } from '@/game-servers/providers/static-game-server/static-game-server-provider-name';
-import { NotImplementedError } from '@/game-servers/errors/not-implemented.error';
 
 jest.mock('@/game-servers/services/game-servers.service');
 jest.mock('./games.service');
@@ -26,6 +29,7 @@ describe('GameLauncherService', () => {
   let game: GameDocument;
   let gameModel: Model<GameDocument>;
   let mockGameServer: jest.Mocked<GameServer>;
+  let connection: Connection;
 
   beforeAll(async () => (mongod = await MongoMemoryServer.create()));
   afterAll(async () => await mongod.stop());
@@ -55,6 +59,7 @@ describe('GameLauncherService', () => {
     gameServersService = module.get(GameServersService);
     serverConfiguratorService = module.get(ServerConfiguratorService);
     gameModel = module.get(getModelToken(Game.name));
+    connection = module.get(getConnectionToken());
 
     mockGameServer = {
       id: 'FAKE_GAME_SERVER_ID',
@@ -81,12 +86,11 @@ describe('GameLauncherService', () => {
 
     // @ts-expect-error
     game = await gamesService._createOne();
-    game.gameServer = new Types.ObjectId();
-    await game.save();
   });
 
   afterEach(async () => {
     await gameModel.deleteMany({});
+    await connection.close();
   });
 
   it('should be defined', () => {
