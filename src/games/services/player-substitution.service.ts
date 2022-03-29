@@ -64,7 +64,7 @@ export class PlayerSubstitutionService implements OnModuleInit {
   }
 
   async substitutePlayer(gameId: string, playerId: string, adminId?: string) {
-    return this.mutex.runExclusive(async () => {
+    return await this.mutex.runExclusive(async () => {
       let game = await this.gamesService.getById(gameId);
       const slot = game.findPlayerSlot(playerId);
       if (!slot) {
@@ -121,10 +121,12 @@ export class PlayerSubstitutionService implements OnModuleInit {
         const roleToMention = this.discordService.findRole(
           this.environment.discordQueueNotificationsMentionRole,
         );
-        let message: Message;
+        let message: Message; // skipcq: JS-0309
 
         if (roleToMention?.mentionable) {
-          message = await channel.send(`${roleToMention}`, { embed });
+          message = await channel.send(`${roleToMention.toString()}`, {
+            embed,
+          });
         } else {
           message = await channel.send({ embed });
         }
@@ -133,10 +135,12 @@ export class PlayerSubstitutionService implements OnModuleInit {
       }
 
       if (game.gameServer) {
-        this.gameRuntimeService.sayChat(
-          game.gameServer.toString(),
-          `Looking for replacement for ${player.name}...`,
-        );
+        this.gameRuntimeService
+          .sayChat(
+            game.gameServer.toString(),
+            `Looking for replacement for ${player.name}...`,
+          )
+          .catch((error) => this.logger.warn(error));
       }
 
       return game;
@@ -309,10 +313,12 @@ export class PlayerSubstitutionService implements OnModuleInit {
       const replacee = await this.playersService.getById(replaceeId);
 
       if (game.gameServer) {
-        this.gameRuntimeService.sayChat(
-          game.gameServer.toString(),
-          `${replacement.name} is replacing ${replacee.name} on ${replacementSlot.gameClass}.`,
-        );
+        this.gameRuntimeService
+          .sayChat(
+            game.gameServer.toString(),
+            `${replacement.name} is replacing ${replacee.name} on ${replacementSlot.gameClass}.`,
+          )
+          .catch((error) => this.logger.warn(error));
       }
 
       await this.deleteDiscordAnnouncement(replaceeId);
@@ -330,11 +336,9 @@ export class PlayerSubstitutionService implements OnModuleInit {
       });
 
       if (game.gameServer) {
-        this.gameRuntimeService.replacePlayer(
-          game.id,
-          replaceeId,
-          replacementSlot,
-        );
+        this.gameRuntimeService
+          .replacePlayer(game.id, replaceeId, replacementSlot)
+          .catch((error) => this.logger.warn(error));
       }
       return game;
     });
