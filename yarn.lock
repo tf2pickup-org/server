@@ -1676,6 +1676,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@supercharge/request-ip@npm:^1.2.0":
+  version: 1.2.0
+  resolution: "@supercharge/request-ip@npm:1.2.0"
+  checksum: 5a963a7adc13f25a7f446646236e3ad84b24f0e34358569a776f95e51b7d07ac27d86fd14722da35c694321073a06c2a0f8547e20e57cc9386f8b14bce714fd8
+  languageName: node
+  linkType: hard
+
 "@szmarczak/http-timer@npm:^1.1.2":
   version: 1.1.2
   resolution: "@szmarczak/http-timer@npm:1.1.2"
@@ -6576,13 +6583,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"is_js@npm:^0.9.0":
-  version: 0.9.0
-  resolution: "is_js@npm:0.9.0"
-  checksum: bf7f0fc52187eda1ca597da0a20b85c4828b9bca5f08c5f2f6dd64d437384bdc9628674c78cee510f9600050871f7d783738d35dc6f5fe80e2a8848be5fbdce9
-  languageName: node
-  linkType: hard
-
 "isarray@npm:0.0.1":
   version: 0.0.1
   resolution: "isarray@npm:0.0.1"
@@ -8390,15 +8390,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"nestjs-real-ip@npm:2.0.0":
-  version: 2.0.0
-  resolution: "nestjs-real-ip@npm:2.0.0"
+"nestjs-real-ip@npm:2.1.0":
+  version: 2.1.0
+  resolution: "nestjs-real-ip@npm:2.1.0"
   dependencies:
-    request-ip: ^2.1.3
+    "@supercharge/request-ip": ^1.2.0
   peerDependencies:
     "@nestjs/common": ^8.0.0
     request-ip: ^2.1.3
-  checksum: add3b90f92c91b1bc6f35f97299bfa4d2e3a167a472f1cd2842cdcaf3ed11bcd7b4a4caa0665b915ad1e5ee4476985d7f4703112dd796025bb0b20cf46e0f924
+  checksum: 00127cbfd705a7ee86d94256e268e4422ab4257d2f3542a288a7a848a8cbf17b1d2990694766d466009e873c55aeac43b83e0b7e685be9c949161656c97d424e
   languageName: node
   linkType: hard
 
@@ -9619,15 +9619,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"request-ip@npm:^2.1.3":
-  version: 2.1.3
-  resolution: "request-ip@npm:2.1.3"
-  dependencies:
-    is_js: ^0.9.0
-  checksum: 72048c15140a3e6ef3d3198fb4eaecf2bb52bb0677dcf20202345428d866085fb0596d2450a42382c59df5e79e1973b402952b3362b2ad9f7f7ab5ce6f90487f
-  languageName: node
-  linkType: hard
-
 "require-at@npm:^1.0.6":
   version: 1.0.6
   resolution: "require-at@npm:1.0.6"
@@ -10031,7 +10022,7 @@ __metadata:
     mongodb-snapshot: 1.4.1
     mongodb-uri: 0.9.7
     mongoose: 5.13.12
-    nestjs-real-ip: 2.0.0
+    nestjs-real-ip: 2.1.0
     passport: 0.5.2
     passport-headerapikey: 1.2.2
     passport-jwt: 4.0.0

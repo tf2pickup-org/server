@@ -44,7 +44,7 @@
     "moment": "2.29.1",
     "mongodb-uri": "0.9.7",
     "mongoose": "5.13.12",
-    "nestjs-real-ip": "2.0.0",
+    "nestjs-real-ip": "2.1.0",
     "passport": "0.5.2",
     "passport-headerapikey": "1.2.2",
     "passport-jwt": "4.0.0",
