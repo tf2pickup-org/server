@@ -26,6 +26,7 @@ describe('PopulatePlayersInterceptor', () => {
       ready: false,
       playerId: 'FAKE_PLAYER_ID',
       player: { id: 'FAKE_PLAYER_ID' } as Player,
+      canMakeFriends: false,
     });
     playerPopulatorService.populatePlayers.mockResolvedValue([
       {
@@ -34,6 +35,7 @@ describe('PopulatePlayersInterceptor', () => {
         ready: false,
         playerId: 'FAKE_PLAYER_ID',
         player: { id: 'FAKE_PLAYER_ID' } as Player,
+        canMakeFriends: false,
       },
     ]);
   });
@@ -51,6 +53,7 @@ describe('PopulatePlayersInterceptor', () => {
             gameClass: Tf2ClassName.soldier,
             ready: false,
             playerId: 'FAKE_PLAYER_ID',
+            canMakeFriends: false,
           }),
       };
 
@@ -61,6 +64,7 @@ describe('PopulatePlayersInterceptor', () => {
           ready: false,
           playerId: 'FAKE_PLAYER_ID',
           player: { id: 'FAKE_PLAYER_ID' },
+          canMakeFriends: false,
         });
         resolve();
       });
@@ -76,6 +80,7 @@ describe('PopulatePlayersInterceptor', () => {
               gameClass: Tf2ClassName.soldier,
               ready: false,
               playerId: 'FAKE_PLAYER_ID',
+              canMakeFriends: false,
             },
           ]),
       };
@@ -88,6 +93,7 @@ describe('PopulatePlayersInterceptor', () => {
             ready: false,
             playerId: 'FAKE_PLAYER_ID',
             player: { id: 'FAKE_PLAYER_ID' },
+            canMakeFriends: false,
           },
         ]);
         resolve();

@@ -29,6 +29,10 @@
           "count": {
             "type": "integer",
             "minimum": 1
+          },
+          "canMakeFriends": {
+            "type": "boolean",
+            "default": false
           }
         }
       }

@@ -62,8 +62,15 @@ describe('Queue Controller', () => {
         gameClass: Tf2ClassName.soldier,
         ready: false,
         playerId: 'FAKE_ID',
+        canMakeFriends: false,
       },
-      { id: 1, gameClass: Tf2ClassName.soldier, ready: false, playerId: null },
+      {
+        id: 1,
+        gameClass: Tf2ClassName.soldier,
+        ready: false,
+        playerId: null,
+        canMakeFriends: false,
+      },
     ];
     queueService.state = 'waiting';
 
@@ -90,6 +97,7 @@ describe('Queue Controller', () => {
         ready: false,
         playerId: 'FAKE_ID',
         player: { id: 'FAKE_ID' } as Player,
+        canMakeFriends: false,
       },
       {
         id: 1,
@@ -97,6 +105,7 @@ describe('Queue Controller', () => {
         ready: false,
         playerId: null,
         player: null,
+        canMakeFriends: false,
       },
     ]);
   });
@@ -141,12 +150,14 @@ describe('Queue Controller', () => {
           gameClass: Tf2ClassName.soldier,
           ready: false,
           playerId: 'FAKE_ID',
+          canMakeFriends: false,
         },
         {
           id: 1,
           gameClass: Tf2ClassName.soldier,
           ready: false,
           playerId: null,
+          canMakeFriends: false,
         },
       ]);
     });

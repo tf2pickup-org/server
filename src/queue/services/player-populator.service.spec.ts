@@ -64,6 +64,7 @@ describe('PlayerPopulatorService', () => {
           gameClass: Tf2ClassName.soldier,
           ready: false,
           playerId: null,
+          canMakeFriends: false,
         };
         expect(await service.populatePlayer(slot)).toEqual({
           ...slot,
@@ -79,6 +80,7 @@ describe('PlayerPopulatorService', () => {
           gameClass: Tf2ClassName.soldier,
           ready: false,
           playerId: mockPlayer.id,
+          canMakeFriends: false,
         };
         expect(await service.populatePlayer(slot)).toEqual({
           ...slot,
@@ -96,12 +98,14 @@ describe('PlayerPopulatorService', () => {
           gameClass: Tf2ClassName.soldier,
           ready: false,
           playerId: null,
+          canMakeFriends: false,
         },
         {
           id: 1,
           gameClass: Tf2ClassName.soldier,
           ready: false,
           playerId: mockPlayer.id,
+          canMakeFriends: false,
         },
       ];
 
@@ -112,6 +116,7 @@ describe('PlayerPopulatorService', () => {
           ready: false,
           playerId: null,
           player: null,
+          canMakeFriends: false,
         },
         {
           id: 1,
@@ -119,6 +124,7 @@ describe('PlayerPopulatorService', () => {
           ready: false,
           playerId: mockPlayer.id,
           player: plainToInstance(Player, mockPlayer.toObject()),
+          canMakeFriends: false,
         },
       ]);
     });

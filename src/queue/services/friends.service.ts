@@ -1,6 +1,9 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { QueueService } from './queue.service';
 import { Events } from '@/events/events';
+import { PlayerNotInTheQueueError } from '../errors/player-not-in-the-queue.error';
+import { CannotMarkPlayerAsFriendError } from '../errors/cannot-mark-player-as-friend.error';
+import { PlayerAlreadyMarkedAsFriendError } from '../errors/player-already-marked-as-friend.error';
 
 export interface Friendship {
   sourcePlayerId: string;
@@ -30,27 +33,36 @@ export class FriendsService implements OnModuleInit {
     } else {
       const sourcePlayerSlot =
         this.queueService.findSlotByPlayerId(sourcePlayerId);
+      if (!sourcePlayerSlot) {
+        throw new PlayerNotInTheQueueError(sourcePlayerId);
+      }
+
       const targetPlayerSlot =
         this.queueService.findSlotByPlayerId(targetPlayerId);
-      if (!sourcePlayerSlot || !targetPlayerSlot) {
-        throw new Error('player not in the queue');
+      if (!targetPlayerSlot) {
+        throw new PlayerNotInTheQueueError(targetPlayerId);
       }
 
-      if (sourcePlayerSlot.gameClass !== 'medic') {
-        throw new Error('only medics can make friends');
-      }
-
-      if (targetPlayerSlot.gameClass === 'medic') {
-        throw new Error('cannot make the other medic as a friend');
-      }
-
-      if (
-        targetPlayerId !== null &&
-        !!this.friendships.find((f) => f.targetPlayerId === targetPlayerId)
-      ) {
-        throw new Error(
-          'this player is already marked as a friend by another player',
+      if (!sourcePlayerSlot.canMakeFriends) {
+        throw new CannotMarkPlayerAsFriendError(
+          sourcePlayerId,
+          sourcePlayerSlot.gameClass,
+          targetPlayerId,
+          targetPlayerSlot.gameClass,
         );
+      }
+
+      if (sourcePlayerSlot.gameClass === targetPlayerSlot.gameClass) {
+        throw new CannotMarkPlayerAsFriendError(
+          sourcePlayerId,
+          sourcePlayerSlot.gameClass,
+          targetPlayerId,
+          targetPlayerSlot.gameClass,
+        );
+      }
+
+      if (this.friendships.find((f) => f.targetPlayerId === targetPlayerId)) {
+        throw new PlayerAlreadyMarkedAsFriendError(targetPlayerId);
       }
 
       this.friendships = [
