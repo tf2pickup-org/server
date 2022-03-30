@@ -8,8 +8,9 @@ import {
   MongooseModule,
 } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
+import { plainToInstance } from 'class-transformer';
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import { Connection, Model } from 'mongoose';
+import { Connection, Model, Types } from 'mongoose';
 import { Subject } from 'rxjs';
 import {
   ServemeTfGameServer,
@@ -21,7 +22,14 @@ import { ServemeTfService } from './serveme-tf.service';
 
 jest.mock('@/game-servers/services/game-servers.service');
 jest.mock('./serveme-tf-api.service');
-jest.mock('@/events/events');
+
+jest.mock('rxjs/operators', () => {
+  const operators = jest.requireActual('rxjs/operators');
+  return {
+    ...operators,
+    delay: jest.fn(() => (s) => s),
+  };
+});
 
 describe('ServemeTfService', () => {
   let service: ServemeTfService;
@@ -30,14 +38,10 @@ describe('ServemeTfService', () => {
   let servemeTfGameServerModel: Model<ServemeTfGameServerDocument>;
   let servemeTfApiService: jest.Mocked<ServemeTfApiService>;
   let gameServersService: jest.Mocked<GameServersService>;
-  let gameServerUpdated: Subject<any>;
+  let events: Events;
 
   beforeAll(async () => (mongod = await MongoMemoryServer.create()));
   afterAll(async () => await mongod.stop());
-
-  beforeEach(() => {
-    gameServerUpdated = new Subject();
-  });
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -54,12 +58,7 @@ describe('ServemeTfService', () => {
         ServemeTfService,
         GameServersService,
         ServemeTfApiService,
-        {
-          provide: Events,
-          useValue: {
-            gameServerUpdated,
-          },
-        },
+        Events,
       ],
     }).compile();
 
@@ -70,10 +69,11 @@ describe('ServemeTfService', () => {
     );
     servemeTfApiService = module.get(ServemeTfApiService);
     gameServersService = module.get(GameServersService);
+    events = module.get(Events);
   });
 
-  beforeEach(async () => {
-    await service.onModuleInit();
+  beforeEach(() => {
+    service.onModuleInit();
   });
 
   afterEach(async () => {
@@ -87,6 +87,31 @@ describe('ServemeTfService', () => {
 
   it('should register provider', () => {
     expect(gameServersService.registerProvider).toHaveBeenCalledWith(service);
+  });
+
+  describe('when a server is released', () => {
+    beforeEach(() => {
+      const oldGameServer = plainToInstance(ServemeTfGameServer, {
+        provider: 'serveme.tf',
+        game: new Types.ObjectId(),
+        reservation: {
+          id: 42,
+        },
+      });
+
+      const newGameServer = plainToInstance(ServemeTfGameServer, {
+        provider: 'serveme.tf',
+        reservation: {
+          id: 42,
+        },
+      });
+
+      events.gameServerUpdated.next({ oldGameServer, newGameServer });
+    });
+
+    it('should end the reservation', () => {
+      expect(servemeTfApiService.endServerReservation).toHaveBeenCalledWith(42);
+    });
   });
 
   describe('#findFirstGameServer()', () => {
