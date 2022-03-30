@@ -4,6 +4,7 @@ import helmet from 'helmet';
 import { LogLevel } from '@nestjs/common';
 import { IoAdapter } from '@nestjs/platform-socket.io';
 import { ServerOptions } from 'socket.io';
+import { setApp } from './app';
 
 /**
  * https://stackoverflow.com/questions/65957386/cors-error-with-socket-io-connections-on-chrome-v88-and-nestjs-server
@@ -44,6 +45,7 @@ async function bootstrap() {
     }),
   );
 
+  setApp(app);
   await app.listen(3000);
 }
 bootstrap();

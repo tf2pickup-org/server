@@ -86,4 +86,8 @@ export class Environment {
   get twitchClientSecret() {
     return this.configService.get<string>('TWITCH_CLIENT_SECRET');
   }
+
+  get servemeTfApiKey() {
+    return this.configService.get<string>('SERVEME_TF_API_KEY');
+  }
 }

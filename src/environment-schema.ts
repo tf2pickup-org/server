@@ -34,4 +34,5 @@ export const environmentSchema = object({
   DISCORD_ADMIN_NOTIFICATIONS_CHANNEL: any().optional(),
   TWITCH_CLIENT_ID: any().optional(),
   TWITCH_CLIENT_SECRET: any().optional(),
+  SERVEME_TF_API_KEY: any().optional(),
 });

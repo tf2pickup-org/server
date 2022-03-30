@@ -5,6 +5,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { GameServer, gameServerSchema } from './models/game-server';
 import { GameServersProvidersModule } from './providers/game-servers-providers.module';
 import { GameServersController } from './controllers/game-servers.controller';
+import { StaticGameServerModule } from './providers/static-game-server/static-game-server.module';
 
 const gameServerModelProvider = MongooseModule.forFeature([
   {
@@ -18,9 +19,12 @@ const gameServerModelProvider = MongooseModule.forFeature([
 
 @Module({
   imports: [
-    forwardRef(() => GamesModule),
     gameServerModelProvider,
     GameServersProvidersModule.configure(),
+    forwardRef(() => GamesModule),
+
+    // FIXME This is a workaround for (probably) as NestJS bug, this shouldn't be needed here.
+    StaticGameServerModule,
   ],
   providers: [GameServersService],
   exports: [GameServersService, gameServerModelProvider],
