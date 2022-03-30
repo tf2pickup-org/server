@@ -106,6 +106,9 @@ describe('PlayerSubstitutionService', () => {
     await mockGame.save();
 
     playerBansService.getPlayerActiveBans = () => Promise.resolve([]);
+
+    gameRuntimeService.sayChat.mockResolvedValue(null);
+    gameRuntimeService.replacePlayer.mockResolvedValue(null);
   });
 
   afterEach(async () => {
