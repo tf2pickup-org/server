@@ -4411,7 +4411,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"debug@npm:4.3.3, debug@npm:^4.3.3":
+"debug@npm:4.3.4":
+  version: 4.3.4
+  resolution: "debug@npm:4.3.4"
+  dependencies:
+    ms: 2.1.2
+  peerDependenciesMeta:
+    supports-color:
+      optional: true
+  checksum: 3dbad3f94ea64f34431a9cbf0bafb61853eda57bff2880036153438f50fb5a84f27683ba0d8e5426bf41a8c6ff03879488120cf5b3a761e77953169c0600a708
+  languageName: node
+  linkType: hard
+
+"debug@npm:^4.3.3":
   version: 4.3.3
   resolution: "debug@npm:4.3.3"
   dependencies:
@@ -6314,6 +6326,28 @@ __metadata:
   languageName: node
   linkType: hard
 
+"inquirer@npm:8.2.2":
+  version: 8.2.2
+  resolution: "inquirer@npm:8.2.2"
+  dependencies:
+    ansi-escapes: ^4.2.1
+    chalk: ^4.1.1
+    cli-cursor: ^3.1.0
+    cli-width: ^3.0.0
+    external-editor: ^3.0.3
+    figures: ^3.0.0
+    lodash: ^4.17.21
+    mute-stream: 0.0.8
+    ora: ^5.4.1
+    run-async: ^2.4.0
+    rxjs: ^7.5.5
+    string-width: ^4.1.0
+    strip-ansi: ^6.0.0
+    through: ^2.3.6
+  checksum: 69a2cf32f51af0e94dd66c597fdca42b890ff521b537dbfe1fd532c19a751d54893b7896523691ec30357f6212a80a2417fec7bf34411f369bbf151bdbc95ae9
+  languageName: node
+  linkType: hard
+
 "interpret@npm:^1.0.0":
   version: 1.4.0
   resolution: "interpret@npm:1.4.0"
@@ -7888,12 +7922,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mime-types@npm:2.1.34, mime-types@npm:~2.1.34":
-  version: 2.1.34
-  resolution: "mime-types@npm:2.1.34"
+"mime-db@npm:1.52.0":
+  version: 1.52.0
+  resolution: "mime-db@npm:1.52.0"
+  checksum: 0d99a03585f8b39d68182803b12ac601d9c01abfa28ec56204fa330bc9f3d1c5e14beb049bafadb3dbdf646dfb94b87e24d4ec7b31b7279ef906a8ea9b6a513f
+  languageName: node
+  linkType: hard
+
+"mime-types@npm:2.1.35":
+  version: 2.1.35
+  resolution: "mime-types@npm:2.1.35"
   dependencies:
-    mime-db: 1.51.0
-  checksum: 67013de9e9d6799bde6d669d18785b7e18bcd212e710d3e04a4727f92f67a8ad4e74aee24be28b685adb794944814bde649119b58ee3282ffdbee58f9278d9f3
+    mime-db: 1.52.0
+  checksum: 89a5b7f1def9f3af5dad6496c5ed50191ae4331cc5389d7c521c8ad28d5fdad2d06fd81baf38fed813dc4e46bb55c8145bb0ff406330818c9cf712fb2e9b3836
   languageName: node
   linkType: hard
 
@@ -7903,6 +7944,15 @@ __metadata:
   dependencies:
     mime-db: 1.50.0
   checksum: 05f2a0b3f169fbc51d79bdc7674ceb379dd07dbeadb0143059a7def865224686ee9f9051aeb340e98b6c11dbc06794ce0122181db4312cb1ad054fd90b0d510e
+  languageName: node
+  linkType: hard
+
+"mime-types@npm:~2.1.34":
+  version: 2.1.34
+  resolution: "mime-types@npm:2.1.34"
+  dependencies:
+    mime-db: 1.51.0
+  checksum: 67013de9e9d6799bde6d669d18785b7e18bcd212e710d3e04a4727f92f67a8ad4e74aee24be28b685adb794944814bde649119b58ee3282ffdbee58f9278d9f3
   languageName: node
   linkType: hard
 
@@ -9580,26 +9630,26 @@ __metadata:
   languageName: node
   linkType: hard
 
-"release-it@npm:14.13.1":
-  version: 14.13.1
-  resolution: "release-it@npm:14.13.1"
+"release-it@npm:14.14.0":
+  version: 14.14.0
+  resolution: "release-it@npm:14.14.0"
   dependencies:
     "@iarna/toml": 2.2.5
     "@octokit/rest": 18.12.0
     async-retry: 1.3.3
     chalk: 4.1.2
     cosmiconfig: 7.0.1
-    debug: 4.3.3
+    debug: 4.3.4
     execa: 5.1.1
     form-data: 4.0.0
     git-url-parse: 11.6.0
     globby: 11.0.4
     got: 11.8.3
     import-cwd: 3.0.0
-    inquirer: 8.2.0
+    inquirer: 8.2.2
     is-ci: 3.0.1
     lodash: 4.17.21
-    mime-types: 2.1.34
+    mime-types: 2.1.35
     new-github-release-url: 1.0.0
     open: 7.4.2
     ora: 5.4.1
@@ -9615,7 +9665,7 @@ __metadata:
     yargs-parser: 20.2.9
   bin:
     release-it: bin/release-it.js
-  checksum: 25946668d5d295dc1d854dfdec8fb80968296fbb0a5b033237b7eb96e5fe51e77a3b96b6650f3eeeba5b50a20ddd6a4213b344e0768f38f1d232173a75b81a2f
+  checksum: 0fafde8389d72555f66e34015e27f35fce8b76fd1da0fd03b475b04cd195f89c3b07d7ccb1cc293289c9e29fb4ae0318285d35c22b41e28d7b9062cb0028b6f4
   languageName: node
   linkType: hard
 
@@ -9800,7 +9850,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rxjs@npm:7.5.5":
+"rxjs@npm:7.5.5, rxjs@npm:^7.5.5":
   version: 7.5.5
   resolution: "rxjs@npm:7.5.5"
   dependencies:
@@ -10030,7 +10080,7 @@ __metadata:
     prettier: 2.6.1
     rcon-client: 4.2.3
     reflect-metadata: 0.1.13
-    release-it: 14.13.1
+    release-it: 14.14.0
     rimraf: 3.0.2
     rxjs: 7.5.5
     socket.io-client: 4.4.1
