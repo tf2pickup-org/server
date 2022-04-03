@@ -41,7 +41,7 @@
     "jsonwebtoken": "8.5.1",
     "lodash": "4.17.21",
     "migrate": "1.8.0",
-    "moment": "2.29.1",
+    "moment": "2.29.2",
     "mongodb-uri": "0.9.7",
     "mongoose": "5.13.12",
     "nestjs-real-ip": "2.1.0",
