@@ -1,0 +1,1 @@
+{"indexes":[{"v":{"$numberInt":"2"},"key":{"_id":{"$numberInt":"1"}},"name":"_id_","ns":"pickup-test.futureplayerskills"},{"v":{"$numberInt":"2"},"unique":true,"key":{"steamId":{"$numberInt":"1"}},"name":"steamId_1","ns":"pickup-test.futureplayerskills","background":true}],"uuid":"b019341518cc4f838948a9342cec920a","collectionName":"futureplayerskills","type":"collection"}
