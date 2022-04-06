@@ -23,6 +23,7 @@ import { SlotOccupiedError } from '../errors/slot-occupied.error';
 import { CannotLeaveAtThisQueueStateError } from '../errors/cannot-leave-at-this-queue-state.error';
 import { PlayerNotInTheQueueError } from '../errors/player-not-in-the-queue.error';
 import { WrongQueueStateError } from '../errors/wrong-queue-state.error';
+import { CannotJoinAtThisQueueStateError } from '../errors/cannot-join-at-this-queue-state.error';
 
 @Injectable()
 export class QueueService implements OnModuleInit, OnModuleDestroy {
@@ -101,7 +102,7 @@ export class QueueService implements OnModuleInit, OnModuleDestroy {
   async join(slotId: number, playerId: string): Promise<QueueSlot[]> {
     try {
       if (this.state === 'launching') {
-        throw new Error('cannot join the queue at this stage');
+        throw new CannotJoinAtThisQueueStateError(this.state);
       }
 
       const player = await this.playersService.getById(playerId);
@@ -214,7 +215,7 @@ export class QueueService implements OnModuleInit, OnModuleDestroy {
       this.events.queueSlotsChange.next({ slots: [slot] });
       return slot;
     } else {
-      throw new Error('player is not in the queue');
+      throw new PlayerNotInTheQueueError(playerId);
     }
   }
 
