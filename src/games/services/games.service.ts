@@ -14,7 +14,7 @@ import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { GameState } from '../models/game-state';
 import { ConfigurationService } from '@/configuration/services/configuration.service';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, UpdateQuery } from 'mongoose';
+import { Model, UpdateQuery, Types } from 'mongoose';
 import { GameServersService } from '@/game-servers/services/game-servers.service';
 import { PlayerNotInThisGameError } from '../errors/player-not-in-this-game.error';
 import { URL } from 'url';
@@ -52,7 +52,7 @@ export class GamesService {
     return await this.gameModel.estimatedDocumentCount();
   }
 
-  async getById(gameId: string | ObjectId): Promise<Game> {
+  async getById(gameId: string | Types.ObjectId): Promise<Game> {
     return plainToInstance(
       Game,
       await this.gameModel.findById(gameId).orFail().lean().exec(),

@@ -2,7 +2,6 @@ import { WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server } from 'socket.io';
 import { Inject, OnModuleInit } from '@nestjs/common';
 import { PlayersService } from '@/players/services/players.service';
-import { Error } from 'mongoose';
 import { verify } from 'jsonwebtoken';
 import { Player } from '@/players/models/player';
 
