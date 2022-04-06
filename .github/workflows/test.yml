@@ -78,6 +78,9 @@ jobs:
     - name: Install dependencies
       run: yarn install --immutable
 
+    - name: Restore players collection for e2e tests
+      run: mongorestore mongodb://localhost:27017 --db=tf2pickuppl_e2e_tests --quiet e2e/players.bson
+
     - name: Run e2e tests
       env:
         API_URL: 'http://localhost:3000'
