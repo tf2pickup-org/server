@@ -16,7 +16,7 @@ import { InsufficientTf2InGameHoursError } from '../errors/insufficient-tf2-in-g
 import { Tf2InGameHoursVerificationError } from '../errors/tf2-in-game-hours-verification.error';
 import { PlayerRole } from '../models/player-role';
 import { ConfigurationService } from '@/configuration/services/configuration.service';
-import { Connection, Error, Model } from 'mongoose';
+import { Connection, Error as MongooseError, Model } from 'mongoose';
 import {
   getConnectionToken,
   getModelToken,
@@ -465,7 +465,7 @@ describe('PlayersService', () => {
     it("should fail if the given user doesn't exist", async () => {
       await expect(
         service.acceptTerms(new ObjectId().toString()),
-      ).rejects.toThrow(Error.DocumentNotFoundError);
+      ).rejects.toThrow(MongooseError.DocumentNotFoundError);
     });
   });
 

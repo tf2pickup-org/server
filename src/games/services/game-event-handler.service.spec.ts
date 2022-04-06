@@ -4,15 +4,13 @@ import { PlayersService } from '@/players/services/players.service';
 import { GameRuntimeService } from './game-runtime.service';
 import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
 import { Game, GameDocument, gameSchema } from '../models/game';
-import { ObjectId } from 'mongodb';
 import { Player, PlayerDocument, playerSchema } from '@/players/models/player';
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import { serverCleanupDelay } from '@configs/game-servers';
 import { GamesService } from './games.service';
 import { Events } from '@/events/events';
 import { SlotStatus } from '../models/slot-status';
 import { GameState } from '../models/game-state';
-import { Connection, Model } from 'mongoose';
+import { Connection, Model, Types } from 'mongoose';
 import {
   getConnectionToken,
   getModelToken,
@@ -131,10 +129,10 @@ describe('GameEventHandlerService', () => {
   });
 
   describe('#onMatchEnded()', () => {
-    let gameServerId: ObjectId;
+    let gameServerId: Types.ObjectId;
 
     beforeEach(async () => {
-      gameServerId = new ObjectId();
+      gameServerId = new Types.ObjectId();
       const game = await gameModel.findById(mockGame.id);
       game.gameServer = gameServerId;
       game.state = GameState.started;
@@ -250,7 +248,10 @@ describe('GameEventHandlerService', () => {
     describe('when a wrong gameId is captured', () => {
       it('should throw an error', async () => {
         await expect(
-          service.onDemoUploaded(new ObjectId().toString(), 'FAKE_DEMO_URL'),
+          service.onDemoUploaded(
+            new Types.ObjectId().toString(),
+            'FAKE_DEMO_URL',
+          ),
         ).rejects.toThrow(Error.DocumentNotFoundError);
       });
     });

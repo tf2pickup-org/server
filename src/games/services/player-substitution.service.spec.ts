@@ -20,7 +20,7 @@ import {
   getModelToken,
   MongooseModule,
 } from '@nestjs/mongoose';
-import { Connection, Error, Model } from 'mongoose';
+import { Connection, Error, Model, Types } from 'mongoose';
 import { PlayerNotInThisGameError } from '../errors/player-not-in-this-game.error';
 import { WrongGameSlotStatusError } from '../errors/wrong-game-slot-status.error';
 import { GameInWrongStateError } from '../errors/game-in-wrong-state.error';
@@ -102,7 +102,7 @@ describe('PlayerSubstitutionService', () => {
     // @ts-expect-error
     mockGame = await gamesService._createOne([player1, player2]);
 
-    mockGame.gameServer = new ObjectId();
+    mockGame.gameServer = new Types.ObjectId();
     await mockGame.save();
 
     playerBansService.getPlayerActiveBans = () => Promise.resolve([]);
@@ -434,7 +434,7 @@ describe('PlayerSubstitutionService', () => {
 
     describe('when the given player is involved in another game', () => {
       beforeEach(async () => {
-        player3.activeGame = new ObjectId();
+        player3.activeGame = new Types.ObjectId();
         await player3.save();
       });
 

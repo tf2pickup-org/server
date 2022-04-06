@@ -38,8 +38,6 @@ import { StatisticsModule } from './statistics/statistics.module';
       inject: [Environment],
       useFactory: async (environment: Environment) => ({
         uri: formatMongoose(environment.mongoDbUri),
-        useFindAndModify: false,
-        useCreateIndex: true,
       }),
     }),
     ScheduleModule.forRoot(),

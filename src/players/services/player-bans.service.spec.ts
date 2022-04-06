@@ -6,7 +6,6 @@ import {
   playerBanSchema,
 } from '../models/player-ban';
 import { OnlinePlayersService } from './online-players.service';
-import { ObjectId } from 'mongodb';
 import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { PlayersService } from './players.service';
@@ -190,7 +189,7 @@ describe('PlayerBansService', () => {
         end.setHours(end.getHours() + 1);
 
         invalidBan = {
-          player: new ObjectId(),
+          player: new Types.ObjectId(),
           admin: admin.id,
           start: new Date(),
           end,
