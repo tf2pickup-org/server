@@ -37,7 +37,7 @@ jobs:
       run: yarn test:ci
 
     - name: Upload test coverage info
-      uses: codecov/codecov-action@v2
+      uses: codecov/codecov-action@v3
 
   e2e-tests:
     name: end-to-end
@@ -96,7 +96,7 @@ jobs:
       run: yarn test:e2e
 
     - name: Upload test coverage info
-      uses: codecov/codecov-action@v2
+      uses: codecov/codecov-action@v3
 
   build:
     name: build
