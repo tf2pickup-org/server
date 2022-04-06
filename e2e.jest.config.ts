@@ -18,8 +18,6 @@ const config: InitialOptionsTsJest = {
   preset: 'ts-jest',
   testEnvironment: 'node',
   testMatch: ['<rootDir>/e2e/**/*.e2e-spec.ts'],
-  globalSetup: '<rootDir>/e2e/setup.ts',
-  globalTeardown: '<rootDir>/e2e/teardown.ts',
   slowTestThreshold: 10,
   setupFiles: ['trace-unhandled/register'],
 };
