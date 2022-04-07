@@ -53,7 +53,7 @@ export class PlayerBansService implements OnModuleInit {
     return plainToInstance(
       PlayerBan,
       await this.playerBanModel
-        .find({ player: new Types.ObjectId(playerId) })
+        .find({ player: playerId })
         .sort({ start: -1 })
         .lean()
         .exec(),
@@ -65,7 +65,7 @@ export class PlayerBansService implements OnModuleInit {
   ): Promise<PlayerBan[]> {
     const plain = await this.playerBanModel
       .find({
-        player: new Types.ObjectId(playerId),
+        player: playerId,
         end: {
           $gte: new Date(),
         },
@@ -79,10 +79,10 @@ export class PlayerBansService implements OnModuleInit {
     const player = await this.playersService.getById(props.player.toString());
     const { id } = await this.playerBanModel.create({
       ...props,
-      player: player._id,
-      admin: new Types.ObjectId(props.admin),
+      player: player.id,
+      admin: props.admin,
     });
-    const addedBan = plainToInstance(PlayerBan, await this.getById(id));
+    const addedBan = await this.getById(id);
     this.logger.verbose(
       `ban added for player ${player.id} (reason: ${addedBan.reason})`,
     );

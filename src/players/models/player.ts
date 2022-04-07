@@ -5,6 +5,7 @@ import { MongooseDocument } from '@/utils/mongoose-document';
 import { Exclude, Expose, Transform, Type } from 'class-transformer';
 import { PlayerAvatar, playerAvatarSchema } from './player-avatar';
 import { PlayerRole } from './player-role';
+import { ExposeId } from '@/shared/decorators/expose-id';
 
 @Schema()
 export class Player extends MongooseDocument {
@@ -35,6 +36,7 @@ export class Player extends MongooseDocument {
   @Prop({ index: true })
   etf2lProfileId?: number;
 
+  @ExposeId()
   @Exclude({ toPlainOnly: true })
   @Prop({ ref: 'Game' })
   activeGame?: Types.ObjectId;

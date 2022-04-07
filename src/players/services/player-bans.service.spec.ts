@@ -83,7 +83,7 @@ describe('PlayerBansService', () => {
     end.setHours(end.getHours() + 1);
 
     mockPlayerBan = await playerBanModel.create({
-      player: player._id,
+      player: player.id,
       admin: admin.id,
       start: new Date(),
       end,
@@ -143,7 +143,7 @@ describe('PlayerBansService', () => {
         end.setHours(end.getHours() + 1);
 
         newBan = {
-          player: player.id.toString(),
+          player: player.id,
           admin: admin.id,
           start: new Date(),
           end,
@@ -159,7 +159,7 @@ describe('PlayerBansService', () => {
       it('should emit the playerBanAdded event', async () =>
         new Promise<void>((resolve) => {
           events.playerBanAdded.subscribe(({ ban }) => {
-            expect(ban.player.toString()).toEqual(player.id.toString());
+            expect(ban.player).toEqual(player.id);
             resolve();
           });
 
@@ -190,7 +190,7 @@ describe('PlayerBansService', () => {
 
         invalidBan = {
           player: new Types.ObjectId(),
-          admin: admin.id,
+          admin: admin._id,
           start: new Date(),
           end,
           reason: 'just testing',

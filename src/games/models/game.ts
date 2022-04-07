@@ -22,7 +22,7 @@ export class Game extends MongooseDocument {
   number!: number;
 
   @Type(() => GameSlot)
-  @Prop({ type: [gameSlotSchema], required: true })
+  @Prop({ type: [gameSlotSchema], required: true, _id: false })
   slots!: GameSlot[];
 
   @Exclude({ toPlainOnly: true })
@@ -78,7 +78,9 @@ export class Game extends MongooseDocument {
   logSecret?: string;
 
   findPlayerSlot(playerId: string): GameSlot {
-    return this.slots.find((s) => s.player.equals(playerId));
+    return this.slots.find((s) => {
+      return s.player.equals(playerId);
+    });
   }
 
   activeSlots(): GameSlot[] {
