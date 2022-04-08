@@ -29,25 +29,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@angular-devkit/core@npm:13.3.1":
-  version: 13.3.1
-  resolution: "@angular-devkit/core@npm:13.3.1"
-  dependencies:
-    ajv: 8.9.0
-    ajv-formats: 2.1.1
-    fast-json-stable-stringify: 2.1.0
-    magic-string: 0.25.7
-    rxjs: 6.6.7
-    source-map: 0.7.3
-  peerDependencies:
-    chokidar: ^3.5.2
-  peerDependenciesMeta:
-    chokidar:
-      optional: true
-  checksum: 735fb024f26287c7e35645382f63e6fc3962ada07c1a922e5635d732dd09d41c52258fec3ad02189de7777109dbcc7b56c5269d8bf07602758bc4aa1dcfbdfc4
-  languageName: node
-  linkType: hard
-
 "@angular-devkit/core@npm:13.3.2":
   version: 13.3.2
   resolution: "@angular-devkit/core@npm:13.3.2"
@@ -91,19 +72,6 @@ __metadata:
     ora: 5.4.0
     rxjs: 6.6.7
   checksum: ea68f7611b883119b340a3266388ffbad0b9c4cfb2db342eb60f6c0533985839505d68c5fd2cc5d7ec8f6322be3c731d9b13718506bc12bc444197ae813cf81d
-  languageName: node
-  linkType: hard
-
-"@angular-devkit/schematics@npm:13.3.1":
-  version: 13.3.1
-  resolution: "@angular-devkit/schematics@npm:13.3.1"
-  dependencies:
-    "@angular-devkit/core": 13.3.1
-    jsonc-parser: 3.0.0
-    magic-string: 0.25.7
-    ora: 5.4.1
-    rxjs: 6.6.7
-  checksum: 8ec4eb7cd6024c0746db7c7aa8167b2d0fc7b0f7304b454214639fd415403d630f20222bc7ba00f98c0c08c5365955fd16cd94a955dc980eb7712ee3321fe531
   languageName: node
   linkType: hard
 
@@ -1294,18 +1262,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nestjs/schematics@npm:8.0.9":
-  version: 8.0.9
-  resolution: "@nestjs/schematics@npm:8.0.9"
+"@nestjs/schematics@npm:8.0.10":
+  version: 8.0.10
+  resolution: "@nestjs/schematics@npm:8.0.10"
   dependencies:
-    "@angular-devkit/core": 13.3.1
-    "@angular-devkit/schematics": 13.3.1
+    "@angular-devkit/core": 13.3.2
+    "@angular-devkit/schematics": 13.3.2
     fs-extra: 10.0.1
     jsonc-parser: 3.0.0
     pluralize: 8.0.0
   peerDependencies:
     typescript: ^3.4.5 || ^4.3.5
-  checksum: e223f9d3a9fa0eee0726bbad99ae826f975a2f35e6af931a643a0a18f9ffc8f02e0f4c1f24ac8e8c2c157adb9f8639f1d773b23a5b562f7a4ef84e9d156f4bed
+  checksum: 811fd64bc2dbef0d5d1d28f532dce94e1b6c2014b69d1a11f9b405c84fdf5b880a4b090cc017244d1e158d9d49f60deac9ff3cd04d91af1898d54465086df586
   languageName: node
   linkType: hard
 
@@ -10080,7 +10048,7 @@ __metadata:
     "@nestjs/platform-express": 8.4.4
     "@nestjs/platform-socket.io": 8.4.4
     "@nestjs/schedule": 1.1.0
-    "@nestjs/schematics": 8.0.9
+    "@nestjs/schematics": 8.0.10
     "@nestjs/serve-static": 2.2.2
     "@nestjs/testing": 8.4.4
     "@nestjs/websockets": 8.4.4
