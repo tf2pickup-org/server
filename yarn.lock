@@ -3065,10 +3065,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"async@npm:3.2.0":
-  version: 3.2.0
-  resolution: "async@npm:3.2.0"
-  checksum: 6739fae769e6c9f76b272558f118ef041d45c979c573a8fe93f8cfbc32eb9c92da032e9effe6bbcc9b1131292cde6c4a9e61a442894aa06a262addd8dd3adda1
+"async@npm:3.2.3":
+  version: 3.2.3
+  resolution: "async@npm:3.2.3"
+  checksum: c4bee57ab2249af3dc83ca3ef9acfa8e822c0d5e5aa41bae3eaf7f673648343cd64ecd7d26091ffd357f3f044428b17b5f00098494b6cf8b6b3e9681f0636ca1
   languageName: node
   linkType: hard
 
@@ -3503,14 +3503,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cache-manager@npm:3.6.0":
-  version: 3.6.0
-  resolution: "cache-manager@npm:3.6.0"
+"cache-manager@npm:3.6.1":
+  version: 3.6.1
+  resolution: "cache-manager@npm:3.6.1"
   dependencies:
-    async: 3.2.0
+    async: 3.2.3
     lodash: ^4.17.21
     lru-cache: 6.0.0
-  checksum: c768d2b2927fb245b44a1dbf90d0815ad5318bfa1e4fc733e84a1538189227a4218dade7bfcad0a800e0b0c29e0338d79901cbe506e2e59f729155d73b7a3c51
+  checksum: 638f5b13bd67c9017d8c9189b285b9b5a0ce8cca7ebcc885573ab28f2167cb85471c132033b9c17f1e1c3ca24f4eecb5717e510fcc6aee5a6b436734caaeab43
   languageName: node
   linkType: hard
 
@@ -10384,7 +10384,7 @@ __metadata:
     "@typescript-eslint/parser": 5.18.0
     app-root-path: 3.0.0
     async-mutex: 0.3.2
-    cache-manager: 3.6.0
+    cache-manager: 3.6.1
     class-transformer: 0.5.1
     class-validator: 0.13.2
     copyfiles: 2.4.1
