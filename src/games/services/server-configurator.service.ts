@@ -93,13 +93,17 @@ export class ServerConfiguratorService {
       this.logger.debug(`[${server.name}] setting password to ${password}...`);
       await rcon.send(setPassword(password));
 
-      for (const slot of game.activeSlots()) {
-        const player = await this.playersService.getById(slot.player);
+      const slots = await Promise.all(
+        game.activeSlots().map(async (slot) => ({
+          ...slot,
+          player: await this.playersService.getById(slot.player),
+        })),
+      );
 
-        const playerName = deburr(player.name);
+      for (const slot of slots) {
         const cmd = addGamePlayer(
-          player.steamId,
-          playerName,
+          slot.player.steamId,
+          deburr(slot.player.name),
           slot.team,
           slot.gameClass,
         );
