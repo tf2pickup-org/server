@@ -20,7 +20,7 @@ export class ServemeTfConfiguration extends MongooseDocument {
 
   @IsString()
   @Prop()
-  preferredRegion: string;
+  preferredRegion?: string;
 }
 
 export type ServemeTfConfigurationDocument = ServemeTfConfiguration & Document;
