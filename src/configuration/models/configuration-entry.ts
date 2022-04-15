@@ -7,8 +7,8 @@ import { ConfigurationEntryKey } from './configuration-entry-key';
   discriminatorKey: 'key',
 })
 export class ConfigurationEntry {
-  @Prop({ enum: ConfigurationEntryKey, unique: true })
-  key: ConfigurationEntryKey;
+  @Prop({ unique: true })
+  key: ConfigurationEntryKey | string;
 }
 
 export type ConfigurationEntryDocument = ConfigurationEntry & Document;

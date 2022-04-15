@@ -2,9 +2,12 @@ import { Environment } from '@/environment/environment';
 import { HttpService } from '@nestjs/axios';
 import { Test, TestingModule } from '@nestjs/testing';
 import { of } from 'rxjs';
+import { ServemeTfApiEndpoint } from '../models/serveme-tf-endpoint';
 import { ServemeTfApiService } from './serveme-tf-api.service';
+import { ServemeTfConfigurationService } from './serveme-tf-configuration.service';
 
 jest.mock('@nestjs/axios');
+jest.mock('./serveme-tf-configuration.service');
 
 const environmentStub = {
   servemeTfApiKey: 'SERVEME_TF_FAKE_API_KEY',
@@ -17,6 +20,7 @@ function flushPromises() {
 describe('ServemeTfApiService', () => {
   let service: ServemeTfApiService;
   let httpService: jest.Mocked<HttpService>;
+  let servemeTfConfigurationService: jest.Mocked<ServemeTfConfigurationService>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -27,11 +31,19 @@ describe('ServemeTfApiService', () => {
           provide: Environment,
           useValue: environmentStub,
         },
+        ServemeTfConfigurationService,
       ],
     }).compile();
 
     service = module.get<ServemeTfApiService>(ServemeTfApiService);
     httpService = module.get(HttpService);
+
+    servemeTfConfigurationService = module.get(ServemeTfConfigurationService);
+    servemeTfConfigurationService.getConfiguration.mockResolvedValue({
+      key: 'serveme-tf',
+      apiEndpointUrl: ServemeTfApiEndpoint.servemeTf,
+      preferredRegion: 'FR',
+    });
   });
 
   it('should be defined', () => {
@@ -102,6 +114,24 @@ describe('ServemeTfApiService', () => {
     it('should query the api', async () => {
       const reservation = await service.reserveServer();
       expect(reservation.reservation.server.name).toEqual('FAKE_SERVER_NAME');
+    });
+
+    describe('when the api url is changed', () => {
+      beforeEach(async () => {
+        servemeTfConfigurationService.getConfiguration.mockResolvedValue({
+          key: 'serveme-tf',
+          apiEndpointUrl: ServemeTfApiEndpoint.naServemeTf,
+          preferredRegion: 'FR',
+        });
+      });
+
+      it('should honor the configuration', async () => {
+        await service.reserveServer();
+        expect(httpService.get).toHaveBeenCalledWith(
+          'https://na.serveme.tf/api/reservations/new',
+          expect.any(Object),
+        );
+      });
     });
   });
 

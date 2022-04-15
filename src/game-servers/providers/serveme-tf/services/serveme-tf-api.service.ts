@@ -1,5 +1,4 @@
 import { Environment } from '@/environment/environment';
-import { servemeTfApiEndpoint } from '@configs/urls';
 import { HttpService } from '@nestjs/axios';
 import { Injectable, Logger } from '@nestjs/common';
 import { AxiosRequestConfig } from 'axios';
@@ -14,7 +13,9 @@ import {
   takeWhile,
   lastValueFrom,
   exhaustMap,
+  from,
 } from 'rxjs';
+import { ServemeTfConfigurationService } from './serveme-tf-configuration.service';
 
 interface ServemeTfServerOption {
   id: number;
@@ -112,6 +113,7 @@ export class ServemeTfApiService {
   constructor(
     private httpService: HttpService,
     private environment: Environment,
+    private servemeTfConfigurationService: ServemeTfConfigurationService,
   ) {}
 
   async reserveServer(): Promise<ServemeTfReservationDetailsResponse> {
@@ -192,7 +194,8 @@ export class ServemeTfApiService {
   }
 
   private fetchServers(): Observable<ServemeTfFindServersResponse> {
-    return of(`${servemeTfApiEndpoint}/new`).pipe(
+    return this.getEndpointUrl().pipe(
+      map((url) => `${url}/new`),
       switchMap((url) =>
         this.httpService.get<ServemeTfEntryResponse>(url, this.config),
       ),
@@ -213,11 +216,23 @@ export class ServemeTfApiService {
   private fetchReservationDetails(
     reservationId: number,
   ): Observable<ServemeTfReservationDetailsResponse> {
-    return this.httpService
-      .get<ServemeTfReservationDetailsResponse>(
-        `${servemeTfApiEndpoint}/${reservationId}`,
-        this.config,
+    return this.getEndpointUrl()
+      .pipe(
+        map((url) => `${url}/${reservationId}`),
+        switchMap((url) =>
+          this.httpService.get<ServemeTfReservationDetailsResponse>(
+            url,
+            this.config,
+          ),
+        ),
       )
       .pipe(map((response) => response.data));
+  }
+
+  private getEndpointUrl(): Observable<string> {
+    return from(this.servemeTfConfigurationService.getConfiguration()).pipe(
+      map((configuration) => configuration.apiEndpointUrl),
+      map((uri) => `https://${uri}/api/reservations`),
+    );
   }
 }
