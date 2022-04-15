@@ -6,7 +6,7 @@ const joi = new Proxy(Joi, {
   },
 });
 
-const { object, string, number, any } = joi;
+const { object, string, number, any, when, exist } = joi;
 
 export const environmentSchema = object({
   NODE_ENV: string()
@@ -34,5 +34,10 @@ export const environmentSchema = object({
   DISCORD_ADMIN_NOTIFICATIONS_CHANNEL: any().optional(),
   TWITCH_CLIENT_ID: any().optional(),
   TWITCH_CLIENT_SECRET: any().optional(),
+  SERVEME_TF_API_ENDPOINT: when('SERVEME_TF_API_KEY', {
+    is: exist(),
+    then: string().required(),
+    otherwise: any().optional(),
+  }),
   SERVEME_TF_API_KEY: any().optional(),
 });

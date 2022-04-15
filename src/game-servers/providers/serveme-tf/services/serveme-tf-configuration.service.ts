@@ -6,7 +6,6 @@ import {
   ServemeTfConfiguration,
   ServemeTfConfigurationDocument,
 } from '../models/serveme-tf-configuration';
-import { ServemeTfApiEndpoint } from '../models/serveme-tf-endpoint';
 
 @Injectable()
 export class ServemeTfConfigurationService implements OnModuleInit {
@@ -32,20 +31,11 @@ export class ServemeTfConfigurationService implements OnModuleInit {
     );
   }
 
-  async getApiEndpointUrl(): Promise<ServemeTfApiEndpoint> {
-    return (await this.getConfiguration()).apiEndpointUrl;
+  async setConfiguration(configuration: ServemeTfConfiguration): Promise<void> {
+    await this.servemeTfConfigurationModel.updateOne({}, configuration);
   }
 
-  async setApiEndpointUrl(apiEndpointUrl: ServemeTfApiEndpoint): Promise<void> {
-    await this.servemeTfConfigurationModel.updateOne(
-      {},
-      {
-        apiEndpointUrl,
-      },
-    );
-  }
-
-  async getPreferredRegion(): Promise<string | undefined> {
+  async getPreferredRegion(): Promise<string | null> {
     return (await this.getConfiguration()).preferredRegion;
   }
 

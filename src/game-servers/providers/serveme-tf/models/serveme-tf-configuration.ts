@@ -1,8 +1,8 @@
 import { MongooseDocument } from '@/utils/mongoose-document';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Equals, IsEnum, IsString } from 'class-validator';
-import { ServemeTfApiEndpoint } from './serveme-tf-endpoint';
+import { IsOptional, IsString } from 'class-validator';
 import { Document } from 'mongoose';
+import { Exclude } from 'class-transformer';
 
 @Schema()
 export class ServemeTfConfiguration extends MongooseDocument {
@@ -11,16 +11,13 @@ export class ServemeTfConfiguration extends MongooseDocument {
     this.key = 'serveme-tf';
   }
 
-  @Equals('serveme-tf')
+  @Exclude({ toPlainOnly: true })
   key: 'serveme-tf';
 
-  @IsEnum(ServemeTfApiEndpoint)
-  @Prop({ enum: ServemeTfApiEndpoint, default: ServemeTfApiEndpoint.servemeTf })
-  apiEndpointUrl: ServemeTfApiEndpoint;
-
+  @IsOptional()
   @IsString()
-  @Prop()
-  preferredRegion?: string;
+  @Prop({ default: null })
+  preferredRegion?: string | null;
 }
 
 export type ServemeTfConfigurationDocument = ServemeTfConfiguration & Document;

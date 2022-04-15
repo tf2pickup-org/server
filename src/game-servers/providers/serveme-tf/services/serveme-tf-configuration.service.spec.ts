@@ -12,7 +12,6 @@ import {
   ServemeTfConfigurationDocument,
   servemeTfConfigurationSchema,
 } from '../models/serveme-tf-configuration';
-import { ServemeTfApiEndpoint } from '../models/serveme-tf-endpoint';
 import { ServemeTfConfigurationService } from './serveme-tf-configuration.service';
 
 describe('ServemeTfConfigurationService', () => {
@@ -63,8 +62,7 @@ describe('ServemeTfConfigurationService', () => {
   it('should create a default configuration', async () => {
     const c = await servemeTfConfigurationModel.findOne();
     expect(c).toBeTruthy();
-    expect(c.apiEndpointUrl).toEqual(ServemeTfApiEndpoint.servemeTf);
-    expect(c.preferredRegion).toBe(undefined);
+    expect(c.preferredRegion).toBe(null);
   });
 
   describe('#getConfiguration()', () => {
@@ -72,30 +70,13 @@ describe('ServemeTfConfigurationService', () => {
       const c = await service.getConfiguration();
       expect(c).toMatchObject({
         key: 'serveme-tf',
-        apiEndpointUrl: ServemeTfApiEndpoint.servemeTf,
       });
     });
   });
 
-  describe('#getApiEndpointUrl()', () => {
-    it('should return the api endpoint url', async () => {
-      expect(await service.getApiEndpointUrl()).toEqual(
-        ServemeTfApiEndpoint.servemeTf,
-      );
-    });
-  });
-
-  describe('#setApiEndpointUrl()', () => {
-    it('should save the configuration', async () => {
-      await service.setApiEndpointUrl(ServemeTfApiEndpoint.naServemeTf);
-      const c = await servemeTfConfigurationModel.findOne();
-      expect(c.apiEndpointUrl).toEqual(ServemeTfApiEndpoint.naServemeTf);
-    });
-  });
-
   describe('#getPreferredRegion()', () => {
-    it('should reteurn the preferred region', async () => {
-      expect(await service.getPreferredRegion()).toBe(undefined);
+    it('should return the preferred region', async () => {
+      expect(await service.getPreferredRegion()).toBe(null);
     });
   });
 

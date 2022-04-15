@@ -7,6 +7,7 @@ import { servemeTfGameServerModelProvider } from './serveme-tf-game-server-model
 import { servemeTfConfigurationModelProvider } from './serveme-tf-configuration-model.provider';
 import { ConfigurationModule } from '@/configuration/configuration.module';
 import { ServemeTfConfigurationService } from './services/serveme-tf-configuration.service';
+import { ServemeTfController } from './controllers/serveme-tf.controller';
 
 @Module({
   imports: [
@@ -21,5 +22,6 @@ import { ServemeTfConfigurationService } from './services/serveme-tf-configurati
     servemeTfConfigurationModelProvider,
     ServemeTfConfigurationService,
   ],
+  controllers: [ServemeTfController],
 })
 export class ServemeTfModule {}

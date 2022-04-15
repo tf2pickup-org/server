@@ -13,9 +13,7 @@ import {
   takeWhile,
   lastValueFrom,
   exhaustMap,
-  from,
 } from 'rxjs';
-import { ServemeTfConfigurationService } from './serveme-tf-configuration.service';
 
 interface ServemeTfServerOption {
   id: number;
@@ -113,7 +111,6 @@ export class ServemeTfApiService {
   constructor(
     private httpService: HttpService,
     private environment: Environment,
-    private servemeTfConfigurationService: ServemeTfConfigurationService,
   ) {}
 
   async reserveServer(): Promise<ServemeTfReservationDetailsResponse> {
@@ -193,6 +190,10 @@ export class ServemeTfApiService {
     );
   }
 
+  async listServers(): Promise<ServemeTfServerOption[]> {
+    return await lastValueFrom(this.fetchServers().pipe(map((r) => r.servers)));
+  }
+
   private fetchServers(): Observable<ServemeTfFindServersResponse> {
     return this.getEndpointUrl().pipe(
       map((url) => `${url}/new`),
@@ -230,9 +231,8 @@ export class ServemeTfApiService {
   }
 
   private getEndpointUrl(): Observable<string> {
-    return from(this.servemeTfConfigurationService.getConfiguration()).pipe(
-      map((configuration) => configuration.apiEndpointUrl),
-      map((uri) => `https://${uri}/api/reservations`),
+    return of(this.environment.servemeTfApiEndpoint).pipe(
+      map((endpoint) => `https://${endpoint}/api/reservations`),
     );
   }
 }
