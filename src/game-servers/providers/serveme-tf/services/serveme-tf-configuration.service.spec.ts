@@ -74,6 +74,16 @@ describe('ServemeTfConfigurationService', () => {
     });
   });
 
+  describe('#setConfiguration()', () => {
+    it('should save the configuration', async () => {
+      const configuration = new ServemeTfConfiguration();
+      configuration.preferredRegion = 'pl';
+      await service.setConfiguration(configuration);
+      const c = await servemeTfConfigurationModel.findOne();
+      expect(c.preferredRegion).toEqual(configuration.preferredRegion);
+    });
+  });
+
   describe('#getPreferredRegion()', () => {
     it('should return the preferred region', async () => {
       expect(await service.getPreferredRegion()).toBe(null);
