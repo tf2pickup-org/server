@@ -272,4 +272,74 @@ describe('ServemeTfApiService', () => {
       });
     });
   });
+
+  describe('#listServers()', () => {
+    const servers = [
+      {
+        id: 9118,
+        name: 'NewBrigade #1',
+        flag: 'de',
+        ip: 'new.fakkelbrigade.eu',
+        port: '27015',
+        ip_and_port: 'new.fakkelbrigade.eu:27015',
+        sdr: false,
+        latitude: 51.2993,
+        longitude: 9.491,
+      },
+      {
+        id: 299,
+        name: 'BolusBrigade #04',
+        flag: 'nl',
+        ip: 'bolus.fakkelbrigade.eu',
+        port: '27045',
+        ip_and_port: 'bolus.fakkelbrigade.eu:27045',
+        sdr: false,
+        latitude: 52.3824,
+        longitude: 4.8995,
+      },
+    ];
+
+    beforeEach(() => {
+      httpService.get.mockReturnValue(
+        of({
+          status: 200,
+          data: {
+            actions: {
+              find_servers: 'FIND_SERVERS_FAKE_URL',
+            },
+          },
+        } as any),
+      );
+      httpService.post.mockImplementation((url) => {
+        switch (url) {
+          case 'FIND_SERVERS_FAKE_URL':
+            return of({
+              status: 200,
+              data: {
+                actions: {
+                  create: 'CREATE_RESERVATION_FAKE_URL',
+                },
+                reservation: {
+                  starts_at: new Date().toString(),
+                  ends_at: new Date(Date.now() + 60 * 60 * 1000).toString(),
+                  rcon: 'FAKE_RCON_PASSWORD',
+                  password: 'FAKE_PASSWORD',
+                },
+                servers,
+                server_configs: [],
+                whitelists: [],
+              },
+            } as any);
+
+          default:
+            throw new Error('wrong url');
+        }
+      });
+    });
+
+    it('should return all available options', async () => {
+      const ret = await service.listServers();
+      expect(ret).toEqual(servers);
+    });
+  });
 });
