@@ -125,8 +125,8 @@ export class ServemeTfApiService {
             map((server) => ({ response, server })),
           ),
         ),
-        switchMap(({ response, server }) => {
-          return this.httpService.post<ServemeTfReservationDetailsResponse>(
+        switchMap(({ response, server }) =>
+          this.httpService.post<ServemeTfReservationDetailsResponse>(
             response.actions.create,
             {
               reservation: {
@@ -138,8 +138,8 @@ export class ServemeTfApiService {
               },
             },
             this.config,
-          );
-        }),
+          ),
+        ),
         map((response) => response.data),
         tap((reservation) =>
           this.logger.log(
