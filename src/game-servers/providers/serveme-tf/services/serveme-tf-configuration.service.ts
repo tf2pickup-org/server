@@ -20,6 +20,8 @@ export class ServemeTfConfigurationService implements OnModuleInit {
     } catch (error) {
       if (error instanceof Error.DocumentNotFoundError) {
         await this.servemeTfConfigurationModel.create({});
+      } else {
+        throw error;
       }
     }
   }
