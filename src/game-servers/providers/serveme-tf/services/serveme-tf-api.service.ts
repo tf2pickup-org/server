@@ -13,7 +13,9 @@ import {
   takeWhile,
   lastValueFrom,
   exhaustMap,
+  from,
 } from 'rxjs';
+import { ServemeTfConfigurationService } from './serveme-tf-configuration.service';
 
 interface ServemeTfServerOption {
   id: number;
@@ -111,6 +113,7 @@ export class ServemeTfApiService {
   constructor(
     private httpService: HttpService,
     private environment: Environment,
+    private servemeTfConfigurationService: ServemeTfConfigurationService,
   ) {}
 
   async reserveServer(): Promise<ServemeTfReservationDetailsResponse> {
@@ -118,7 +121,12 @@ export class ServemeTfApiService {
     return await lastValueFrom(
       this.fetchServers().pipe(
         switchMap((response) =>
-          this.httpService.post<ServemeTfReservationDetailsResponse>(
+          from(this.selectServer(response.servers)).pipe(
+            map((server) => ({ response, server })),
+          ),
+        ),
+        switchMap(({ response, server }) => {
+          return this.httpService.post<ServemeTfReservationDetailsResponse>(
             response.actions.create,
             {
               reservation: {
@@ -126,17 +134,12 @@ export class ServemeTfApiService {
                 ends_at: response.reservation.ends_at,
                 rcon: response.reservation.rcon,
                 password: 'test',
-                server_id: sample(
-                  response.servers
-                    // make sure we dont' take a SDR server
-                    // https://partner.steamgames.com/doc/features/multiplayer/steamdatagramrelay
-                    .filter((server) => server.sdr === false),
-                ).id,
+                server_id: server.id,
               },
             },
             this.config,
-          ),
-        ),
+          );
+        }),
         map((response) => response.data),
         tap((reservation) =>
           this.logger.log(
@@ -234,5 +237,17 @@ export class ServemeTfApiService {
     return of(this.environment.servemeTfApiEndpoint).pipe(
       map((endpoint) => `https://${endpoint}/api/reservations`),
     );
+  }
+
+  private async selectServer(options: ServemeTfServerOption[]) {
+    // make sure we dont' take a SDR server
+    // https://partner.steamgames.com/doc/features/multiplayer/steamdatagramrelay
+    const nonSdrOptions = options.filter((s) => s.sdr === false);
+    const preferredRegion =
+      await this.servemeTfConfigurationService.getPreferredRegion();
+    const matchingOptions = nonSdrOptions.filter(
+      (s) => s.flag === preferredRegion,
+    );
+    return sample(matchingOptions.length > 0 ? matchingOptions : nonSdrOptions);
   }
 }

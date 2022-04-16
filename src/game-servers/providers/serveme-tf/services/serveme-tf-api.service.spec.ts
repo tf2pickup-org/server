@@ -3,8 +3,10 @@ import { HttpService } from '@nestjs/axios';
 import { Test, TestingModule } from '@nestjs/testing';
 import { of } from 'rxjs';
 import { ServemeTfApiService } from './serveme-tf-api.service';
+import { ServemeTfConfigurationService } from './serveme-tf-configuration.service';
 
 jest.mock('@nestjs/axios');
+jest.mock('./serveme-tf-configuration.service');
 
 const environmentStub = {
   servemeTfApiEndpoint: 'serveme.tf',
@@ -18,6 +20,7 @@ function flushPromises() {
 describe('ServemeTfApiService', () => {
   let service: ServemeTfApiService;
   let httpService: jest.Mocked<HttpService>;
+  let servemeTfConfigurationService: jest.Mocked<ServemeTfConfigurationService>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -28,11 +31,15 @@ describe('ServemeTfApiService', () => {
           provide: Environment,
           useValue: environmentStub,
         },
+        ServemeTfConfigurationService,
       ],
     }).compile();
 
     service = module.get<ServemeTfApiService>(ServemeTfApiService);
     httpService = module.get(HttpService);
+    servemeTfConfigurationService = module.get(ServemeTfConfigurationService);
+
+    servemeTfConfigurationService.getPreferredRegion.mockResolvedValue(null);
   });
 
   it('should be defined', () => {
@@ -68,12 +75,26 @@ describe('ServemeTfApiService', () => {
                 },
                 servers: [
                   {
-                    id: 1,
-                    sdr: true,
+                    id: 9118,
+                    name: 'NewBrigade #1',
+                    flag: 'de',
+                    ip: 'new.fakkelbrigade.eu',
+                    port: '27015',
+                    ip_and_port: 'new.fakkelbrigade.eu:27015',
+                    sdr: false,
+                    latitude: 51.2993,
+                    longitude: 9.491,
                   },
                   {
-                    id: 2,
+                    id: 299,
+                    name: 'BolusBrigade #04',
+                    flag: 'nl',
+                    ip: 'bolus.fakkelbrigade.eu',
+                    port: '27045',
+                    ip_and_port: 'bolus.fakkelbrigade.eu:27045',
                     sdr: false,
+                    latitude: 52.3824,
+                    longitude: 4.8995,
                   },
                 ],
                 server_configs: [],
@@ -100,9 +121,9 @@ describe('ServemeTfApiService', () => {
       });
     });
 
-    it('should query the api', async () => {
+    it('should make a reservation', async () => {
       const reservation = await service.reserveServer();
-      expect(reservation.reservation.server.name).toEqual('FAKE_SERVER_NAME');
+      expect(reservation).toBeTruthy();
     });
 
     describe('when the api url is changed', () => {
@@ -120,6 +141,42 @@ describe('ServemeTfApiService', () => {
           'https://na.serveme.tf/api/reservations/new',
           expect.any(Object),
         );
+      });
+    });
+
+    describe('when the preferred region is specified', () => {
+      describe('and a server in the requested region is available', () => {
+        beforeEach(() => {
+          servemeTfConfigurationService.getPreferredRegion.mockResolvedValue(
+            'nl',
+          );
+        });
+
+        it('should pick the server that is in the preferred region', async () => {
+          await service.reserveServer();
+          expect(httpService.post).toHaveBeenCalledWith(
+            'CREATE_RESERVATION_FAKE_URL',
+            {
+              reservation: expect.objectContaining({
+                server_id: 299,
+              }),
+            },
+            expect.any(Object),
+          );
+        });
+      });
+
+      describe('and a server in the requested region is not available', () => {
+        beforeEach(() => {
+          servemeTfConfigurationService.getPreferredRegion.mockResolvedValue(
+            'fr',
+          );
+        });
+
+        it('should pick the a server randomly', async () => {
+          const reservation = await service.reserveServer();
+          expect(reservation).toBeTruthy();
+        });
       });
     });
   });
