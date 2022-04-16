@@ -109,6 +109,7 @@ export class ServemeTfApiService {
       api_key: this.environment.servemeTfApiKey,
     },
   };
+  private readonly endpointUrl = `https://${this.environment.servemeTfApiEndpoint}/api/reservations`;
 
   constructor(
     private httpService: HttpService,
@@ -198,45 +199,32 @@ export class ServemeTfApiService {
   }
 
   private fetchServers(): Observable<ServemeTfFindServersResponse> {
-    return this.getEndpointUrl().pipe(
-      map((url) => `${url}/new`),
-      switchMap((url) =>
-        this.httpService.get<ServemeTfEntryResponse>(url, this.config),
-      ),
-      map((response) => response.data),
-      switchMap((entry) =>
-        this.httpService.post<ServemeTfFindServersResponse>(
-          entry.actions.find_servers,
-          {
-            reservation: entry.reservation,
-          },
-          this.config,
+    return this.httpService
+      .get<ServemeTfEntryResponse>(`${this.endpointUrl}/new`, this.config)
+      .pipe(
+        map((response) => response.data),
+        switchMap((entry) =>
+          this.httpService.post<ServemeTfFindServersResponse>(
+            entry.actions.find_servers,
+            {
+              reservation: entry.reservation,
+            },
+            this.config,
+          ),
         ),
-      ),
-      map((response) => response.data),
-    );
+        map((response) => response.data),
+      );
   }
 
   private fetchReservationDetails(
     reservationId: number,
   ): Observable<ServemeTfReservationDetailsResponse> {
-    return this.getEndpointUrl()
-      .pipe(
-        map((url) => `${url}/${reservationId}`),
-        switchMap((url) =>
-          this.httpService.get<ServemeTfReservationDetailsResponse>(
-            url,
-            this.config,
-          ),
-        ),
+    return this.httpService
+      .get<ServemeTfReservationDetailsResponse>(
+        `${this.endpointUrl}/${reservationId}`,
+        this.config,
       )
       .pipe(map((response) => response.data));
-  }
-
-  private getEndpointUrl(): Observable<string> {
-    return of(this.environment.servemeTfApiEndpoint).pipe(
-      map((endpoint) => `https://${endpoint}/api/reservations`),
-    );
   }
 
   private async selectServer(options: ServemeTfServerOption[]) {

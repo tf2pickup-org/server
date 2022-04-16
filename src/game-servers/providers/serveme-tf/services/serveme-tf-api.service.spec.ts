@@ -126,24 +126,6 @@ describe('ServemeTfApiService', () => {
       expect(reservation).toBeTruthy();
     });
 
-    describe('when the api url is changed', () => {
-      beforeEach(() => {
-        environmentStub.servemeTfApiEndpoint = 'na.serveme.tf';
-      });
-
-      afterEach(() => {
-        environmentStub.servemeTfApiEndpoint = 'serveme.tf';
-      });
-
-      it('should honor the configuration', async () => {
-        await service.reserveServer();
-        expect(httpService.get).toHaveBeenCalledWith(
-          'https://na.serveme.tf/api/reservations/new',
-          expect.any(Object),
-        );
-      });
-    });
-
     describe('when the preferred region is specified', () => {
       describe('and a server in the requested region is available', () => {
         beforeEach(() => {
