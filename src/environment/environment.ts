@@ -87,6 +87,10 @@ export class Environment {
     return this.configService.get<string>('TWITCH_CLIENT_SECRET');
   }
 
+  get servemeTfApiEndpoint() {
+    return this.configService.get<string>('SERVEME_TF_API_ENDPOINT');
+  }
+
   get servemeTfApiKey() {
     return this.configService.get<string>('SERVEME_TF_API_KEY');
   }

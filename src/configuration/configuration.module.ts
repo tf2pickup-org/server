@@ -13,39 +13,39 @@ import { etf2lAccountRequiredSchema } from './models/etf2l-account-required';
 import { minimumTf2InGameHoursSchema } from './models/minimum-tf2-in-game-hours';
 import { voiceServerSchema } from './models/voice-server';
 
-@Module({
-  imports: [
-    MongooseModule.forFeature([
+const configurationModelProvider = MongooseModule.forFeature([
+  {
+    name: ConfigurationEntry.name,
+    schema: configurationEntrySchema,
+    discriminators: [
       {
-        name: ConfigurationEntry.name,
-        schema: configurationEntrySchema,
-        discriminators: [
-          {
-            name: ConfigurationEntryKey.defaultPlayerSkill,
-            schema: defaultPlayerSkillSchema,
-          },
-          {
-            name: ConfigurationEntryKey.whitelistId,
-            schema: whitelistIdSchema,
-          },
-          {
-            name: ConfigurationEntryKey.etf2lAccountRequired,
-            schema: etf2lAccountRequiredSchema,
-          },
-          {
-            name: ConfigurationEntryKey.minimumTf2InGameHours,
-            schema: minimumTf2InGameHoursSchema,
-          },
-          {
-            name: ConfigurationEntryKey.voiceServer,
-            schema: voiceServerSchema,
-          },
-        ],
+        name: ConfigurationEntryKey.defaultPlayerSkill,
+        schema: defaultPlayerSkillSchema,
       },
-    ]),
-  ],
+      {
+        name: ConfigurationEntryKey.whitelistId,
+        schema: whitelistIdSchema,
+      },
+      {
+        name: ConfigurationEntryKey.etf2lAccountRequired,
+        schema: etf2lAccountRequiredSchema,
+      },
+      {
+        name: ConfigurationEntryKey.minimumTf2InGameHours,
+        schema: minimumTf2InGameHoursSchema,
+      },
+      {
+        name: ConfigurationEntryKey.voiceServer,
+        schema: voiceServerSchema,
+      },
+    ],
+  },
+]);
+
+@Module({
+  imports: [configurationModelProvider],
   providers: [ConfigurationService],
   controllers: [ConfigurationController],
-  exports: [ConfigurationService],
+  exports: [ConfigurationService, configurationModelProvider],
 })
 export class ConfigurationModule {}

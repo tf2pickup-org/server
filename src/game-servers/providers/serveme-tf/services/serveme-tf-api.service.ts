@@ -1,5 +1,4 @@
 import { Environment } from '@/environment/environment';
-import { servemeTfApiEndpoint } from '@configs/urls';
 import { HttpService } from '@nestjs/axios';
 import { Injectable, Logger } from '@nestjs/common';
 import { AxiosRequestConfig } from 'axios';
@@ -14,7 +13,9 @@ import {
   takeWhile,
   lastValueFrom,
   exhaustMap,
+  from,
 } from 'rxjs';
+import { ServemeTfConfigurationService } from './serveme-tf-configuration.service';
 
 interface ServemeTfServerOption {
   id: number;
@@ -108,10 +109,12 @@ export class ServemeTfApiService {
       api_key: this.environment.servemeTfApiKey,
     },
   };
+  private readonly endpointUrl = `https://${this.environment.servemeTfApiEndpoint}/api/reservations`;
 
   constructor(
     private httpService: HttpService,
     private environment: Environment,
+    private servemeTfConfigurationService: ServemeTfConfigurationService,
   ) {}
 
   async reserveServer(): Promise<ServemeTfReservationDetailsResponse> {
@@ -119,6 +122,11 @@ export class ServemeTfApiService {
     return await lastValueFrom(
       this.fetchServers().pipe(
         switchMap((response) =>
+          from(this.selectServer(response.servers)).pipe(
+            map((server) => ({ response, server })),
+          ),
+        ),
+        switchMap(({ response, server }) =>
           this.httpService.post<ServemeTfReservationDetailsResponse>(
             response.actions.create,
             {
@@ -127,12 +135,7 @@ export class ServemeTfApiService {
                 ends_at: response.reservation.ends_at,
                 rcon: response.reservation.rcon,
                 password: 'test',
-                server_id: sample(
-                  response.servers
-                    // make sure we dont' take a SDR server
-                    // https://partner.steamgames.com/doc/features/multiplayer/steamdatagramrelay
-                    .filter((server) => server.sdr === false),
-                ).id,
+                server_id: server.id,
               },
             },
             this.config,
@@ -191,23 +194,26 @@ export class ServemeTfApiService {
     );
   }
 
+  async listServers(): Promise<ServemeTfServerOption[]> {
+    return await lastValueFrom(this.fetchServers().pipe(map((r) => r.servers)));
+  }
+
   private fetchServers(): Observable<ServemeTfFindServersResponse> {
-    return of(`${servemeTfApiEndpoint}/new`).pipe(
-      switchMap((url) =>
-        this.httpService.get<ServemeTfEntryResponse>(url, this.config),
-      ),
-      map((response) => response.data),
-      switchMap((entry) =>
-        this.httpService.post<ServemeTfFindServersResponse>(
-          entry.actions.find_servers,
-          {
-            reservation: entry.reservation,
-          },
-          this.config,
+    return this.httpService
+      .get<ServemeTfEntryResponse>(`${this.endpointUrl}/new`, this.config)
+      .pipe(
+        map((response) => response.data),
+        switchMap((entry) =>
+          this.httpService.post<ServemeTfFindServersResponse>(
+            entry.actions.find_servers,
+            {
+              reservation: entry.reservation,
+            },
+            this.config,
+          ),
         ),
-      ),
-      map((response) => response.data),
-    );
+        map((response) => response.data),
+      );
   }
 
   private fetchReservationDetails(
@@ -215,9 +221,21 @@ export class ServemeTfApiService {
   ): Observable<ServemeTfReservationDetailsResponse> {
     return this.httpService
       .get<ServemeTfReservationDetailsResponse>(
-        `${servemeTfApiEndpoint}/${reservationId}`,
+        `${this.endpointUrl}/${reservationId}`,
         this.config,
       )
       .pipe(map((response) => response.data));
+  }
+
+  private async selectServer(options: ServemeTfServerOption[]) {
+    // make sure we dont' take a SDR server
+    // https://partner.steamgames.com/doc/features/multiplayer/steamdatagramrelay
+    const nonSdrOptions = options.filter((s) => s.sdr === false);
+    const preferredRegion =
+      await this.servemeTfConfigurationService.getPreferredRegion();
+    const matchingOptions = nonSdrOptions.filter(
+      (s) => s.flag === preferredRegion,
+    );
+    return sample(matchingOptions.length > 0 ? matchingOptions : nonSdrOptions);
   }
 }
