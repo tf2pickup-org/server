@@ -24,8 +24,7 @@ import { MapPoolService } from '@/queue/services/map-pool.service';
 import { ConfigurationService } from '@/configuration/services/configuration.service';
 import { GamesService } from './games.service';
 import { GameServersService } from '@/game-servers/services/game-servers.service';
-
-const wait = () => new Promise((resolve) => setTimeout(resolve, 1000 * 10));
+import { waitABit } from '@/utils/wait-a-bit';
 
 @Injectable()
 export class ServerConfiguratorService {
@@ -65,7 +64,7 @@ export class ServerConfiguratorService {
       await rcon.send(changelevel(game.map));
 
       // source servers need a moment after the map has been changed
-      await wait();
+      await waitABit(1000 * 10);
 
       // map change might kick us
       if (!rcon.authenticated) {
@@ -77,7 +76,7 @@ export class ServerConfiguratorService {
       if (config) {
         this.logger.debug(`[${server.name}] executing ${config}...`);
         await rcon.send(execConfig(config));
-        await wait();
+        await waitABit(1000 * 10);
       }
 
       const whitelistId = (await this.configurationService.getWhitelistId())
