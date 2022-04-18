@@ -1,4 +1,6 @@
 import { Environment } from '@/environment/environment';
+import { generateGameserverPassword } from '@/utils/generate-gameserver-password';
+import { generateRconPassword } from '@/utils/generate-rcon-password';
 import { HttpService } from '@nestjs/axios';
 import { Injectable, Logger } from '@nestjs/common';
 import { AxiosRequestConfig } from 'axios';
@@ -133,8 +135,8 @@ export class ServemeTfApiService {
               reservation: {
                 starts_at: response.reservation.starts_at,
                 ends_at: response.reservation.ends_at,
-                rcon: response.reservation.rcon,
-                password: 'test',
+                rcon: response.reservation.rcon ?? generateRconPassword(),
+                password: generateGameserverPassword(),
                 server_id: server.id,
               },
             },
