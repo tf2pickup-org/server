@@ -46,6 +46,13 @@ export class GameServersController {
   }
 
   /** TODO v9.0 remove */
+  @Get()
+  @UseInterceptors(ClassSerializerInterceptor)
+  async getAllGameServers() {
+    return await this.staticGameServersService.getAllGameServers();
+  }
+
+  /** TODO v9.0 remove */
   @Post()
   @Secret(SecretPurpose.gameServer)
   @UsePipes(ValidationPipe)
