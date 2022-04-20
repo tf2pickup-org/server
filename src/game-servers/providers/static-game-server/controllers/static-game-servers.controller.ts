@@ -23,7 +23,7 @@ import { RealIp } from 'nestjs-real-ip';
 import { SecretPurpose } from '@/auth/secret-purpose';
 import { StaticGameServersService } from '../services/static-game-servers.service';
 
-@Controller('game-servers/static')
+@Controller('static-game-servers')
 export class StaticGameServersController {
   constructor(
     private staticGameServersService: StaticGameServersService,
