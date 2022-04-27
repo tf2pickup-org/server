@@ -65,7 +65,6 @@ describe('QueueGateway', () => {
         playerId: 'FAKE_PLAYER_ID',
         gameClass: Tf2ClassName.scout,
         ready: false,
-        canMakeFriends: false,
       },
     ]);
     queueService.leave.mockReturnValue({
@@ -73,14 +72,12 @@ describe('QueueGateway', () => {
       playerId: 'FAKE_PLAYER_ID',
       gameClass: Tf2ClassName.scout,
       ready: false,
-      canMakeFriends: false,
     });
     queueService.readyUp.mockReturnValue({
       id: 0,
       playerId: 'FAKE_PLAYER_ID',
       gameClass: Tf2ClassName.scout,
       ready: true,
-      canMakeFriends: false,
     });
     queueAnnouncementsService.substituteRequests.mockResolvedValue(
       mockSubstituteRequests,
@@ -113,7 +110,6 @@ describe('QueueGateway', () => {
           playerId: 'FAKE_PLAYER_ID',
           gameClass: Tf2ClassName.scout,
           ready: false,
-          canMakeFriends: false,
         },
       ]);
     });
@@ -130,7 +126,6 @@ describe('QueueGateway', () => {
         playerId: 'FAKE_PLAYER_ID',
         gameClass: Tf2ClassName.scout,
         ready: false,
-        canMakeFriends: false,
       });
     });
   });
@@ -146,7 +141,6 @@ describe('QueueGateway', () => {
         playerId: 'FAKE_PLAYER_ID',
         gameClass: Tf2ClassName.scout,
         ready: true,
-        canMakeFriends: false,
       });
     });
   });
@@ -184,7 +178,6 @@ describe('QueueGateway', () => {
           id: 5,
           gameClass: Tf2ClassName.soldier,
           ready: true,
-          canMakeFriends: false,
           playerId: 'FAKE_PLAYER_ID',
           player: { id: 'FAKE_PLAYER_ID' } as Player,
         },
@@ -196,7 +189,6 @@ describe('QueueGateway', () => {
             playerId: 'FAKE_PLAYER_ID',
             ready: true,
             gameClass: Tf2ClassName.soldier,
-            canMakeFriends: false,
           },
         ],
       });
@@ -208,7 +200,6 @@ describe('QueueGateway', () => {
           id: 5,
           gameClass: Tf2ClassName.soldier,
           ready: true,
-          canMakeFriends: false,
           playerId: 'FAKE_PLAYER_ID',
           player: { id: 'FAKE_PLAYER_ID' },
         },

@@ -2,6 +2,7 @@
   "$schema": "http://json-schema.org/draft-04/schema#",
   "title": "Queue configuration",
   "type": "object",
+  "required": ["teamCount", "classes"],
   "properties": {
     "teamCount": {
       "type": "integer",
@@ -12,30 +13,35 @@
       "type": "array",
       "items": {
         "type": "object",
+        "required": ["name", "count"],
         "properties": {
-          "name": {
-            "enum": [
-              "scout",
-              "soldier",
-              "pyro",
-              "demoman",
-              "heavy",
-              "engineer",
-              "medic",
-              "sniper",
-              "spy"
-            ]
-          },
+          "name": { "$ref": "#/$defs/tf2ClassName" },
           "count": {
             "type": "integer",
             "minimum": 1
           },
-          "canMakeFriends": {
-            "type": "boolean",
-            "default": false
+          "canMakeFriendsWith": {
+            "type": "array",
+            "items": { "$ref": "#/$defs/tf2ClassName" }
           }
         }
       }
+    }
+  },
+  "$defs": {
+    "tf2ClassName": {
+      "type": "enum",
+      "enum": [
+        "scout",
+        "soldier",
+        "pyro",
+        "demoman",
+        "heavy",
+        "engineer",
+        "medic",
+        "sniper",
+        "spy"
+      ]
     }
   },
   "additionalItems": false

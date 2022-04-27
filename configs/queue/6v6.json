@@ -3,23 +3,20 @@
   "classes": [
     {
       "name": "scout",
-      "count": 2,
-      "canMakeFriends": false
+      "count": 2
     },
     {
       "name": "soldier",
-      "count": 2,
-      "canMakeFriends": false
+      "count": 2
     },
     {
       "name": "demoman",
-      "count": 1,
-      "canMakeFriends": false
+      "count": 1
     },
     {
       "name": "medic",
       "count": 1,
-      "canMakeFriends": true
+      "canMakeFriendsWith": ["scout", "soldier", "demoman"]
     }
   ]
 }

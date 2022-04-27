@@ -26,7 +26,7 @@ export class FriendsService implements OnModuleInit {
     }
 
     if (targetPlayerId === null) {
-      // only removing frienship
+      // only removing friendship
       this.friendships = [
         ...this.friendships.filter((f) => f.sourcePlayerId !== sourcePlayerId),
       ];
@@ -43,16 +43,11 @@ export class FriendsService implements OnModuleInit {
         throw new PlayerNotInTheQueueError(targetPlayerId);
       }
 
-      if (!sourcePlayerSlot.canMakeFriends) {
-        throw new CannotMarkPlayerAsFriendError(
-          sourcePlayerId,
-          sourcePlayerSlot.gameClass,
-          targetPlayerId,
+      if (
+        !sourcePlayerSlot.canMakeFriendsWith?.includes(
           targetPlayerSlot.gameClass,
-        );
-      }
-
-      if (sourcePlayerSlot.gameClass === targetPlayerSlot.gameClass) {
+        )
+      ) {
         throw new CannotMarkPlayerAsFriendError(
           sourcePlayerId,
           sourcePlayerSlot.gameClass,

@@ -27,7 +27,8 @@
     },
     {
       "name": "medic",
-      "count": 1
+      "count": 1,
+      "canMakeFriendsWith": ["scout", "soldier", "pyro", "demoman", "heavy", "engineer", "sniper", "spy"]
     },
     {
       "name": "sniper",

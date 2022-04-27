@@ -16,21 +16,20 @@ class QueueServiceStub {
       playerId: 'FAKE_MEDIC',
       gameClass: Tf2ClassName.medic,
       ready: false,
-      canMakeFriends: true,
+      canMakeFriendsWith: [Tf2ClassName.soldier],
     },
     {
       id: 1,
       playerId: 'FAKE_DM_CLASS',
       gameClass: Tf2ClassName.soldier,
       ready: false,
-      canMakeFriends: false,
     },
     {
       id: 2,
       playerId: 'FAKE_2ND_MEDIC',
       gameClass: Tf2ClassName.medic,
       ready: false,
-      canMakeFriends: true,
+      canMakeFriendsWith: [Tf2ClassName.soldier],
     },
   ];
   findSlotByPlayerId(playerId: string) {
@@ -122,7 +121,6 @@ describe('FriendsService', () => {
         playerId: 'ANOTHER_PLAYER',
         gameClass: Tf2ClassName.soldier,
         ready: false,
-        canMakeFriends: false,
       });
       service.markFriend('FAKE_MEDIC', 'FAKE_DM_CLASS');
       const friendships = service.markFriend('FAKE_MEDIC', 'ANOTHER_PLAYER');
