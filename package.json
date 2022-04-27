@@ -90,7 +90,7 @@
     "prettier": "2.6.2",
     "release-it": "14.14.2",
     "socket.io-client": "4.5.0",
-    "supertest": "6.2.2",
+    "supertest": "6.2.3",
     "trace-unhandled": "2.0.1",
     "ts-jest": "27.1.4",
     "ts-loader": "9.2.8",
