@@ -23,6 +23,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { MigrationsModule } from './migrations/migrations.module';
 import { formatMongoose } from 'mongodb-uri';
 import { StatisticsModule } from './statistics/statistics.module';
+import { GameConfigsModule } from './game-configs/game-configs.module';
 
 @Module({
   imports: [
@@ -64,6 +65,7 @@ import { StatisticsModule } from './statistics/statistics.module';
     LogReceiverModule,
     MigrationsModule,
     StatisticsModule,
+    GameConfigsModule,
   ],
   controllers: [AppController],
 })
