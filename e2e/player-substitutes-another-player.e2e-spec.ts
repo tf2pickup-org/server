@@ -120,12 +120,22 @@ describe('Player substitutes another player (e2e)', () => {
           gameClass: Tf2ClassName.medic,
           playerId: (await playersService.findBySteamId(players[10])).id,
           ready: true,
+          canMakeFriendsWith: [
+            Tf2ClassName.scout,
+            Tf2ClassName.soldier,
+            Tf2ClassName.demoman,
+          ],
         },
         {
           id: 11,
           gameClass: Tf2ClassName.medic,
           playerId: (await playersService.findBySteamId(players[11])).id,
           ready: true,
+          canMakeFriendsWith: [
+            Tf2ClassName.scout,
+            Tf2ClassName.soldier,
+            Tf2ClassName.demoman,
+          ],
         },
       ],
       'cp_badlands',

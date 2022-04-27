@@ -273,6 +273,7 @@ export class QueueService implements OnModuleInit, OnModuleDestroy {
           tmpSlots.push({
             id: lastId++,
             gameClass: curr.name,
+            canMakeFriendsWith: curr.canMakeFriendsWith,
             ...defaultSlot,
           });
         }

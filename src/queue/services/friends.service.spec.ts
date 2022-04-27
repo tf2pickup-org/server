@@ -4,6 +4,9 @@ import { QueueSlot } from '../queue-slot';
 import { QueueService } from './queue.service';
 import { Events } from '@/events/events';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
+import { PlayerAlreadyMarkedAsFriendError } from '../errors/player-already-marked-as-friend.error';
+import { PlayerNotInTheQueueError } from '../errors/player-not-in-the-queue.error';
+import { CannotMarkPlayerAsFriendError } from '../errors/cannot-mark-player-as-friend.error';
 
 class QueueServiceStub {
   state = 'waiting';
@@ -13,6 +16,7 @@ class QueueServiceStub {
       playerId: 'FAKE_MEDIC',
       gameClass: Tf2ClassName.medic,
       ready: false,
+      canMakeFriendsWith: [Tf2ClassName.soldier],
     },
     {
       id: 1,
@@ -25,6 +29,7 @@ class QueueServiceStub {
       playerId: 'FAKE_2ND_MEDIC',
       gameClass: Tf2ClassName.medic,
       ready: false,
+      canMakeFriendsWith: [Tf2ClassName.soldier],
     },
   ];
   findSlotByPlayerId(playerId: string) {
@@ -69,40 +74,31 @@ describe('FriendsService', () => {
       queueService.slots = queueService.slots.filter(
         (s) => s.playerId !== 'FAKE_MEDIC',
       );
-      expect(() =>
-        service.markFriend('FAKE_MEDIC', 'FAKE_DM_CLASS'),
-      ).toThrowError('player not in the queue');
+      expect(() => service.markFriend('FAKE_MEDIC', 'FAKE_DM_CLASS')).toThrow(
+        PlayerNotInTheQueueError,
+      );
     });
 
     it('should fail if the friend is not in the queue', () => {
       queueService.slots = queueService.slots.filter(
         (s) => s.playerId !== 'FAKE_DM_CLASS',
       );
-      expect(() =>
-        service.markFriend('FAKE_MEDIC', 'FAKE_DM_CLASS'),
-      ).toThrowError('player not in the queue');
-    });
-
-    it('should fail if the medic is not a medic after all', () => {
-      queueService.slots[0].gameClass = Tf2ClassName.scout;
-      expect(() =>
-        service.markFriend('FAKE_MEDIC', 'FAKE_DM_CLASS'),
-      ).toThrowError('only medics can make friends');
+      expect(() => service.markFriend('FAKE_MEDIC', 'FAKE_DM_CLASS')).toThrow(
+        PlayerNotInTheQueueError,
+      );
     });
 
     it('should fail the friend is also a medic', () => {
       queueService.slots[1].gameClass = Tf2ClassName.medic;
-      expect(() =>
-        service.markFriend('FAKE_MEDIC', 'FAKE_DM_CLASS'),
-      ).toThrowError('cannot make the other medic as a friend');
+      expect(() => service.markFriend('FAKE_MEDIC', 'FAKE_DM_CLASS')).toThrow(
+        CannotMarkPlayerAsFriendError,
+      );
     });
 
     it('should fail if the target player is already marked as a friend', () => {
       service.markFriend('FAKE_2ND_MEDIC', 'FAKE_DM_CLASS');
-      expect(() =>
-        service.markFriend('FAKE_MEDIC', 'FAKE_DM_CLASS'),
-      ).toThrowError(
-        'this player is already marked as a friend by another player',
+      expect(() => service.markFriend('FAKE_MEDIC', 'FAKE_DM_CLASS')).toThrow(
+        PlayerAlreadyMarkedAsFriendError,
       );
     });
 
@@ -119,7 +115,7 @@ describe('FriendsService', () => {
       expect(friendships).toEqual([]);
     });
 
-    it('should remove previous frienship', () => {
+    it('should remove previous friendship', () => {
       queueService.slots.push({
         id: 2,
         playerId: 'ANOTHER_PLAYER',
@@ -151,7 +147,7 @@ describe('FriendsService', () => {
       service.markFriend('FAKE_MEDIC', 'FAKE_DM_CLASS');
     });
 
-    it('should remove frienship if the medic leaves the queue', () => {
+    it('should remove friendship if the medic leaves the queue', () => {
       queueService.slots = queueService.slots.filter(
         (s) => s.playerId !== 'FAKE_MEDIC',
       );
@@ -165,7 +161,7 @@ describe('FriendsService', () => {
       expect(service.friendships).toEqual([]);
     });
 
-    it('should not remove frienship if the friend leaves the queue', () => {
+    it('should not remove friendship if the friend leaves the queue', () => {
       queueService.slots = queueService.slots.filter(
         (s) => s.playerId !== 'FAKE_DM_CLASS',
       );

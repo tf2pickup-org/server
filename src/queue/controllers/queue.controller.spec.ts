@@ -63,7 +63,12 @@ describe('Queue Controller', () => {
         ready: false,
         playerId: 'FAKE_ID',
       },
-      { id: 1, gameClass: Tf2ClassName.soldier, ready: false, playerId: null },
+      {
+        id: 1,
+        gameClass: Tf2ClassName.soldier,
+        ready: false,
+        playerId: null,
+      },
     ];
     queueService.state = 'waiting';
 

@@ -15,7 +15,8 @@
     },
     {
       "name": "medic",
-      "count": 1
+      "count": 1,
+      "canMakeFriendsWith": ["scout", "soldier", "demoman"]
     }
   ]
 }
