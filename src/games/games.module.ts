@@ -16,6 +16,7 @@ import { PlayerSubstitutionService } from './services/player-substitution.servic
 import { ConfigurationModule } from '@/configuration/configuration.module';
 import { LogReceiverModule } from '@/log-receiver/log-receiver.module';
 import { MongooseModule } from '@nestjs/mongoose';
+import { GameConfigsModule } from '@/game-configs/game-configs.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 
     ConfigurationModule,
     LogReceiverModule,
+    GameConfigsModule,
   ],
   providers: [
     GamesService,

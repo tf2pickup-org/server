@@ -6,6 +6,10 @@
       {
         "include": "documents/default/*.md",
         "outDir": "dist/src"
+      },
+      {
+        "include": "game-configs/configs/*.cfg",
+        "outDir": "dist/src"
       }
     ],
     "watchAssets": true

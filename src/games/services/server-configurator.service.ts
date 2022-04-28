@@ -25,6 +25,7 @@ import { ConfigurationService } from '@/configuration/services/configuration.ser
 import { GamesService } from './games.service';
 import { GameServersService } from '@/game-servers/services/game-servers.service';
 import { waitABit } from '@/utils/wait-a-bit';
+import { GameConfigsService } from '@/game-configs/services/game-configs.service';
 
 @Injectable()
 export class ServerConfiguratorService {
@@ -39,11 +40,13 @@ export class ServerConfiguratorService {
     @Inject(forwardRef(() => GamesService))
     private gamesService: GamesService,
     private gameServersService: GameServersService,
+    private gameConfigsService: GameConfigsService,
   ) {}
 
   async configureServer(gameId: string) {
     const game = await this.gamesService.getById(gameId);
     const server = await this.gameServersService.getById(game.gameServer);
+    const configLines = await this.gameConfigsService.compileConfig();
 
     this.logger.verbose(`starting gameserver ${server.name}`);
     await server.start();
@@ -70,6 +73,8 @@ export class ServerConfiguratorService {
       if (!rcon.authenticated) {
         await rcon.connect();
       }
+
+      await Promise.all(configLines.map(async (line) => await rcon.send(line)));
 
       const maps = await this.mapPoolService.getMaps();
       const config = maps.find((m) => m.name === game.map)?.execConfig;

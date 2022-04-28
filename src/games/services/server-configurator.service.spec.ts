@@ -42,12 +42,14 @@ import { GameServersService } from '@/game-servers/services/game-servers.service
 import { Events } from '@/events/events';
 import { GameServer } from '@/game-servers/models/game-server';
 import { staticGameServerProviderName } from '@/game-servers/providers/static-game-server/static-game-server-provider-name';
+import { GameConfigsService } from '@/game-configs/services/game-configs.service';
 
 jest.mock('@/queue/services/map-pool.service');
 jest.mock('@/players/services/players.service');
 jest.mock('@/configuration/services/configuration.service');
 jest.mock('./games.service');
 jest.mock('@/game-servers/services/game-servers.service');
+jest.mock('@/game-configs/services/game-configs.service');
 
 class EnvironmentStub {
   logRelayAddress = 'FAKE_RELAY_ADDRESS';
@@ -77,6 +79,7 @@ describe('ServerConfiguratorService', () => {
   let gamesService: GamesService;
   let gameServersService: jest.Mocked<GameServersService>;
   let mockGameServer: jest.Mocked<GameServer>;
+  let gameConfigsService: jest.Mocked<GameConfigsService>;
 
   beforeAll(async () => (mongod = await MongoMemoryServer.create()));
   afterAll(async () => await mongod.stop());
@@ -105,6 +108,7 @@ describe('ServerConfiguratorService', () => {
         Events,
         GamesService,
         GameServersService,
+        GameConfigsService,
       ],
     }).compile();
 
@@ -117,6 +121,7 @@ describe('ServerConfiguratorService', () => {
     connection = module.get(getConnectionToken());
     gamesService = module.get(GamesService);
     gameServersService = module.get(GameServersService);
+    gameConfigsService = module.get(GameConfigsService);
 
     mockGameServer = {
       id: 'MOCK_GAME_SERVER',
@@ -138,6 +143,9 @@ describe('ServerConfiguratorService', () => {
     ]);
     configurationService.getWhitelistId.mockResolvedValue(new WhitelistId(''));
     gameServersService.getById.mockResolvedValue(mockGameServer);
+    gameConfigsService.compileConfig.mockResolvedValue([
+      'mp_tournament_readymode 1',
+    ]);
   });
 
   afterEach(async () => await connection.close());
@@ -202,6 +210,7 @@ describe('ServerConfiguratorService', () => {
       );
       expect(rcon.send).toHaveBeenCalledWith(kickAll());
       expect(rcon.send).toHaveBeenCalledWith(changelevel('cp_badlands'));
+      expect(rcon.send).toHaveBeenCalledWith('mp_tournament_readymode 1');
       expect(rcon.send).toHaveBeenCalledWith(execConfig('etf2l_6v6_5cp'));
       expect(rcon.send).toHaveBeenCalledWith(
         expect.stringMatching(/^sv_password\s.+$/),
