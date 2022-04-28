@@ -2,8 +2,13 @@ name: build-docker-image
 
 on:
   push:
+    branches:
+      - 'master'
+      - '*.*.*'
     tags:
       - '*.*.*'
+  schedule:
+    - cron: '0 2 * * *'
 
 jobs:
   docker:
@@ -15,6 +20,13 @@ jobs:
         uses: docker/metadata-action@v3
         with:
           images: tf2pickuppl/server
+          tags: |
+            type=sha,format=long
+            type=schedule,pattern=nightly
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+            type=semver,pattern=stable,enable=${{ !contains(github.event.push.ref, 'beta') && !contains(github.event.push.ref, 'alpha') }}
 
       - name: Login to DockerHub
         uses: docker/login-action@v1
