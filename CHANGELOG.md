@@ -1,3 +1,10 @@
+## [8.2.1](https://github.com/tf2pickup-pl/server/compare/8.2.0...8.2.1) (2022-04-30)
+
+
+### Bug Fixes
+
+* **build:** add stable, nightly and sha docker tags ([#1588](https://github.com/tf2pickup-pl/server/issues/1588)) ([9b2a4ba](https://github.com/tf2pickup-pl/server/commit/9b2a4baf5ed70d44784731b9cacc1b6559be1b3c))
+
 # [8.2.0](https://github.com/tf2pickup-org/server/compare/8.1.1...8.2.0) (2021-11-06)
 
 
