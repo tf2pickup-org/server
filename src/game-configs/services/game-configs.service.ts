@@ -1,11 +1,13 @@
 import { QueueConfigService } from '@/queue/services/queue-config.service';
-import { Injectable } from '@nestjs/common';
-import { createReadStream } from 'fs';
+import { Injectable, OnModuleInit } from '@nestjs/common';
 import { join } from 'path';
-import { createInterface } from 'readline';
+import { compile } from 'handlebars';
+import { readFile } from 'fs/promises';
+import { isEmpty } from 'lodash';
 
 @Injectable()
-export class GameConfigsService {
+export class GameConfigsService implements OnModuleInit {
+  private template: ReturnType<typeof compile>;
   variables: Record<string, any>;
 
   constructor(private queueConfigService: QueueConfigService) {
@@ -17,24 +19,16 @@ export class GameConfigsService {
     };
   }
 
+  async onModuleInit() {
+    const source = await readFile(
+      join(__dirname, '..', 'configs', 'default.cfg'),
+    );
+    this.template = compile(source.toString());
+  }
+
   async compileConfig(): Promise<string[]> {
-    const readInterface = createInterface({
-      input: createReadStream(join(__dirname, '..', 'configs', 'default.cfg')),
-    });
-
-    const matcher = /\$\{(\w+)\}/g;
-    const lines = [];
-
-    for await (const line of readInterface) {
-      if (line && line.trim()) {
-        const resolvedLine = line.replace(
-          matcher,
-          (_match, variableName) => this.variables[variableName] ?? '',
-        );
-        lines.push(resolvedLine);
-      }
-    }
-
-    return lines;
+    return this.template(this.variables)
+      .split('\n')
+      .filter((line) => !isEmpty(line));
   }
 }

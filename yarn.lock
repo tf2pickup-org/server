@@ -4209,9 +4209,9 @@ __metadata:
   linkType: hard
 
 "electron-to-chromium@npm:^1.4.118":
-  version: 1.4.132
-  resolution: "electron-to-chromium@npm:1.4.132"
-  checksum: 133be125d1fa9693ce1d2f83d3f03a79ee19059fb95c203af87c4f833e661b7185ddb918fc53e272a7c8ff4169907cf1879790d1681011c6035c5c4f66b2848a
+  version: 1.4.133
+  resolution: "electron-to-chromium@npm:1.4.133"
+  checksum: 260450afecb9298f32aff9eabbba300a4d27207f035c1e70935eb718d8285802e61f09728ab4433d008298b9d7e1d0c1690b9401011fe6f4ed9ef5fa68dc6ef9
   languageName: node
   linkType: hard
 
@@ -5552,7 +5552,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"handlebars@npm:^4.7.7":
+"handlebars@npm:4.7.7, handlebars@npm:^4.7.7":
   version: 4.7.7
   resolution: "handlebars@npm:4.7.7"
   dependencies:
@@ -9748,6 +9748,7 @@ __metadata:
     eslint-plugin-jest: 26.1.5
     eslint-plugin-prettier: 4.0.0
     generate-password: 1.7.0
+    handlebars: 4.7.7
     helmet: 5.0.2
     jest: 27.5.1
     joi: 17.6.0
