@@ -63,9 +63,13 @@ export class PlayerBansService implements OnModuleInit {
   async getPlayerActiveBans(
     playerId: string | Types.ObjectId,
   ): Promise<PlayerBan[]> {
+    const player =
+      playerId instanceof Types.ObjectId
+        ? playerId
+        : new Types.ObjectId(playerId as string);
     const plain = await this.playerBanModel
       .find({
-        player: new Types.ObjectId(playerId),
+        player,
         end: {
           $gte: new Date(),
         },
@@ -80,7 +84,7 @@ export class PlayerBansService implements OnModuleInit {
     const { id } = await this.playerBanModel.create({
       ...props,
       player: player._id,
-      admin: new Types.ObjectId(props.admin),
+      admin: props.admin,
     });
     const addedBan = plainToInstance(PlayerBan, await this.getById(id));
     this.logger.verbose(

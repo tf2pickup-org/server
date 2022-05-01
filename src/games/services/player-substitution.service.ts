@@ -226,7 +226,7 @@ export class PlayerSubstitutionService implements OnModuleInit {
       const slot = game.slots.find(
         (slot) =>
           slot.status === SlotStatus.waitingForSubstitute &&
-          slot.player.equals(replaceeId),
+          slot.player.toString() === replaceeId,
       );
 
       if (!slot) {
