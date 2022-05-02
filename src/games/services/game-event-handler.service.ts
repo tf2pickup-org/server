@@ -154,7 +154,9 @@ export class GameEventHandlerService implements OnModuleDestroy {
           },
           {
             new: true, // return updated document
-            arrayFilters: [{ 'element.player': { $eq: player._id } }],
+            arrayFilters: [
+              { 'element.player': { $eq: new Types.ObjectId(player.id) } },
+            ],
           },
         )
         .orFail()

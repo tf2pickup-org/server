@@ -27,7 +27,7 @@ export class PlayersService {
       await this.playerModel
         .find({
           _id: {
-            $in: ids.map((id) => Types.ObjectId(id)),
+            $in: ids.map((id) => new Types.ObjectId(id)),
           },
         })
         .lean()

@@ -6,7 +6,6 @@ import { PlayerBansService } from '@/players/services/player-bans.service';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
 import { Player, PlayerDocument, playerSchema } from '@/players/models/player';
-import { ObjectId } from 'mongodb';
 import { Events } from '@/events/events';
 import { getConnectionToken, MongooseModule } from '@nestjs/mongoose';
 import { NoSuchPlayerError } from '../errors/no-such-player.error';
@@ -17,7 +16,7 @@ import { NoSuchSlotError } from '../errors/no-such-slot.error';
 import { SlotOccupiedError } from '../errors/slot-occupied.error';
 import { PlayerNotInTheQueueError } from '../errors/player-not-in-the-queue.error';
 import { WrongQueueStateError } from '../errors/wrong-queue-state.error';
-import { Connection } from 'mongoose';
+import { Connection, Types } from 'mongoose';
 
 jest.mock('@/players/services/players.service');
 jest.mock('@/players/services/player-bans.service');
@@ -120,9 +119,9 @@ describe('QueueService', () => {
 
   describe('#join()', () => {
     it("should fail if the given player doesn't exist", async () => {
-      await expect(service.join(0, new ObjectId().toString())).rejects.toThrow(
-        NoSuchPlayerError,
-      );
+      await expect(
+        service.join(0, new Types.ObjectId().toString()),
+      ).rejects.toThrow(NoSuchPlayerError);
     });
 
     describe('when the player has not accepted rules', () => {
@@ -154,7 +153,7 @@ describe('QueueService', () => {
 
     describe('when the player is playing a game', () => {
       beforeEach(async () => {
-        player.activeGame = new ObjectId();
+        player.activeGame = new Types.ObjectId();
         await player.save();
       });
 
@@ -420,7 +419,7 @@ describe('QueueService', () => {
         events.playerBanAdded.next({
           ban: {
             player: player.id,
-            admin: new ObjectId(),
+            admin: new Types.ObjectId(),
             start: new Date(),
             end: new Date(),
             reason: 'unit testing',

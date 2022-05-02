@@ -6,7 +6,6 @@ import {
   playerBanSchema,
 } from '../models/player-ban';
 import { OnlinePlayersService } from './online-players.service';
-import { ObjectId } from 'mongodb';
 import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { PlayersService } from './players.service';
@@ -85,7 +84,7 @@ describe('PlayerBansService', () => {
 
     mockPlayerBan = await playerBanModel.create({
       player: player._id,
-      admin: admin.id,
+      admin: admin._id,
       start: new Date(),
       end,
       reason: 'FAKE_BAN_REASON',
@@ -108,6 +107,7 @@ describe('PlayerBansService', () => {
     it('should return the ban by its id', async () => {
       const ret = await service.getById(mockPlayerBan.id);
       expect(ret.id).toEqual(mockPlayerBan.id);
+      expect(ret.player.toString()).toEqual(player.id);
     });
 
     describe('when the given ban does not exist', () => {
@@ -144,7 +144,7 @@ describe('PlayerBansService', () => {
         end.setHours(end.getHours() + 1);
 
         newBan = {
-          player: player.id.toString(),
+          player: player._id,
           admin: admin.id,
           start: new Date(),
           end,
@@ -154,7 +154,8 @@ describe('PlayerBansService', () => {
 
       it('should create the ban and return it', async () => {
         const ret = await service.addPlayerBan(newBan);
-        expect(ret).toMatchObject(newBan);
+        expect(ret.player.toString()).toEqual(player.id);
+        expect(ret.admin.toString()).toEqual(admin.id);
       });
 
       it('should emit the playerBanAdded event', async () =>
@@ -190,7 +191,7 @@ describe('PlayerBansService', () => {
         end.setHours(end.getHours() + 1);
 
         invalidBan = {
-          player: new ObjectId(),
+          player: new Types.ObjectId(),
           admin: admin.id,
           start: new Date(),
           end,

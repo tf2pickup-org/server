@@ -5,7 +5,6 @@ import { PlayerSkillService } from '@/players/services/player-skill.service';
 import { Player, PlayerDocument, playerSchema } from '@/players/models/player';
 import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
 import { Game, GameDocument, gameSchema } from '../models/game';
-import { ObjectId } from 'mongodb';
 import { QueueSlot } from '@/queue/queue-slot';
 import { GameLauncherService } from './game-launcher.service';
 import { QueueConfigService } from '@/queue/services/queue-config.service';
@@ -20,7 +19,7 @@ import { GameServersService } from '@/game-servers/services/game-servers.service
 import { GameServer } from '@/game-servers/models/game-server';
 import { PlayerNotInThisGameError } from '../errors/player-not-in-this-game.error';
 import { GameInWrongStateError } from '../errors/game-in-wrong-state.error';
-import { Connection, Model } from 'mongoose';
+import { Connection, Model, Types } from 'mongoose';
 import {
   getConnectionToken,
   getModelToken,
@@ -539,7 +538,7 @@ describe('GamesService', () => {
         map: 'cp_badlands',
       });
 
-      const gameServer = new ObjectId();
+      const gameServer = new Types.ObjectId();
       await gameModel.create({
         number: 2,
         slots: [],
@@ -654,7 +653,7 @@ describe('GamesService', () => {
         let gameServer: GameServer;
 
         beforeEach(async () => {
-          game.gameServer = new ObjectId();
+          game.gameServer = new Types.ObjectId();
           await game.save();
 
           gameServer = {

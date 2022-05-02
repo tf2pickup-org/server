@@ -80,9 +80,10 @@ describe('PlayerPopulatorService', () => {
           ready: false,
           playerId: mockPlayer.id,
         };
+        const player = await playersService.getById(mockPlayer.id);
         expect(await service.populatePlayer(slot)).toEqual({
           ...slot,
-          player: plainToInstance(Player, mockPlayer.toObject()),
+          player,
         });
       });
     });
@@ -105,6 +106,7 @@ describe('PlayerPopulatorService', () => {
         },
       ];
 
+      const player = await playersService.getById(mockPlayer.id);
       expect(await service.populatePlayers(slots)).toEqual([
         {
           id: 0,
@@ -118,7 +120,7 @@ describe('PlayerPopulatorService', () => {
           gameClass: Tf2ClassName.soldier,
           ready: false,
           playerId: mockPlayer.id,
-          player: plainToInstance(Player, mockPlayer.toObject()),
+          player,
         },
       ]);
     });

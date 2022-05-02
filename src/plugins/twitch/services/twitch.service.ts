@@ -17,8 +17,7 @@ import { LinkedProfilesService } from '@/players/services/linked-profiles.servic
 import { Events } from '@/events/events';
 import { promotedStreams } from '@configs/twitchtv';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { ObjectId } from 'mongodb';
+import { Model, Types } from 'mongoose';
 import { HttpService } from '@nestjs/axios';
 
 interface TwitchGetUsersResponse {
@@ -94,7 +93,7 @@ export class TwitchService implements OnModuleInit {
     return plainToInstance(
       TwitchTvProfile,
       this.twitchTvProfileModel
-        .findOne({ player: new ObjectId(playerId) })
+        .findOne({ player: new Types.ObjectId(playerId) })
         .orFail()
         .lean()
         .exec(),
@@ -119,7 +118,7 @@ export class TwitchService implements OnModuleInit {
     const token = await this.twitchAuthService.fetchUserAccessToken(code);
     const profile = await this.fetchUserProfile(token);
     await this.twitchTvProfileModel.create({
-      player: new ObjectId(playerId),
+      player: new Types.ObjectId(playerId),
       userId: profile.id,
       login: profile.login,
       displayName: profile.display_name,
@@ -132,7 +131,7 @@ export class TwitchService implements OnModuleInit {
     const ret = plainToInstance(
       TwitchTvProfile,
       await this.twitchTvProfileModel
-        .findOneAndDelete({ player: new ObjectId(playerId) })
+        .findOneAndDelete({ player: new Types.ObjectId(playerId) })
         .orFail()
         .lean()
         .exec(),

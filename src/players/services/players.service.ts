@@ -13,7 +13,6 @@ import { GamesService } from '@/games/services/games.service';
 import { PlayerStats } from '../dto/player-stats';
 import { Etf2lProfile } from '../etf2l-profile';
 import { SteamApiService } from './steam-api.service';
-import { ObjectId } from 'mongodb';
 import { PlayerAvatar } from '../models/player-avatar';
 import { Events } from '@/events/events';
 import { plainToInstance } from 'class-transformer';

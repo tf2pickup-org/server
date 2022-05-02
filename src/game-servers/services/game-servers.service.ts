@@ -105,9 +105,11 @@ export class GameServersService implements OnModuleInit {
         `Using gameserver ${gameServer.name} for game #${game.number}`,
       );
       gameServer = await this.updateGameServer(gameServer.id, {
-        game: game._id,
+        game: new Types.ObjectId(game.id),
       });
-      await this.gamesService.update(game.id, { gameServer: gameServer._id });
+      await this.gamesService.update(game.id, {
+        gameServer: new Types.ObjectId(gameServer.id),
+      });
       return gameServer;
     });
   }

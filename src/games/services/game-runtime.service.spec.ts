@@ -6,7 +6,6 @@ import { ServerConfiguratorService } from './server-configurator.service';
 import { PlayersService } from '@/players/services/players.service';
 import { say } from '../utils/rcon-commands';
 import { Tf2Team } from '../models/tf2-team';
-import { ObjectId } from 'mongodb';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
 import { Player, PlayerDocument, playerSchema } from '@/players/models/player';
@@ -16,7 +15,7 @@ import { Events } from '@/events/events';
 import { SlotStatus } from '../models/slot-status';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { getConnectionToken, MongooseModule } from '@nestjs/mongoose';
-import { Connection, Error, Types } from 'mongoose';
+import { Connection, Error as MongooseError, Types } from 'mongoose';
 import { GameServerNotAssignedError } from '../errors/game-server-not-assigned.error';
 import { Rcon } from 'rcon-client/lib';
 import { staticGameServerProviderName } from '@/game-servers/providers/static-game-server/static-game-server-provider-name';
@@ -74,7 +73,7 @@ describe('GameRuntimeService', () => {
 
   beforeEach(async () => {
     mockGameServer = {
-      id: new ObjectId().toString(),
+      id: new Types.ObjectId().toString(),
       name: 'FAKE_GAME_SERVER',
       address: 'FAKE_ADDRESS',
       port: '1234',
@@ -98,7 +97,7 @@ describe('GameRuntimeService', () => {
     // @ts-expect-error
     mockGame = await gamesService._createOne(mockPlayers);
 
-    mockGame.gameServer = new ObjectId(mockGameServer.id);
+    mockGame.gameServer = new Types.ObjectId(mockGameServer.id);
     await mockGame.save();
 
     serverConfiguratorService.configureServer.mockResolvedValue({
@@ -137,8 +136,8 @@ describe('GameRuntimeService', () => {
     describe('when the given game does not exist', () => {
       it('should throw an error', async () => {
         await expect(
-          service.reconfigure(new ObjectId().toString()),
-        ).rejects.toThrow(Error.DocumentNotFoundError);
+          service.reconfigure(new Types.ObjectId().toString()),
+        ).rejects.toThrow(MongooseError.DocumentNotFoundError);
       });
     });
 
@@ -210,8 +209,8 @@ describe('GameRuntimeService', () => {
     describe('when the given game does not exist', () => {
       it('should reject', async () => {
         await expect(
-          service.forceEnd(new ObjectId().toString()),
-        ).rejects.toThrow(Error.DocumentNotFoundError);
+          service.forceEnd(new Types.ObjectId().toString()),
+        ).rejects.toThrow(MongooseError.DocumentNotFoundError);
       });
     });
 
@@ -256,7 +255,7 @@ describe('GameRuntimeService', () => {
             'FAKE_REPLACEE_ID',
             null,
           ),
-        ).rejects.toThrow(Error.DocumentNotFoundError);
+        ).rejects.toThrow(MongooseError.DocumentNotFoundError);
       });
     });
 
@@ -288,7 +287,7 @@ describe('GameRuntimeService', () => {
 
       it('should close the RCON connection', async () => {
         await service.replacePlayer(mockGame.id, mockPlayers[0].id, {
-          player: new ObjectId(),
+          player: new Types.ObjectId(),
           team: Tf2Team.red,
           gameClass: Tf2ClassName.soldier,
         });
@@ -299,7 +298,7 @@ describe('GameRuntimeService', () => {
     it('should close the RCON connection', async () => {
       const spy = jest.spyOn(rcon, 'end');
       await service.replacePlayer(mockGame.id, mockPlayers[0].id, {
-        player: new ObjectId(),
+        player: new Types.ObjectId(),
         team: Tf2Team.red,
         gameClass: Tf2ClassName.soldier,
       });
@@ -318,14 +317,14 @@ describe('GameRuntimeService', () => {
     describe('when the given game server does not exist', () => {
       beforeEach(() => {
         gameServersService.getById.mockRejectedValue(
-          new Error.DocumentNotFoundError(''),
+          new MongooseError.DocumentNotFoundError(''),
         );
       });
 
       it('should throw an error', async () => {
         await expect(
           service.sayChat(mockGameServer.id, 'some message'),
-        ).rejects.toThrow(Error.DocumentNotFoundError);
+        ).rejects.toThrow(MongooseError.DocumentNotFoundError);
       });
     });
 
