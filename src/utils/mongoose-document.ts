@@ -6,6 +6,6 @@ export abstract class MongooseDocument {
   @Exclude({ toPlainOnly: true })
   __v?: number;
 
-  @ExposeObjectId()
+  @ExposeObjectId({ toPlain: false })
   _id?: Types.ObjectId;
 }
