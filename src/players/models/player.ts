@@ -38,6 +38,7 @@ export class Player extends MongooseDocument {
   @Prop({ index: true })
   etf2lProfileId?: number;
 
+  @Exclude({ toPlainOnly: true })
   @ExposeObjectId()
   @Prop({ ref: 'Game' })
   activeGame?: Types.ObjectId;
