@@ -39,7 +39,7 @@ describe('ProfileService', () => {
     onlinePlayersService = module.get(OnlinePlayersService);
     linkedProfilesService = module.get(LinkedProfilesService);
 
-    onlinePlayersService.getSocketsForPlayer.mockReturnValue([socket as any]);
+    onlinePlayersService.getSocketsForPlayer.mockReturnValue([socket]);
 
     events = module.get(Events);
     service = module.get<ProfileService>(ProfileService);
