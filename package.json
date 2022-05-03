@@ -43,7 +43,7 @@
     "migrate": "1.8.0",
     "moment": "2.29.3",
     "mongodb-uri": "0.9.7",
-    "mongoose": "5.13.12",
+    "mongoose": "5.13.14",
     "nestjs-real-ip": "2.1.0",
     "passport": "0.5.2",
     "passport-headerapikey": "1.2.2",
