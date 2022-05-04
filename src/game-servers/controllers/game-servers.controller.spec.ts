@@ -1,20 +1,10 @@
-import { Environment } from '@/environment/environment';
 import { Test, TestingModule } from '@nestjs/testing';
 import { plainToClass } from 'class-transformer';
 import { GameServer } from '../models/game-server';
-import { GameServerDiagnosticsService } from '../providers/static-game-server/services/game-server-diagnostics.service';
-import { StaticGameServersService } from '../providers/static-game-server/services/static-game-servers.service';
 import { GameServersService } from '../services/game-servers.service';
 import { GameServersController } from './game-servers.controller';
 
 jest.mock('../services/game-servers.service');
-jest.mock(
-  '../providers/static-game-server/services/static-game-servers.service',
-);
-jest.mock(
-  '../providers/static-game-server/services/game-server-diagnostics.service',
-);
-jest.mock('@/environment/environment');
 
 describe('GameServersController', () => {
   let controller: GameServersController;
@@ -23,12 +13,7 @@ describe('GameServersController', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [GameServersController],
-      providers: [
-        GameServersService,
-        StaticGameServersService,
-        GameServerDiagnosticsService,
-        Environment,
-      ],
+      providers: [GameServersService],
     }).compile();
 
     controller = module.get<GameServersController>(GameServersController);

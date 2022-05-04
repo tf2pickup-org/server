@@ -32,11 +32,6 @@ import { staticGameServerModelProvider } from './static-game-server-model.provid
     RconConnection,
     LogForwarding,
   ],
-  exports: [
-    StaticGameServersService,
-    /** TODO v9.0 remove */
-    GameServerDiagnosticsService,
-  ],
   controllers: [StaticGameServersController, GameServerDiagnosticsController],
 })
 export class StaticGameServerModule {}
