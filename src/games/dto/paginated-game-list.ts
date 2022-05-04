@@ -1,3 +1,4 @@
+import { Type } from 'class-transformer';
 import { Game } from '../models/game';
 
 interface PaginatedGameListProps {
@@ -11,6 +12,8 @@ export class PaginatedGameList implements PaginatedGameListProps {
     this.itemCount = props.itemCount;
   }
 
+  @Type(() => Game)
   results: Game[];
+
   itemCount: number;
 }

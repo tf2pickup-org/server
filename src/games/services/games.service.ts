@@ -6,7 +6,6 @@ import { PlayersService } from '@/players/services/players.service';
 import { PlayerSkillService } from '@/players/services/player-skill.service';
 import { QueueConfigService } from '@/queue/services/queue-config.service';
 import { GameLauncherService } from './game-launcher.service';
-import { ObjectId } from 'mongodb';
 import { shuffle } from 'lodash';
 import { Events } from '@/events/events';
 import { SlotStatus } from '../models/slot-status';
@@ -102,7 +101,7 @@ export class GamesService {
     return plainToInstance(
       Game,
       await this.gameModel
-        .find({ 'slots.player': new ObjectId(playerId) })
+        .find({ 'slots.player': new Types.ObjectId(playerId) })
         .sort(sort)
         .limit(limit)
         .skip(skip)
@@ -118,7 +117,7 @@ export class GamesService {
     const defaultOptions: GetPlayerGameCountOptions = { endedOnly: false };
     const _options = { ...defaultOptions, ...options };
 
-    let criteria: any = { 'slots.player': new ObjectId(playerId) };
+    let criteria: any = { 'slots.player': new Types.ObjectId(playerId) };
     if (_options.endedOnly) {
       criteria = { ...criteria, state: 'ended' };
     }
@@ -134,7 +133,7 @@ export class GamesService {
       Game,
       await this.gameModel
         .find({
-          'slots.player': new ObjectId(playerId),
+          'slots.player': new Types.ObjectId(playerId),
           state: GameState.ended,
         })
         .lean()
@@ -168,7 +167,7 @@ export class GamesService {
     }, {});
     const slots = pickTeams(shuffle(players), { friends }).map((s) => ({
       ...s,
-      player: new ObjectId(s.playerId),
+      player: new Types.ObjectId(s.playerId),
     }));
     const gameNo = await this.getNextGameNumber();
 
@@ -199,7 +198,7 @@ export class GamesService {
   }
 
   async update(
-    gameId: string | ObjectId,
+    gameId: string | Types.ObjectId,
     update: UpdateQuery<Game>,
     adminId?: string,
   ): Promise<Game> {
