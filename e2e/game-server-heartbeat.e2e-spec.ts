@@ -21,9 +21,9 @@ describe('Game server heartbeat (e2e)', () => {
   });
 
   describe('denies request on wrong secret', () => {
-    it('POST /game-servers', async () => {
+    it('POST /static-game-servers', async () => {
       return request(app.getHttpServer())
-        .post(`/game-servers`)
+        .post(`/static-game-servers`)
         .send({
           name: 'test',
           address: '192.168.1.1',
@@ -36,9 +36,9 @@ describe('Game server heartbeat (e2e)', () => {
   });
 
   describe('adds game server', () => {
-    it('POST /game-servers', async () => {
+    it('POST /static-game-servers', async () => {
       return request(app.getHttpServer())
-        .post('/game-servers')
+        .post('/static-game-servers')
         .send({
           name: 'test',
           address: '192.168.1.1',
