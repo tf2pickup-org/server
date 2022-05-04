@@ -7988,7 +7988,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mongoose@npm:*":
+"mongoose@npm:*, mongoose@npm:6.3.2":
   version: 6.3.2
   resolution: "mongoose@npm:6.3.2"
   dependencies:
@@ -8000,28 +8000,6 @@ __metadata:
     ms: 2.1.3
     sift: 16.0.0
   checksum: dcd4819f011d4f433109ecd3d4c6e135b99e255458a185b43821fe451f971a0ece6c758765c2b4ce5dc10c2d2363d0e134b38893a869cef980864ccb8e41a0bc
-  languageName: node
-  linkType: hard
-
-"mongoose@npm:6.3.1":
-  version: 6.3.1
-  resolution: "mongoose@npm:6.3.1"
-  dependencies:
-    bson: ^4.6.2
-    kareem: 2.3.5
-    mongodb: 4.5.0
-    mpath: 0.8.4
-    mquery: 4.0.2
-    ms: 2.1.3
-    sift: 16.0.0
-  checksum: 5a9da91a79b0443c2c787c93cb1f06c1f8ee20a81330116a104730b1e1c5b2b378c89848b50d039c0dbe366a2d67650bcb48c0690aa28176d5c0c8b3f38048ec
-  languageName: node
-  linkType: hard
-
-"mpath@npm:0.8.4":
-  version: 0.8.4
-  resolution: "mpath@npm:0.8.4"
-  checksum: 06ad1d443766626fa361b67a4eca9cd4c36a71e475e92e8a5c242dbbc9a911adac00ce971177843b48475356df609f847342548da7701a976a2ab4116135caf0
   languageName: node
   linkType: hard
 
@@ -9759,7 +9737,7 @@ __metadata:
     mongodb: 4.5.0
     mongodb-memory-server: 8.5.2
     mongodb-uri: 0.9.7
-    mongoose: 6.3.1
+    mongoose: 6.3.2
     nestjs-real-ip: 2.1.0
     passport: 0.5.2
     passport-headerapikey: 1.2.2
