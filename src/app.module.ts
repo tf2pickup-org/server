@@ -39,10 +39,6 @@ import { GameConfigsModule } from './game-configs/game-configs.module';
       inject: [Environment],
       useFactory: async (environment: Environment) => ({
         uri: formatMongoose(environment.mongoDbUri),
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
-        useFindAndModify: false,
-        useCreateIndex: true,
       }),
     }),
     ScheduleModule.forRoot(),

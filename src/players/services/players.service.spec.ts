@@ -9,14 +9,13 @@ import { Player, PlayerDocument, playerSchema } from '../models/player';
 import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { SteamApiService } from './steam-api.service';
-import { ObjectId } from 'mongodb';
 import { Events } from '@/events/events';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { InsufficientTf2InGameHoursError } from '../errors/insufficient-tf2-in-game-hours.error';
 import { Tf2InGameHoursVerificationError } from '../errors/tf2-in-game-hours-verification.error';
 import { PlayerRole } from '../models/player-role';
 import { ConfigurationService } from '@/configuration/services/configuration.service';
-import { Connection, Error, Model } from 'mongoose';
+import { Connection, Error as MongooseError, Model, Types } from 'mongoose';
 import {
   getConnectionToken,
   getModelToken,
@@ -300,7 +299,7 @@ describe('PlayersService', () => {
       it('should force create the account', async () => {
         const player = await service.createPlayer(mockSteamProfile);
 
-        expect(await playerModel.findById(player._id)).toBeTruthy();
+        expect(await playerModel.findById(player.id)).toBeTruthy();
         expect(player.roles.includes(PlayerRole.superUser)).toBe(true);
       });
 
@@ -386,7 +385,7 @@ describe('PlayersService', () => {
         name: 'FAKE_FORCE_PLAYER_NAME',
         steamId: 'FAKE_FORCE_STEAM_ID',
       });
-      expect(await playerModel.findById(player._id)).toBeTruthy();
+      expect(await playerModel.findById(player.id)).toBeTruthy();
     });
 
     describe('when the player has ETF2L account', () => {
@@ -450,7 +449,7 @@ describe('PlayersService', () => {
     describe('when the given player does not exist', () => {
       it('should reject', async () => {
         await expect(
-          service.updatePlayer(new ObjectId().toString(), {}, admin.id),
+          service.updatePlayer(new Types.ObjectId().toString(), {}, admin.id),
         ).rejects.toThrowError();
       });
     });
@@ -464,8 +463,8 @@ describe('PlayersService', () => {
 
     it("should fail if the given user doesn't exist", async () => {
       await expect(
-        service.acceptTerms(new ObjectId().toString()),
-      ).rejects.toThrow(Error.DocumentNotFoundError);
+        service.acceptTerms(new Types.ObjectId().toString()),
+      ).rejects.toThrow(MongooseError.DocumentNotFoundError);
     });
   });
 

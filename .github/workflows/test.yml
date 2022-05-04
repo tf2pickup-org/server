@@ -78,6 +78,9 @@ jobs:
     - name: Install dependencies
       run: yarn install --immutable
 
+    - name: Restore database dump for e2e tests
+      run: mongorestore mongodb://localhost:27017 --quiet e2e/dump/
+
     - name: Run e2e tests
       env:
         API_URL: 'http://localhost:3000'

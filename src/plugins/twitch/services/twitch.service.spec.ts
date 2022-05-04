@@ -133,7 +133,7 @@ describe('TwitchService', () => {
 
       it('should return the requested twitch.tv profile', async () => {
         const profile = await service.getTwitchTvProfileByPlayerId(player.id);
-        expect(profile.player).toEqual(player.id);
+        expect(profile.player.toString()).toEqual(player.id);
         expect(profile.userId).toEqual('44322889');
       });
     });
@@ -264,7 +264,7 @@ describe('TwitchService', () => {
 
     it('should return the deleted twitch.tv profile', async () => {
       const profile = await service.deleteUserProfile(`${player.id}`);
-      expect(profile.player).toEqual(player.id);
+      expect(profile.player.toString()).toEqual(player.id);
     });
 
     it('should emit the linkedProfilesChanged event', async () =>

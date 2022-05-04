@@ -1,3 +1,4 @@
+import { TransformObjectId } from '@/shared/decorators/transform-object-id';
 import { MongooseDocument } from '@/utils/mongoose-document';
 import { Prop, raw, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Exclude, Expose, Transform, Type } from 'class-transformer';
@@ -60,7 +61,7 @@ export class Game extends MongooseDocument {
   @Prop()
   error?: string;
 
-  @Transform(({ value }) => value.toString(), { toPlainOnly: true })
+  @TransformObjectId()
   @Prop({ ref: 'GameServer' })
   gameServer?: Types.ObjectId;
 

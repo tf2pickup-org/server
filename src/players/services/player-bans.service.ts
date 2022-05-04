@@ -49,11 +49,15 @@ export class PlayerBansService implements OnModuleInit {
     );
   }
 
-  async getPlayerBans(playerId: string): Promise<PlayerBan[]> {
+  async getPlayerBans(playerId: string | Types.ObjectId): Promise<PlayerBan[]> {
+    const player =
+      playerId instanceof Types.ObjectId
+        ? playerId
+        : new Types.ObjectId(playerId);
     return plainToInstance(
       PlayerBan,
       await this.playerBanModel
-        .find({ player: new Types.ObjectId(playerId) })
+        .find({ player })
         .sort({ start: -1 })
         .lean()
         .exec(),
@@ -63,9 +67,13 @@ export class PlayerBansService implements OnModuleInit {
   async getPlayerActiveBans(
     playerId: string | Types.ObjectId,
   ): Promise<PlayerBan[]> {
+    const player =
+      playerId instanceof Types.ObjectId
+        ? playerId
+        : new Types.ObjectId(playerId);
     const plain = await this.playerBanModel
       .find({
-        player: new Types.ObjectId(playerId),
+        player,
         end: {
           $gte: new Date(),
         },
@@ -76,13 +84,17 @@ export class PlayerBansService implements OnModuleInit {
   }
 
   async addPlayerBan(props: PlayerBan): Promise<PlayerBan> {
-    const player = await this.playersService.getById(props.player.toString());
+    const player = await this.playersService.getById(props.player);
+    const admin =
+      props.admin instanceof Types.ObjectId
+        ? props.admin
+        : new Types.ObjectId(props.admin);
     const { id } = await this.playerBanModel.create({
       ...props,
-      player: player._id,
-      admin: new Types.ObjectId(props.admin),
+      player: new Types.ObjectId(player.id),
+      admin,
     });
-    const addedBan = plainToInstance(PlayerBan, await this.getById(id));
+    const addedBan = await this.getById(id);
     this.logger.verbose(
       `ban added for player ${player.id} (reason: ${addedBan.reason})`,
     );

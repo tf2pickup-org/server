@@ -9,7 +9,13 @@ import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { Events } from '@/events/events';
 import { Game, GameDocument, gameSchema } from '@/games/models/game';
-import { Connection, Model, Schema as MongooseSchema, Types } from 'mongoose';
+import {
+  Connection,
+  Model,
+  Schema as MongooseSchema,
+  Types,
+  Document,
+} from 'mongoose';
 import {
   getConnectionToken,
   getModelToken,

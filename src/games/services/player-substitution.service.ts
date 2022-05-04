@@ -94,7 +94,9 @@ export class PlayerSubstitutionService implements OnModuleInit {
             },
             {
               new: true,
-              arrayFilters: [{ 'element.player': { $eq: player._id } }],
+              arrayFilters: [
+                { 'element.player': { $eq: new Types.ObjectId(player.id) } },
+              ],
             },
           )
           .orFail()
@@ -186,7 +188,9 @@ export class PlayerSubstitutionService implements OnModuleInit {
             },
             {
               new: true,
-              arrayFilters: [{ 'element.player': { $eq: player._id } }],
+              arrayFilters: [
+                { 'element.player': { $eq: new Types.ObjectId(player.id) } },
+              ],
             },
           )
           .orFail()

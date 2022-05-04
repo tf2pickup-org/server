@@ -4,6 +4,7 @@ import { MongooseDocument } from '@/utils/mongoose-document';
 import { Expose, Transform } from 'class-transformer';
 import { Rcon } from 'rcon-client/lib';
 import { NotImplementedError } from '../errors/not-implemented.error';
+import { TransformObjectId } from '@/shared/decorators/transform-object-id';
 
 @Schema({ discriminatorKey: 'provider' })
 export class GameServer extends MongooseDocument {
@@ -28,7 +29,7 @@ export class GameServer extends MongooseDocument {
   @Prop({ required: true })
   port: string;
 
-  @Transform(({ value }) => value.toString())
+  @TransformObjectId()
   @Prop({ type: Types.ObjectId, ref: 'Game' })
   game?: Types.ObjectId; // currently running game
 

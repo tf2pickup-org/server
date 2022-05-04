@@ -13,7 +13,6 @@ import { GamesService } from '@/games/services/games.service';
 import { PlayerStats } from '../dto/player-stats';
 import { Etf2lProfile } from '../etf2l-profile';
 import { SteamApiService } from './steam-api.service';
-import { ObjectId } from 'mongodb';
 import { PlayerAvatar } from '../models/player-avatar';
 import { Events } from '@/events/events';
 import { plainToInstance } from 'class-transformer';
@@ -70,7 +69,7 @@ export class PlayersService implements OnModuleInit {
     );
   }
 
-  async getById(id: string | ObjectId): Promise<Player> {
+  async getById(id: string | Types.ObjectId): Promise<Player> {
     return plainToInstance(
       Player,
       await this.playerModel.findById(id).orFail().lean().exec(),
@@ -83,7 +82,7 @@ export class PlayersService implements OnModuleInit {
       await this.playerModel
         .find({
           _id: {
-            $in: ids.map((id) => Types.ObjectId(id)),
+            $in: ids.map((id) => new Types.ObjectId(id)),
           },
         })
         .lean()

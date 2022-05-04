@@ -13,7 +13,7 @@ import {
   MongooseModule,
 } from '@nestjs/mongoose';
 import { Game, GameDocument, gameSchema } from '../models/game';
-import { Model, Types, Error, Connection } from 'mongoose';
+import { Model, Types, Error as MongooseError, Connection } from 'mongoose';
 import { staticGameServerProviderName } from '@/game-servers/providers/static-game-server/static-game-server-provider-name';
 
 jest.mock('@/game-servers/services/game-servers.service');
@@ -103,7 +103,7 @@ describe('GameLauncherService', () => {
       it('should throw', async () => {
         await expect(
           service.launch(new Types.ObjectId().toString()),
-        ).rejects.toThrow(Error.DocumentNotFoundError);
+        ).rejects.toThrow(MongooseError.DocumentNotFoundError);
       });
     });
 

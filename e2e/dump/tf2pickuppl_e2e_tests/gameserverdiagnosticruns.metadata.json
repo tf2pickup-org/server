@@ -1,0 +1,1 @@
+{"indexes":[{"v":{"$numberInt":"2"},"key":{"_id":{"$numberInt":"1"}},"name":"_id_","ns":"pickup-test.gameserverdiagnosticruns"}],"uuid":"dc7adc6f119a45d2a4b9d900ea443a02","collectionName":"gameserverdiagnosticruns","type":"collection"}

@@ -9,7 +9,6 @@ import { DiscordService } from '@/plugins/discord/services/discord.service';
 import { Environment } from '@/environment/environment';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { Player, PlayerDocument, playerSchema } from '@/players/models/player';
-import { ObjectId } from 'mongodb';
 import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
 import { Game, GameDocument, gameSchema } from '../models/game';
 import { Events } from '@/events/events';
@@ -20,7 +19,7 @@ import {
   getModelToken,
   MongooseModule,
 } from '@nestjs/mongoose';
-import { Connection, Error, Model } from 'mongoose';
+import { Connection, Error, Model, Types } from 'mongoose';
 import { PlayerNotInThisGameError } from '../errors/player-not-in-this-game.error';
 import { WrongGameSlotStatusError } from '../errors/wrong-game-slot-status.error';
 import { GameInWrongStateError } from '../errors/game-in-wrong-state.error';
@@ -102,11 +101,10 @@ describe('PlayerSubstitutionService', () => {
     // @ts-expect-error
     mockGame = await gamesService._createOne([player1, player2]);
 
-    mockGame.gameServer = new ObjectId();
+    mockGame.gameServer = new Types.ObjectId();
     await mockGame.save();
 
     playerBansService.getPlayerActiveBans = () => Promise.resolve([]);
-
     gameRuntimeService.sayChat.mockResolvedValue(null);
     gameRuntimeService.replacePlayer.mockResolvedValue(null);
   });
@@ -127,7 +125,7 @@ describe('PlayerSubstitutionService', () => {
     describe('when the given game does not exist', () => {
       it('should throw an error', async () => {
         await expect(
-          service.substitutePlayer(new ObjectId().toString(), player1.id),
+          service.substitutePlayer(new Types.ObjectId().toString(), player1.id),
         ).rejects.toThrow(Error.DocumentNotFoundError);
       });
     });
@@ -135,7 +133,10 @@ describe('PlayerSubstitutionService', () => {
     describe('when the target player does not exist', () => {
       it('should throw an error', async () => {
         await expect(
-          service.substitutePlayer(mockGame.id, new ObjectId().toString()),
+          service.substitutePlayer(
+            mockGame.id,
+            new Types.ObjectId().toString(),
+          ),
         ).rejects.toThrow(PlayerNotInThisGameError);
       });
     });
@@ -236,7 +237,7 @@ describe('PlayerSubstitutionService', () => {
       it('should throw an error', async () => {
         await expect(
           service.cancelSubstitutionRequest(
-            new ObjectId().toString(),
+            new Types.ObjectId().toString(),
             player1.id,
           ),
         ).rejects.toThrow(Error.DocumentNotFoundError);
@@ -248,7 +249,7 @@ describe('PlayerSubstitutionService', () => {
         await expect(
           service.cancelSubstitutionRequest(
             mockGame.id,
-            new ObjectId().toString(),
+            new Types.ObjectId().toString(),
           ),
         ).rejects.toThrow(PlayerNotInThisGameError);
       });
@@ -434,7 +435,7 @@ describe('PlayerSubstitutionService', () => {
 
     describe('when the given player is involved in another game', () => {
       beforeEach(async () => {
-        player3.activeGame = new ObjectId();
+        player3.activeGame = new Types.ObjectId();
         await player3.save();
       });
 
@@ -471,7 +472,7 @@ describe('PlayerSubstitutionService', () => {
         service.replacePlayer(
           mockGame.id,
           player1.id,
-          new ObjectId().toString(),
+          new Types.ObjectId().toString(),
         ),
       ).rejects.toThrow(Error.DocumentNotFoundError);
     });
