@@ -40,6 +40,10 @@ describe('GameConfigsService', () => {
     service = module.get<GameConfigsService>(GameConfigsService);
   });
 
+  beforeEach(async () => {
+    await service.onModuleInit();
+  });
+
   it('should be defined', () => {
     expect(service).toBeDefined();
   });
