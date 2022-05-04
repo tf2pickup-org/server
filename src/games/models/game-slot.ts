@@ -5,14 +5,14 @@ import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Types } from 'mongoose';
 import { Exclude } from 'class-transformer';
-import { ExposeObjectId } from '@/shared/decorators/expose-object-id';
+import { TransformObjectId } from '@/shared/decorators/transform-object-id';
 
 @Schema()
 export class GameSlot {
   @Exclude({ toPlainOnly: true })
   _id?: Types.ObjectId;
 
-  @ExposeObjectId()
+  @TransformObjectId()
   @Prop({ required: true, type: Types.ObjectId, ref: 'Player', index: true })
   player!: Types.ObjectId;
 

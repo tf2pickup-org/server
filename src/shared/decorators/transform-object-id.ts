@@ -1,6 +1,6 @@
 import { Transform, TransformationType } from 'class-transformer';
 
-export const ExposeObjectId: () => PropertyDecorator =
+export const TransformObjectId: () => PropertyDecorator =
   () => (target: unknown, propertyKey: string) => {
     Transform(({ type, obj }) => {
       switch (type) {

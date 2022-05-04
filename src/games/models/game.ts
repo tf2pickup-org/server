@@ -1,4 +1,4 @@
-import { ExposeObjectId } from '@/shared/decorators/expose-object-id';
+import { TransformObjectId } from '@/shared/decorators/transform-object-id';
 import { MongooseDocument } from '@/utils/mongoose-document';
 import { Prop, raw, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Exclude, Expose, Transform, Type } from 'class-transformer';
@@ -10,9 +10,7 @@ import { SlotStatus } from './slot-status';
 @Schema()
 export class Game extends MongooseDocument {
   @Expose()
-  @Transform(({ value, obj }) => {
-    return value ?? obj._id.toString();
-  })
+  @Transform(({ value, obj }) => value ?? obj._id.toString())
   id: string;
 
   @Prop({ default: () => new Date() })
@@ -63,7 +61,7 @@ export class Game extends MongooseDocument {
   @Prop()
   error?: string;
 
-  @ExposeObjectId()
+  @TransformObjectId()
   @Prop({ ref: 'GameServer' })
   gameServer?: Types.ObjectId;
 

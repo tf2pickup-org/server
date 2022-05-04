@@ -3,7 +3,7 @@ import { MongooseDocument } from '@/utils/mongoose-document';
 import { Expose, Transform, Type } from 'class-transformer';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
-import { ExposeObjectId } from '@/shared/decorators/expose-object-id';
+import { TransformObjectId } from '@/shared/decorators/transform-object-id';
 
 @Schema()
 export class PlayerBan extends MongooseDocument {
@@ -12,12 +12,12 @@ export class PlayerBan extends MongooseDocument {
   id?: string;
 
   @IsMongoId()
-  @ExposeObjectId()
+  @TransformObjectId()
   @Prop({ required: true, type: Types.ObjectId, ref: 'Player', index: true })
   player!: Types.ObjectId;
 
   @IsMongoId()
-  @ExposeObjectId()
+  @TransformObjectId()
   @Prop({ required: true, type: Types.ObjectId, ref: 'Player', index: true })
   admin!: Types.ObjectId;
 

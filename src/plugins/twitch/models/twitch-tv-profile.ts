@@ -1,11 +1,11 @@
-import { ExposeObjectId } from '@/shared/decorators/expose-object-id';
+import { TransformObjectId } from '@/shared/decorators/transform-object-id';
 import { MongooseDocument } from '@/utils/mongoose-document';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Types, Document } from 'mongoose';
 
 @Schema()
 export class TwitchTvProfile extends MongooseDocument {
-  @ExposeObjectId()
+  @TransformObjectId()
   @Prop({ ref: 'Player', index: true })
   player?: Types.ObjectId;
 

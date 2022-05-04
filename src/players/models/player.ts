@@ -5,14 +5,12 @@ import { MongooseDocument } from '@/utils/mongoose-document';
 import { Exclude, Expose, Transform, Type } from 'class-transformer';
 import { PlayerAvatar, playerAvatarSchema } from './player-avatar';
 import { PlayerRole } from './player-role';
-import { ExposeObjectId } from '@/shared/decorators/expose-object-id';
+import { TransformObjectId } from '@/shared/decorators/transform-object-id';
 
 @Schema()
 export class Player extends MongooseDocument {
   @Expose()
-  @Transform(({ value, obj }) => {
-    return value ?? obj._id.toString();
-  })
+  @Transform(({ value, obj }) => value ?? obj._id.toString())
   id?: string;
 
   @Prop({ required: true, unique: true, trim: true })
@@ -39,7 +37,7 @@ export class Player extends MongooseDocument {
   etf2lProfileId?: number;
 
   @Exclude({ toPlainOnly: true })
-  @ExposeObjectId()
+  @TransformObjectId()
   @Prop({ ref: 'Game' })
   activeGame?: Types.ObjectId;
 
