@@ -40,6 +40,7 @@ export class StaticGameServersService
 {
   readonly gameServerProviderName = staticGameServerProviderName;
   readonly implementingClass = StaticGameServer;
+  readonly priority = Number.MAX_SAFE_INTEGER;
   private readonly logger = new Logger(StaticGameServersService.name);
 
   constructor(
