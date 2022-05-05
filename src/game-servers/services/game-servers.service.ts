@@ -3,6 +3,7 @@ import {
   Inject,
   Injectable,
   Logger,
+  OnApplicationBootstrap,
   OnModuleInit,
 } from '@nestjs/common';
 import { Mutex } from 'async-mutex';
@@ -21,7 +22,9 @@ import { Cron, CronExpression } from '@nestjs/schedule';
 type GameServerConstructor = GameServerProvider['implementingClass'];
 
 @Injectable()
-export class GameServersService implements OnModuleInit {
+export class GameServersService
+  implements OnModuleInit, OnApplicationBootstrap
+{
   private readonly logger = new Logger(GameServersService.name);
   private readonly mutex = new Mutex();
   private readonly providers: GameServerProvider[] = [];
@@ -50,8 +53,17 @@ export class GameServersService implements OnModuleInit {
       .subscribe(async ({ game }) => await this.maybeReleaseGameServer(game));
   }
 
+  onApplicationBootstrap() {
+    this.logger.log(
+      `providers: ${this.providers
+        .map((p) => p.gameServerProviderName)
+        .join(', ')}`,
+    );
+  }
+
   registerProvider(provider: GameServerProvider) {
     this.providers.push(provider);
+    this.providers.sort((a, b) => (b.priority ?? 0) - (a.priority ?? 0));
     this.discriminators.set(
       provider.gameServerProviderName,
       provider.implementingClass,
