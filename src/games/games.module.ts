@@ -17,7 +17,6 @@ import { ConfigurationModule } from '@/configuration/configuration.module';
 import { LogReceiverModule } from '@/log-receiver/log-receiver.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { GameConfigsModule } from '@/game-configs/game-configs.module';
-import { VoiceServerConfiguratorService } from './services/voice-server-configurator.service';
 
 @Module({
   imports: [
@@ -39,7 +38,6 @@ import { VoiceServerConfiguratorService } from './services/voice-server-configur
     GameRuntimeService,
     GameEventHandlerService,
     PlayerSubstitutionService,
-    VoiceServerConfiguratorService,
   ],
   exports: [GamesService],
   controllers: [GamesController, GamesWithSubstitutionRequestsController],
