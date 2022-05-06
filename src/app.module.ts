@@ -24,6 +24,7 @@ import { MigrationsModule } from './migrations/migrations.module';
 import { formatMongoose } from 'mongodb-uri';
 import { StatisticsModule } from './statistics/statistics.module';
 import { GameConfigsModule } from './game-configs/game-configs.module';
+import { VoiceServersModule } from './voice-servers/voice-servers.module';
 
 @Module({
   imports: [
@@ -62,6 +63,7 @@ import { GameConfigsModule } from './game-configs/game-configs.module';
     MigrationsModule,
     StatisticsModule,
     GameConfigsModule,
+    VoiceServersModule,
   ],
   controllers: [AppController],
 })
