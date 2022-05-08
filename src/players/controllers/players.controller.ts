@@ -180,7 +180,7 @@ export class PlayersController {
   @UseInterceptors(ClassSerializerInterceptor)
   @HttpCode(200)
   async updatePlayerBan(
-    @Param('id', PlayerByIdPipe) player: Player,
+    @Param('playerId', PlayerByIdPipe) player: Player,
     @Param('banId', ObjectIdValidationPipe) banId: string,
     @Query('revoke') revoke: any,
     @User() user: Player,
