@@ -29,6 +29,6 @@ export class ObjectIdOrSteamIdPipe
       // eslint-disable-next-line no-empty
     } catch (error) {}
 
-    throw new BadRequestException('The provided ID is invalid');
+    throw new BadRequestException(`The provided ID (${value}) is invalid`);
   }
 }
