@@ -62,11 +62,14 @@ export class MumbleBotService implements OnModuleInit, OnModuleDestroy {
   ): Promise<any> {
     return new Promise((resolve) => {
       const listener = (channel) => {
-        console.log(channel);
-        if (channel.name === channelName) {
-          this.mumbleClient.off('newChannel', listener);
-          resolve(channel);
-        }
+        const listener2 = (changes) => {
+          if (changes.name === channelName) {
+            channel.off('update', listener2);
+            this.mumbleClient.off('newChannel', listener);
+            resolve(channel);
+          }
+        };
+        channel.on('update', listener2);
       };
       this.mumbleClient.on('newChannel', listener);
 
@@ -83,7 +86,7 @@ export class MumbleBotService implements OnModuleInit, OnModuleDestroy {
 
   private async removeChannel(channelId: string): Promise<void> {
     return new Promise((resolve) => {
-      const channel = this.mumbleClient._channelById(channelId);
+      const channel = this.mumbleClient.getChannelById(channelId);
       if (channel) {
         channel.on('remove', resolve);
         this.mumbleClient._send({
