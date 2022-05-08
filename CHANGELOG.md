@@ -1,3 +1,15 @@
+# [9.0.0-beta.1](https://github.com/tf2pickup-org/server/compare/9.0.0-beta.0...9.0.0-beta.1) (2022-05-08)
+
+
+### Bug Fixes
+
+* **players:** bring back the ability to revoke player's ban ([#1612](https://github.com/tf2pickup-org/server/issues/1612)) ([bd4a1a0](https://github.com/tf2pickup-org/server/commit/bd4a1a0d0b77d818b7af3573907b15e47b7cd978))
+
+
+### Features
+
+* add ultiduo config ([#1610](https://github.com/tf2pickup-org/server/issues/1610)) ([c09da30](https://github.com/tf2pickup-org/server/commit/c09da304985491c01f7a4c9e88bfa407112cdff1))
+
 # [9.0.0-beta.0](https://github.com/tf2pickup-org/server/compare/8.2.0...9.0.0-beta.0) (2022-05-05)
 
 
