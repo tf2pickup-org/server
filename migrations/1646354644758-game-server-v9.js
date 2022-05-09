@@ -13,7 +13,10 @@ module.exports.up = (next) => {
     .then((collection) =>
       Promise.all([
         collection,
-        collection.updateMany({}, { $set: { provider: 'static' } }),
+        collection.updateMany(
+          { provider: { $exists: false } },
+          { $set: { provider: 'static', isClean: true } },
+        ),
       ]),
     )
     .then(([collection]) =>
