@@ -3024,7 +3024,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"bson@npm:^4.6.2":
+"bson@npm:^4.6.2, bson@npm:^4.6.3":
   version: 4.6.3
   resolution: "bson@npm:4.6.3"
   dependencies:
@@ -8096,6 +8096,22 @@ __metadata:
   languageName: node
   linkType: hard
 
+"mongodb@npm:4.6.0":
+  version: 4.6.0
+  resolution: "mongodb@npm:4.6.0"
+  dependencies:
+    bson: ^4.6.3
+    denque: ^2.0.1
+    mongodb-connection-string-url: ^2.5.2
+    saslprep: ^1.0.3
+    socks: ^2.6.2
+  dependenciesMeta:
+    saslprep:
+      optional: true
+  checksum: aa2a584fdb4e7f73b73b5f4019916e4f9cdba6e0aa81448eade44a5ff4e5d771ad62cd252f012b7a211eb80f6f88fba446c6ad8f0eb898ba56cf447719161540
+  languageName: node
+  linkType: hard
+
 "mongoose@npm:*":
   version: 6.3.2
   resolution: "mongoose@npm:6.3.2"
@@ -9858,7 +9874,7 @@ __metadata:
     lodash: 4.17.21
     migrate: 1.8.0
     moment: 2.29.3
-    mongodb: 4.5.0
+    mongodb: 4.6.0
     mongodb-memory-server: 8.5.2
     mongodb-uri: 0.9.7
     mongoose: 6.3.3
