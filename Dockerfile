@@ -23,6 +23,8 @@ RUN yarn workspaces focus --production
 FROM node:lts-alpine
 WORKDIR /tf2pickup.pl
 
+RUN apk add --no-cache openssl
+
 ARG NODE_ENV=production
 ENV NODE_ENV=${NODE_ENV}
 

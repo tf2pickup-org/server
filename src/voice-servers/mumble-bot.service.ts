@@ -5,97 +5,109 @@ import {
   OnModuleDestroy,
   OnModuleInit,
 } from '@nestjs/common';
-import { readFile } from 'fs/promises';
-import { version } from '../../package.json';
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const connect = require('mumble-client-tcp');
+import { Client } from '@tf2pickup-org/simple-mumble-bot';
+import { ConfigurationService } from '@/configuration/services/configuration.service';
+import { Events } from '@/events/events';
+import { map } from 'rxjs';
+import { CertificatesService } from '@/certificates/services/certificates.service';
+import { Cron, CronExpression } from '@nestjs/schedule';
+import { GamesService } from '@/games/services/games.service';
 
 @Injectable()
 export class MumbleBotService implements OnModuleInit, OnModuleDestroy {
   private logger = new Logger(MumbleBotService.name);
-  private mumbleClient;
+  private client?: Client;
 
-  constructor(private readonly environment: Environment) {}
+  constructor(
+    private readonly environment: Environment,
+    private readonly configurationService: ConfigurationService,
+    private readonly events: Events,
+    private readonly certificatesService: CertificatesService,
+    private readonly gamesService: GamesService,
+  ) {
+    this.events.gameCreated
+      .pipe(
+        map(({ game }) => game.number),
+        map((number) => `${number}`),
+      )
+      .subscribe(async (channelName) => {
+        if (this.client) {
+          const channel = await this.client.user.channel.createSubChannel(
+            channelName,
+          );
+          await channel.createSubChannel('BLU');
+          await channel.createSubChannel('RED');
+          this.logger.log(`Channel ${channelName} prepared`);
+        }
+      });
+  }
 
   async onModuleInit() {
-    const key = await readFile('mumble-key.pem');
-    const cert = await readFile('mumble-cert.pem');
+    await this.connect();
+  }
 
-    this.mumbleClient = await connect('mumble.melkor.tf', 64738, {
-      tls: {
-        key,
-        cert,
-        rejectUnauthorized: true,
-      },
-      username: this.environment.botName,
-      clientSoftware: `tf2pickup.org ${version}`,
-    });
-    this.logger.log(`Mumble bot username: ${this.mumbleClient.self.username}`);
+  onModuleDestroy() {
+    this.client?.disconnect();
+  }
 
-    this.mumbleClient.setSelfDeaf(true);
+  async connect() {
+    const voiceServerConfig = await this.configurationService.getVoiceServer();
+    if (voiceServerConfig.mumble) {
+      const certificate = await this.certificatesService.getCertificate(
+        'mumble',
+      );
 
-    const channel = this.mumbleClient.getChannel('tf2pickup-pl');
-    if (channel) {
-      this.logger.debug(`channel id=${channel._id}`);
-      this.mumbleClient.self.setChannel(channel);
+      this.client = new Client({
+        host: voiceServerConfig.mumble.url,
+        port: voiceServerConfig.mumble.port,
+        username: this.environment.botName,
+        key: certificate.clientKey,
+        cert: certificate.certificate,
+        rejectUnauthorized: false,
+      });
+      await this.client.connect();
+      const channel = this.client.channels.byName(
+        voiceServerConfig.mumble.channelName,
+      );
+      await this.client.user.moveToChannel(channel.id);
 
-      setTimeout(() => {
-        this.createChannel(channel._id, 'test').then((testChannel) => {
-          this.logger.log('CREATED');
-          setTimeout(() => {
-            this.removeChannel(testChannel._id).then(() => {
-              this.logger.log('REMOVED');
-            });
-          }, 5000);
-        });
-      }, 3000);
+      const permissions = await this.client.user.channel.getPermissions();
+      if (!permissions.canCreateChannel) {
+        this.logger.warn(
+          `Bot ${this.client.user.name} does not have permissions to create new channels`,
+        );
+      }
     }
   }
 
-  async onModuleDestroy() {
-    this.mumbleClient?.disconnect();
-  }
-
-  private async createChannel(
-    parentId: string,
-    channelName: string,
-  ): Promise<any> {
-    return new Promise((resolve) => {
-      const listener = (channel) => {
-        const listener2 = (changes) => {
-          if (changes.name === channelName) {
-            channel.off('update', listener2);
-            this.mumbleClient.off('newChannel', listener);
-            resolve(channel);
-          }
-        };
-        channel.on('update', listener2);
-      };
-      this.mumbleClient.on('newChannel', listener);
-
-      this.mumbleClient._send({
-        name: 'ChannelState',
-        payload: {
-          parent: parentId,
-          name: channelName,
-          temporary: false,
-        },
-      });
-    });
-  }
-
-  private async removeChannel(channelId: string): Promise<void> {
-    return new Promise((resolve) => {
-      const channel = this.mumbleClient.getChannelById(channelId);
-      if (channel) {
-        channel.on('remove', resolve);
-        this.mumbleClient._send({
-          name: 'ChannelRemove',
-          payload: {
-            channel_id: channelId,
-          },
-        });
+  @Cron(CronExpression.EVERY_10_MINUTES)
+  async removeOldChannels() {
+    const channels = this.client.channels.findAll(
+      (c) => c.parent === this.client.user.channelId,
+    );
+    for (const channel of channels) {
+      const gameNumber = parseInt(channel.name, 10);
+      if (isNaN(gameNumber)) {
+        continue;
       }
-    });
+
+      const game = await this.gamesService.getByNumber(gameNumber);
+      if (game.isInProgress()) {
+        continue;
+      }
+
+      const userCount =
+        this.client.channels
+          .findAll((c) => c.parent === channel.id)
+          .map((c) => c.users.length)
+          .reduce((prev, curr) => prev + curr, 0) + channel.users.length;
+
+      if (userCount > 0) {
+        continue;
+      }
+
+      await channel.remove();
+      this.logger.log(`Channel ${channel.name} removed`);
+    }
   }
 }

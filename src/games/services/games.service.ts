@@ -58,6 +58,17 @@ export class GamesService {
     );
   }
 
+  async getByNumber(gameNumber: number): Promise<Game> {
+    return plainToInstance(
+      Game,
+      await this.gameModel
+        .findOne({ number: gameNumber })
+        .orFail()
+        .lean()
+        .exec(),
+    );
+  }
+
   async getByLogSecret(logSecret: string): Promise<Game> {
     return plainToInstance(
       Game,
