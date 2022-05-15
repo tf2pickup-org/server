@@ -580,7 +580,7 @@ describe('GamesService', () => {
       player = await playersService._createOne();
 
       game = await gameModel.create({
-        number: 1,
+        number: 512,
         map: 'cp_badlands',
         slots: [
           {
@@ -661,50 +661,32 @@ describe('GamesService', () => {
         configurationService.getVoiceServer.mockResolvedValue(voiceServer);
       });
 
-      it('should return null', async () => {
-        expect(await service.getVoiceChannelUrl(game.id, player.id)).toBe(null);
+      it('should return direct mumble channel url', async () => {
+        const url = await service.getVoiceChannelUrl(game.id, player.id);
+        expect(url).toEqual(
+          'mumble://fake_player_1@melkor.tf:64738/FAKE_CHANNEL_NAME/512/BLU',
+        );
       });
 
-      describe('when a game server is assigned', () => {
-        let gameServer: GameServer;
+      describe('when the mumble server has a password', () => {
+        beforeEach(() => {
+          const voiceServer = new VoiceServer();
+          voiceServer.type = SelectedVoiceServer.mumble;
+          const mumble = new MumbleOptions();
+          mumble.url = 'melkor.tf';
+          mumble.port = 64738;
+          mumble.channelName = 'FAKE_CHANNEL_NAME';
+          mumble.password = 'FAKE_SERVER_PASSWORD';
+          voiceServer.mumble = mumble;
 
-        beforeEach(async () => {
-          game.gameServer = new Types.ObjectId();
-          await game.save();
-
-          gameServer = {
-            voiceChannelName: () => Promise.resolve('7'),
-          } as StaticGameServer;
-          gameServersService.getById.mockResolvedValue(gameServer);
+          configurationService.getVoiceServer.mockResolvedValue(voiceServer);
         });
 
-        it('should return direct mumble channel url', async () => {
+        it('should handle the password in the url', async () => {
           const url = await service.getVoiceChannelUrl(game.id, player.id);
           expect(url).toEqual(
-            'mumble://fake_player_1@melkor.tf:64738/FAKE_CHANNEL_NAME/7/BLU',
+            'mumble://fake_player_1:FAKE_SERVER_PASSWORD@melkor.tf:64738/FAKE_CHANNEL_NAME/512/BLU',
           );
-        });
-
-        describe('when the mumble server has a password', () => {
-          beforeEach(() => {
-            const voiceServer = new VoiceServer();
-            voiceServer.type = SelectedVoiceServer.mumble;
-            const mumble = new MumbleOptions();
-            mumble.url = 'melkor.tf';
-            mumble.port = 64738;
-            mumble.channelName = 'FAKE_CHANNEL_NAME';
-            mumble.password = 'FAKE_SERVER_PASSWORD';
-            voiceServer.mumble = mumble;
-
-            configurationService.getVoiceServer.mockResolvedValue(voiceServer);
-          });
-
-          it('should handle the password in the url', async () => {
-            const url = await service.getVoiceChannelUrl(game.id, player.id);
-            expect(url).toEqual(
-              'mumble://fake_player_1:FAKE_SERVER_PASSWORD@melkor.tf:64738/FAKE_CHANNEL_NAME/7/BLU',
-            );
-          });
         });
       });
     });

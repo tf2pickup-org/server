@@ -313,19 +313,10 @@ export class GamesService {
         return voiceServer.staticLink;
 
       case SelectedVoiceServer.mumble: {
-        if (!game.gameServer) {
-          return null;
-        }
-
-        const gameServer = await this.gameServersService.getById(
-          game.gameServer.toString(),
-        );
-
-        const voiceChannelName = await gameServer.voiceChannelName();
         const url = new URL(`mumble://${voiceServer.mumble.url}`);
-        url.pathname = `${
-          voiceServer.mumble.channelName
-        }/${voiceChannelName}/${slot.team.toUpperCase()}`;
+        url.pathname = `${voiceServer.mumble.channelName}/${
+          game.number
+        }/${slot.team.toUpperCase()}`;
         url.username = player.name.replace(/\s+/g, '_');
         if (voiceServer.mumble.password) {
           url.password = voiceServer.mumble.password;
