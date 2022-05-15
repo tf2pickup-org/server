@@ -82,10 +82,7 @@ export class MumbleBotService implements OnModuleInit, OnModuleDestroy {
 
   @Cron(CronExpression.EVERY_10_MINUTES)
   async removeOldChannels() {
-    const channels = this.client.channels.findAll(
-      (c) => c.parent === this.client.user.channelId,
-    );
-    for (const channel of channels) {
+    for (const channel of this.client.user.channel.subChannels) {
       const gameNumber = parseInt(channel.name, 10);
       if (isNaN(gameNumber)) {
         continue;
@@ -97,8 +94,7 @@ export class MumbleBotService implements OnModuleInit, OnModuleDestroy {
       }
 
       const userCount =
-        this.client.channels
-          .findAll((c) => c.parent === channel.id)
+        this.client.user.channel.subChannels
           .map((c) => c.users.length)
           .reduce((prev, curr) => prev + curr, 0) + channel.users.length;
 
