@@ -5,6 +5,7 @@ import { ConfigurationService } from '@/configuration/services/configuration.ser
 import { Environment } from '@/environment/environment';
 import { Events } from '@/events/events';
 import { Game, gameSchema } from '@/games/models/game';
+import { GameState } from '@/games/models/game-state';
 import { GamesService } from '@/games/services/games.service';
 import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
 import { getConnectionToken, MongooseModule } from '@nestjs/mongoose';
@@ -18,6 +19,7 @@ const mockSubCreateSubChannel = jest.fn();
 const mockCreateSubChannel = jest.fn().mockResolvedValue({
   createSubChannel: mockSubCreateSubChannel,
 });
+const mockSubChannels = [];
 
 jest.mock('@/environment/environment');
 jest.mock('@/configuration/services/configuration.service');
@@ -41,6 +43,7 @@ jest.mock('@tf2pickup-org/simple-mumble-bot', () => ({
           canCreateChannel: true,
         }),
         createSubChannel: mockCreateSubChannel,
+        subChannels: mockSubChannels,
       },
     },
   })),
@@ -54,6 +57,7 @@ describe('MumbleBotService', () => {
   let certificatesService: jest.Mocked<CertificatesService>;
   let environment: jest.Mocked<Environment>;
   let events: Events;
+  let gamesService: GamesService;
 
   beforeAll(async () => (mongod = await MongoMemoryServer.create()));
   afterAll(async () => await mongod.stop());
@@ -80,6 +84,7 @@ describe('MumbleBotService', () => {
     certificatesService = module.get(CertificatesService);
     environment = module.get(Environment);
     events = module.get(Events);
+    gamesService = module.get(GamesService);
   });
 
   beforeEach(() => {
@@ -135,6 +140,57 @@ describe('MumbleBotService', () => {
       expect(mockCreateSubChannel).toHaveBeenCalledWith('1234');
       expect(mockSubCreateSubChannel).toHaveBeenCalledWith('BLU');
       expect(mockSubCreateSubChannel).toHaveBeenCalledWith('RED');
+    });
+  });
+
+  describe('#removeOldChannels()', () => {
+    describe('when there is a channel that is not a game number', () => {
+      beforeEach(() => {
+        mockSubChannels.push({ name: 'FAKE_CHANNEL_NAME' });
+      });
+
+      afterEach(() => {
+        mockSubChannels.length = 0;
+      });
+
+      it('should do nothing', async () => {
+        await expect(service.removeOldChannels()).resolves.not.toThrow();
+      });
+    });
+
+    describe('when there are no users', () => {
+      const remove = jest.fn();
+
+      beforeEach(async () => {
+        // @ts-expect-error
+        const game = await gamesService._createOne();
+        game.state = GameState.ended;
+        await game.save();
+
+        mockSubChannels.push({
+          name: `${game.number}`,
+          users: [],
+          subChannels: [
+            {
+              users: [],
+            },
+            {
+              users: [],
+            },
+          ],
+          remove,
+        });
+      });
+
+      afterEach(() => {
+        mockSubChannels.length = 0;
+        remove.mockClear();
+      });
+
+      it('should remove the channel', async () => {
+        await service.removeOldChannels();
+        expect(remove).toHaveBeenCalled();
+      });
     });
   });
 });

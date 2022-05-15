@@ -82,6 +82,10 @@ export class MumbleBotService implements OnModuleInit, OnModuleDestroy {
 
   @Cron(CronExpression.EVERY_10_MINUTES)
   async removeOldChannels() {
+    /**
+     * For each channel lookup the assigned game and see whether it has ended.
+     * For ended games, make sure there are no players in the corresponding voice channel and then remove it.
+     */
     for (const channel of this.client.user.channel.subChannels) {
       const gameNumber = parseInt(channel.name, 10);
       if (isNaN(gameNumber)) {
@@ -94,7 +98,7 @@ export class MumbleBotService implements OnModuleInit, OnModuleDestroy {
       }
 
       const userCount =
-        this.client.user.channel.subChannels
+        channel.subChannels
           .map((c) => c.users.length)
           .reduce((prev, curr) => prev + curr, 0) + channel.users.length;
 
