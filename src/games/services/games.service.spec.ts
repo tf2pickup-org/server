@@ -137,6 +137,22 @@ describe('GamesService', () => {
     });
   });
 
+  describe('#getByNumber()', () => {
+    let game: GameDocument;
+
+    beforeEach(async () => {
+      game = await gameModel.create({
+        number: 1025,
+        map: 'cp_badlands',
+      });
+    });
+
+    it('should get the game by its number', async () => {
+      const ret = await service.getByNumber(1025);
+      expect(ret.id).toEqual(game.id);
+    });
+  });
+
   describe('#getByLogSecret()', () => {
     let game: GameDocument;
 
