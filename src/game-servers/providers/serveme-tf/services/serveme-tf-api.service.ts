@@ -167,6 +167,7 @@ export class ServemeTfApiService {
         ),
         map(() => null),
       ),
+      { defaultValue: null },
     );
   }
 

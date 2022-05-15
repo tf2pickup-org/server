@@ -1,3 +1,114 @@
+# [9.0.0-beta.1](https://github.com/tf2pickup-org/server/compare/9.0.0-beta.0...9.0.0-beta.1) (2022-05-08)
+
+
+### Bug Fixes
+
+* **players:** bring back the ability to revoke player's ban ([#1612](https://github.com/tf2pickup-org/server/issues/1612)) ([bd4a1a0](https://github.com/tf2pickup-org/server/commit/bd4a1a0d0b77d818b7af3573907b15e47b7cd978))
+
+
+### Features
+
+* add ultiduo config ([#1610](https://github.com/tf2pickup-org/server/issues/1610)) ([c09da30](https://github.com/tf2pickup-org/server/commit/c09da304985491c01f7a4c9e88bfa407112cdff1))
+
+# [9.0.0-beta.0](https://github.com/tf2pickup-org/server/compare/8.2.0...9.0.0-beta.0) (2022-05-05)
+
+
+### Bug Fixes
+
+* **build:** add stable, nightly and sha docker tags ([#1588](https://github.com/tf2pickup-org/server/issues/1588)) ([4b49419](https://github.com/tf2pickup-org/server/commit/4b49419dce16b4b99d1900d29b8ebe5633e52cf0))
+* **build:** cleanup Node.JS versions ([#1455](https://github.com/tf2pickup-org/server/issues/1455)) ([27c87bf](https://github.com/tf2pickup-org/server/commit/27c87bf1beb7b2239c66c7db2a033c10959b1170))
+* **build:** ignore mongo upgrades ([#1480](https://github.com/tf2pickup-org/server/issues/1480)) ([85fb249](https://github.com/tf2pickup-org/server/commit/85fb2495222d9fa78477751bf39cbc40c3afd6ff))
+* **ci:** fix heap out of memory error ([#1596](https://github.com/tf2pickup-org/server/issues/1596)) ([6ad877f](https://github.com/tf2pickup-org/server/commit/6ad877f9750a05c3ff550028e1f88135ad58cefa))
+* **deps:** update dependency @nestjs/axios to v0.0.4 ([#1414](https://github.com/tf2pickup-org/server/issues/1414)) ([304b948](https://github.com/tf2pickup-org/server/commit/304b9484406fd78daf407bc63d1ec665d0faff34))
+* **deps:** update dependency @nestjs/axios to v0.0.5 ([#1445](https://github.com/tf2pickup-org/server/issues/1445)) ([f30f6fa](https://github.com/tf2pickup-org/server/commit/f30f6fab89483c36ce6ba787e39f0ec2d36ee5fe))
+* **deps:** update dependency @nestjs/axios to v0.0.6 ([#1482](https://github.com/tf2pickup-org/server/issues/1482)) ([63930fc](https://github.com/tf2pickup-org/server/commit/63930fce5abfc4dc58ebbda109f42ad18373b858))
+* **deps:** update dependency @nestjs/axios to v0.0.7 ([#1507](https://github.com/tf2pickup-org/server/issues/1507)) ([aa4d43a](https://github.com/tf2pickup-org/server/commit/aa4d43a7ade54c5485a0cd2d5ca1d934d833d37a))
+* **deps:** update dependency @nestjs/config to v1.1.1 ([#1376](https://github.com/tf2pickup-org/server/issues/1376)) ([107b171](https://github.com/tf2pickup-org/server/commit/107b171f86ddd25ab92a046627e4bdc5535012d2))
+* **deps:** update dependency @nestjs/config to v1.1.2 ([#1378](https://github.com/tf2pickup-org/server/issues/1378)) ([71d80bf](https://github.com/tf2pickup-org/server/commit/71d80bf9cd916638c5b96879ef98e8741f2266e5))
+* **deps:** update dependency @nestjs/config to v1.1.3 ([#1381](https://github.com/tf2pickup-org/server/issues/1381)) ([08941df](https://github.com/tf2pickup-org/server/commit/08941df9365644795c8e1cf0260575d2512bb59f))
+* **deps:** update dependency @nestjs/config to v1.1.5 ([#1384](https://github.com/tf2pickup-org/server/issues/1384)) ([3c63a1d](https://github.com/tf2pickup-org/server/commit/3c63a1d6448d94ffbb3f96cf3ad4b50bc9ad8014))
+* **deps:** update dependency @nestjs/config to v1.1.6 ([#1415](https://github.com/tf2pickup-org/server/issues/1415)) ([a23e010](https://github.com/tf2pickup-org/server/commit/a23e0108036b712251a4ca18ee053c4a77b8f6ce))
+* **deps:** update dependency @nestjs/config to v1.1.7 ([#1467](https://github.com/tf2pickup-org/server/issues/1467)) ([a325223](https://github.com/tf2pickup-org/server/commit/a3252230c26f589d26a1f2b5a7ba080fb9af2f8e))
+* **deps:** update dependency @nestjs/config to v1.2.0 ([#1472](https://github.com/tf2pickup-org/server/issues/1472)) ([80595b2](https://github.com/tf2pickup-org/server/commit/80595b289810c83b0b4965db36735b6a88584dd6))
+* **deps:** update dependency @nestjs/config to v1.2.1 ([#1524](https://github.com/tf2pickup-org/server/issues/1524)) ([8ccfbaf](https://github.com/tf2pickup-org/server/commit/8ccfbafcf1fdf40db023154a59f0769a5e6d2609))
+* **deps:** update dependency @nestjs/config to v2 ([#1525](https://github.com/tf2pickup-org/server/issues/1525)) ([f400b13](https://github.com/tf2pickup-org/server/commit/f400b132c5598b645f5fdea58b0d3eb70a579791))
+* **deps:** update dependency @nestjs/passport to v8.1.0 ([#1431](https://github.com/tf2pickup-org/server/issues/1431)) ([a377575](https://github.com/tf2pickup-org/server/commit/a3775759e6598fd4b954f2bbc458964e030751a5))
+* **deps:** update dependency @nestjs/passport to v8.2.0 ([#1471](https://github.com/tf2pickup-org/server/issues/1471)) ([b36c9aa](https://github.com/tf2pickup-org/server/commit/b36c9aa5b32f37059257bdc8ed182634cc2e6bb5))
+* **deps:** update dependency @nestjs/schedule to v1.0.2 ([#1365](https://github.com/tf2pickup-org/server/issues/1365)) ([5b729ae](https://github.com/tf2pickup-org/server/commit/5b729aeaf46c338caccf23d773b1529fbfcabd4d))
+* **deps:** update dependency @nestjs/schedule to v1.1.0 ([#1542](https://github.com/tf2pickup-org/server/issues/1542)) ([14e5c25](https://github.com/tf2pickup-org/server/commit/14e5c253c65ac907d8613fc06321f26ce05576fb))
+* **deps:** update dependency cache-manager to v3.5.0 ([#1358](https://github.com/tf2pickup-org/server/issues/1358)) ([a9ef8b0](https://github.com/tf2pickup-org/server/commit/a9ef8b082e0c6e40663859b0c5c3e1e557701e17))
+* **deps:** update dependency cache-manager to v3.6.0 ([#1359](https://github.com/tf2pickup-org/server/issues/1359)) ([a900783](https://github.com/tf2pickup-org/server/commit/a9007838ae4f9493ad399a3ce87250243937d62e))
+* **deps:** update dependency cache-manager to v3.6.1 ([#1557](https://github.com/tf2pickup-org/server/issues/1557)) ([7a2bdf0](https://github.com/tf2pickup-org/server/commit/7a2bdf0c2da607a5247a367750c3031abc5b9a30))
+* **deps:** update dependency class-transformer to v0.5.1 ([#1374](https://github.com/tf2pickup-org/server/issues/1374)) ([0dc22d6](https://github.com/tf2pickup-org/server/commit/0dc22d60e288b4541837cb8e9f0cd144f8820353))
+* **deps:** update dependency class-validator to v0.13.2 ([#1373](https://github.com/tf2pickup-org/server/issues/1373)) ([4e8d5d3](https://github.com/tf2pickup-org/server/commit/4e8d5d3527665251788025e9d5eeb43e718b29ea))
+* **deps:** update dependency generate-password to v1.7.0 ([#1356](https://github.com/tf2pickup-org/server/issues/1356)) ([a2937a5](https://github.com/tf2pickup-org/server/commit/a2937a5de5da566daaf51df217cc476f0ff496f0))
+* **deps:** update dependency helmet to v5 ([#1412](https://github.com/tf2pickup-org/server/issues/1412)) ([73aabe1](https://github.com/tf2pickup-org/server/commit/73aabe13728eb76fdaa234d2286460943ba3037c))
+* **deps:** update dependency joi to v17.4.3 ([#1389](https://github.com/tf2pickup-org/server/issues/1389)) ([eebe533](https://github.com/tf2pickup-org/server/commit/eebe53398fdbb95316004bf79f279213355ec74f))
+* **deps:** update dependency joi to v17.5.0 ([#1390](https://github.com/tf2pickup-org/server/issues/1390)) ([1cdb2f2](https://github.com/tf2pickup-org/server/commit/1cdb2f24e9e19d9cf5013ac4ee882ddd3260ec41))
+* **deps:** update dependency joi to v17.6.0 ([#1449](https://github.com/tf2pickup-org/server/issues/1449)) ([838ef76](https://github.com/tf2pickup-org/server/commit/838ef762a2151c527694ec48d9cf54bfae7c167d))
+* **deps:** update dependency migrate to v1.8.0 ([#1534](https://github.com/tf2pickup-org/server/issues/1534)) ([57787f8](https://github.com/tf2pickup-org/server/commit/57787f8f41fb42a294183e65f1ebfcd17cbb5894))
+* **deps:** update dependency moment to v2.29.2 ([#1551](https://github.com/tf2pickup-org/server/issues/1551)) ([321defa](https://github.com/tf2pickup-org/server/commit/321defa28d7b7ca97c72292a15de201a192aeea9))
+* **deps:** update dependency moment to v2.29.3 ([#1568](https://github.com/tf2pickup-org/server/issues/1568)) ([c8a05fc](https://github.com/tf2pickup-org/server/commit/c8a05fcad62dd520ca5d1ccc1b5dfc760e825e20))
+* **deps:** update dependency mongoose to v6.3.2 ([#1190](https://github.com/tf2pickup-org/server/issues/1190)) ([ea8005a](https://github.com/tf2pickup-org/server/commit/ea8005a0876643b0e506a13f913c89e360ca74d1))
+* **deps:** update dependency nestjs-real-ip to v2.1.0 ([#1544](https://github.com/tf2pickup-org/server/issues/1544)) ([7458df8](https://github.com/tf2pickup-org/server/commit/7458df87c126d38fbba617f44aacf00c69dc330d))
+* **deps:** update dependency passport to v0.5.2 ([#1401](https://github.com/tf2pickup-org/server/issues/1401)) ([c8b2efe](https://github.com/tf2pickup-org/server/commit/c8b2efe0b0539cfded9132b69144d9175f49244d))
+* **deps:** update dependency rxjs to v7.5.0 ([#1407](https://github.com/tf2pickup-org/server/issues/1407)) ([3bcfd1d](https://github.com/tf2pickup-org/server/commit/3bcfd1dc091f8526ae9ceb3477f8c45f89bb0e7a))
+* **deps:** update dependency rxjs to v7.5.1 ([#1409](https://github.com/tf2pickup-org/server/issues/1409)) ([0595799](https://github.com/tf2pickup-org/server/commit/0595799af969da143f37df2c386e2b2b867bbb0b))
+* **deps:** update dependency rxjs to v7.5.2 ([#1426](https://github.com/tf2pickup-org/server/issues/1426)) ([4c9d979](https://github.com/tf2pickup-org/server/commit/4c9d979527fc34904198d598ee3f489e42fe1039))
+* **deps:** update dependency rxjs to v7.5.3 ([#1463](https://github.com/tf2pickup-org/server/issues/1463)) ([8356b80](https://github.com/tf2pickup-org/server/commit/8356b8031c9c249b3c8245f6c61870295f3c42d5))
+* **deps:** update dependency rxjs to v7.5.4 ([#1465](https://github.com/tf2pickup-org/server/issues/1465)) ([d5044b1](https://github.com/tf2pickup-org/server/commit/d5044b1a554a7f763681a3080aeb7861c7baab33))
+* **deps:** update dependency rxjs to v7.5.5 ([#1509](https://github.com/tf2pickup-org/server/issues/1509)) ([40d962f](https://github.com/tf2pickup-org/server/commit/40d962f9193e27efb968db9b716b2183bb136248))
+* **deps:** update nest monorepo ([#1477](https://github.com/tf2pickup-org/server/issues/1477)) ([113fe30](https://github.com/tf2pickup-org/server/commit/113fe30c666c3dbab2c3a6cf3ccf3f28953fec7c))
+* **deps:** update nest monorepo to v8.2.0 ([#1352](https://github.com/tf2pickup-org/server/issues/1352)) ([b8e94bc](https://github.com/tf2pickup-org/server/commit/b8e94bcc40679ec23be4e51f2ced18f720012840))
+* **deps:** update nest monorepo to v8.2.3 ([#1377](https://github.com/tf2pickup-org/server/issues/1377)) ([8b0af3f](https://github.com/tf2pickup-org/server/commit/8b0af3f029565cd6b97e900ded3a13e52cbc15ec))
+* **deps:** update nest monorepo to v8.2.4 ([#1402](https://github.com/tf2pickup-org/server/issues/1402)) ([9a712f1](https://github.com/tf2pickup-org/server/commit/9a712f1da5a84ec05be9c669445f2f84030e28e5))
+* **deps:** update nest monorepo to v8.2.5 ([#1429](https://github.com/tf2pickup-org/server/issues/1429)) ([21c697c](https://github.com/tf2pickup-org/server/commit/21c697ce53b2030b5ed548cd3765cc5f0754b098))
+* **deps:** update nest monorepo to v8.2.6 ([#1443](https://github.com/tf2pickup-org/server/issues/1443)) ([acd7403](https://github.com/tf2pickup-org/server/commit/acd7403e58c5009b4f354208bf5173fbf8c4fdff))
+* **deps:** update nest monorepo to v8.4.0 ([#1498](https://github.com/tf2pickup-org/server/issues/1498)) ([aeeb355](https://github.com/tf2pickup-org/server/commit/aeeb355ff19482b6be6e16ada09c50703ea6590f))
+* **deps:** update nest monorepo to v8.4.1 ([#1516](https://github.com/tf2pickup-org/server/issues/1516)) ([ceb98d0](https://github.com/tf2pickup-org/server/commit/ceb98d065274b452165fcccd6349fe038143c9a4))
+* **deps:** update nest monorepo to v8.4.2 ([#1529](https://github.com/tf2pickup-org/server/issues/1529)) ([f891c3a](https://github.com/tf2pickup-org/server/commit/f891c3ad5d8f8d0ea79d5228f3e2dd38291481f0))
+* **deps:** update nest monorepo to v8.4.3 ([#1539](https://github.com/tf2pickup-org/server/issues/1539)) ([a5bf71d](https://github.com/tf2pickup-org/server/commit/a5bf71dd59ddfbfae6faca795cc20ef57d950d9c))
+* **deps:** upgrade mongoose to v6 ([#1263](https://github.com/tf2pickup-org/server/issues/1263)) ([8fd9dc5](https://github.com/tf2pickup-org/server/commit/8fd9dc5bd4921f4f19f3c5babd46a816d4a5ac08))
+* **discord:** detect game was force-ended properly ([#1456](https://github.com/tf2pickup-org/server/issues/1456)) ([63f1913](https://github.com/tf2pickup-org/server/commit/63f1913632c841cc1a739f845f2054eb147a9a1c))
+* fix typings ([#1533](https://github.com/tf2pickup-org/server/issues/1533)) ([9a7efc0](https://github.com/tf2pickup-org/server/commit/9a7efc02b5b78e675ac88e6a152804982d88799d))
+* **game-configs:** use handlebars for config templates ([#1597](https://github.com/tf2pickup-org/server/issues/1597)) ([c7385ca](https://github.com/tf2pickup-org/server/commit/c7385caea4ebf63f8b36f5238f8bdd27592f4421))
+* **game-servers:** add missing endpoint for getting all static game servers ([#1574](https://github.com/tf2pickup-org/server/issues/1574)) ([d35b832](https://github.com/tf2pickup-org/server/commit/d35b832d71615891953366c7e41f8d38100beb93))
+* **game-servers:** add provider priority ([#1609](https://github.com/tf2pickup-org/server/issues/1609)) ([483d2ce](https://github.com/tf2pickup-org/server/commit/483d2ce0afb626dbd796facf2f19b25f137a92c6))
+* **game-servers:** fix static game servers endpoint path ([#1575](https://github.com/tf2pickup-org/server/issues/1575)) ([d8f4c7a](https://github.com/tf2pickup-org/server/commit/d8f4c7ad501a00c7aa9800dea3de1bb2a150b13e))
+* **game-servers:** randomize serveme.tf rcon password ([#1570](https://github.com/tf2pickup-org/server/issues/1570)) ([a8498e4](https://github.com/tf2pickup-org/server/commit/a8498e4df28293bc2354865997301df6fbaf79c5))
+* **game-servers:** remove deprecated APIs ([#1571](https://github.com/tf2pickup-org/server/issues/1571)) ([869c48b](https://github.com/tf2pickup-org/server/commit/869c48be3db469f9f8e2a616b60d13fcc152fff6))
+* **game-servers:** use gameserver-defined logsecret ([#1511](https://github.com/tf2pickup-org/server/issues/1511)) ([2ef0a7b](https://github.com/tf2pickup-org/server/commit/2ef0a7bb1e87463bbd393f5fede83939127af66a))
+* **games:** better game server clean up logic ([#1371](https://github.com/tf2pickup-org/server/issues/1371)) ([4397c06](https://github.com/tf2pickup-org/server/commit/4397c0638c097501f18dc2fd7073606420db8631))
+* **games:** get rid of player substitution race condition ([#1546](https://github.com/tf2pickup-org/server/issues/1546)) ([0279b81](https://github.com/tf2pickup-org/server/commit/0279b8151c8557637d96a5327baccb1fbf5f6797))
+* **games:** launch orphaned games in a critical section ([#1523](https://github.com/tf2pickup-org/server/issues/1523)) ([ac68079](https://github.com/tf2pickup-org/server/commit/ac68079bd2b9ed9a663fe18af96cac13e07d0766))
+* **serveme.tf:** don't throw error when the server is already running ([#1608](https://github.com/tf2pickup-org/server/issues/1608)) ([a9c6266](https://github.com/tf2pickup-org/server/commit/a9c6266b741ce3f8b4cb353b4157344f9b6175bd))
+
+
+### Features
+
+* **game-configs:** exec game config via rcon ([#1587](https://github.com/tf2pickup-org/server/issues/1587)) ([1d6737b](https://github.com/tf2pickup-org/server/commit/1d6737bf192dfc7855778d76c09f729852b521f5))
+* **game-servers:** add start() method ([#1532](https://github.com/tf2pickup-org/server/issues/1532)) ([d5d5ef9](https://github.com/tf2pickup-org/server/commit/d5d5ef92b25150d3a8680ef8a062bf6310129353))
+* **game-servers:** game server provider interface ([#1478](https://github.com/tf2pickup-org/server/issues/1478)) ([54e2bb2](https://github.com/tf2pickup-org/server/commit/54e2bb2309b6508bdfaeaab3191adeef2731ff18))
+* **game-servers:** serveme.tf integration ([#1520](https://github.com/tf2pickup-org/server/issues/1520)) ([6064170](https://github.com/tf2pickup-org/server/commit/6064170ede73876584b18d5bae111c284c7d00c2))
+* **players:** accept SteamId ([#1454](https://github.com/tf2pickup-org/server/issues/1454)) ([444bd49](https://github.com/tf2pickup-org/server/commit/444bd490de30aaf664e0c93fcf2d215bc2270c67))
+* **queue:** add canMakeFriends queue slot flag ([#1547](https://github.com/tf2pickup-org/server/issues/1547)) ([6f4a071](https://github.com/tf2pickup-org/server/commit/6f4a0713275843090fb880460a623e10b728cfa5))
+* **serveme.tf:** configure serveme.tf integration ([#1566](https://github.com/tf2pickup-org/server/issues/1566)) ([77e936f](https://github.com/tf2pickup-org/server/commit/77e936f8197278abe672b25264b88189da0b9b95))
+* **statistics:** add game launch per day count ([#1361](https://github.com/tf2pickup-org/server/issues/1361)) ([3982644](https://github.com/tf2pickup-org/server/commit/3982644b00485d6f23526d6374208fb455738588))
+* **statistics:** add game launch time spans stats ([#1357](https://github.com/tf2pickup-org/server/issues/1357)) ([e7e6b96](https://github.com/tf2pickup-org/server/commit/e7e6b96f591cfdc8de424bf2d80fd2dc060f9beb))
+* **statistics:** add played map count statistics ([#1296](https://github.com/tf2pickup-org/server/issues/1296)) ([2c39f3d](https://github.com/tf2pickup-org/server/commit/2c39f3de5cd09b0f711f14384b21eafbe44c83b5))
+
+
+### Reverts
+
+* update dependency mongo to v4.4 ([8f9c2b8](https://github.com/tf2pickup-org/server/commit/8f9c2b86da1b819adc2ff6984fa245d0f4c12677))
+* update mongo docker tag to v4.4 ([#1453](https://github.com/tf2pickup-org/server/issues/1453)) ([55f4e64](https://github.com/tf2pickup-org/server/commit/55f4e644b349f8b60635c3c5aa1bfc706d0be90f))
+
+
+### BREAKING CHANGES
+
+* **game-servers:** the /game-servers endpoint is no longer an endpoint for the static game servers
+* **game-servers:** the gameserver heartbeat endpoint has been moved to /static-game-servers
+
 ## [8.2.1](https://github.com/tf2pickup-pl/server/compare/8.2.0...8.2.1) (2022-04-30)
 
 
