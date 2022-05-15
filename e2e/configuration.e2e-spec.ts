@@ -222,43 +222,4 @@ describe('Configuration (e2e)', () => {
       type: 'none',
     });
   });
-
-  it('PUT /configuration/voice-server', async () => {
-    const response = await request(app.getHttpServer())
-      .put('/configuration/voice-server')
-      .auth(adminAuthToken, { type: 'bearer' })
-      .send({
-        key: 'voice server',
-        type: 'mumble',
-        mumble: {
-          url: 'melkor.tf',
-          port: 64738,
-          channelName: 'tf2pickup',
-        },
-      });
-    const body = response.body;
-    expect(body).toEqual({
-      key: 'voice server',
-      type: 'mumble',
-      mumble: {
-        url: 'melkor.tf',
-        port: 64738,
-        channelName: 'tf2pickup',
-      },
-    });
-
-    const response2 = await request(app.getHttpServer())
-      .get('/configuration/voice-server')
-      .expect(200);
-    const body2 = response2.body;
-    expect(body2).toEqual({
-      key: 'voice server',
-      type: 'mumble',
-      mumble: {
-        url: 'melkor.tf',
-        port: 64738,
-        channelName: 'tf2pickup',
-      },
-    });
-  });
 });
