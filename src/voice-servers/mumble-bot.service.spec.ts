@@ -113,7 +113,7 @@ describe('MumbleBotService', () => {
     expect(service).toBeDefined();
   });
 
-  it('should connect to the mumble server', async () => {
+  it('should connect to the mumble server', () => {
     expect(Client).toHaveBeenNthCalledWith(1, {
       host: 'FAKE_MUMBLE_URL',
       port: 64738,
@@ -131,7 +131,7 @@ describe('MumbleBotService', () => {
       events.gameCreated.next({ game });
     });
 
-    it('should create channels', async () => {
+    it('should create channels', () => {
       expect(mockCreateSubChannel).toHaveBeenCalledWith('1234');
       expect(mockSubCreateSubChannel).toHaveBeenCalledWith('BLU');
       expect(mockSubCreateSubChannel).toHaveBeenCalledWith('RED');
