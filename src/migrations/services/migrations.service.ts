@@ -19,6 +19,7 @@ export class MigrationsService implements OnApplicationBootstrap {
 
   async onApplicationBootstrap() {
     this.logger.log('running migrations...');
+    await this.runMigrations();
     this.logger.log('migrations run successfully');
   }
 
