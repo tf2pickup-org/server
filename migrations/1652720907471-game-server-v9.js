@@ -22,7 +22,16 @@ module.exports.up = (next) => {
     .then(([collection]) =>
       Promise.all([
         collection,
-        collection.updateMany({}, { $unset: { voiceChannelName: 1 } }),
+        collection.updateMany(
+          {},
+          {
+            $unset: {
+              voiceChannelName: 1,
+              resolvedIpAddresses: 1,
+              isAvailable: 1,
+            },
+          },
+        ),
       ]),
     )
     .then(() => next());
