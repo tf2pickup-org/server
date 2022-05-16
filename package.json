@@ -28,7 +28,7 @@
     "@nestjs/schedule": "1.1.0",
     "@nestjs/serve-static": "2.2.2",
     "@nestjs/websockets": "8.4.5",
-    "@tf2pickup-org/simple-mumble-bot": "0.2.0",
+    "@tf2pickup-org/simple-mumble-bot": "0.2.1",
     "app-root-path": "3.0.0",
     "async-mutex": "0.3.2",
     "cache-manager": "3.6.1",
