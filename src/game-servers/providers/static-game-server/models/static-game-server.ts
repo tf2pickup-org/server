@@ -3,12 +3,10 @@ import { svLogsecret } from '@/games/utils/rcon-commands';
 import { createRcon } from '@/utils/create-rcon';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Exclude } from 'class-transformer';
-import { isEmpty } from 'lodash';
 import { Document } from 'mongoose';
 import { Rcon } from 'rcon-client';
 import { staticGameServerProviderName } from '../static-game-server-provider-name';
 import { generateLogsecret } from '../utils/generate-logsecret';
-import { toValidMumbleChannelName } from '../utils/to-valid-mumble-channel-name';
 
 @Schema()
 export class StaticGameServer extends GameServer {
@@ -53,12 +51,6 @@ export class StaticGameServer extends GameServer {
       port: parseInt(this.port, 10),
       rconPassword: this.rconPassword,
     });
-  }
-
-  async voiceChannelName(): Promise<string> {
-    return isEmpty(this.customVoiceChannelName)
-      ? toValidMumbleChannelName(this.name)
-      : this.customVoiceChannelName;
   }
 
   async getLogsecret(): Promise<string> {

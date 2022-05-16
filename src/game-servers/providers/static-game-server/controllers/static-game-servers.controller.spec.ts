@@ -49,7 +49,6 @@ describe('GameServers Controller', () => {
       address: 'localhost',
       port: '27015',
       rcon: jest.fn(),
-      voiceChannelName: jest.fn(),
       getLogsecret: jest.fn(),
       internalIpAddress: 'localhost',
       rconPassword: 'FAKE_RCON_PASSWORD',

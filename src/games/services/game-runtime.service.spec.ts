@@ -80,7 +80,6 @@ describe('GameRuntimeService', () => {
       createdAt: new Date(),
       provider: staticGameServerProviderName,
       rcon: jest.fn().mockRejectedValue('not implemented'),
-      voiceChannelName: jest.fn(),
       getLogsecret: jest.fn().mockRejectedValue(new NotImplementedError()),
       start: jest.fn().mockResolvedValue(mockGameServer),
     };
