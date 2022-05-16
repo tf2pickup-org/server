@@ -33,6 +33,10 @@ export class GamesService {
     return this._original.getById(gameId);
   }
 
+  async getByNumber(gameNumber: number) {
+    return this._original.getByNumber(gameNumber);
+  }
+
   async getByLogSecret(logSecret: string): Promise<Game> {
     return this._original.getByLogSecret(logSecret);
   }
