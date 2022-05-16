@@ -182,14 +182,90 @@ describe('MumbleBotService', () => {
         });
       });
 
-      afterEach(() => {
+      afterEach(async () => {
         mockSubChannels.length = 0;
         remove.mockClear();
+        // @ts-expect-error
+        await gamesService._reset();
       });
 
       it('should remove the channel', async () => {
         await service.removeOldChannels();
         expect(remove).toHaveBeenCalled();
+      });
+    });
+
+    describe('when there are users in subchannels', () => {
+      const remove = jest.fn();
+
+      beforeEach(async () => {
+        // @ts-expect-error
+        const game = await gamesService._createOne();
+        game.state = GameState.ended;
+        await game.save();
+
+        mockSubChannels.push({
+          name: `${game.number}`,
+          users: [],
+          subChannels: [
+            {
+              users: [{}],
+            },
+            {
+              users: [],
+            },
+          ],
+          remove,
+        });
+      });
+
+      afterEach(async () => {
+        mockSubChannels.length = 0;
+        remove.mockClear();
+        // @ts-expect-error
+        await gamesService._reset();
+      });
+
+      it('should not remove the channel', async () => {
+        await service.removeOldChannels();
+        expect(remove).not.toHaveBeenCalled();
+      });
+    });
+
+    describe('when the game is in progress', () => {
+      const remove = jest.fn();
+
+      beforeEach(async () => {
+        // @ts-expect-error
+        const game = await gamesService._createOne();
+        game.state = GameState.started;
+        await game.save();
+
+        mockSubChannels.push({
+          name: `${game.number}`,
+          users: [],
+          subChannels: [
+            {
+              users: [],
+            },
+            {
+              users: [],
+            },
+          ],
+          remove,
+        });
+      });
+
+      afterEach(async () => {
+        mockSubChannels.length = 0;
+        remove.mockClear();
+        // @ts-expect-error
+        await gamesService._reset();
+      });
+
+      it('should not remove the channel', async () => {
+        await service.removeOldChannels();
+        expect(remove).not.toHaveBeenCalled();
       });
     });
   });
