@@ -1,6 +1,5 @@
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { Test, TestingModule } from '@nestjs/testing';
-import { mocked } from 'ts-jest/utils';
 import { ConfigurationEntry } from '../models/configuration-entry';
 import { ConfigurationEntryKey } from '../models/configuration-entry-key';
 import { DefaultPlayerSkill } from '../models/default-player-skill';
@@ -57,7 +56,9 @@ describe('ConfigurationController', () => {
   let configurationService: jest.Mocked<ConfigurationService>;
 
   beforeEach(() => {
-    mocked(ConfigurationService).mockClear();
+    (
+      ConfigurationService as jest.MockedClass<typeof ConfigurationService>
+    ).mockClear();
   });
 
   beforeEach(async () => {
