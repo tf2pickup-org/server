@@ -48,7 +48,7 @@
     "mongodb-uri": "0.9.7",
     "mongoose": "6.3.3",
     "nestjs-real-ip": "2.1.0",
-    "passport": "0.5.2",
+    "passport": "0.5.3",
     "passport-headerapikey": "1.2.2",
     "passport-jwt": "4.0.0",
     "passport-steam": "1.0.17",
