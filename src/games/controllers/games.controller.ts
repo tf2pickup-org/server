@@ -26,6 +26,10 @@ import { PlayerNotInThisGameError } from '../errors/player-not-in-this-game.erro
 import { ConnectInfo } from '../dto/connect-info';
 import { DocumentNotFoundFilter } from '@/shared/filters/document-not-found.filter';
 import { PaginatedGameList } from '../dto/paginated-game-list';
+import { SerializerInterceptor } from '@/shared/interceptors/serializer.interceptor';
+import { GameDto } from '../dto/game.dto';
+import { GameSerializerService } from '../services/game-serializer.service';
+import { Serializable } from '@/shared/serializable';
 
 const sortOptions: string[] = [
   'launched_at',
@@ -40,6 +44,7 @@ export class GamesController {
     private gamesService: GamesService,
     private gameRuntimeService: GameRuntimeService,
     private playerSubstitutionService: PlayerSubstitutionService,
+    private readonly gameSerializerService: GameSerializerService,
   ) {}
 
   @Get()
@@ -88,11 +93,12 @@ export class GamesController {
 
   @Get(':id')
   @UseFilters(DocumentNotFoundFilter)
-  @UseInterceptors(ClassSerializerInterceptor)
+  @UseInterceptors(SerializerInterceptor)
   async getGame(
     @Param('id', ObjectIdValidationPipe) gameId: string,
-  ): Promise<Game> {
-    return await this.gamesService.getById(gameId);
+  ): Promise<Serializable<GameDto>> {
+    const game = await this.gamesService.getById(gameId);
+    return this.gameSerializerService.markSerializableValue(game);
   }
 
   @Get(':id/connect-info')
