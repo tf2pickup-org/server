@@ -1,3 +1,28 @@
+
+
+# [9.0.0-beta.2](https://github.com/tf2pickup-org/server/compare/9.0.0-beta.1...9.0.0-beta.2) (2022-05-17)
+
+
+### Bug Fixes
+
+* **build:** don't build e2e and jest.config ([#1625](https://github.com/tf2pickup-org/server/issues/1625)) ([a60da2a](https://github.com/tf2pickup-org/server/commit/a60da2a6b10a894831921691cfb3aa353fcbc889))
+* **build:** fix JavaScript heap out of memory ([#1629](https://github.com/tf2pickup-org/server/issues/1629)) ([99d47ab](https://github.com/tf2pickup-org/server/commit/99d47abaa0f2e30c346228c6f72b24a5a9f9e920))
+* **deps:** update dependency @tf2pickup-org/simple-mumble-bot to v0.2.1 ([#1627](https://github.com/tf2pickup-org/server/issues/1627)) ([129a532](https://github.com/tf2pickup-org/server/commit/129a53219c3176e760a22f4d30341b4131e299c7))
+* **deps:** update dependency @tf2pickup-org/simple-mumble-bot to v0.3.0 ([#1632](https://github.com/tf2pickup-org/server/issues/1632)) ([4494ffc](https://github.com/tf2pickup-org/server/commit/4494ffca564a8ea6ec80b4aa64f60ab01a5bcdf3))
+* **deps:** update dependency helmet to v5.1.0 ([#1635](https://github.com/tf2pickup-org/server/issues/1635)) ([331ab95](https://github.com/tf2pickup-org/server/commit/331ab9518d31ef7a513964c5089e36bf86275bd3))
+* **deps:** update dependency jsonschema to v1.4.1 ([#1633](https://github.com/tf2pickup-org/server/issues/1633)) ([a5a1b70](https://github.com/tf2pickup-org/server/commit/a5a1b709ad4ddec6573b79064cc5c4fb0b098dcb))
+* **deps:** update dependency mongodb to v4.6.0 ([#1617](https://github.com/tf2pickup-org/server/issues/1617)) ([b1e4390](https://github.com/tf2pickup-org/server/commit/b1e4390e66014e78d8c36f00247ba68b3978e74a))
+* **deps:** update dependency mongoose to v6.3.3 ([#1614](https://github.com/tf2pickup-org/server/issues/1614)) ([9e1cac9](https://github.com/tf2pickup-org/server/commit/9e1cac9cf84e14182a5d8423a2331d7a2a2c4446))
+* **deps:** update dependency passport to v0.5.3 ([#1626](https://github.com/tf2pickup-org/server/issues/1626)) ([6e26fdf](https://github.com/tf2pickup-org/server/commit/6e26fdfd46e93c2cd383fefb7a21290618c7c339))
+* **deps:** update nest monorepo to v8.4.5 ([#1621](https://github.com/tf2pickup-org/server/issues/1621)) ([1b1be9e](https://github.com/tf2pickup-org/server/commit/1b1be9e4fb360aed930625fa3c8399b6f0a2d38b))
+* **game-servers:** fix v9 database migration ([#1613](https://github.com/tf2pickup-org/server/issues/1613)) ([cbe886d](https://github.com/tf2pickup-org/server/commit/cbe886d3838d3a9985125af857668d17bed6d6d9))
+* **game-servers:** get rid of GameServer.voiceChannelName() ([#1631](https://github.com/tf2pickup-org/server/issues/1631)) ([5cb7c72](https://github.com/tf2pickup-org/server/commit/5cb7c72d5c0f5b443c889c706de598cfd3b22f1c))
+
+
+### Features
+
+* mumble bot ([#1602](https://github.com/tf2pickup-org/server/issues/1602)) ([a6bcf49](https://github.com/tf2pickup-org/server/commit/a6bcf49f382baacab543a174d7a01f4a38deede6))
+
 # [9.0.0-beta.1](https://github.com/tf2pickup-org/server/compare/9.0.0-beta.0...9.0.0-beta.1) (2022-05-08)
 
 
