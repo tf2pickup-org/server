@@ -41,13 +41,6 @@ export class GameServer extends MongooseDocument {
   }
 
   /**
-   * The name of the voice channel for this gameserver.
-   */
-  async voiceChannelName(): Promise<string> {
-    throw new NotImplementedError();
-  }
-
-  /**
    * Obtain a logsecret that is configured for this gameserver.
    */
   async getLogsecret(): Promise<string> {

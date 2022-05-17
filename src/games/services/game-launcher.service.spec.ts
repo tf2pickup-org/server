@@ -69,9 +69,6 @@ describe('GameLauncherService', () => {
       address: 'localhost',
       port: '27015',
       rcon: jest.fn().mockRejectedValue(new Error('not implemented')),
-      voiceChannelName: jest
-        .fn()
-        .mockRejectedValue(new Error('not implemented')),
       getLogsecret: jest.fn().mockResolvedValue('FAKE_LOGSECRET'),
       start: jest.fn().mockResolvedValue(mockGameServer),
     };

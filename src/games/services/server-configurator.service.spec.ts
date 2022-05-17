@@ -131,7 +131,6 @@ describe('ServerConfiguratorService', () => {
       provider: staticGameServerProviderName,
       createdAt: new Date(),
       rcon: jest.fn(),
-      voiceChannelName: jest.fn(),
       getLogsecret: jest.fn(),
       start: jest.fn().mockResolvedValue(mockGameServer),
     };

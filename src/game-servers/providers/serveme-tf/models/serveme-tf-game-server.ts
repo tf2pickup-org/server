@@ -3,7 +3,6 @@ import { createRcon } from '@/utils/create-rcon';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Exclude, Type } from 'class-transformer';
 import { Rcon } from 'rcon-client/lib';
-import { toValidMumbleChannelName } from '../../static-game-server/utils/to-valid-mumble-channel-name';
 import { Document } from 'mongoose';
 import { app } from '@/app';
 import { ServemeTfApiService } from '../services/serveme-tf-api.service';
@@ -51,11 +50,6 @@ export class ServemeTfGameServer extends GameServer {
       port: parseInt(this.port, 10),
       rconPassword: this.reservation.rcon,
     });
-  }
-
-  async voiceChannelName(): Promise<string> {
-    // TODO fix
-    return toValidMumbleChannelName(this.name);
   }
 
   async getLogsecret(): Promise<string> {

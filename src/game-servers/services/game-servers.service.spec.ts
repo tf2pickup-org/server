@@ -169,9 +169,6 @@ describe('GameServersService', () => {
         const ret = await service.getById(unknownGameServer.id);
         expect(ret.id).toEqual(unknownGameServer.id);
         await expect(ret.rcon()).rejects.toThrow(NotImplementedError);
-        await expect(ret.voiceChannelName()).rejects.toThrow(
-          NotImplementedError,
-        );
       });
     });
   });

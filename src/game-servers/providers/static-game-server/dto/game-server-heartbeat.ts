@@ -14,10 +14,6 @@ export class GameServerHeartbeat {
   rconPassword: string;
 
   @IsOptional()
-  @IsString()
-  voiceChannelName?: string;
-
-  @IsOptional()
   @IsNumberString()
   priority?: number;
 
