@@ -1418,14 +1418,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tf2pickup-org/simple-mumble-bot@npm:0.3.0":
-  version: 0.3.0
-  resolution: "@tf2pickup-org/simple-mumble-bot@npm:0.3.0"
+"@tf2pickup-org/simple-mumble-bot@npm:0.3.1":
+  version: 0.3.1
+  resolution: "@tf2pickup-org/simple-mumble-bot@npm:0.3.1"
   dependencies:
     "@protobuf-ts/runtime": 2.6.0
-    lodash: ^4.17.21
     rxjs: 7.5.5
-  checksum: f1452b256f1f36dd1148d290b4c35aae0d4d419c0318c21eba45d563c3e95f45a1be769ecfa82aa7f281da28b749eccff32b85fd314ec7c84eacdc77f3b6a06f
+  checksum: 7231a21bfa100fe75e1e46194a906455110addc26ca8e2bab0575c53d8d29b7074dff1bc889d7fa04db68b14870da02e7dae550fe202f7a87c83857e301e141b
   languageName: node
   linkType: hard
 
@@ -9844,7 +9843,7 @@ __metadata:
     "@nestjs/testing": 8.4.5
     "@nestjs/websockets": 8.4.5
     "@release-it/conventional-changelog": 5.0.0
-    "@tf2pickup-org/simple-mumble-bot": 0.3.0
+    "@tf2pickup-org/simple-mumble-bot": 0.3.1
     "@types/cache-manager": 3.4.3
     "@types/express": 4.17.13
     "@types/helmet": 0.0.48
