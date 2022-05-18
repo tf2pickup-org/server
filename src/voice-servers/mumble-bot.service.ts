@@ -8,10 +8,12 @@ import {
 import { Client } from '@tf2pickup-org/simple-mumble-bot';
 import { ConfigurationService } from '@/configuration/services/configuration.service';
 import { Events } from '@/events/events';
-import { map } from 'rxjs';
+import { concatMap, distinctUntilChanged, filter, groupBy } from 'rxjs';
 import { CertificatesService } from '@/certificates/services/certificates.service';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { GamesService } from '@/games/services/games.service';
+import { Game } from '@/games/models/game';
+import { GameRuntimeService } from '@/games/services/game-runtime.service';
 
 @Injectable()
 export class MumbleBotService implements OnModuleInit, OnModuleDestroy {
@@ -24,25 +26,26 @@ export class MumbleBotService implements OnModuleInit, OnModuleDestroy {
     private readonly events: Events,
     private readonly certificatesService: CertificatesService,
     private readonly gamesService: GamesService,
-  ) {
-    this.events.gameCreated
-      .pipe(
-        map(({ game }) => game.number),
-        map((number) => `${number}`),
-      )
-      .subscribe(async (channelName) => {
-        if (this.client) {
-          const channel = await this.client.user.channel.createSubChannel(
-            channelName,
-          );
-          await channel.createSubChannel('BLU');
-          await channel.createSubChannel('RED');
-          this.logger.log(`Channel ${channelName} prepared`);
-        }
-      });
-  }
+    private readonly gameRuntimeService: GameRuntimeService,
+  ) {}
 
   async onModuleInit() {
+    this.events.gameCreated.subscribe(
+      async ({ game }) => await this.createChannels(game),
+    );
+
+    this.events.gameChanges
+      .pipe(
+        groupBy(({ game }) => game.id),
+        concatMap((group) =>
+          group.pipe(
+            distinctUntilChanged((x, y) => x.game.state === y.game.state),
+            filter(({ game }) => !game.isInProgress()),
+          ),
+        ),
+      )
+      .subscribe(async ({ game }) => await this.joinChannels(game));
+
     await this.connect();
   }
 
@@ -80,6 +83,48 @@ export class MumbleBotService implements OnModuleInit, OnModuleDestroy {
     }
   }
 
+  async createChannels(game: Game) {
+    if (!this.client) {
+      return;
+    }
+    const channelName = `${game.number}`;
+    const channel = await this.client.user.channel.createSubChannel(
+      channelName,
+    );
+    await channel.createSubChannel('BLU');
+    await channel.createSubChannel('RED');
+    this.logger.log(`channels for game #${game.number} created`);
+  }
+
+  async joinChannels(game: Game) {
+    if (!this.client) {
+      return;
+    }
+
+    const channelName = `${game.number}`;
+    const gameChannel = this.client.user.channel.subChannels.find(
+      (channel) => channel.name === channelName,
+    );
+    if (gameChannel) {
+      const [red, blu] = [
+        gameChannel.subChannels.find(
+          (channel) => channel.name.toUpperCase() === 'RED',
+        ),
+        gameChannel.subChannels.find(
+          (channel) => channel.name.toUpperCase() === 'BLU',
+        ),
+      ];
+      if (red && blu) {
+        await red.link(blu);
+        await this.gameRuntimeService.sayChat(
+          game.gameServer,
+          'Mumble channels linked',
+        );
+        this.logger.log(`channels for game #${game.number} linked`);
+      }
+    }
+  }
+
   @Cron(CronExpression.EVERY_10_MINUTES)
   async removeOldChannels() {
     /**
@@ -107,7 +152,7 @@ export class MumbleBotService implements OnModuleInit, OnModuleDestroy {
       }
 
       await channel.remove();
-      this.logger.log(`Channel ${channel.name} removed`);
+      this.logger.log(`channel ${channel.name} removed`);
     }
   }
 }

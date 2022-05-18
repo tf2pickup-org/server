@@ -6,6 +6,7 @@ import { Environment } from '@/environment/environment';
 import { Events } from '@/events/events';
 import { Game, gameSchema } from '@/games/models/game';
 import { GameState } from '@/games/models/game-state';
+import { GameRuntimeService } from '@/games/services/game-runtime.service';
 import { GamesService } from '@/games/services/games.service';
 import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
 import { getConnectionToken, MongooseModule } from '@nestjs/mongoose';
@@ -15,39 +16,12 @@ import { MongoMemoryServer } from 'mongodb-memory-server';
 import { Connection } from 'mongoose';
 import { MumbleBotService } from './mumble-bot.service';
 
-const mockSubCreateSubChannel = jest.fn();
-const mockCreateSubChannel = jest.fn().mockResolvedValue({
-  createSubChannel: mockSubCreateSubChannel,
-});
-const mockSubChannels = [];
-
 jest.mock('@/environment/environment');
 jest.mock('@/configuration/services/configuration.service');
 jest.mock('@/certificates/services/certificates.service');
 jest.mock('@/games/services/games.service');
-jest.mock('@tf2pickup-org/simple-mumble-bot', () => ({
-  Client: jest.fn().mockImplementation(() => ({
-    connect: jest.fn(),
-    channels: {
-      byId: jest.fn(),
-      byName: jest.fn().mockReturnValue({
-        id: 5,
-      }),
-      byPath: jest.fn(),
-      findAll: jest.fn(),
-    },
-    user: {
-      moveToChannel: jest.fn(),
-      channel: {
-        getPermissions: jest.fn().mockResolvedValue({
-          canCreateChannel: true,
-        }),
-        createSubChannel: mockCreateSubChannel,
-        subChannels: mockSubChannels,
-      },
-    },
-  })),
-}));
+jest.mock('@tf2pickup-org/simple-mumble-bot');
+jest.mock('@/games/services/game-runtime.service');
 
 describe('MumbleBotService', () => {
   let service: MumbleBotService;
@@ -75,6 +49,7 @@ describe('MumbleBotService', () => {
         Events,
         CertificatesService,
         GamesService,
+        GameRuntimeService,
       ],
     }).compile();
 
@@ -111,7 +86,6 @@ describe('MumbleBotService', () => {
 
   afterEach(async () => {
     await connection.close();
-    (Client as jest.MockedClass<typeof Client>).mockClear();
   });
 
   it('should be defined', () => {
@@ -119,7 +93,9 @@ describe('MumbleBotService', () => {
   });
 
   it('should connect to the mumble server', () => {
-    expect(Client).toHaveBeenNthCalledWith(1, {
+    // @ts-expect-error
+    const client = Client._lastInstance;
+    expect(client.options).toEqual({
       host: 'FAKE_MUMBLE_URL',
       port: 64738,
       username: 'FAKE_BOT_NAME',
@@ -137,135 +113,129 @@ describe('MumbleBotService', () => {
     });
 
     it('should create channels', () => {
-      expect(mockCreateSubChannel).toHaveBeenCalledWith('1234');
-      expect(mockSubCreateSubChannel).toHaveBeenCalledWith('BLU');
-      expect(mockSubCreateSubChannel).toHaveBeenCalledWith('RED');
+      // @ts-expect-error
+      const client = Client._lastInstance;
+      expect(client.user.channel.subChannels[0].name).toBe('1234');
+      expect(client.user.channel.subChannels[0].subChannels[0].name).toBe(
+        'BLU',
+      );
+      expect(client.user.channel.subChannels[0].subChannels[1].name).toBe(
+        'RED',
+      );
+    });
+  });
+
+  describe('when a game ends', () => {
+    let client;
+
+    beforeEach(() => {
+      // @ts-expect-error
+      client = Client._lastInstance;
+    });
+
+    beforeEach(async () => {
+      const ch = await client.user.channel.createSubChannel('2');
+      await ch.createSubChannel('BLU');
+      await ch.createSubChannel('RED');
+
+      const oldGame = new Game();
+      oldGame.number = 2;
+      oldGame.state = GameState.started;
+      events.gameChanges.next({ game: oldGame });
+
+      const newGame = new Game();
+      newGame.number = 2;
+      newGame.state = GameState.ended;
+      events.gameChanges.next({ game: newGame });
+    });
+
+    it('should link channels', () => {
+      const red = client.user.channel.subChannels[0].subChannels[1];
+      expect(red.link).toHaveBeenCalled();
+      expect(red.links.length).toBe(1);
     });
   });
 
   describe('#removeOldChannels()', () => {
-    describe('when there is a channel that is not a game number', () => {
+    let client;
+
+    beforeEach(() => {
+      // @ts-expect-error
+      client = Client._lastInstance;
+    });
+
+    describe('when there is a channel that is not a game channel', () => {
       beforeEach(() => {
-        mockSubChannels.push({ name: 'FAKE_CHANNEL_NAME' });
+        client.user.channel.createSubChannel('not a game channel');
       });
 
-      afterEach(() => {
-        mockSubChannels.length = 0;
-      });
-
-      it('should do nothing', async () => {
-        await expect(service.removeOldChannels()).resolves.not.toThrow();
+      it('should not remove it', async () => {
+        await service.removeOldChannels();
+        expect(client.user.channel.subChannels.length).toBe(1);
       });
     });
 
     describe('when there are no users', () => {
-      const remove = jest.fn();
-
       beforeEach(async () => {
         // @ts-expect-error
         const game = await gamesService._createOne();
         game.state = GameState.ended;
         await game.save();
 
-        mockSubChannels.push({
-          name: `${game.number}`,
-          users: [],
-          subChannels: [
-            {
-              users: [],
-            },
-            {
-              users: [],
-            },
-          ],
-          remove,
-        });
+        await client.user.channel.createSubChannel(`${game.number}`);
       });
 
       afterEach(async () => {
-        mockSubChannels.length = 0;
-        remove.mockClear();
         // @ts-expect-error
         await gamesService._reset();
       });
 
       it('should remove the channel', async () => {
         await service.removeOldChannels();
-        expect(remove).toHaveBeenCalled();
+        expect(client.user.channel.subChannels.length).toBe(0);
       });
     });
 
     describe('when there are users in subchannels', () => {
-      const remove = jest.fn();
-
       beforeEach(async () => {
         // @ts-expect-error
         const game = await gamesService._createOne();
         game.state = GameState.ended;
         await game.save();
 
-        mockSubChannels.push({
-          name: `${game.number}`,
-          users: [],
-          subChannels: [
-            {
-              users: [{}],
-            },
-            {
-              users: [],
-            },
-          ],
-          remove,
-        });
+        const ch = await client.user.channel.createSubChannel(`${game.number}`);
+        ch.users.push({});
       });
 
       afterEach(async () => {
-        mockSubChannels.length = 0;
-        remove.mockClear();
         // @ts-expect-error
         await gamesService._reset();
       });
 
       it('should not remove the channel', async () => {
         await service.removeOldChannels();
-        expect(remove).not.toHaveBeenCalled();
+        expect(client.user.channel.subChannels.length).toBe(1);
       });
     });
 
     describe('when the game is in progress', () => {
-      const remove = jest.fn();
-
       beforeEach(async () => {
         // @ts-expect-error
         const game = await gamesService._createOne();
         game.state = GameState.started;
         await game.save();
 
-        mockSubChannels.push({
-          name: `${game.number}`,
-          users: [],
-          subChannels: [
-            {
-              users: [],
-            },
-            {
-              users: [],
-            },
-          ],
-          remove,
-        });
+        await client.user.channel.createSubChannel(`${game.number}`);
       });
 
       afterEach(async () => {
-        mockSubChannels.length = 0;
-        remove.mockClear();
         // @ts-expect-error
         await gamesService._reset();
       });
 
       it('should not remove the channel', async () => {
         await service.removeOldChannels();
-        expect(remove).not.toHaveBeenCalled();
+        expect(client.user.channel.subChannels.length).toBe(1);
       });
     });
   });

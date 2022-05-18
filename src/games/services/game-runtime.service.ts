@@ -10,7 +10,7 @@ import { Events } from '@/events/events';
 import { SlotStatus } from '../models/slot-status';
 import { GameState } from '../models/game-state';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { Game, GameDocument } from '../models/game';
 import { plainToInstance } from 'class-transformer';
 import { GameServerNotAssignedError } from '../errors/game-server-not-assigned.error';
@@ -143,7 +143,7 @@ export class GameRuntimeService {
     }
   }
 
-  async sayChat(gameServerId: string, message: string) {
+  async sayChat(gameServerId: string | Types.ObjectId, message: string) {
     const gameServer = await this.gameServersService.getById(gameServerId);
     let rcon: Rcon;
     try {
