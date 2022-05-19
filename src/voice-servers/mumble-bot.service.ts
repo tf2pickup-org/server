@@ -44,7 +44,7 @@ export class MumbleBotService implements OnModuleInit, OnModuleDestroy {
           ),
         ),
       )
-      .subscribe(async ({ game }) => await this.joinChannels(game));
+      .subscribe(async ({ game }) => await this.linkChannels(game));
 
     await this.connect();
   }
@@ -96,7 +96,7 @@ export class MumbleBotService implements OnModuleInit, OnModuleDestroy {
     this.logger.log(`channels for game #${game.number} created`);
   }
 
-  async joinChannels(game: Game) {
+  async linkChannels(game: Game) {
     if (!this.client) {
       return;
     }
