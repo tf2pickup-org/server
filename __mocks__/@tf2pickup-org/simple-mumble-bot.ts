@@ -54,6 +54,9 @@ class MockUser {
   moveToChannel = jest.fn().mockImplementation((channelId: number) => {
     this.channel.id = channelId;
   });
+
+  setSelfMute = jest.fn().mockResolvedValue(this);
+  setSelfDeaf = jest.fn().mockResolvedValue(this);
 }
 
 class MockUserManager {}

@@ -105,6 +105,12 @@ describe('MumbleBotService', () => {
     });
   });
 
+  it('should self deafen', () => {
+    // @ts-expect-error
+    const client = Client._lastInstance;
+    expect(client.user.setSelfDeaf).toHaveBeenCalledWith(true);
+  });
+
   describe('when a game is created', () => {
     beforeEach(() => {
       const game = new Game();

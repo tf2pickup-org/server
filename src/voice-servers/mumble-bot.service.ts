@@ -80,6 +80,8 @@ export class MumbleBotService implements OnModuleInit, OnModuleDestroy {
           `Bot ${this.client.user.name} does not have permissions to create new channels`,
         );
       }
+
+      await this.client.user.setSelfDeaf(true);
     }
   }
 
