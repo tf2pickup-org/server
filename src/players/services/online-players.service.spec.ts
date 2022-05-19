@@ -30,7 +30,7 @@ describe('OnlinePlayersService', () => {
     events = module.get(Events);
   });
 
-  beforeEach(() => jest.useFakeTimers('legacy'));
+  beforeEach(() => jest.useFakeTimers());
   afterEach(() => jest.useRealTimers());
 
   beforeEach(() => service.onModuleInit());

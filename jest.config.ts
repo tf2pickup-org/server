@@ -18,6 +18,9 @@ const config: InitialOptionsTsJest = {
   preset: 'ts-jest',
   testEnvironment: 'node',
   setupFiles: ['trace-unhandled/register'],
+  fakeTimers: {
+    legacyFakeTimers: true,
+  },
 };
 
 export default config;

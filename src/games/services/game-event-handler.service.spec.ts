@@ -196,7 +196,7 @@ describe('GameEventHandlerService', () => {
       });
 
       it('should remove assigned game from all players after 5 seconds', async () => {
-        jest.useFakeTimers('legacy');
+        jest.useFakeTimers();
         const game = await service.onMatchEnded(mockGame.id);
         jest.advanceTimersByTime(5000);
         await flushPromises();
