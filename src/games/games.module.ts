@@ -39,7 +39,7 @@ import { GameConfigsModule } from '@/game-configs/game-configs.module';
     GameEventHandlerService,
     PlayerSubstitutionService,
   ],
-  exports: [GamesService],
+  exports: [GamesService, GameRuntimeService],
   controllers: [GamesController, GamesWithSubstitutionRequestsController],
 })
 export class GamesModule {}
