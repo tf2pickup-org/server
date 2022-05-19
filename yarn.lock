@@ -3129,14 +3129,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cache-manager@npm:3.6.1":
-  version: 3.6.1
-  resolution: "cache-manager@npm:3.6.1"
+"cache-manager@npm:3.6.2":
+  version: 3.6.2
+  resolution: "cache-manager@npm:3.6.2"
   dependencies:
     async: 3.2.3
-    lodash: ^4.17.21
+    lodash.clonedeep: ^4.5.0
     lru-cache: 6.0.0
-  checksum: 638f5b13bd67c9017d8c9189b285b9b5a0ce8cca7ebcc885573ab28f2167cb85471c132033b9c17f1e1c3ca24f4eecb5717e510fcc6aee5a6b436734caaeab43
+  checksum: 8bb8a3b575d3eaa0ba37edfdf988efa844aac1a422eebd392983f293c55da73fdbf24b6a9d80fcde3cc2e1ba69f4e466096677b5dc623e4fbd5077b822d4c62a
   languageName: node
   linkType: hard
 
@@ -7343,6 +7343,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"lodash.clonedeep@npm:^4.5.0":
+  version: 4.5.0
+  resolution: "lodash.clonedeep@npm:4.5.0"
+  checksum: 92c46f094b064e876a23c97f57f81fbffd5d760bf2d8a1c61d85db6d1e488c66b0384c943abee4f6af7debf5ad4e4282e74ff83177c9e63d8ff081a4837c3489
+  languageName: node
+  linkType: hard
+
 "lodash.includes@npm:^4.3.0":
   version: 4.3.0
   resolution: "lodash.includes@npm:4.3.0"
@@ -9730,7 +9737,7 @@ __metadata:
     "@typescript-eslint/parser": 5.25.0
     app-root-path: 3.0.0
     async-mutex: 0.3.2
-    cache-manager: 3.6.1
+    cache-manager: 3.6.2
     class-transformer: 0.5.1
     class-validator: 0.13.2
     copyfiles: 2.4.1
