@@ -1,5 +1,14 @@
 
 
+# [9.0.0-beta.5](https://github.com/tf2pickup-org/server/compare/9.0.0-beta.4...9.0.0-beta.5) (2022-05-19)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @tf2pickup-org/simple-mumble-bot to v0.3.2 ([#1644](https://github.com/tf2pickup-org/server/issues/1644)) ([a408bda](https://github.com/tf2pickup-org/server/commit/a408bda775f15ae68e79173234e3a96fa9e4d900))
+* **deps:** update dependency cache-manager to v3.6.2 ([#1646](https://github.com/tf2pickup-org/server/issues/1646)) ([f53faba](https://github.com/tf2pickup-org/server/commit/f53faba6ac3f35d149d349e754d99962be93d9bf))
+* **deps:** update dependency mongoose to v6.3.4 ([#1645](https://github.com/tf2pickup-org/server/issues/1645)) ([3bd6d46](https://github.com/tf2pickup-org/server/commit/3bd6d46f95c579cc58cfef21b79a8991fd380914))
+
 # [9.0.0-beta.4](https://github.com/tf2pickup-org/server/compare/9.0.0-beta.3...9.0.0-beta.4) (2022-05-19)
 
 
