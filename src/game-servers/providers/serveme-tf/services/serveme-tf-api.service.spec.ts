@@ -179,7 +179,7 @@ describe('ServemeTfApiService', () => {
         } as any),
       );
 
-      jest.useFakeTimers('legacy');
+      jest.useFakeTimers();
     });
 
     afterEach(() => {

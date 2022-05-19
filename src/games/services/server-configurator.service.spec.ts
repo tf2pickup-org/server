@@ -300,7 +300,7 @@ describe('ServerConfiguratorService', () => {
         jest.useRealTimers();
         player1.name = 'mąły';
         await player1.save();
-        jest.useFakeTimers('legacy');
+        jest.useFakeTimers();
       });
 
       it('should deburr player nicknames', async () => {
