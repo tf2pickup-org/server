@@ -1,5 +1,19 @@
 
 
+# [9.0.0-beta.4](https://github.com/tf2pickup-org/server/compare/9.0.0-beta.3...9.0.0-beta.4) (2022-05-19)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @nestjs/axios to v0.0.8 ([#1640](https://github.com/tf2pickup-org/server/issues/1640)) ([fb12ab8](https://github.com/tf2pickup-org/server/commit/fb12ab859db66e40a69ddaaa50c90d3fdb81bd31))
+* **deps:** update dependency @nestjs/config to v2.0.1 ([#1637](https://github.com/tf2pickup-org/server/issues/1637)) ([0297319](https://github.com/tf2pickup-org/server/commit/0297319f705e824158d8a125bdd4c943d5787270))
+* **voice-servers:** self-deafen mumble bot ([#1643](https://github.com/tf2pickup-org/server/issues/1643)) ([307da53](https://github.com/tf2pickup-org/server/commit/307da537ed192635533a406e4de65c69ab5d7ef0))
+
+
+### Features
+
+* **voice-servers:** link mumble channels when the game ends ([#1642](https://github.com/tf2pickup-org/server/issues/1642)) ([6f4eb45](https://github.com/tf2pickup-org/server/commit/6f4eb451a418d5344f966a7a8b6512f41401a4bd))
+
 # [9.0.0-beta.3](https://github.com/tf2pickup-org/server/compare/9.0.0-beta.2...9.0.0-beta.3) (2022-05-18)
 
 
