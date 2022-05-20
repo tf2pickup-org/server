@@ -25,7 +25,7 @@
     "@nestjs/passport": "8.2.1",
     "@nestjs/platform-express": "8.4.5",
     "@nestjs/platform-socket.io": "8.4.5",
-    "@nestjs/schedule": "1.1.0",
+    "@nestjs/schedule": "2.0.1",
     "@nestjs/serve-static": "2.2.2",
     "@nestjs/websockets": "8.4.5",
     "@tf2pickup-org/simple-mumble-bot": "0.3.3",
