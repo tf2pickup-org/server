@@ -69,6 +69,7 @@ export class MumbleBotService implements OnModuleInit, OnModuleDestroy {
         rejectUnauthorized: false,
       });
       await this.client.connect();
+      this.logger.log(`logged in as ${this.client.user.name}`);
       const channel = this.client.channels.byName(
         voiceServerConfig.mumble.channelName,
       );
@@ -123,7 +124,15 @@ export class MumbleBotService implements OnModuleInit, OnModuleDestroy {
           'Mumble channels linked',
         );
         this.logger.log(`channels for game #${game.number} linked`);
+      } else {
+        this.logger.warn(
+          `cannot not link channels for game #${game.number}: BLU or RED subchannel does not exist`,
+        );
       }
+    } else {
+      this.logger.warn(
+        `cannot not link channels for game #${game.number}: channel does not exist`,
+      );
     }
   }
 
