@@ -1,5 +1,16 @@
 
 
+# [9.0.0-beta.7](https://github.com/tf2pickup-pl/server/compare/9.0.0-beta.6...9.0.0-beta.7) (2022-05-21)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @nestjs/mongoose to v9.1.0 ([#1650](https://github.com/tf2pickup-pl/server/issues/1650)) ([883255c](https://github.com/tf2pickup-pl/server/commit/883255cd292d9435e5694cb11fbf343b43e2aee3))
+* **deps:** update dependency @nestjs/schedule to v2 ([#1649](https://github.com/tf2pickup-pl/server/issues/1649)) ([a16ef01](https://github.com/tf2pickup-pl/server/commit/a16ef013c2e0f177f3d6b79228e3c38150a5555f))
+* **deps:** update dependency cache-manager to v3.6.3 ([#1652](https://github.com/tf2pickup-pl/server/issues/1652)) ([3f6ab9b](https://github.com/tf2pickup-pl/server/commit/3f6ab9b6aefd2b6eff850e0ec72f7aaf5596280d))
+* **deps:** update dependency passport to v0.6.0 ([#1651](https://github.com/tf2pickup-pl/server/issues/1651)) ([9da593b](https://github.com/tf2pickup-pl/server/commit/9da593b69aa41d9284aa8e21ca1737a053999ed0))
+* **games:** don't crash on missing logsecret ([#1655](https://github.com/tf2pickup-pl/server/issues/1655)) ([d510edf](https://github.com/tf2pickup-pl/server/commit/d510edf6b09e859c7764a798f28ad91962732c8f))
+
 # [9.0.0-beta.6](https://github.com/tf2pickup-org/server/compare/9.0.0-beta.5...9.0.0-beta.6) (2022-05-20)
 
 
