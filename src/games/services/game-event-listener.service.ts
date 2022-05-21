@@ -122,9 +122,13 @@ export class GameEventListenerService implements OnModuleInit {
     for (const gameEvent of this.gameEvents) {
       const matches = message.match(gameEvent.regex);
       if (matches) {
-        const game = await this.gamesService.getByLogSecret(logSecret);
-        this.logger.debug(`#${game.number}: ${gameEvent.name}`);
-        gameEvent.handle(game.id, matches);
+        try {
+          const game = await this.gamesService.getByLogSecret(logSecret);
+          this.logger.debug(`#${game.number}: ${gameEvent.name}`);
+          gameEvent.handle(game.id, matches);
+        } catch (error) {
+          this.logger.warn(`error handling event (${message}): ${error}`);
+        }
         break;
       }
     }
