@@ -1,3 +1,4 @@
+import { Events } from '@/events/events';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { instanceToPlain, plainToInstance } from 'class-transformer';
@@ -18,6 +19,7 @@ export class ConfigurationService {
   constructor(
     @InjectModel(ConfigurationEntry.name)
     private configurationEntryModel: Model<ConfigurationEntryDocument>,
+    private events: Events,
   ) {}
 
   async getDefaultPlayerSkill(): Promise<DefaultPlayerSkill> {
@@ -83,5 +85,6 @@ export class ConfigurationService {
     await this.configurationEntryModel.updateOne({ key: entry.key }, entry, {
       upsert: true,
     });
+    this.events.configurationEntryChanged.next({ entryKey: entry.key });
   }
 }
