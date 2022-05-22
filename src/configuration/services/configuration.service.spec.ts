@@ -1,3 +1,4 @@
+import { Events } from '@/events/events';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
 import {
@@ -40,6 +41,7 @@ describe('ConfigurationService', () => {
   let mongod: MongoMemoryServer;
   let configurationEntryModel: Model<ConfigurationEntryDocument>;
   let connection: Connection;
+  let events: Events;
 
   beforeAll(async () => (mongod = await MongoMemoryServer.create()));
   afterAll(async () => await mongod.stop());
@@ -77,7 +79,7 @@ describe('ConfigurationService', () => {
           },
         ]),
       ],
-      providers: [ConfigurationService],
+      providers: [ConfigurationService, Events],
     }).compile();
 
     service = module.get<ConfigurationService>(ConfigurationService);
@@ -85,6 +87,7 @@ describe('ConfigurationService', () => {
       getModelToken(ConfigurationEntry.name),
     );
     connection = module.get(getConnectionToken());
+    events = module.get(Events);
   });
 
   afterEach(async () => {
@@ -162,4 +165,14 @@ describe('ConfigurationService', () => {
     expect(ret.type).toEqual(SelectedVoiceServer.mumble);
     expect(ret.mumble).toEqual(mumbleOptions);
   });
+
+  it('should emit events', async () =>
+    new Promise<void>((resolve) => {
+      events.configurationEntryChanged.subscribe(({ entryKey }) => {
+        expect(entryKey).toEqual(ConfigurationEntryKey.etf2lAccountRequired);
+        resolve();
+      });
+      const etf2lAccountRequired = new Etf2lAccountRequired(false);
+      service.set(etf2lAccountRequired);
+    }));
 });
