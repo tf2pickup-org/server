@@ -90,13 +90,20 @@ export class MumbleBotService implements OnModuleInit, OnModuleDestroy {
     if (!this.client) {
       return;
     }
-    const channelName = `${game.number}`;
-    const channel = await this.client.user.channel.createSubChannel(
-      channelName,
-    );
-    await channel.createSubChannel('BLU');
-    await channel.createSubChannel('RED');
-    this.logger.log(`channels for game #${game.number} created`);
+
+    try {
+      const channelName = `${game.number}`;
+      const channel = await this.client.user.channel.createSubChannel(
+        channelName,
+      );
+      await channel.createSubChannel('BLU');
+      await channel.createSubChannel('RED');
+      this.logger.log(`channels for game #${game.number} created`);
+    } catch (error) {
+      this.logger.warn(
+        `cannot create channels for game #${game.number}: ${error}`,
+      );
+    }
   }
 
   async linkChannels(game: Game) {
@@ -104,11 +111,15 @@ export class MumbleBotService implements OnModuleInit, OnModuleDestroy {
       return;
     }
 
-    const channelName = `${game.number}`;
-    const gameChannel = this.client.user.channel.subChannels.find(
-      (channel) => channel.name === channelName,
-    );
-    if (gameChannel) {
+    try {
+      const channelName = `${game.number}`;
+      const gameChannel = this.client.user.channel.subChannels.find(
+        (channel) => channel.name === channelName,
+      );
+      if (!gameChannel) {
+        throw new Error('channel does not exist');
+      }
+
       const [red, blu] = [
         gameChannel.subChannels.find(
           (channel) => channel.name.toUpperCase() === 'RED',
@@ -125,13 +136,11 @@ export class MumbleBotService implements OnModuleInit, OnModuleDestroy {
         );
         this.logger.log(`channels for game #${game.number} linked`);
       } else {
-        this.logger.warn(
-          `cannot not link channels for game #${game.number}: BLU or RED subchannel does not exist`,
-        );
+        throw new Error('BLU or RED subchannel does not exist');
       }
-    } else {
+    } catch (error) {
       this.logger.warn(
-        `cannot not link channels for game #${game.number}: channel does not exist`,
+        `cannot link channels for game #${game.number}: ${error}`,
       );
     }
   }
