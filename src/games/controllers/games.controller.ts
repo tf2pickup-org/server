@@ -98,7 +98,7 @@ export class GamesController {
     @Param('id', ObjectIdValidationPipe) gameId: string,
   ): Promise<Serializable<GameDto>> {
     const game = await this.gamesService.getById(gameId);
-    return this.gameSerializerService.markSerializableValue(game);
+    return this.gameSerializerService.markAsSerializable(game);
   }
 
   @Get(':id/connect-info')
