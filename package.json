@@ -90,7 +90,7 @@
     "eslint-plugin-jest": "26.2.2",
     "eslint-plugin-prettier": "4.0.0",
     "jest": "28.1.0",
-    "mongodb-memory-server": "8.5.2",
+    "mongodb-memory-server": "8.6.0",
     "prettier": "2.6.2",
     "release-it": "15.0.0",
     "socket.io-client": "4.5.1",

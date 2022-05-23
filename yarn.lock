@@ -7974,9 +7974,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mongodb-memory-server-core@npm:8.5.2":
-  version: 8.5.2
-  resolution: "mongodb-memory-server-core@npm:8.5.2"
+"mongodb-memory-server-core@npm:8.6.0":
+  version: 8.6.0
+  resolution: "mongodb-memory-server-core@npm:8.6.0"
   dependencies:
     "@types/tmp": ^0.2.3
     async-mutex: ^0.3.2
@@ -7991,20 +7991,20 @@ __metadata:
     semver: ^7.3.7
     tar-stream: ^2.1.4
     tmp: ^0.2.1
-    tslib: ^2.3.1
+    tslib: ^2.4.0
     uuid: ^8.3.1
     yauzl: ^2.10.0
-  checksum: 0fccb1edc80c14bc960eb3118d3df1d6fb97062ae6ea5dbbd557b3703ee624cdb7e5497f9913e2583660ee899ec21882e0382db89e2c823040e8f72039ade757
+  checksum: 7eaeb064aa2f234e49c0e34fd3ca5b778e4a15e7615a1b15d41abddc094da854cf6d154567244528bfa5a85bcfc8ff74ecf5262ea0b34fb29dc05f6c90a4d730
   languageName: node
   linkType: hard
 
-"mongodb-memory-server@npm:8.5.2":
-  version: 8.5.2
-  resolution: "mongodb-memory-server@npm:8.5.2"
+"mongodb-memory-server@npm:8.6.0":
+  version: 8.6.0
+  resolution: "mongodb-memory-server@npm:8.6.0"
   dependencies:
-    mongodb-memory-server-core: 8.5.2
-    tslib: ^2.3.1
-  checksum: a41b451e19497f2938ab3d406e91b8b06ecdd0ce3e744b82b4a84563012a5910da2e1ef3e2083b31e397f42ba8261b78d276ab77692372826e3e7e7989dad48f
+    mongodb-memory-server-core: 8.6.0
+    tslib: ^2.4.0
+  checksum: f26f22568ffd1643b0edf2e0691ce79ddfb68ffffdca1721cf2ddce069035877bdb453486f4e3160c0f7fec98fc002ef03152c0b667218e3900eefdcdf7d69be
   languageName: node
   linkType: hard
 
@@ -9774,7 +9774,7 @@ __metadata:
     migrate: 1.8.0
     moment: 2.29.3
     mongodb: 4.6.0
-    mongodb-memory-server: 8.5.2
+    mongodb-memory-server: 8.6.0
     mongodb-uri: 0.9.7
     mongoose: 6.3.4
     nestjs-real-ip: 2.1.0
@@ -10761,7 +10761,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tslib@npm:2.4.0, tslib@npm:^2.0.1, tslib@npm:^2.1.0, tslib@npm:^2.3.0, tslib@npm:^2.3.1":
+"tslib@npm:2.4.0, tslib@npm:^2.0.1, tslib@npm:^2.1.0, tslib@npm:^2.3.0, tslib@npm:^2.3.1, tslib@npm:^2.4.0":
   version: 2.4.0
   resolution: "tslib@npm:2.4.0"
   checksum: 8c4aa6a3c5a754bf76aefc38026134180c053b7bd2f81338cb5e5ebf96fefa0f417bff221592bf801077f5bf990562f6264fecbc42cd3309b33872cb6fc3b113
