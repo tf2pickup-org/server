@@ -1,5 +1,15 @@
 
 
+# [9.0.0-beta.8](https://github.com/tf2pickup-pl/server/compare/9.0.0-beta.7...9.0.0-beta.8) (2022-05-23)
+
+
+### Bug Fixes
+
+* **configuration:** add configuration change event ([#1659](https://github.com/tf2pickup-pl/server/issues/1659)) ([d009ad1](https://github.com/tf2pickup-pl/server/commit/d009ad194662250cc3f1026d8c0a056949d9fcb5))
+* **deps:** update dependency @tf2pickup-org/simple-mumble-bot to v0.3.4 ([#1658](https://github.com/tf2pickup-pl/server/issues/1658)) ([f672e34](https://github.com/tf2pickup-pl/server/commit/f672e34ee9d1c5e0c978ee81282d6a74065c75af))
+* **queue:** atomic join queue ([#1656](https://github.com/tf2pickup-pl/server/issues/1656)) ([3e7d361](https://github.com/tf2pickup-pl/server/commit/3e7d361696159125c5270db96c9defeff8ae3924))
+* **voice-servers:** handle mumble bot errors gracefully ([#1657](https://github.com/tf2pickup-pl/server/issues/1657)) ([ce652cb](https://github.com/tf2pickup-pl/server/commit/ce652cb97e1e9dd7a8da408dea7331b2f8e91d6e))
+
 # [9.0.0-beta.7](https://github.com/tf2pickup-pl/server/compare/9.0.0-beta.6...9.0.0-beta.7) (2022-05-21)
 
 
