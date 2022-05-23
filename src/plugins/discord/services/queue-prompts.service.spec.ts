@@ -215,34 +215,36 @@ describe('QueuePromptsService', () => {
     it('should send a new prompt', () => {
       const channel = discordService.getPlayersChannel();
       expect(channel.send).toHaveBeenCalledWith({
-        embed: expect.objectContaining({
-          title: expect.stringMatching(/3\/12 players in the queue!/),
-          description: expect.stringMatching(
-            /\[tf2pickup.pl\]\(https:\/\/tf2pickup.pl\)/,
-          ),
-          fields: [
-            {
-              name: '<emoji:tf2scout> scout (1/4)',
-              value: '\u2000\u25CF\u2000fake_player_1',
-              inline: true,
-            },
-            {
-              name: '<emoji:tf2soldier> soldier (1/4)',
-              value: '\u2000\u25CF\u2000fake_player_2',
-              inline: true,
-            },
-            {
-              name: '<emoji:tf2demoman> demoman (0/2)',
-              value: '\u200B',
-              inline: true,
-            },
-            {
-              name: '<emoji:tf2medic> medic (1/2)',
-              value: '\u2000\u25CF\u2000fake_player_3',
-              inline: true,
-            },
-          ],
-        }),
+        embeds: [
+          expect.objectContaining({
+            title: expect.stringMatching(/3\/12 players in the queue!/),
+            description: expect.stringMatching(
+              /\[tf2pickup.pl\]\(https:\/\/tf2pickup.pl\)/,
+            ),
+            fields: [
+              {
+                name: '<emoji:tf2scout> scout (1/4)',
+                value: '\u2000\u25CF\u2000fake_player_1',
+                inline: true,
+              },
+              {
+                name: '<emoji:tf2soldier> soldier (1/4)',
+                value: '\u2000\u25CF\u2000fake_player_2',
+                inline: true,
+              },
+              {
+                name: '<emoji:tf2demoman> demoman (0/2)',
+                value: '\u200B',
+                inline: true,
+              },
+              {
+                name: '<emoji:tf2medic> medic (1/2)',
+                value: '\u2000\u25CF\u2000fake_player_3',
+                inline: true,
+              },
+            ],
+          }),
+        ],
       });
     });
 
@@ -331,35 +333,37 @@ describe('QueuePromptsService', () => {
 
       it('should edit the previous embed', () => {
         expect((discordService as any)._lastMessage.edit).toHaveBeenCalledWith({
-          embed: expect.objectContaining({
-            title: expect.stringMatching(/3\/12 players in the queue!/),
-            description: expect.stringMatching(
-              /\[tf2pickup.pl\]\(https:\/\/tf2pickup.pl\)/,
-            ),
-            fields: [
-              {
-                name: '<emoji:tf2scout> scout (1/4)',
-                value: '\u2000\u25CF\u2000fake_player_1',
-                inline: true,
-              },
-              {
-                name: '<emoji:tf2soldier> soldier (2/4)',
-                value:
-                  '\u2000\u25CF\u2000fake_player_2\n\u2000\u25CF\u2000fake_player_3',
-                inline: true,
-              },
-              {
-                name: '<emoji:tf2demoman> demoman (0/2)',
-                value: '\u200B',
-                inline: true,
-              },
-              {
-                name: '<emoji:tf2medic> medic (0/2)',
-                value: '\u200B',
-                inline: true,
-              },
-            ],
-          }),
+          embeds: [
+            expect.objectContaining({
+              title: expect.stringMatching(/3\/12 players in the queue!/),
+              description: expect.stringMatching(
+                /\[tf2pickup.pl\]\(https:\/\/tf2pickup.pl\)/,
+              ),
+              fields: [
+                {
+                  name: '<emoji:tf2scout> scout (1/4)',
+                  value: '\u2000\u25CF\u2000fake_player_1',
+                  inline: true,
+                },
+                {
+                  name: '<emoji:tf2soldier> soldier (2/4)',
+                  value:
+                    '\u2000\u25CF\u2000fake_player_2\n\u2000\u25CF\u2000fake_player_3',
+                  inline: true,
+                },
+                {
+                  name: '<emoji:tf2demoman> demoman (0/2)',
+                  value: '\u200B',
+                  inline: true,
+                },
+                {
+                  name: '<emoji:tf2medic> medic (0/2)',
+                  value: '\u200B',
+                  inline: true,
+                },
+              ],
+            }),
+          ],
         });
       });
     });

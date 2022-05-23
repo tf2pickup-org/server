@@ -20,14 +20,17 @@ interface GameForceEndedOptions {
 export const gameForceEnded = (options: GameForceEndedOptions) =>
   new MessageEmbed()
     .setColor(Colors.GameForceEnded)
-    .setAuthor(
-      options.admin.name,
-      options.admin.avatarUrl,
-      options.admin.profileUrl,
-    )
+    .setAuthor({
+      name: options.admin.name,
+      iconURL: options.admin.avatarUrl,
+      url: options.admin.profileUrl,
+    })
     .setTitle('Game force-ended')
     .setDescription(
       `Game number: **[${options.game.number}](${options.game.url})**`,
     )
-    .setFooter(options.client.name, options.client.iconUrl)
+    .setFooter({
+      text: options.client.name,
+      iconURL: options.client.iconUrl,
+    })
     .setTimestamp();

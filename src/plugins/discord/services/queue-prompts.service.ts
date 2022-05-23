@@ -47,12 +47,12 @@ export class QueuePromptsService implements OnModuleInit {
     });
 
     if (this.message) {
-      this.message.edit({ embed });
+      this.message.edit({ embeds: [embed] });
     } else {
       if (this.playerThresholdMet()) {
         this.message = await this.discordService
           .getPlayersChannel()
-          ?.send({ embed });
+          ?.send({ embeds: [embed] });
       }
     }
   }

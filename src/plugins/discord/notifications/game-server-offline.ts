@@ -23,5 +23,8 @@ export const gameServerOffline = (options: GameServerOfflineOptions) =>
         `Address: **${options.gameServer.address}:${options.gameServer.port}**`,
       ].join('\n'),
     )
-    .setFooter(options.client.name, options.client.iconUrl)
+    .setFooter({
+      text: options.client.name,
+      iconURL: options.client.iconUrl,
+    })
     .setTimestamp();

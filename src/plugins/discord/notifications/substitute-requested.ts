@@ -24,14 +24,17 @@ interface SubstituteRequestedOptions {
 export const substituteRequested = (options: SubstituteRequestedOptions) =>
   new MessageEmbed()
     .setColor(Colors.SubstituteRequested)
-    .setAuthor(
-      options.admin.name,
-      options.admin.avatarUrl,
-      options.admin.profileUrl,
-    )
+    .setAuthor({
+      name: options.admin.name,
+      iconURL: options.admin.avatarUrl,
+      url: options.admin.profileUrl,
+    })
     .setTitle('Substitute requested')
     .setDescription(
       `Game number: **[${options.game.number}](${options.game.url})**\nPlayer: **[${options.player.name}](${options.player.profileUrl})**`,
     )
-    .setFooter(options.client.name, options.client.iconUrl)
+    .setFooter({
+      text: options.client.name,
+      iconURL: options.client.iconUrl,
+    })
     .setTimestamp();

@@ -132,10 +132,12 @@ export class AdminNotificationsService implements OnModuleInit {
 
   private onPlayerRegisters(player: Player) {
     this.discordService.getAdminsChannel()?.send({
-      embed: newPlayer({
-        name: player.name,
-        profileUrl: `${this.environment.clientUrl}/player/${player.id}`,
-      }),
+      embeds: [
+        newPlayer({
+          name: player.name,
+          profileUrl: `${this.environment.clientUrl}/player/${player.id}`,
+        }),
+      ],
     });
   }
 
@@ -167,23 +169,25 @@ export class AdminNotificationsService implements OnModuleInit {
     }
 
     this.discordService.getAdminsChannel()?.send({
-      embed: playerProfileUpdated({
-        player: {
-          name: oldPlayer.name,
-          profileUrl: `${this.environment.clientUrl}/player/${oldPlayer.id}`,
-          avatarUrl: newPlayer.avatar?.medium,
-        },
-        admin: {
-          name: admin.name,
-          profileUrl: `${this.environment.clientUrl}/player/${admin.id}`,
-          avatarUrl: admin.avatar?.small,
-        },
-        client: {
-          name: new URL(this.environment.clientUrl).hostname,
-          iconUrl: `${this.environment.clientUrl}/${iconUrlPath}`,
-        },
-        changes,
-      }),
+      embeds: [
+        playerProfileUpdated({
+          player: {
+            name: oldPlayer.name,
+            profileUrl: `${this.environment.clientUrl}/player/${oldPlayer.id}`,
+            avatarUrl: newPlayer.avatar?.medium,
+          },
+          admin: {
+            name: admin.name,
+            profileUrl: `${this.environment.clientUrl}/player/${admin.id}`,
+            avatarUrl: admin.avatar?.small,
+          },
+          client: {
+            name: new URL(this.environment.clientUrl).hostname,
+            iconUrl: `${this.environment.clientUrl}/${iconUrlPath}`,
+          },
+          changes,
+        }),
+      ],
     });
   }
 
@@ -192,24 +196,26 @@ export class AdminNotificationsService implements OnModuleInit {
     const player = await this.playersService.getById(ban.player);
 
     this.discordService.getAdminsChannel()?.send({
-      embed: playerBanAdded({
-        admin: {
-          name: admin.name,
-          profileUrl: `${this.environment.clientUrl}/player/${admin.id}`,
-          avatarUrl: admin.avatar?.small,
-        },
-        player: {
-          name: player.name,
-          profileUrl: `${this.environment.clientUrl}/player/${player.id}`,
-          avatarUrl: player.avatar?.medium,
-        },
-        client: {
-          name: new URL(this.environment.clientUrl).hostname,
-          iconUrl: `${this.environment.clientUrl}/${iconUrlPath}`,
-        },
-        reason: ban.reason,
-        ends: ban.end,
-      }),
+      embeds: [
+        playerBanAdded({
+          admin: {
+            name: admin.name,
+            profileUrl: `${this.environment.clientUrl}/player/${admin.id}`,
+            avatarUrl: admin.avatar?.small,
+          },
+          player: {
+            name: player.name,
+            profileUrl: `${this.environment.clientUrl}/player/${player.id}`,
+            avatarUrl: player.avatar?.medium,
+          },
+          client: {
+            name: new URL(this.environment.clientUrl).hostname,
+            iconUrl: `${this.environment.clientUrl}/${iconUrlPath}`,
+          },
+          reason: ban.reason,
+          ends: ban.end,
+        }),
+      ],
     });
   }
 
@@ -218,23 +224,25 @@ export class AdminNotificationsService implements OnModuleInit {
     const player = await this.playersService.getById(ban.player);
 
     this.discordService.getAdminsChannel()?.send({
-      embed: playerBanRevoked({
-        admin: {
-          name: admin.name,
-          profileUrl: `${this.environment.clientUrl}/player/${admin.id}`,
-          avatarUrl: admin.avatar?.small,
-        },
-        player: {
-          name: player.name,
-          profileUrl: `${this.environment.clientUrl}/player/${player.id}`,
-          avatarUrl: player.avatar?.medium,
-        },
-        client: {
-          name: new URL(this.environment.clientUrl).hostname,
-          iconUrl: `${this.environment.clientUrl}/${iconUrlPath}`,
-        },
-        reason: ban.reason,
-      }),
+      embeds: [
+        playerBanRevoked({
+          admin: {
+            name: admin.name,
+            profileUrl: `${this.environment.clientUrl}/player/${admin.id}`,
+            avatarUrl: admin.avatar?.small,
+          },
+          player: {
+            name: player.name,
+            profileUrl: `${this.environment.clientUrl}/player/${player.id}`,
+            avatarUrl: player.avatar?.medium,
+          },
+          client: {
+            name: new URL(this.environment.clientUrl).hostname,
+            iconUrl: `${this.environment.clientUrl}/${iconUrlPath}`,
+          },
+          reason: ban.reason,
+        }),
+      ],
     });
   }
 
@@ -256,60 +264,68 @@ export class AdminNotificationsService implements OnModuleInit {
     const admin = await this.playersService.getById(adminId);
 
     this.discordService.getAdminsChannel()?.send({
-      embed: playerSkillChanged({
-        admin: {
-          name: admin.name,
-          profileUrl: `${this.environment.clientUrl}/player/${admin.id}`,
-          avatarUrl: admin.avatar?.small,
-        },
-        player: {
-          name: player.name,
-          profileUrl: `${this.environment.clientUrl}/player/${player.id}`,
-          avatarUrl: player.avatar?.medium,
-        },
-        client: {
-          name: new URL(this.environment.clientUrl).hostname,
-          iconUrl: `${this.environment.clientUrl}/${iconUrlPath}`,
-        },
-        oldSkill,
-        newSkill,
-      }),
+      embeds: [
+        playerSkillChanged({
+          admin: {
+            name: admin.name,
+            profileUrl: `${this.environment.clientUrl}/player/${admin.id}`,
+            avatarUrl: admin.avatar?.small,
+          },
+          player: {
+            name: player.name,
+            profileUrl: `${this.environment.clientUrl}/player/${player.id}`,
+            avatarUrl: player.avatar?.medium,
+          },
+          client: {
+            name: new URL(this.environment.clientUrl).hostname,
+            iconUrl: `${this.environment.clientUrl}/${iconUrlPath}`,
+          },
+          oldSkill,
+          newSkill,
+        }),
+      ],
     });
   }
 
   private async onGameServerAdded(gameServer: GameServer) {
     this.discordService.getAdminsChannel()?.send({
-      embed: gameServerAdded({
-        gameServer,
-        client: {
-          name: new URL(this.environment.clientUrl).hostname,
-          iconUrl: `${this.environment.clientUrl}/${iconUrlPath}`,
-        },
-      }),
+      embeds: [
+        gameServerAdded({
+          gameServer,
+          client: {
+            name: new URL(this.environment.clientUrl).hostname,
+            iconUrl: `${this.environment.clientUrl}/${iconUrlPath}`,
+          },
+        }),
+      ],
     });
   }
 
   private async onGameServerWentOffline(gameServer: GameServer) {
     this.discordService.getAdminsChannel()?.send({
-      embed: gameServerOffline({
-        gameServer,
-        client: {
-          name: new URL(this.environment.clientUrl).hostname,
-          iconUrl: `${this.environment.clientUrl}/${iconUrlPath}`,
-        },
-      }),
+      embeds: [
+        gameServerOffline({
+          gameServer,
+          client: {
+            name: new URL(this.environment.clientUrl).hostname,
+            iconUrl: `${this.environment.clientUrl}/${iconUrlPath}`,
+          },
+        }),
+      ],
     });
   }
 
   private async onGameServerBackOnline(gameServer: GameServer) {
     this.discordService.getAdminsChannel()?.send({
-      embed: gameServerOnline({
-        gameServer,
-        client: {
-          name: new URL(this.environment.clientUrl).hostname,
-          iconUrl: `${this.environment.clientUrl}/${iconUrlPath}`,
-        },
-      }),
+      embeds: [
+        gameServerOnline({
+          gameServer,
+          client: {
+            name: new URL(this.environment.clientUrl).hostname,
+            iconUrl: `${this.environment.clientUrl}/${iconUrlPath}`,
+          },
+        }),
+      ],
     });
   }
 
@@ -320,21 +336,23 @@ export class AdminNotificationsService implements OnModuleInit {
 
     const admin = await this.playersService.getById(adminId);
     this.discordService.getAdminsChannel()?.send({
-      embed: gameForceEnded({
-        admin: {
-          name: admin.name,
-          profileUrl: `${this.environment.clientUrl}/player/${admin.id}`,
-          avatarUrl: admin.avatar?.small,
-        },
-        client: {
-          name: new URL(this.environment.clientUrl).hostname,
-          iconUrl: `${this.environment.clientUrl}/${iconUrlPath}`,
-        },
-        game: {
-          number: `${game.number}`,
-          url: `${this.environment.clientUrl}/game/${game.id}`,
-        },
-      }),
+      embeds: [
+        gameForceEnded({
+          admin: {
+            name: admin.name,
+            profileUrl: `${this.environment.clientUrl}/player/${admin.id}`,
+            avatarUrl: admin.avatar?.small,
+          },
+          client: {
+            name: new URL(this.environment.clientUrl).hostname,
+            iconUrl: `${this.environment.clientUrl}/${iconUrlPath}`,
+          },
+          game: {
+            number: `${game.number}`,
+            url: `${this.environment.clientUrl}/game/${game.id}`,
+          },
+        }),
+      ],
     });
   }
 
@@ -348,25 +366,27 @@ export class AdminNotificationsService implements OnModuleInit {
     const game = await this.gamesService.getById(gameId);
 
     this.discordService.getAdminsChannel()?.send({
-      embed: substituteRequested({
-        player: {
-          name: player.name,
-          profileUrl: `${this.environment.clientUrl}/player/${player.id}`,
-        },
-        admin: {
-          name: admin.name,
-          profileUrl: `${this.environment.clientUrl}/player/${admin.id}`,
-          avatarUrl: admin.avatar?.small,
-        },
-        game: {
-          number: `${game.number}`,
-          url: `${this.environment.clientUrl}/game/${game.id}`,
-        },
-        client: {
-          name: new URL(this.environment.clientUrl).hostname,
-          iconUrl: `${this.environment.clientUrl}/${iconUrlPath}`,
-        },
-      }),
+      embeds: [
+        substituteRequested({
+          player: {
+            name: player.name,
+            profileUrl: `${this.environment.clientUrl}/player/${player.id}`,
+          },
+          admin: {
+            name: admin.name,
+            profileUrl: `${this.environment.clientUrl}/player/${admin.id}`,
+            avatarUrl: admin.avatar?.small,
+          },
+          game: {
+            number: `${game.number}`,
+            url: `${this.environment.clientUrl}/game/${game.id}`,
+          },
+          client: {
+            name: new URL(this.environment.clientUrl).hostname,
+            iconUrl: `${this.environment.clientUrl}/${iconUrlPath}`,
+          },
+        }),
+      ],
     });
   }
 }

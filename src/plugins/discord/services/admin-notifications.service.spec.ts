@@ -76,7 +76,7 @@ describe('AdminNotificationsService', () => {
     gamesService = module.get(GamesService);
     sendSpy = jest
       .spyOn(discordService.getAdminsChannel(), 'send')
-      .mockImplementation((message) => {
+      .mockImplementation((message: any) => {
         sentMessages.next(message);
         return Promise.resolve(message);
       });
@@ -122,8 +122,8 @@ describe('AdminNotificationsService', () => {
     it('should send a message', async () =>
       new Promise<void>((resolve) => {
         sentMessages.subscribe((message) => {
-          expect(message.embed).toBeTruthy();
-          expect(message.embed.title).toEqual('Player profile updated');
+          expect(message.embeds.length).toBeGreaterThan(0);
+          expect(message.embeds[0].title).toEqual('Player profile updated');
           resolve();
         });
 
@@ -168,8 +168,8 @@ describe('AdminNotificationsService', () => {
     it('should send a message', async () =>
       new Promise<void>((resolve) => {
         sentMessages.subscribe((message) => {
-          expect(message.embed).toBeTruthy();
-          expect(message.embed.title).toEqual('Player ban added');
+          expect(message.embeds.length).toBeGreaterThan(0);
+          expect(message.embeds[0].title).toEqual('Player ban added');
           resolve();
         });
 
@@ -199,8 +199,8 @@ describe('AdminNotificationsService', () => {
     it('should send a message', async () =>
       new Promise<void>((resolve) => {
         sentMessages.subscribe((message) => {
-          expect(message.embed).toBeTruthy();
-          expect(message.embed.title).toEqual('Player ban revoked');
+          expect(message.embeds.length).toBe(1);
+          expect(message.embeds[0].title).toEqual('Player ban revoked');
           resolve();
         });
 
@@ -231,8 +231,7 @@ describe('AdminNotificationsService', () => {
     it('should send a message', async () =>
       new Promise<void>((resolve) => {
         sentMessages.subscribe((message) => {
-          expect(message.embed).toBeTruthy();
-          expect(message.embed.title).toEqual('Player skill updated');
+          expect(message.embeds[0].title).toEqual('Player skill updated');
           resolve();
         });
 
@@ -268,8 +267,7 @@ describe('AdminNotificationsService', () => {
     it('should send a message', async () =>
       new Promise<void>((resolve) => {
         sentMessages.subscribe((message) => {
-          expect(message.embed).toBeTruthy();
-          expect(message.embed.title).toEqual('Game server added');
+          expect(message.embeds[0].title).toEqual('Game server added');
           resolve();
         });
 
@@ -282,8 +280,7 @@ describe('AdminNotificationsService', () => {
   describe('when the gameServer goes offline', () => {
     it('should send a message', async () => {
       sentMessages.subscribe((message) => {
-        expect(message.embed).toBeTruthy();
-        expect(message.embed.title).toEqual('Game server is offline');
+        expect(message.embeds[0].title).toEqual('Game server is offline');
       });
 
       events.gameServerUpdated.next({
@@ -304,8 +301,7 @@ describe('AdminNotificationsService', () => {
   describe('when the gameServer comes back online', () => {
     it('should send a message', async () => {
       sentMessages.subscribe((message) => {
-        expect(message.embed).toBeTruthy();
-        expect(message.embed.title).toEqual('Game server is back online');
+        expect(message.embeds[0].title).toEqual('Game server is back online');
       });
 
       events.gameServerUpdated.next({
@@ -334,8 +330,7 @@ describe('AdminNotificationsService', () => {
     it('should send a message', async () =>
       new Promise<void>((resolve) => {
         sentMessages.subscribe((message) => {
-          expect(message.embed).toBeTruthy();
-          expect(message.embed.title).toEqual('Game force-ended');
+          expect(message.embeds[0].title).toEqual('Game force-ended');
           resolve();
         });
 
@@ -409,8 +404,7 @@ describe('AdminNotificationsService', () => {
     it('should send a notification', async () =>
       new Promise<void>((resolve) => {
         sentMessages.subscribe((message) => {
-          expect(message.embed).toBeTruthy();
-          expect(message.embed.title).toEqual('Substitute requested');
+          expect(message.embeds[0].title).toEqual('Substitute requested');
           resolve();
         });
 

@@ -24,11 +24,11 @@ interface PlayerBanAddedOptions {
 export const playerBanAdded = (options: PlayerBanAddedOptions) =>
   new MessageEmbed()
     .setColor(Colors.PlayerBanAdded)
-    .setAuthor(
-      options.admin.name,
-      options.admin.avatarUrl,
-      options.admin.profileUrl,
-    )
+    .setAuthor({
+      name: options.admin.name,
+      iconURL: options.admin.avatarUrl,
+      url: options.admin.profileUrl,
+    })
     .setTitle('Player ban added')
     .setThumbnail(options.player.avatarUrl)
     .setDescription(
@@ -38,5 +38,8 @@ export const playerBanAdded = (options: PlayerBanAddedOptions) =>
         `Ends: **${moment(options.ends).fromNow()}**`,
       ].join('\n'),
     )
-    .setFooter(options.client.name, options.client.iconUrl)
+    .setFooter({
+      text: options.client.name,
+      iconURL: options.client.iconUrl,
+    })
     .setTimestamp();

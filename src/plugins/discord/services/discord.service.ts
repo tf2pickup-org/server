@@ -1,12 +1,18 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import { Client, Guild, TextChannel, Role, Emoji } from 'discord.js';
+import { Client, Guild, TextChannel, Role, Emoji, Intents } from 'discord.js';
 import { Environment } from '@/environment/environment';
 import { version } from '../../../../package.json';
 import { emojisToInstall } from '../emojis-to-install';
 
 @Injectable()
 export class DiscordService implements OnModuleInit {
-  private client = new Client();
+  private client = new Client({
+    intents: [
+      Intents.FLAGS.GUILDS,
+      Intents.FLAGS.GUILD_EMOJIS_AND_STICKERS,
+      Intents.FLAGS.GUILD_MESSAGES,
+    ],
+  });
   private guild: Guild;
   private logger = new Logger(DiscordService.name);
 
