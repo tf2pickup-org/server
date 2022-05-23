@@ -18,7 +18,6 @@ import { LogReceiverModule } from '@/log-receiver/log-receiver.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { GameConfigsModule } from '@/game-configs/game-configs.module';
 import { Mutex } from 'async-mutex';
-import { GameSerializerService } from './services/game-serializer.service';
 
 @Module({
   imports: [
@@ -44,7 +43,6 @@ import { GameSerializerService } from './services/game-serializer.service';
     GameRuntimeService,
     GameEventHandlerService,
     PlayerSubstitutionService,
-    GameSerializerService,
   ],
   exports: [GamesService, GameRuntimeService],
   controllers: [GamesController, GamesWithSubstitutionRequestsController],

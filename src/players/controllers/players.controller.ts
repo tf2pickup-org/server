@@ -38,7 +38,6 @@ import { PlayerByIdPipe } from '../pipes/player-by-id.pipe';
 import { SerializerInterceptor } from '@/shared/interceptors/serializer.interceptor';
 import { Serializable } from '@/shared/serializable';
 import { PlayerDto } from '../dto/player.dto';
-import { PlayerSerializerService } from '../services/player-serializer.service';
 
 @Controller('players')
 @UseInterceptors(CacheInterceptor)
@@ -49,7 +48,6 @@ export class PlayersController {
     private playerSkillService: PlayerSkillService,
     private playerBansService: PlayerBansService,
     private linkedProfilesService: LinkedProfilesService,
-    private playerSerializerService: PlayerSerializerService,
   ) {}
 
   @Get()
@@ -63,7 +61,7 @@ export class PlayersController {
   async getPlayer(
     @Param('id', PlayerByIdPipe) player: Player,
   ): Promise<Serializable<PlayerDto>> {
-    return this.playerSerializerService.markAsSerializable(player);
+    return player;
   }
 
   @Post()

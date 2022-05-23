@@ -1,3 +1,3 @@
-export class Serializable<T> {
-  constructor(public readonly serialize: () => Promise<T | T[]>) {}
+export abstract class Serializable<T> {
+  abstract serialize(): Promise<T>;
 }

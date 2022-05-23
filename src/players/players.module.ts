@@ -23,7 +23,6 @@ import { LinkedProfilesService } from './services/linked-profiles.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { HttpModule } from '@nestjs/axios';
 import { OnlinePlayersController } from './controllers/online-players.controller';
-import { PlayerSerializerService } from './services/player-serializer.service';
 
 @Module({
   imports: [
@@ -49,7 +48,6 @@ import { PlayerSerializerService } from './services/player-serializer.service';
     SteamApiService,
     FuturePlayerSkillService,
     LinkedProfilesService,
-    PlayerSerializerService,
   ],
   exports: [
     PlayersService,
@@ -57,7 +55,6 @@ import { PlayerSerializerService } from './services/player-serializer.service';
     PlayerSkillService,
     OnlinePlayersService,
     LinkedProfilesService,
-    PlayerSerializerService,
   ],
   controllers: [
     PlayersController,

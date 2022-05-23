@@ -28,7 +28,6 @@ import { DocumentNotFoundFilter } from '@/shared/filters/document-not-found.filt
 import { PaginatedGameList } from '../dto/paginated-game-list';
 import { SerializerInterceptor } from '@/shared/interceptors/serializer.interceptor';
 import { GameDto } from '../dto/game.dto';
-import { GameSerializerService } from '../services/game-serializer.service';
 import { Serializable } from '@/shared/serializable';
 
 const sortOptions: string[] = [
@@ -44,7 +43,6 @@ export class GamesController {
     private gamesService: GamesService,
     private gameRuntimeService: GameRuntimeService,
     private playerSubstitutionService: PlayerSubstitutionService,
-    private readonly gameSerializerService: GameSerializerService,
   ) {}
 
   @Get()
@@ -97,8 +95,7 @@ export class GamesController {
   async getGame(
     @Param('id', ObjectIdValidationPipe) gameId: string,
   ): Promise<Serializable<GameDto>> {
-    const game = await this.gamesService.getById(gameId);
-    return this.gameSerializerService.markAsSerializable(game);
+    return await this.gamesService.getById(gameId);
   }
 
   @Get(':id/connect-info')

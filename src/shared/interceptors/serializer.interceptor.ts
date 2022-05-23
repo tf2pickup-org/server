@@ -27,25 +27,5 @@ export class SerializerInterceptor implements NestInterceptor {
     } else {
       return response;
     }
-
-    // const serializedProps = await Promise.all(
-    //   Object.keys(response).map(async (key) => {
-    //     const value = response[key];
-
-    //     if (!(value instanceof Serializable)) {
-    //       return { key, value };
-    //     } else {
-    //       return {
-    //         key,
-    //         value: await value.serialize(),
-    //       };
-    //     }
-    //   }),
-    // );
-
-    // return serializedProps.reduce((result, { key, value }) => {
-    //   result[key] = value;
-    //   return result;
-    // }, {});
   }
 }
