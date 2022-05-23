@@ -19,7 +19,8 @@
       "@/*": [ "src/*" ],
       "@mocks/*": [ "__mocks__/*" ],
       "@configs/*": [ "configs/*" ]
-    }
+    },
+    "skipLibCheck": true
   },
   "exclude": [
     "node_modules",

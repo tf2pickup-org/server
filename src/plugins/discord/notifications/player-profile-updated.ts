@@ -50,5 +50,5 @@ export const playerProfileUpdated = (options: PlayerProfileUpdatedOptions) =>
         options.player.profileUrl
       })**\n${generateChangesText(options.changes)}`,
     )
-    .setFooter(options.client.name, options.client.iconUrl)
+    .setFooter({ text: options.client.name, iconURL: options.client.iconUrl })
     .setTimestamp();

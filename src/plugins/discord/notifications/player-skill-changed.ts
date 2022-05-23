@@ -39,11 +39,11 @@ const generateChangesText = (
 export const playerSkillChanged = (options: PlayerSkillChangedOptions) =>
   new MessageEmbed()
     .setColor(Colors.SkillChanged)
-    .setAuthor(
-      options.admin.name,
-      options.admin.avatarUrl,
-      options.admin.profileUrl,
-    )
+    .setAuthor({
+      name: options.admin.name,
+      iconURL: options.admin.avatarUrl,
+      url: options.admin.profileUrl,
+    })
     .setTitle('Player skill updated')
     .setThumbnail(options.player.avatarUrl)
     .setDescription(
@@ -51,5 +51,8 @@ export const playerSkillChanged = (options: PlayerSkillChangedOptions) =>
         options.player.profileUrl
       })**\n${generateChangesText(options.oldSkill, options.newSkill)}`,
     )
-    .setFooter(options.client.name, options.client.iconUrl)
+    .setFooter({
+      text: options.client.name,
+      iconURL: options.client.iconUrl,
+    })
     .setTimestamp();

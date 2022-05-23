@@ -22,11 +22,11 @@ interface PlayerBanRevokedOptions {
 export const playerBanRevoked = (options: PlayerBanRevokedOptions) =>
   new MessageEmbed()
     .setColor(Colors.PlayerBanRevoked)
-    .setAuthor(
-      options.admin.name,
-      options.admin.avatarUrl,
-      options.admin.profileUrl,
-    )
+    .setAuthor({
+      name: options.admin.name,
+      iconURL: options.admin.avatarUrl,
+      url: options.admin.profileUrl,
+    })
     .setTitle('Player ban revoked')
     .setThumbnail(options.player.avatarUrl)
     .setDescription(
@@ -35,5 +35,8 @@ export const playerBanRevoked = (options: PlayerBanRevokedOptions) =>
         `Reason: **${options.reason}**`,
       ].join('\n'),
     )
-    .setFooter(options.client.name, options.client.iconUrl)
+    .setFooter({
+      text: options.client.name,
+      iconURL: options.client.iconUrl,
+    })
     .setTimestamp();

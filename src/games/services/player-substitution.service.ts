@@ -126,11 +126,12 @@ export class PlayerSubstitutionService implements OnModuleInit {
         let message: Message; // skipcq: JS-0309
 
         if (roleToMention?.mentionable) {
-          message = await channel.send(`${roleToMention.toString()}`, {
-            embed,
+          message = await channel.send({
+            content: `${roleToMention.toString()}`,
+            embeds: [embed],
           });
         } else {
-          message = await channel.send({ embed });
+          message = await channel.send({ embeds: [embed] });
         }
 
         this.discordNotifications.set(playerId, message);
@@ -203,7 +204,7 @@ export class PlayerSubstitutionService implements OnModuleInit {
 
       const message = this.discordNotifications.get(playerId);
       if (message) {
-        await message.delete({ reason: 'substitution request canceled' });
+        await message.delete();
         this.discordNotifications.delete(playerId);
       }
 
