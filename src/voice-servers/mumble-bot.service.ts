@@ -8,7 +8,7 @@ import {
 import { Client } from '@tf2pickup-org/simple-mumble-bot';
 import { ConfigurationService } from '@/configuration/services/configuration.service';
 import { Events } from '@/events/events';
-import { concatMap, distinctUntilChanged, filter, groupBy } from 'rxjs';
+import { filter } from 'rxjs';
 import { CertificatesService } from '@/certificates/services/certificates.service';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { GamesService } from '@/games/services/games.service';
@@ -36,15 +36,12 @@ export class MumbleBotService implements OnModuleInit, OnModuleDestroy {
 
     this.events.gameChanges
       .pipe(
-        groupBy(({ game }) => game.id),
-        concatMap((group) =>
-          group.pipe(
-            distinctUntilChanged((x, y) => x.game.state === y.game.state),
-            filter(({ game }) => !game.isInProgress()),
-          ),
+        filter(
+          ({ oldGame, newGame }) =>
+            oldGame.isInProgress() && !newGame.isInProgress(),
         ),
       )
-      .subscribe(async ({ game }) => await this.linkChannels(game));
+      .subscribe(async ({ newGame }) => await this.linkChannels(newGame));
 
     await this.connect();
   }

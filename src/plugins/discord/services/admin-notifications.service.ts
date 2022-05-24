@@ -113,15 +113,12 @@ export class AdminNotificationsService implements OnModuleInit {
 
     this.events.gameChanges
       .pipe(
-        groupBy(({ game }) => game.id),
-        concatMap((group) =>
-          group.pipe(
-            distinctUntilChanged((x, y) => x.game.state === y.game.state),
-            filter(({ game }) => game.state === GameState.interrupted),
-          ),
-        ),
+        filter(({ oldGame, newGame }) => oldGame.state !== newGame.state),
+        filter(({ newGame }) => newGame.state === GameState.interrupted),
       )
-      .subscribe(({ game, adminId }) => this.onGameForceEnded(game, adminId));
+      .subscribe(({ newGame, adminId }) =>
+        this.onGameForceEnded(newGame, adminId),
+      );
 
     this.events.substituteRequested
       .pipe(filter(({ adminId }) => !!adminId))

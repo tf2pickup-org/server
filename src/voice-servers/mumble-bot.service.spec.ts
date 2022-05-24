@@ -147,12 +147,11 @@ describe('MumbleBotService', () => {
       const oldGame = new Game();
       oldGame.number = 2;
       oldGame.state = GameState.started;
-      events.gameChanges.next({ game: oldGame });
 
       const newGame = new Game();
       newGame.number = 2;
       newGame.state = GameState.ended;
-      events.gameChanges.next({ game: newGame });
+      events.gameChanges.next({ oldGame, newGame });
     });
 
     it('should link channels', () => {

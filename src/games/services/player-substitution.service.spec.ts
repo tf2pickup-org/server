@@ -163,7 +163,7 @@ describe('PlayerSubstitutionService', () => {
 
     it('should emit the gameChanges event', async () => {
       let event: Game;
-      events.gameChanges.subscribe(({ game }) => {
+      events.gameChanges.subscribe(({ newGame: game }) => {
         event = game;
       });
 
@@ -280,7 +280,7 @@ describe('PlayerSubstitutionService', () => {
     it('should emit the gameChanges event', async () => {
       let event: Game;
 
-      events.gameChanges.subscribe(({ game }) => {
+      events.gameChanges.subscribe(({ newGame: game }) => {
         event = game;
       });
 
@@ -351,7 +351,7 @@ describe('PlayerSubstitutionService', () => {
 
     it('should emit the gameChanges event', async () => {
       let event: Game;
-      events.gameChanges.subscribe(({ game }) => {
+      events.gameChanges.subscribe(({ newGame: game }) => {
         event = game;
       });
 

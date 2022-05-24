@@ -32,7 +32,8 @@ export class GameEventHandlerService implements OnModuleDestroy {
 
   async onMatchStarted(gameId: string): Promise<Game | null> {
     try {
-      const game = plainToInstance(
+      const oldGame = await this.gamesService.getById(gameId);
+      const newGame = plainToInstance(
         Game,
         await this.gameModel
           .findOneAndUpdate(
@@ -45,8 +46,8 @@ export class GameEventHandlerService implements OnModuleDestroy {
           .exec(),
       );
 
-      this.events.gameChanges.next({ game });
-      return game;
+      this.events.gameChanges.next({ oldGame, newGame });
+      return newGame;
     } catch (error) {
       if (error instanceof Error.DocumentNotFoundError) {
         return null;
@@ -57,7 +58,8 @@ export class GameEventHandlerService implements OnModuleDestroy {
   }
 
   async onMatchEnded(gameId: string): Promise<Game> {
-    const game = plainToInstance(
+    const oldGame = await this.gamesService.getById(gameId);
+    const newGame = plainToInstance(
       Game,
       await this.gameModel
         .findOneAndUpdate(
@@ -81,13 +83,13 @@ export class GameEventHandlerService implements OnModuleDestroy {
         .exec(),
     );
 
-    this.logger.log(`game #${game.number} ended`);
-    this.events.gameChanges.next({ game });
+    this.logger.log(`game #${newGame.number} ended`);
+    this.events.gameChanges.next({ oldGame, newGame });
     this.events.substituteRequestsChange.next();
 
-    await this.freeAllMedics(game.id);
-    this.timers.push(setTimeout(() => this.freeAllPlayers(game.id), 5000));
-    return game;
+    await this.freeAllMedics(newGame.id);
+    this.timers.push(setTimeout(() => this.freeAllPlayers(newGame.id), 5000));
+    return newGame;
   }
 
   async onLogsUploaded(gameId: string, logsUrl: string): Promise<Game> {
@@ -144,7 +146,8 @@ export class GameEventHandlerService implements OnModuleDestroy {
       return;
     }
 
-    const game = plainToInstance(
+    const oldGame = await this.gamesService.getById(gameId);
+    const newGame = plainToInstance(
       Game,
       await this.gameModel
         .findByIdAndUpdate(
@@ -164,8 +167,8 @@ export class GameEventHandlerService implements OnModuleDestroy {
         .exec(),
     );
 
-    this.events.gameChanges.next({ game });
-    return game;
+    this.events.gameChanges.next({ oldGame, newGame });
+    return newGame;
   }
 
   private async freeAllMedics(gameId: string) {

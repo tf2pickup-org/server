@@ -42,8 +42,8 @@ export class GamesGateway implements OnGatewayInit, OnModuleInit {
     this.events.gameCreated.subscribe(({ game }) =>
       this.socket.emit(WebsocketEvent.gameCreated, instanceToPlain(game)),
     );
-    this.events.gameChanges.subscribe(({ game }) =>
-      this.socket.emit(WebsocketEvent.gameUpdated, instanceToPlain(game)),
+    this.events.gameChanges.subscribe(({ newGame }) =>
+      this.socket.emit(WebsocketEvent.gameUpdated, instanceToPlain(newGame)),
     );
   }
 }

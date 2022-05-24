@@ -75,7 +75,7 @@ describe('GamesGateway', () => {
 
   describe('when the gameChanges event is emitted', () => {
     beforeEach(() => {
-      events.gameChanges.next({ game: mockGame });
+      events.gameChanges.next({ newGame: mockGame, oldGame: mockGame });
     });
 
     it('should emit the created game via the socket', () => {
