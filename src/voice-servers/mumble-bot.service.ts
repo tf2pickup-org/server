@@ -46,43 +46,49 @@ export class MumbleBotService implements OnModuleInit, OnModuleDestroy {
       )
       .subscribe(async ({ game }) => await this.linkChannels(game));
 
-    await this.connect();
+    await this.tryConnect();
   }
 
   onModuleDestroy() {
     this.client?.disconnect();
   }
 
-  async connect() {
+  async tryConnect() {
     const voiceServerConfig = await this.configurationService.getVoiceServer();
     if (voiceServerConfig.mumble) {
-      const certificate = await this.certificatesService.getCertificate(
-        'mumble',
-      );
+      try {
+        const certificate = await this.certificatesService.getCertificate(
+          'mumble',
+        );
 
-      this.client = new Client({
-        host: voiceServerConfig.mumble.url,
-        port: voiceServerConfig.mumble.port,
-        username: this.environment.botName,
-        key: certificate.clientKey,
-        cert: certificate.certificate,
-        rejectUnauthorized: false,
-      });
-      await this.client.connect();
-      this.logger.log(`logged in as ${this.client.user.name}`);
-      const channel = this.client.channels.byName(
-        voiceServerConfig.mumble.channelName,
-      );
-      await this.client.user.moveToChannel(channel.id);
+        this.client = new Client({
+          host: voiceServerConfig.mumble.url,
+          port: voiceServerConfig.mumble.port,
+          username: this.environment.botName,
+          key: certificate.clientKey,
+          cert: certificate.certificate,
+          rejectUnauthorized: false,
+        });
+        await this.client.connect();
+        this.logger.log(`logged in as ${this.client.user.name}`);
+        const channel = this.client.channels.byName(
+          voiceServerConfig.mumble.channelName,
+        );
+        await this.client.user.moveToChannel(channel.id);
 
-      const permissions = await this.client.user.channel.getPermissions();
-      if (!permissions.canCreateChannel) {
-        this.logger.warn(
-          `Bot ${this.client.user.name} does not have permissions to create new channels`,
+        const permissions = await this.client.user.channel.getPermissions();
+        if (!permissions.canCreateChannel) {
+          this.logger.warn(
+            `Bot ${this.client.user.name} does not have permissions to create new channels`,
+          );
+        }
+
+        await this.client.user.setSelfDeaf(true);
+      } catch (error) {
+        this.logger.error(
+          `cannot connect to ${voiceServerConfig.mumble.url}:${voiceServerConfig.mumble.port}: ${error}`,
         );
       }
-
-      await this.client.user.setSelfDeaf(true);
     }
   }
 
@@ -152,27 +158,31 @@ export class MumbleBotService implements OnModuleInit, OnModuleDestroy {
      * For ended games, make sure there are no players in the corresponding voice channel and then remove it.
      */
     for (const channel of this.client.user.channel.subChannels) {
-      const gameNumber = parseInt(channel.name, 10);
-      if (isNaN(gameNumber)) {
-        continue;
+      try {
+        const gameNumber = parseInt(channel.name, 10);
+        if (isNaN(gameNumber)) {
+          continue;
+        }
+
+        const game = await this.gamesService.getByNumber(gameNumber);
+        if (game.isInProgress()) {
+          continue;
+        }
+
+        const userCount =
+          channel.subChannels
+            .map((c) => c.users.length)
+            .reduce((prev, curr) => prev + curr, 0) + channel.users.length;
+
+        if (userCount > 0) {
+          continue;
+        }
+
+        await channel.remove();
+        this.logger.log(`channel ${channel.name} removed`);
+      } catch (error) {
+        this.logger.warn(`cannot remove channel ${channel.name}: ${error}`);
       }
-
-      const game = await this.gamesService.getByNumber(gameNumber);
-      if (game.isInProgress()) {
-        continue;
-      }
-
-      const userCount =
-        channel.subChannels
-          .map((c) => c.users.length)
-          .reduce((prev, curr) => prev + curr, 0) + channel.users.length;
-
-      if (userCount > 0) {
-        continue;
-      }
-
-      await channel.remove();
-      this.logger.log(`channel ${channel.name} removed`);
     }
   }
 }
