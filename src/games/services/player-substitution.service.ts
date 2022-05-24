@@ -267,7 +267,7 @@ export class PlayerSubstitutionService implements OnModuleInit {
         });
         await this.deleteDiscordAnnouncement(replaceeId);
         this.logger.verbose(`player has taken his own slot`);
-        return game;
+        return newGame;
       }
 
       if (replacement.activeGame) {
@@ -345,7 +345,7 @@ export class PlayerSubstitutionService implements OnModuleInit {
           .replacePlayer(newGame.id, replaceeId, replacementSlot)
           .catch((error) => this.logger.warn(error));
       }
-      return game;
+      return newGame;
     });
   }
 
