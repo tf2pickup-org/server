@@ -1,6 +1,6 @@
 {
   "name": "server",
-  "version": "9.0.0-beta.8",
+  "version": "9.0.0-beta.9",
   "description": "A server for tf2pickup.pl",
   "author": "Michał Garapich <garrappachc@gmail.com>",
   "license": "MIT",

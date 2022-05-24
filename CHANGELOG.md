@@ -1,5 +1,24 @@
 
 
+# [9.0.0-beta.9](https://github.com/tf2pickup-org/server/compare/9.0.0-beta.8...9.0.0-beta.9) (2022-05-24)
+
+
+### Bug Fixes
+
+* **deps:** update dependency discord.js to v13 ([#1145](https://github.com/tf2pickup-org/server/issues/1145)) ([322cd4e](https://github.com/tf2pickup-org/server/commit/322cd4e608aec2ce5901fa4f028df98b080aa801))
+* **games:** better gameChanges event ([#1665](https://github.com/tf2pickup-org/server/issues/1665)) ([42cd44d](https://github.com/tf2pickup-org/server/commit/42cd44db26b190122134ad6fc6ca630e907ddda1))
+* **voice-servers:** gracefully handle connection errors ([#1664](https://github.com/tf2pickup-org/server/issues/1664)) ([018902b](https://github.com/tf2pickup-org/server/commit/018902bb1c2abe5ae930c46ac84fbf8b26768279))
+
+
+### Features
+
+* drop support for Node.JS 14 ([#1661](https://github.com/tf2pickup-org/server/issues/1661)) ([0a26916](https://github.com/tf2pickup-org/server/commit/0a269160ebfc27ddef59539cba62b778a8534ab9))
+
+
+### BREAKING CHANGES
+
+* Support for Node.JS v14 has been removed
+
 # [9.0.0-beta.8](https://github.com/tf2pickup-pl/server/compare/9.0.0-beta.7...9.0.0-beta.8) (2022-05-23)
 
 
