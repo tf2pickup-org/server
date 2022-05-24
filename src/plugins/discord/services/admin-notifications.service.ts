@@ -9,12 +9,7 @@ import { PlayerSkillType } from '@/players/services/player-skill.service';
 import { PlayersService } from '@/players/services/players.service';
 import { iconUrlPath } from '@configs/discord';
 import { Injectable, OnModuleInit } from '@nestjs/common';
-import {
-  concatMap,
-  distinctUntilChanged,
-  filter,
-  groupBy,
-} from 'rxjs/operators';
+import { filter } from 'rxjs/operators';
 import {
   newPlayer,
   playerBanAdded,
