@@ -189,8 +189,8 @@ describe('GameRuntimeService', () => {
 
     it('should emit the gameChanges event', async () =>
       new Promise<void>((resolve) => {
-        events.gameChanges.subscribe(({ game, adminId }) => {
-          expect(game.id).toEqual(mockGame.id);
+        events.gameChanges.subscribe(({ newGame, adminId }) => {
+          expect(newGame.id).toEqual(mockGame.id);
           expect(adminId).toEqual('FAKE_ADMIN_ID');
           resolve();
         });

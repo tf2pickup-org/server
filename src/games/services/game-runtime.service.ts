@@ -62,7 +62,8 @@ export class GameRuntimeService {
   }
 
   async forceEnd(gameId: string, adminId?: string) {
-    const game = plainToInstance(
+    const oldGame = await this.gamesService.getById(gameId);
+    const newGame = plainToInstance(
       Game,
       await this.gameModel
         .findByIdAndUpdate(
@@ -85,11 +86,11 @@ export class GameRuntimeService {
         .exec(),
     );
 
-    this.events.gameChanges.next({ game, adminId });
+    this.events.gameChanges.next({ newGame, oldGame, adminId });
     this.events.substituteRequestsChange.next();
 
     await Promise.all(
-      game.slots
+      newGame.slots
         .map((slot) => slot.player)
         .map((playerId) =>
           this.playersService.updatePlayer(playerId.toString(), {
@@ -98,8 +99,8 @@ export class GameRuntimeService {
         ),
     );
 
-    this.logger.verbose(`game #${game.number} force ended`);
-    return game;
+    this.logger.verbose(`game #${newGame.number} force ended`);
+    return newGame;
   }
 
   async replacePlayer(

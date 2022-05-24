@@ -213,7 +213,8 @@ export class GamesService {
     update: UpdateQuery<Game>,
     adminId?: string,
   ): Promise<Game> {
-    const game = plainToInstance(
+    const oldGame = await this.getById(gameId);
+    const newGame = plainToInstance(
       Game,
       await this.gameModel
         .findOneAndUpdate({ _id: gameId }, update, { new: true })
@@ -221,8 +222,8 @@ export class GamesService {
         .lean()
         .exec(),
     );
-    this.events.gameChanges.next({ game, adminId });
-    return game;
+    this.events.gameChanges.next({ oldGame, newGame, adminId });
+    return newGame;
   }
 
   /**

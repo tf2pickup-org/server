@@ -65,7 +65,7 @@ export class PlayerSubstitutionService implements OnModuleInit {
 
   async substitutePlayer(gameId: string, playerId: string, adminId?: string) {
     return await this.mutex.runExclusive(async () => {
-      let game = await this.gamesService.getById(gameId);
+      const game = await this.gamesService.getById(gameId);
       const slot = game.findPlayerSlot(playerId);
       if (!slot) {
         throw new PlayerNotInThisGameError(playerId, gameId);
@@ -84,7 +84,7 @@ export class PlayerSubstitutionService implements OnModuleInit {
       }
 
       const player = await this.playersService.getById(playerId);
-      game = plainToInstance(
+      const newGame = plainToInstance(
         Game,
         await this.gameModel
           .findByIdAndUpdate(
@@ -108,16 +108,16 @@ export class PlayerSubstitutionService implements OnModuleInit {
         `player ${player.name} taking part in game #${game.number} is marked as 'waiting for substitute'`,
       );
 
-      this.events.gameChanges.next({ game });
+      this.events.gameChanges.next({ oldGame: game, newGame });
       this.events.substituteRequested.next({ gameId, playerId, adminId });
 
       const channel = this.discordService?.getPlayersChannel();
       if (channel) {
         const embed = substituteRequest({
-          gameNumber: game.number,
+          gameNumber: newGame.number,
           gameClass: slot.gameClass,
           team: slot.team.toUpperCase(),
-          gameUrl: `${this.environment.clientUrl}/game/${game.id}`,
+          gameUrl: `${this.environment.clientUrl}/game/${newGame.id}`,
         });
 
         const roleToMention = this.discordService.findRole(
@@ -137,16 +137,16 @@ export class PlayerSubstitutionService implements OnModuleInit {
         this.discordNotifications.set(playerId, message);
       }
 
-      if (game.gameServer) {
+      if (newGame.gameServer) {
         this.gameRuntimeService
           .sayChat(
-            game.gameServer.toString(),
+            newGame.gameServer.toString(),
             `Looking for replacement for ${player.name}...`,
           )
           .catch((error) => this.logger.warn(error));
       }
 
-      return game;
+      return newGame;
     });
   }
 
@@ -156,7 +156,7 @@ export class PlayerSubstitutionService implements OnModuleInit {
     adminId?: string,
   ) {
     return await this.mutex.runExclusive(async () => {
-      let game = await this.gamesService.getById(gameId);
+      const game = await this.gamesService.getById(gameId);
       const slot = game.findPlayerSlot(playerId);
       if (!slot) {
         throw new PlayerNotInThisGameError(playerId, gameId);
@@ -179,7 +179,7 @@ export class PlayerSubstitutionService implements OnModuleInit {
         `player ${player.name} taking part in game #${game.number} is marked as 'active'`,
       );
 
-      game = plainToInstance(
+      const newGame = plainToInstance(
         Game,
         await this.gameModel
           .findByIdAndUpdate(
@@ -199,7 +199,7 @@ export class PlayerSubstitutionService implements OnModuleInit {
           .exec(),
       );
 
-      this.events.gameChanges.next({ game });
+      this.events.gameChanges.next({ oldGame: game, newGame });
       this.events.substituteCanceled.next({ gameId, playerId, adminId });
 
       const message = this.discordNotifications.get(playerId);
@@ -208,7 +208,7 @@ export class PlayerSubstitutionService implements OnModuleInit {
         this.discordNotifications.delete(playerId);
       }
 
-      return game;
+      return newGame;
     });
   }
 
@@ -227,7 +227,7 @@ export class PlayerSubstitutionService implements OnModuleInit {
         throw new Error('player is banned');
       }
 
-      let game = await this.gamesService.getById(gameId);
+      const game = await this.gamesService.getById(gameId);
       const slot = game.slots.find(
         (slot) =>
           slot.status === SlotStatus.waitingForSubstitute &&
@@ -239,7 +239,7 @@ export class PlayerSubstitutionService implements OnModuleInit {
       }
 
       if (replaceeId === replacementId) {
-        game = plainToInstance(
+        const newGame = plainToInstance(
           Game,
           await this.gameModel
             .findByIdAndUpdate(
@@ -259,7 +259,7 @@ export class PlayerSubstitutionService implements OnModuleInit {
             .exec(),
         );
 
-        this.events.gameChanges.next({ game });
+        this.events.gameChanges.next({ oldGame: game, newGame });
         this.events.playerReplaced.next({
           gameId,
           replaceeId,
@@ -267,7 +267,7 @@ export class PlayerSubstitutionService implements OnModuleInit {
         });
         await this.deleteDiscordAnnouncement(replaceeId);
         this.logger.verbose(`player has taken his own slot`);
-        return game;
+        return newGame;
       }
 
       if (replacement.activeGame) {
@@ -285,7 +285,7 @@ export class PlayerSubstitutionService implements OnModuleInit {
         $push: { slots: replacementSlot },
       });
 
-      game = plainToInstance(
+      const newGame = plainToInstance(
         Game,
         await this.gameModel
           .findByIdAndUpdate(
@@ -307,7 +307,7 @@ export class PlayerSubstitutionService implements OnModuleInit {
           .exec(),
       );
 
-      this.events.gameChanges.next({ game });
+      this.events.gameChanges.next({ oldGame: game, newGame });
       this.events.playerReplaced.next({
         gameId,
         replaceeId,
@@ -317,7 +317,7 @@ export class PlayerSubstitutionService implements OnModuleInit {
 
       const replacee = await this.playersService.getById(replaceeId);
 
-      if (game.gameServer) {
+      if (newGame.gameServer) {
         this.gameRuntimeService
           .sayChat(
             game.gameServer.toString(),
@@ -329,23 +329,23 @@ export class PlayerSubstitutionService implements OnModuleInit {
       await this.deleteDiscordAnnouncement(replaceeId);
 
       this.logger.verbose(
-        `player ${replacement.name} is replacing ${replacee.name} on ${replacementSlot.gameClass} in game #${game.number}`,
+        `player ${replacement.name} is replacing ${replacee.name} on ${replacementSlot.gameClass} in game #${newGame.number}`,
       );
 
       await this.playersService.updatePlayer(replacement.id.toString(), {
-        activeGame: game.id,
+        activeGame: newGame.id,
       });
 
       await this.playersService.updatePlayer(replacee.id.toString(), {
         $unset: { activeGame: 1 },
       });
 
-      if (game.gameServer) {
+      if (newGame.gameServer) {
         this.gameRuntimeService
-          .replacePlayer(game.id, replaceeId, replacementSlot)
+          .replacePlayer(newGame.id, replaceeId, replacementSlot)
           .catch((error) => this.logger.warn(error));
       }
-      return game;
+      return newGame;
     });
   }
 

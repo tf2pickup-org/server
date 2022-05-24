@@ -12,7 +12,7 @@ import { GamesService } from '@/games/services/games.service';
 import { GameServer, GameServerDocument } from '../models/game-server';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types, UpdateQuery } from 'mongoose';
-import { concatMap, filter, groupBy, take } from 'rxjs';
+import { filter } from 'rxjs';
 import { plainToInstance } from 'class-transformer';
 import { GameServerProvider } from '../game-server-provider';
 import { Game } from '@/games/models/game';
@@ -42,15 +42,14 @@ export class GameServersService
   onModuleInit() {
     this.events.gameChanges
       .pipe(
-        groupBy(({ game }) => game.id),
-        concatMap((group) =>
-          group.pipe(
-            filter(({ game }) => !game.isInProgress()),
-            take(1),
-          ),
+        filter(
+          ({ oldGame, newGame }) =>
+            oldGame.isInProgress() && !newGame.isInProgress(),
         ),
       )
-      .subscribe(async ({ game }) => await this.maybeReleaseGameServer(game));
+      .subscribe(
+        async ({ newGame }) => await this.maybeReleaseGameServer(newGame),
+      );
   }
 
   onApplicationBootstrap() {

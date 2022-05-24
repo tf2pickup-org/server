@@ -103,7 +103,7 @@ describe('GameEventHandlerService', () => {
 
     it('should emit the gameChanges event', async () => {
       let event: Game;
-      events.gameChanges.subscribe(({ game }) => {
+      events.gameChanges.subscribe(({ newGame: game }) => {
         event = game;
       });
 
@@ -147,7 +147,7 @@ describe('GameEventHandlerService', () => {
 
     it('should emit the gameChanges events', async () => {
       let event: Game;
-      events.gameChanges.subscribe(({ game }) => (event = game));
+      events.gameChanges.subscribe(({ newGame: game }) => (event = game));
       await service.onMatchEnded(mockGame.id);
       expect(event).toMatchObject({ id: mockGame.id, state: GameState.ended });
     });
@@ -221,7 +221,7 @@ describe('GameEventHandlerService', () => {
 
     it('should emit the gameChanges events', async () => {
       let event: Game;
-      events.gameChanges.subscribe(({ game }) => (event = game));
+      events.gameChanges.subscribe(({ newGame: game }) => (event = game));
       await service.onLogsUploaded(mockGame._id, 'FAKE_LOGS_URL');
       expect(event).toMatchObject({
         id: mockGame.id,
@@ -238,7 +238,7 @@ describe('GameEventHandlerService', () => {
 
     it('should emit the gameChanges event', async () => {
       let event: Game;
-      events.gameChanges.subscribe(({ game }) => (event = game));
+      events.gameChanges.subscribe(({ newGame: game }) => (event = game));
       await service.onDemoUploaded(mockGame._id, 'FAKE_DEMO_URL');
       expect(event).toMatchObject({
         id: mockGame.id,
@@ -268,7 +268,7 @@ describe('GameEventHandlerService', () => {
 
     it('should emit the gameChanges event', async () => {
       let event: Game;
-      events.gameChanges.subscribe(({ game }) => (event = game));
+      events.gameChanges.subscribe(({ newGame: game }) => (event = game));
       await service.onPlayerJoining(mockGame.id, player1.steamId);
       expect(event).toMatchObject({ id: mockGame.id });
     });
@@ -287,7 +287,7 @@ describe('GameEventHandlerService', () => {
 
     it('should emit the gameChanges event', async () => {
       let event: Game;
-      events.gameChanges.subscribe(({ game }) => (event = game));
+      events.gameChanges.subscribe(({ newGame: game }) => (event = game));
       await service.onPlayerConnected(mockGame.id, player1.steamId);
       expect(event).toMatchObject({ id: mockGame.id });
     });
@@ -306,7 +306,7 @@ describe('GameEventHandlerService', () => {
 
     it('should emit an the gameChanges event', async () => {
       let event: Game;
-      events.gameChanges.subscribe(({ game }) => (event = game));
+      events.gameChanges.subscribe(({ newGame: game }) => (event = game));
       await service.onPlayerDisconnected(mockGame.id, player1.steamId);
       expect(event).toMatchObject({ id: mockGame.id });
     });
@@ -323,7 +323,7 @@ describe('GameEventHandlerService', () => {
 
     it('should emit the gameChanges event', async () => {
       let event: Game;
-      events.gameChanges.subscribe(({ game }) => (event = game));
+      events.gameChanges.subscribe(({ newGame: game }) => (event = game));
       await service.onScoreReported(mockGame.id, 'Red', '2');
       expect(event).toMatchObject({ id: mockGame.id });
     });
