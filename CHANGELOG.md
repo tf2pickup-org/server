@@ -1,5 +1,12 @@
 
 
+# [9.0.0-beta.10](https://github.com/tf2pickup-org/server/compare/9.0.0-beta.9...9.0.0-beta.10) (2022-05-24)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @tf2pickup-org/simple-mumble-bot to v0.3.6 ([#1667](https://github.com/tf2pickup-org/server/issues/1667)) ([5006795](https://github.com/tf2pickup-org/server/commit/50067958e30158af6a9ca0f541fd630b4374ddb1))
+
 # [9.0.0-beta.9](https://github.com/tf2pickup-org/server/compare/9.0.0-beta.8...9.0.0-beta.9) (2022-05-24)
 
 
