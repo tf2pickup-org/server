@@ -97,7 +97,7 @@ export class Game extends Serializable<GameDto> {
       number: this.number,
       slots: await Promise.all(
         this.slots.map(async (slot) => ({
-          player: await (await playersService.getById(slot.player)).serialize(),
+          player: await playersService.getById(slot.player),
           team: slot.team,
           gameClass: slot.gameClass,
           status: slot.status,

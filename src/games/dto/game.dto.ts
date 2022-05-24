@@ -1,5 +1,6 @@
 import { PlayerDto } from '@/players/dto/player.dto';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
+import { Serializable } from '@/shared/serializable';
 
 export interface GameDto {
   id: string;
@@ -7,7 +8,7 @@ export interface GameDto {
   endedAt?: Date;
   number: number;
   slots: {
-    player: PlayerDto;
+    player: Serializable<PlayerDto>;
     team: 'red' | 'blu';
     gameClass: Tf2ClassName;
     status: 'active' | 'waiting for substitute' | 'replaced';

@@ -21,11 +21,11 @@ export class SerializerInterceptor implements NestInterceptor {
     );
   }
 
-  private async serialize(response: any): Promise<Record<string, any>> {
-    if (response instanceof Serializable) {
-      return await response.serialize();
+  private async serialize(object: any): Promise<Record<string, any>> {
+    if (object instanceof Serializable) {
+      return await object.serialize();
     } else {
-      return response;
+      return object;
     }
   }
 }
