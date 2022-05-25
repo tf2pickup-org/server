@@ -15,6 +15,7 @@ import { GamesService } from '@/games/services/games.service';
 import { Game } from '@/games/models/game';
 import { GameRuntimeService } from '@/games/services/game-runtime.service';
 import { version } from '../../package.json';
+import { ConfigurationEntryKey } from '@/configuration/models/configuration-entry-key';
 
 @Injectable()
 export class MumbleBotService implements OnModuleInit, OnModuleDestroy {
@@ -44,6 +45,14 @@ export class MumbleBotService implements OnModuleInit, OnModuleDestroy {
       )
       .subscribe(async ({ newGame }) => await this.linkChannels(newGame));
 
+    this.events.configurationEntryChanged
+      .pipe(
+        filter(
+          ({ entryKey }) => entryKey === ConfigurationEntryKey.voiceServer,
+        ),
+      )
+      .subscribe(async () => await this.tryConnect());
+
     await this.tryConnect();
   }
 
@@ -52,6 +61,8 @@ export class MumbleBotService implements OnModuleInit, OnModuleDestroy {
   }
 
   async tryConnect() {
+    this.client?.disconnect();
+
     const voiceServerConfig = await this.configurationService.getVoiceServer();
     if (voiceServerConfig.mumble) {
       try {
