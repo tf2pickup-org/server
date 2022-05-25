@@ -1,4 +1,5 @@
 import { app } from '@/app';
+import { GameServersService } from '@/game-servers/services/game-servers.service';
 import { PlayersService } from '@/players/services/players.service';
 import { TransformObjectId } from '@/shared/decorators/transform-object-id';
 import { Serializable } from '@/shared/serializable';
@@ -90,6 +91,8 @@ export class Game extends Serializable<GameDto> {
 
   async serialize(): Promise<GameDto> {
     const playersService = app.get(PlayersService);
+    const gameServersService = app.get(GameServersService);
+
     return {
       id: this.id,
       launchedAt: this.launchedAt,
@@ -111,7 +114,9 @@ export class Game extends Serializable<GameDto> {
       logsUrl: this.logsUrl,
       demoUrl: this.demoUrl,
       error: this.error,
-      gameServer: this.gameServer,
+      gameServer: this.gameServer
+        ? await gameServersService.getById(this.gameServer)
+        : undefined,
       score: {
         blu: this.score?.get('blu'),
         red: this.score?.get('red'),
