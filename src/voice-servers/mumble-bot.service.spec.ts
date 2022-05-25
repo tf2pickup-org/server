@@ -113,7 +113,7 @@ describe('MumbleBotService', () => {
   describe('when voice server configuration changes', () => {
     let oldClient: Client;
 
-    beforeEach(async () => {
+    beforeEach(() => {
       // @ts-expect-error
       oldClient = Client._lastInstance;
 
@@ -124,7 +124,6 @@ describe('MumbleBotService', () => {
 
     it('should disconnect', () => {
       expect(oldClient.disconnect).toHaveBeenCalled();
-      console.log('dupa');
     });
 
     it('should reconnect', () => {
