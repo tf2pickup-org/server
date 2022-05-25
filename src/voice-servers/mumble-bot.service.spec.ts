@@ -23,6 +23,10 @@ jest.mock('@/games/services/games.service');
 jest.mock('@tf2pickup-org/simple-mumble-bot');
 jest.mock('@/games/services/game-runtime.service');
 
+function flushPromises() {
+  return new Promise((resolve) => setImmediate(resolve));
+}
+
 describe('MumbleBotService', () => {
   let service: MumbleBotService;
   let mongod: MongoMemoryServer;
@@ -103,6 +107,30 @@ describe('MumbleBotService', () => {
       key: 'FAKE_CLIENT_KEY',
       cert: 'FAKE_CERTIFICATE',
       rejectUnauthorized: false,
+    });
+  });
+
+  describe('when voice server configuration changes', () => {
+    let oldClient: Client;
+
+    beforeEach(() => {
+      // @ts-expect-error
+      oldClient = Client._lastInstance;
+
+      events.configurationEntryChanged.next({
+        entryKey: ConfigurationEntryKey.voiceServer,
+      });
+    });
+
+    it('should disconnect', () => {
+      expect(oldClient.disconnect).toHaveBeenCalled();
+    });
+
+    it('should reconnect', () => {
+      // @ts-expect-error
+      const client = Client._lastInstance;
+      expect(client).not.toBe(oldClient);
+      expect(client.connect).toHaveBeenCalled();
     });
   });
 
