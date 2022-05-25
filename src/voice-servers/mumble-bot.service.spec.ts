@@ -99,6 +99,7 @@ describe('MumbleBotService', () => {
       host: 'FAKE_MUMBLE_URL',
       port: 64738,
       username: 'FAKE_BOT_NAME',
+      clientName: expect.any(String),
       key: 'FAKE_CLIENT_KEY',
       cert: 'FAKE_CERTIFICATE',
       rejectUnauthorized: false,

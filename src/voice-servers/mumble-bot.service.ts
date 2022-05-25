@@ -14,6 +14,7 @@ import { Cron, CronExpression } from '@nestjs/schedule';
 import { GamesService } from '@/games/services/games.service';
 import { Game } from '@/games/models/game';
 import { GameRuntimeService } from '@/games/services/game-runtime.service';
+import { version } from '../../package.json';
 
 @Injectable()
 export class MumbleBotService implements OnModuleInit, OnModuleDestroy {
@@ -62,6 +63,7 @@ export class MumbleBotService implements OnModuleInit, OnModuleDestroy {
           host: voiceServerConfig.mumble.url,
           port: voiceServerConfig.mumble.port,
           username: this.environment.botName,
+          clientName: `tf2pickup.org ${version}`,
           key: certificate.clientKey,
           cert: certificate.certificate,
           rejectUnauthorized: false,
