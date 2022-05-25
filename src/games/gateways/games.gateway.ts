@@ -6,10 +6,16 @@ import {
 import { Socket } from 'socket.io';
 import { WsAuthorized } from '@/auth/decorators/ws-authorized.decorator';
 import { PlayerSubstitutionService } from '../services/player-substitution.service';
-import { Inject, forwardRef, OnModuleInit } from '@nestjs/common';
+import {
+  Inject,
+  forwardRef,
+  OnModuleInit,
+  UseInterceptors,
+} from '@nestjs/common';
 import { Events } from '@/events/events';
 import { WebsocketEvent } from '@/websocket-event';
-import { instanceToPlain } from 'class-transformer';
+import { serialize } from '@/shared/serialize';
+import { SerializerInterceptor } from '@/shared/interceptors/serializer.interceptor';
 
 @WebSocketGateway()
 export class GamesGateway implements OnGatewayInit, OnModuleInit {
@@ -23,6 +29,7 @@ export class GamesGateway implements OnGatewayInit, OnModuleInit {
 
   @WsAuthorized()
   @SubscribeMessage('replace player')
+  @UseInterceptors(SerializerInterceptor)
   async replacePlayer(
     client: Socket,
     payload: { gameId: string; replaceeId: string },
@@ -39,11 +46,11 @@ export class GamesGateway implements OnGatewayInit, OnModuleInit {
   }
 
   onModuleInit() {
-    this.events.gameCreated.subscribe(({ game }) =>
-      this.socket.emit(WebsocketEvent.gameCreated, instanceToPlain(game)),
+    this.events.gameCreated.subscribe(async ({ game }) =>
+      this.socket.emit(WebsocketEvent.gameCreated, await serialize(game)),
     );
-    this.events.gameChanges.subscribe(({ newGame }) =>
-      this.socket.emit(WebsocketEvent.gameUpdated, instanceToPlain(newGame)),
+    this.events.gameChanges.subscribe(async ({ newGame }) =>
+      this.socket.emit(WebsocketEvent.gameUpdated, await serialize(newGame)),
     );
   }
 }
