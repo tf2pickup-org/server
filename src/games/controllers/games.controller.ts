@@ -23,12 +23,12 @@ import { User } from '@/auth/decorators/user.decorator';
 import { Player } from '@/players/models/player';
 import { PlayerRole } from '@/players/models/player-role';
 import { PlayerNotInThisGameError } from '../errors/player-not-in-this-game.error';
-import { ConnectInfo } from '../dto/connect-info';
+import { ConnectInfoDto } from '../dto/connect-info.dto';
 import { DocumentNotFoundFilter } from '@/shared/filters/document-not-found.filter';
-import { PaginatedGameList } from '../dto/paginated-game-list';
 import { SerializerInterceptor } from '@/shared/interceptors/serializer.interceptor';
 import { GameDto } from '../dto/game.dto';
 import { Serializable } from '@/shared/serializable';
+import { PaginatedGameListDto } from '../dto/paginated-game-list.dto';
 
 const sortOptions: string[] = [
   'launched_at',
@@ -46,7 +46,7 @@ export class GamesController {
   ) {}
 
   @Get()
-  @UseInterceptors(ClassSerializerInterceptor)
+  @UseInterceptors(SerializerInterceptor)
   async getGames(
     @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
     @Query('offset', new DefaultValuePipe(0), ParseIntPipe) offset: number,
@@ -57,7 +57,7 @@ export class GamesController {
     )
     sort: string,
     @Query('playerId') playerId?: string,
-  ): Promise<PaginatedGameList> {
+  ): Promise<PaginatedGameListDto> {
     let sortParam: { launchedAt: 1 | -1 };
     switch (sort) {
       case '-launched_at':
@@ -86,7 +86,7 @@ export class GamesController {
       ]);
     }
 
-    return new PaginatedGameList({ results, itemCount });
+    return { results, itemCount };
   }
 
   @Get(':id')
@@ -105,10 +105,10 @@ export class GamesController {
   async getConnectInfo(
     @Param('id', ObjectIdValidationPipe) gameId: string,
     @User() player: Player,
-  ): Promise<ConnectInfo> {
+  ): Promise<ConnectInfoDto> {
     try {
       const game = await this.gamesService.getById(gameId);
-      return new ConnectInfo({
+      return {
         gameId: game.id,
         connectInfoVersion: game.connectInfoVersion,
         connectString: game.connectString,
@@ -116,7 +116,7 @@ export class GamesController {
           gameId,
           player.id,
         ),
-      });
+      };
     } catch (error) {
       if (error instanceof PlayerNotInThisGameError) {
         throw new UnauthorizedException(
