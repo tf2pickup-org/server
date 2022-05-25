@@ -1,5 +1,20 @@
 
 
+# [9.0.0-beta.11](https://github.com/tf2pickup-org/server/compare/9.0.0-beta.10...9.0.0-beta.11) (2022-05-25)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @tf2pickup-org/simple-mumble-bot to v0.4.0 ([#1671](https://github.com/tf2pickup-org/server/issues/1671)) ([eadae49](https://github.com/tf2pickup-org/server/commit/eadae49784fd9b4a70d8d180ce28438b281d353f))
+* **deps:** update dependency @tf2pickup-org/simple-mumble-bot to v0.4.1 ([#1673](https://github.com/tf2pickup-org/server/issues/1673)) ([ac184a1](https://github.com/tf2pickup-org/server/commit/ac184a154743be137695d0795827b379efd2eedc))
+* **voice-servers:** reconnect mumble bot on configuration change ([#1670](https://github.com/tf2pickup-org/server/issues/1670)) ([687effa](https://github.com/tf2pickup-org/server/commit/687effac810b057681bf941e19bfd0d007e090fc))
+* **voice-servers:** set mumble bot client name ([#1672](https://github.com/tf2pickup-org/server/issues/1672)) ([c796223](https://github.com/tf2pickup-org/server/commit/c7962230242f3191a6bbe24ccbc940b7b7e4fdb4))
+
+
+### Features
+
+* support Node.JS 18 ([#1668](https://github.com/tf2pickup-org/server/issues/1668)) ([6a0d0b6](https://github.com/tf2pickup-org/server/commit/6a0d0b66f8b49113cfcfea97804ca496337c2ec4))
+
 # [9.0.0-beta.10](https://github.com/tf2pickup-org/server/compare/9.0.0-beta.9...9.0.0-beta.10) (2022-05-24)
 
 
