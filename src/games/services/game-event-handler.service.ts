@@ -11,11 +11,13 @@ import { Model, Types, Error } from 'mongoose';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { plainToInstance } from 'class-transformer';
 import { GamesService } from './games.service';
+import { Mutex } from 'async-mutex';
 
 @Injectable()
 export class GameEventHandlerService implements OnModuleDestroy {
   private logger = new Logger(GameEventHandlerService.name);
   private timers: NodeJS.Timer[] = [];
+  private mutex = new Mutex();
 
   constructor(
     @InjectModel(Game.name) private gameModel: Model<GameDocument>,
@@ -31,65 +33,71 @@ export class GameEventHandlerService implements OnModuleDestroy {
   }
 
   async onMatchStarted(gameId: string): Promise<Game | null> {
-    try {
+    return await this.mutex.runExclusive(async () => {
+      try {
+        const oldGame = await this.gamesService.getById(gameId);
+        const newGame = plainToInstance(
+          Game,
+          await this.gameModel
+            .findOneAndUpdate(
+              { _id: new Types.ObjectId(gameId), state: GameState.launching },
+              { state: GameState.started },
+              { new: true },
+            )
+            .orFail()
+            .lean()
+            .exec(),
+        );
+
+        this.events.gameChanges.next({ oldGame, newGame });
+        return newGame;
+      } catch (error) {
+        if (error instanceof Error.DocumentNotFoundError) {
+          return null;
+        } else {
+          throw error;
+        }
+      }
+    });
+  }
+
+  async onMatchEnded(gameId: string): Promise<Game> {
+    return await this.mutex.runExclusive(async () => {
       const oldGame = await this.gamesService.getById(gameId);
       const newGame = plainToInstance(
         Game,
         await this.gameModel
           .findOneAndUpdate(
-            { _id: new Types.ObjectId(gameId), state: GameState.launching },
-            { state: GameState.started },
-            { new: true },
+            { _id: new Types.ObjectId(gameId), state: GameState.started },
+            {
+              state: GameState.ended,
+              endedAt: new Date(),
+              'slots.$[element].status': `${SlotStatus.active}`,
+            },
+            {
+              new: true, // return updated document
+              arrayFilters: [
+                {
+                  'element.status': {
+                    $eq: `${SlotStatus.waitingForSubstitute}`,
+                  },
+                },
+              ],
+            },
           )
           .orFail()
           .lean()
           .exec(),
       );
 
+      this.logger.log(`game #${newGame.number} ended`);
       this.events.gameChanges.next({ oldGame, newGame });
+      this.events.substituteRequestsChange.next();
+
+      await this.freeAllMedics(newGame.id);
+      this.timers.push(setTimeout(() => this.freeAllPlayers(newGame.id), 5000));
       return newGame;
-    } catch (error) {
-      if (error instanceof Error.DocumentNotFoundError) {
-        return null;
-      } else {
-        throw error;
-      }
-    }
-  }
-
-  async onMatchEnded(gameId: string): Promise<Game> {
-    const oldGame = await this.gamesService.getById(gameId);
-    const newGame = plainToInstance(
-      Game,
-      await this.gameModel
-        .findOneAndUpdate(
-          { _id: new Types.ObjectId(gameId), state: GameState.started },
-          {
-            state: GameState.ended,
-            endedAt: new Date(),
-            'slots.$[element].status': `${SlotStatus.active}`,
-          },
-          {
-            new: true, // return updated document
-            arrayFilters: [
-              {
-                'element.status': { $eq: `${SlotStatus.waitingForSubstitute}` },
-              },
-            ],
-          },
-        )
-        .orFail()
-        .lean()
-        .exec(),
-    );
-
-    this.logger.log(`game #${newGame.number} ended`);
-    this.events.gameChanges.next({ oldGame, newGame });
-    this.events.substituteRequestsChange.next();
-
-    await this.freeAllMedics(newGame.id);
-    this.timers.push(setTimeout(() => this.freeAllPlayers(newGame.id), 5000));
-    return newGame;
+    });
   }
 
   async onLogsUploaded(gameId: string, logsUrl: string): Promise<Game> {
@@ -140,35 +148,37 @@ export class GameEventHandlerService implements OnModuleDestroy {
     steamId: string,
     connectionStatus: PlayerConnectionStatus,
   ) {
-    const player = await this.playersService.findBySteamId(steamId);
-    if (!player) {
-      this.logger.warn(`no such player: ${steamId}`);
-      return;
-    }
+    return await this.mutex.runExclusive(async () => {
+      const player = await this.playersService.findBySteamId(steamId);
+      if (!player) {
+        this.logger.warn(`no such player: ${steamId}`);
+        return;
+      }
 
-    const oldGame = await this.gamesService.getById(gameId);
-    const newGame = plainToInstance(
-      Game,
-      await this.gameModel
-        .findByIdAndUpdate(
-          gameId,
-          {
-            'slots.$[element].connectionStatus': connectionStatus,
-          },
-          {
-            new: true, // return updated document
-            arrayFilters: [
-              { 'element.player': { $eq: new Types.ObjectId(player.id) } },
-            ],
-          },
-        )
-        .orFail()
-        .lean()
-        .exec(),
-    );
+      const oldGame = await this.gamesService.getById(gameId);
+      const newGame = plainToInstance(
+        Game,
+        await this.gameModel
+          .findByIdAndUpdate(
+            gameId,
+            {
+              'slots.$[element].connectionStatus': connectionStatus,
+            },
+            {
+              new: true, // return updated document
+              arrayFilters: [
+                { 'element.player': { $eq: new Types.ObjectId(player.id) } },
+              ],
+            },
+          )
+          .orFail()
+          .lean()
+          .exec(),
+      );
 
-    this.events.gameChanges.next({ oldGame, newGame });
-    return newGame;
+      this.events.gameChanges.next({ oldGame, newGame });
+      return newGame;
+    });
   }
 
   private async freeAllMedics(gameId: string) {
