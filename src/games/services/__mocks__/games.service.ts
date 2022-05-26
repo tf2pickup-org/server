@@ -6,6 +6,7 @@ import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Events } from '@/events/events';
+import { Mutex } from 'async-mutex';
 
 const orig = jest.requireActual('../games.service');
 const OriginalGamesService = orig.GamesService;
@@ -20,7 +21,7 @@ export class GamesService {
     null,
     this.events,
     null,
-    null,
+    new Mutex(),
   );
   private lastGameId = 0;
 
