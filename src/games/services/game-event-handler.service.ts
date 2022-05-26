@@ -1,7 +1,6 @@
 import { Injectable, Logger, OnModuleDestroy } from '@nestjs/common';
 import { PlayersService } from '@/players/services/players.service';
 import { PlayerConnectionStatus } from '../models/player-connection-status';
-import { GameRuntimeService } from './game-runtime.service';
 import { Game, GameDocument } from '../models/game';
 import { Events } from '@/events/events';
 import { SlotStatus } from '../models/slot-status';
@@ -22,7 +21,6 @@ export class GameEventHandlerService implements OnModuleDestroy {
   constructor(
     @InjectModel(Game.name) private gameModel: Model<GameDocument>,
     private playersService: PlayersService,
-    private gameRuntimeService: GameRuntimeService,
     private events: Events,
     private gamesService: GamesService,
   ) {}

@@ -1,12 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { GameEventHandlerService } from './game-event-handler.service';
 import { PlayersService } from '@/players/services/players.service';
-import { GameRuntimeService } from './game-runtime.service';
 import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
 import { Game, GameDocument, gameSchema } from '../models/game';
 import { Player, PlayerDocument, playerSchema } from '@/players/models/player';
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import { serverCleanupDelay } from '@configs/game-servers';
 import { GamesService } from './games.service';
 import { Events } from '@/events/events';
 import { SlotStatus } from '../models/slot-status';
@@ -33,7 +31,6 @@ describe('GameEventHandlerService', () => {
   let service: GameEventHandlerService;
   let mongod: MongoMemoryServer;
   let playersService: PlayersService;
-  let gameRuntimeService: jest.Mocked<GameRuntimeService>;
   let player1: PlayerDocument;
   let player2: PlayerDocument;
   let mockGame: GameDocument;
@@ -57,7 +54,6 @@ describe('GameEventHandlerService', () => {
       providers: [
         GameEventHandlerService,
         PlayersService,
-        GameRuntimeService,
         GamesService,
         Events,
       ],
@@ -65,7 +61,6 @@ describe('GameEventHandlerService', () => {
 
     service = module.get<GameEventHandlerService>(GameEventHandlerService);
     playersService = module.get(PlayersService);
-    gameRuntimeService = module.get(GameRuntimeService);
     gameModel = module.get(getModelToken(Game.name));
     gamesService = module.get(GamesService);
     events = module.get(Events);
