@@ -29,7 +29,7 @@ import { PlayerBansService } from '../services/player-bans.service';
 import { PlayerBan } from '../models/player-ban';
 import { User } from '@/auth/decorators/user.decorator';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
-import { PlayerStats } from '../dto/player-stats';
+import { PlayerStatsDto } from '../dto/player-stats.dto';
 import { ForceCreatePlayer } from '../dto/force-create-player';
 import { PlayerRole } from '../models/player-role';
 import { LinkedProfilesService } from '../services/linked-profiles.service';
@@ -67,19 +67,21 @@ export class PlayersController {
   @Post()
   @Auth(PlayerRole.admin)
   @UsePipes(ValidationPipe)
-  @UseInterceptors(ClassSerializerInterceptor)
-  async forceCreatePlayer(@Body() player: ForceCreatePlayer) {
+  @UseInterceptors(SerializerInterceptor)
+  async forceCreatePlayer(
+    @Body() player: ForceCreatePlayer,
+  ): Promise<Serializable<PlayerDto>> {
     return await this.playersService.forceCreatePlayer(player);
   }
 
   @Patch(':id')
   @Auth(PlayerRole.admin)
-  @UseInterceptors(ClassSerializerInterceptor)
+  @UseInterceptors(SerializerInterceptor)
   async updatePlayer(
     @Param('id', PlayerByIdPipe) player: Player,
     @Body() update: Partial<Player>,
     @User() admin: Player,
-  ) {
+  ): Promise<Serializable<PlayerDto>> {
     return await this.playersService.updatePlayer(player.id, update, admin.id);
   }
 
@@ -117,10 +119,9 @@ export class PlayersController {
 
   @CacheTTL(12 * 60 * 60)
   @Get(':id/stats')
-  @UseInterceptors(ClassSerializerInterceptor)
   async getPlayerStats(
     @Param('id', PlayerByIdPipe) player: Player,
-  ): Promise<PlayerStats> {
+  ): Promise<PlayerStatsDto> {
     return await this.playersService.getPlayerStats(player.id);
   }
 

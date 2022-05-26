@@ -4,7 +4,7 @@ import { PlayersService } from '../services/players.service';
 import { Player } from '../models/player';
 import { GamesService } from '@/games/services/games.service';
 import { Game } from '@/games/models/game';
-import { PlayerStats } from '../dto/player-stats';
+import { PlayerStatsDto } from '../dto/player-stats.dto';
 import { PlayerSkillService } from '../services/player-skill.service';
 import { PlayerSkill } from '../models/player-skill';
 import { PlayerBansService } from '../services/player-bans.service';
@@ -30,16 +30,16 @@ class PlayersServiceStub {
     steamId: 'FAKE_STEAM_ID',
     hasAcceptedRules: true,
   });
-  stats: PlayerStats = new PlayerStats({
+  stats: PlayerStatsDto = {
     player: 'FAKE_ID',
     gamesPlayed: 220,
-    classesPlayed: new Map([
-      [Tf2ClassName.scout, 19],
-      [Tf2ClassName.soldier, 102],
-      [Tf2ClassName.demoman, 0],
-      [Tf2ClassName.medic, 92],
-    ]),
-  });
+    classesPlayed: {
+      [Tf2ClassName.scout]: 19,
+      [Tf2ClassName.soldier]: 102,
+      [Tf2ClassName.demoman]: 0,
+      [Tf2ClassName.medic]: 92,
+    },
+  };
   getAll() {
     return new Promise((resolve) => resolve([this.player]));
   }
