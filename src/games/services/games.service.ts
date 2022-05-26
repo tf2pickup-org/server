@@ -20,6 +20,7 @@ import { URL } from 'url';
 import { GameInWrongStateError } from '../errors/game-in-wrong-state.error';
 import { SelectedVoiceServer } from '@/configuration/models/voice-server';
 import { plainToInstance } from 'class-transformer';
+import { Mutex } from 'async-mutex';
 
 interface GameSortOptions {
   launchedAt: 1 | -1;
@@ -32,6 +33,7 @@ interface GetPlayerGameCountOptions {
 @Injectable()
 export class GamesService {
   private logger = new Logger(GamesService.name);
+  private mutex = new Mutex();
 
   constructor(
     @InjectModel(Game.name) private gameModel: Model<GameDocument>,
@@ -213,17 +215,19 @@ export class GamesService {
     update: UpdateQuery<Game>,
     adminId?: string,
   ): Promise<Game> {
-    const oldGame = await this.getById(gameId);
-    const newGame = plainToInstance(
-      Game,
-      await this.gameModel
-        .findOneAndUpdate({ _id: gameId }, update, { new: true })
-        .orFail()
-        .lean()
-        .exec(),
-    );
-    this.events.gameChanges.next({ oldGame, newGame, adminId });
-    return newGame;
+    return await this.mutex.runExclusive(async () => {
+      const oldGame = await this.getById(gameId);
+      const newGame = plainToInstance(
+        Game,
+        await this.gameModel
+          .findOneAndUpdate({ _id: gameId }, update, { new: true })
+          .orFail()
+          .lean()
+          .exec(),
+      );
+      this.events.gameChanges.next({ oldGame, newGame, adminId });
+      return newGame;
+    });
   }
 
   /**
