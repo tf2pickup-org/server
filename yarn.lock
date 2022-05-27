@@ -1928,7 +1928,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/pem@npm:^1.9.6":
+"@types/pem@npm:1.9.6":
   version: 1.9.6
   resolution: "@types/pem@npm:1.9.6"
   dependencies:
@@ -8862,7 +8862,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"pem@npm:^1.14.6":
+"pem@npm:1.14.6":
   version: 1.14.6
   resolution: "pem@npm:1.14.6"
   dependencies:
@@ -9754,7 +9754,7 @@ __metadata:
     "@types/passport": 1.0.7
     "@types/passport-jwt": 3.0.6
     "@types/passport-steam": 1.0.1
-    "@types/pem": ^1.9.6
+    "@types/pem": 1.9.6
     "@types/socket.io": 3.0.1
     "@types/socketio-jwt-auth": 0.0.2
     "@types/steamid": 2.0.1
@@ -9791,7 +9791,7 @@ __metadata:
     passport-headerapikey: 1.2.2
     passport-jwt: 4.0.0
     passport-steam: 1.0.17
-    pem: ^1.14.6
+    pem: 1.14.6
     prettier: 2.6.2
     rcon-client: 4.2.3
     reflect-metadata: 0.1.13
