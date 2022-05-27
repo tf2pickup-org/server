@@ -14,7 +14,6 @@ import { GameState } from '../models/game-state';
 import { ConfigurationService } from '@/configuration/services/configuration.service';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, UpdateQuery, Types } from 'mongoose';
-import { GameServersService } from '@/game-servers/services/game-servers.service';
 import { PlayerNotInThisGameError } from '../errors/player-not-in-this-game.error';
 import { URL } from 'url';
 import { GameInWrongStateError } from '../errors/game-in-wrong-state.error';
@@ -33,7 +32,6 @@ interface GetPlayerGameCountOptions {
 @Injectable()
 export class GamesService {
   private logger = new Logger(GamesService.name);
-  private mutex = new Mutex();
 
   constructor(
     @InjectModel(Game.name) private gameModel: Model<GameDocument>,
@@ -45,8 +43,7 @@ export class GamesService {
     private gameLauncherService: GameLauncherService,
     private events: Events,
     private configurationService: ConfigurationService,
-    @Inject(forwardRef(() => GameServersService))
-    private gameServersService: GameServersService,
+    @Inject('GAME_MODEL_MUTEX') private mutex: Mutex,
   ) {}
 
   async getGameCount(): Promise<number> {

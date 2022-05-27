@@ -17,6 +17,7 @@ import { ConfigurationModule } from '@/configuration/configuration.module';
 import { LogReceiverModule } from '@/log-receiver/log-receiver.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { GameConfigsModule } from '@/game-configs/game-configs.module';
+import { Mutex } from 'async-mutex';
 
 @Module({
   imports: [
@@ -30,6 +31,10 @@ import { GameConfigsModule } from '@/game-configs/game-configs.module';
     GameConfigsModule,
   ],
   providers: [
+    {
+      provide: 'GAME_MODEL_MUTEX',
+      useValue: new Mutex(),
+    },
     GamesService,
     GamesGateway,
     ServerConfiguratorService,

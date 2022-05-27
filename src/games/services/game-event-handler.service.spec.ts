@@ -17,6 +17,7 @@ import {
 } from '@nestjs/mongoose';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { Error, Types } from 'mongoose';
+import { Mutex } from 'async-mutex';
 
 jest.mock('@/players/services/players.service');
 jest.mock('@nestjs/config');
@@ -52,6 +53,10 @@ describe('GameEventHandlerService', () => {
         ]),
       ],
       providers: [
+        {
+          provide: 'GAME_MODEL_MUTEX',
+          useValue: new Mutex(),
+        },
         GameEventHandlerService,
         PlayersService,
         GamesService,

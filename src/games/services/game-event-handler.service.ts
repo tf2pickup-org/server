@@ -1,4 +1,4 @@
-import { Injectable, Logger, OnModuleDestroy } from '@nestjs/common';
+import { Inject, Injectable, Logger, OnModuleDestroy } from '@nestjs/common';
 import { PlayersService } from '@/players/services/players.service';
 import { PlayerConnectionStatus } from '../models/player-connection-status';
 import { Game, GameDocument } from '../models/game';
@@ -16,13 +16,13 @@ import { Mutex } from 'async-mutex';
 export class GameEventHandlerService implements OnModuleDestroy {
   private logger = new Logger(GameEventHandlerService.name);
   private timers: NodeJS.Timer[] = [];
-  private mutex = new Mutex();
 
   constructor(
     @InjectModel(Game.name) private gameModel: Model<GameDocument>,
     private playersService: PlayersService,
     private events: Events,
     private gamesService: GamesService,
+    @Inject('GAME_MODEL_MUTEX') private mutex: Mutex,
   ) {}
 
   onModuleDestroy() {
