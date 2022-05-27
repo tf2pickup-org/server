@@ -18,7 +18,7 @@ import { plainToInstance } from 'class-transformer';
 import { PlayerBan } from '../models/player-ban';
 import { LinkedProfilesService } from '../services/linked-profiles.service';
 import { LinkedProfileProviderName } from '../types/linked-profile-provider-name';
-import { LinkedProfiles } from '../dto/linked-profiles';
+import { LinkedProfilesDto } from '../dto/linked-profiles.dto';
 import { Types } from 'mongoose';
 
 jest.mock('../services/linked-profiles.service');
@@ -88,6 +88,7 @@ class PlayerSkillServiceStub {
       [Tf2ClassName.demoman, 1],
       [Tf2ClassName.medic, 2],
     ]),
+    serialize: jest.fn(),
   };
   getPlayerSkill(playerId: string) {
     return new Promise((resolve) => resolve(this.skill));
@@ -368,7 +369,7 @@ describe('Players Controller', () => {
       expect(linkedProfilesService.getLinkedProfiles).toHaveBeenCalledWith(
         'FAKE_ID',
       );
-      expect(result).toEqual(new LinkedProfiles('FAKE_ID', linkedProfiles));
+      expect(result).toEqual({ playerId: 'FAKE_ID', linkedProfiles });
     });
   });
 });

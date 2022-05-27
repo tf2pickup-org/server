@@ -1,12 +1,20 @@
 import { IsMongoId, IsString, IsNotEmpty } from 'class-validator';
-import { MongooseDocument } from '@/utils/mongoose-document';
-import { Expose, Transform, Type } from 'class-transformer';
+import { Exclude, Expose, Transform, Type } from 'class-transformer';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
 import { TransformObjectId } from '@/shared/decorators/transform-object-id';
+import { Serializable } from '@/shared/serializable';
+import { PlayerBanDto } from '../dto/player-ban.dto';
 
 @Schema()
-export class PlayerBan extends MongooseDocument {
+export class PlayerBan extends Serializable<PlayerBanDto> {
+  @Exclude({ toPlainOnly: true })
+  __v?: number;
+
+  @Exclude({ toPlainOnly: true })
+  @TransformObjectId()
+  _id?: Types.ObjectId;
+
   @Expose()
   @Transform(({ value, obj }) => value ?? obj._id?.toString())
   id?: string;
@@ -34,6 +42,17 @@ export class PlayerBan extends MongooseDocument {
   @IsString()
   @Prop()
   reason?: string;
+
+  async serialize(): Promise<PlayerBanDto> {
+    return {
+      id: this.id,
+      player: this.player.toString(),
+      admin: this.admin.toString(),
+      start: this.start,
+      end: this.end,
+      reason: this.reason,
+    };
+  }
 }
 
 export type PlayerBanDocument = PlayerBan & Document;
