@@ -25,9 +25,11 @@ import { Etf2lAccountRequired } from '@/configuration/models/etf2l-account-requi
 import { MinimumTf2InGameHours } from '@/configuration/models/minimum-tf2-in-game-hours';
 import { AccountBannedError } from '../errors/account-banned.error';
 import { GameState } from '@/games/models/game-state';
+import { Game, gameSchema } from '@/games/models/game';
 
 jest.mock('./etf2l-profile.service');
 jest.mock('@/configuration/services/configuration.service');
+jest.mock('@/games/services/games.service');
 
 class EnvironmentStub {
   superUser = null;
@@ -78,7 +80,7 @@ describe('PlayersService', () => {
   let mockPlayer: PlayerDocument;
   let environment: EnvironmentStub;
   let etf2lProfileService: jest.Mocked<Etf2lProfileService>;
-  let gamesService: GamesServiceStub;
+  let gamesService: jest.Mocked<GamesService>;
   let steamApiService: SteamApiServiceStub;
   let events: Events;
   let configurationService: jest.Mocked<ConfigurationService>;
@@ -96,13 +98,14 @@ describe('PlayersService', () => {
             name: Player.name,
             schema: playerSchema,
           },
+          { name: Game.name, schema: gameSchema },
         ]),
       ],
       providers: [
         PlayersService,
         { provide: Environment, useClass: EnvironmentStub },
         Etf2lProfileService,
-        { provide: GamesService, useClass: GamesServiceStub },
+        GamesService,
         { provide: SteamApiService, useClass: SteamApiServiceStub },
         Events,
         ConfigurationService,
@@ -470,6 +473,16 @@ describe('PlayersService', () => {
   });
 
   describe('#getPlayerStats()', () => {
+    beforeEach(() => {
+      gamesService.getPlayerGameCount.mockResolvedValue(220);
+      gamesService.getPlayerPlayedClassCount.mockResolvedValue({
+        scout: 19,
+        soldier: 102,
+        demoman: 0,
+        medic: 92,
+      });
+    });
+
     it('should return the stats', async () => {
       const ret = await service.getPlayerStats('FAKE_ID');
       expect(ret).toEqual({
