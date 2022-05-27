@@ -57,6 +57,8 @@ export class PlayersService implements OnModuleInit {
         throw error;
       }
     }
+
+    await this.releaseAllPlayers();
   }
 
   async getAll(): Promise<Player[]> {
@@ -227,6 +229,28 @@ export class PlayersService implements OnModuleInit {
         ),
       ) as Map<Tf2ClassName, number>,
     });
+  }
+
+  /**
+   * Unset activeGame for all players that do not participate in an active game.
+   */
+  async releaseAllPlayers() {
+    const players = plainToInstance(
+      Player,
+      await this.playerModel
+        .find({ activeGame: { $exists: 1 } })
+        .lean()
+        .exec(),
+    );
+
+    await Promise.all(
+      players.map(async (player) => {
+        const game = await this.gamesService.getById(player.activeGame);
+        if (!game.isInProgress()) {
+          await this.updatePlayer(player.id, { $unset: { activeGame: 1 } });
+        }
+      }),
+    );
   }
 
   private async verifyTf2InGameHours(steamId: string) {
