@@ -51,8 +51,8 @@ export class PlayersController {
   ) {}
 
   @Get()
-  @UseInterceptors(ClassSerializerInterceptor)
-  async getAllPlayers() {
+  @UseInterceptors(SerializerInterceptor)
+  async getAllPlayers(): Promise<Serializable<PlayerDto>[]> {
     return await this.playersService.getAll();
   }
 
