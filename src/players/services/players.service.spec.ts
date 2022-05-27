@@ -24,6 +24,7 @@ import {
 import { Etf2lAccountRequired } from '@/configuration/models/etf2l-account-required';
 import { MinimumTf2InGameHours } from '@/configuration/models/minimum-tf2-in-game-hours';
 import { AccountBannedError } from '../errors/account-banned.error';
+import { GameState } from '@/games/models/game-state';
 
 jest.mock('./etf2l-profile.service');
 jest.mock('@/configuration/services/configuration.service');
@@ -480,6 +481,26 @@ describe('PlayersService', () => {
           [Tf2ClassName.demoman, 0],
           [Tf2ClassName.medic, 92],
         ]),
+      });
+    });
+  });
+
+  describe('#releaseAllPlayers()', () => {
+    describe('when a player is involved in a game that is no longer running', () => {
+      beforeEach(async () => {
+        // @ts-expect-error
+        const game = await gamesService._createOne();
+        game.state = GameState.ended;
+        await game.save();
+
+        mockPlayer.activeGame = game.id;
+        await mockPlayer.save();
+      });
+
+      it('should release the player', async () => {
+        await service.releaseAllPlayers();
+        const player = await playerModel.findById(mockPlayer.id);
+        expect(player.activeGame).toBe(undefined);
       });
     });
   });
