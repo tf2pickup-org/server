@@ -1,5 +1,13 @@
 
 
+# [9.0.0-beta.13](https://github.com/tf2pickup-org/server/compare/9.0.0-beta.12...9.0.0-beta.13) (2022-05-27)
+
+
+### Bug Fixes
+
+* **games:** share mutex for all GameModel operations ([#1677](https://github.com/tf2pickup-org/server/issues/1677)) ([d2cee9e](https://github.com/tf2pickup-org/server/commit/d2cee9ef5eb0b33f21d4708094d3afcc5500f2d3))
+* **players:** release all players on app startup ([#1679](https://github.com/tf2pickup-org/server/issues/1679)) ([93ec7b9](https://github.com/tf2pickup-org/server/commit/93ec7b9ea89e26f6d05a091fb69a10bd67af74eb))
+
 # [9.0.0-beta.12](https://github.com/tf2pickup-org/server/compare/9.0.0-beta.11...9.0.0-beta.12) (2022-05-26)
 
 
