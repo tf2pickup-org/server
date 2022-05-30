@@ -5,6 +5,7 @@ import {
   forwardRef,
   OnModuleInit,
   OnModuleDestroy,
+  CACHE_MANAGER,
 } from '@nestjs/common';
 import { QueueSlot } from '@/queue/queue-slot';
 import { PlayersService } from '@/players/services/players.service';
@@ -25,6 +26,12 @@ import { PlayerNotInTheQueueError } from '../errors/player-not-in-the-queue.erro
 import { WrongQueueStateError } from '../errors/wrong-queue-state.error';
 import { CannotJoinAtThisQueueStateError } from '../errors/cannot-join-at-this-queue-state.error';
 import { Mutex } from 'async-mutex';
+import { Cache } from 'cache-manager';
+
+interface Queue {
+  slots: QueueSlot[];
+  state: QueueState;
+}
 
 @Injectable()
 export class QueueService implements OnModuleInit, OnModuleDestroy {
@@ -54,9 +61,10 @@ export class QueueService implements OnModuleInit, OnModuleDestroy {
     private queueConfigService: QueueConfigService,
     private playerBansService: PlayerBansService,
     private events: Events,
+    @Inject(CACHE_MANAGER) private readonly cache: Cache,
   ) {}
 
-  onModuleInit() {
+  async onModuleInit() {
     this.resetSlots();
     this.events.queueSlotsChange.subscribe(() =>
       this.immediates.push(setImmediate(() => this.maybeUpdateState())),
@@ -70,6 +78,15 @@ export class QueueService implements OnModuleInit, OnModuleDestroy {
     this.events.playerBanAdded.subscribe(({ ban }) =>
       this.kick(ban.player.toString()),
     );
+
+    this.events.queueSlotsChange.subscribe(() => this.cacheQueue());
+    this.events.queueStateChange.subscribe(() => this.cacheQueue());
+
+    const queue: Queue = await this.cache.get('queue');
+    if (queue) {
+      this.slots = queue.slots;
+      this.state = queue.state;
+    }
   }
 
   onModuleDestroy() {
@@ -325,5 +342,13 @@ export class QueueService implements OnModuleInit, OnModuleDestroy {
   private setState(state: QueueState) {
     this.state = state;
     this.events.queueStateChange.next({ state });
+  }
+
+  private async cacheQueue() {
+    await this.cache.set(
+      'queue',
+      { slots: this.slots, state: this.state },
+      { ttl: 180 },
+    );
   }
 }
