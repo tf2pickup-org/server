@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { CacheModule, Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { Environment } from './environment/environment';
 import { AuthModule } from './auth/auth.module';
@@ -26,6 +26,8 @@ import { StatisticsModule } from './statistics/statistics.module';
 import { GameConfigsModule } from './game-configs/game-configs.module';
 import { VoiceServersModule } from './voice-servers/voice-servers.module';
 import { CertificatesModule } from './certificates/certificates.module';
+import type { RedisClientOptions } from '@redis/client';
+import * as redisStore from 'cache-manager-redis-store';
 
 @Module({
   imports: [
@@ -42,6 +44,26 @@ import { CertificatesModule } from './certificates/certificates.module';
       useFactory: async (environment: Environment) => ({
         uri: formatMongoose(environment.mongoDbUri),
       }),
+    }),
+    CacheModule.registerAsync({
+      imports: [EnvironmentModule],
+      inject: [Environment],
+      useFactory: async (environment: Environment) => {
+        if (environment.redisUrl) {
+          const redisClientOptions: RedisClientOptions = {
+            url: environment.redisUrl,
+          };
+          return {
+            store: redisStore,
+            ...redisClientOptions,
+          };
+        } else {
+          return {
+            store: 'memory',
+          };
+        }
+      },
+      isGlobal: true,
     }),
     ScheduleModule.forRoot(),
     ServeStaticModule.forRoot({
