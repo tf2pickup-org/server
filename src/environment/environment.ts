@@ -21,6 +21,10 @@ export class Environment {
     return this.configService.get<string>('MONGODB_URI');
   }
 
+  get redisUrl() {
+    return this.configService.get<string>('REDIS_URL');
+  }
+
   get steamApiKey() {
     return this.configService.get<string>('STEAM_API_KEY');
   }

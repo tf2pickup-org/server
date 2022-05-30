@@ -1,4 +1,4 @@
-import { Module, forwardRef, CacheModule } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { PlayersService } from './services/players.service';
 import { Etf2lProfileService } from './services/etf2l-profile.service';
 import { Player, playerSchema } from './models/player';
@@ -33,7 +33,6 @@ import { OnlinePlayersController } from './controllers/online-players.controller
       { name: PlayerSkill.name, schema: playerSkillSchema },
       { name: FuturePlayerSkill.name, schema: futurePlayerSkillSchema },
     ]),
-    CacheModule.register(),
 
     forwardRef(() => GamesModule),
     forwardRef(() => QueueModule),

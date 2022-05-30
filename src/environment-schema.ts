@@ -16,6 +16,7 @@ export const environmentSchema = object({
   CLIENT_URL: string().required(),
   BOT_NAME: string().required(),
   MONGODB_URI: string().required().uri(),
+  REDIS_URL: any().optional(),
   STEAM_API_KEY: string().required(),
   KEY_STORE_PASSPHARE: string().required(),
   SUPER_USER: string()
