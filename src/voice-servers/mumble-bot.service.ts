@@ -16,6 +16,7 @@ import { Game } from '@/games/models/game';
 import { GameRuntimeService } from '@/games/services/game-runtime.service';
 import { version } from '../../package.json';
 import { ConfigurationEntryKey } from '@/configuration/models/configuration-entry-key';
+import { SelectedVoiceServer } from '@/configuration/models/voice-server';
 
 @Injectable()
 export class MumbleBotService implements OnModuleInit, OnModuleDestroy {
@@ -64,7 +65,7 @@ export class MumbleBotService implements OnModuleInit, OnModuleDestroy {
     this.client?.disconnect();
 
     const voiceServerConfig = await this.configurationService.getVoiceServer();
-    if (voiceServerConfig.mumble) {
+    if (voiceServerConfig.type === SelectedVoiceServer.mumble) {
       try {
         const certificate = await this.certificatesService.getCertificate(
           'mumble',
@@ -116,7 +117,7 @@ export class MumbleBotService implements OnModuleInit, OnModuleDestroy {
       await channel.createSubChannel('RED');
       this.logger.log(`channels for game #${game.number} created`);
     } catch (error) {
-      this.logger.warn(
+      this.logger.error(
         `cannot create channels for game #${game.number}: ${error}`,
       );
     }
@@ -155,7 +156,7 @@ export class MumbleBotService implements OnModuleInit, OnModuleDestroy {
         throw new Error('BLU or RED subchannel does not exist');
       }
     } catch (error) {
-      this.logger.warn(
+      this.logger.error(
         `cannot link channels for game #${game.number}: ${error}`,
       );
     }
@@ -191,7 +192,7 @@ export class MumbleBotService implements OnModuleInit, OnModuleDestroy {
         await channel.remove();
         this.logger.log(`channel ${channel.name} removed`);
       } catch (error) {
-        this.logger.warn(`cannot remove channel ${channel.name}: ${error}`);
+        this.logger.error(`cannot remove channel ${channel.name}: ${error}`);
       }
     }
   }
