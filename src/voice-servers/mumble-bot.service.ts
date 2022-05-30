@@ -75,6 +75,7 @@ export class MumbleBotService implements OnModuleInit, OnModuleDestroy {
           host: voiceServerConfig.mumble.url,
           port: voiceServerConfig.mumble.port,
           username: this.environment.botName,
+          password: voiceServerConfig.mumble.password,
           clientName: `tf2pickup.org ${version}`,
           key: certificate.clientKey,
           cert: certificate.certificate,
