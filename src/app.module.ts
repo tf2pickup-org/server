@@ -28,6 +28,7 @@ import { VoiceServersModule } from './voice-servers/voice-servers.module';
 import { CertificatesModule } from './certificates/certificates.module';
 import type { RedisClientOptions } from '@redis/client';
 import * as redisStore from 'cache-manager-redis-store';
+import * as mongoStore from 'cache-manager-mongodb';
 
 @Module({
   imports: [
@@ -59,7 +60,8 @@ import * as redisStore from 'cache-manager-redis-store';
           };
         } else {
           return {
-            store: 'memory',
+            store: mongoStore,
+            uri: formatMongoose(environment.mongoDbUri),
           };
         }
       },
