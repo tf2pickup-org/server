@@ -3218,7 +3218,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cache-manager-mongodb@npm:^0.3.0":
+"cache-manager-mongodb@npm:0.3.0":
   version: 0.3.0
   resolution: "cache-manager-mongodb@npm:0.3.0"
   dependencies:
@@ -9970,7 +9970,7 @@ __metadata:
     app-root-path: 3.0.0
     async-mutex: 0.3.2
     cache-manager: 3.6.3
-    cache-manager-mongodb: ^0.3.0
+    cache-manager-mongodb: 0.3.0
     cache-manager-redis-store: 2.0.0
     class-transformer: 0.5.1
     class-validator: 0.13.2
