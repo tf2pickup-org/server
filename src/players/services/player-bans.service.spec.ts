@@ -149,6 +149,7 @@ describe('PlayerBansService', () => {
           start: new Date(),
           end,
           reason: 'just testing',
+          serialize: jest.fn(),
         };
       });
 
@@ -196,6 +197,7 @@ describe('PlayerBansService', () => {
           start: new Date(),
           end,
           reason: 'just testing',
+          serialize: jest.fn(),
         };
       });
 

@@ -73,8 +73,8 @@ describe('Profile Controller', () => {
           name: 'FAKE_USER_NAME',
           steamId: 'FAKE_STEAM_ID',
           linkedProfilesUrl: '',
-          _links: [],
           roles: [],
+          serialize: jest.fn(),
         },
         bans: [],
         mapVote: 'cp_badlands',
@@ -94,8 +94,8 @@ describe('Profile Controller', () => {
         steamId: 'FAKE_STEAM_ID',
         activeGame: gameId,
         linkedProfilesUrl: '',
-        _links: [],
         roles: [],
+        serialize: jest.fn(),
       };
       expect(await controller.getProfile(player)).toEqual(
         expect.objectContaining({ activeGameId: gameId.toString() }),

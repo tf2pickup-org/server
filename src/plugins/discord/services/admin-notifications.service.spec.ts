@@ -132,7 +132,7 @@ describe('AdminNotificationsService', () => {
           newPlayer: {
             ...player,
             name: 'NEW_PLAYER_NAME',
-            _links: [],
+            serialize: jest.fn(),
           },
           adminId: admin.id,
         });
@@ -180,6 +180,7 @@ describe('AdminNotificationsService', () => {
             start: new Date(),
             end: new Date(),
             reason: 'FAKE_BAN',
+            serialize: jest.fn(),
           },
         });
       }));
@@ -211,6 +212,7 @@ describe('AdminNotificationsService', () => {
             start: new Date(),
             end: new Date(),
             reason: 'FAKE_BAN',
+            serialize: jest.fn(),
           },
           adminId: admin.id,
         });

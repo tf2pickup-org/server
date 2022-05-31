@@ -11,7 +11,7 @@ const mockPlayer: Player = {
   steamId: 'FAKE_STEAM_ID',
   hasAcceptedRules: true,
   roles: [],
-  _links: [],
+  serialize: jest.fn(),
 };
 
 jest.mock('@/players/services/players.service', () => ({
