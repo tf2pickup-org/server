@@ -13,7 +13,6 @@ import { Environment } from '@/environment/environment';
 import { join } from 'path';
 import { readFile } from 'fs';
 import { promisify } from 'util';
-import { PlayerPopulatorService } from './services/player-populator.service';
 import { MapPoolService } from './services/map-pool.service';
 import { Map, mapSchema } from './models/map';
 import { MongooseModule } from '@nestjs/mongoose/dist';
@@ -49,7 +48,6 @@ import { MongooseModule } from '@nestjs/mongoose/dist';
       },
       inject: [Environment],
     },
-    PlayerPopulatorService,
     MapPoolService,
   ],
   exports: [

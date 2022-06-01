@@ -50,13 +50,13 @@ export class PlayersGateway
     this.events.playerConnects.subscribe(async ({ playerId }) =>
       this.socket.emit(
         WebsocketEvent.playerConnected,
-        serialize(await this.playersService.getById(playerId)),
+        await serialize(await this.playersService.getById(playerId)),
       ),
     );
     this.events.playerDisconnects.subscribe(async ({ playerId }) =>
       this.socket.emit(
         WebsocketEvent.playerDisconnected,
-        serialize(await this.playersService.getById(playerId)),
+        await serialize(await this.playersService.getById(playerId)),
       ),
     );
   }

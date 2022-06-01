@@ -6,6 +6,7 @@ import {
   Param,
   Post,
   Put,
+  UseInterceptors,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
@@ -14,12 +15,16 @@ import { QueueService } from '../services/queue.service';
 import { MapVoteService } from '../services/map-vote.service';
 import { QueueAnnouncementsService } from '../services/queue-announcements.service';
 import { FriendsService } from '../services/friends.service';
-import { PopulatePlayers } from '../decorators/populate-players.decorator';
-import { PlayerPopulatorService } from '../services/player-populator.service';
 import { MapPoolService } from '../services/map-pool.service';
 import { Auth } from '@/auth/decorators/auth.decorator';
 import { Map } from '../models/map';
 import { PlayerRole } from '@/players/models/player-role';
+import { SerializerInterceptor } from '@/shared/interceptors/serializer.interceptor';
+import { Serializable } from '@/shared/serializable';
+import { QueueSlotDto } from '../dto/queue-slot.dto';
+import { QueueSlotWrapper } from './queue-slot-wrapper';
+import { QueueDto } from '../dto/queue.dto';
+import { QueueWrapper } from './queue-wrapper';
 
 @Controller('queue')
 export class QueueController {
@@ -29,23 +34,21 @@ export class QueueController {
     private mapVoteService: MapVoteService,
     private queueAnnouncementsService: QueueAnnouncementsService,
     private friendsService: FriendsService,
-    private playerPopulatorService: PlayerPopulatorService,
     private mapPoolService: MapPoolService,
   ) {}
 
   @Get()
-  async getQueue() {
-    return {
+  @UseInterceptors(SerializerInterceptor)
+  async getQueue(): Promise<Serializable<QueueDto>> {
+    return new QueueWrapper({
       config: this.queueConfigService.queueConfig,
-      slots: await this.playerPopulatorService.populatePlayers(
-        this.getQueueSlots(),
-      ),
+      slots: this.queueService.slots,
       state: this.queueService.state,
       mapVoteResults: this.mapVoteService.results,
       substituteRequests:
         await this.queueAnnouncementsService.substituteRequests(),
       friendships: this.friendsService.friendships,
-    };
+    });
   }
 
   @Get('config')
@@ -58,10 +61,10 @@ export class QueueController {
     return this.queueService.state;
   }
 
-  @PopulatePlayers()
   @Get('slots')
-  getQueueSlots() {
-    return this.queueService.slots;
+  @UseInterceptors(SerializerInterceptor)
+  getQueueSlots(): Serializable<QueueSlotDto>[] {
+    return this.queueService.slots.map((s) => new QueueSlotWrapper(s));
   }
 
   @Get('map_vote_results')
