@@ -1,5 +1,23 @@
 
 
+# [9.0.0-beta.14](https://github.com/tf2pickup-pl/server/compare/9.0.0-beta.13...9.0.0-beta.14) (2022-06-01)
+
+
+### Bug Fixes
+
+* **deps:** pin dependency cache-manager-mongodb to 0.3.0 ([#1691](https://github.com/tf2pickup-pl/server/issues/1691)) ([dad21a4](https://github.com/tf2pickup-pl/server/commit/dad21a4407ebc15527a6b0c5f9763dc07d160264))
+* **deps:** update dependency @tf2pickup-org/simple-mumble-bot to v0.5.0 ([#1682](https://github.com/tf2pickup-pl/server/issues/1682)) ([001138e](https://github.com/tf2pickup-pl/server/commit/001138ef7a7f046ced4caeebb310ea3b3e22b07e))
+* **deps:** update nest monorepo to v8.4.6 ([#1690](https://github.com/tf2pickup-pl/server/issues/1690)) ([c6d35c4](https://github.com/tf2pickup-pl/server/commit/c6d35c40d7df6719e288bdd0c53ca4e1c8c58cd6))
+* **voice-servers:** respect selected voice server configuration ([#1683](https://github.com/tf2pickup-pl/server/issues/1683)) ([98fa4ce](https://github.com/tf2pickup-pl/server/commit/98fa4ce01cd1e4a24be58410aa0983f8cef211d5))
+* **voice-servers:** use server password ([#1684](https://github.com/tf2pickup-pl/server/issues/1684)) ([35f1eed](https://github.com/tf2pickup-pl/server/commit/35f1eeddec598b266e3dc155326be83c95c0691f))
+
+
+### Features
+
+* **core:** add redis cache ([#1681](https://github.com/tf2pickup-pl/server/issues/1681)) ([0ecfb2e](https://github.com/tf2pickup-pl/server/commit/0ecfb2e106e5033df30ff7203d1c5099f259af0f))
+* **core:** use mongodb as fallback cache store ([#1689](https://github.com/tf2pickup-pl/server/issues/1689)) ([3af3fe4](https://github.com/tf2pickup-pl/server/commit/3af3fe48862ed0a19b42da14ea0e49671950d512))
+* **queue:** cache queue ([#1688](https://github.com/tf2pickup-pl/server/issues/1688)) ([455e371](https://github.com/tf2pickup-pl/server/commit/455e3716f9833324ee971c53a59128f296e903e3))
+
 # [9.0.0-beta.13](https://github.com/tf2pickup-org/server/compare/9.0.0-beta.12...9.0.0-beta.13) (2022-05-27)
 
 
