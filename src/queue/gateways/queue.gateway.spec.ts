@@ -7,15 +7,14 @@ import { FriendsService } from '../services/friends.service';
 import { Events } from '@/events/events';
 import { Socket } from 'socket.io';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
-import { PlayerPopulatorService } from '../services/player-populator.service';
-import { Player } from '@/players/models/player';
+import { QueueSlotWrapper } from '../controllers/queue-slot-wrapper';
 
 jest.mock('../services/queue.service');
 jest.mock('socket.io');
 jest.mock('../services/map-vote.service');
 jest.mock('../services/queue-announcements.service');
 jest.mock('../services/friends.service');
-jest.mock('../services/player-populator.service');
+jest.mock('../controllers/queue-slot-wrapper');
 
 const mockSubstituteRequests = [
   {
@@ -34,7 +33,6 @@ describe('QueueGateway', () => {
   let queueAnnouncementsService: jest.Mocked<QueueAnnouncementsService>;
   let friendsService: jest.Mocked<FriendsService>;
   let events: Events;
-  let playerPopulatorService: jest.Mocked<PlayerPopulatorService>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -45,7 +43,6 @@ describe('QueueGateway', () => {
         MapVoteService,
         QueueAnnouncementsService,
         FriendsService,
-        PlayerPopulatorService,
       ],
     }).compile();
 
@@ -55,7 +52,6 @@ describe('QueueGateway', () => {
     queueAnnouncementsService = module.get(QueueAnnouncementsService);
     friendsService = module.get(FriendsService);
     events = module.get(Events);
-    playerPopulatorService = module.get(PlayerPopulatorService);
   });
 
   beforeEach(() => {
@@ -99,49 +95,28 @@ describe('QueueGateway', () => {
 
   describe('#joinQueue()', () => {
     it('should join the queue', async () => {
-      const ret = await gateway.joinQueue(
-        { user: { id: 'FAKE_PLAYER_ID' } } as Socket,
-        { slotId: 5 },
-      );
+      await gateway.joinQueue({ user: { id: 'FAKE_PLAYER_ID' } } as Socket, {
+        slotId: 5,
+      });
       expect(queueService.join).toHaveBeenCalledWith(5, 'FAKE_PLAYER_ID');
-      expect(ret).toEqual([
-        {
-          id: 5,
-          playerId: 'FAKE_PLAYER_ID',
-          gameClass: Tf2ClassName.scout,
-          ready: false,
-        },
-      ]);
     });
   });
 
   describe('#leaveQueue()', () => {
     it('should leave the queue', () => {
-      const ret = gateway.leaveQueue({
+      gateway.leaveQueue({
         user: { id: 'FAKE_PLAYER_ID' },
       } as Socket);
       expect(queueService.leave).toHaveBeenCalledWith('FAKE_PLAYER_ID');
-      expect(ret).toEqual({
-        id: 0,
-        playerId: 'FAKE_PLAYER_ID',
-        gameClass: Tf2ClassName.scout,
-        ready: false,
-      });
     });
   });
 
   describe('#playerReady()', () => {
     it('should ready up the player', () => {
-      const ret = gateway.playerReady({
+      gateway.playerReady({
         user: { id: 'FAKE_PLAYER_ID' },
       } as Socket);
       expect(queueService.readyUp).toHaveBeenCalledWith('FAKE_PLAYER_ID');
-      expect(ret).toEqual({
-        id: 0,
-        playerId: 'FAKE_PLAYER_ID',
-        gameClass: Tf2ClassName.scout,
-        ready: true,
-      });
     });
   });
 
@@ -173,15 +148,6 @@ describe('QueueGateway', () => {
 
   describe('when the queueSlotsChange event is fired', () => {
     beforeEach(() => {
-      playerPopulatorService.populatePlayers.mockResolvedValue([
-        {
-          id: 5,
-          gameClass: Tf2ClassName.soldier,
-          ready: true,
-          playerId: 'FAKE_PLAYER_ID',
-          player: { id: 'FAKE_PLAYER_ID' } as Player,
-        },
-      ]);
       events.queueSlotsChange.next({
         slots: [
           {
@@ -196,13 +162,7 @@ describe('QueueGateway', () => {
 
     it('should emit the event over the socket', () => {
       expect(socket.emit).toHaveBeenCalledWith('queue slots update', [
-        {
-          id: 5,
-          gameClass: Tf2ClassName.soldier,
-          ready: true,
-          playerId: 'FAKE_PLAYER_ID',
-          player: { id: 'FAKE_PLAYER_ID' },
-        },
+        expect.any(QueueSlotWrapper),
       ]);
     });
   });

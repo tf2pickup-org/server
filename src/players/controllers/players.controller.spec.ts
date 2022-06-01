@@ -90,15 +90,10 @@ class PlayerSkillServiceStub {
     ]),
     serialize: jest.fn(),
   };
-  getPlayerSkill(playerId: string) {
-    return new Promise((resolve) => resolve(this.skill));
-  }
-  setPlayerSkill(playerId: string, skill: Map<string, number>) {
-    return Promise.resolve(this.skill);
-  }
-  getAll() {
-    return new Promise((resolve) => resolve([this.skill]));
-  }
+
+  getPlayerSkill = jest.fn().mockResolvedValue(this.skill.skill);
+  setPlayerSkill = jest.fn().mockResolvedValue(this.skill.skill);
+  getAll = jest.fn().mockResolvedValue([this.skill]);
 }
 
 class PlayerBansServiceStub {
@@ -263,23 +258,20 @@ describe('Players Controller', () => {
 
   describe('#getAllPlayerSkills()', () => {
     it("should return all players' skills", async () => {
-      const spy = jest.spyOn(playerSkillService, 'getAll');
       const ret = await controller.getAllPlayerSkills();
-      expect(spy).toHaveBeenCalled();
+      expect(playerSkillService.getAll).toHaveBeenCalled();
       expect(ret).toEqual([playerSkillService.skill] as any);
     });
   });
 
   describe('#getPlayerSkill()', () => {
     it('should return player skill', async () => {
-      const spy = jest.spyOn(playerSkillService, 'getPlayerSkill');
       const ret = await controller.getPlayerSkill(playersService.player);
-      expect(spy).toHaveBeenCalledWith('FAKE_ID');
-      expect(ret).toEqual(playerSkillService.skill);
+      expect(playerSkillService.getPlayerSkill).toHaveBeenCalledWith('FAKE_ID');
     });
 
     it('should return 404', async () => {
-      jest.spyOn(playerSkillService, 'getPlayerSkill').mockResolvedValue(null);
+      playerSkillService.getPlayerSkill.mockResolvedValue(null);
       await expect(
         controller.getPlayerSkill(playersService.player),
       ).rejects.toThrow(NotFoundException);
@@ -289,7 +281,6 @@ describe('Players Controller', () => {
   describe('#setPlayerSkill()', () => {
     it('should set player skill', async () => {
       const skill = { soldier: 1, medic: 2 };
-      const spy = jest.spyOn(playerSkillService, 'setPlayerSkill');
       const ret = await controller.setPlayerSkill(
         playersService.player,
         skill,
@@ -297,7 +288,7 @@ describe('Players Controller', () => {
           id: 'FAKE_ADMIN_ID',
         } as any,
       );
-      expect(spy).toHaveBeenCalledWith(
+      expect(playerSkillService.setPlayerSkill).toHaveBeenCalledWith(
         'FAKE_ID',
         new Map([
           ['soldier', 1],
@@ -305,7 +296,6 @@ describe('Players Controller', () => {
         ]),
         'FAKE_ADMIN_ID',
       );
-      expect(ret).toEqual(playerSkillService.skill);
     });
   });
 
