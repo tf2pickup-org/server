@@ -3239,14 +3239,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cache-manager@npm:3.6.3":
-  version: 3.6.3
-  resolution: "cache-manager@npm:3.6.3"
+"cache-manager@npm:4.0.0":
+  version: 4.0.0
+  resolution: "cache-manager@npm:4.0.0"
   dependencies:
     async: 3.2.3
     lodash.clonedeep: ^4.5.0
-    lru-cache: 6.0.0
-  checksum: 59179477199490fe3f52eb99bd0e6b456c65199479c81b202f7954d0249975e603c5540fde910c004270a08afd6b1f77318f50df5e664b48f415ce03cf8e663b
+    lru-cache: ^7.10.1
+  checksum: eb6c21709c16410b700ea95ec5b3b815ccabcf93cb411fdc56b06726d7403338b70a6b231e09dfdcc507cd9ebb72d7724bd4fe1fe1e717e0238db2312fe4ec0a
   languageName: node
   linkType: hard
 
@@ -7646,7 +7646,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lru-cache@npm:6.0.0, lru-cache@npm:^6.0.0":
+"lru-cache@npm:^5.1.1":
+  version: 5.1.1
+  resolution: "lru-cache@npm:5.1.1"
+  dependencies:
+    yallist: ^3.0.2
+  checksum: c154ae1cbb0c2206d1501a0e94df349653c92c8cbb25236d7e85190bcaf4567a03ac6eb43166fabfa36fd35623694da7233e88d9601fbf411a9a481d85dbd2cb
+  languageName: node
+  linkType: hard
+
+"lru-cache@npm:^6.0.0":
   version: 6.0.0
   resolution: "lru-cache@npm:6.0.0"
   dependencies:
@@ -7655,12 +7664,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lru-cache@npm:^5.1.1":
-  version: 5.1.1
-  resolution: "lru-cache@npm:5.1.1"
-  dependencies:
-    yallist: ^3.0.2
-  checksum: c154ae1cbb0c2206d1501a0e94df349653c92c8cbb25236d7e85190bcaf4567a03ac6eb43166fabfa36fd35623694da7233e88d9601fbf411a9a481d85dbd2cb
+"lru-cache@npm:^7.10.1":
+  version: 7.10.1
+  resolution: "lru-cache@npm:7.10.1"
+  checksum: e8b190d71ed0fcd7b29c71a3e9b01f851c92d1ef8865ff06b5581ca991db1e5e006920ed4da8b56da1910664ed51abfd76c46fb55e82ac252ff6c970ff910d72
   languageName: node
   linkType: hard
 
@@ -9969,7 +9976,7 @@ __metadata:
     "@typescript-eslint/parser": 5.27.0
     app-root-path: 3.0.0
     async-mutex: 0.3.2
-    cache-manager: 3.6.3
+    cache-manager: 4.0.0
     cache-manager-mongodb: 0.3.0
     cache-manager-redis-store: 2.0.0
     class-transformer: 0.5.1
