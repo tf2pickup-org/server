@@ -34,7 +34,7 @@ export class GamesService {
   private logger = new Logger(GamesService.name);
 
   constructor(
-    @InjectModel(Game.name) private gameModel: Model<GameDocument>,
+    @InjectModel('Game') private gameModel: Model<GameDocument>,
     @Inject(forwardRef(() => PlayersService))
     private playersService: PlayersService,
     private playerSkillService: PlayerSkillService,

@@ -1,3 +1,4 @@
+import { setApp } from '@/app';
 import { AppModule } from '@/app.module';
 import { JwtTokenPurpose } from '@/auth/jwt-token-purpose';
 import { AuthService } from '@/auth/services/auth.service';
@@ -26,6 +27,7 @@ describe('Player substitutes himself (e2e)', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
+    setApp(app);
     await app.listen(3000);
 
     playersService = app.get(PlayersService);
@@ -178,7 +180,7 @@ describe('Player substitutes himself (e2e)', () => {
       .expect(200)
       .then((response) => {
         const body = response.body;
-        const slot = body.slots.find((s) => s.player === player.id);
+        const slot = body.slots.find((s) => s.player.id === player.id);
         expect(slot.status).toEqual('waiting for substitute');
       });
 

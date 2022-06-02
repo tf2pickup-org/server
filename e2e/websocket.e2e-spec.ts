@@ -1,3 +1,4 @@
+import { setApp } from '@/app';
 import { AppModule } from '@/app.module';
 import { JwtTokenPurpose } from '@/auth/jwt-token-purpose';
 import { AuthService } from '@/auth/services/auth.service';
@@ -19,6 +20,7 @@ describe('Websocket (e2e)', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
+    setApp(app);
     await app.listen(3000);
   });
 
