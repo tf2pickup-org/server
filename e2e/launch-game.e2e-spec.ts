@@ -146,7 +146,9 @@ describe('Launch game (e2e)', () => {
         expect(
           clients
             .map((p) => p.playerId)
-            .every((playerId) => body.slots.find((s) => s.player === playerId)),
+            .every((playerId) =>
+              body.slots.find((s) => s.player.id === playerId),
+            ),
         ).toBe(true);
       });
 
