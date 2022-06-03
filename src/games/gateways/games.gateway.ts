@@ -16,9 +16,14 @@ import { Events } from '@/events/events';
 import { WebsocketEvent } from '@/websocket-event';
 import { serialize } from '@/shared/serialize';
 import { SerializerInterceptor } from '@/shared/interceptors/serializer.interceptor';
+import { Serializable } from '@/shared/serializable';
+import { GameDto } from '../dto/game.dto';
+import { WebsocketEventEmitter } from '@/shared/websocket-event-emitter';
 
 @WebSocketGateway()
-export class GamesGateway implements OnGatewayInit, OnModuleInit {
+export class GamesGateway
+  implements OnGatewayInit, OnModuleInit, WebsocketEventEmitter<GameDto>
+{
   private socket: Socket;
 
   constructor(
@@ -27,13 +32,17 @@ export class GamesGateway implements OnGatewayInit, OnModuleInit {
     private events: Events,
   ) {}
 
+  async emit(event: WebsocketEvent, payload: Serializable<GameDto>) {
+    this.socket.emit(event, await serialize(payload));
+  }
+
   @WsAuthorized()
   @SubscribeMessage('replace player')
   @UseInterceptors(SerializerInterceptor)
   async replacePlayer(
     client: Socket,
     payload: { gameId: string; replaceeId: string },
-  ) {
+  ): Promise<Serializable<GameDto>> {
     return await this.playerSubstitutionService.replacePlayer(
       payload.gameId,
       payload.replaceeId,
@@ -46,11 +55,11 @@ export class GamesGateway implements OnGatewayInit, OnModuleInit {
   }
 
   onModuleInit() {
-    this.events.gameCreated.subscribe(async ({ game }) =>
-      this.socket.emit(WebsocketEvent.gameCreated, await serialize(game)),
+    this.events.gameCreated.subscribe(({ game }) =>
+      this.emit(WebsocketEvent.gameCreated, game),
     );
-    this.events.gameChanges.subscribe(async ({ newGame }) =>
-      this.socket.emit(WebsocketEvent.gameUpdated, await serialize(newGame)),
+    this.events.gameChanges.subscribe(({ newGame }) =>
+      this.emit(WebsocketEvent.gameUpdated, newGame),
     );
   }
 }

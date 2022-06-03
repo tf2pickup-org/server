@@ -295,7 +295,7 @@ export class GamesService {
     playerId: string,
   ): Promise<string | null> {
     const game = await this.getById(gameId);
-    if (![GameState.launching, GameState.started].includes(game.state)) {
+    if (!game.isInProgress()) {
       throw new GameInWrongStateError(gameId, game.state);
     }
 

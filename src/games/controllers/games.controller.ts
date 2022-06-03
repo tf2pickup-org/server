@@ -100,7 +100,6 @@ export class GamesController {
 
   @Get(':id/connect-info')
   @Auth()
-  @UseInterceptors(SerializerInterceptor)
   @UseFilters(DocumentNotFoundFilter)
   async getConnectInfo(
     @Param('id', ObjectIdValidationPipe) gameId: string,

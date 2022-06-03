@@ -1,6 +1,7 @@
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { Serializable } from '@/shared/serializable';
 import { Prop, raw, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Type } from 'class-transformer';
 import { Document, Types } from 'mongoose';
 import { PlayerSkillDto } from '../dto/player-skill.dto';
 
@@ -9,6 +10,7 @@ export class PlayerSkill extends Serializable<PlayerSkillDto> {
   @Prop({ ref: 'Player', unique: true })
   player?: Types.ObjectId;
 
+  @Type(() => Number)
   @Prop(
     raw({
       type: Map,
@@ -20,7 +22,7 @@ export class PlayerSkill extends Serializable<PlayerSkillDto> {
   async serialize(): Promise<PlayerSkillDto> {
     return {
       player: this.player.toString(),
-      skill: Object.fromEntries(this.skill),
+      skill: this.skill ? Object.fromEntries(this.skill) : {},
     };
   }
 }

@@ -131,6 +131,7 @@ export class PlayersController {
 
   @Get('/all/skill')
   @Auth(PlayerRole.admin)
+  @UseInterceptors(SerializerInterceptor)
   async getAllPlayerSkills(): Promise<Serializable<PlayerSkillDto>[]> {
     return await this.playerSkillService.getAll();
   }
