@@ -37,7 +37,7 @@ export class Player extends Serializable<PlayerDto> {
   roles: PlayerRole[] = [];
 
   @Exclude({ toPlainOnly: true })
-  @Prop({ default: false })
+  @Prop({ type: Boolean, default: false })
   hasAcceptedRules = false;
 
   @Prop({ index: true })
