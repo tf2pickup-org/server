@@ -127,7 +127,9 @@ describe('Launch game (e2e)', () => {
       .then((response) => {
         const body = response.body;
         expect(body.state).toEqual('waiting');
-        expect(body.slots.every((slot) => slot.player === null)).toBe(true);
+        expect(body.slots.every((slot) => slot.player === undefined)).toBe(
+          true,
+        );
       });
 
     // the new game should be announced to all clients
