@@ -34,11 +34,11 @@ export class Player extends Serializable<PlayerDto> {
   avatar?: PlayerAvatar;
 
   @Prop({ type: () => [String], enum: PlayerRole, default: [] })
-  roles!: PlayerRole[];
+  roles: PlayerRole[] = [];
 
   @Exclude({ toPlainOnly: true })
   @Prop({ default: false })
-  hasAcceptedRules?: boolean;
+  hasAcceptedRules = false;
 
   @Prop({ index: true })
   etf2lProfileId?: number;

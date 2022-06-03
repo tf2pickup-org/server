@@ -10,7 +10,6 @@ mockPlayer.id = 'FAKE_PLAYER_ID';
 mockPlayer.name = 'FAKE_PLAYER';
 mockPlayer.steamId = 'FAKE_STEAM_ID';
 mockPlayer.hasAcceptedRules = true;
-mockPlayer.roles = [];
 
 jest.mock('@/players/services/players.service', () => ({
   PlayersService: jest.fn().mockImplementation(() => ({
