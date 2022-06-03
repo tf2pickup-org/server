@@ -1,6 +1,8 @@
 import { Serializable } from './serializable';
 
-export const serialize = async (object: unknown) => {
+export const serialize = async (
+  object: unknown,
+): Promise<Record<string, any>> => {
   if (typeof object !== 'object' || object === null) {
     return object;
   }

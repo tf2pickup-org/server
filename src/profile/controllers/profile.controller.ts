@@ -17,8 +17,11 @@ import { PlayersService } from '@/players/services/players.service';
 import { PlayerBansService } from '@/players/services/player-bans.service';
 import { MapVoteService } from '@/queue/services/map-vote.service';
 import { PlayerPreferencesService } from '@/player-preferences/services/player-preferences.service';
-import { Profile } from '../dto/profile';
 import { LinkedProfilesService } from '@/players/services/linked-profiles.service';
+import { SerializerInterceptor } from '@/shared/interceptors/serializer.interceptor';
+import { Serializable } from '@/shared/serializable';
+import { ProfileDto } from '../dto/profile.dto';
+import { ProfileWrapper } from './profile-wrapper';
 
 @Controller('profile')
 export class ProfileController {
@@ -32,11 +35,11 @@ export class ProfileController {
 
   @Get()
   @Auth()
-  @UseInterceptors(ClassSerializerInterceptor)
-  async getProfile(@User() user: Player): Promise<Profile> {
-    return new Profile({
+  @UseInterceptors(SerializerInterceptor)
+  async getProfile(@User() user: Player): Promise<Serializable<ProfileDto>> {
+    return new ProfileWrapper({
       player: user,
-      activeGameId: user.activeGame?.toString() ?? null,
+      activeGameId: user.activeGame?.toString() ?? undefined,
       bans: await this.playerBansService.getPlayerActiveBans(user.id),
       mapVote: this.mapVoteService.playerVote(user.id),
       preferences: await this.playerPreferencesService.getPlayerPreferences(
