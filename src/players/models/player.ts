@@ -54,11 +54,13 @@ export class Player extends Serializable<PlayerDto> {
       name: this.name,
       steamId: this.steamId,
       joinedAt: this.joinedAt,
-      avatar: {
-        small: this.avatar.small,
-        medium: this.avatar.medium,
-        large: this.avatar.large,
-      },
+      avatar: this.avatar
+        ? {
+            small: this.avatar.small,
+            medium: this.avatar.medium,
+            large: this.avatar.large,
+          }
+        : {},
       roles: this.roles,
       etf2lProfileId: this.etf2lProfileId,
       _links: [
