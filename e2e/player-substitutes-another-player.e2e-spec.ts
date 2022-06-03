@@ -1,3 +1,4 @@
+import { setApp } from '@/app';
 import { AppModule } from '@/app.module';
 import { JwtTokenPurpose } from '@/auth/jwt-token-purpose';
 import { AuthService } from '@/auth/services/auth.service';
@@ -25,6 +26,7 @@ describe('Player substitutes another player (e2e)', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
+    setApp(app);
     await app.listen(3000);
 
     playersService = app.get(PlayersService);
@@ -171,7 +173,7 @@ describe('Player substitutes another player (e2e)', () => {
       .expect(200)
       .then((response) => {
         const body = response.body;
-        const slot = body.slots.find((s) => s.player === replacee.id);
+        const slot = body.slots.find((s) => s.player.id === replacee.id);
         expect(slot.status).toEqual('waiting for substitute');
       });
 
@@ -191,10 +193,10 @@ describe('Player substitutes another player (e2e)', () => {
       .expect(200)
       .then((response) => {
         const body = response.body;
-        expect(body.slots.find((s) => s.player === replacement.id).status).toBe(
-          'active',
-        );
-        expect(body.slots.find((s) => s.player === replacee.id).status).toBe(
+        expect(
+          body.slots.find((s) => s.player.id === replacement.id).status,
+        ).toBe('active');
+        expect(body.slots.find((s) => s.player.id === replacee.id).status).toBe(
           'replaced',
         );
       });

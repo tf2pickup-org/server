@@ -133,6 +133,7 @@ describe('ServerConfiguratorService', () => {
       rcon: jest.fn(),
       getLogsecret: jest.fn(),
       start: jest.fn().mockResolvedValue(mockGameServer),
+      serialize: jest.fn(),
     };
   });
 

@@ -36,22 +36,6 @@ class EnvironmentStub {
   botName = 'FAKE_BOT_NAME';
 }
 
-class GamesServiceStub {
-  classCount = {
-    scout: 19,
-    soldier: 102,
-    demoman: 0,
-    medic: 92,
-  };
-
-  getPlayerGameCount(playerId: string, options: any) {
-    return 220;
-  }
-  getPlayerPlayedClassCount(playerId: string) {
-    return this.classCount;
-  }
-}
-
 class SteamApiServiceStub {
   getTf2InGameHours(steamId64: string) {
     return Promise.resolve(800);
@@ -488,12 +472,12 @@ describe('PlayersService', () => {
       expect(ret).toEqual({
         player: 'FAKE_ID',
         gamesPlayed: 220,
-        classesPlayed: new Map([
-          [Tf2ClassName.scout, 19],
-          [Tf2ClassName.soldier, 102],
-          [Tf2ClassName.demoman, 0],
-          [Tf2ClassName.medic, 92],
-        ]),
+        classesPlayed: {
+          [Tf2ClassName.scout]: 19,
+          [Tf2ClassName.soldier]: 102,
+          [Tf2ClassName.demoman]: 0,
+          [Tf2ClassName.medic]: 92,
+        },
       });
     });
   });

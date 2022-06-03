@@ -26,7 +26,7 @@ export class GamesService {
   private lastGameId = 0;
 
   constructor(
-    @InjectModel(Game.name) private gameModel: Model<GameDocument>,
+    @InjectModel('Game') private gameModel: Model<GameDocument>,
     private events: Events,
   ) {}
 

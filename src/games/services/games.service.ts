@@ -34,7 +34,7 @@ export class GamesService {
   private logger = new Logger(GamesService.name);
 
   constructor(
-    @InjectModel(Game.name) private gameModel: Model<GameDocument>,
+    @InjectModel('Game') private gameModel: Model<GameDocument>,
     @Inject(forwardRef(() => PlayersService))
     private playersService: PlayersService,
     private playerSkillService: PlayerSkillService,
@@ -295,7 +295,7 @@ export class GamesService {
     playerId: string,
   ): Promise<string | null> {
     const game = await this.getById(gameId);
-    if (![GameState.launching, GameState.started].includes(game.state)) {
+    if (!game.isInProgress()) {
       throw new GameInWrongStateError(gameId, game.state);
     }
 

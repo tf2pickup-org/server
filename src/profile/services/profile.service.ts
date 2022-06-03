@@ -1,11 +1,11 @@
 import { Events } from '@/events/events';
 import { LinkedProfilesService } from '@/players/services/linked-profiles.service';
 import { OnlinePlayersService } from '@/players/services/online-players.service';
+import { serialize } from '@/shared/serialize';
 import { WebsocketEvent } from '@/websocket-event';
 import { Injectable, OnModuleInit } from '@nestjs/common';
-import { instanceToPlain } from 'class-transformer';
 import { isEqual } from 'lodash';
-import { map, filter } from 'rxjs';
+import { map, filter, concatMap, from } from 'rxjs';
 
 @Injectable()
 export class ProfileService implements OnModuleInit {
@@ -30,21 +30,19 @@ export class ProfileService implements OnModuleInit {
 
     this.events.playerUpdates
       .pipe(
-        map(({ oldPlayer, newPlayer }) => ({
-          oldPlayer: instanceToPlain(oldPlayer),
-          newPlayer: instanceToPlain(newPlayer),
-        })),
-        filter(({ oldPlayer, newPlayer }) => !isEqual(newPlayer, oldPlayer)),
+        concatMap(({ oldPlayer, newPlayer }) =>
+          from(Promise.all([serialize(oldPlayer), serialize(newPlayer)])),
+        ),
+        filter(([a, b]) => !isEqual(a, b)),
+        map(([, newPlayer]) => newPlayer),
       )
-      .subscribe(({ newPlayer }) => {
+      .subscribe((player) =>
         this.onlinePlayersService
-          .getSocketsForPlayer(newPlayer.id)
+          .getSocketsForPlayer(player.id)
           .forEach((socket) =>
-            socket.emit(WebsocketEvent.profileUpdate, {
-              player: newPlayer,
-            }),
-          );
-      });
+            socket.emit(WebsocketEvent.profileUpdate, { player }),
+          ),
+      );
 
     this.events.playerUpdates
       .pipe(

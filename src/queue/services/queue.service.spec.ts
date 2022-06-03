@@ -597,6 +597,7 @@ describe('QueueService', () => {
               start: new Date(),
               end: new Date(),
               reason: 'unit testing',
+              serialize: jest.fn(),
             },
           });
         });

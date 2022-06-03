@@ -7,15 +7,18 @@ import { QueueService } from '../services/queue.service';
 import { WsAuthorized } from '@/auth/decorators/ws-authorized.decorator';
 import { Socket } from 'socket.io';
 import { MapVoteService } from '../services/map-vote.service';
-import { OnModuleInit, UseFilters } from '@nestjs/common';
+import { OnModuleInit, UseFilters, UseInterceptors } from '@nestjs/common';
 import { QueueAnnouncementsService } from '../services/queue-announcements.service';
 import { FriendsService } from '../services/friends.service';
 import { Events } from '@/events/events';
-import { distinctUntilChanged } from 'rxjs/operators';
-import { PopulatePlayers } from '../decorators/populate-players.decorator';
-import { PlayerPopulatorService } from '../services/player-populator.service';
+import { distinctUntilChanged, map } from 'rxjs/operators';
 import { WebsocketEvent } from '@/websocket-event';
 import { AllExceptionsFilter } from '@/shared/filters/all-exceptions.filter';
+import { serialize } from '@/shared/serialize';
+import { SerializerInterceptor } from '@/shared/interceptors/serializer.interceptor';
+import { Serializable } from '@/shared/serializable';
+import { QueueSlotDto } from '../dto/queue-slot.dto';
+import { QueueSlotWrapper } from '../controllers/queue-slot-wrapper';
 
 @WebSocketGateway()
 export class QueueGateway implements OnGatewayInit, OnModuleInit {
@@ -27,16 +30,18 @@ export class QueueGateway implements OnGatewayInit, OnModuleInit {
     private queueAnnouncementsService: QueueAnnouncementsService,
     private friendsService: FriendsService,
     private events: Events,
-    private playerPopulatorService: PlayerPopulatorService,
   ) {}
 
   onModuleInit() {
     this.events.queueSlotsChange
-      .pipe(distinctUntilChanged())
-      .subscribe(async ({ slots }) =>
+      .pipe(
+        distinctUntilChanged(),
+        map(({ slots }) => slots.map((s) => new QueueSlotWrapper(s))),
+      )
+      .subscribe(async (slots) =>
         this.socket.emit(
           WebsocketEvent.queueSlotsUpdate,
-          await this.playerPopulatorService.populatePlayers(slots),
+          await serialize(slots),
         ),
       );
     this.events.queueStateChange
@@ -63,26 +68,31 @@ export class QueueGateway implements OnGatewayInit, OnModuleInit {
 
   @UseFilters(AllExceptionsFilter)
   @WsAuthorized()
-  @PopulatePlayers()
+  @UseInterceptors(SerializerInterceptor)
   @SubscribeMessage('join queue')
-  async joinQueue(client: Socket, payload: { slotId: number }) {
-    return await this.queueService.join(payload.slotId, client.user.id);
+  async joinQueue(
+    client: Socket,
+    payload: { slotId: number },
+  ): Promise<Serializable<QueueSlotDto>[]> {
+    return (await this.queueService.join(payload.slotId, client.user.id)).map(
+      (s) => new QueueSlotWrapper(s),
+    );
   }
 
   @UseFilters(AllExceptionsFilter)
   @WsAuthorized()
-  @PopulatePlayers()
+  @UseInterceptors(SerializerInterceptor)
   @SubscribeMessage('leave queue')
-  leaveQueue(client: Socket) {
-    return this.queueService.leave(client.user.id);
+  leaveQueue(client: Socket): Serializable<QueueSlotDto> {
+    return new QueueSlotWrapper(this.queueService.leave(client.user.id));
   }
 
   @UseFilters(AllExceptionsFilter)
   @WsAuthorized()
-  @PopulatePlayers()
+  @UseInterceptors(SerializerInterceptor)
   @SubscribeMessage('player ready')
-  playerReady(client: Socket) {
-    return this.queueService.readyUp(client.user.id);
+  playerReady(client: Socket): Serializable<QueueSlotDto> {
+    return new QueueSlotWrapper(this.queueService.readyUp(client.user.id));
   }
 
   @UseFilters(AllExceptionsFilter)

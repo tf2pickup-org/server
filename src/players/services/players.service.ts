@@ -10,13 +10,11 @@ import { Player, PlayerDocument } from '../models/player';
 import { SteamProfile } from '../steam-profile';
 import { Etf2lProfileService } from './etf2l-profile.service';
 import { GamesService } from '@/games/services/games.service';
-import { PlayerStats } from '../dto/player-stats';
 import { Etf2lProfile } from '../etf2l-profile';
 import { SteamApiService } from './steam-api.service';
 import { PlayerAvatar } from '../models/player-avatar';
 import { Events } from '@/events/events';
 import { plainToInstance } from 'class-transformer';
-import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { Error, Model, Types, UpdateQuery } from 'mongoose';
 import { AccountBannedError } from '../errors/account-banned.error';
 import { InsufficientTf2InGameHoursError } from '../errors/insufficient-tf2-in-game-hours.error';
@@ -217,18 +215,16 @@ export class PlayersService implements OnModuleInit {
     return this.updatePlayer(playerId, { hasAcceptedRules: true });
   }
 
-  async getPlayerStats(playerId: string): Promise<PlayerStats> {
-    return new PlayerStats({
+  async getPlayerStats(playerId: string) {
+    return {
       player: playerId,
       gamesPlayed: await this.gamesService.getPlayerGameCount(playerId, {
         endedOnly: true,
       }),
-      classesPlayed: new Map(
-        Object.entries(
-          await this.gamesService.getPlayerPlayedClassCount(playerId),
-        ),
-      ) as Map<Tf2ClassName, number>,
-    });
+      classesPlayed: await this.gamesService.getPlayerPlayedClassCount(
+        playerId,
+      ),
+    };
   }
 
   /**

@@ -3,6 +3,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from '@/app.module';
+import { setApp } from '@/app';
 
 describe('Game server heartbeat (e2e)', () => {
   let app: INestApplication;
@@ -13,6 +14,7 @@ describe('Game server heartbeat (e2e)', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
+    setApp(app);
     await app.listen(3000);
   });
 

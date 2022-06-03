@@ -82,6 +82,7 @@ describe('GameRuntimeService', () => {
       rcon: jest.fn().mockRejectedValue('not implemented'),
       getLogsecret: jest.fn().mockRejectedValue(new NotImplementedError()),
       start: jest.fn().mockResolvedValue(mockGameServer),
+      serialize: jest.fn(),
     };
 
     gameServersService.getById.mockResolvedValue(mockGameServer as any);

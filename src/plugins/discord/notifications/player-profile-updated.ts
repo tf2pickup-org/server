@@ -38,11 +38,11 @@ const generateChangesText = (changes: Record<string, Change>) => {
 export const playerProfileUpdated = (options: PlayerProfileUpdatedOptions) =>
   new MessageEmbed()
     .setColor(Colors.PlayerProfileUpdated)
-    .setAuthor(
-      options.admin.name,
-      options.admin.avatarUrl,
-      options.admin.profileUrl,
-    )
+    .setAuthor({
+      name: options.admin.name,
+      iconURL: options.admin.avatarUrl,
+      url: options.admin.profileUrl,
+    })
     .setTitle('Player profile updated')
     .setThumbnail(options.player.avatarUrl)
     .setDescription(

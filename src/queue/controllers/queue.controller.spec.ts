@@ -5,15 +5,12 @@ import { QueueService } from '../services/queue.service';
 import { MapVoteService } from '../services/map-vote.service';
 import { QueueAnnouncementsService } from '../services/queue-announcements.service';
 import { FriendsService } from '../services/friends.service';
-import { PlayerPopulatorService } from '../services/player-populator.service';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { MapPoolService } from '../services/map-pool.service';
-import { Player } from '@/players/models/player';
 
 jest.mock('../services/queue-config.service');
 jest.mock('../services/queue.service');
 jest.mock('../services/map-vote.service');
-jest.mock('../services/player-populator.service');
 jest.mock('../services/queue-announcements.service');
 jest.mock('../services/friends.service');
 jest.mock('../services/map-pool.service');
@@ -25,7 +22,6 @@ describe('Queue Controller', () => {
   let mapVoteService: jest.Mocked<MapVoteService>;
   let queueAnnouncementsService: jest.Mocked<QueueAnnouncementsService>;
   let friendsService: jest.Mocked<FriendsService>;
-  let playerPopulatorService: jest.Mocked<PlayerPopulatorService>;
   let mapPoolService: jest.Mocked<MapPoolService>;
 
   beforeEach(async () => {
@@ -36,7 +32,6 @@ describe('Queue Controller', () => {
         MapVoteService,
         QueueAnnouncementsService,
         FriendsService,
-        PlayerPopulatorService,
         MapPoolService,
       ],
       controllers: [QueueController],
@@ -48,7 +43,6 @@ describe('Queue Controller', () => {
     mapVoteService = module.get(MapVoteService);
     queueAnnouncementsService = module.get(QueueAnnouncementsService);
     friendsService = module.get(FriendsService);
-    playerPopulatorService = module.get(PlayerPopulatorService);
     mapPoolService = module.get(MapPoolService);
   });
 
@@ -87,23 +81,6 @@ describe('Queue Controller', () => {
 
     // @ts-expect-error
     mapVoteService.results = [];
-
-    playerPopulatorService.populatePlayers.mockResolvedValue([
-      {
-        id: 0,
-        gameClass: Tf2ClassName.soldier,
-        ready: false,
-        playerId: 'FAKE_ID',
-        player: { id: 'FAKE_ID' } as Player,
-      },
-      {
-        id: 1,
-        gameClass: Tf2ClassName.soldier,
-        ready: false,
-        playerId: null,
-        player: null,
-      },
-    ]);
   });
 
   it('should be defined', () => {
@@ -140,20 +117,8 @@ describe('Queue Controller', () => {
 
   describe('#getQueueSlots()', () => {
     it('should return queue slots', () => {
-      expect(controller.getQueueSlots()).toEqual([
-        {
-          id: 0,
-          gameClass: Tf2ClassName.soldier,
-          ready: false,
-          playerId: 'FAKE_ID',
-        },
-        {
-          id: 1,
-          gameClass: Tf2ClassName.soldier,
-          ready: false,
-          playerId: null,
-        },
-      ]);
+      const slots = controller.getQueueSlots();
+      expect(slots.length).toBe(2);
     });
   });
 

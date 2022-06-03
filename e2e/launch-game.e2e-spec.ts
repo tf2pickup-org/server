@@ -1,3 +1,4 @@
+import { setApp } from '@/app';
 import { AppModule } from '@/app.module';
 import { JwtTokenPurpose } from '@/auth/jwt-token-purpose';
 import { AuthService } from '@/auth/services/auth.service';
@@ -41,6 +42,7 @@ describe('Launch game (e2e)', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
+    setApp(app);
     await app.listen(3000);
 
     clients = [];
@@ -106,7 +108,7 @@ describe('Launch game (e2e)', () => {
           clients
             .map((p) => p.playerId)
             .every((playerId) =>
-              body.slots.find((s) => s.playerId === playerId),
+              body.slots.find((s) => s.player.id === playerId),
             ),
         ).toBe(true);
       });
@@ -125,7 +127,9 @@ describe('Launch game (e2e)', () => {
       .then((response) => {
         const body = response.body;
         expect(body.state).toEqual('waiting');
-        expect(body.slots.every((slot) => slot.player === null)).toBe(true);
+        expect(body.slots.every((slot) => slot.player === undefined)).toBe(
+          true,
+        );
       });
 
     // the new game should be announced to all clients
@@ -142,7 +146,9 @@ describe('Launch game (e2e)', () => {
         expect(
           clients
             .map((p) => p.playerId)
-            .every((playerId) => body.slots.find((s) => s.player === playerId)),
+            .every((playerId) =>
+              body.slots.find((s) => s.player.id === playerId),
+            ),
         ).toBe(true);
       });
 

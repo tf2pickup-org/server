@@ -4,7 +4,7 @@ import { PlayersService } from '../services/players.service';
 import { Player } from '../models/player';
 import { GamesService } from '@/games/services/games.service';
 import { Game } from '@/games/models/game';
-import { PlayerStats } from '../dto/player-stats';
+import { PlayerStatsDto } from '../dto/player-stats.dto';
 import { PlayerSkillService } from '../services/player-skill.service';
 import { PlayerSkill } from '../models/player-skill';
 import { PlayerBansService } from '../services/player-bans.service';
@@ -18,7 +18,7 @@ import { plainToInstance } from 'class-transformer';
 import { PlayerBan } from '../models/player-ban';
 import { LinkedProfilesService } from '../services/linked-profiles.service';
 import { LinkedProfileProviderName } from '../types/linked-profile-provider-name';
-import { LinkedProfiles } from '../dto/linked-profiles';
+import { LinkedProfilesDto } from '../dto/linked-profiles.dto';
 import { Types } from 'mongoose';
 
 jest.mock('../services/linked-profiles.service');
@@ -30,16 +30,16 @@ class PlayersServiceStub {
     steamId: 'FAKE_STEAM_ID',
     hasAcceptedRules: true,
   });
-  stats: PlayerStats = new PlayerStats({
+  stats: PlayerStatsDto = {
     player: 'FAKE_ID',
     gamesPlayed: 220,
-    classesPlayed: new Map([
-      [Tf2ClassName.scout, 19],
-      [Tf2ClassName.soldier, 102],
-      [Tf2ClassName.demoman, 0],
-      [Tf2ClassName.medic, 92],
-    ]),
-  });
+    classesPlayed: {
+      [Tf2ClassName.scout]: 19,
+      [Tf2ClassName.soldier]: 102,
+      [Tf2ClassName.demoman]: 0,
+      [Tf2ClassName.medic]: 92,
+    },
+  };
   getAll() {
     return new Promise((resolve) => resolve([this.player]));
   }
@@ -88,16 +88,12 @@ class PlayerSkillServiceStub {
       [Tf2ClassName.demoman, 1],
       [Tf2ClassName.medic, 2],
     ]),
+    serialize: jest.fn(),
   };
-  getPlayerSkill(playerId: string) {
-    return new Promise((resolve) => resolve(this.skill));
-  }
-  setPlayerSkill(playerId: string, skill: Map<string, number>) {
-    return Promise.resolve(this.skill);
-  }
-  getAll() {
-    return new Promise((resolve) => resolve([this.skill]));
-  }
+
+  getPlayerSkill = jest.fn().mockResolvedValue(this.skill.skill);
+  setPlayerSkill = jest.fn().mockResolvedValue(this.skill.skill);
+  getAll = jest.fn().mockResolvedValue([this.skill]);
 }
 
 class PlayerBansServiceStub {
@@ -262,23 +258,20 @@ describe('Players Controller', () => {
 
   describe('#getAllPlayerSkills()', () => {
     it("should return all players' skills", async () => {
-      const spy = jest.spyOn(playerSkillService, 'getAll');
       const ret = await controller.getAllPlayerSkills();
-      expect(spy).toHaveBeenCalled();
+      expect(playerSkillService.getAll).toHaveBeenCalled();
       expect(ret).toEqual([playerSkillService.skill] as any);
     });
   });
 
   describe('#getPlayerSkill()', () => {
     it('should return player skill', async () => {
-      const spy = jest.spyOn(playerSkillService, 'getPlayerSkill');
       const ret = await controller.getPlayerSkill(playersService.player);
-      expect(spy).toHaveBeenCalledWith('FAKE_ID');
-      expect(ret).toEqual(playerSkillService.skill);
+      expect(playerSkillService.getPlayerSkill).toHaveBeenCalledWith('FAKE_ID');
     });
 
     it('should return 404', async () => {
-      jest.spyOn(playerSkillService, 'getPlayerSkill').mockResolvedValue(null);
+      playerSkillService.getPlayerSkill.mockResolvedValue(null);
       await expect(
         controller.getPlayerSkill(playersService.player),
       ).rejects.toThrow(NotFoundException);
@@ -288,7 +281,6 @@ describe('Players Controller', () => {
   describe('#setPlayerSkill()', () => {
     it('should set player skill', async () => {
       const skill = { soldier: 1, medic: 2 };
-      const spy = jest.spyOn(playerSkillService, 'setPlayerSkill');
       const ret = await controller.setPlayerSkill(
         playersService.player,
         skill,
@@ -296,7 +288,7 @@ describe('Players Controller', () => {
           id: 'FAKE_ADMIN_ID',
         } as any,
       );
-      expect(spy).toHaveBeenCalledWith(
+      expect(playerSkillService.setPlayerSkill).toHaveBeenCalledWith(
         'FAKE_ID',
         new Map([
           ['soldier', 1],
@@ -304,7 +296,6 @@ describe('Players Controller', () => {
         ]),
         'FAKE_ADMIN_ID',
       );
-      expect(ret).toEqual(playerSkillService.skill);
     });
   });
 
@@ -368,7 +359,7 @@ describe('Players Controller', () => {
       expect(linkedProfilesService.getLinkedProfiles).toHaveBeenCalledWith(
         'FAKE_ID',
       );
-      expect(result).toEqual(new LinkedProfiles('FAKE_ID', linkedProfiles));
+      expect(result).toEqual({ playerId: 'FAKE_ID', linkedProfiles });
     });
   });
 });

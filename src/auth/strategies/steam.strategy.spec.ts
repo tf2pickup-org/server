@@ -5,14 +5,11 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { SteamStrategy } from './steam.strategy';
 import { Error } from 'mongoose';
 
-const mockPlayer: Player = {
-  id: 'FAKE_PLAYER_ID',
-  name: 'FAKE_PLAYER',
-  steamId: 'FAKE_STEAM_ID',
-  hasAcceptedRules: true,
-  roles: [],
-  _links: [],
-};
+const mockPlayer = new Player();
+mockPlayer.id = 'FAKE_PLAYER_ID';
+mockPlayer.name = 'FAKE_PLAYER';
+mockPlayer.steamId = 'FAKE_STEAM_ID';
+mockPlayer.hasAcceptedRules = true;
 
 jest.mock('@/players/services/players.service', () => ({
   PlayersService: jest.fn().mockImplementation(() => ({

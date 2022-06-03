@@ -7,33 +7,33 @@ import { MapVoteService } from '@/queue/services/map-vote.service';
 import { BadRequestException } from '@nestjs/common';
 import { PlayerPreferencesService } from '@/player-preferences/services/player-preferences.service';
 import { LinkedProfilesService } from '@/players/services/linked-profiles.service';
+import { serialize } from '@/shared/serialize';
 import { Types } from 'mongoose';
 
 jest.mock('@/player-preferences/services/player-preferences.service');
-jest.mock('@/players/services/linked-profiles.service');
+jest.mock('@/players/services/linked-profiles.service', () => ({
+  LinkedProfilesService: jest.fn().mockImplementation(() => ({
+    getLinkedProfiles: jest.fn().mockResolvedValue([]),
+  })),
+}));
 
 class PlayersServiceStub {
-  acceptTerms(playerId: string) {
-    return null;
-  }
+  acceptTerms = jest.fn().mockResolvedValue(null);
 }
 
 class PlayerBansServiceStub {
-  getPlayerActiveBans(playerId: string) {
-    return new Promise((resolve) => resolve([]));
-  }
+  getPlayerActiveBans = jest.fn().mockResolvedValue([]);
 }
 
 class MapVoteServiceStub {
-  playerVote(playerId: string) {
-    return 'cp_badlands';
-  }
+  playerVote = jest.fn().mockReturnValue('cp_badlands');
 }
 
 describe('Profile Controller', () => {
   let controller: ProfileController;
   let playersService: PlayersServiceStub;
   let playerPreferencesService: jest.Mocked<PlayerPreferencesService>;
+  let player: Player;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -61,53 +61,76 @@ describe('Profile Controller', () => {
     );
   });
 
+  beforeEach(() => {
+    player = new Player();
+    player.id = 'FAKE_ID';
+    player.name = 'FAKE_USER_NAME';
+    player.steamId = 'FAKE_STEAM_ID';
+    player.roles = [];
+    player.avatar = {
+      small: 'AVATAR_SMALL',
+      medium: 'AVATAR_MEDIUM',
+      large: 'AVATAR_LARGE',
+    };
+    player.hasAcceptedRules = true;
+  });
+
   it('should be defined', () => {
     expect(controller).toBeDefined();
   });
 
   describe('#getProfile()', () => {
     it("should return the logged-in user's profile", async () => {
-      const profile = {
+      const res = await controller.getProfile(player);
+      const serialized = await serialize(res);
+      expect(serialized).toEqual({
         player: {
           id: 'FAKE_ID',
           name: 'FAKE_USER_NAME',
           steamId: 'FAKE_STEAM_ID',
-          linkedProfilesUrl: '',
-          _links: [],
+          avatar: {
+            small: 'AVATAR_SMALL',
+            medium: 'AVATAR_MEDIUM',
+            large: 'AVATAR_LARGE',
+          },
           roles: [],
+          _links: [
+            {
+              href: '/players/FAKE_ID/linked-profiles',
+              title: 'Linked profiles',
+            },
+          ],
         },
+        hasAcceptedRules: true,
+        activeGameId: undefined,
         bans: [],
         mapVote: 'cp_badlands',
-        preferences: new Map([['sound-volume', '0.5']]),
-      };
-      expect(await controller.getProfile(profile.player)).toEqual({
-        ...profile,
-        activeGameId: null,
+        preferences: {
+          'sound-volume': '0.5',
+        },
+        linkedProfiles: [],
       });
     });
 
-    it('should return active game id', async () => {
-      const gameId = new Types.ObjectId();
-      const player = {
-        id: 'FAKE_ID',
-        name: 'FAKE_USER_NAME',
-        steamId: 'FAKE_STEAM_ID',
-        activeGame: gameId,
-        linkedProfilesUrl: '',
-        _links: [],
-        roles: [],
-      };
-      expect(await controller.getProfile(player)).toEqual(
-        expect.objectContaining({ activeGameId: gameId.toString() }),
-      );
+    describe('when the user is involved in an active game', () => {
+      beforeEach(() => {
+        player.activeGame = new Types.ObjectId();
+      });
+
+      it('should return active game id', async () => {
+        const res = await controller.getProfile(player);
+        expect(await serialize(res)).toEqual(
+          expect.objectContaining({
+            activeGameId: player.activeGame.toString(),
+          }),
+        );
+      });
     });
   });
 
   describe('#getPreferences()', () => {
     it("should return the user's preferences", async () => {
-      const ret = await controller.getPreferences({
-        id: 'FAKE_USER_ID',
-      } as Player);
+      const ret = await controller.getPreferences(player);
       expect(ret.size).toEqual(1);
       expect(ret.get('sound-volume')).toEqual('0.5');
     });
@@ -115,32 +138,27 @@ describe('Profile Controller', () => {
 
   describe('#savePreferences()', () => {
     it("should update user's preferences", async () => {
-      const ret = await controller.savePreferences(
-        { id: 'FAKE_USER_ID' } as Player,
-        { 'sound-volume': '0.9' },
-      );
+      const ret = await controller.savePreferences(player, {
+        'sound-volume': '0.9',
+      });
       expect(ret.size).toEqual(1);
       expect(ret.get('sound-volume')).toEqual('0.9');
       expect(
         playerPreferencesService.updatePlayerPreferences,
-      ).toHaveBeenCalledWith(
-        'FAKE_USER_ID',
-        new Map([['sound-volume', '0.9']]),
-      );
+      ).toHaveBeenCalledWith('FAKE_ID', new Map([['sound-volume', '0.9']]));
     });
   });
 
   describe('#acceptTerms', () => {
     it('should call players service', async () => {
-      const spy = jest.spyOn(playersService, 'acceptTerms');
-      await controller.acceptTerms({ id: 'FAKE_ID' } as Player, '');
-      expect(spy).toHaveBeenCalledWith('FAKE_ID');
+      await controller.acceptTerms(player, '');
+      expect(playersService.acceptTerms).toHaveBeenCalledWith('FAKE_ID');
     });
 
     it('should reject invalid requests', async () => {
-      await expect(
-        controller.acceptTerms({ id: 'FAKE_ID' } as Player, undefined),
-      ).rejects.toThrow(BadRequestException);
+      await expect(controller.acceptTerms(player, undefined)).rejects.toThrow(
+        BadRequestException,
+      );
     });
   });
 });

@@ -206,11 +206,11 @@ describe('Games Controller', () => {
         } as Game);
       });
 
-      it('should return null', async () => {
+      it('should return undefined', async () => {
         const ret = await controller.getConnectInfo('FAKE_ID', {
           id: 'FAKE_PLAYER_ID',
         } as Player);
-        expect(ret.connectString).toBe(null);
+        expect(ret.connectString).toBe(undefined);
       });
     });
   });

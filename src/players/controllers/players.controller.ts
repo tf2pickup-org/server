@@ -17,7 +17,6 @@ import {
   UseInterceptors,
   CacheInterceptor,
   CacheTTL,
-  ClassSerializerInterceptor,
 } from '@nestjs/common';
 import { PlayersService } from '../services/players.service';
 import { ObjectIdValidationPipe } from '@/shared/pipes/object-id-validation.pipe';
@@ -29,12 +28,17 @@ import { PlayerBansService } from '../services/player-bans.service';
 import { PlayerBan } from '../models/player-ban';
 import { User } from '@/auth/decorators/user.decorator';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
-import { PlayerStats } from '../dto/player-stats';
+import { PlayerStatsDto } from '../dto/player-stats.dto';
 import { ForceCreatePlayer } from '../dto/force-create-player';
 import { PlayerRole } from '../models/player-role';
 import { LinkedProfilesService } from '../services/linked-profiles.service';
-import { LinkedProfiles } from '../dto/linked-profiles';
+import { LinkedProfilesDto } from '../dto/linked-profiles.dto';
 import { PlayerByIdPipe } from '../pipes/player-by-id.pipe';
+import { SerializerInterceptor } from '@/shared/interceptors/serializer.interceptor';
+import { Serializable } from '@/shared/serializable';
+import { PlayerDto } from '../dto/player.dto';
+import { PlayerSkillDto } from '../dto/player-skill.dto';
+import { PlayerBanDto } from '../dto/player-ban.dto';
 
 @Controller('players')
 @UseInterceptors(CacheInterceptor)
@@ -48,36 +52,43 @@ export class PlayersController {
   ) {}
 
   @Get()
-  @UseInterceptors(ClassSerializerInterceptor)
-  async getAllPlayers() {
+  @UseInterceptors(SerializerInterceptor)
+  async getAllPlayers(): Promise<Serializable<PlayerDto>[]> {
     return await this.playersService.getAll();
   }
 
   @Get(':id')
-  @UseInterceptors(ClassSerializerInterceptor)
-  async getPlayer(@Param('id', PlayerByIdPipe) player: Player) {
+  @UseInterceptors(SerializerInterceptor)
+  async getPlayer(
+    @Param('id', PlayerByIdPipe) player: Player,
+  ): Promise<Serializable<PlayerDto>> {
     return player;
   }
 
   @Post()
   @Auth(PlayerRole.admin)
   @UsePipes(ValidationPipe)
-  @UseInterceptors(ClassSerializerInterceptor)
-  async forceCreatePlayer(@Body() player: ForceCreatePlayer) {
+  @UseInterceptors(SerializerInterceptor)
+  async forceCreatePlayer(
+    @Body() player: ForceCreatePlayer,
+  ): Promise<Serializable<PlayerDto>> {
     return await this.playersService.forceCreatePlayer(player);
   }
 
   @Patch(':id')
   @Auth(PlayerRole.admin)
-  @UseInterceptors(ClassSerializerInterceptor)
+  @UseInterceptors(SerializerInterceptor)
   async updatePlayer(
     @Param('id', PlayerByIdPipe) player: Player,
     @Body() update: Partial<Player>,
     @User() admin: Player,
-  ) {
+  ): Promise<Serializable<PlayerDto>> {
     return await this.playersService.updatePlayer(player.id, update, admin.id);
   }
 
+  /**
+   * @deprecated
+   */
   @Get(':id/games')
   @Header('Warning', '299 - "Deprecated API"')
   async getPlayerGames(
@@ -112,25 +123,27 @@ export class PlayersController {
 
   @CacheTTL(12 * 60 * 60)
   @Get(':id/stats')
-  @UseInterceptors(ClassSerializerInterceptor)
   async getPlayerStats(
     @Param('id', PlayerByIdPipe) player: Player,
-  ): Promise<PlayerStats> {
+  ): Promise<PlayerStatsDto> {
     return await this.playersService.getPlayerStats(player.id);
   }
 
   @Get('/all/skill')
   @Auth(PlayerRole.admin)
-  async getAllPlayerSkills() {
+  @UseInterceptors(SerializerInterceptor)
+  async getAllPlayerSkills(): Promise<Serializable<PlayerSkillDto>[]> {
     return await this.playerSkillService.getAll();
   }
 
   @Get(':id/skill')
   @Auth(PlayerRole.admin)
-  async getPlayerSkill(@Param('id', PlayerByIdPipe) player: Player) {
+  async getPlayerSkill(
+    @Param('id', PlayerByIdPipe) player: Player,
+  ): Promise<{ [gameClass in Tf2ClassName]?: number }> {
     const skill = await this.playerSkillService.getPlayerSkill(player.id);
     if (skill) {
-      return skill;
+      return Object.fromEntries(skill);
     } else {
       throw new NotFoundException();
     }
@@ -138,35 +151,40 @@ export class PlayersController {
 
   @Put(':id/skill')
   @Auth(PlayerRole.admin)
-  // todo validate skill
   async setPlayerSkill(
     @Param('id', PlayerByIdPipe) player: Player,
-    @Body() newSkill: { [className in Tf2ClassName]?: number },
+    @Body() newSkill: { [className in Tf2ClassName]?: number }, // TODO validate
     @User() user: Player,
-  ) {
+  ): Promise<{ [gameClass in Tf2ClassName]?: number }> {
     const newSkillAsMap = new Map(Object.entries(newSkill)) as Map<
       Tf2ClassName,
       number
     >;
-    return this.playerSkillService.setPlayerSkill(
+    const skill = await this.playerSkillService.setPlayerSkill(
       player.id,
       newSkillAsMap,
       user.id,
     );
+    return Object.fromEntries(skill);
   }
 
   @Get(':id/bans')
   @Auth(PlayerRole.admin)
-  @UseInterceptors(ClassSerializerInterceptor)
-  async getPlayerBans(@Param('id', PlayerByIdPipe) player: Player) {
+  @UseInterceptors(SerializerInterceptor)
+  async getPlayerBans(
+    @Param('id', PlayerByIdPipe) player: Player,
+  ): Promise<Serializable<PlayerBanDto>[]> {
     return await this.playerBansService.getPlayerBans(player.id);
   }
 
   @Post(':id/bans')
   @Auth(PlayerRole.admin)
   @UsePipes(ValidationPipe)
-  @UseInterceptors(ClassSerializerInterceptor)
-  async addPlayerBan(@Body() playerBan: PlayerBan, @User() user: Player) {
+  @UseInterceptors(SerializerInterceptor)
+  async addPlayerBan(
+    @Body() playerBan: PlayerBan,
+    @User() user: Player,
+  ): Promise<Serializable<PlayerBanDto>> {
     if (playerBan.admin.toString() !== user.id) {
       throw new BadRequestException(
         "the admin field must be the same as authorized user's id",
@@ -177,14 +195,14 @@ export class PlayersController {
 
   @Post(':playerId/bans/:banId')
   @Auth(PlayerRole.admin)
-  @UseInterceptors(ClassSerializerInterceptor)
+  @UseInterceptors(SerializerInterceptor)
   @HttpCode(200)
   async updatePlayerBan(
     @Param('playerId', PlayerByIdPipe) player: Player,
     @Param('banId', ObjectIdValidationPipe) banId: string,
     @Query('revoke') revoke: any,
     @User() user: Player,
-  ) {
+  ): Promise<Serializable<PlayerBanDto>> {
     const ban = await this.playerBansService.getById(banId);
     if (!ban) {
       throw new NotFoundException('ban not found');
@@ -200,11 +218,12 @@ export class PlayersController {
   }
 
   @Get(':id/linked-profiles')
-  @UseInterceptors(ClassSerializerInterceptor)
-  async getPlayerLinkedProfiles(@Param('id', PlayerByIdPipe) player: Player) {
+  async getPlayerLinkedProfiles(
+    @Param('id', PlayerByIdPipe) player: Player,
+  ): Promise<LinkedProfilesDto> {
     const linkedProfiles = await this.linkedProfilesService.getLinkedProfiles(
       player.id,
     );
-    return new LinkedProfiles(player.id, linkedProfiles);
+    return { playerId: player.id, linkedProfiles };
   }
 }

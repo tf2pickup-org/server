@@ -10,6 +10,7 @@ import { GameServerDiagnosticsService } from '@/game-servers/providers/static-ga
 import { DiagnosticRunStatus } from '@/game-servers/providers/static-game-server/models/diagnostic-run-status';
 import { players } from './test-data';
 import { StaticGameServersService } from '@/game-servers/providers/static-game-server/services/static-game-servers.service';
+import { setApp } from '@/app';
 
 jest.setTimeout(70000);
 
@@ -55,6 +56,7 @@ describe('Game server diagnostics (e2e)', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
+    setApp(app);
     await app.listen(3000);
 
     diagnosticsService = app.get(GameServerDiagnosticsService);

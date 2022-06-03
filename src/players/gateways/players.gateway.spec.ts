@@ -10,6 +10,9 @@ import { PlayersService } from '../services/players.service';
 import { PlayersGateway } from './players.gateway';
 
 jest.mock('../services/players.service');
+jest.mock('@/shared/serialize', () => ({
+  serialize: jest.fn().mockImplementation((value) => value),
+}));
 
 describe('PlayersGateway', () => {
   let gateway: PlayersGateway;

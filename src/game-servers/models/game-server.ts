@@ -1,14 +1,22 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
-import { MongooseDocument } from '@/utils/mongoose-document';
-import { Expose, Transform } from 'class-transformer';
+import { Exclude, Expose, Transform } from 'class-transformer';
 import { Rcon } from 'rcon-client/lib';
 import { NotImplementedError } from '../errors/not-implemented.error';
 import { TransformObjectId } from '@/shared/decorators/transform-object-id';
+import { Serializable } from '@/shared/serializable';
+import { GameServerDto } from '../dto/game-server.dto';
 
 @Schema({ discriminatorKey: 'provider' })
-export class GameServer extends MongooseDocument {
+export class GameServer extends Serializable<GameServerDto> {
   provider: string;
+
+  @Exclude({ toPlainOnly: true })
+  __v?: number;
+
+  @Exclude({ toPlainOnly: true })
+  @TransformObjectId()
+  _id?: Types.ObjectId;
 
   @Expose()
   @Transform(({ value, obj }) => value ?? obj._id?.toString())
@@ -52,6 +60,16 @@ export class GameServer extends MongooseDocument {
    */
   async start(): Promise<this> {
     return Promise.resolve(this);
+  }
+
+  async serialize(): Promise<GameServerDto> {
+    return {
+      id: this.id,
+      createdAt: this.createdAt,
+      name: this.name,
+      address: this.address,
+      port: this.port,
+    };
   }
 }
 
