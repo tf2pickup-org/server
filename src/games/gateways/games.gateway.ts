@@ -1,8 +1,4 @@
-import {
-  WebSocketGateway,
-  OnGatewayInit,
-  SubscribeMessage,
-} from '@nestjs/websockets';
+import { WebSocketGateway, SubscribeMessage } from '@nestjs/websockets';
 import { Socket } from 'socket.io';
 import { WsAuthorized } from '@/auth/decorators/ws-authorized.decorator';
 import { PlayerSubstitutionService } from '../services/player-substitution.service';
@@ -14,7 +10,6 @@ import {
 } from '@nestjs/common';
 import { Events } from '@/events/events';
 import { WebsocketEvent } from '@/websocket-event';
-import { serialize } from '@/shared/serialize';
 import { SerializerInterceptor } from '@/shared/interceptors/serializer.interceptor';
 import { Serializable } from '@/shared/serializable';
 import { GameDto } from '../dto/game.dto';
@@ -22,18 +17,15 @@ import { WebsocketEventEmitter } from '@/shared/websocket-event-emitter';
 
 @WebSocketGateway()
 export class GamesGateway
-  implements OnGatewayInit, OnModuleInit, WebsocketEventEmitter<GameDto>
+  extends WebsocketEventEmitter<GameDto>
+  implements OnModuleInit
 {
-  private socket: Socket;
-
   constructor(
     @Inject(forwardRef(() => PlayerSubstitutionService))
     private playerSubstitutionService: PlayerSubstitutionService,
     private events: Events,
-  ) {}
-
-  async emit(event: WebsocketEvent, payload: Serializable<GameDto>) {
-    this.socket.emit(event, await serialize(payload));
+  ) {
+    super();
   }
 
   @WsAuthorized()
@@ -48,10 +40,6 @@ export class GamesGateway
       payload.replaceeId,
       client.user.id,
     );
-  }
-
-  afterInit(socket: Socket) {
-    this.socket = socket;
   }
 
   onModuleInit() {
