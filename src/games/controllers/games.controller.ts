@@ -25,7 +25,6 @@ import { PlayerRole } from '@/players/models/player-role';
 import { PlayerNotInThisGameError } from '../errors/player-not-in-this-game.error';
 import { ConnectInfoDto } from '../dto/connect-info.dto';
 import { DocumentNotFoundFilter } from '@/shared/filters/document-not-found.filter';
-import { SerializerInterceptor } from '@/shared/interceptors/serializer.interceptor';
 import { GameDto } from '../dto/game.dto';
 import { Serializable } from '@/shared/serializable';
 import { PaginatedGameListDto } from '../dto/paginated-game-list.dto';
@@ -46,7 +45,6 @@ export class GamesController {
   ) {}
 
   @Get()
-  @UseInterceptors(SerializerInterceptor)
   async getGames(
     @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
     @Query('offset', new DefaultValuePipe(0), ParseIntPipe) offset: number,
@@ -91,7 +89,6 @@ export class GamesController {
 
   @Get(':id')
   @UseFilters(DocumentNotFoundFilter)
-  @UseInterceptors(SerializerInterceptor)
   async getGame(
     @Param('id', ObjectIdValidationPipe) gameId: string,
   ): Promise<Serializable<GameDto>> {

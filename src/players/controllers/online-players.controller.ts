@@ -1,6 +1,5 @@
-import { SerializerInterceptor } from '@/shared/interceptors/serializer.interceptor';
 import { Serializable } from '@/shared/serializable';
-import { Controller, Get, UseInterceptors } from '@nestjs/common';
+import { Controller, Get } from '@nestjs/common';
 import { PlayerDto } from '../dto/player.dto';
 import { OnlinePlayersService } from '../services/online-players.service';
 import { PlayersService } from '../services/players.service';
@@ -13,7 +12,6 @@ export class OnlinePlayersController {
   ) {}
 
   @Get()
-  @UseInterceptors(SerializerInterceptor)
   async getOnlinePlayers(): Promise<Serializable<PlayerDto>[]> {
     return await this.playersService.getManyById(
       ...this.onlinePlayersService.onlinePlayers,

@@ -7,7 +7,7 @@ import { QueueService } from '../services/queue.service';
 import { WsAuthorized } from '@/auth/decorators/ws-authorized.decorator';
 import { Socket } from 'socket.io';
 import { MapVoteService } from '../services/map-vote.service';
-import { OnModuleInit, UseFilters, UseInterceptors } from '@nestjs/common';
+import { OnModuleInit, UseFilters } from '@nestjs/common';
 import { QueueAnnouncementsService } from '../services/queue-announcements.service';
 import { FriendsService } from '../services/friends.service';
 import { Events } from '@/events/events';
@@ -15,7 +15,6 @@ import { distinctUntilChanged, map } from 'rxjs/operators';
 import { WebsocketEvent } from '@/websocket-event';
 import { AllExceptionsFilter } from '@/shared/filters/all-exceptions.filter';
 import { serialize } from '@/shared/serialize';
-import { SerializerInterceptor } from '@/shared/interceptors/serializer.interceptor';
 import { Serializable } from '@/shared/serializable';
 import { QueueSlotDto } from '../dto/queue-slot.dto';
 import { QueueSlotWrapper } from '../controllers/queue-slot-wrapper';
@@ -68,7 +67,6 @@ export class QueueGateway implements OnGatewayInit, OnModuleInit {
 
   @UseFilters(AllExceptionsFilter)
   @WsAuthorized()
-  @UseInterceptors(SerializerInterceptor)
   @SubscribeMessage('join queue')
   async joinQueue(
     client: Socket,
@@ -81,7 +79,6 @@ export class QueueGateway implements OnGatewayInit, OnModuleInit {
 
   @UseFilters(AllExceptionsFilter)
   @WsAuthorized()
-  @UseInterceptors(SerializerInterceptor)
   @SubscribeMessage('leave queue')
   leaveQueue(client: Socket): Serializable<QueueSlotDto> {
     return new QueueSlotWrapper(this.queueService.leave(client.user.id));
@@ -89,7 +86,6 @@ export class QueueGateway implements OnGatewayInit, OnModuleInit {
 
   @UseFilters(AllExceptionsFilter)
   @WsAuthorized()
-  @UseInterceptors(SerializerInterceptor)
   @SubscribeMessage('player ready')
   playerReady(client: Socket): Serializable<QueueSlotDto> {
     return new QueueSlotWrapper(this.queueService.readyUp(client.user.id));
