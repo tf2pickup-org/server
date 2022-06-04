@@ -1,5 +1,22 @@
 
 
+# [9.0.0-beta.15](https://github.com/tf2pickup-org/server/compare/9.0.0-beta.14...9.0.0-beta.15) (2022-06-04)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @nestjs/config to v2.1.0 ([#1697](https://github.com/tf2pickup-org/server/issues/1697)) ([ffa7643](https://github.com/tf2pickup-org/server/commit/ffa764313278006181178d751a019a5b933c3c07))
+* **deps:** update dependency cache-manager to v4 ([#1694](https://github.com/tf2pickup-org/server/issues/1694)) ([45cfb12](https://github.com/tf2pickup-org/server/commit/45cfb129843501a510025b087e09fe3990f37afb))
+* **deps:** update dependency cache-manager to v4.0.1 ([#1700](https://github.com/tf2pickup-org/server/issues/1700)) ([94280fb](https://github.com/tf2pickup-org/server/commit/94280fb777ffdb8872421a25e8e8e7ceeff1a375))
+* new serialization mechanism ([#1660](https://github.com/tf2pickup-org/server/issues/1660)) ([7bfe377](https://github.com/tf2pickup-org/server/commit/7bfe37716487eb6cead3a0fb8fa011f3880bf6da))
+
+
+### BREAKING CHANGES
+
+* Game.slot.player is a Player instance
+* Game.gameServer is a GameServer instance
+* QueueSlot.playerId is gone
+
 # [9.0.0-beta.14](https://github.com/tf2pickup-pl/server/compare/9.0.0-beta.13...9.0.0-beta.14) (2022-06-01)
 
 
