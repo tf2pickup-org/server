@@ -6,14 +6,12 @@ import {
   Patch,
   Body,
   BadRequestException,
-  ParseIntPipe,
   Query,
   Put,
   Post,
   UsePipes,
   ValidationPipe,
   HttpCode,
-  Header,
   UseInterceptors,
   CacheInterceptor,
   CacheTTL,
@@ -22,7 +20,6 @@ import { PlayersService } from '../services/players.service';
 import { ObjectIdValidationPipe } from '@/shared/pipes/object-id-validation.pipe';
 import { Player } from '../models/player';
 import { Auth } from '@/auth/decorators/auth.decorator';
-import { GamesService } from '@/games/services/games.service';
 import { PlayerSkillService } from '../services/player-skill.service';
 import { PlayerBansService } from '../services/player-bans.service';
 import { PlayerBan } from '../models/player-ban';
@@ -45,7 +42,6 @@ import { PlayerBanDto } from '../dto/player-ban.dto';
 export class PlayersController {
   constructor(
     private playersService: PlayersService,
-    private gamesService: GamesService,
     private playerSkillService: PlayerSkillService,
     private playerBansService: PlayerBansService,
     private linkedProfilesService: LinkedProfilesService,
@@ -84,41 +80,6 @@ export class PlayersController {
     @User() admin: Player,
   ): Promise<Serializable<PlayerDto>> {
     return await this.playersService.updatePlayer(player.id, update, admin.id);
-  }
-
-  /**
-   * @deprecated
-   */
-  @Get(':id/games')
-  @Header('Warning', '299 - "Deprecated API"')
-  async getPlayerGames(
-    @Param('id', PlayerByIdPipe) player: Player,
-    @Query('limit', ParseIntPipe) limit = 10,
-    @Query('offset', ParseIntPipe) offset = 0,
-    @Query('sort') sort = '-launched_at',
-  ) {
-    let sortParam: { launchedAt: 1 | -1 };
-    switch (sort) {
-      case '-launched_at':
-      case '-launchedAt':
-        sortParam = { launchedAt: -1 };
-        break;
-
-      case 'launched_at':
-      case 'launchedAt':
-        sortParam = { launchedAt: 1 };
-        break;
-
-      default:
-        throw new BadRequestException('invalid value for the sort parameter');
-    }
-
-    const [results, itemCount] = await Promise.all([
-      this.gamesService.getPlayerGames(player.id, sortParam, limit, offset),
-      this.gamesService.getPlayerGameCount(player.id),
-    ]);
-
-    return { results, itemCount };
   }
 
   @CacheTTL(12 * 60 * 60)
