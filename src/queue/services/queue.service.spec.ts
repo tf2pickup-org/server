@@ -18,6 +18,7 @@ import { PlayerNotInTheQueueError } from '../errors/player-not-in-the-queue.erro
 import { WrongQueueStateError } from '../errors/wrong-queue-state.error';
 import { Connection, Types } from 'mongoose';
 import { CACHE_MANAGER } from '@nestjs/common';
+import { QueueState } from '../queue-state';
 
 jest.mock('@/players/services/players.service');
 jest.mock('@/players/services/player-bans.service');
@@ -206,7 +207,7 @@ describe('QueueService', () => {
             player: null,
           },
         ],
-        state: 'waiting',
+        state: QueueState.waiting,
       });
 
       await service.onModuleInit();
@@ -223,7 +224,7 @@ describe('QueueService', () => {
     });
 
     it('should be empty initially', () => {
-      expect(service.state).toEqual('waiting');
+      expect(service.state).toEqual(QueueState.waiting);
       expect(service.slots.length).toBe(12);
       expect(service.slots.every((s) => s.playerId === null)).toBe(true);
       expect(service.slots.every((s) => s.ready === false)).toBe(true);
@@ -385,7 +386,7 @@ describe('QueueService', () => {
             expect(key).toEqual('queue');
             expect(value).toEqual({
               slots: expect.any(Array),
-              state: 'waiting',
+              state: QueueState.waiting,
             });
             expect(
               value.slots.find((s) => s.playerId === player.id),
@@ -437,7 +438,7 @@ describe('QueueService', () => {
             expect(key).toEqual('queue');
             expect(value).toEqual({
               slots: expect.any(Array),
-              state: 'waiting',
+              state: QueueState.waiting,
             });
             expect(value.slots.every((s) => s.playerId === null)).toBe(true);
             resolve();
@@ -476,7 +477,7 @@ describe('QueueService', () => {
             expect(key).toEqual('queue');
             expect(value).toEqual({
               slots: expect.any(Array),
-              state: 'waiting',
+              state: QueueState.waiting,
             });
             expect(value.slots.every((s) => s.playerId === null)).toBe(true);
             resolve();
@@ -518,7 +519,7 @@ describe('QueueService', () => {
       });
 
       it('should change the state to ready', () => {
-        expect(service.state).toEqual('ready');
+        expect(service.state).toEqual(QueueState.ready);
       });
 
       describe('#readyUp()', () => {
@@ -568,7 +569,7 @@ describe('QueueService', () => {
         });
 
         it('should go back to the waiting state', () => {
-          expect(service.state).toEqual('waiting');
+          expect(service.state).toEqual(QueueState.waiting);
         });
       });
     });

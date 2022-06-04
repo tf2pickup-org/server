@@ -4,6 +4,7 @@ import { Events } from '@/events/events';
 import { PlayerNotInTheQueueError } from '../errors/player-not-in-the-queue.error';
 import { CannotMarkPlayerAsFriendError } from '../errors/cannot-mark-player-as-friend.error';
 import { PlayerAlreadyMarkedAsFriendError } from '../errors/player-already-marked-as-friend.error';
+import { QueueState } from '../queue-state';
 
 export interface Friendship {
   sourcePlayerId: string;
@@ -21,7 +22,7 @@ export class FriendsService implements OnModuleInit {
   }
 
   markFriend(sourcePlayerId: string, targetPlayerId: string) {
-    if (this.queueService.state === 'launching') {
+    if (this.queueService.state === QueueState.launching) {
       throw new Error('cannot make friends at this stage');
     }
 

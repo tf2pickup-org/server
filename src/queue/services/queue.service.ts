@@ -36,7 +36,7 @@ interface Queue {
 @Injectable()
 export class QueueService implements OnModuleInit, OnModuleDestroy {
   slots: QueueSlot[] = [];
-  state: QueueState = 'waiting';
+  state: QueueState = QueueState.waiting;
 
   private logger = new Logger(QueueService.name);
   private timer?: NodeJS.Timer;
@@ -121,7 +121,7 @@ export class QueueService implements OnModuleInit, OnModuleDestroy {
   async join(slotId: number, playerId: string): Promise<QueueSlot[]> {
     return await this.mutex.runExclusive(async () => {
       try {
-        if (this.state === 'launching') {
+        if (this.state === QueueState.launching) {
           throw new CannotJoinAtThisQueueStateError(this.state);
         }
 
@@ -155,7 +155,7 @@ export class QueueService implements OnModuleInit, OnModuleDestroy {
         targetSlot.playerId = playerId;
 
         if (
-          this.state === 'ready' ||
+          this.state === QueueState.ready ||
           this.playerCount === this.requiredPlayerCount
         ) {
           targetSlot.ready = true;
@@ -186,7 +186,7 @@ export class QueueService implements OnModuleInit, OnModuleDestroy {
   leave(playerId: string): QueueSlot {
     const slot = this.findSlotByPlayerId(playerId);
     if (slot) {
-      if (slot.ready && this.state !== 'waiting') {
+      if (slot.ready && this.state !== QueueState.waiting) {
         throw new CannotLeaveAtThisQueueStateError(this.state);
       }
 
@@ -201,7 +201,7 @@ export class QueueService implements OnModuleInit, OnModuleDestroy {
   }
 
   kick(...playerIds: string[]) {
-    if (this.state === 'launching') {
+    if (this.state === QueueState.launching) {
       return;
     }
 
@@ -223,7 +223,7 @@ export class QueueService implements OnModuleInit, OnModuleDestroy {
   }
 
   readyUp(playerId: string): QueueSlot {
-    if (this.state !== 'ready') {
+    if (this.state !== QueueState.ready) {
       throw new WrongQueueStateError(this.state);
     }
 
@@ -243,35 +243,35 @@ export class QueueService implements OnModuleInit, OnModuleDestroy {
   private maybeUpdateState() {
     // check whether we can change state
     switch (this.state) {
-      case 'waiting':
+      case QueueState.waiting:
         if (this.playerCount === this.requiredPlayerCount) {
-          this.setState('ready');
+          this.setState(QueueState.ready);
         }
         break;
 
-      case 'ready':
+      case QueueState.ready:
         if (this.playerCount === 0) {
-          this.setState('waiting');
+          this.setState(QueueState.waiting);
         } else if (this.readyPlayerCount === this.requiredPlayerCount) {
-          this.setState('launching');
+          this.setState(QueueState.launching);
         }
         break;
 
-      case 'launching':
-        this.setState('waiting');
+      case QueueState.launching:
+        this.setState(QueueState.waiting);
         break;
     }
   }
 
   private onStateChange(state: QueueState) {
     switch (state) {
-      case 'ready':
+      case QueueState.ready:
         clearTimeout(this.timer);
         this.timer = setTimeout(() => this.onReadyUpTimeout(), readyUpTimeout);
         break;
 
-      case 'launching':
-      case 'waiting':
+      case QueueState.launching:
+      case QueueState.waiting:
         clearTimeout(this.timer);
         break;
     }
@@ -336,7 +336,7 @@ export class QueueService implements OnModuleInit, OnModuleDestroy {
     const slots = this.slots.filter((s) => !!s.playerId);
     slots.forEach((s) => (s.ready = false));
     this.events.queueSlotsChange.next({ slots });
-    this.setState('waiting');
+    this.setState(QueueState.waiting);
   }
 
   private setState(state: QueueState) {

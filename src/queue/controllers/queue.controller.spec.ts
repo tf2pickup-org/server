@@ -7,6 +7,7 @@ import { QueueAnnouncementsService } from '../services/queue-announcements.servi
 import { FriendsService } from '../services/friends.service';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { MapPoolService } from '../services/map-pool.service';
+import { QueueState } from '../queue-state';
 
 jest.mock('../services/queue-config.service');
 jest.mock('../services/queue.service');
@@ -64,7 +65,7 @@ describe('Queue Controller', () => {
         playerId: null,
       },
     ];
-    queueService.state = 'waiting';
+    queueService.state = QueueState.waiting;
 
     queueAnnouncementsService.substituteRequests.mockResolvedValue([
       {
