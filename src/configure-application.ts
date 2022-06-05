@@ -11,7 +11,7 @@ import { SerializerInterceptor } from './shared/interceptors/serializer.intercep
 export class WorkaroundSocketAdapter extends IoAdapter {
   createIOServer(
     port: number,
-    options?: ServerOptions & { namespace?: string; server?: any },
+    options?: ServerOptions & { namespace?: string; server?: unknown },
   ) {
     return super.createIOServer(port, { ...options, cors: true });
   }
