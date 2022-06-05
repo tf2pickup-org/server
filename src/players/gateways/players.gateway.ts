@@ -2,7 +2,6 @@ import {
   WebSocketGateway,
   OnGatewayConnection,
   OnGatewayDisconnect,
-  OnGatewayInit,
 } from '@nestjs/websockets';
 import { Socket } from 'socket.io';
 import { Subject } from 'rxjs';
@@ -10,23 +9,16 @@ import { OnModuleInit } from '@nestjs/common';
 import { Events } from '@/events/events';
 import { WebsocketEvent } from '@/websocket-event';
 import { PlayersService } from '../services/players.service';
-import { serialize } from '@/shared/serialize';
 import { WebsocketEventEmitter } from '@/shared/websocket-event-emitter';
 import { PlayerDto } from '../dto/player.dto';
-import { Serializable } from '@/shared/serializable';
 
 @WebSocketGateway()
 export class PlayersGateway
-  implements
-    OnGatewayConnection,
-    OnGatewayDisconnect,
-    OnGatewayInit,
-    OnModuleInit,
-    WebsocketEventEmitter<PlayerDto>
+  extends WebsocketEventEmitter<PlayerDto>
+  implements OnGatewayConnection, OnGatewayDisconnect, OnModuleInit
 {
   private _playerConnected = new Subject<Socket>();
   private _playerDisconnected = new Subject<Socket>();
-  private socket: Socket;
 
   get playerConnected() {
     return this._playerConnected.asObservable();
@@ -36,10 +28,8 @@ export class PlayersGateway
     return this._playerDisconnected.asObservable();
   }
 
-  constructor(private events: Events, private playersService: PlayersService) {}
-
-  async emit(event: WebsocketEvent, payload: Serializable<PlayerDto>) {
-    this.socket.emit(event, await serialize(payload));
+  constructor(private events: Events, private playersService: PlayersService) {
+    super();
   }
 
   handleConnection(socket: Socket) {
@@ -48,10 +38,6 @@ export class PlayersGateway
 
   handleDisconnect(socket: Socket) {
     this._playerDisconnected.next(socket);
-  }
-
-  afterInit(socket: Socket) {
-    this.socket = socket;
   }
 
   onModuleInit() {
