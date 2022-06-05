@@ -26,7 +26,7 @@ jobs:
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
             type=semver,pattern={{major}}
-            type=semver,pattern=stable,enable=${{ !contains(github.event.push.ref, 'beta') && !contains(github.event.push.ref, 'alpha') }}
+            type=semver,pattern=stable,enable=${{ !contains(github.event.push.ref, 'alpha') && !contains(github.event.push.ref, 'beta') && !contains(github.event.push.ref, 'rc') }}
 
       - name: Login to DockerHub
         uses: docker/login-action@v2
