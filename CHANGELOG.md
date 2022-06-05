@@ -1,5 +1,18 @@
 
 
+# [9.0.0-rc.0](https://github.com/tf2pickup-org/server/compare/9.0.0-beta.15...9.0.0-rc.0) (2022-06-05)
+
+
+### Bug Fixes
+
+* **ci:** support rc builds ([#1712](https://github.com/tf2pickup-org/server/issues/1712)) ([6087256](https://github.com/tf2pickup-org/server/commit/60872566550a89520cdbb1c4068e09b9cbf0b846))
+* **players:** get rid of the getPlayerGames() endpoint ([#1705](https://github.com/tf2pickup-org/server/issues/1705)) ([ec78d98](https://github.com/tf2pickup-org/server/commit/ec78d98c111563ca7e5fcb94f92ac9be59418323))
+
+
+### BREAKING CHANGES
+
+* **players:** /players/:playerId/games endpoint is gone
+
 # [9.0.0-beta.15](https://github.com/tf2pickup-org/server/compare/9.0.0-beta.14...9.0.0-beta.15) (2022-06-04)
 
 
