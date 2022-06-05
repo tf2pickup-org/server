@@ -1,7 +1,7 @@
-import { setApp } from '@/app';
 import { AppModule } from '@/app.module';
 import { JwtTokenPurpose } from '@/auth/jwt-token-purpose';
 import { AuthService } from '@/auth/services/auth.service';
+import { configureApplication } from '@/configure-application';
 import { PlayersService } from '@/players/services/players.service';
 import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
@@ -42,7 +42,7 @@ describe('Launch game (e2e)', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
-    setApp(app);
+    configureApplication(app);
     await app.listen(3000);
 
     clients = [];

@@ -10,7 +10,7 @@ import * as request from 'supertest';
 import { StaticGameServersService } from '@/game-servers/providers/static-game-server/services/static-game-servers.service';
 import { GameLauncherService } from '@/games/services/game-launcher.service';
 import { GameEventHandlerService } from '@/games/services/game-event-handler.service';
-import { setApp } from '@/app';
+import { configureApplication } from '@/configure-application';
 
 jest.setTimeout(150 * 1000);
 
@@ -37,7 +37,7 @@ describe('Assign and release gameserver (e2e)', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
-    setApp(app);
+    configureApplication(app);
     await app.listen(3000);
 
     staticGameServersService = app.get(StaticGameServersService);

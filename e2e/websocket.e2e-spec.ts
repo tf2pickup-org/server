@@ -1,7 +1,7 @@
-import { setApp } from '@/app';
 import { AppModule } from '@/app.module';
 import { JwtTokenPurpose } from '@/auth/jwt-token-purpose';
 import { AuthService } from '@/auth/services/auth.service';
+import { configureApplication } from '@/configure-application';
 import { Player } from '@/players/models/player';
 import { PlayersService } from '@/players/services/players.service';
 import { INestApplication } from '@nestjs/common';
@@ -20,7 +20,7 @@ describe('Websocket (e2e)', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
-    setApp(app);
+    configureApplication(app);
     await app.listen(3000);
   });
 
