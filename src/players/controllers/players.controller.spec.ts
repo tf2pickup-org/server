@@ -2,8 +2,6 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { PlayersController } from './players.controller';
 import { PlayersService } from '../services/players.service';
 import { Player } from '../models/player';
-import { GamesService } from '@/games/services/games.service';
-import { Game } from '@/games/models/game';
 import { PlayerStatsDto } from '../dto/player-stats.dto';
 import { PlayerSkillService } from '../services/player-skill.service';
 import { PlayerSkill } from '../models/player-skill';
@@ -18,7 +16,6 @@ import { plainToInstance } from 'class-transformer';
 import { PlayerBan } from '../models/player-ban';
 import { LinkedProfilesService } from '../services/linked-profiles.service';
 import { LinkedProfileProviderName } from '../types/linked-profile-provider-name';
-import { LinkedProfilesDto } from '../dto/linked-profiles.dto';
 import { Types } from 'mongoose';
 
 jest.mock('../services/linked-profiles.service');
@@ -57,25 +54,6 @@ class PlayersServiceStub {
   }
   getPlayerStats(playerId: string) {
     return new Promise((resolve) => resolve(this.stats));
-  }
-}
-
-class GamesServiceStub {
-  games: Game[] = [
-    { number: 1, map: 'cp_fake_rc1', state: 'ended', slots: [] } as Game,
-    { number: 2, map: 'cp_fake_rc2', state: 'launching', slots: [] } as Game,
-  ];
-  getPlayerGames(
-    playerId: string,
-    sort: any = { launchedAt: -1 },
-    limit = 10,
-    skip = 0,
-  ) {
-    return Promise.resolve(this.games);
-  }
-
-  getPlayerGameCount() {
-    return Promise.resolve(2);
   }
 }
 
@@ -142,7 +120,6 @@ class PlayerBansServiceStub {
 describe('Players Controller', () => {
   let controller: PlayersController;
   let playersService: PlayersServiceStub;
-  let gamesService: GamesServiceStub;
   let playerSkillService: PlayerSkillServiceStub;
   let playerBansService: PlayerBansServiceStub;
   let linkedProfilesService: jest.Mocked<LinkedProfilesService>;
@@ -151,7 +128,6 @@ describe('Players Controller', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         { provide: PlayersService, useClass: PlayersServiceStub },
-        { provide: GamesService, useClass: GamesServiceStub },
         { provide: PlayerSkillService, useClass: PlayerSkillServiceStub },
         { provide: PlayerBansService, useClass: PlayerBansServiceStub },
         LinkedProfilesService,
@@ -162,7 +138,6 @@ describe('Players Controller', () => {
 
     controller = module.get<PlayersController>(PlayersController);
     playersService = module.get(PlayersService);
-    gamesService = module.get(GamesService);
     playerSkillService = module.get(PlayerSkillService);
     playerBansService = module.get(PlayerBansService);
     linkedProfilesService = module.get(LinkedProfilesService);
@@ -218,32 +193,6 @@ describe('Players Controller', () => {
         'FAKE_ADMIN_ID',
       );
       expect(ret).toEqual(playersService.player as any);
-    });
-  });
-
-  describe('#getPlayerGames()', () => {
-    it('should return player games', async () => {
-      const spy1 = jest.spyOn(gamesService, 'getPlayerGames');
-      const spy2 = jest.spyOn(gamesService, 'getPlayerGameCount');
-
-      const ret = await controller.getPlayerGames(
-        playersService.player,
-        44,
-        52,
-        'launched_at',
-      );
-      expect(spy1).toHaveBeenCalledWith('FAKE_ID', { launchedAt: 1 }, 44, 52);
-      expect(spy2).toHaveBeenCalled();
-      expect(ret).toEqual({
-        results: gamesService.games,
-        itemCount: 2,
-      } as any);
-    });
-
-    it('should throw an error unless the sort param is correct', async () => {
-      await expect(
-        controller.getPlayerGames(playersService.player, 3, 5, 'lol'),
-      ).rejects.toThrow();
     });
   });
 
