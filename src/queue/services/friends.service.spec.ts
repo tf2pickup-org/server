@@ -7,9 +7,10 @@ import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { PlayerAlreadyMarkedAsFriendError } from '../errors/player-already-marked-as-friend.error';
 import { PlayerNotInTheQueueError } from '../errors/player-not-in-the-queue.error';
 import { CannotMarkPlayerAsFriendError } from '../errors/cannot-mark-player-as-friend.error';
+import { QueueState } from '../queue-state';
 
 class QueueServiceStub {
-  state = 'waiting';
+  state = QueueState.waiting;
   slots: QueueSlot[] = [
     {
       id: 0,
@@ -64,7 +65,7 @@ describe('FriendsService', () => {
 
   describe('markFriend()', () => {
     it('should fail if the queue is in launching state', () => {
-      queueService.state = 'launching';
+      queueService.state = QueueState.launching;
       expect(() =>
         service.markFriend('FAKE_MEDIC', 'FAKE_DM_CLASS'),
       ).toThrowError('cannot make friends at this stage');

@@ -5,6 +5,7 @@ import { MapVoteService } from './map-vote.service';
 import { GamesService } from '@/games/services/games.service';
 import { FriendsService } from './friends.service';
 import { Events } from '@/events/events';
+import { QueueState } from '../queue-state';
 
 jest.mock('./friends.service');
 jest.mock('./queue.service');
@@ -80,7 +81,7 @@ describe('AutoGameLauncherService', () => {
 
   it('should launch the game and reset the queue', async () => {
     return new Promise<void>((resolve) => {
-      events.queueStateChange.next({ state: 'launching' });
+      events.queueStateChange.next({ state: QueueState.launching });
 
       setImmediate(() => {
         expect(queueService.reset).toHaveBeenCalled();
