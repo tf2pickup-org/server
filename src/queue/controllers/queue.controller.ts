@@ -6,7 +6,6 @@ import {
   Param,
   Post,
   Put,
-  UseInterceptors,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
@@ -19,7 +18,6 @@ import { MapPoolService } from '../services/map-pool.service';
 import { Auth } from '@/auth/decorators/auth.decorator';
 import { Map } from '../models/map';
 import { PlayerRole } from '@/players/models/player-role';
-import { SerializerInterceptor } from '@/shared/interceptors/serializer.interceptor';
 import { Serializable } from '@/shared/serializable';
 import { QueueSlotDto } from '../dto/queue-slot.dto';
 import { QueueSlotWrapper } from './queue-slot-wrapper';
@@ -38,7 +36,6 @@ export class QueueController {
   ) {}
 
   @Get()
-  @UseInterceptors(SerializerInterceptor)
   async getQueue(): Promise<Serializable<QueueDto>> {
     return new QueueWrapper({
       config: this.queueConfigService.queueConfig,
@@ -62,7 +59,6 @@ export class QueueController {
   }
 
   @Get('slots')
-  @UseInterceptors(SerializerInterceptor)
   getQueueSlots(): Serializable<QueueSlotDto>[] {
     return this.queueService.slots.map((s) => new QueueSlotWrapper(s));
   }

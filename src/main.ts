@@ -1,22 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import helmet from 'helmet';
 import { LogLevel } from '@nestjs/common';
-import { IoAdapter } from '@nestjs/platform-socket.io';
-import { ServerOptions } from 'socket.io';
-import { setApp } from './app';
-
-/**
- * https://stackoverflow.com/questions/65957386/cors-error-with-socket-io-connections-on-chrome-v88-and-nestjs-server
- */
-export class WorkaroundSocketAdapter extends IoAdapter {
-  createIOServer(
-    port: number,
-    options?: ServerOptions & { namespace?: string; server?: any },
-  ) {
-    return super.createIOServer(port, { ...options, cors: true });
-  }
-}
+import { configureApplication } from './configure-application';
 
 async function bootstrap() {
   let logLevels: LogLevel[];
@@ -31,21 +16,7 @@ async function bootstrap() {
     logger: logLevels,
   });
 
-  app.useWebSocketAdapter(new WorkaroundSocketAdapter(app));
-  app.enableCors();
-  app.use(helmet());
-  app.use(
-    helmet.contentSecurityPolicy({
-      directives: {
-        defaultSrc: ["'none'"],
-        baseUri: ["'none'"],
-        formAction: ["'none'"],
-        scriptSrc: ["'self'", "'unsafe-inline'"],
-      },
-    }),
-  );
-
-  setApp(app);
+  configureApplication(app);
   await app.listen(3000);
 }
 bootstrap();

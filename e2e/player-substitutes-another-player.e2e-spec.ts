@@ -1,7 +1,7 @@
-import { setApp } from '@/app';
 import { AppModule } from '@/app.module';
 import { JwtTokenPurpose } from '@/auth/jwt-token-purpose';
 import { AuthService } from '@/auth/services/auth.service';
+import { configureApplication } from '@/configure-application';
 import { GameRuntimeService } from '@/games/services/game-runtime.service';
 import { GamesService } from '@/games/services/games.service';
 import { PlayersService } from '@/players/services/players.service';
@@ -26,7 +26,7 @@ describe('Player substitutes another player (e2e)', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
-    setApp(app);
+    configureApplication(app);
     await app.listen(3000);
 
     playersService = app.get(PlayersService);

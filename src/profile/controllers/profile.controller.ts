@@ -18,7 +18,6 @@ import { PlayerBansService } from '@/players/services/player-bans.service';
 import { MapVoteService } from '@/queue/services/map-vote.service';
 import { PlayerPreferencesService } from '@/player-preferences/services/player-preferences.service';
 import { LinkedProfilesService } from '@/players/services/linked-profiles.service';
-import { SerializerInterceptor } from '@/shared/interceptors/serializer.interceptor';
 import { Serializable } from '@/shared/serializable';
 import { ProfileDto } from '../dto/profile.dto';
 import { ProfileWrapper } from './profile-wrapper';
@@ -35,7 +34,6 @@ export class ProfileController {
 
   @Get()
   @Auth()
-  @UseInterceptors(SerializerInterceptor)
   async getProfile(@User() user: Player): Promise<Serializable<ProfileDto>> {
     return new ProfileWrapper({
       player: user,

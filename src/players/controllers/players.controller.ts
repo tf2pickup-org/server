@@ -31,7 +31,6 @@ import { PlayerRole } from '../models/player-role';
 import { LinkedProfilesService } from '../services/linked-profiles.service';
 import { LinkedProfilesDto } from '../dto/linked-profiles.dto';
 import { PlayerByIdPipe } from '../pipes/player-by-id.pipe';
-import { SerializerInterceptor } from '@/shared/interceptors/serializer.interceptor';
 import { Serializable } from '@/shared/serializable';
 import { PlayerDto } from '../dto/player.dto';
 import { PlayerSkillDto } from '../dto/player-skill.dto';
@@ -48,23 +47,20 @@ export class PlayersController {
   ) {}
 
   @Get()
-  @UseInterceptors(SerializerInterceptor)
   async getAllPlayers(): Promise<Serializable<PlayerDto>[]> {
     return await this.playersService.getAll();
   }
 
   @Get(':id')
-  @UseInterceptors(SerializerInterceptor)
-  async getPlayer(
+  getPlayer(
     @Param('id', PlayerByIdPipe) player: Player,
-  ): Promise<Serializable<PlayerDto>> {
+  ): Serializable<PlayerDto> {
     return player;
   }
 
   @Post()
   @Auth(PlayerRole.admin)
   @UsePipes(ValidationPipe)
-  @UseInterceptors(SerializerInterceptor)
   async forceCreatePlayer(
     @Body() player: ForceCreatePlayer,
   ): Promise<Serializable<PlayerDto>> {
@@ -73,7 +69,6 @@ export class PlayersController {
 
   @Patch(':id')
   @Auth(PlayerRole.admin)
-  @UseInterceptors(SerializerInterceptor)
   async updatePlayer(
     @Param('id', PlayerByIdPipe) player: Player,
     @Body() update: Partial<Player>,
@@ -92,7 +87,6 @@ export class PlayersController {
 
   @Get('/all/skill')
   @Auth(PlayerRole.admin)
-  @UseInterceptors(SerializerInterceptor)
   async getAllPlayerSkills(): Promise<Serializable<PlayerSkillDto>[]> {
     return await this.playerSkillService.getAll();
   }
@@ -131,7 +125,6 @@ export class PlayersController {
 
   @Get(':id/bans')
   @Auth(PlayerRole.admin)
-  @UseInterceptors(SerializerInterceptor)
   async getPlayerBans(
     @Param('id', PlayerByIdPipe) player: Player,
   ): Promise<Serializable<PlayerBanDto>[]> {
@@ -141,7 +134,6 @@ export class PlayersController {
   @Post(':id/bans')
   @Auth(PlayerRole.admin)
   @UsePipes(ValidationPipe)
-  @UseInterceptors(SerializerInterceptor)
   async addPlayerBan(
     @Body() playerBan: PlayerBan,
     @User() user: Player,
@@ -156,12 +148,11 @@ export class PlayersController {
 
   @Post(':playerId/bans/:banId')
   @Auth(PlayerRole.admin)
-  @UseInterceptors(SerializerInterceptor)
   @HttpCode(200)
   async updatePlayerBan(
     @Param('playerId', PlayerByIdPipe) player: Player,
     @Param('banId', ObjectIdValidationPipe) banId: string,
-    @Query('revoke') revoke: any,
+    @Query('revoke') revoke: void,
     @User() user: Player,
   ): Promise<Serializable<PlayerBanDto>> {
     const ban = await this.playerBansService.getById(banId);
