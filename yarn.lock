@@ -4723,9 +4723,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-jest@npm:26.4.6":
-  version: 26.4.6
-  resolution: "eslint-plugin-jest@npm:26.4.6"
+"eslint-plugin-jest@npm:26.5.1":
+  version: 26.5.1
+  resolution: "eslint-plugin-jest@npm:26.5.1"
   dependencies:
     "@typescript-eslint/utils": ^5.10.0
   peerDependencies:
@@ -4736,7 +4736,7 @@ __metadata:
       optional: true
     jest:
       optional: true
-  checksum: 1d4c35282abecbc3656f9a355c3e63df0b4134fae208ceb9ee75421ed95f6a108753ac86b54d9302f4ae192227c41b45a50034854e75fad3691868eaab8394a2
+  checksum: feb9915c27e420a18e5d9b52add505e0f78d4cad7ce49092faecb1ae4c020ae899c7d9a81ff8591778f36fd259a890dbb08289057c8ff0a24069851226e12c27
   languageName: node
   linkType: hard
 
@@ -9994,7 +9994,7 @@ __metadata:
     discord.js: 13.7.0
     eslint: 8.17.0
     eslint-config-prettier: 8.5.0
-    eslint-plugin-jest: 26.4.6
+    eslint-plugin-jest: 26.5.1
     eslint-plugin-prettier: 4.0.0
     generate-password: 1.7.0
     handlebars: 4.7.7
