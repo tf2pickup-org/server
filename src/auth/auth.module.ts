@@ -44,7 +44,7 @@ const passportModule = PassportModule.register({
         await importOrGenerateKeys(
           keyModel,
           KeyName.auth,
-          environment.keyStorePassphare,
+          environment.keyStorePassphrase,
         ),
     },
     {
@@ -58,7 +58,7 @@ const passportModule = PassportModule.register({
         await importOrGenerateKeys(
           keyModel,
           KeyName.refresh,
-          environment.keyStorePassphare,
+          environment.keyStorePassphrase,
         ),
     },
     {
@@ -76,7 +76,7 @@ const passportModule = PassportModule.register({
         await importOrGenerateKeys(
           keyModel,
           KeyName.context,
-          environment.keyStorePassphare,
+          environment.keyStorePassphrase,
         ),
     },
     AuthService,
