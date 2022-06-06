@@ -26,7 +26,7 @@ describe('importOrGenerateKeys()', () => {
 
   beforeEach(() => {
     environment = {
-      keyStorePassphare: 'FAKE_PASSPHRASE',
+      keyStorePassphrase: 'FAKE_PASSPHRASE',
     };
   });
 
@@ -74,7 +74,7 @@ describe('importOrGenerateKeys()', () => {
           .export({
             format: 'pem',
             type: 'pkcs8',
-            passphrase: environment.keyStorePassphare,
+            passphrase: environment.keyStorePassphrase,
             cipher: 'aes-256-cbc',
           })
           .toString(),
@@ -85,7 +85,7 @@ describe('importOrGenerateKeys()', () => {
       const keyPair = await importOrGenerateKeys(
         keyModel,
         KeyName.auth,
-        environment.keyStorePassphare,
+        environment.keyStorePassphrase,
       );
       expect(
         keyPair.publicKey.export({ format: 'pem', type: 'spki' }).toString(),
@@ -102,7 +102,7 @@ describe('importOrGenerateKeys()', () => {
       await importOrGenerateKeys(
         keyModel,
         KeyName.auth,
-        environment.keyStorePassphare,
+        environment.keyStorePassphrase,
       );
       expect(await keyModel.findOne({ name: KeyName.auth })).toBeTruthy();
     });

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()
@@ -33,8 +33,15 @@ export class Environment {
     return this.configService.get<string>('KEY_STORE_FILE');
   }
 
-  get keyStorePassphare() {
-    return this.configService.get<string>('KEY_STORE_PASSPHARE');
+  get keyStorePassphrase() {
+    if (this.configService.get<string>('KEY_STORE_PASSPHARE')) {
+      new Logger(Environment.name).warn(
+        'KEY_STORE_PASSPHARE is deprecated and will be removed in v10. Use KEY_STORE_PASSPHRASE instead',
+      );
+      return this.configService.get<string>('KEY_STORE_PASSPHARE');
+    }
+
+    return this.configService.get<string>('KEY_STORE_PASSPHRASE');
   }
 
   get superUser() {
