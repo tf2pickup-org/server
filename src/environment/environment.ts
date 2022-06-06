@@ -34,6 +34,7 @@ export class Environment {
   }
 
   get keyStorePassphrase() {
+    // TODO v10: remove
     if (this.configService.get<string>('KEY_STORE_PASSPHARE')) {
       new Logger(Environment.name).warn(
         'KEY_STORE_PASSPHARE is deprecated and will be removed in v10. Use KEY_STORE_PASSPHRASE instead',
