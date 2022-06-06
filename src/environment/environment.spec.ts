@@ -29,7 +29,7 @@ describe('Environment', () => {
     'BOT_NAME',
     'MONGODB_URI',
     'STEAM_API_KEY',
-    'KEY_STORE_PASSPHARE',
+    'KEY_STORE_PASSPHRASE',
     'SUPER_USER',
     'QUEUE_CONFIG',
     'LOG_RELAY_ADDRESS',
