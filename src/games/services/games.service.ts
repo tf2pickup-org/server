@@ -22,6 +22,7 @@ import { plainToInstance } from 'class-transformer';
 import { Mutex } from 'async-mutex';
 
 interface GameSortOptions {
+  [key: string]: 1 | -1;
   launchedAt: 1 | -1;
 }
 
