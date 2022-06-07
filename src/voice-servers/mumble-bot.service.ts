@@ -5,7 +5,7 @@ import {
   OnModuleDestroy,
   OnModuleInit,
 } from '@nestjs/common';
-import { Client } from '@tf2pickup-org/simple-mumble-bot';
+import { Client } from '@tf2pickup-org/mumble-client';
 import { ConfigurationService } from '@/configuration/services/configuration.service';
 import { Events } from '@/events/events';
 import { filter } from 'rxjs';
