@@ -1,5 +1,16 @@
 
 
+# [9.0.0-rc.1](https://github.com/tf2pickup-org/server/compare/9.0.0-rc.0...9.0.0-rc.1) (2022-06-07)
+
+
+### Bug Fixes
+
+* **deps:** update dependency discord.js to v13.8.0 ([#1710](https://github.com/tf2pickup-org/server/issues/1710)) ([d8442e6](https://github.com/tf2pickup-org/server/commit/d8442e617ce001b024d444a441fedcf2b854e4e8))
+* **deps:** update dependency mongodb to v4.7.0 ([#1717](https://github.com/tf2pickup-org/server/issues/1717)) ([37a8a4e](https://github.com/tf2pickup-org/server/commit/37a8a4e32e135ec84bbdbd0ec3219a40843508a4))
+* **deps:** update dependency mongoose to v6.3.5 ([#1687](https://github.com/tf2pickup-org/server/issues/1687)) ([1ed512c](https://github.com/tf2pickup-org/server/commit/1ed512c55476a4faab19509044bf767bdf0d6d08))
+* **env:** fix passphrase typo ([#1716](https://github.com/tf2pickup-org/server/issues/1716)) ([4367afa](https://github.com/tf2pickup-org/server/commit/4367afa1f550af146c1016c054703750024db242))
+* **players:** fix PlayerSkill transformation ([#1714](https://github.com/tf2pickup-org/server/issues/1714)) ([4695d67](https://github.com/tf2pickup-org/server/commit/4695d67cf3623719e96f23f68820e5c2f1016a72))
+
 # [9.0.0-rc.0](https://github.com/tf2pickup-org/server/compare/9.0.0-beta.15...9.0.0-rc.0) (2022-06-05)
 
 
