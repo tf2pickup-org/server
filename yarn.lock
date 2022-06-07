@@ -1506,22 +1506,22 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@tf2pickup-org/mumble-client@npm:^0.6.0":
+  version: 0.6.0
+  resolution: "@tf2pickup-org/mumble-client@npm:0.6.0"
+  dependencies:
+    "@tf2pickup-org/mumble-protocol": 0.0.4
+    rxjs: 7.5.5
+  checksum: 078f91a949868d0d4f5382a894a9cf3d59209250f95f48783d6e8340ad039989f4b51ca995106797290ecef498d45eeda6cbd9df76db6af8fa06a35c91d79a31
+  languageName: node
+  linkType: hard
+
 "@tf2pickup-org/mumble-protocol@npm:0.0.4":
   version: 0.0.4
   resolution: "@tf2pickup-org/mumble-protocol@npm:0.0.4"
   dependencies:
     "@protobuf-ts/runtime": 2.6.0
   checksum: 01e5206ff9b90bec84d26fafde9889075b4d3237066438600db52d26be1a4e34a1f2afd2efb530c8a1d4844bde2599b85a0da426e420fa1f93b4404c867d5bba
-  languageName: node
-  linkType: hard
-
-"@tf2pickup-org/simple-mumble-bot@npm:0.5.0":
-  version: 0.5.0
-  resolution: "@tf2pickup-org/simple-mumble-bot@npm:0.5.0"
-  dependencies:
-    "@tf2pickup-org/mumble-protocol": 0.0.4
-    rxjs: 7.5.5
-  checksum: 0b082653db3e956f2a47d70c39b079f12d9b5b29a52cf268ce9c2ed6caedd1f7f851e95fa25c41d4f022eb266cd2c0b8cc788b228457147a68ebe5123aa5adb0
   languageName: node
   linkType: hard
 
@@ -9984,7 +9984,7 @@ __metadata:
     "@nestjs/websockets": 8.4.6
     "@redis/client": 1.1.0
     "@release-it/conventional-changelog": 5.0.0
-    "@tf2pickup-org/simple-mumble-bot": 0.5.0
+    "@tf2pickup-org/mumble-client": ^0.6.0
     "@types/cache-manager": 3.4.3
     "@types/cache-manager-redis-store": 2.0.1
     "@types/express": 4.17.13
