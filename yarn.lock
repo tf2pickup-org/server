@@ -1506,7 +1506,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tf2pickup-org/mumble-client@npm:^0.6.0":
+"@tf2pickup-org/mumble-client@npm:0.6.0":
   version: 0.6.0
   resolution: "@tf2pickup-org/mumble-client@npm:0.6.0"
   dependencies:
@@ -9984,7 +9984,7 @@ __metadata:
     "@nestjs/websockets": 8.4.6
     "@redis/client": 1.1.0
     "@release-it/conventional-changelog": 5.0.0
-    "@tf2pickup-org/mumble-client": ^0.6.0
+    "@tf2pickup-org/mumble-client": 0.6.0
     "@types/cache-manager": 3.4.3
     "@types/cache-manager-redis-store": 2.0.1
     "@types/express": 4.17.13
