@@ -1,6 +1,7 @@
 import { PlayerDto } from '@/players/dto/player.dto';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { Serializable } from '@/shared/serializable';
+import { GameServerDto } from './game-server.dto';
 
 export interface GameDto {
   id: string;
@@ -17,11 +18,10 @@ export interface GameDto {
   map: string;
   state: 'launching' | 'started' | 'ended' | 'interrupted';
   connectInfoVersion: number;
-  stvConnectString?: string;
   logsUrl?: string;
   demoUrl?: string;
   error?: string;
-  gameServer?: any;
+  gameServer?: Serializable<GameServerDto>;
   score: {
     blu?: number;
     red?: number;

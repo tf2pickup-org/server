@@ -1,5 +1,4 @@
 import { app } from '@/app';
-import { GameServersService } from '@/game-servers/services/game-servers.service';
 import { PlayersService } from '@/players/services/players.service';
 import { TransformObjectId } from '@/shared/decorators/transform-object-id';
 import { Serializable } from '@/shared/serializable';
@@ -7,6 +6,7 @@ import { Prop, raw, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Exclude, Expose, Transform, Type } from 'class-transformer';
 import { Document, Types } from 'mongoose';
 import { GameDto } from '../dto/game.dto';
+import { GameServer, gameServerSchema } from './game-server';
 import { GameSlot, gameSlotSchema } from './game-slot';
 import { GameState } from './game-state';
 import { SlotStatus } from './slot-status';
@@ -53,15 +53,8 @@ export class Game extends Serializable<GameDto> {
   @Prop({ index: true, enum: GameState, default: GameState.launching })
   state?: GameState;
 
-  @Exclude({ toPlainOnly: true })
-  @Prop()
-  connectString?: string;
-
   @Prop({ default: 0 })
   connectInfoVersion: number;
-
-  @Prop()
-  stvConnectString?: string;
 
   @Prop()
   logsUrl?: string;
@@ -72,9 +65,9 @@ export class Game extends Serializable<GameDto> {
   @Prop()
   error?: string;
 
-  @TransformObjectId()
-  @Prop({ ref: 'GameServer' })
-  gameServer?: Types.ObjectId;
+  @Type(() => GameServer)
+  @Prop({ type: [gameServerSchema] })
+  gameServer?: GameServer;
 
   @Type(() => Number)
   @Prop(
@@ -91,7 +84,6 @@ export class Game extends Serializable<GameDto> {
 
   async serialize(): Promise<GameDto> {
     const playersService = app.get(PlayersService);
-    const gameServersService = app.get(GameServersService);
 
     return {
       id: this.id,
@@ -110,13 +102,10 @@ export class Game extends Serializable<GameDto> {
       map: this.map,
       state: this.state,
       connectInfoVersion: this.connectInfoVersion,
-      stvConnectString: this.stvConnectString,
       logsUrl: this.logsUrl,
       demoUrl: this.demoUrl,
       error: this.error,
-      gameServer: this.gameServer
-        ? await gameServersService.getById(this.gameServer)
-        : undefined,
+      gameServer: this.gameServer,
       score: {
         blu: this.score?.get('blu'),
         red: this.score?.get('red'),
