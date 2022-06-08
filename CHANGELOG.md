@@ -1,5 +1,14 @@
 
 
+# [9.0.0](https://github.com/tf2pickup-org/server/compare/9.0.0-rc.1...9.0.0) (2022-06-08)
+
+
+### Bug Fixes
+
+* **deps:** pin dependency @tf2pickup-org/mumble-client to 0.6.0 ([#1722](https://github.com/tf2pickup-org/server/issues/1722)) ([12b903a](https://github.com/tf2pickup-org/server/commit/12b903a0323bee14a4b80a476bd28c95a0e00fe0))
+* **deps:** replace @tf2pickup-org/simple-mumble-bot with @tf2pickup-org/mumble-client ([#1719](https://github.com/tf2pickup-org/server/issues/1719)) ([d305885](https://github.com/tf2pickup-org/server/commit/d305885fff7b211c881e6d0d38f4943d2080a9fb))
+* **deps:** update dependency mongoose to v6.3.6 ([#1721](https://github.com/tf2pickup-org/server/issues/1721)) ([f5c81b5](https://github.com/tf2pickup-org/server/commit/f5c81b5cc2b02b3a986b72b4d32cd07a59043a29))
+
 # [9.0.0-rc.1](https://github.com/tf2pickup-org/server/compare/9.0.0-rc.0...9.0.0-rc.1) (2022-06-07)
 
 
