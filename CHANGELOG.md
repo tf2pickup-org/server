@@ -1,5 +1,12 @@
 
 
+## [9.0.1](https://github.com/tf2pickup-org/server/compare/9.0.0...9.0.1) (2022-06-08)
+
+
+### Bug Fixes
+
+* **migrations:** unblock migration ([9cad37d](https://github.com/tf2pickup-org/server/commit/9cad37d384c6bc5738eccdd62be9100dadac40d9))
+
 # [9.0.0](https://github.com/tf2pickup-org/server/compare/9.0.0-rc.1...9.0.0) (2022-06-08)
 
 
