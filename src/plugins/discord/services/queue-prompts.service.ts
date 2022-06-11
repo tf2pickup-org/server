@@ -5,18 +5,24 @@ import { QueueSlot } from '@/queue/queue-slot';
 import { QueueConfigService } from '@/queue/services/queue-config.service';
 import { QueueService } from '@/queue/services/queue.service';
 import { iconUrlPath, promptPlayerThresholdRatio } from '@configs/discord';
-import { Injectable, OnModuleInit } from '@nestjs/common';
+import {
+  CACHE_MANAGER,
+  Inject,
+  Injectable,
+  OnModuleInit,
+} from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { Message } from 'discord.js';
 import { debounceTime } from 'rxjs/operators';
 import { queuePreview } from '../notifications';
 import { DiscordService } from './discord.service';
 import { URL } from 'url';
+import { Cache } from 'cache-manager';
 
 @Injectable()
 export class QueuePromptsService implements OnModuleInit {
+  private readonly queuePromptMessageIdCacheKey = 'queue_prompt_message_id';
   private requiredPlayerCount = 0;
-  private message?: Message;
 
   constructor(
     private events: Events,
@@ -25,6 +31,7 @@ export class QueuePromptsService implements OnModuleInit {
     private queueService: QueueService,
     private playersService: PlayersService,
     private queueConfigService: QueueConfigService,
+    @Inject(CACHE_MANAGER) private readonly cache: Cache,
   ) {}
 
   onModuleInit() {
@@ -46,13 +53,17 @@ export class QueuePromptsService implements OnModuleInit {
       gameClassData: await this.slotsToGameClassData(slots),
     });
 
-    if (this.message) {
-      this.message.edit({ embeds: [embed] });
+    const message = await this.getPromptMessage();
+    if (message) {
+      message.edit({ embeds: [embed] });
     } else {
       if (this.playerThresholdMet()) {
-        this.message = await this.discordService
+        const message = await this.discordService
           .getPlayersChannel()
           ?.send({ embeds: [embed] });
+        await this.cache.set(this.queuePromptMessageIdCacheKey, message.id, {
+          ttl: 0,
+        });
       }
     }
   }
@@ -85,18 +96,32 @@ export class QueuePromptsService implements OnModuleInit {
     );
   }
 
+  private async getPromptMessage(): Promise<Message> {
+    const id = (await this.cache.get(
+      this.queuePromptMessageIdCacheKey,
+    )) as string;
+    if (id) {
+      return await this.discordService.getPlayersChannel().messages.fetch(id);
+    } else {
+      return null;
+    }
+  }
+
   @Cron(CronExpression.EVERY_5_MINUTES)
   async ensurePromptIsVisible() {
     const messages = await this.discordService
       .getPlayersChannel()
       .messages.fetch({ limit: 1 });
+    const promptMessage = await this.getPromptMessage();
     if (
-      messages?.first()?.id !== this.message?.id &&
+      messages?.first()?.id !== promptMessage?.id &&
       this.playerThresholdMet()
     ) {
-      await this.message?.delete();
-      delete this.message;
-      this.refreshPrompt(this.queueService.slots);
+      await Promise.all([
+        promptMessage?.delete(),
+        this.cache.del(this.queuePromptMessageIdCacheKey),
+      ]);
+      await this.refreshPrompt(this.queueService.slots);
     }
   }
 }
