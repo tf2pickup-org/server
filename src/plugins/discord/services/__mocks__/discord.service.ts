@@ -2,6 +2,8 @@ import { Injectable } from '@nestjs/common';
 
 let lastMessageId = 0;
 
+const messages = new Map<number, Message>();
+
 class Message {
   id = ++lastMessageId;
   delete = jest.fn().mockResolvedValue(this);
@@ -14,12 +16,20 @@ export class DiscordService {
 
   playersChannel = {
     send: jest.fn().mockImplementation(() => {
-      this._lastMessage = new Message();
-      return Promise.resolve(this._lastMessage);
+      const message = new Message();
+      messages.set(message.id, message);
+      this._lastMessage = message;
+      return Promise.resolve(message);
     }),
     messages: {
-      fetch: jest.fn().mockResolvedValue({
-        first: jest.fn().mockReturnValue(this._lastMessage),
+      fetch: jest.fn().mockImplementation((params) => {
+        if (typeof params === 'number') {
+          return Promise.resolve(messages.get(params));
+        } else if (typeof params === 'object') {
+          return Promise.resolve({
+            first: jest.fn().mockReturnValue(this._lastMessage),
+          });
+        }
       }),
     },
   };
