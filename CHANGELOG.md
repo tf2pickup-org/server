@@ -1,5 +1,13 @@
 
 
+## [9.0.2](https://github.com/tf2pickup-org/server/compare/9.0.1...9.0.2) (2022-06-12)
+
+
+### Bug Fixes
+
+* **discord:** better prompts debouceTime ([#1725](https://github.com/tf2pickup-org/server/issues/1725)) ([2656979](https://github.com/tf2pickup-org/server/commit/2656979483e2330d987cdeafd63240c2b96ad286))
+* **discord:** cache prompt message ([#1726](https://github.com/tf2pickup-org/server/issues/1726)) ([6b54c4b](https://github.com/tf2pickup-org/server/commit/6b54c4b5316e1b5a150ad3a7502a5fbf96986095))
+
 ## [9.0.1](https://github.com/tf2pickup-org/server/compare/9.0.0...9.0.1) (2022-06-08)
 
 
