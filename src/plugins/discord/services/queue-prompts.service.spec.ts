@@ -19,6 +19,7 @@ import { DiscordService } from './discord.service';
 import { QueuePromptsService } from './queue-prompts.service';
 import { getConnectionToken, MongooseModule } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
+import { CacheModule } from '@nestjs/common';
 
 jest.mock('./discord.service');
 jest.mock('@/queue/services/queue.service');
@@ -35,7 +36,7 @@ describe('QueuePromptsService', () => {
   let events: Events;
   let queueService: jest.Mocked<QueueService>;
   let playersService: PlayersService;
-  let discordService: DiscordService;
+  let discordService: jest.Mocked<DiscordService>;
   let players: Player[];
   let connection: Connection;
 
@@ -80,6 +81,7 @@ describe('QueuePromptsService', () => {
             schema: playerSchema,
           },
         ]),
+        CacheModule.register(),
       ],
       providers: [
         QueuePromptsService,
