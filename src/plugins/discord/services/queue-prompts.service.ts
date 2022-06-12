@@ -13,7 +13,7 @@ import {
 } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { Message } from 'discord.js';
-import { debounceTime } from 'rxjs/operators';
+import { debounceTime, map } from 'rxjs/operators';
 import { queuePreview } from '../notifications';
 import { DiscordService } from './discord.service';
 import { URL } from 'url';
@@ -36,7 +36,16 @@ export class QueuePromptsService implements OnModuleInit {
 
   onModuleInit() {
     this.events.queueSlotsChange
-      .pipe(debounceTime(3000))
+      .pipe(
+        map(({ slots }) =>
+          slots.map((slot) => ({
+            id: slot.id,
+            gameClass: slot.gameClass,
+            playerId: slot.playerId,
+          })),
+        ),
+        debounceTime(3000),
+      )
       .subscribe(() => this.refreshPrompt(this.queueService.slots));
   }
 
