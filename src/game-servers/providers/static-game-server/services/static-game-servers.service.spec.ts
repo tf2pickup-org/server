@@ -296,6 +296,7 @@ describe('StaticGameServersService', () => {
     describe('when there are no clean gameservers', () => {
       beforeEach(async () => {
         testGameServer.isClean = false;
+        testGameServer.game = new Types.ObjectId();
         await testGameServer.save();
       });
 
@@ -420,10 +421,14 @@ describe('StaticGameServersService', () => {
     beforeEach(async () => {
       testGameServer.isClean = false;
       await testGameServer.save();
+
+      testGameServer.rcon = jest
+        .fn()
+        .mockResolvedValue(new Rcon({ host: 'localhost', password: '123456' }));
     });
 
     it('should mark the gameserver as clean', async () => {
-      await service.cleanupServer(testGameServer.id);
+      await service.cleanupServer(testGameServer);
       const gameServer = await staticGameServerModel.findById(
         testGameServer.id,
       );
