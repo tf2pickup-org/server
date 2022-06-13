@@ -6,6 +6,7 @@ import { Events } from '@/events/events';
 import { Map, MapDocument } from '../models/map';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { plainToInstance } from 'class-transformer';
 
 @Injectable()
 export class MapPoolService implements OnModuleInit {
@@ -33,26 +34,32 @@ export class MapPoolService implements OnModuleInit {
   }
 
   async getMaps(): Promise<Map[]> {
-    return this.mapModel.find();
+    return plainToInstance(Map, await this.mapModel.find().lean().exec());
   }
 
   async addMap(map: Map): Promise<Map> {
-    const ret = await this.mapModel.create(map);
+    const { _id } = await this.mapModel.create(map);
     this.refreshMaps();
-    return ret;
+    return plainToInstance(
+      Map,
+      await this.mapModel.findById(_id).lean().exec(),
+    );
   }
 
   async removeMap(mapName: string): Promise<Map> {
-    const ret = await this.mapModel.findOneAndRemove({ name: mapName });
+    const ret = plainToInstance(
+      Map,
+      await this.mapModel.findOneAndRemove({ name: mapName }).lean().exec(),
+    );
     this.refreshMaps();
     return ret;
   }
 
   async setMaps(maps: Map[]): Promise<Map[]> {
     await this.mapModel.deleteMany({});
-    const ret = await this.mapModel.insertMany(maps);
-    this.refreshMaps();
-    return ret;
+    await this.mapModel.insertMany(maps);
+    await this.refreshMaps();
+    return await this.getMaps();
   }
 
   private async refreshMaps() {
