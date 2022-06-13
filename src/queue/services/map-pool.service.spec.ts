@@ -122,7 +122,7 @@ describe('MapPoolService', () => {
 
     it('should emit the event', async () =>
       new Promise<void>((resolve) => {
-        events.mapPoolChange.pipe(skip(1)).subscribe(({ maps }) => {
+        events.mapPoolChange.subscribe(({ maps }) => {
           expect(maps.find((m) => m.name === 'cp_obscure_final')).toBe(
             undefined,
           );
