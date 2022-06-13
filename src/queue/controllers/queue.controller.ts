@@ -23,6 +23,7 @@ import { QueueSlotDto } from '../dto/queue-slot.dto';
 import { QueueSlotWrapper } from './queue-slot-wrapper';
 import { QueueDto } from '../dto/queue.dto';
 import { QueueWrapper } from './queue-wrapper';
+import { MapPoolItemDto } from '../dto/map-pool-item.dto';
 
 @Controller('queue')
 export class QueueController {
@@ -85,27 +86,29 @@ export class QueueController {
   }
 
   @Get('maps')
-  async getMaps() {
+  async getMaps(): Promise<Serializable<MapPoolItemDto>[]> {
     return await this.mapPoolService.getMaps();
   }
 
   @Post('maps')
   @Auth(PlayerRole.admin)
   @UsePipes(ValidationPipe)
-  async addMap(@Body() map: Map) {
+  async addMap(@Body() map: Map): Promise<Serializable<MapPoolItemDto>> {
     return await this.mapPoolService.addMap(map);
   }
 
   @Delete('maps/:name')
   @Auth(PlayerRole.admin)
-  async deleteMap(@Param('name') name: string) {
+  async deleteMap(
+    @Param('name') name: string,
+  ): Promise<Serializable<MapPoolItemDto>> {
     return await this.mapPoolService.removeMap(name);
   }
 
   @Put('maps')
   @Auth(PlayerRole.admin)
   @UsePipes(ValidationPipe)
-  async setMaps(@Body() maps: Map[]) {
+  async setMaps(@Body() maps: Map[]): Promise<Serializable<MapPoolItemDto>[]> {
     return await this.mapPoolService.setMaps(maps);
   }
 }
