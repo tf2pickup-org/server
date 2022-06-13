@@ -16,7 +16,7 @@ import { QueueAnnouncementsService } from '../services/queue-announcements.servi
 import { FriendsService } from '../services/friends.service';
 import { MapPoolService } from '../services/map-pool.service';
 import { Auth } from '@/auth/decorators/auth.decorator';
-import { Map } from '../models/map';
+import { MapPoolItem } from '../models/map-pool-item';
 import { PlayerRole } from '@/players/models/player-role';
 import { Serializable } from '@/shared/serializable';
 import { QueueSlotDto } from '../dto/queue-slot.dto';
@@ -93,7 +93,9 @@ export class QueueController {
   @Post('maps')
   @Auth(PlayerRole.admin)
   @UsePipes(ValidationPipe)
-  async addMap(@Body() map: Map): Promise<Serializable<MapPoolItemDto>> {
+  async addMap(
+    @Body() map: MapPoolItem,
+  ): Promise<Serializable<MapPoolItemDto>> {
     return await this.mapPoolService.addMap(map);
   }
 
@@ -108,7 +110,9 @@ export class QueueController {
   @Put('maps')
   @Auth(PlayerRole.admin)
   @UsePipes(ValidationPipe)
-  async setMaps(@Body() maps: Map[]): Promise<Serializable<MapPoolItemDto>[]> {
+  async setMaps(
+    @Body() maps: MapPoolItem[],
+  ): Promise<Serializable<MapPoolItemDto>[]> {
     return await this.mapPoolService.setMaps(maps);
   }
 }

@@ -3,7 +3,7 @@ import { Validator } from 'jsonschema';
 import * as mapPoolSchema from '../map-pool.schema.json';
 import * as defaultMapPool from '../map-pool.default.json';
 import { Events } from '@/events/events';
-import { Map, MapDocument } from '../models/map';
+import { MapPoolItem, MapPoolItemDocument } from '../models/map-pool-item';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { plainToInstance } from 'class-transformer';
@@ -13,7 +13,8 @@ export class MapPoolService implements OnModuleInit {
   private logger = new Logger(MapPoolService.name);
 
   constructor(
-    @InjectModel(Map.name) private mapModel: Model<MapDocument>,
+    @InjectModel(MapPoolItem.name)
+    private mapPoolItemModel: Model<MapPoolItemDocument>,
     private events: Events,
   ) {
     new Validator().validate(defaultMapPool, mapPoolSchema, {
@@ -22,42 +23,48 @@ export class MapPoolService implements OnModuleInit {
   }
 
   async onModuleInit() {
-    const mapCount = await this.mapModel.countDocuments();
+    const mapCount = await this.mapPoolItemModel.countDocuments();
     if (mapCount === 0) {
       this.logger.log(
         'Map pool empty! Initializing it with the default one...',
       );
-      await this.mapModel.insertMany(defaultMapPool.maps);
+      await this.mapPoolItemModel.insertMany(defaultMapPool.maps);
     }
 
     await this.refreshMaps();
   }
 
-  async getMaps(): Promise<Map[]> {
-    return plainToInstance(Map, await this.mapModel.find().lean().exec());
-  }
-
-  async addMap(map: Map): Promise<Map> {
-    const { _id } = await this.mapModel.create(map);
-    await this.refreshMaps();
+  async getMaps(): Promise<MapPoolItem[]> {
     return plainToInstance(
-      Map,
-      await this.mapModel.findById(_id).lean().exec(),
+      MapPoolItem,
+      await this.mapPoolItemModel.find().lean().exec(),
     );
   }
 
-  async removeMap(mapName: string): Promise<Map> {
+  async addMap(map: MapPoolItem): Promise<MapPoolItem> {
+    const { _id } = await this.mapPoolItemModel.create(map);
+    await this.refreshMaps();
+    return plainToInstance(
+      MapPoolItem,
+      await this.mapPoolItemModel.findById(_id).lean().exec(),
+    );
+  }
+
+  async removeMap(mapName: string): Promise<MapPoolItem> {
     const ret = plainToInstance(
-      Map,
-      await this.mapModel.findOneAndRemove({ name: mapName }).lean().exec(),
+      MapPoolItem,
+      await this.mapPoolItemModel
+        .findOneAndRemove({ name: mapName })
+        .lean()
+        .exec(),
     );
     await this.refreshMaps();
     return ret;
   }
 
-  async setMaps(maps: Map[]): Promise<Map[]> {
-    await this.mapModel.deleteMany({});
-    await this.mapModel.insertMany(maps);
+  async setMaps(maps: MapPoolItem[]): Promise<MapPoolItem[]> {
+    await this.mapPoolItemModel.deleteMany({});
+    await this.mapPoolItemModel.insertMany(maps);
     await this.refreshMaps();
     return await this.getMaps();
   }

@@ -4,7 +4,7 @@ import { QueueService } from './queue.service';
 import { Events } from '@/events/events';
 import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import { Map, MapDocument, mapSchema } from '../models/map';
+import { MapPoolItem, MapPoolItemDocument, mapPoolItemSchema } from '../models/map-pool-item';
 import { skip } from 'rxjs/operators';
 import { Connection, Model } from 'mongoose';
 import {
@@ -18,7 +18,7 @@ jest.mock('./queue.service');
 describe('MapVoteService', () => {
   let mongod: MongoMemoryServer;
   let service: MapVoteService;
-  let mapModel: Model<MapDocument>;
+  let mapModel: Model<MapPoolItemDocument>;
   let queueService: jest.Mocked<QueueService>;
   let events: Events;
   let connection: Connection;
@@ -32,8 +32,8 @@ describe('MapVoteService', () => {
         mongooseTestingModule(mongod),
         MongooseModule.forFeature([
           {
-            name: Map.name,
-            schema: mapSchema,
+            name: MapPoolItem.name,
+            schema: mapPoolItemSchema,
           },
         ]),
       ],
@@ -41,7 +41,7 @@ describe('MapVoteService', () => {
     }).compile();
 
     service = module.get<MapVoteService>(MapVoteService);
-    mapModel = module.get(getModelToken(Map.name));
+    mapModel = module.get(getModelToken(MapPoolItem.name));
     queueService = module.get(QueueService);
     events = module.get(Events);
     connection = module.get(getConnectionToken());

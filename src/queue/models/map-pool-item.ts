@@ -5,8 +5,9 @@ import { IsOptional, IsString } from 'class-validator';
 import { Document, Types } from 'mongoose';
 import { MapPoolItemDto } from '../dto/map-pool-item.dto';
 
-@Schema()
-export class Map extends Serializable<MapPoolItemDto> {
+@Schema({ collection: 'maps' })
+// Name is MapPoolItem instead of just Map to avoid name conflicts
+export class MapPoolItem extends Serializable<MapPoolItemDto> {
   constructor(name: string, execConfig?: string) {
     super();
     this.name = name;
@@ -39,5 +40,5 @@ export class Map extends Serializable<MapPoolItemDto> {
   }
 }
 
-export type MapDocument = Map & Document;
-export const mapSchema = SchemaFactory.createForClass(Map);
+export type MapPoolItemDocument = MapPoolItem & Document;
+export const mapPoolItemSchema = SchemaFactory.createForClass(MapPoolItem);
