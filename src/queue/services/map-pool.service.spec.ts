@@ -2,7 +2,11 @@ import { Events } from '@/events/events';
 import { Test, TestingModule } from '@nestjs/testing';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { MapPoolService } from './map-pool.service';
-import { MapPoolItem, MapPoolItemDocument, mapPoolItemSchema } from '../models/map-pool-item';
+import {
+  MapPoolItem,
+  MapPoolItemDocument,
+  mapPoolItemSchema,
+} from '../models/map-pool-item';
 import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
 import { skip } from 'rxjs/operators';
 import { Connection, Model } from 'mongoose';
@@ -155,7 +159,10 @@ describe('MapPoolService', () => {
           resolve();
         });
 
-        service.setMaps([new MapPoolItem('cp_badlands'), new MapPoolItem('cp_obscure_final')]);
+        service.setMaps([
+          new MapPoolItem('cp_badlands'),
+          new MapPoolItem('cp_obscure_final'),
+        ]);
       }));
   });
 });
