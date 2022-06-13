@@ -30,7 +30,7 @@ export class MapPoolService implements OnModuleInit {
       await this.mapModel.insertMany(defaultMapPool.maps);
     }
 
-    this.refreshMaps();
+    await this.refreshMaps();
   }
 
   async getMaps(): Promise<Map[]> {
@@ -39,7 +39,7 @@ export class MapPoolService implements OnModuleInit {
 
   async addMap(map: Map): Promise<Map> {
     const { _id } = await this.mapModel.create(map);
-    this.refreshMaps();
+    await this.refreshMaps();
     return plainToInstance(
       Map,
       await this.mapModel.findById(_id).lean().exec(),
@@ -51,7 +51,7 @@ export class MapPoolService implements OnModuleInit {
       Map,
       await this.mapModel.findOneAndRemove({ name: mapName }).lean().exec(),
     );
-    this.refreshMaps();
+    await this.refreshMaps();
     return ret;
   }
 
