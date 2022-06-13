@@ -43,6 +43,7 @@ import { Events } from '@/events/events';
 import { GameServer } from '@/game-servers/models/game-server';
 import { staticGameServerProviderName } from '@/game-servers/providers/static-game-server/static-game-server-provider-name';
 import { GameConfigsService } from '@/game-configs/services/game-configs.service';
+import { Map } from '@/queue/models/map';
 
 jest.mock('@/queue/services/map-pool.service');
 jest.mock('@/players/services/players.service');
@@ -139,7 +140,7 @@ describe('ServerConfiguratorService', () => {
 
   beforeEach(() => {
     mapPoolService.getMaps.mockResolvedValue([
-      { name: 'cp_badlands', execConfig: 'etf2l_6v6_5cp' },
+      new Map('cp_badlands', 'etf2l_6v6_5cp'),
     ]);
     configurationService.getWhitelistId.mockResolvedValue(new WhitelistId(''));
     gameServersService.getById.mockResolvedValue(mockGameServer);

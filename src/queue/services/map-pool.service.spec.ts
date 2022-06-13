@@ -90,7 +90,7 @@ describe('MapPoolService', () => {
 
   describe('#addMap()', () => {
     it('should add the map', async () => {
-      const map = await service.addMap({ name: 'cp_obscure_final' });
+      const map = await service.addMap(new Map('cp_obscure_final'));
       expect(map).toMatchObject({ name: 'cp_obscure_final', cooldown: 0 });
       expect(await service.getMaps()).toEqual(
         expect.arrayContaining([
@@ -106,13 +106,13 @@ describe('MapPoolService', () => {
           resolve();
         });
 
-        service.addMap({ name: 'cp_obscure_final' });
+        service.addMap(new Map('cp_obscure_final'));
       }));
   });
 
   describe('#removeMap()', () => {
     beforeEach(async () => {
-      await service.addMap({ name: 'cp_obscure_final' });
+      await service.addMap(new Map('cp_obscure_final'));
     });
 
     it('should remove the map', async () => {
@@ -122,7 +122,7 @@ describe('MapPoolService', () => {
 
     it('should emit the event', async () =>
       new Promise<void>((resolve) => {
-        events.mapPoolChange.pipe(skip(1)).subscribe(({ maps }) => {
+        events.mapPoolChange.subscribe(({ maps }) => {
           expect(maps.find((m) => m.name === 'cp_obscure_final')).toBe(
             undefined,
           );
@@ -136,8 +136,8 @@ describe('MapPoolService', () => {
   describe('#setMaps()', () => {
     it('should set all maps at once', async () => {
       const maps = await service.setMaps([
-        { name: 'cp_badlands' },
-        { name: 'cp_obscure_final' },
+        new Map('cp_badlands'),
+        new Map('cp_obscure_final'),
       ]);
       expect(await service.setMaps(maps)).toEqual([
         expect.objectContaining({ name: 'cp_badlands' }),
@@ -155,10 +155,7 @@ describe('MapPoolService', () => {
           resolve();
         });
 
-        service.setMaps([
-          { name: 'cp_badlands' },
-          { name: 'cp_obscure_final' },
-        ]);
+        service.setMaps([new Map('cp_badlands'), new Map('cp_obscure_final')]);
       }));
   });
 });
