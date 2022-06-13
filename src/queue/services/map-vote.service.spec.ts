@@ -4,7 +4,11 @@ import { QueueService } from './queue.service';
 import { Events } from '@/events/events';
 import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import { MapPoolItem, MapPoolItemDocument, mapPoolItemSchema } from '../models/map-pool-item';
+import {
+  MapPoolItem,
+  MapPoolItemDocument,
+  mapPoolItemSchema,
+} from '../models/map-pool-item';
 import { skip } from 'rxjs/operators';
 import { Connection, Model } from 'mongoose';
 import {
