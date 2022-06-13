@@ -7,6 +7,12 @@ import { MapPoolItemDto } from '../dto/map-pool-item.dto';
 
 @Schema()
 export class Map extends Serializable<MapPoolItemDto> {
+  constructor(name: string, execConfig?: string) {
+    super();
+    this.name = name;
+    this.execConfig = execConfig;
+  }
+
   __v?: number;
 
   @TransformObjectId()

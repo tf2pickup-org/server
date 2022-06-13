@@ -8,6 +8,7 @@ import { FriendsService } from '../services/friends.service';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { MapPoolService } from '../services/map-pool.service';
 import { QueueState } from '../queue-state';
+import { Map } from '../models/map';
 
 jest.mock('../services/queue-config.service');
 jest.mock('../services/queue.service');
@@ -160,7 +161,7 @@ describe('Queue Controller', () => {
   describe('#getMaps()', () => {
     beforeEach(() => {
       mapPoolService.getMaps.mockResolvedValue([
-        { name: 'cp_badlands', execConfig: 'etf2l_6v6_5cp' },
+        new Map('cp_badlands', 'etf2l_6v6_5cp'),
       ]);
     });
 
@@ -173,17 +174,15 @@ describe('Queue Controller', () => {
 
   describe('#addMap()', () => {
     beforeEach(() => {
-      mapPoolService.addMap.mockResolvedValue({
-        name: 'cp_badlands',
-        execConfig: 'etf2l_6v6_5cp',
-      });
+      mapPoolService.addMap.mockImplementation((map) =>
+        Promise.resolve(new Map(map.name, map.execConfig)),
+      );
     });
 
     it('should add the map', async () => {
-      const ret = await controller.addMap({
-        name: 'cp_badlands',
-        execConfig: 'etf2l_6v6_5cp',
-      });
+      const ret = await controller.addMap(
+        new Map('cp_badlands', 'etf2l_6v6_5cp'),
+      );
       expect(ret).toEqual({ name: 'cp_badlands', execConfig: 'etf2l_6v6_5cp' });
       expect(mapPoolService.addMap).toHaveBeenCalledWith({
         name: 'cp_badlands',
@@ -194,10 +193,9 @@ describe('Queue Controller', () => {
 
   describe('#deleteMap()', () => {
     beforeEach(() => {
-      mapPoolService.removeMap.mockResolvedValue({
-        name: 'cp_badlands',
-        execConfig: 'etf2l_6v6_5cp',
-      });
+      mapPoolService.removeMap.mockImplementation((name) =>
+        Promise.resolve(new Map(name, 'etf2l_6v6_5cp')),
+      );
     });
 
     it('should remote the map', async () => {
@@ -209,16 +207,15 @@ describe('Queue Controller', () => {
 
   describe('#setMaps()', () => {
     beforeEach(() => {
-      mapPoolService.setMaps.mockResolvedValue([
-        { name: 'cp_badlands' },
-        { name: 'cp_process_final', execConfig: 'etf2l_6v6_5cp' },
-      ]);
+      mapPoolService.setMaps.mockImplementation((maps) =>
+        Promise.resolve(maps),
+      );
     });
 
     it('should set the maps', async () => {
       const ret = await controller.setMaps([
-        { name: 'cp_badlands' },
-        { name: 'cp_process_final', execConfig: 'etf2l_6v6_5cp' },
+        new Map('cp_badlands'),
+        new Map('cp_process_final', 'etf2l_6v6_5cp'),
       ]);
       expect(ret).toEqual([
         { name: 'cp_badlands' },
