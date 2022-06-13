@@ -1,4 +1,4 @@
-export interface MapPoolItemDto {
+export interface MapPoolEntryDto {
   // Map name
   name: string;
 

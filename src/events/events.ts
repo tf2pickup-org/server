@@ -5,7 +5,7 @@ import { Game } from '@/games/models/game';
 import { Player } from '@/players/models/player';
 import { PlayerBan } from '@/players/models/player-ban';
 import { PlayerSkillType } from '@/players/services/player-skill.service';
-import { MapPoolItem } from '@/queue/models/map-pool-item';
+import { MapPoolEntry } from '@/queue/models/map-pool-entry';
 import { Injectable, Logger } from '@nestjs/common';
 import { Subject } from 'rxjs';
 import { MapVoteResult } from '../queue/map-vote-result';
@@ -55,7 +55,7 @@ export class Events {
   }>();
   readonly mapVotesChange = new Subject<{ results: MapVoteResult[] }>();
 
-  readonly mapPoolChange = new Subject<{ maps: MapPoolItem[] }>();
+  readonly mapPoolChange = new Subject<{ maps: MapPoolEntry[] }>();
 
   readonly gameCreated = new Subject<{ game: Game }>();
   readonly gameChanges = new Subject<{

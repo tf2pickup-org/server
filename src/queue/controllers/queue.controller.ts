@@ -16,14 +16,14 @@ import { QueueAnnouncementsService } from '../services/queue-announcements.servi
 import { FriendsService } from '../services/friends.service';
 import { MapPoolService } from '../services/map-pool.service';
 import { Auth } from '@/auth/decorators/auth.decorator';
-import { MapPoolItem } from '../models/map-pool-item';
+import { MapPoolEntry } from '../models/map-pool-entry';
 import { PlayerRole } from '@/players/models/player-role';
 import { Serializable } from '@/shared/serializable';
 import { QueueSlotDto } from '../dto/queue-slot.dto';
 import { QueueSlotWrapper } from './queue-slot-wrapper';
 import { QueueDto } from '../dto/queue.dto';
 import { QueueWrapper } from './queue-wrapper';
-import { MapPoolItemDto } from '../dto/map-pool-item.dto';
+import { MapPoolEntryDto } from '../dto/map-pool-item.dto';
 
 @Controller('queue')
 export class QueueController {
@@ -86,7 +86,7 @@ export class QueueController {
   }
 
   @Get('maps')
-  async getMaps(): Promise<Serializable<MapPoolItemDto>[]> {
+  async getMaps(): Promise<Serializable<MapPoolEntryDto>[]> {
     return await this.mapPoolService.getMaps();
   }
 
@@ -94,8 +94,8 @@ export class QueueController {
   @Auth(PlayerRole.admin)
   @UsePipes(ValidationPipe)
   async addMap(
-    @Body() map: MapPoolItem,
-  ): Promise<Serializable<MapPoolItemDto>> {
+    @Body() map: MapPoolEntry,
+  ): Promise<Serializable<MapPoolEntryDto>> {
     return await this.mapPoolService.addMap(map);
   }
 
@@ -103,7 +103,7 @@ export class QueueController {
   @Auth(PlayerRole.admin)
   async deleteMap(
     @Param('name') name: string,
-  ): Promise<Serializable<MapPoolItemDto>> {
+  ): Promise<Serializable<MapPoolEntryDto>> {
     return await this.mapPoolService.removeMap(name);
   }
 
@@ -111,8 +111,8 @@ export class QueueController {
   @Auth(PlayerRole.admin)
   @UsePipes(ValidationPipe)
   async setMaps(
-    @Body() maps: MapPoolItem[],
-  ): Promise<Serializable<MapPoolItemDto>[]> {
+    @Body() maps: MapPoolEntry[],
+  ): Promise<Serializable<MapPoolEntryDto>[]> {
     return await this.mapPoolService.setMaps(maps);
   }
 }
