@@ -1,5 +1,15 @@
 
 
+## [9.0.3](https://github.com/tf2pickup-pl/server/compare/9.0.2...9.0.3) (2022-06-14)
+
+
+### Bug Fixes
+
+* **deps:** update dependency mongoose to v6.3.8 ([#1730](https://github.com/tf2pickup-pl/server/issues/1730)) ([1dff1e8](https://github.com/tf2pickup-pl/server/commit/1dff1e841e0489df6bbb6c0e085764d775184c20))
+* **queue:** await MapPoolService.refreshMaps() ([#1728](https://github.com/tf2pickup-pl/server/issues/1728)) ([b17de54](https://github.com/tf2pickup-pl/server/commit/b17de5407b6c16bd4bf339f38703108916ce5675))
+* **queue:** serialize map pool properly ([#1727](https://github.com/tf2pickup-pl/server/issues/1727)) ([e7f11c0](https://github.com/tf2pickup-pl/server/commit/e7f11c0967620e54243740089ca4543c232b6069))
+* **static-game-server:** cleanup servers on demand ([#1732](https://github.com/tf2pickup-pl/server/issues/1732)) ([9df2e48](https://github.com/tf2pickup-pl/server/commit/9df2e48b061597919ea1f17168ec7204fd626b4b))
+
 ## [9.0.2](https://github.com/tf2pickup-org/server/compare/9.0.1...9.0.2) (2022-06-12)
 
 
