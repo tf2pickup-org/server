@@ -78,7 +78,7 @@
     "@types/mongodb-uri": "0.9.1",
     "@types/mongoose": "5.11.96",
     "@types/node": "16.11.39",
-    "@types/passport": "1.0.8",
+    "@types/passport": "1.0.9",
     "@types/passport-jwt": "3.0.6",
     "@types/passport-steam": "1.0.1",
     "@types/pem": "1.9.6",
