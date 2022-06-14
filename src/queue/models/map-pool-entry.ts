@@ -3,10 +3,11 @@ import { Serializable } from '@/shared/serializable';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { IsOptional, IsString } from 'class-validator';
 import { Document, Types } from 'mongoose';
-import { MapPoolItemDto } from '../dto/map-pool-item.dto';
+import { MapPoolEntryDto } from '../dto/map-pool-item.dto';
 
-@Schema()
-export class Map extends Serializable<MapPoolItemDto> {
+@Schema({ collection: 'maps' })
+// Name is MapPoolEntry instead of just Map to avoid name conflicts
+export class MapPoolEntry extends Serializable<MapPoolEntryDto> {
   constructor(name: string, execConfig?: string) {
     super();
     this.name = name;
@@ -31,7 +32,7 @@ export class Map extends Serializable<MapPoolItemDto> {
   @Prop({ default: 0 })
   cooldown?: number;
 
-  async serialize(): Promise<MapPoolItemDto> {
+  async serialize(): Promise<MapPoolEntryDto> {
     return {
       name: this.name,
       execConfig: this.execConfig,
@@ -39,5 +40,5 @@ export class Map extends Serializable<MapPoolItemDto> {
   }
 }
 
-export type MapDocument = Map & Document;
-export const mapSchema = SchemaFactory.createForClass(Map);
+export type MapPoolEntryDocument = MapPoolEntry & Document;
+export const mapPoolEntrySchema = SchemaFactory.createForClass(MapPoolEntry);

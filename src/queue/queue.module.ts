@@ -14,15 +14,15 @@ import { join } from 'path';
 import { readFile } from 'fs';
 import { promisify } from 'util';
 import { MapPoolService } from './services/map-pool.service';
-import { Map, mapSchema } from './models/map';
+import { MapPoolEntry, mapPoolEntrySchema } from './models/map-pool-entry';
 import { MongooseModule } from '@nestjs/mongoose/dist';
 
 @Module({
   imports: [
     MongooseModule.forFeature([
       {
-        name: Map.name,
-        schema: mapSchema,
+        name: MapPoolEntry.name,
+        schema: mapPoolEntrySchema,
       },
     ]),
     forwardRef(() => PlayersModule),

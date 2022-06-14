@@ -2,7 +2,11 @@ import { Events } from '@/events/events';
 import { Test, TestingModule } from '@nestjs/testing';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { MapPoolService } from './map-pool.service';
-import { Map, MapDocument, mapSchema } from '../models/map';
+import {
+  MapPoolEntry,
+  MapPoolEntryDocument,
+  mapPoolEntrySchema,
+} from '../models/map-pool-entry';
 import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
 import { skip } from 'rxjs/operators';
 import { Connection, Model } from 'mongoose';
@@ -15,7 +19,7 @@ import {
 describe('MapPoolService', () => {
   let service: MapPoolService;
   let mongod: MongoMemoryServer;
-  let mapModel: Model<MapDocument>;
+  let mapModel: Model<MapPoolEntryDocument>;
   let events: Events;
   let connection: Connection;
 
@@ -28,8 +32,8 @@ describe('MapPoolService', () => {
         mongooseTestingModule(mongod),
         MongooseModule.forFeature([
           {
-            name: Map.name,
-            schema: mapSchema,
+            name: MapPoolEntry.name,
+            schema: mapPoolEntrySchema,
           },
         ]),
       ],
@@ -37,7 +41,7 @@ describe('MapPoolService', () => {
     }).compile();
 
     service = module.get<MapPoolService>(MapPoolService);
-    mapModel = module.get(getModelToken(Map.name));
+    mapModel = module.get(getModelToken(MapPoolEntry.name));
     events = module.get(Events);
     connection = module.get(getConnectionToken());
   });
@@ -90,7 +94,7 @@ describe('MapPoolService', () => {
 
   describe('#addMap()', () => {
     it('should add the map', async () => {
-      const map = await service.addMap(new Map('cp_obscure_final'));
+      const map = await service.addMap(new MapPoolEntry('cp_obscure_final'));
       expect(map).toMatchObject({ name: 'cp_obscure_final', cooldown: 0 });
       expect(await service.getMaps()).toEqual(
         expect.arrayContaining([
@@ -106,13 +110,13 @@ describe('MapPoolService', () => {
           resolve();
         });
 
-        service.addMap(new Map('cp_obscure_final'));
+        service.addMap(new MapPoolEntry('cp_obscure_final'));
       }));
   });
 
   describe('#removeMap()', () => {
     beforeEach(async () => {
-      await service.addMap(new Map('cp_obscure_final'));
+      await service.addMap(new MapPoolEntry('cp_obscure_final'));
     });
 
     it('should remove the map', async () => {
@@ -136,8 +140,8 @@ describe('MapPoolService', () => {
   describe('#setMaps()', () => {
     it('should set all maps at once', async () => {
       const maps = await service.setMaps([
-        new Map('cp_badlands'),
-        new Map('cp_obscure_final'),
+        new MapPoolEntry('cp_badlands'),
+        new MapPoolEntry('cp_obscure_final'),
       ]);
       expect(await service.setMaps(maps)).toEqual([
         expect.objectContaining({ name: 'cp_badlands' }),
@@ -155,7 +159,10 @@ describe('MapPoolService', () => {
           resolve();
         });
 
-        service.setMaps([new Map('cp_badlands'), new Map('cp_obscure_final')]);
+        service.setMaps([
+          new MapPoolEntry('cp_badlands'),
+          new MapPoolEntry('cp_obscure_final'),
+        ]);
       }));
   });
 });

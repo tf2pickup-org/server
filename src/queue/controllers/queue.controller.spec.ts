@@ -8,7 +8,7 @@ import { FriendsService } from '../services/friends.service';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { MapPoolService } from '../services/map-pool.service';
 import { QueueState } from '../queue-state';
-import { Map } from '../models/map';
+import { MapPoolEntry } from '../models/map-pool-entry';
 
 jest.mock('../services/queue-config.service');
 jest.mock('../services/queue.service');
@@ -161,7 +161,7 @@ describe('Queue Controller', () => {
   describe('#getMaps()', () => {
     beforeEach(() => {
       mapPoolService.getMaps.mockResolvedValue([
-        new Map('cp_badlands', 'etf2l_6v6_5cp'),
+        new MapPoolEntry('cp_badlands', 'etf2l_6v6_5cp'),
       ]);
     });
 
@@ -175,13 +175,13 @@ describe('Queue Controller', () => {
   describe('#addMap()', () => {
     beforeEach(() => {
       mapPoolService.addMap.mockImplementation((map) =>
-        Promise.resolve(new Map(map.name, map.execConfig)),
+        Promise.resolve(new MapPoolEntry(map.name, map.execConfig)),
       );
     });
 
     it('should add the map', async () => {
       const ret = await controller.addMap(
-        new Map('cp_badlands', 'etf2l_6v6_5cp'),
+        new MapPoolEntry('cp_badlands', 'etf2l_6v6_5cp'),
       );
       expect(ret).toEqual({ name: 'cp_badlands', execConfig: 'etf2l_6v6_5cp' });
       expect(mapPoolService.addMap).toHaveBeenCalledWith({
@@ -194,7 +194,7 @@ describe('Queue Controller', () => {
   describe('#deleteMap()', () => {
     beforeEach(() => {
       mapPoolService.removeMap.mockImplementation((name) =>
-        Promise.resolve(new Map(name, 'etf2l_6v6_5cp')),
+        Promise.resolve(new MapPoolEntry(name, 'etf2l_6v6_5cp')),
       );
     });
 
@@ -214,8 +214,8 @@ describe('Queue Controller', () => {
 
     it('should set the maps', async () => {
       const ret = await controller.setMaps([
-        new Map('cp_badlands'),
-        new Map('cp_process_final', 'etf2l_6v6_5cp'),
+        new MapPoolEntry('cp_badlands'),
+        new MapPoolEntry('cp_process_final', 'etf2l_6v6_5cp'),
       ]);
       expect(ret).toEqual([
         { name: 'cp_badlands' },

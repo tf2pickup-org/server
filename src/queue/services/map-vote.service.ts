@@ -5,7 +5,7 @@ import { BehaviorSubject } from 'rxjs';
 import { MapVoteResult } from '../map-vote-result';
 import { mapCooldown } from '@configs/queue';
 import { Events } from '@/events/events';
-import { Map, MapDocument } from '../models/map';
+import { MapPoolEntry, MapPoolEntryDocument } from '../models/map-pool-entry';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
@@ -30,7 +30,8 @@ export class MapVoteService implements OnModuleInit {
   private votes: MapVote[];
 
   constructor(
-    @InjectModel(Map.name) private mapModel: Model<MapDocument>,
+    @InjectModel(MapPoolEntry.name)
+    private mapPoolEntryModel: Model<MapPoolEntryDocument>,
     private queueService: QueueService,
     private events: Events,
   ) {}
@@ -82,11 +83,14 @@ export class MapVoteService implements OnModuleInit {
     );
     const map =
       mapsWithMaxVotes[Math.floor(Math.random() * mapsWithMaxVotes.length)].map;
-    await this.mapModel.updateMany(
+    await this.mapPoolEntryModel.updateMany(
       { cooldown: { $gt: 0 } },
       { $inc: { cooldown: -1 } },
     );
-    await this.mapModel.updateOne({ name: map }, { cooldown: mapCooldown });
+    await this.mapPoolEntryModel.updateOne(
+      { name: map },
+      { cooldown: mapCooldown },
+    );
     setImmediate(() => this.scramble());
     return map;
   }
@@ -96,7 +100,7 @@ export class MapVoteService implements OnModuleInit {
    */
   async scramble() {
     this.mapOptions = shuffle(
-      await this.mapModel.find({ cooldown: { $lte: 0 } }).exec(),
+      await this.mapPoolEntryModel.find({ cooldown: { $lte: 0 } }).exec(),
     )
       .slice(0, this.mapVoteOptionCount)
       .map((m) => m.name);
