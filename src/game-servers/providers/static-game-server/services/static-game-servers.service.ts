@@ -14,7 +14,6 @@ import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { plainToInstance } from 'class-transformer';
-import { sample } from 'lodash';
 import { Model, Types, UpdateQuery } from 'mongoose';
 import { Rcon } from 'rcon-client/lib';
 import { delay, filter } from 'rxjs/operators';
@@ -76,9 +75,7 @@ export class StaticGameServersService
         ),
         delay(serverCleanupDelay),
       )
-      .subscribe(({ newGameServer }) =>
-        this.cleanupServer(newGameServer as StaticGameServer),
-      );
+      .subscribe(({ newGameServer }) => this.cleanupServer(newGameServer.id));
 
     await this.removeDeadGameServers();
     this.gameServersService.registerProvider(this);
@@ -121,12 +118,13 @@ export class StaticGameServersService
     return newGameServer;
   }
 
-  async getFreeGameServers(): Promise<StaticGameServer[]> {
+  async getCleanGameServers(): Promise<StaticGameServer[]> {
     return plainToInstance(
       StaticGameServer,
       await this.staticGameServerModel
         .find({
           isOnline: true,
+          isClean: true,
           game: { $exists: false },
         })
         .sort({ priority: -1 })
@@ -136,13 +134,9 @@ export class StaticGameServersService
   }
 
   async findFirstFreeGameServer(): Promise<GameServer> {
-    const gameServers = await this.getFreeGameServers();
+    const gameServers = await this.getCleanGameServers();
     if (gameServers.length > 0) {
-      const selectedGameServer = sample(gameServers);
-      if (!selectedGameServer.isClean) {
-        await this.cleanupServer(selectedGameServer);
-      }
-      return selectedGameServer;
+      return gameServers[0];
     } else {
       throw new NoFreeGameServerAvailableError();
     }
@@ -217,7 +211,8 @@ export class StaticGameServersService
     return await this.updateGameServer(gameServerId, { isClean: false });
   }
 
-  async cleanupServer(gameServer: StaticGameServer) {
+  async cleanupServer(gameServerId: string) {
+    const gameServer = await this.getById(gameServerId);
     let rcon: Rcon;
     try {
       rcon = await gameServer.rcon();
@@ -229,9 +224,7 @@ export class StaticGameServersService
       await rcon.send(logAddressDel(logAddress));
       await rcon.send(delAllGamePlayers());
       await rcon.send(disablePlayerWhitelist());
-      gameServer = await this.updateGameServer(gameServer.id, {
-        isClean: true,
-      });
+      await this.updateGameServer(gameServerId, { isClean: true });
       this.logger.verbose(`[${gameServer.name}] server cleaned up`);
     } catch (error) {
       throw new Error(
