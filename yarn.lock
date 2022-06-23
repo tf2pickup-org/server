@@ -8157,9 +8157,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mongodb-memory-server-core@npm:8.7.0":
-  version: 8.7.0
-  resolution: "mongodb-memory-server-core@npm:8.7.0"
+"mongodb-memory-server-core@npm:8.7.1":
+  version: 8.7.1
+  resolution: "mongodb-memory-server-core@npm:8.7.1"
   dependencies:
     "@types/tmp": ^0.2.3
     async-mutex: ^0.3.2
@@ -8177,17 +8177,17 @@ __metadata:
     tslib: ^2.4.0
     uuid: ^8.3.1
     yauzl: ^2.10.0
-  checksum: d3413127d2d72aced4c0252d7bb35939d7b38c98748071887968e1d208a68fab99d2d812b5009a8f93e37b04be88730a59c1711602c7af958ca1624807895d4a
+  checksum: d62a07b02fed1017581320c8ca3c2673fa1c192fac0075fd31124a2793ac6575e36092336e06e0c189019da52baaae30590f7d57e5532a2e235044c644526b71
   languageName: node
   linkType: hard
 
-"mongodb-memory-server@npm:8.7.0":
-  version: 8.7.0
-  resolution: "mongodb-memory-server@npm:8.7.0"
+"mongodb-memory-server@npm:8.7.1":
+  version: 8.7.1
+  resolution: "mongodb-memory-server@npm:8.7.1"
   dependencies:
-    mongodb-memory-server-core: 8.7.0
+    mongodb-memory-server-core: 8.7.1
     tslib: ^2.4.0
-  checksum: dda08b27018528294dd880719984fe212e2fc1f8e13aa235f3263bcf1a2f823adcda85ac19ba5961d6c72eaa623de0f82218545faea04cafa4bc7bcb9a678763
+  checksum: 696c363d56e4cb4f969e4b82c5aaade814e01e98dd080f35252136c4ee78d66cf3da3822be24e242703dc8d3b3d4bf99f6a6abf04af88ea024a389749512125f
   languageName: node
   linkType: hard
 
@@ -10021,7 +10021,7 @@ __metadata:
     migrate: 1.8.0
     moment: 2.29.3
     mongodb: 4.7.0
-    mongodb-memory-server: 8.7.0
+    mongodb-memory-server: 8.7.1
     mongodb-uri: 0.9.7
     mongoose: 6.3.8
     nestjs-real-ip: 2.1.1
