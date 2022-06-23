@@ -284,41 +284,39 @@ describe('StaticGameServersService', () => {
     });
   });
 
-  describe('#getFreeGameServers()', () => {
-    describe('when there are free gameservers', () => {
+  describe('#getCleanGameServers()', () => {
+    describe('when there are clean gameservers', () => {
       it('should return clean game servers', async () => {
-        const gameServers = await service.getFreeGameServers();
+        const gameServers = await service.getCleanGameServers();
         expect(gameServers.length).toEqual(1);
-        expect(gameServers.every((gs) => gs.game === undefined)).toBe(true);
+        expect(gameServers.every((gs) => gs.isClean === true)).toBe(true);
       });
     });
 
     describe('when there are no clean gameservers', () => {
       beforeEach(async () => {
         testGameServer.isClean = false;
-        testGameServer.game = new Types.ObjectId();
         await testGameServer.save();
       });
 
       it('should return an empty array', async () => {
-        const gameServers = await service.getFreeGameServers();
+        const gameServers = await service.getCleanGameServers();
         expect(gameServers.length).toEqual(0);
       });
     });
   });
 
   describe('#findFirstGameServer()', () => {
-    describe('when there are free gameservers', () => {
-      it('should return a free gameserver', async () => {
+    describe('when there are clean gameservers', () => {
+      it('should return the first gameserver', async () => {
         const gameServer = await service.findFirstFreeGameServer();
         expect(gameServer.id).toEqual(testGameServer.id);
       });
     });
 
-    describe('when there are no free gameservers', () => {
+    describe('when there are no clean gameservers', () => {
       beforeEach(async () => {
         testGameServer.isClean = false;
-        testGameServer.game = new Types.ObjectId();
         await testGameServer.save();
       });
 
@@ -421,14 +419,10 @@ describe('StaticGameServersService', () => {
     beforeEach(async () => {
       testGameServer.isClean = false;
       await testGameServer.save();
-
-      testGameServer.rcon = jest
-        .fn()
-        .mockResolvedValue(new Rcon({ host: 'localhost', password: '123456' }));
     });
 
     it('should mark the gameserver as clean', async () => {
-      await service.cleanupServer(testGameServer);
+      await service.cleanupServer(testGameServer.id);
       const gameServer = await staticGameServerModel.findById(
         testGameServer.id,
       );
