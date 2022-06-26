@@ -13,6 +13,7 @@ import { serverCleanupDelay } from '@configs/game-servers';
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Cron, CronExpression } from '@nestjs/schedule';
+import { Mutex } from 'async-mutex';
 import { plainToInstance } from 'class-transformer';
 import { Model, Types, UpdateQuery } from 'mongoose';
 import { Rcon } from 'rcon-client/lib';
@@ -42,6 +43,7 @@ export class StaticGameServersService
   readonly implementingClass = StaticGameServer;
   readonly priority = Number.MAX_SAFE_INTEGER;
   private readonly logger = new Logger(StaticGameServersService.name);
+  private readonly mutex = new Mutex();
 
   constructor(
     @InjectModel(StaticGameServer.name)
@@ -103,19 +105,21 @@ export class StaticGameServersService
     gameServerId: string | Types.ObjectId,
     update: UpdateQuery<StaticGameServerDocument>,
   ): Promise<StaticGameServer> {
-    const oldGameServer = await this.getById(gameServerId);
-    const newGameServer = plainToInstance(
-      StaticGameServer,
-      await this.staticGameServerModel
-        .findByIdAndUpdate(gameServerId, update, { new: true })
-        .lean()
-        .exec(),
-    );
-    this.events.gameServerUpdated.next({
-      oldGameServer,
-      newGameServer,
+    return await this.mutex.runExclusive(async () => {
+      const oldGameServer = await this.getById(gameServerId);
+      const newGameServer = plainToInstance(
+        StaticGameServer,
+        await this.staticGameServerModel
+          .findByIdAndUpdate(gameServerId, update, { new: true })
+          .lean()
+          .exec(),
+      );
+      this.events.gameServerUpdated.next({
+        oldGameServer,
+        newGameServer,
+      });
+      return newGameServer;
     });
-    return newGameServer;
   }
 
   async getCleanGameServers(): Promise<StaticGameServer[]> {
