@@ -1,5 +1,22 @@
 
 
+## [9.0.4](https://github.com/tf2pickup-org/server/compare/9.0.3...9.0.4) (2022-06-26)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @nestjs/mongoose to v9.1.1 ([#1735](https://github.com/tf2pickup-org/server/issues/1735)) ([ffa17aa](https://github.com/tf2pickup-org/server/commit/ffa17aab3c9c799896bd9605af790593667f6cee))
+* **deps:** update dependency discord.js to v13.8.1 ([#1755](https://github.com/tf2pickup-org/server/issues/1755)) ([9283305](https://github.com/tf2pickup-org/server/commit/9283305fc96000a85a63314bcde7a1644b1dbfda))
+* **deps:** update dependency nestjs-real-ip to v2.1.1 ([#1749](https://github.com/tf2pickup-org/server/issues/1749)) ([9e0bb6f](https://github.com/tf2pickup-org/server/commit/9e0bb6f6baf732a667cab8c76ac2512ce1b9f750))
+* **deps:** update nest monorepo ([#1736](https://github.com/tf2pickup-org/server/issues/1736)) ([aad5a3b](https://github.com/tf2pickup-org/server/commit/aad5a3b58be14d9329637133c2c8a249f6409cde))
+* **discord:** update prompts atomically ([#1758](https://github.com/tf2pickup-org/server/issues/1758)) ([349d35c](https://github.com/tf2pickup-org/server/commit/349d35cfa2cc6cc902c836fb524c9167d9783baf))
+* **static-game-server:** update gameservers atomically ([#1757](https://github.com/tf2pickup-org/server/issues/1757)) ([0ae9e6c](https://github.com/tf2pickup-org/server/commit/0ae9e6ceb8a854f5c25c44f99f6e1991c1fb53f6))
+
+
+### Reverts
+
+* cleanup servers in timeout ([#1746](https://github.com/tf2pickup-org/server/issues/1746)) ([f312810](https://github.com/tf2pickup-org/server/commit/f31281065ee16c3f2834bf7371e43e81fe7b4629)), closes [#1732](https://github.com/tf2pickup-org/server/issues/1732)
+
 ## [9.0.3](https://github.com/tf2pickup-pl/server/compare/9.0.2...9.0.3) (2022-06-14)
 
 
