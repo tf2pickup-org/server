@@ -18,11 +18,13 @@ import { queuePreview } from '../notifications';
 import { DiscordService } from './discord.service';
 import { URL } from 'url';
 import { Cache } from 'cache-manager';
+import { Mutex } from 'async-mutex';
 
 @Injectable()
 export class QueuePromptsService implements OnModuleInit {
   private readonly queuePromptMessageIdCacheKey = 'queue_prompt_message_id';
   private requiredPlayerCount = 0;
+  private readonly mutex = new Mutex();
 
   constructor(
     private events: Events,
@@ -50,31 +52,33 @@ export class QueuePromptsService implements OnModuleInit {
   }
 
   private async refreshPrompt(slots: QueueSlot[]) {
-    this.requiredPlayerCount = slots.length;
-    const clientName = new URL(this.environment.clientUrl).hostname;
+    await this.mutex.runExclusive(async () => {
+      this.requiredPlayerCount = slots.length;
+      const clientName = new URL(this.environment.clientUrl).hostname;
 
-    const embed = queuePreview({
-      iconUrl: `${this.environment.clientUrl}/${iconUrlPath}`,
-      clientName,
-      clientUrl: this.environment.clientUrl,
-      playerCount: this.queueService.playerCount,
-      requiredPlayerCount: this.queueService.requiredPlayerCount,
-      gameClassData: await this.slotsToGameClassData(slots),
-    });
+      const embed = queuePreview({
+        iconUrl: `${this.environment.clientUrl}/${iconUrlPath}`,
+        clientName,
+        clientUrl: this.environment.clientUrl,
+        playerCount: this.queueService.playerCount,
+        requiredPlayerCount: this.queueService.requiredPlayerCount,
+        gameClassData: await this.slotsToGameClassData(slots),
+      });
 
-    const message = await this.getPromptMessage();
-    if (message) {
-      message.edit({ embeds: [embed] });
-    } else {
-      if (this.playerThresholdMet()) {
-        const message = await this.discordService
-          .getPlayersChannel()
-          ?.send({ embeds: [embed] });
-        await this.cache.set(this.queuePromptMessageIdCacheKey, message.id, {
-          ttl: 0,
-        });
+      const message = await this.getPromptMessage();
+      if (message) {
+        message.edit({ embeds: [embed] });
+      } else {
+        if (this.playerThresholdMet()) {
+          const message = await this.discordService
+            .getPlayersChannel()
+            ?.send({ embeds: [embed] });
+          await this.cache.set(this.queuePromptMessageIdCacheKey, message.id, {
+            ttl: 0,
+          });
+        }
       }
-    }
+    });
   }
 
   private async slotsToGameClassData(slots: QueueSlot[]) {
