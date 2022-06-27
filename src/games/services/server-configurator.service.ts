@@ -16,6 +16,7 @@ import {
   tvPort,
   tvPassword,
   tftrueWhitelistId,
+  logsTfTitle,
 } from '../utils/rcon-commands';
 import { deburr } from 'lodash';
 import { extractConVarValue } from '../utils/extract-con-var-value';
@@ -116,6 +117,9 @@ export class ServerConfiguratorService {
       }
 
       await rcon.send(enablePlayerWhitelist());
+      await rcon.send(
+        logsTfTitle(`${this.environment.websiteName} #${game.number}`),
+      );
 
       const tvPortValue = extractConVarValue(await rcon.send(tvPort()));
       const tvPasswordValue = extractConVarValue(await rcon.send(tvPassword()));

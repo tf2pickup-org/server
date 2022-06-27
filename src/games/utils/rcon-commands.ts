@@ -52,6 +52,10 @@ export function logAddressDel(logAddress: string) {
   return `logaddress_del ${logAddress}`;
 }
 
+export function logsTfTitle(logsTfTitle: string) {
+  return `logstf_title ${logsTfTitle}`;
+}
+
 export function setPassword(password: string) {
   return `sv_password ${password}`;
 }

@@ -19,6 +19,7 @@ import {
   delAllGamePlayers,
   disablePlayerWhitelist,
   tftrueWhitelistId,
+  logsTfTitle,
 } from '../utils/rcon-commands';
 import { Tf2Team } from '../models/tf2-team';
 import { Game, GameDocument, gameSchema } from '../models/game';
@@ -55,6 +56,7 @@ jest.mock('@/game-configs/services/game-configs.service');
 class EnvironmentStub {
   logRelayAddress = 'FAKE_RELAY_ADDRESS';
   logRelayPort = '1234';
+  websiteName = 'FAKE_WEBSITE_NAME';
 }
 
 class RconStub {
@@ -233,6 +235,9 @@ describe('ServerConfiguratorService', () => {
         ),
       );
       expect(rcon.send).toHaveBeenCalledWith(enablePlayerWhitelist());
+      expect(rcon.send).toHaveBeenCalledWith(
+        logsTfTitle('FAKE_WEBSITE_NAME #1'),
+      );
       expect(rcon.send).toHaveBeenCalledWith(tvPort());
       expect(rcon.send).toHaveBeenCalledWith(tvPassword());
     });
