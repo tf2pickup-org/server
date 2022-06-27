@@ -5,6 +5,10 @@ import { ConfigService } from '@nestjs/config';
 export class Environment {
   constructor(private configService: ConfigService) {}
 
+  get websiteName() {
+    return this.configService.get<string>('WEBSITE_NAME');
+  }
+
   get apiUrl() {
     return this.configService.get<string>('API_URL');
   }

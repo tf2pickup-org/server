@@ -38,6 +38,7 @@ import * as mongoStore from 'cache-manager-mongodb';
       validationOptions: {
         abortEarly: true,
       },
+      expandVariables: true,
     }),
     MongooseModule.forRootAsync({
       imports: [EnvironmentModule],
