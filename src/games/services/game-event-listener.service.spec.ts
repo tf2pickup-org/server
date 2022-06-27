@@ -212,6 +212,24 @@ describe('GameEventListenerService', () => {
           .spyOn(gameEventHandlerService, 'onScoreReported')
           .mockImplementation((gameId, teamName, score) => {
             expect(gameId).toEqual(game.id);
+            expect(teamName).toEqual('Red');
+            expect(score).toEqual('1');
+            resolve();
+            return null;
+          });
+        (logReceiverService.data as Subject<any>).next({
+          payload:
+            '06/27/2022 - 19:16:41: Team "Red" current score "1" with "6" players',
+          password: 'SOME_LOG_SECRET',
+        });
+      }));
+
+    it('final score reported', async () =>
+      new Promise<void>((resolve) => {
+        jest
+          .spyOn(gameEventHandlerService, 'onScoreReported')
+          .mockImplementation((gameId, teamName, score) => {
+            expect(gameId).toEqual(game.id);
             expect(teamName).toEqual('Blue');
             expect(score).toEqual('2');
             resolve();
