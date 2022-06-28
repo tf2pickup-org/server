@@ -1,5 +1,14 @@
 
 
+# [9.1.0](https://github.com/tf2pickup-org/server/compare/9.0.4...9.1.0) (2022-06-28)
+
+
+### Features
+
+* **env:** add WEBSITE_NAME env ([#1762](https://github.com/tf2pickup-org/server/issues/1762)) ([3d5ed28](https://github.com/tf2pickup-org/server/commit/3d5ed28ae8367a477918f3a7ed91d2dc14b03ad0))
+* **games:** handle mid-game reported score ([#1761](https://github.com/tf2pickup-org/server/issues/1761)) ([239f900](https://github.com/tf2pickup-org/server/commit/239f900cb6531e511776b439063de7fc3263b527))
+* **games:** override logs.tf title ([#1763](https://github.com/tf2pickup-org/server/issues/1763)) ([c8c90cf](https://github.com/tf2pickup-org/server/commit/c8c90cfe4a10edd3aa09034cf9f78bfae27a9a9d))
+
 ## [9.0.4](https://github.com/tf2pickup-org/server/compare/9.0.3...9.0.4) (2022-06-26)
 
 
