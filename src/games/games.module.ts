@@ -6,10 +6,6 @@ import { QueueModule } from '@/queue/queue.module';
 import { GameServersModule } from '@/game-servers/game-servers.module';
 import { GamesController } from './controllers/games.controller';
 import { GamesGateway } from './gateways/games.gateway';
-import { ServerConfiguratorService } from './services/server-configurator.service';
-import { GameEventListenerService } from './services/game-event-listener.service';
-import { GameLauncherService } from './services/game-launcher.service';
-import { GameRuntimeService } from './services/game-runtime.service';
 import { GameEventHandlerService } from './services/game-event-handler.service';
 import { GamesWithSubstitutionRequestsController } from './controllers/games-with-substitution-requests.controller';
 import { PlayerSubstitutionService } from './services/player-substitution.service';
@@ -37,14 +33,10 @@ import { Mutex } from 'async-mutex';
     },
     GamesService,
     GamesGateway,
-    ServerConfiguratorService,
-    GameEventListenerService,
-    GameLauncherService,
-    GameRuntimeService,
     GameEventHandlerService,
     PlayerSubstitutionService,
   ],
-  exports: [GamesService, GameRuntimeService],
+  exports: [GamesService],
   controllers: [GamesController, GamesWithSubstitutionRequestsController],
 })
 export class GamesModule {}

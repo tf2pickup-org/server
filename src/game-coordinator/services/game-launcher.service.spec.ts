@@ -1,6 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { GameLauncherService } from './game-launcher.service';
-import { GamesService } from './games.service';
 import { GameServersService } from '@/game-servers/services/game-servers.service';
 import { ServerConfiguratorService } from './server-configurator.service';
 import { Events } from '@/events/events';
@@ -12,9 +11,10 @@ import {
   getModelToken,
   MongooseModule,
 } from '@nestjs/mongoose';
-import { Game, GameDocument, gameSchema } from '../models/game';
 import { Model, Types, Error as MongooseError, Connection } from 'mongoose';
 import { staticGameServerProviderName } from '@/game-servers/providers/static-game-server/static-game-server-provider-name';
+import { Game, GameDocument, gameSchema } from '@/games/models/game';
+import { GamesService } from '@/games/services/games.service';
 
 jest.mock('@/game-servers/services/game-servers.service');
 jest.mock('./games.service');

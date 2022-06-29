@@ -2,6 +2,7 @@ import { ConfigurationEntryKey } from '@/configuration/models/configuration-entr
 import { GameServer } from '@/game-servers/models/game-server';
 import { StaticGameServer } from '@/game-servers/providers/static-game-server/models/static-game-server';
 import { Game } from '@/games/models/game';
+import { Tf2Team } from '@/games/models/tf2-team';
 import { Player } from '@/players/models/player';
 import { PlayerBan } from '@/players/models/player-ban';
 import { PlayerSkillType } from '@/players/services/player-skill.service';
@@ -61,6 +62,30 @@ export class Events {
   readonly gameChanges = new Subject<{
     newGame: Game;
     oldGame: Game;
+    adminId?: string;
+  }>();
+
+  readonly matchStarted = new Subject<{ gameId: string }>();
+  readonly matchEnded = new Subject<{ gameId: string }>();
+  readonly playerConnected = new Subject<{ gameId: string; steamId: string }>();
+  readonly playerJoinedTeam = new Subject<{
+    gameId: string;
+    steamId: string;
+  }>();
+  readonly playerDisconnected = new Subject<{
+    gameId: string;
+    steamId: string;
+  }>();
+  readonly scoreReported = new Subject<{
+    gameId: string;
+    teamName: Tf2Team;
+    score: number;
+  }>();
+  readonly logsUploaded = new Subject<{ gameId: string; logsUrl: string }>();
+  readonly demoUploaded = new Subject<{ gameId: string; demoUrl: string }>();
+
+  readonly gameReconfigureRequested = new Subject<{
+    gameId: string;
     adminId?: string;
   }>();
 

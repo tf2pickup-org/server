@@ -21,9 +21,9 @@ import {
   tftrueWhitelistId,
   logsTfTitle,
 } from '../utils/rcon-commands';
-import { Tf2Team } from '../models/tf2-team';
-import { Game, GameDocument, gameSchema } from '../models/game';
-import { SlotStatus } from '../models/slot-status';
+import { Tf2Team } from '../../games/models/tf2-team';
+import { Game, GameDocument, gameSchema } from '../../games/models/game';
+import { SlotStatus } from '../../games/models/slot-status';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { MapPoolService } from '@/queue/services/map-pool.service';
 import { MongoMemoryServer } from 'mongodb-memory-server';
@@ -38,7 +38,7 @@ import {
 } from '@nestjs/mongoose';
 import { Connection, Model } from 'mongoose';
 import { WhitelistId } from '@/configuration/models/whitelist-id';
-import { GamesService } from './games.service';
+import { GamesService } from '../../games/services/games.service';
 import { GameServersService } from '@/game-servers/services/game-servers.service';
 import { Events } from '@/events/events';
 import { GameServer } from '@/game-servers/models/game-server';

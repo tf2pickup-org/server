@@ -1,8 +1,9 @@
+import { Events } from '@/events/events';
+import { GamesService } from '@/games/services/games.service';
 import { LogReceiverService } from '@/log-receiver/services/log-receiver.service';
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import * as SteamID from 'steamid';
-import { GameEventHandlerService } from './game-event-handler.service';
-import { GamesService } from './games.service';
+import { fixTeamName } from '../utils/fix-team-name';
 
 interface GameEvent {
   /* name of the game event */
@@ -12,7 +13,7 @@ interface GameEvent {
   regex: RegExp;
 
   /* handle the event being triggered */
-  handle: (gameId: string, matches: RegExpMatchArray) => Promise<unknown>;
+  handle: (gameId: string, matches: RegExpMatchArray) => void;
 }
 
 @Injectable()
@@ -24,21 +25,19 @@ export class GameEventListenerService implements OnModuleInit {
     {
       name: 'match started',
       regex: /^[\d/\s-:]+World triggered "Round_Start"$/,
-      handle: async (gameId) =>
-        await this.gameEventHandlerService.onMatchStarted(gameId),
+      handle: (gameId) => this.events.matchStarted.next({ gameId }),
     },
     {
       name: 'match ended',
       regex: /^[\d/\s-:]+World triggered "Game_Over" reason ".*"$/,
-      handle: async (gameId) =>
-        await this.gameEventHandlerService.onMatchEnded(gameId),
+      handle: (gameId) => this.events.matchEnded.next({ gameId }),
     },
     {
       name: 'logs uploaded',
       regex: /^[\d/\s-:]+\[TFTrue\].+\shttp:\/\/logs\.tf\/(\d+)\..*$/,
       handle: async (gameId, matches) => {
         const logsUrl = `http://logs.tf/${matches[1]}`;
-        await this.gameEventHandlerService.onLogsUploaded(gameId, logsUrl);
+        this.events.logsUploaded.next({ gameId, logsUrl });
       },
     },
     {
@@ -49,10 +48,10 @@ export class GameEventListenerService implements OnModuleInit {
       handle: async (gameId, matches) => {
         const steamId = new SteamID(matches[5]);
         if (steamId.isValid()) {
-          await this.gameEventHandlerService.onPlayerJoining(
+          this.events.playerConnected.next({
             gameId,
-            steamId.getSteamID64(),
-          );
+            steamId: steamId.getSteamID64(),
+          });
         }
       },
     },
@@ -64,10 +63,10 @@ export class GameEventListenerService implements OnModuleInit {
       handle: async (gameId, matches) => {
         const steamId = new SteamID(matches[5]);
         if (steamId.isValid()) {
-          await this.gameEventHandlerService.onPlayerConnected(
+          this.events.playerJoinedTeam.next({
             gameId,
-            steamId.getSteamID64(),
-          );
+            steamId: steamId.getSteamID64(),
+          });
         }
       },
     },
@@ -79,10 +78,10 @@ export class GameEventListenerService implements OnModuleInit {
       handle: async (gameId, matches) => {
         const steamId = new SteamID(matches[5]);
         if (steamId.isValid()) {
-          await this.gameEventHandlerService.onPlayerDisconnected(
+          this.events.playerDisconnected.next({
             gameId,
-            steamId.getSteamID64(),
-          );
+            steamId: steamId.getSteamID64(),
+          });
         }
       },
     },
@@ -93,11 +92,11 @@ export class GameEventListenerService implements OnModuleInit {
         /^[\d/\s\-:]+Team "(.[^"]+)" current score "(\d)" with "(\d)" players$/,
       handle: async (gameId, matches) => {
         const [, teamName, score] = matches;
-        await this.gameEventHandlerService.onScoreReported(
+        this.events.scoreReported.next({
           gameId,
-          teamName,
-          score,
-        );
+          teamName: fixTeamName(teamName),
+          score: parseInt(score, 10),
+        });
       },
     },
     {
@@ -107,11 +106,11 @@ export class GameEventListenerService implements OnModuleInit {
         /^[\d/\s\-:]+Team "(.[^"]+)" final score "(\d)" with "(\d)" players$/,
       handle: async (gameId, matches) => {
         const [, teamName, score] = matches;
-        await this.gameEventHandlerService.onScoreReported(
+        this.events.scoreReported.next({
           gameId,
-          teamName,
-          score,
-        );
+          teamName: fixTeamName(teamName),
+          score: parseInt(score, 10),
+        });
       },
     },
     {
@@ -120,15 +119,15 @@ export class GameEventListenerService implements OnModuleInit {
       regex: /^[\d/\s-:]+\[demos\.tf\]:\sSTV\savailable\sat:\s(.+)$/,
       handle: async (gameId, matches) => {
         const demoUrl = matches[1];
-        await this.gameEventHandlerService.onDemoUploaded(gameId, demoUrl);
+        this.events.demoUploaded.next({ gameId, demoUrl });
       },
     },
   ];
 
   constructor(
-    private gameEventHandlerService: GameEventHandlerService,
     private gamesService: GamesService,
     private logReceiverService: LogReceiverService,
+    private events: Events,
   ) {}
 
   onModuleInit() {

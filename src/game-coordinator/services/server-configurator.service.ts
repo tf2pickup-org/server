@@ -1,4 +1,4 @@
-import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { Environment } from '@/environment/environment';
 import { generate } from 'generate-password';
 import { PlayersService } from '@/players/services/players.service';
@@ -23,10 +23,10 @@ import { extractConVarValue } from '../utils/extract-con-var-value';
 import { Rcon } from 'rcon-client/lib';
 import { MapPoolService } from '@/queue/services/map-pool.service';
 import { ConfigurationService } from '@/configuration/services/configuration.service';
-import { GamesService } from './games.service';
 import { GameServersService } from '@/game-servers/services/game-servers.service';
 import { waitABit } from '@/utils/wait-a-bit';
 import { GameConfigsService } from '@/game-configs/services/game-configs.service';
+import { GamesService } from '@/games/services/games.service';
 
 @Injectable()
 export class ServerConfiguratorService {
@@ -34,11 +34,9 @@ export class ServerConfiguratorService {
 
   constructor(
     private environment: Environment,
-    @Inject(forwardRef(() => PlayersService))
     private playersService: PlayersService,
     private mapPoolService: MapPoolService,
     private configurationService: ConfigurationService,
-    @Inject(forwardRef(() => GamesService))
     private gamesService: GamesService,
     private gameServersService: GameServersService,
     private gameConfigsService: GameConfigsService,

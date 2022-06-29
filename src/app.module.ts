@@ -27,6 +27,7 @@ import { GameConfigsModule } from './game-configs/game-configs.module';
 import { VoiceServersModule } from './voice-servers/voice-servers.module';
 import { CertificatesModule } from './certificates/certificates.module';
 import type { RedisClientOptions } from '@redis/client';
+import { GameCoordinatorModule } from './game-coordinator/game-coordinator.module';
 import * as redisStore from 'cache-manager-redis-store';
 import * as mongoStore from 'cache-manager-mongodb';
 
@@ -91,6 +92,7 @@ import * as mongoStore from 'cache-manager-mongodb';
     GameConfigsModule,
     VoiceServersModule,
     CertificatesModule,
+    GameCoordinatorModule,
   ],
   controllers: [AppController],
 })

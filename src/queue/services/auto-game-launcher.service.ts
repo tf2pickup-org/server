@@ -42,12 +42,11 @@ export class AutoGameLauncherService {
         return sourceSlot.canMakeFriendsWith.includes(targetSlot.gameClass);
       })
       .map((f) => [f.sourcePlayerId, f.targetPlayerId]);
-    const game = await this.gamesService.create(
+    await this.gamesService.create(
       this.queueService.slots,
       await this.mapVoteService.getWinner(),
       friends,
     );
     this.queueService.reset();
-    await this.gamesService.launch(game.id);
   }
 }

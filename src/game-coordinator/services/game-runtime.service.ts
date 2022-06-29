@@ -1,32 +1,26 @@
 import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
-import { GamesService } from './games.service';
 import { ServerConfiguratorService } from './server-configurator.service';
 import { GameServersService } from '@/game-servers/services/game-servers.service';
 import { PlayersService } from '@/players/services/players.service';
 import { addGamePlayer, delGamePlayer, say } from '../utils/rcon-commands';
-import { GameSlot } from '../models/game-slot';
 import { Rcon } from 'rcon-client/lib';
 import { Events } from '@/events/events';
-import { SlotStatus } from '../models/slot-status';
-import { GameState } from '../models/game-state';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model, Types } from 'mongoose';
-import { Game, GameDocument } from '../models/game';
-import { plainToInstance } from 'class-transformer';
+import { GamesService } from '@/games/services/games.service';
 import { GameServerNotAssignedError } from '../errors/game-server-not-assigned.error';
+import { GameSlot } from '@/games/models/game-slot';
+import { Types } from 'mongoose';
 
 @Injectable()
 export class GameRuntimeService {
   private logger = new Logger(GameRuntimeService.name);
 
   constructor(
-    @Inject(forwardRef(() => GamesService)) private gamesService: GamesService,
+    private gamesService: GamesService,
     private gameServersService: GameServersService,
     private serverConfiguratorService: ServerConfiguratorService,
     @Inject(forwardRef(() => PlayersService))
     private playersService: PlayersService,
     private events: Events,
-    @InjectModel(Game.name) private gameModel: Model<GameDocument>,
   ) {}
 
   async reconfigure(gameId: string) {
@@ -59,48 +53,6 @@ export class GameRuntimeService {
     }
 
     return game;
-  }
-
-  async forceEnd(gameId: string, adminId?: string) {
-    const oldGame = await this.gamesService.getById(gameId);
-    const newGame = plainToInstance(
-      Game,
-      await this.gameModel
-        .findByIdAndUpdate(
-          gameId,
-          {
-            state: GameState.interrupted,
-            endedAt: new Date(),
-            error: 'ended by admin',
-            'slots.$[element].status': SlotStatus.active,
-          },
-          {
-            new: true,
-            arrayFilters: [
-              { 'element.status': { $eq: SlotStatus.waitingForSubstitute } },
-            ],
-          },
-        )
-        .orFail()
-        .lean()
-        .exec(),
-    );
-
-    this.events.gameChanges.next({ newGame, oldGame, adminId });
-    this.events.substituteRequestsChange.next();
-
-    await Promise.all(
-      newGame.slots
-        .map((slot) => slot.player)
-        .map((playerId) =>
-          this.playersService.updatePlayer(playerId.toString(), {
-            $unset: { activeGame: 1 },
-          }),
-        ),
-    );
-
-    this.logger.verbose(`game #${newGame.number} force ended`);
-    return newGame;
   }
 
   async replacePlayer(

@@ -5,7 +5,7 @@ import { PlayerSlot, pickTeams } from '../utils/pick-teams';
 import { PlayersService } from '@/players/services/players.service';
 import { PlayerSkillService } from '@/players/services/player-skill.service';
 import { QueueConfigService } from '@/queue/services/queue-config.service';
-import { GameLauncherService } from './game-launcher.service';
+import { GameLauncherService } from '../../game-coordinator/services/game-launcher.service';
 import { shuffle } from 'lodash';
 import { Events } from '@/events/events';
 import { SlotStatus } from '../models/slot-status';
@@ -208,6 +208,48 @@ export class GamesService {
     return game;
   }
 
+  async forceEnd(gameId: string, adminId?: string) {
+    const oldGame = await this.getById(gameId);
+    const newGame = plainToInstance(
+      Game,
+      await this.gameModel
+        .findByIdAndUpdate(
+          gameId,
+          {
+            state: GameState.interrupted,
+            endedAt: new Date(),
+            error: 'ended by admin',
+            'slots.$[element].status': SlotStatus.active,
+          },
+          {
+            new: true,
+            arrayFilters: [
+              { 'element.status': { $eq: SlotStatus.waitingForSubstitute } },
+            ],
+          },
+        )
+        .orFail()
+        .lean()
+        .exec(),
+    );
+
+    this.events.gameChanges.next({ newGame, oldGame, adminId });
+    this.events.substituteRequestsChange.next();
+
+    await Promise.all(
+      newGame.slots
+        .map((slot) => slot.player)
+        .map((playerId) =>
+          this.playersService.updatePlayer(playerId.toString(), {
+            $unset: { activeGame: 1 },
+          }),
+        ),
+    );
+
+    this.logger.verbose(`game #${newGame.number} force ended`);
+    return newGame;
+  }
+
   async update(
     gameId: string | Types.ObjectId,
     update: UpdateQuery<Game>,
@@ -226,14 +268,6 @@ export class GamesService {
       this.events.gameChanges.next({ oldGame, newGame, adminId });
       return newGame;
     });
-  }
-
-  /**
-   * @deprecated Use GameLauncherService.launch()
-   * @param gameId The game to be launched.
-   */
-  async launch(gameId: string) {
-    await this.gameLauncherService.launch(gameId);
   }
 
   async getMostActivePlayers() {

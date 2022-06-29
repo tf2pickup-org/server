@@ -1,10 +1,11 @@
-import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
-import { GamesService } from './games.service';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { GameServersService } from '@/game-servers/services/game-servers.service';
 import { ServerConfiguratorService } from './server-configurator.service';
 import { Cron, CronExpression } from '@nestjs/schedule';
-import { Game } from '../models/game';
 import { Mutex } from 'async-mutex';
+import { GamesService } from '@/games/services/games.service';
+import { Game } from '@/games/models/game';
+import { Events } from '@/events/events';
 
 /**
  * This service is responsible for launching a single game.
@@ -13,15 +14,22 @@ import { Mutex } from 'async-mutex';
  * @class GameLauncherService
  */
 @Injectable()
-export class GameLauncherService {
+export class GameLauncherService implements OnModuleInit {
   private logger = new Logger(GameLauncherService.name);
   private mutex = new Mutex();
 
   constructor(
-    @Inject(forwardRef(() => GamesService)) private gamesService: GamesService,
+    private gamesService: GamesService,
     private gameServersService: GameServersService,
     private serverConfiguratorService: ServerConfiguratorService,
+    private readonly events: Events,
   ) {}
+
+  onModuleInit() {
+    this.events.gameCreated.subscribe(
+      async ({ game }) => await this.launch(game.id),
+    );
+  }
 
   /**
    * Launches the given game.

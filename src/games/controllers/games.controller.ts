@@ -15,7 +15,6 @@ import {
 import { GamesService } from '../services/games.service';
 import { ObjectIdValidationPipe } from '@/shared/pipes/object-id-validation.pipe';
 import { Auth } from '@/auth/decorators/auth.decorator';
-import { GameRuntimeService } from '../services/game-runtime.service';
 import { PlayerSubstitutionService } from '../services/player-substitution.service';
 import { IsOneOfPipe } from '@/shared/pipes/is-one-of.pipe';
 import { Game } from '../models/game';
@@ -28,6 +27,7 @@ import { DocumentNotFoundFilter } from '@/shared/filters/document-not-found.filt
 import { GameDto } from '../dto/game.dto';
 import { Serializable } from '@/shared/serializable';
 import { PaginatedGameListDto } from '../dto/paginated-game-list.dto';
+import { Events } from '@/events/events';
 
 const sortOptions: string[] = [
   'launched_at',
@@ -40,8 +40,8 @@ const sortOptions: string[] = [
 export class GamesController {
   constructor(
     private gamesService: GamesService,
-    private gameRuntimeService: GameRuntimeService,
     private playerSubstitutionService: PlayerSubstitutionService,
+    private events: Events,
   ) {}
 
   @Get()
@@ -145,11 +145,11 @@ export class GamesController {
     @User() admin: Player,
   ) {
     if (reinitializeServer !== undefined) {
-      await this.gameRuntimeService.reconfigure(gameId);
+      this.events.gameReconfigureRequested.next({ gameId, adminId: admin.id });
     }
 
     if (forceEnd !== undefined) {
-      await this.gameRuntimeService.forceEnd(gameId, admin.id);
+      await this.gamesService.forceEnd(gameId, admin.id);
     }
 
     if (substitutePlayerId !== undefined) {

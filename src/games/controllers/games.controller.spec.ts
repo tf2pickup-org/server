@@ -2,7 +2,6 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { GamesController } from './games.controller';
 import { GamesService } from '../services/games.service';
 import { Game } from '../models/game';
-import { GameRuntimeService } from '../services/game-runtime.service';
 import { PlayerSubstitutionService } from '../services/player-substitution.service';
 import { NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { Player } from '@/players/models/player';
@@ -52,14 +51,12 @@ class GamesServiceStub {
 describe('Games Controller', () => {
   let controller: GamesController;
   let gamesService: GamesServiceStub;
-  let gameRuntimeService: GameRuntimeService;
   let playerSubstitutionService: PlayerSubstitutionService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         { provide: GamesService, useClass: GamesServiceStub },
-        GameRuntimeService,
         PlayerSubstitutionService,
       ],
       controllers: [GamesController],
@@ -67,7 +64,6 @@ describe('Games Controller', () => {
 
     controller = module.get<GamesController>(GamesController);
     gamesService = module.get(GamesService);
-    gameRuntimeService = module.get(GameRuntimeService);
     playerSubstitutionService = module.get(PlayerSubstitutionService);
   });
 
