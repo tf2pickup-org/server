@@ -80,6 +80,7 @@ export class StaticGameServersService
       .subscribe(({ newGameServer }) => this.cleanupServer(newGameServer.id));
 
     await this.removeDeadGameServers();
+    await this.cleanDirtyGameServers();
     this.gameServersService.registerProvider(this);
   }
 
@@ -132,6 +133,16 @@ export class StaticGameServersService
           game: { $exists: false },
         })
         .sort({ priority: -1 })
+        .lean()
+        .exec(),
+    );
+  }
+
+  async getDirtyGameServers(): Promise<StaticGameServer[]> {
+    return plainToInstance(
+      StaticGameServer,
+      await this.staticGameServerModel
+        .find({ isClean: false, game: { $exists: false } })
         .lean()
         .exec(),
     );
@@ -237,6 +248,16 @@ export class StaticGameServersService
     } finally {
       await rcon?.end();
     }
+  }
+
+  async cleanDirtyGameServers() {
+    const dirtyGameSevers = await this.getDirtyGameServers();
+    await Promise.all(
+      dirtyGameSevers.map(
+        async (gameServer) =>
+          await this.updateGameServer(gameServer.id, { isClean: true }),
+      ),
+    );
   }
 
   @Cron(CronExpression.EVERY_MINUTE)

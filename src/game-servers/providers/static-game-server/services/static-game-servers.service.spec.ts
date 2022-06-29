@@ -306,6 +306,34 @@ describe('StaticGameServersService', () => {
     });
   });
 
+  describe('#getDirtyGameServers()', () => {
+    describe('when there are dirty gameservers', () => {
+      beforeEach(async () => {
+        testGameServer.isClean = false;
+        await testGameServer.save();
+      });
+
+      it('should return dirty gameservers', async () => {
+        const gameServers = await service.getDirtyGameServers();
+        expect(gameServers.length).toBe(1);
+        expect(gameServers[0].id).toEqual(testGameServer.id);
+      });
+    });
+
+    describe('when there are dirty gameservers with games assigned', () => {
+      beforeEach(async () => {
+        testGameServer.isClean = false;
+        testGameServer.game = new Types.ObjectId();
+        await testGameServer.save();
+      });
+
+      it('should not return the gameservers', async () => {
+        const gameServers = await service.getDirtyGameServers();
+        expect(gameServers.length).toBe(0);
+      });
+    });
+  });
+
   describe('#findFirstGameServer()', () => {
     describe('when there are clean gameservers', () => {
       it('should return the first gameserver', async () => {
@@ -423,6 +451,21 @@ describe('StaticGameServersService', () => {
 
     it('should mark the gameserver as clean', async () => {
       await service.cleanupServer(testGameServer.id);
+      const gameServer = await staticGameServerModel.findById(
+        testGameServer.id,
+      );
+      expect(gameServer.isClean).toBe(true);
+    });
+  });
+
+  describe('#cleanDirtyGameServers()', () => {
+    beforeEach(async () => {
+      testGameServer.isClean = false;
+      await testGameServer.save();
+    });
+
+    it('should mark dirty servers as clean', async () => {
+      await service.cleanDirtyGameServers();
       const gameServer = await staticGameServerModel.findById(
         testGameServer.id,
       );
