@@ -1,5 +1,12 @@
 
 
+## [9.1.1](https://github.com/tf2pickup-org/server/compare/9.1.0...9.1.1) (2022-06-29)
+
+
+### Bug Fixes
+
+* **static-game-server:** cleanup gameservers on startup ([#1765](https://github.com/tf2pickup-org/server/issues/1765)) ([c56fc54](https://github.com/tf2pickup-org/server/commit/c56fc548e0b5c2211a38b4737db3cd03fe14b30e))
+
 # [9.1.0](https://github.com/tf2pickup-org/server/compare/9.0.4...9.1.0) (2022-06-28)
 
 
