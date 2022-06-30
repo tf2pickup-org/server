@@ -76,6 +76,9 @@ export class PlayersController {
     return await this.playersService.updatePlayer(player.id, update, admin.id);
   }
 
+  // FIXME The CacheInterceptor should be enabled for this whole controller, but
+  // CacheManager's MongoDB backend seems to fail handling the TTL properly, thus
+  // caching everything too aggressively.
   @UseInterceptors(CacheInterceptor)
   @CacheTTL(12 * 60 * 60)
   @Get(':id/stats')
