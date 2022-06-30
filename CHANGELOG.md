@@ -1,5 +1,12 @@
 
 
+## [9.1.2](https://github.com/tf2pickup-org/server/compare/9.1.1...9.1.2) (2022-06-30)
+
+
+### Bug Fixes
+
+* **players:** cache only player stats ([#1770](https://github.com/tf2pickup-org/server/issues/1770)) ([1e46a93](https://github.com/tf2pickup-org/server/commit/1e46a939a4e15d8a505e8c4e5d9a27836432b3bc))
+
 ## [9.1.1](https://github.com/tf2pickup-org/server/compare/9.1.0...9.1.1) (2022-06-29)
 
 
