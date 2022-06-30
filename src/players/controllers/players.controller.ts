@@ -37,7 +37,6 @@ import { PlayerSkillDto } from '../dto/player-skill.dto';
 import { PlayerBanDto } from '../dto/player-ban.dto';
 
 @Controller('players')
-@UseInterceptors(CacheInterceptor)
 export class PlayersController {
   constructor(
     private playersService: PlayersService,
@@ -77,6 +76,7 @@ export class PlayersController {
     return await this.playersService.updatePlayer(player.id, update, admin.id);
   }
 
+  @UseInterceptors(CacheInterceptor)
   @CacheTTL(12 * 60 * 60)
   @Get(':id/stats')
   async getPlayerStats(
