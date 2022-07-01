@@ -9,7 +9,6 @@ import {
 import { GamesService } from './games.service';
 import { PlayersService } from '@/players/services/players.service';
 import { PlayerBansService } from '@/players/services/player-bans.service';
-import { GameRuntimeService } from './game-runtime.service';
 import { QueueService } from '@/queue/services/queue.service';
 import { DiscordService } from '@/plugins/discord/services/discord.service';
 import { substituteRequest } from '@/plugins/discord/notifications';
@@ -41,8 +40,6 @@ export class PlayerSubstitutionService implements OnModuleInit {
     @Inject(forwardRef(() => PlayersService))
     private playersService: PlayersService,
     private playerBansService: PlayerBansService,
-    @Inject(forwardRef(() => GameRuntimeService))
-    private gameRuntimeService: GameRuntimeService,
     private queueService: QueueService,
     @Optional() private discordService: DiscordService,
     private environment: Environment,
@@ -58,7 +55,7 @@ export class PlayerSubstitutionService implements OnModuleInit {
     // all substitute events trigger the substituteRequestsChange event
     merge(
       this.events.substituteRequested,
-      this.events.substituteCanceled,
+      this.events.substituteRequestCanceled,
       this.events.playerReplaced,
     ).subscribe(() => this.events.substituteRequestsChange.next());
   }
@@ -137,15 +134,6 @@ export class PlayerSubstitutionService implements OnModuleInit {
         this.discordNotifications.set(playerId, message);
       }
 
-      if (newGame.gameServer) {
-        this.gameRuntimeService
-          .sayChat(
-            newGame.gameServer.toString(),
-            `Looking for replacement for ${player.name}...`,
-          )
-          .catch((error) => this.logger.warn(error));
-      }
-
       return newGame;
     });
   }
@@ -200,7 +188,7 @@ export class PlayerSubstitutionService implements OnModuleInit {
       );
 
       this.events.gameChanges.next({ oldGame: game, newGame });
-      this.events.substituteCanceled.next({ gameId, playerId, adminId });
+      this.events.substituteRequestCanceled.next({ gameId, playerId, adminId });
 
       const message = this.discordNotifications.get(playerId);
       if (message) {
@@ -317,17 +305,6 @@ export class PlayerSubstitutionService implements OnModuleInit {
 
       const replacee = await this.playersService.getById(replaceeId);
 
-      if (newGame.gameServer) {
-        this.gameRuntimeService
-          .sayChat(
-            game.gameServer.toString(),
-            `${replacement.name} is replacing ${replacee.name} on ${replacementSlot.gameClass}.`,
-          )
-          .catch((error) => this.logger.warn(error));
-      }
-
-      await this.deleteDiscordAnnouncement(replaceeId);
-
       this.logger.verbose(
         `player ${replacement.name} is replacing ${replacee.name} on ${replacementSlot.gameClass} in game #${newGame.number}`,
       );
@@ -340,11 +317,7 @@ export class PlayerSubstitutionService implements OnModuleInit {
         $unset: { activeGame: 1 },
       });
 
-      if (newGame.gameServer) {
-        this.gameRuntimeService
-          .replacePlayer(newGame.id, replaceeId, replacementSlot)
-          .catch((error) => this.logger.warn(error));
-      }
+      await this.deleteDiscordAnnouncement(replaceeId);
       return newGame;
     });
   }

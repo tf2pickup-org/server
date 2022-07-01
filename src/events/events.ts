@@ -94,7 +94,7 @@ export class Events {
     playerId: string;
     adminId?: string;
   }>();
-  readonly substituteCanceled = new Subject<{
+  readonly substituteRequestCanceled = new Subject<{
     gameId: string;
     playerId: string;
     adminId?: string;

@@ -305,7 +305,7 @@ describe('PlayerSubstitutionService', () => {
     it('should emit the substituteCanceled event', async () => {
       let emittedGameId: string;
       let emittedPlayerId: string;
-      events.substituteCanceled.subscribe(({ gameId, playerId }) => {
+      events.substituteRequestCanceled.subscribe(({ gameId, playerId }) => {
         emittedGameId = gameId;
         emittedPlayerId = playerId;
       });
