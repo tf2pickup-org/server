@@ -1,5 +1,5 @@
 import { GameServer } from '@/game-servers/models/game-server';
-import { svLogsecret } from '@/games/utils/rcon-commands';
+import { svLogsecret } from '@/game-coordinator/utils/rcon-commands';
 import { createRcon } from '@/utils/create-rcon';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Exclude } from 'class-transformer';

@@ -18,10 +18,10 @@ import {
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { Error, Types } from 'mongoose';
 import { Mutex } from 'async-mutex';
+import { Tf2Team } from '../models/tf2-team';
 
 jest.mock('@/players/services/players.service');
 jest.mock('@nestjs/config');
-jest.mock('./game-runtime.service');
 jest.mock('./games.service');
 
 function flushPromises() {
@@ -314,17 +314,17 @@ describe('GameEventHandlerService', () => {
 
   describe('#onScoreReported()', () => {
     it("should update the game's score", async () => {
-      let game = await service.onScoreReported(mockGame.id, 'Red', '2');
+      let game = await service.onScoreReported(mockGame.id, Tf2Team.red, 2);
       expect(game.score.get('red')).toEqual(2);
 
-      game = await service.onScoreReported(mockGame.id, 'Blue', '5');
+      game = await service.onScoreReported(mockGame.id, Tf2Team.blu, 5);
       expect(game.score.get('blu')).toEqual(5);
     });
 
     it('should emit the gameChanges event', async () => {
       let event: Game;
       events.gameChanges.subscribe(({ newGame: game }) => (event = game));
-      await service.onScoreReported(mockGame.id, 'Red', '2');
+      await service.onScoreReported(mockGame.id, Tf2Team.red, 2);
       expect(event).toMatchObject({ id: mockGame.id });
     });
   });

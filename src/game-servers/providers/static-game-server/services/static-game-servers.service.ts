@@ -8,7 +8,7 @@ import {
   logAddressDel,
   delAllGamePlayers,
   disablePlayerWhitelist,
-} from '@/games/utils/rcon-commands';
+} from '@/game-coordinator/utils/rcon-commands';
 import { serverCleanupDelay } from '@configs/game-servers';
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';

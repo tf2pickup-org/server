@@ -17,7 +17,7 @@ import { Game, GameDocument, gameSchema } from '@/games/models/game';
 import { GamesService } from '@/games/services/games.service';
 
 jest.mock('@/game-servers/services/game-servers.service');
-jest.mock('./games.service');
+jest.mock('@/games/services/games.service');
 jest.mock('./server-configurator.service');
 
 describe('GameLauncherService', () => {

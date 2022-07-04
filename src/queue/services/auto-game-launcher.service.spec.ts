@@ -110,7 +110,6 @@ describe('AutoGameLauncherService', () => {
           'cp_badlands',
           [],
         );
-        expect(gamesService.launch).toHaveBeenCalledWith('FAKE_GAME_ID');
         resolve();
       });
     });

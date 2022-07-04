@@ -5,7 +5,6 @@ import { PlayerSlot, pickTeams } from '../utils/pick-teams';
 import { PlayersService } from '@/players/services/players.service';
 import { PlayerSkillService } from '@/players/services/player-skill.service';
 import { QueueConfigService } from '@/queue/services/queue-config.service';
-import { GameLauncherService } from '../../game-coordinator/services/game-launcher.service';
 import { shuffle } from 'lodash';
 import { Events } from '@/events/events';
 import { SlotStatus } from '../models/slot-status';
@@ -40,8 +39,6 @@ export class GamesService {
     private playersService: PlayersService,
     private playerSkillService: PlayerSkillService,
     private queueConfigService: QueueConfigService,
-    @Inject(forwardRef(() => GameLauncherService))
-    private gameLauncherService: GameLauncherService,
     private events: Events,
     private configurationService: ConfigurationService,
     @Inject('GAME_MODEL_MUTEX') private mutex: Mutex,

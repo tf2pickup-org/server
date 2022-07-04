@@ -1,8 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { GameEventListenerService } from './game-event-listener.service';
 import { Environment } from '@/environment/environment';
-import { GameEventHandlerService } from './game-event-handler.service';
-import { GamesService } from './games.service';
 import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import {
@@ -10,14 +8,15 @@ import {
   getModelToken,
   MongooseModule,
 } from '@nestjs/mongoose';
-import { Game, GameDocument, gameSchema } from '../models/game';
 import { Connection, Model } from 'mongoose';
 import { LogReceiverService } from '@/log-receiver/services/log-receiver.service';
-import { Subject } from 'rxjs';
+import { Subject, take } from 'rxjs';
 import { Events } from '@/events/events';
+import { GameDocument, Game, gameSchema } from '@/games/models/game';
+import { GamesService } from '@/games/services/games.service';
+import { Tf2Team } from '@/games/models/tf2-team';
 
-jest.mock('./game-event-handler.service');
-jest.mock('./games.service');
+jest.mock('@/games/services/games.service');
 jest.mock('@/log-receiver/services/log-receiver.service');
 
 class EnvironmentStub {
@@ -27,13 +26,13 @@ class EnvironmentStub {
 
 describe('GameEventListenerService', () => {
   let service: GameEventListenerService;
-  let gameEventHandlerService: GameEventHandlerService;
   let mongod: MongoMemoryServer;
   let gamesService: GamesService;
   let gameModel: Model<GameDocument>;
   let game: GameDocument;
   let logReceiverService: jest.Mocked<LogReceiverService>;
   let connection: Connection;
+  let events: Events;
 
   beforeAll(async () => (mongod = await MongoMemoryServer.create()));
   afterAll(async () => await mongod.stop());
@@ -52,7 +51,6 @@ describe('GameEventListenerService', () => {
       providers: [
         GameEventListenerService,
         { provide: Environment, useClass: EnvironmentStub },
-        GameEventHandlerService,
         GamesService,
         LogReceiverService,
         Events,
@@ -60,11 +58,11 @@ describe('GameEventListenerService', () => {
     }).compile();
 
     service = module.get<GameEventListenerService>(GameEventListenerService);
-    gameEventHandlerService = module.get(GameEventHandlerService);
     gameModel = module.get(getModelToken(Game.name));
     gamesService = module.get(GamesService);
     logReceiverService = module.get(LogReceiverService);
     connection = module.get(getConnectionToken());
+    events = module.get(Events);
 
     // @ts-expect-error
     logReceiverService.data = new Subject<any>();
@@ -92,13 +90,10 @@ describe('GameEventListenerService', () => {
   describe('should handle game events', () => {
     it('match started', async () =>
       new Promise<void>((resolve) => {
-        jest
-          .spyOn(gameEventHandlerService, 'onMatchStarted')
-          .mockImplementation((gameId) => {
-            expect(gameId).toEqual(game.id);
-            resolve();
-            return null;
-          });
+        events.matchStarted.pipe(take(1)).subscribe(({ gameId }) => {
+          expect(gameId).toEqual(game.id);
+          resolve();
+        });
         (logReceiverService.data as Subject<any>).next({
           payload: '01/26/2020 - 20:40:20: World triggered "Round_Start"',
           password: 'SOME_LOG_SECRET',
@@ -107,13 +102,10 @@ describe('GameEventListenerService', () => {
 
     it('match ended', async () =>
       new Promise<void>((resolve) => {
-        jest
-          .spyOn(gameEventHandlerService, 'onMatchEnded')
-          .mockImplementation((gameId) => {
-            expect(gameId).toEqual(game.id);
-            resolve();
-            return null;
-          });
+        events.matchEnded.pipe(take(1)).subscribe(({ gameId }) => {
+          expect(gameId).toEqual(game.id);
+          resolve();
+        });
         (logReceiverService.data as Subject<any>).next({
           payload:
             '01/26/2020 - 20:38:49: World triggered "Game_Over" reason "Reached Time Limit"',
@@ -123,14 +115,11 @@ describe('GameEventListenerService', () => {
 
     it('logs uploaded', async () =>
       new Promise<void>((resolve) => {
-        jest
-          .spyOn(gameEventHandlerService, 'onLogsUploaded')
-          .mockImplementation((gameId, logsUrl) => {
-            expect(gameId).toEqual(game.id);
-            expect(logsUrl).toEqual('http://logs.tf/2458457');
-            resolve();
-            return null;
-          });
+        events.logsUploaded.pipe(take(1)).subscribe(({ gameId, logsUrl }) => {
+          expect(gameId).toEqual(game.id);
+          expect(logsUrl).toEqual('http://logs.tf/2458457');
+          resolve();
+        });
         (logReceiverService.data as Subject<any>).next({
           payload:
             '01/26/2020 - 20:38:52: [TFTrue] The log is available here: http://logs.tf/2458457. Type !log to view it.',
@@ -140,14 +129,11 @@ describe('GameEventListenerService', () => {
 
     it('demo uploaded', async () =>
       new Promise<void>((resolve) => {
-        jest
-          .spyOn(gameEventHandlerService, 'onDemoUploaded')
-          .mockImplementation((gameId, demoUrl) => {
-            expect(gameId).toEqual(game.id);
-            expect(demoUrl).toEqual('https://demos.tf/427407');
-            resolve();
-            return null;
-          });
+        events.demoUploaded.pipe(take(1)).subscribe(({ gameId, demoUrl }) => {
+          expect(gameId).toEqual(game.id);
+          expect(demoUrl).toEqual('https://demos.tf/427407');
+          resolve();
+        });
         (logReceiverService.data as Subject<any>).next({
           payload:
             '06/19/2020 - 00:04:28: [demos.tf]: STV available at: https://demos.tf/427407',
@@ -157,13 +143,12 @@ describe('GameEventListenerService', () => {
 
     it('player connected', async () =>
       new Promise<void>((resolve) => {
-        jest
-          .spyOn(gameEventHandlerService, 'onPlayerJoining')
-          .mockImplementation((gameId, steamId) => {
+        events.playerConnected
+          .pipe(take(1))
+          .subscribe(({ gameId, steamId }) => {
             expect(gameId).toEqual(game.id);
             expect(steamId).toEqual('76561198074409147');
             resolve();
-            return null;
           });
         (logReceiverService.data as Subject<any>).next({
           payload:
@@ -174,13 +159,12 @@ describe('GameEventListenerService', () => {
 
     it('player joined team', async () =>
       new Promise<void>((resolve) => {
-        jest
-          .spyOn(gameEventHandlerService, 'onPlayerConnected')
-          .mockImplementation((gameId, steamId) => {
+        events.playerJoinedTeam
+          .pipe(take(1))
+          .subscribe(({ gameId, steamId }) => {
             expect(gameId).toEqual(game.id);
             expect(steamId).toEqual('76561198074409147');
             resolve();
-            return null;
           });
         (logReceiverService.data as Subject<any>).next({
           payload:
@@ -191,13 +175,12 @@ describe('GameEventListenerService', () => {
 
     it('player disconnected', async () =>
       new Promise<void>((resolve) => {
-        jest
-          .spyOn(gameEventHandlerService, 'onPlayerDisconnected')
-          .mockImplementation((gameId, steamId) => {
+        events.playerDisconnected
+          .pipe(take(1))
+          .subscribe(({ gameId, steamId }) => {
             expect(gameId).toEqual(game.id);
             expect(steamId).toEqual('76561198074409147');
             resolve();
-            return null;
           });
         (logReceiverService.data as Subject<any>).next({
           payload:
@@ -208,14 +191,13 @@ describe('GameEventListenerService', () => {
 
     it('score reported', async () =>
       new Promise<void>((resolve) => {
-        jest
-          .spyOn(gameEventHandlerService, 'onScoreReported')
-          .mockImplementation((gameId, teamName, score) => {
+        events.scoreReported
+          .pipe(take(1))
+          .subscribe(({ gameId, teamName, score }) => {
             expect(gameId).toEqual(game.id);
-            expect(teamName).toEqual('Red');
-            expect(score).toEqual('1');
+            expect(teamName).toEqual(Tf2Team.red);
+            expect(score).toEqual(1);
             resolve();
-            return null;
           });
         (logReceiverService.data as Subject<any>).next({
           payload:
@@ -226,14 +208,13 @@ describe('GameEventListenerService', () => {
 
     it('final score reported', async () =>
       new Promise<void>((resolve) => {
-        jest
-          .spyOn(gameEventHandlerService, 'onScoreReported')
-          .mockImplementation((gameId, teamName, score) => {
+        events.scoreReported
+          .pipe(take(1))
+          .subscribe(({ gameId, teamName, score }) => {
             expect(gameId).toEqual(game.id);
-            expect(teamName).toEqual('Blue');
-            expect(score).toEqual('2');
+            expect(teamName).toEqual(Tf2Team.blu);
+            expect(score).toEqual(2);
             resolve();
-            return null;
           });
         (logReceiverService.data as Subject<any>).next({
           payload:

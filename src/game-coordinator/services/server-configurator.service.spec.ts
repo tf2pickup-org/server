@@ -38,18 +38,18 @@ import {
 } from '@nestjs/mongoose';
 import { Connection, Model } from 'mongoose';
 import { WhitelistId } from '@/configuration/models/whitelist-id';
-import { GamesService } from '../../games/services/games.service';
 import { GameServersService } from '@/game-servers/services/game-servers.service';
 import { Events } from '@/events/events';
 import { GameServer } from '@/game-servers/models/game-server';
 import { staticGameServerProviderName } from '@/game-servers/providers/static-game-server/static-game-server-provider-name';
 import { GameConfigsService } from '@/game-configs/services/game-configs.service';
 import { MapPoolEntry } from '@/queue/models/map-pool-entry';
+import { GamesService } from '@/games/services/games.service';
 
 jest.mock('@/queue/services/map-pool.service');
 jest.mock('@/players/services/players.service');
 jest.mock('@/configuration/services/configuration.service');
-jest.mock('./games.service');
+jest.mock('@/games/services/games.service');
 jest.mock('@/game-servers/services/game-servers.service');
 jest.mock('@/game-configs/services/game-configs.service');
 

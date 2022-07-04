@@ -3,7 +3,6 @@ import { PlayerSubstitutionService } from './player-substitution.service';
 import { GamesService } from './games.service';
 import { PlayersService } from '@/players/services/players.service';
 import { PlayerBansService } from '@/players/services/player-bans.service';
-import { GameRuntimeService } from './game-runtime.service';
 import { QueueService } from '@/queue/services/queue.service';
 import { DiscordService } from '@/plugins/discord/services/discord.service';
 import { Environment } from '@/environment/environment';
@@ -28,7 +27,6 @@ jest.mock('@/plugins/discord/services/discord.service');
 jest.mock('@/players/services/players.service');
 jest.mock('./games.service');
 jest.mock('@/players/services/player-bans.service');
-jest.mock('./game-runtime.service');
 jest.mock('../gateways/games.gateway');
 jest.mock('@/queue/services/queue.service');
 
@@ -43,7 +41,6 @@ describe('PlayerSubstitutionService', () => {
   let gamesService: GamesService;
   let playersService: PlayersService;
   let playerBansService: PlayerBansService;
-  let gameRuntimeService: jest.Mocked<GameRuntimeService>;
   let queueService: jest.Mocked<QueueService>;
   let player1: PlayerDocument;
   let player2: PlayerDocument;
@@ -71,7 +68,6 @@ describe('PlayerSubstitutionService', () => {
         GamesService,
         PlayersService,
         PlayerBansService,
-        GameRuntimeService,
         QueueService,
         DiscordService,
         { provide: Environment, useValue: environment },
@@ -83,7 +79,6 @@ describe('PlayerSubstitutionService', () => {
     gamesService = module.get(GamesService);
     playersService = module.get(PlayersService);
     playerBansService = module.get(PlayerBansService);
-    gameRuntimeService = module.get(GameRuntimeService);
     queueService = module.get(QueueService);
     discordService = module.get(DiscordService);
     events = module.get(Events);
@@ -105,8 +100,6 @@ describe('PlayerSubstitutionService', () => {
     await mockGame.save();
 
     playerBansService.getPlayerActiveBans = () => Promise.resolve([]);
-    gameRuntimeService.sayChat.mockResolvedValue(null);
-    gameRuntimeService.replacePlayer.mockResolvedValue(null);
   });
 
   afterEach(async () => {
@@ -192,14 +185,6 @@ describe('PlayerSubstitutionService', () => {
         content: '&<TF2 gamers>',
         embeds: [expect.any(Object)],
       });
-    });
-
-    it('should announce looking for the replacement in the game', async () => {
-      await service.substitutePlayer(mockGame.id, player1.id);
-      expect(gameRuntimeService.sayChat).toHaveBeenCalledWith(
-        mockGame.gameServer.toString(),
-        'Looking for replacement for fake_player_1...',
-      );
     });
 
     it('should emit the substituteRequested event', async () => {
@@ -359,19 +344,6 @@ describe('PlayerSubstitutionService', () => {
       expect(event).toMatchObject({ id: mockGame.id });
     });
 
-    it('should replace the player in-game', async () =>
-      new Promise<void>((resolve) => {
-        setTimeout(() => {
-          expect(gameRuntimeService.replacePlayer).toHaveBeenCalledWith(
-            mockGame.id,
-            player1.id,
-            expect.objectContaining({ player: player3._id }),
-          );
-          resolve();
-        }, 100);
-        service.replacePlayer(mockGame.id, player1.id, player3.id);
-      }));
-
     describe('when the replacement player is banned', () => {
       beforeEach(() => {
         const end = new Date();
@@ -481,14 +453,6 @@ describe('PlayerSubstitutionService', () => {
     it('should kick the replacement player from the queue', async () => {
       await service.replacePlayer(mockGame.id, player1.id, player3.id);
       expect(queueService.kick).toHaveBeenCalledWith(player3.id);
-    });
-
-    it('should announce the replacement in the game', async () => {
-      await service.replacePlayer(mockGame.id, player1.id, player3.id);
-      expect(gameRuntimeService.sayChat).toHaveBeenCalledWith(
-        mockGame.gameServer.toString(),
-        'fake_player_3 is replacing fake_player_1 on soldier.',
-      );
     });
 
     it('should delete the discord announcement', async () => {

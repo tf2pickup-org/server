@@ -33,7 +33,6 @@ import { Mutex } from 'async-mutex';
 
 jest.mock('@/players/services/players.service');
 jest.mock('@/players/services/player-skill.service');
-jest.mock('./game-launcher.service');
 jest.mock('@/configuration/services/configuration.service');
 jest.mock('@/game-servers/services/game-servers.service');
 
@@ -55,7 +54,6 @@ describe('GamesService', () => {
   let service: GamesService;
   let mongod: MongoMemoryServer;
   let gameModel: Model<GameDocument>;
-  let gameLauncherService: GameLauncherService;
   let playersService: PlayersService;
   let events: Events;
   let playerSkillService: jest.Mocked<PlayerSkillService>;
@@ -91,7 +89,7 @@ describe('GamesService', () => {
 
     service = module.get<GamesService>(GamesService);
     gameModel = module.get(getModelToken(Game.name));
-    gameLauncherService = module.get(GameLauncherService);
+
     playersService = module.get(PlayersService);
     events = module.get(Events);
     playerSkillService = module.get(PlayerSkillService);
@@ -441,14 +439,6 @@ describe('GamesService', () => {
       spy.mock.calls.forEach((call) =>
         expect(call[1].activeGame).toEqual(game.id),
       );
-    });
-  });
-
-  describe('#launch()', () => {
-    it('should launch the game', async () => {
-      const spy = jest.spyOn(gameLauncherService, 'launch');
-      await service.launch('FAKE_GAME_ID');
-      expect(spy).toHaveBeenCalledWith('FAKE_GAME_ID');
     });
   });
 
