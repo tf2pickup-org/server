@@ -15,13 +15,13 @@ import { Events } from '@/events/events';
  */
 @Injectable()
 export class GameLauncherService implements OnModuleInit {
-  private logger = new Logger(GameLauncherService.name);
-  private mutex = new Mutex();
+  private readonly logger = new Logger(GameLauncherService.name);
+  private readonly mutex = new Mutex();
 
   constructor(
-    private gamesService: GamesService,
-    private gameServersService: GameServersService,
-    private serverConfiguratorService: ServerConfiguratorService,
+    private readonly gamesService: GamesService,
+    private readonly gameServersService: GameServersService,
+    private readonly serverConfiguratorService: ServerConfiguratorService,
     private readonly events: Events,
   ) {}
 

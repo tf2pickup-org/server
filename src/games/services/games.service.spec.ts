@@ -6,7 +6,6 @@ import { Player, PlayerDocument, playerSchema } from '@/players/models/player';
 import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
 import { Game, GameDocument, gameSchema } from '../models/game';
 import { QueueSlot } from '@/queue/queue-slot';
-import { GameLauncherService } from '../../game-coordinator/services/game-launcher.service';
 import { QueueConfigService } from '@/queue/services/queue-config.service';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { Tf2Team } from '../models/tf2-team';
@@ -81,7 +80,6 @@ describe('GamesService', () => {
         PlayersService,
         PlayerSkillService,
         { provide: QueueConfigService, useClass: QueueConfigServiceStub },
-        GameLauncherService,
         Events,
         ConfigurationService,
       ],
