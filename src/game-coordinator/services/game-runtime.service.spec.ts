@@ -197,14 +197,14 @@ describe('GameRuntimeService', () => {
         anotherGame = await gamesService._createOne(mockPlayers);
       });
 
-      it('should throw an error', async () => {
+      it('should not throw an error', async () => {
         await expect(
           service.replacePlayer(
             anotherGame.id,
             mockPlayers[0].id,
             mockPlayers[1].id,
           ),
-        ).rejects.toThrow(GameServerNotAssignedError);
+        ).resolves.not.toThrow();
       });
     });
 
