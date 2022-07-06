@@ -1,6 +1,8 @@
 import { ConfigurationModule } from '@/configuration/configuration.module';
 import { GameConfigsModule } from '@/game-configs/game-configs.module';
+import { GameServersModule } from '@/game-servers/game-servers.module';
 import { GamesModule } from '@/games/games.module';
+import { LogReceiverModule } from '@/log-receiver/log-receiver.module';
 import { PlayersModule } from '@/players/players.module';
 import { QueueModule } from '@/queue/queue.module';
 import { Module } from '@nestjs/common';
@@ -16,6 +18,8 @@ import { ServerConfiguratorService } from './services/server-configurator.servic
     QueueModule,
     ConfigurationModule,
     GameConfigsModule,
+    GameServersModule,
+    LogReceiverModule,
   ],
   providers: [
     ServerConfiguratorService,
@@ -23,5 +27,6 @@ import { ServerConfiguratorService } from './services/server-configurator.servic
     GameRuntimeService,
     GameEventListenerService,
   ],
+  exports: [GameRuntimeService],
 })
 export class GameCoordinatorModule {}

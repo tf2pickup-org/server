@@ -10,9 +10,7 @@ import { GameEventHandlerService } from './services/game-event-handler.service';
 import { GamesWithSubstitutionRequestsController } from './controllers/games-with-substitution-requests.controller';
 import { PlayerSubstitutionService } from './services/player-substitution.service';
 import { ConfigurationModule } from '@/configuration/configuration.module';
-import { LogReceiverModule } from '@/log-receiver/log-receiver.module';
 import { MongooseModule } from '@nestjs/mongoose';
-import { GameConfigsModule } from '@/game-configs/game-configs.module';
 import { Mutex } from 'async-mutex';
 
 @Module({
@@ -21,10 +19,7 @@ import { Mutex } from 'async-mutex';
     forwardRef(() => GameServersModule),
     forwardRef(() => PlayersModule),
     QueueModule,
-
     ConfigurationModule,
-    LogReceiverModule,
-    GameConfigsModule,
   ],
   providers: [
     {
