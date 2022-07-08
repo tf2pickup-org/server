@@ -32,7 +32,7 @@
     "@tf2pickup-org/mumble-client": "0.6.0",
     "app-root-path": "3.0.0",
     "async-mutex": "0.3.2",
-    "cache-manager": "4.0.1",
+    "cache-manager": "4.1.0",
     "cache-manager-mongodb": "0.3.0",
     "cache-manager-redis-store": "2.0.0",
     "class-transformer": "0.5.1",
