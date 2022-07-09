@@ -3319,14 +3319,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cache-manager@npm:4.0.1":
-  version: 4.0.1
-  resolution: "cache-manager@npm:4.0.1"
+"cache-manager@npm:4.1.0":
+  version: 4.1.0
+  resolution: "cache-manager@npm:4.1.0"
   dependencies:
     async: 3.2.3
     lodash.clonedeep: ^4.5.0
     lru-cache: ^7.10.1
-  checksum: 8ca25b1e603111f033d1a3f1463b2a9203e9ea61a0706265a4d4f63d54a8be95f9e79efb04fc43103219becb4903a5db747a346e009e7102767a47e5677219b2
+  checksum: 620636eba25378c0a67933d9d2452f3a63e7f4afe69442112b19cdd6bee5def7846df88d6e086e262695c017250f39da1a49f9fb4fab949ff3ce4920449fba17
   languageName: node
   linkType: hard
 
@@ -9956,7 +9956,7 @@ __metadata:
     "@typescript-eslint/parser": 5.30.5
     app-root-path: 3.0.0
     async-mutex: 0.3.2
-    cache-manager: 4.0.1
+    cache-manager: 4.1.0
     cache-manager-mongodb: 0.3.0
     cache-manager-redis-store: 2.0.0
     class-transformer: 0.5.1
