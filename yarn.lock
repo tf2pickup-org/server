@@ -9791,6 +9791,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"rxjs@npm:7.5.6":
+  version: 7.5.6
+  resolution: "rxjs@npm:7.5.6"
+  dependencies:
+    tslib: ^2.1.0
+  checksum: fc05f01364a74dac57490fb3e07ea63b422af04017fae1db641a009073f902ef69f285c5daac31359620dc8d9aee7d81e42b370ca2a8573d1feae0b04329383b
+  languageName: node
+  linkType: hard
+
 "safe-buffer@npm:5.2.1, safe-buffer@npm:^5.0.1, safe-buffer@npm:^5.1.0, safe-buffer@npm:^5.1.1, safe-buffer@npm:^5.1.2, safe-buffer@npm:~5.2.0":
   version: 5.2.1
   resolution: "safe-buffer@npm:5.2.1"
@@ -9992,7 +10001,7 @@ __metadata:
     reflect-metadata: 0.1.13
     release-it: 15.1.1
     rimraf: 3.0.2
-    rxjs: 7.5.5
+    rxjs: 7.5.6
     socket.io-client: 4.5.1
     steamid: 2.0.0
     supertest: 6.2.4
