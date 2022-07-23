@@ -1,5 +1,26 @@
 
 
+## [9.1.3](https://github.com/tf2pickup-org/server/compare/9.1.2...9.1.3) (2022-07-23)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @nestjs/axios to v0.1.0 ([#1786](https://github.com/tf2pickup-org/server/issues/1786)) ([572ddfd](https://github.com/tf2pickup-org/server/commit/572ddfd9fbc603da49eaf2d65b3e7fa6e74198d0))
+* **deps:** update dependency @nestjs/config to v2.2.0 ([#1787](https://github.com/tf2pickup-org/server/issues/1787)) ([ca0dcd6](https://github.com/tf2pickup-org/server/commit/ca0dcd6c957359e09e73814c8c476aae5fa2b88e))
+* **deps:** update dependency @nestjs/mongoose to v9.2.0 ([#1784](https://github.com/tf2pickup-org/server/issues/1784)) ([8a8e66a](https://github.com/tf2pickup-org/server/commit/8a8e66a36dfbce5174cdc94db627bd8eab088f18))
+* **deps:** update dependency @nestjs/schedule to v2.1.0 ([#1788](https://github.com/tf2pickup-org/server/issues/1788)) ([2020b9a](https://github.com/tf2pickup-org/server/commit/2020b9a22bb170cb974ede2e47f8e9d111bd1c67))
+* **deps:** update dependency @redis/client to v1.1.1 ([#1773](https://github.com/tf2pickup-org/server/issues/1773)) ([890371b](https://github.com/tf2pickup-org/server/commit/890371bdefe6f5b0fe97feb5a24cd04cef36415e))
+* **deps:** update dependency @redis/client to v1.2.0 ([#1782](https://github.com/tf2pickup-org/server/issues/1782)) ([8116b06](https://github.com/tf2pickup-org/server/commit/8116b06758a552179f73edcbbb4c989c650eb5b6))
+* **deps:** update dependency cache-manager to v4.1.0 ([#1791](https://github.com/tf2pickup-org/server/issues/1791)) ([9e55817](https://github.com/tf2pickup-org/server/commit/9e558176a192084c6a242c6c069661b988ea4e10))
+* **deps:** update dependency discord.js to v13.9.0 ([#1807](https://github.com/tf2pickup-org/server/issues/1807)) ([9def2f4](https://github.com/tf2pickup-org/server/commit/9def2f4899b20565d5a1fe94fa1f2c5f622c11f5))
+* **deps:** update dependency moment to v2.29.4 ([#1783](https://github.com/tf2pickup-org/server/issues/1783)) ([5640dcd](https://github.com/tf2pickup-org/server/commit/5640dcd428cfddbbe783c259a03a55178d88330c))
+* **deps:** update dependency mongodb to v4.8.0 ([#1796](https://github.com/tf2pickup-org/server/issues/1796)) ([5f16f2e](https://github.com/tf2pickup-org/server/commit/5f16f2e330d50b6f7e7fd205e5e7ae8ba6ca6d52))
+* **deps:** update dependency mongoose to v6.4.5 ([#1745](https://github.com/tf2pickup-org/server/issues/1745)) ([d7e583f](https://github.com/tf2pickup-org/server/commit/d7e583f638628b797e5bbf4382776f52044d9c3c))
+* **deps:** update dependency mongoose to v6.4.6 ([#1811](https://github.com/tf2pickup-org/server/issues/1811)) ([4c43be8](https://github.com/tf2pickup-org/server/commit/4c43be8290697ec7466bbadf02d80e0015778568))
+* **deps:** update dependency nestjs-real-ip to v2.2.0 ([#1801](https://github.com/tf2pickup-org/server/issues/1801)) ([647c6d0](https://github.com/tf2pickup-org/server/commit/647c6d0de706c1d83475c3156e6b4b70e71294a8))
+* **deps:** update dependency rxjs to v7.5.6 ([#1792](https://github.com/tf2pickup-org/server/issues/1792)) ([76f5fe0](https://github.com/tf2pickup-org/server/commit/76f5fe04fe37290ceabb85fad114357dd94e36f8))
+* **queue:** remove impossible friendships prior to creating a game ([#1813](https://github.com/tf2pickup-org/server/issues/1813)) ([a614df3](https://github.com/tf2pickup-org/server/commit/a614df343219b30b74b5221d8d1e90feff9cb629))
+
 ## [9.1.2](https://github.com/tf2pickup-org/server/compare/9.1.1...9.1.2) (2022-06-30)
 
 
