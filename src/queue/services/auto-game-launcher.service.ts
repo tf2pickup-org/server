@@ -5,6 +5,7 @@ import { GamesService } from '@/games/services/games.service';
 import { filter } from 'rxjs/operators';
 import { FriendsService } from './friends.service';
 import { Events } from '@/events/events';
+import { QueueState } from '../queue-state';
 
 /**
  * Automatically launches a game once the queue is ready to play it.
@@ -24,15 +25,23 @@ export class AutoGameLauncherService {
 
   onModuleInit() {
     this.events.queueStateChange
-      .pipe(filter(({ state }) => state === 'launching'))
+      .pipe(filter(({ state }) => state === QueueState.launching))
       .subscribe(() => this.launchGame());
   }
 
   private async launchGame() {
-    const friends = this.friendsService.friendships.map((f) => [
-      f.sourcePlayerId,
-      f.targetPlayerId,
-    ]);
+    const friends = this.friendsService.friendships
+      .filter((friendship) => {
+        const [sourceSlot, targetSlot] = [
+          this.queueService.findSlotByPlayerId(friendship.sourcePlayerId),
+          this.queueService.findSlotByPlayerId(friendship.targetPlayerId),
+        ];
+        if (!sourceSlot || !targetSlot) {
+          return false;
+        }
+        return sourceSlot.canMakeFriendsWith.includes(targetSlot.gameClass);
+      })
+      .map((f) => [f.sourcePlayerId, f.targetPlayerId]);
     const game = await this.gamesService.create(
       this.queueService.slots,
       await this.mapVoteService.getWinner(),
