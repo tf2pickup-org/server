@@ -440,6 +440,54 @@ describe('GamesService', () => {
     });
   });
 
+  describe('#forceEnd()', () => {
+    let testGame: GameDocument;
+    let testPlayer: PlayerDocument;
+
+    beforeEach(async () => {
+      // @ts-expect-error
+      testPlayer = await playersService._createOne();
+
+      testGame = await gameModel.create({
+        number: 1,
+        map: 'cp_badlands',
+        slots: [
+          {
+            player: testPlayer._id,
+            team: Tf2Team.blu,
+            gameClass: Tf2ClassName.scout,
+          },
+        ],
+      });
+
+      testPlayer.activeGame = testGame._id;
+      await testPlayer.save();
+    });
+
+    it('should mark the game as forcefully ended', async () => {
+      const game = await service.forceEnd(testGame.id);
+      expect(game.state).toEqual(GameState.interrupted);
+      expect(game.error).toEqual('ended by admin');
+    });
+
+    it('should unassign the game', async () => {
+      await service.forceEnd(testGame.id);
+      const player = await playersService.getById(testPlayer.id);
+      expect(player.activeGame).toBe(undefined);
+    });
+
+    it('should emit an event', async () =>
+      new Promise<void>((resolve) => {
+        events.gameChanges.subscribe(({ oldGame, newGame }) => {
+          expect(oldGame.id).toEqual(testGame.id);
+          expect(newGame.id).toEqual(testGame.id);
+          expect(newGame.state).toEqual(GameState.interrupted);
+          resolve();
+        });
+        service.forceEnd(testGame.id);
+      }));
+  });
+
   describe('#getMostActivePlayers()', () => {
     let player1: PlayerDocument;
     let player2: PlayerDocument;
