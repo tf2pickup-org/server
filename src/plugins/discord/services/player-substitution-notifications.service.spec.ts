@@ -99,7 +99,7 @@ describe('PlayerSubstitutionNotificationsService', () => {
         gameId: game.id,
         playerId: player.id,
       });
-      for (let i = 0; i < 4; ++i) {
+      for (let i = 0; i < 6; ++i) {
         await flushPromises();
       }
       expect(channel.send).toHaveBeenCalledWith({
