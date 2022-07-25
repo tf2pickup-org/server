@@ -3,17 +3,12 @@ import {
   Logger,
   Inject,
   forwardRef,
-  Optional,
   OnModuleInit,
 } from '@nestjs/common';
 import { GamesService } from './games.service';
 import { PlayersService } from '@/players/services/players.service';
 import { PlayerBansService } from '@/players/services/player-bans.service';
 import { QueueService } from '@/queue/services/queue.service';
-import { DiscordService } from '@/plugins/discord/services/discord.service';
-import { substituteRequest } from '@/plugins/discord/notifications';
-import { Environment } from '@/environment/environment';
-import { Message } from 'discord.js';
 import { Events } from '@/events/events';
 import { SlotStatus } from '../models/slot-status';
 import { Model, Types } from 'mongoose';
@@ -32,7 +27,6 @@ import { Mutex } from 'async-mutex';
 @Injectable()
 export class PlayerSubstitutionService implements OnModuleInit {
   private logger = new Logger(PlayerSubstitutionService.name);
-  private discordNotifications = new Map<string, Message>(); // playerId <-> message pairs
   private mutex = new Mutex();
 
   constructor(
@@ -41,15 +35,9 @@ export class PlayerSubstitutionService implements OnModuleInit {
     private playersService: PlayersService,
     private playerBansService: PlayerBansService,
     private queueService: QueueService,
-    @Optional() private discordService: DiscordService,
-    private environment: Environment,
     private events: Events,
     @InjectModel(Game.name) private gameModel: Model<GameDocument>,
-  ) {
-    this.logger.verbose(
-      `Discord plugin will ${this.discordService ? '' : 'not '}be used`,
-    );
-  }
+  ) {}
 
   onModuleInit() {
     // all substitute events trigger the substituteRequestsChange event
@@ -107,33 +95,6 @@ export class PlayerSubstitutionService implements OnModuleInit {
 
       this.events.gameChanges.next({ oldGame: game, newGame });
       this.events.substituteRequested.next({ gameId, playerId, adminId });
-
-      const channel = this.discordService?.getPlayersChannel();
-      if (channel) {
-        const embed = substituteRequest({
-          gameNumber: newGame.number,
-          gameClass: slot.gameClass,
-          team: slot.team.toUpperCase(),
-          gameUrl: `${this.environment.clientUrl}/game/${newGame.id}`,
-        });
-
-        const roleToMention = this.discordService.findRole(
-          this.environment.discordQueueNotificationsMentionRole,
-        );
-        let message: Message; // skipcq: JS-0309
-
-        if (roleToMention?.mentionable) {
-          message = await channel.send({
-            content: `${roleToMention.toString()}`,
-            embeds: [embed],
-          });
-        } else {
-          message = await channel.send({ embeds: [embed] });
-        }
-
-        this.discordNotifications.set(playerId, message);
-      }
-
       return newGame;
     });
   }
@@ -189,13 +150,6 @@ export class PlayerSubstitutionService implements OnModuleInit {
 
       this.events.gameChanges.next({ oldGame: game, newGame });
       this.events.substituteRequestCanceled.next({ gameId, playerId, adminId });
-
-      const message = this.discordNotifications.get(playerId);
-      if (message) {
-        await message.delete();
-        this.discordNotifications.delete(playerId);
-      }
-
       return newGame;
     });
   }
@@ -253,7 +207,6 @@ export class PlayerSubstitutionService implements OnModuleInit {
           replaceeId,
           replacementId,
         });
-        await this.deleteDiscordAnnouncement(replaceeId);
         this.logger.verbose(`player has taken his own slot`);
         return newGame;
       }
@@ -312,21 +265,10 @@ export class PlayerSubstitutionService implements OnModuleInit {
       await this.playersService.updatePlayer(replacement.id.toString(), {
         activeGame: newGame.id,
       });
-
       await this.playersService.updatePlayer(replacee.id.toString(), {
         $unset: { activeGame: 1 },
       });
-
-      await this.deleteDiscordAnnouncement(replaceeId);
       return newGame;
     });
-  }
-
-  private async deleteDiscordAnnouncement(replaceeId: string) {
-    const message = this.discordNotifications.get(replaceeId);
-    if (message) {
-      await message.delete();
-      this.discordNotifications.delete(replaceeId);
-    }
   }
 }
