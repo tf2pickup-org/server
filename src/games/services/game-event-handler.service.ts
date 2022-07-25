@@ -1,4 +1,10 @@
-import { Inject, Injectable, Logger, OnModuleDestroy } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  Logger,
+  OnModuleDestroy,
+  OnModuleInit,
+} from '@nestjs/common';
 import { PlayersService } from '@/players/services/players.service';
 import { PlayerConnectionStatus } from '../models/player-connection-status';
 import { Game, GameDocument } from '../models/game';
@@ -11,9 +17,10 @@ import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { plainToInstance } from 'class-transformer';
 import { GamesService } from './games.service';
 import { Mutex } from 'async-mutex';
+import { Tf2Team } from '../models/tf2-team';
 
 @Injectable()
-export class GameEventHandlerService implements OnModuleDestroy {
+export class GameEventHandlerService implements OnModuleInit, OnModuleDestroy {
   private logger = new Logger(GameEventHandlerService.name);
   private timers: NodeJS.Timer[] = [];
 
@@ -24,6 +31,37 @@ export class GameEventHandlerService implements OnModuleDestroy {
     private gamesService: GamesService,
     @Inject('GAME_MODEL_MUTEX') private mutex: Mutex,
   ) {}
+
+  onModuleInit() {
+    this.events.matchStarted.subscribe(
+      async ({ gameId }) => await this.onMatchStarted(gameId),
+    );
+    this.events.matchEnded.subscribe(
+      async ({ gameId }) => await this.onMatchEnded(gameId),
+    );
+    this.events.playerConnected.subscribe(
+      async ({ gameId, steamId }) =>
+        await this.onPlayerJoining(gameId, steamId),
+    );
+    this.events.playerJoinedTeam.subscribe(
+      async ({ gameId, steamId }) =>
+        await this.onPlayerConnected(gameId, steamId),
+    );
+    this.events.playerDisconnected.subscribe(
+      async ({ gameId, steamId }) =>
+        await this.onPlayerDisconnected(gameId, steamId),
+    );
+    this.events.scoreReported.subscribe(
+      async ({ gameId, teamName, score }) =>
+        await this.onScoreReported(gameId, teamName, score),
+    );
+    this.events.logsUploaded.subscribe(
+      async ({ gameId, logsUrl }) => await this.onLogsUploaded(gameId, logsUrl),
+    );
+    this.events.demoUploaded.subscribe(
+      async ({ gameId, demoUrl }) => await this.onDemoUploaded(gameId, demoUrl),
+    );
+  }
 
   onModuleDestroy() {
     this.timers.forEach((t) => clearTimeout(t));
@@ -132,13 +170,10 @@ export class GameEventHandlerService implements OnModuleDestroy {
 
   async onScoreReported(
     gameId: string,
-    teamName: string,
-    score: string,
+    team: Tf2Team,
+    score: number,
   ): Promise<Game> {
-    const fixedTeamName = teamName.toLowerCase().substring(0, 3); // converts Red to 'red' and Blue to 'blu'
-    return this.gamesService.update(gameId, {
-      [`score.${fixedTeamName}`]: parseInt(score, 10),
-    });
+    return this.gamesService.update(gameId, { [`score.${team}`]: score });
   }
 
   private async setPlayerConnectionStatus(

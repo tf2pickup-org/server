@@ -2,14 +2,12 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { GamesController } from './games.controller';
 import { GamesService } from '../services/games.service';
 import { Game } from '../models/game';
-import { GameRuntimeService } from '../services/game-runtime.service';
 import { PlayerSubstitutionService } from '../services/player-substitution.service';
-import { NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { UnauthorizedException } from '@nestjs/common';
 import { Player } from '@/players/models/player';
 import { PlayerNotInThisGameError } from '../errors/player-not-in-this-game.error';
-import { Error } from 'mongoose';
+import { Events } from '@/events/events';
 
-jest.mock('../services/game-runtime.service');
 jest.mock('../services/player-substitution.service');
 
 class GamesServiceStub {
@@ -47,28 +45,29 @@ class GamesServiceStub {
   getVoiceChannelUrl(gameId: string, playerId: string) {
     return Promise.resolve(null);
   }
+  forceEnd = jest.fn().mockResolvedValue(void 0);
 }
 
 describe('Games Controller', () => {
   let controller: GamesController;
   let gamesService: GamesServiceStub;
-  let gameRuntimeService: GameRuntimeService;
   let playerSubstitutionService: PlayerSubstitutionService;
+  let events: Events;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         { provide: GamesService, useClass: GamesServiceStub },
-        GameRuntimeService,
         PlayerSubstitutionService,
+        Events,
       ],
       controllers: [GamesController],
     }).compile();
 
     controller = module.get<GamesController>(GamesController);
     gamesService = module.get(GamesService);
-    gameRuntimeService = module.get(GameRuntimeService);
     playerSubstitutionService = module.get(PlayerSubstitutionService);
+    events = module.get(Events);
   });
 
   it('should be defined', () => {
@@ -223,8 +222,13 @@ describe('Games Controller', () => {
   });
 
   describe('#takeAdminAction()', () => {
-    it('should reinitialize server', async () => {
-      const spy = jest.spyOn(gameRuntimeService, 'reconfigure');
+    it('should emit the gameReconfigureRequested event', async () => {
+      let emittedGameId: string, emittedAdminId: string;
+      events.gameReconfigureRequested.subscribe(({ gameId, adminId }) => {
+        emittedGameId = gameId;
+        emittedAdminId = adminId;
+      });
+
       await controller.takeAdminAction(
         'FAKE_GAME_ID',
         '',
@@ -233,11 +237,11 @@ describe('Games Controller', () => {
         undefined,
         { id: 'FAKE_ADMIN_ID' } as Player,
       );
-      expect(spy).toHaveBeenCalledWith('FAKE_GAME_ID');
+      expect(emittedGameId).toEqual('FAKE_GAME_ID');
+      expect(emittedAdminId).toEqual('FAKE_ADMIN_ID');
     });
 
     it('should force end the game', async () => {
-      const spy = jest.spyOn(gameRuntimeService, 'forceEnd');
       await controller.takeAdminAction(
         'FAKE_GAME_ID',
         undefined,
@@ -246,7 +250,10 @@ describe('Games Controller', () => {
         undefined,
         { id: 'FAKE_ADMIN_ID' } as Player,
       );
-      expect(spy).toHaveBeenCalledWith('FAKE_GAME_ID', 'FAKE_ADMIN_ID');
+      expect(gamesService.forceEnd).toHaveBeenCalledWith(
+        'FAKE_GAME_ID',
+        'FAKE_ADMIN_ID',
+      );
     });
 
     it('should substitute player', async () => {

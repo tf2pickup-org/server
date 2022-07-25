@@ -8,7 +8,7 @@ import { players } from './test-data';
 import { waitABit } from './utils/wait-a-bit';
 import * as request from 'supertest';
 import { StaticGameServersService } from '@/game-servers/providers/static-game-server/services/static-game-servers.service';
-import { GameLauncherService } from '@/games/services/game-launcher.service';
+import { GameLauncherService } from '@/game-coordinator/services/game-launcher.service';
 import { GameEventHandlerService } from '@/games/services/game-event-handler.service';
 import { configureApplication } from '@/configure-application';
 

@@ -3,7 +3,7 @@ import {
   logAddressAdd,
   logAddressDel,
   svLogsecret,
-} from '@/games/utils/rcon-commands';
+} from '@/game-coordinator/utils/rcon-commands';
 import { LogReceiverService } from '@/log-receiver/services/log-receiver.service';
 import { Injectable, Scope } from '@nestjs/common';
 import { generate } from 'generate-password';

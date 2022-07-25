@@ -6,7 +6,7 @@ import { Environment } from '@/environment/environment';
 import { Events } from '@/events/events';
 import { Game, gameSchema } from '@/games/models/game';
 import { GameState } from '@/games/models/game-state';
-import { GameRuntimeService } from '@/games/services/game-runtime.service';
+import { GameRuntimeService } from '@/game-coordinator/services/game-runtime.service';
 import { GamesService } from '@/games/services/games.service';
 import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
 import { getConnectionToken, MongooseModule } from '@nestjs/mongoose';
@@ -21,7 +21,7 @@ jest.mock('@/configuration/services/configuration.service');
 jest.mock('@/certificates/services/certificates.service');
 jest.mock('@/games/services/games.service');
 jest.mock('@tf2pickup-org/mumble-client');
-jest.mock('@/games/services/game-runtime.service');
+jest.mock('@/game-coordinator/services/game-runtime.service');
 
 describe('MumbleBotService', () => {
   let service: MumbleBotService;

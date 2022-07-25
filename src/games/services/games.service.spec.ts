@@ -6,7 +6,6 @@ import { Player, PlayerDocument, playerSchema } from '@/players/models/player';
 import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
 import { Game, GameDocument, gameSchema } from '../models/game';
 import { QueueSlot } from '@/queue/queue-slot';
-import { GameLauncherService } from './game-launcher.service';
 import { QueueConfigService } from '@/queue/services/queue-config.service';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { Tf2Team } from '../models/tf2-team';
@@ -33,7 +32,6 @@ import { Mutex } from 'async-mutex';
 
 jest.mock('@/players/services/players.service');
 jest.mock('@/players/services/player-skill.service');
-jest.mock('./game-launcher.service');
 jest.mock('@/configuration/services/configuration.service');
 jest.mock('@/game-servers/services/game-servers.service');
 
@@ -55,7 +53,6 @@ describe('GamesService', () => {
   let service: GamesService;
   let mongod: MongoMemoryServer;
   let gameModel: Model<GameDocument>;
-  let gameLauncherService: GameLauncherService;
   let playersService: PlayersService;
   let events: Events;
   let playerSkillService: jest.Mocked<PlayerSkillService>;
@@ -83,7 +80,6 @@ describe('GamesService', () => {
         PlayersService,
         PlayerSkillService,
         { provide: QueueConfigService, useClass: QueueConfigServiceStub },
-        GameLauncherService,
         Events,
         ConfigurationService,
       ],
@@ -91,7 +87,7 @@ describe('GamesService', () => {
 
     service = module.get<GamesService>(GamesService);
     gameModel = module.get(getModelToken(Game.name));
-    gameLauncherService = module.get(GameLauncherService);
+
     playersService = module.get(PlayersService);
     events = module.get(Events);
     playerSkillService = module.get(PlayerSkillService);
@@ -444,12 +440,52 @@ describe('GamesService', () => {
     });
   });
 
-  describe('#launch()', () => {
-    it('should launch the game', async () => {
-      const spy = jest.spyOn(gameLauncherService, 'launch');
-      await service.launch('FAKE_GAME_ID');
-      expect(spy).toHaveBeenCalledWith('FAKE_GAME_ID');
+  describe('#forceEnd()', () => {
+    let testGame: GameDocument;
+    let testPlayer: PlayerDocument;
+
+    beforeEach(async () => {
+      // @ts-expect-error
+      testPlayer = await playersService._createOne();
+
+      testGame = await gameModel.create({
+        number: 1,
+        map: 'cp_badlands',
+        slots: [
+          {
+            player: testPlayer._id,
+            team: Tf2Team.blu,
+            gameClass: Tf2ClassName.scout,
+          },
+        ],
+      });
+
+      testPlayer.activeGame = testGame._id;
+      await testPlayer.save();
     });
+
+    it('should mark the game as forcefully ended', async () => {
+      const game = await service.forceEnd(testGame.id);
+      expect(game.state).toEqual(GameState.interrupted);
+      expect(game.error).toEqual('ended by admin');
+    });
+
+    it('should unassign the game', async () => {
+      await service.forceEnd(testGame.id);
+      const player = await playersService.getById(testPlayer.id);
+      expect(player.activeGame).toBe(undefined);
+    });
+
+    it('should emit an event', async () =>
+      new Promise<void>((resolve) => {
+        events.gameChanges.subscribe(({ oldGame, newGame }) => {
+          expect(oldGame.id).toEqual(testGame.id);
+          expect(newGame.id).toEqual(testGame.id);
+          expect(newGame.state).toEqual(GameState.interrupted);
+          resolve();
+        });
+        service.forceEnd(testGame.id);
+      }));
   });
 
   describe('#getMostActivePlayers()', () => {

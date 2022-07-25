@@ -13,7 +13,7 @@ import { CertificatesService } from '@/certificates/services/certificates.servic
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { GamesService } from '@/games/services/games.service';
 import { Game } from '@/games/models/game';
-import { GameRuntimeService } from '@/games/services/game-runtime.service';
+import { GameRuntimeService } from '@/game-coordinator/services/game-runtime.service';
 import { version } from '../../package.json';
 import { ConfigurationEntryKey } from '@/configuration/models/configuration-entry-key';
 import { SelectedVoiceServer } from '@/configuration/models/voice-server';

@@ -1,18 +1,14 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { GameRuntimeService } from './game-runtime.service';
-import { GamesService } from './games.service';
 import { GameServersService } from '@/game-servers/services/game-servers.service';
 import { ServerConfiguratorService } from './server-configurator.service';
 import { PlayersService } from '@/players/services/players.service';
 import { say } from '../utils/rcon-commands';
-import { Tf2Team } from '../models/tf2-team';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
 import { Player, PlayerDocument, playerSchema } from '@/players/models/player';
-import { Game, GameDocument, gameSchema } from '../models/game';
 import { GameServer } from '@/game-servers/models/game-server';
 import { Events } from '@/events/events';
-import { SlotStatus } from '../models/slot-status';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { getConnectionToken, MongooseModule } from '@nestjs/mongoose';
 import { Connection, Error as MongooseError, Types } from 'mongoose';
@@ -20,8 +16,12 @@ import { GameServerNotAssignedError } from '../errors/game-server-not-assigned.e
 import { Rcon } from 'rcon-client/lib';
 import { staticGameServerProviderName } from '@/game-servers/providers/static-game-server/static-game-server-provider-name';
 import { NotImplementedError } from '@/game-servers/errors/not-implemented.error';
+import { GameDocument, Game, gameSchema } from '@/games/models/game';
+import { SlotStatus } from '@/games/models/slot-status';
+import { Tf2Team } from '@/games/models/tf2-team';
+import { GamesService } from '@/games/services/games.service';
 
-jest.mock('./games.service');
+jest.mock('@/games/services/games.service');
 jest.mock('@/game-servers/services/game-servers.service');
 jest.mock('./server-configurator.service');
 jest.mock('@/players/services/players.service');
@@ -169,76 +169,6 @@ describe('GameRuntimeService', () => {
     });
   });
 
-  describe('#forceEnd()', () => {
-    it('should set the game state', async () => {
-      const ret = await service.forceEnd(mockGame.id);
-      expect(ret.state).toEqual('interrupted');
-      expect(ret.error).toEqual('ended by admin');
-    });
-
-    it('should free the players', async () => {
-      await service.forceEnd(mockGame.id);
-      const players = await Promise.all(
-        mockGame.slots
-          .map((s) => s.player)
-          .map((playerId) => playersService.getById(playerId)),
-      );
-      expect(players.every((player) => player.activeGame === undefined)).toBe(
-        true,
-      );
-    });
-
-    it('should emit the gameChanges event', async () =>
-      new Promise<void>((resolve) => {
-        events.gameChanges.subscribe(({ newGame, adminId }) => {
-          expect(newGame.id).toEqual(mockGame.id);
-          expect(adminId).toEqual('FAKE_ADMIN_ID');
-          resolve();
-        });
-
-        service.forceEnd(mockGame.id, 'FAKE_ADMIN_ID');
-      }));
-
-    // eslint-disable-next-line jest/expect-expect
-    it('should emit the substituteRequestsChange event', async () =>
-      new Promise<void>((resolve) => {
-        events.substituteRequestsChange.subscribe(resolve);
-        service.forceEnd(mockGame.id);
-      }));
-
-    describe('when the given game does not exist', () => {
-      it('should reject', async () => {
-        await expect(
-          service.forceEnd(new Types.ObjectId().toString()),
-        ).rejects.toThrow(MongooseError.DocumentNotFoundError);
-      });
-    });
-
-    describe('when an rcon error occurs', () => {
-      beforeEach(() => {
-        serverConfiguratorService.configureServer.mockRejectedValue(
-          new Error('FAKE_RCON_ERROR'),
-        );
-      });
-
-      it('should handle the error', async () => {
-        await expect(service.forceEnd(mockGame.id)).resolves.toBeTruthy();
-      });
-    });
-
-    describe('if one of the players is waiting to be substituted', () => {
-      beforeEach(async () => {
-        mockGame.slots[0].status = SlotStatus.waitingForSubstitute;
-        await mockGame.save();
-      });
-
-      it('should set his status back to active', async () => {
-        const ret = await service.forceEnd(mockGame.id);
-        expect(ret.slots[0].status).toEqual(SlotStatus.active);
-      });
-    });
-  });
-
   describe('#replacePlayer()', () => {
     let rcon: jest.Mocked<Rcon>;
 
@@ -267,14 +197,14 @@ describe('GameRuntimeService', () => {
         anotherGame = await gamesService._createOne(mockPlayers);
       });
 
-      it('should throw an error', async () => {
+      it('should not throw an error', async () => {
         await expect(
           service.replacePlayer(
             anotherGame.id,
             mockPlayers[0].id,
             mockPlayers[1].id,
           ),
-        ).rejects.toThrow(GameServerNotAssignedError);
+        ).resolves.not.toThrow();
       });
     });
 
@@ -286,22 +216,22 @@ describe('GameRuntimeService', () => {
       });
 
       it('should close the RCON connection', async () => {
-        await service.replacePlayer(mockGame.id, mockPlayers[0].id, {
-          player: new Types.ObjectId(),
-          team: Tf2Team.red,
-          gameClass: Tf2ClassName.soldier,
-        });
+        await service.replacePlayer(
+          mockGame.id,
+          mockPlayers[0].id,
+          mockPlayers[1].id,
+        );
         expect(rcon.end).toHaveBeenCalled();
       });
     });
 
     it('should close the RCON connection', async () => {
       const spy = jest.spyOn(rcon, 'end');
-      await service.replacePlayer(mockGame.id, mockPlayers[0].id, {
-        player: new Types.ObjectId(),
-        team: Tf2Team.red,
-        gameClass: Tf2ClassName.soldier,
-      });
+      await service.replacePlayer(
+        mockGame.id,
+        mockPlayers[0].id,
+        mockPlayers[1].id,
+      );
       expect(spy).toHaveBeenCalled();
     });
   });

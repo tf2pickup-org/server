@@ -1,33 +1,42 @@
-import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
-import { GamesService } from './games.service';
+import {
+  Injectable,
+  Logger,
+  Inject,
+  forwardRef,
+  OnModuleInit,
+} from '@nestjs/common';
 import { ServerConfiguratorService } from './server-configurator.service';
 import { GameServersService } from '@/game-servers/services/game-servers.service';
 import { PlayersService } from '@/players/services/players.service';
 import { addGamePlayer, delGamePlayer, say } from '../utils/rcon-commands';
-import { GameSlot } from '../models/game-slot';
 import { Rcon } from 'rcon-client/lib';
 import { Events } from '@/events/events';
-import { SlotStatus } from '../models/slot-status';
-import { GameState } from '../models/game-state';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model, Types } from 'mongoose';
-import { Game, GameDocument } from '../models/game';
-import { plainToInstance } from 'class-transformer';
-import { GameServerNotAssignedError } from '../errors/game-server-not-assigned.error';
+import { GamesService } from '@/games/services/games.service';
+import { Types } from 'mongoose';
 
 @Injectable()
-export class GameRuntimeService {
+export class GameRuntimeService implements OnModuleInit {
   private logger = new Logger(GameRuntimeService.name);
 
   constructor(
-    @Inject(forwardRef(() => GamesService)) private gamesService: GamesService,
+    private gamesService: GamesService,
     private gameServersService: GameServersService,
     private serverConfiguratorService: ServerConfiguratorService,
     @Inject(forwardRef(() => PlayersService))
     private playersService: PlayersService,
     private events: Events,
-    @InjectModel(Game.name) private gameModel: Model<GameDocument>,
   ) {}
+
+  onModuleInit() {
+    this.events.substituteRequested.subscribe(
+      async ({ gameId, playerId }) =>
+        await this.notifySubstituteRequested(gameId, playerId),
+    );
+    this.events.playerReplaced.subscribe(
+      async ({ gameId, replaceeId, replacementId }) =>
+        await this.replacePlayer(gameId, replaceeId, replacementId),
+    );
+  }
 
   async reconfigure(gameId: string) {
     let game = await this.gamesService.getById(gameId);
@@ -61,70 +70,37 @@ export class GameRuntimeService {
     return game;
   }
 
-  async forceEnd(gameId: string, adminId?: string) {
-    const oldGame = await this.gamesService.getById(gameId);
-    const newGame = plainToInstance(
-      Game,
-      await this.gameModel
-        .findByIdAndUpdate(
-          gameId,
-          {
-            state: GameState.interrupted,
-            endedAt: new Date(),
-            error: 'ended by admin',
-            'slots.$[element].status': SlotStatus.active,
-          },
-          {
-            new: true,
-            arrayFilters: [
-              { 'element.status': { $eq: SlotStatus.waitingForSubstitute } },
-            ],
-          },
-        )
-        .orFail()
-        .lean()
-        .exec(),
-    );
-
-    this.events.gameChanges.next({ newGame, oldGame, adminId });
-    this.events.substituteRequestsChange.next();
-
-    await Promise.all(
-      newGame.slots
-        .map((slot) => slot.player)
-        .map((playerId) =>
-          this.playersService.updatePlayer(playerId.toString(), {
-            $unset: { activeGame: 1 },
-          }),
-        ),
-    );
-
-    this.logger.verbose(`game #${newGame.number} force ended`);
-    return newGame;
-  }
-
   async replacePlayer(
     gameId: string,
     replaceeId: string,
-    replacementSlot: GameSlot,
+    replacementId: string,
   ) {
     const game = await this.gamesService.getById(gameId);
     if (!game.gameServer) {
-      throw new GameServerNotAssignedError(gameId);
+      return;
     }
 
     const gameServer = await this.gameServersService.getById(
       game.gameServer.toString(),
     );
+
+    const replacee = await this.playersService.getById(replaceeId);
+    const replacement = await this.playersService.getById(replacementId);
+    const replacementSlot = game.findPlayerSlot(replacementId);
+
+    await this.sayChat(
+      game.gameServer,
+      `${replacement.name} is replacing ${replacee.name} on ${replacementSlot.gameClass}.`,
+    );
+
     let rcon: Rcon;
 
     try {
       rcon = await gameServer.rcon();
-      const player = await this.playersService.getById(replacementSlot.player);
 
       const cmd = addGamePlayer(
-        player.steamId,
-        player.name,
+        replacement.steamId,
+        replacement.name,
         replacementSlot.team,
         replacementSlot.gameClass,
       );
@@ -154,6 +130,17 @@ export class GameRuntimeService {
       this.logger.error(e.message);
     } finally {
       await rcon?.end();
+    }
+  }
+
+  async notifySubstituteRequested(gameId: string, playerId: string) {
+    const game = await this.gamesService.getById(gameId);
+    if (game.gameServer) {
+      const player = await this.playersService.getById(playerId);
+      await this.sayChat(
+        game.gameServer,
+        `Looking for replacement for ${player.name}...`,
+      );
     }
   }
 }

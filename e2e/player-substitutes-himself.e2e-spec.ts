@@ -2,7 +2,6 @@ import { AppModule } from '@/app.module';
 import { JwtTokenPurpose } from '@/auth/jwt-token-purpose';
 import { AuthService } from '@/auth/services/auth.service';
 import { configureApplication } from '@/configure-application';
-import { GameRuntimeService } from '@/games/services/game-runtime.service';
 import { GamesService } from '@/games/services/games.service';
 import { PlayersService } from '@/players/services/players.service';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
@@ -155,8 +154,8 @@ describe('Player substitutes himself (e2e)', () => {
   afterAll(async () => {
     await waitABit(1000);
 
-    const gameRuntimeService = app.get(GameRuntimeService);
-    await gameRuntimeService.forceEnd(gameId);
+    const gamesService = app.get(GamesService);
+    await gamesService.forceEnd(gameId);
 
     playerSocket.disconnect();
     playerSocket = undefined;
