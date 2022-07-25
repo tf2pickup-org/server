@@ -14,7 +14,12 @@ import { PlayerSubstitutionNotificationsService } from './services/player-substi
     forwardRef(() => PlayersModule),
     GamesModule,
   ],
-  providers: [DiscordService, QueuePromptsService, AdminNotificationsService, PlayerSubstitutionNotificationsService],
+  providers: [
+    DiscordService,
+    QueuePromptsService,
+    AdminNotificationsService,
+    PlayerSubstitutionNotificationsService,
+  ],
   exports: [DiscordService],
 })
 export class DiscordModule {}
