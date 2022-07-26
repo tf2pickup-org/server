@@ -4,8 +4,6 @@ import { GamesService } from './games.service';
 import { PlayersService } from '@/players/services/players.service';
 import { PlayerBansService } from '@/players/services/player-bans.service';
 import { QueueService } from '@/queue/services/queue.service';
-import { DiscordService } from '@/plugins/discord/services/discord.service';
-import { Environment } from '@/environment/environment';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { Player, PlayerDocument, playerSchema } from '@/players/models/player';
 import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
@@ -23,17 +21,11 @@ import { PlayerNotInThisGameError } from '../errors/player-not-in-this-game.erro
 import { WrongGameSlotStatusError } from '../errors/wrong-game-slot-status.error';
 import { GameInWrongStateError } from '../errors/game-in-wrong-state.error';
 
-jest.mock('@/plugins/discord/services/discord.service');
 jest.mock('@/players/services/players.service');
 jest.mock('./games.service');
 jest.mock('@/players/services/player-bans.service');
 jest.mock('../gateways/games.gateway');
 jest.mock('@/queue/services/queue.service');
-
-const environment = {
-  clientUrl: 'FAKE_CLIENT_URL',
-  discordQueueNotificationsMentionRole: 'TF2 gamers',
-};
 
 describe('PlayerSubstitutionService', () => {
   let service: PlayerSubstitutionService;
@@ -46,7 +38,6 @@ describe('PlayerSubstitutionService', () => {
   let player2: PlayerDocument;
   let player3: PlayerDocument;
   let mockGame: GameDocument;
-  let discordService: jest.Mocked<DiscordService>;
   let events: Events;
   let connection: Connection;
   let gameModel: Model<GameDocument>;
@@ -69,8 +60,6 @@ describe('PlayerSubstitutionService', () => {
         PlayersService,
         PlayerBansService,
         QueueService,
-        DiscordService,
-        { provide: Environment, useValue: environment },
         Events,
       ],
     }).compile();
@@ -80,7 +69,6 @@ describe('PlayerSubstitutionService', () => {
     playersService = module.get(PlayersService);
     playerBansService = module.get(PlayerBansService);
     queueService = module.get(QueueService);
-    discordService = module.get(DiscordService);
     events = module.get(Events);
     connection = module.get(getConnectionToken());
     gameModel = module.get(getModelToken(Game.name));
@@ -178,15 +166,6 @@ describe('PlayerSubstitutionService', () => {
       });
     });
 
-    it('should notify on discord', async () => {
-      const spy = jest.spyOn(discordService.getPlayersChannel(), 'send');
-      await service.substitutePlayer(mockGame.id, player1.id);
-      expect(spy).toHaveBeenCalledWith({
-        content: '&<TF2 gamers>',
-        embeds: [expect.any(Object)],
-      });
-    });
-
     it('should emit the substituteRequested event', async () => {
       let emittedGameId: string;
       let emittedPlayerId: string;
@@ -208,14 +187,7 @@ describe('PlayerSubstitutionService', () => {
   });
 
   describe('#cancelSubstitutionRequest()', () => {
-    let discordMessage: any;
-    const channel = { send: () => discordMessage };
-
     beforeEach(async () => {
-      discordMessage = await discordService.getPlayersChannel().send({});
-      // @ts-expect-error
-      discordService.getPlayersChannel = () => channel;
-
       await service.substitutePlayer(mockGame.id, player1.id);
     });
 
@@ -299,23 +271,10 @@ describe('PlayerSubstitutionService', () => {
       expect(emittedGameId).toEqual(mockGame.id);
       expect(emittedPlayerId).toEqual(player1.id);
     });
-
-    it('should get rid of discord announcement', async () => {
-      const spy = jest.spyOn(discordMessage, 'delete');
-      await service.cancelSubstitutionRequest(mockGame.id, player1.id);
-      expect(spy).toHaveBeenCalled();
-    });
   });
 
   describe('#replacePlayer()', () => {
-    let discordMessage: any;
-    const channel = { send: () => discordMessage };
-
     beforeEach(async () => {
-      discordMessage = await discordService.getPlayersChannel().send({});
-      // @ts-expect-error
-      discordService.getPlayersChannel = () => channel;
-
       await service.substitutePlayer(mockGame.id, player1.id);
     });
 
@@ -386,12 +345,6 @@ describe('PlayerSubstitutionService', () => {
         expect(slot.status).toBe(SlotStatus.active);
         expect(game.slots.length).toBe(2);
       });
-
-      it('should delete the discord announcement', async () => {
-        const spy = jest.spyOn(discordMessage, 'delete');
-        await service.replacePlayer(mockGame.id, player1.id, player1.id);
-        expect(spy).toHaveBeenCalled();
-      });
     });
 
     describe('when the given player has already been replaced', () => {
@@ -453,12 +406,6 @@ describe('PlayerSubstitutionService', () => {
     it('should kick the replacement player from the queue', async () => {
       await service.replacePlayer(mockGame.id, player1.id, player3.id);
       expect(queueService.kick).toHaveBeenCalledWith(player3.id);
-    });
-
-    it('should delete the discord announcement', async () => {
-      const spy = jest.spyOn(discordMessage, 'delete');
-      await service.replacePlayer(mockGame.id, player1.id, player3.id);
-      expect(spy).toHaveBeenCalled();
     });
 
     it('should assign active game to the replacement player', async () => {
