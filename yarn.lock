@@ -8182,9 +8182,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mongodb@npm:4.8.0":
-  version: 4.8.0
-  resolution: "mongodb@npm:4.8.0"
+"mongodb@npm:4.8.1":
+  version: 4.8.1
+  resolution: "mongodb@npm:4.8.1"
   dependencies:
     bson: ^4.6.5
     denque: ^2.0.1
@@ -8194,7 +8194,7 @@ __metadata:
   dependenciesMeta:
     saslprep:
       optional: true
-  checksum: fe8f22daba0aa0ad17bfca55c7e47ef732542c3856c8353fb86de22b054f3ad4c1bc732d55056902c8314c131c66f96c02e1496beb53727aff2167e7545f2a3d
+  checksum: 97ff4ebe3fde7b3b5b133d8f7a2e4d6e372c44f8223a6d40b13bb3a705bbbb48ed50958a0fc6b3a33161605723479fced8e0eb83cf7fd5271f7530e6e2d67a2d
   languageName: node
   linkType: hard
 
@@ -10006,7 +10006,7 @@ __metadata:
     lodash: 4.17.21
     migrate: 1.8.0
     moment: 2.29.4
-    mongodb: 4.8.0
+    mongodb: 4.8.1
     mongodb-memory-server: 8.8.0
     mongodb-uri: 0.9.7
     mongoose: 6.4.7
