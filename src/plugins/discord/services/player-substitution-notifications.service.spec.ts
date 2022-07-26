@@ -5,19 +5,20 @@ import { GamesService } from '@/games/services/games.service';
 import { Player, playerSchema } from '@/players/models/player';
 import { PlayersService } from '@/players/services/players.service';
 import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
+import { CacheModule } from '@nestjs/common';
 import { MongooseModule, getConnectionToken } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { Connection } from 'mongoose';
 import { DiscordService } from './discord.service';
 import { PlayerSubstitutionNotificationsService } from './player-substitution-notifications.service';
+// eslint-disable-next-line jest/no-mocks-import
+import { DiscordService as DiscordServiceMock } from './__mocks__/discord.service';
 
 jest.mock('./discord.service');
 jest.mock('@/environment/environment');
 jest.mock('@/games/services/games.service');
 jest.mock('@/players/services/players.service');
-
-const flushPromises = () => new Promise((resolve) => setImmediate(resolve));
 
 describe('PlayerSubstitutionNotificationsService', () => {
   let service: PlayerSubstitutionNotificationsService;
@@ -25,7 +26,7 @@ describe('PlayerSubstitutionNotificationsService', () => {
   let connection: Connection;
   let gamesService: GamesService;
   let events: Events;
-  let discordService: DiscordService;
+  let discordService: DiscordServiceMock;
   let playersService: PlayersService;
   let environment: jest.Mocked<Environment>;
 
@@ -43,6 +44,7 @@ describe('PlayerSubstitutionNotificationsService', () => {
             schema: playerSchema,
           },
         ]),
+        CacheModule.register(),
       ],
       providers: [
         PlayerSubstitutionNotificationsService,
@@ -93,19 +95,24 @@ describe('PlayerSubstitutionNotificationsService', () => {
         'TF2 gamers';
     });
 
-    it('should notify all players', async () => {
-      const channel = discordService.getPlayersChannel();
-      events.substituteRequested.next({
-        gameId: game.id,
-        playerId: player.id,
-      });
-      for (let i = 0; i < 6; ++i) {
-        await flushPromises();
-      }
-      expect(channel.send).toHaveBeenCalledWith({
-        content: '&<TF2 gamers>',
-        embeds: [expect.any(Object)],
-      });
-    });
+    it('should notify all players', async () =>
+      new Promise<void>((resolve) => {
+        const channel = discordService.getPlayersChannel();
+        channel.send.mockImplementation(() => {
+          expect(channel.send).toHaveBeenCalledWith({
+            content: '&<TF2 gamers>',
+            embeds: [expect.any(Object)],
+          });
+          setImmediate(() => resolve());
+          return {
+            id: 'FAKE_MESSAGE_ID',
+          };
+        });
+
+        events.substituteRequested.next({
+          gameId: game.id,
+          playerId: player.id,
+        });
+      }));
   });
 });

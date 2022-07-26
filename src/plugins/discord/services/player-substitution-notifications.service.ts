@@ -1,20 +1,28 @@
 import { Environment } from '@/environment/environment';
 import { Events } from '@/events/events';
 import { GamesService } from '@/games/services/games.service';
-import { Injectable, OnModuleInit } from '@nestjs/common';
-import { Message } from 'discord.js';
+import {
+  CACHE_MANAGER,
+  Inject,
+  Injectable,
+  OnModuleInit,
+} from '@nestjs/common';
+import { Cache } from 'cache-manager';
+import { Snowflake } from 'discord.js';
 import { substituteRequest } from '../notifications';
 import { DiscordService } from './discord.service';
 
+const cacheKeyForPlayer = (playerId: string) =>
+  `player_substitute_notification_${playerId}`;
+
 @Injectable()
 export class PlayerSubstitutionNotificationsService implements OnModuleInit {
-  private notifications = new Map<string, Message>(); // playerId <-> message pairs
-
   constructor(
     private readonly events: Events,
     private readonly discordService: DiscordService,
     private readonly gamesService: GamesService,
     private readonly environment: Environment,
+    @Inject(CACHE_MANAGER) private readonly cache: Cache,
   ) {}
 
   onModuleInit() {
@@ -51,15 +59,24 @@ export class PlayerSubstitutionNotificationsService implements OnModuleInit {
             embeds: [embed],
           })
         : await channel.send({ embeds: [embed] });
-      this.notifications.set(playerId, message);
+      await this.cache.set(cacheKeyForPlayer(playerId), message.id, { ttl: 0 });
     }
   }
 
   async deleteNotification(playerId: string) {
-    const message = this.notifications.get(playerId);
-    if (message) {
-      await message.delete();
-      this.notifications.delete(playerId);
+    const messageId = await this.cache.get(cacheKeyForPlayer(playerId));
+    if (!messageId) {
+      return;
     }
+
+    const message = await this.discordService
+      .getPlayersChannel()
+      .messages.fetch(messageId as Snowflake);
+    if (!message) {
+      return;
+    }
+
+    await message.delete();
+    await this.cache.del(cacheKeyForPlayer(playerId));
   }
 }
