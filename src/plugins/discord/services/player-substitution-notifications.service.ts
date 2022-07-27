@@ -13,7 +13,7 @@ import { substituteRequest } from '../notifications';
 import { DiscordService } from './discord.service';
 
 const cacheKeyForPlayer = (playerId: string) =>
-  `player_substitute_notification_${playerId}`;
+  `player-substitute-notifications/${playerId}`;
 
 @Injectable()
 export class PlayerSubstitutionNotificationsService implements OnModuleInit {
