@@ -141,7 +141,7 @@ describe('PlayerSubstitutionNotificationsService', () => {
           const originalSend = channel.send;
           channel.send.mockImplementationOnce(async (...args) => {
             setImmediate(() => resolve());
-            message = await originalSend(this, ...args);
+            message = await originalSend(channel, ...args);
             return message;
           });
 
@@ -166,7 +166,7 @@ describe('PlayerSubstitutionNotificationsService', () => {
     });
 
     describe('when the substitute request is canceled', () => {
-      beforeEach(async () => {
+      beforeEach(() => {
         events.substituteRequestCanceled.next({
           gameId: game.id,
           playerId: player.id,
