@@ -1,5 +1,6 @@
 import { Environment } from '@/environment/environment';
 import { Events } from '@/events/events';
+import { SlotStatus } from '@/games/models/slot-status';
 import { GamesService } from '@/games/services/games.service';
 import {
   CACHE_MANAGER,
@@ -9,6 +10,7 @@ import {
 } from '@nestjs/common';
 import { Cache } from 'cache-manager';
 import { Snowflake } from 'discord.js';
+import { filter, map } from 'rxjs';
 import { substituteRequest } from '../notifications';
 import { DiscordService } from './discord.service';
 
@@ -36,6 +38,27 @@ export class PlayerSubstitutionNotificationsService implements OnModuleInit {
     this.events.playerReplaced.subscribe(
       async ({ replaceeId }) => await this.deleteNotification(replaceeId),
     );
+    this.events.gameChanges
+      .pipe(
+        filter(
+          ({ oldGame, newGame }) =>
+            oldGame.isInProgress() && !newGame.isInProgress(),
+        ),
+        map(({ oldGame }) =>
+          oldGame.slots.filter(
+            (slot) => slot.status === SlotStatus.waitingForSubstitute,
+          ),
+        ),
+      )
+      .subscribe(
+        async (slots) =>
+          await Promise.all(
+            slots.map(
+              async (slot) =>
+                await this.deleteNotification(slot.player.toString()),
+            ),
+          ),
+      );
   }
 
   async notifySubstituteRequested(gameId: string, playerId: string) {
