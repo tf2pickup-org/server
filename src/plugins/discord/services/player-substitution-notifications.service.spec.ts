@@ -1,6 +1,8 @@
 import { Environment } from '@/environment/environment';
 import { Events } from '@/events/events';
-import { Game, gameSchema } from '@/games/models/game';
+import { Game, GameDocument, gameSchema } from '@/games/models/game';
+import { GameState } from '@/games/models/game-state';
+import { SlotStatus } from '@/games/models/slot-status';
 import { GamesService } from '@/games/services/games.service';
 import { Player, playerSchema } from '@/players/models/player';
 import { PlayersService } from '@/players/services/players.service';
@@ -8,6 +10,7 @@ import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
 import { CacheModule } from '@nestjs/common';
 import { MongooseModule, getConnectionToken } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
+import { Message } from 'discord.js';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { Connection } from 'mongoose';
 import { DiscordService } from './discord.service';
@@ -114,5 +117,79 @@ describe('PlayerSubstitutionNotificationsService', () => {
           playerId: player.id,
         });
       }));
+  });
+
+  describe('when a notification is already sent', () => {
+    let game: GameDocument;
+    let player: Player;
+    let message: jest.Mocked<Message>;
+
+    beforeEach(async () => {
+      // @ts-expect-error
+      player = await playersService._createOne();
+      // @ts-expect-error
+      game = await gamesService._createOne([player]);
+
+      (environment.discordQueueNotificationsMentionRole as string) =
+        'TF2 gamers';
+    });
+
+    beforeEach(
+      async () =>
+        new Promise<void>((resolve) => {
+          const channel = discordService.getPlayersChannel();
+          const originalSend = channel.send;
+          channel.send.mockImplementationOnce(async (...args) => {
+            setImmediate(() => resolve());
+            message = await originalSend(channel, ...args);
+            return message;
+          });
+
+          events.substituteRequested.next({
+            gameId: game.id,
+            playerId: player.id,
+          });
+        }),
+    );
+
+    describe('when the game ends', () => {
+      beforeEach(async () => {
+        game.slots[0].status = SlotStatus.waitingForSubstitute;
+        await game.save();
+        await gamesService.update(game.id, { state: GameState.ended });
+        await new Promise((resolve) => setTimeout(resolve, 100));
+      });
+
+      it('should remove the notification', () => {
+        expect(message.delete).toHaveBeenCalled();
+      });
+    });
+
+    describe('when the substitute request is canceled', () => {
+      beforeEach(() => {
+        events.substituteRequestCanceled.next({
+          gameId: game.id,
+          playerId: player.id,
+        });
+      });
+
+      it('should remove the notification', () => {
+        expect(message.delete).toHaveBeenCalled();
+      });
+    });
+
+    describe('when the player is replaced', () => {
+      beforeEach(() => {
+        events.playerReplaced.next({
+          gameId: game.id,
+          replaceeId: player.id,
+          replacementId: 'FAKE_PLAYER_ID',
+        });
+      });
+
+      it('should remove the notification', () => {
+        expect(message.delete).toHaveBeenCalled();
+      });
+    });
   });
 });
