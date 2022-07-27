@@ -20,6 +20,7 @@ export const environmentSchema = object({
   MONGODB_URI: string().required().uri(),
   REDIS_URL: any().optional(),
   STEAM_API_KEY: string().required(),
+  LOGS_TF_API_KEY: string().required(),
   KEY_STORE_PASSPHARE: string().optional(),
   KEY_STORE_PASSPHRASE: when('KEY_STORE_PASSPHARE', {
     is: exist(),
