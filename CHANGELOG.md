@@ -1,5 +1,12 @@
 
 
+## [9.1.5](https://github.com/tf2pickup-org/server/compare/9.1.4...9.1.5) (2022-07-27)
+
+
+### Bug Fixes
+
+* **discord:** delete substitution notification when the game ends ([#1826](https://github.com/tf2pickup-org/server/issues/1826)) ([1b2a830](https://github.com/tf2pickup-org/server/commit/1b2a8300dade8a18375395467fbc6d9763426699))
+
 ## [9.1.4](https://github.com/tf2pickup-org/server/compare/9.1.3...9.1.4) (2022-07-27)
 
 
