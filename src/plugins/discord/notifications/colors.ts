@@ -10,4 +10,5 @@ export enum Colors {
   GameServerRemoved = '#ffa6a7',
   GameForceEnded = '#ff5e61',
   SubstituteRequested = '#f1ff70',
+  MapsScrambled = '#aaffff',
 }

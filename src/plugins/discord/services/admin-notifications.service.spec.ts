@@ -382,4 +382,26 @@ describe('AdminNotificationsService', () => {
         });
       }));
   });
+
+  describe('when maps are scrambled', () => {
+    let actor: Player;
+
+    beforeEach(async () => {
+      // @ts-expect-error
+      actor = await playersService._createOne();
+    });
+
+    it('should send a notification', async () =>
+      new Promise<void>((resolve) => {
+        sentMessages.subscribe((message) => {
+          expect(message.embeds[0].title).toEqual('Maps scrambled');
+          resolve();
+        });
+
+        events.mapsScrambled.next({
+          mapOptions: ['cp_badlands', 'cp_process_final', 'cp_granary_pro_rc8'],
+          actorId: actor.id,
+        });
+      }));
+  });
 });
