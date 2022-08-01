@@ -24,6 +24,8 @@ import { QueueSlotWrapper } from './queue-slot-wrapper';
 import { QueueDto } from '../dto/queue.dto';
 import { QueueWrapper } from './queue-wrapper';
 import { MapPoolEntryDto } from '../dto/map-pool-item.dto';
+import { User } from '@/auth/decorators/user.decorator';
+import { Player } from '@/players/models/player';
 
 @Controller('queue')
 export class QueueController {
@@ -71,8 +73,8 @@ export class QueueController {
 
   @Put('map_vote_results/scramble')
   @Auth(PlayerRole.admin)
-  async scrambleMaps() {
-    return await this.mapVoteService.scramble();
+  async scrambleMaps(@User() actor: Player) {
+    return await this.mapVoteService.scramble(actor.id);
   }
 
   @Get('announcements')

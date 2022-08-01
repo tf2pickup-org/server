@@ -9,6 +9,7 @@ import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { MapPoolService } from '../services/map-pool.service';
 import { QueueState } from '../queue-state';
 import { MapPoolEntry } from '../models/map-pool-entry';
+import { Player } from '@/players/models/player';
 
 jest.mock('../services/queue-config.service');
 jest.mock('../services/queue.service');
@@ -132,8 +133,8 @@ describe('Queue Controller', () => {
 
   describe('#scrambleMaps()', () => {
     it('should scramble the maps', async () => {
-      await controller.scrambleMaps();
-      expect(mapVoteService.scramble).toHaveBeenCalled();
+      await controller.scrambleMaps({ id: 'FAKE_ADMIN_ID' } as Player);
+      expect(mapVoteService.scramble).toHaveBeenCalledWith('FAKE_ADMIN_ID');
     });
   });
 
