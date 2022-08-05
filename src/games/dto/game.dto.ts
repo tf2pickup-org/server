@@ -21,7 +21,9 @@ export interface GameDto {
   logsUrl?: string;
   demoUrl?: string;
   error?: string;
-  gameServer?: any;
+  gameServer?: {
+    name: string;
+  };
   score: {
     blu?: number;
     red?: number;
