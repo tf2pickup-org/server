@@ -125,7 +125,7 @@ export class Game extends Serializable<GameDto> {
   }
 
   findPlayerSlot(playerId: string): GameSlot {
-    return this.slots.find((s) => s.player.equals(playerId));
+    return this.slots.find((s) => s.player.toString() === playerId);
   }
 
   activeSlots(): GameSlot[] {
