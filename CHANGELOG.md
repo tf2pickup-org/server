@@ -1,5 +1,16 @@
 
 
+## [9.1.6](https://github.com/tf2pickup-org/server/compare/9.1.5...9.1.6) (2022-08-05)
+
+
+### Bug Fixes
+
+* **deps:** update dependency discord.js to v13.9.2 ([#1829](https://github.com/tf2pickup-org/server/issues/1829)) ([a2f521a](https://github.com/tf2pickup-org/server/commit/a2f521ad99c83f0d1f3421e6e69d6f4cb01eded0))
+* **deps:** update dependency mongoose to v6.5.1 ([#1836](https://github.com/tf2pickup-org/server/issues/1836)) ([1beb992](https://github.com/tf2pickup-org/server/commit/1beb992ba47cb20fedd509b9a2708bb21df676d7))
+* **deps:** update nest monorepo to v9.0.7 ([#1828](https://github.com/tf2pickup-org/server/issues/1828)) ([ac874a8](https://github.com/tf2pickup-org/server/commit/ac874a82d04cb3187bbeae78fda27f34d8385e3a))
+* **deps:** update nest monorepo to v9.0.8 ([#1835](https://github.com/tf2pickup-org/server/issues/1835)) ([db49ddc](https://github.com/tf2pickup-org/server/commit/db49ddc0650e7e172cf297711760f3c1a4a22953))
+* **games:** fix Game.findPlayerSlot() error ([#1837](https://github.com/tf2pickup-org/server/issues/1837)) ([2162e3f](https://github.com/tf2pickup-org/server/commit/2162e3f642fe6655e45fa7329e146a36add72c8a))
+
 ## [9.1.5](https://github.com/tf2pickup-org/server/compare/9.1.4...9.1.5) (2022-07-27)
 
 
