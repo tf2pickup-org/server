@@ -36,6 +36,9 @@ export class GameRuntimeService implements OnModuleInit {
       async ({ gameId, replaceeId, replacementId }) =>
         await this.replacePlayer(gameId, replaceeId, replacementId),
     );
+    this.events.gameReconfigureRequested.subscribe(
+      async ({ gameId }) => await this.reconfigure(gameId),
+    );
   }
 
   async reconfigure(gameId: string) {
