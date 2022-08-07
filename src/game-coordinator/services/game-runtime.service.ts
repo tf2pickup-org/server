@@ -78,6 +78,10 @@ export class GameRuntimeService implements OnModuleInit {
     replaceeId: string,
     replacementId: string,
   ) {
+    if (replaceeId === replacementId) {
+      return;
+    }
+
     const game = await this.gamesService.getById(gameId);
     if (!game.gameServer) {
       return;
