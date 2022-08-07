@@ -106,6 +106,10 @@ describe('GameRuntimeService', () => {
     });
   });
 
+  beforeEach(() => {
+    service.onModuleInit();
+  });
+
   afterEach(async () => {
     // @ts-expect-error
     await gamesService._reset();
@@ -116,6 +120,19 @@ describe('GameRuntimeService', () => {
 
   it('should be defined', () => {
     expect(service).toBeDefined();
+  });
+
+  describe('when the gameReconfigureRequested event is emitted', () => {
+    beforeEach(async () => {
+      events.gameReconfigureRequested.next({ gameId: mockGame.id });
+      await new Promise((resolve) => setTimeout(resolve, 100));
+    });
+
+    it('should reconfigure the server', () => {
+      expect(serverConfiguratorService.configureServer).toHaveBeenCalledWith(
+        mockGame.id,
+      );
+    });
   });
 
   describe('#reconfigure()', () => {
