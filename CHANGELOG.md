@@ -1,5 +1,13 @@
 
 
+## [9.1.7](https://github.com/tf2pickup-pl/server/compare/9.1.6...9.1.7) (2022-08-07)
+
+
+### Bug Fixes
+
+* **game-coordinator:** bring back reinitialize server ([#1838](https://github.com/tf2pickup-pl/server/issues/1838)) ([7e2b3f0](https://github.com/tf2pickup-pl/server/commit/7e2b3f0aa2d0348304db2ffce0a92e8928776ad6))
+* **game-coordinator:** don't kick players when they are subbing for themselves ([#1839](https://github.com/tf2pickup-pl/server/issues/1839)) ([57344b2](https://github.com/tf2pickup-pl/server/commit/57344b241c2df553a02d456ae148aae2c08c3df9))
+
 ## [9.1.6](https://github.com/tf2pickup-org/server/compare/9.1.5...9.1.6) (2022-08-05)
 
 
