@@ -194,6 +194,16 @@ describe('MumbleBotService', () => {
       client = Client._lastInstance;
     });
 
+    describe('when not connected', () => {
+      beforeEach(() => {
+        client.user = undefined;
+      });
+
+      it('should not do anything', async () => {
+        await expect(service.removeOldChannels()).resolves.not.toThrow();
+      });
+    });
+
     describe('when there is a channel that is not a game channel', () => {
       beforeEach(() => {
         client.user.channel.createSubChannel('not a game channel');
