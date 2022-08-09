@@ -29,7 +29,7 @@
     "@nestjs/serve-static": "3.0.0",
     "@nestjs/websockets": "9.0.8",
     "@redis/client": "1.2.0",
-    "@tf2pickup-org/mumble-client": "0.6.0",
+    "@tf2pickup-org/mumble-client": "0.7.0",
     "app-root-path": "3.0.0",
     "async-mutex": "0.3.2",
     "cache-manager": "4.1.0",
