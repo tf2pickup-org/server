@@ -65,17 +65,10 @@ export class GameLauncherService implements OnModuleInit {
 
     try {
       // step 1: obtain a free server
-      const gameServer = await this.gameServersService.assignGameServer(
-        game.id,
-      );
+      game = await this.gameServersService.assignGameServer(game.id);
       this.logger.verbose(
-        `using server ${gameServer.name} for game #${game.number}`,
+        `using server ${game.gameServer.name} for game #${game.number}`,
       );
-
-      // step 2: obtain logsecret
-      const logSecret = await gameServer.getLogsecret();
-      game = await this.gamesService.update(game.id, { logSecret });
-      this.logger.debug(`[${gameServer.name}] logsecret is ${game.logSecret}`);
 
       // step 3: configure server
       const { connectString, stvConnectString } =

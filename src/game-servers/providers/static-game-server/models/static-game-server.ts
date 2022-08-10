@@ -6,14 +6,10 @@ import { Document, Types } from 'mongoose';
 import { Rcon } from 'rcon-client';
 import { generateLogsecret } from '../utils/generate-logsecret';
 import { TransformObjectId } from '@/shared/decorators/transform-object-id';
+import { MongooseDocument } from '@/utils/mongoose-document';
 
 @Schema()
-export class StaticGameServer {
-  __v?: number;
-
-  @TransformObjectId()
-  _id?: Types.ObjectId;
-
+export class StaticGameServer extends MongooseDocument {
   @Transform(({ value, obj }) => value ?? obj._id?.toString())
   id!: string;
 

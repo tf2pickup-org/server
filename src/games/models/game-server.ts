@@ -10,6 +10,12 @@ export class GameServer {
 
   @Prop({ required: true, trim: true })
   name: string;
+
+  @Prop({ required: true })
+  address: string;
+
+  @Prop({ required: true })
+  port: number;
 }
 
 export const gameServerSchema = SchemaFactory.createForClass(GameServer);
