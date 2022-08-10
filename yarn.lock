@@ -1972,12 +1972,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/passport@npm:1.0.9":
-  version: 1.0.9
-  resolution: "@types/passport@npm:1.0.9"
+"@types/passport@npm:1.0.10":
+  version: 1.0.10
+  resolution: "@types/passport@npm:1.0.10"
   dependencies:
     "@types/express": "*"
-  checksum: 7c8d288a517c36439ea4670e5812d84357ab567b969554e9adbe9b64aff72409ffdf46526d7c4322569662f6e55382caee77b735dc75023802005305683465cd
+  checksum: bd9704b64db7a16d53bd547bb436fb5a1cf9747dbe888a10b124603aeccf297f162a5b0854409cd6ee6bff1a8e9cdf989b07738f600f37949abfa8f8e5960deb
   languageName: node
   linkType: hard
 
@@ -10065,7 +10065,7 @@ __metadata:
     "@types/mongodb-uri": 0.9.1
     "@types/mongoose": 5.11.96
     "@types/node": 16.11.47
-    "@types/passport": 1.0.9
+    "@types/passport": 1.0.10
     "@types/passport-jwt": 3.0.6
     "@types/passport-steam": 1.0.1
     "@types/pem": 1.9.6
