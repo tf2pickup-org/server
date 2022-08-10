@@ -287,7 +287,7 @@ describe('StaticGameServersService', () => {
   describe('#getCleanGameServers()', () => {
     describe('when there are clean gameservers', () => {
       it('should return clean game servers', async () => {
-        const gameServers = await service.getCleanGameServers();
+        const gameServers = await service.getFreeGameServers();
         expect(gameServers.length).toEqual(1);
         expect(gameServers.every((gs) => gs.isClean === true)).toBe(true);
       });
@@ -300,7 +300,7 @@ describe('StaticGameServersService', () => {
       });
 
       it('should return an empty array', async () => {
-        const gameServers = await service.getCleanGameServers();
+        const gameServers = await service.getFreeGameServers();
         expect(gameServers.length).toEqual(0);
       });
     });
@@ -314,7 +314,7 @@ describe('StaticGameServersService', () => {
       });
 
       it('should return dirty gameservers', async () => {
-        const gameServers = await service.getDirtyGameServers();
+        const gameServers = await service.getTakenGameServers();
         expect(gameServers.length).toBe(1);
         expect(gameServers[0].id).toEqual(testGameServer.id);
       });
@@ -328,7 +328,7 @@ describe('StaticGameServersService', () => {
       });
 
       it('should not return the gameservers', async () => {
-        const gameServers = await service.getDirtyGameServers();
+        const gameServers = await service.getTakenGameServers();
         expect(gameServers.length).toBe(0);
       });
     });

@@ -1,10 +1,6 @@
-import { svLogsecret } from '@/game-coordinator/utils/rcon-commands';
-import { createRcon } from '@/utils/create-rcon';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Transform } from 'class-transformer';
 import { Document, Types } from 'mongoose';
-import { Rcon } from 'rcon-client';
-import { generateLogsecret } from '../utils/generate-logsecret';
 import { TransformObjectId } from '@/shared/decorators/transform-object-id';
 import { MongooseDocument } from '@/utils/mongoose-document';
 
@@ -52,26 +48,6 @@ export class StaticGameServer extends MongooseDocument {
 
   @Prop({ default: 1 })
   priority!: number;
-
-  async rcon(): Promise<Rcon> {
-    return await createRcon({
-      host: this.internalIpAddress,
-      port: parseInt(this.port, 10),
-      rconPassword: this.rconPassword,
-    });
-  }
-
-  async getLogsecret(): Promise<string> {
-    const logsecret = generateLogsecret();
-    let rcon: Rcon;
-    try {
-      rcon = await this.rcon();
-      await rcon.send(svLogsecret(logsecret));
-      return logsecret;
-    } finally {
-      await rcon?.end();
-    }
-  }
 }
 
 export type StaticGameServerDocument = StaticGameServer & Document;
