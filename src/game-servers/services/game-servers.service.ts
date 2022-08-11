@@ -56,9 +56,7 @@ export class GameServersService implements OnApplicationBootstrap {
   async getControls(
     gameServer: GameServerOptionWithProvider,
   ): Promise<GameServerControls> {
-    const provider = this.providers.find(
-      (provider) => provider.gameServerProviderName === gameServer.provider,
-    );
+    const provider = this.providerByName(gameServer.provider);
     return provider.getControls(gameServer.id);
   }
 
@@ -72,7 +70,18 @@ export class GameServersService implements OnApplicationBootstrap {
       await this.gamesService.update(game.id, {
         gameServer,
       });
+      const provider = this.providerByName(gameServer.provider);
+      await provider.onGameServerAssigned?.({
+        gameServerId: gameServer.id,
+        gameId: game.id,
+      });
       return game;
     });
+  }
+
+  private providerByName(providerName: string): GameServerProvider {
+    return this.providers.find(
+      (provider) => provider.gameServerProviderName === providerName,
+    );
   }
 }

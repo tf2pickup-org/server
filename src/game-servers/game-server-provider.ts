@@ -4,6 +4,10 @@ import { GameServerOption } from './interfaces/game-server-option';
 export interface GameServerProvider {
   readonly gameServerProviderName: string;
   readonly priority?: number;
-  getControls: (id: string) => Promise<GameServerControls>;
+  getControls: (gameServerId: string) => Promise<GameServerControls>;
   findFirstFreeGameServer: () => Promise<GameServerOption>;
+  onGameServerAssigned?: (params: {
+    gameServerId: string;
+    gameId: string;
+  }) => Promise<void>;
 }

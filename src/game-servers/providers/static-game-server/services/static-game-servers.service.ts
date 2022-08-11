@@ -57,22 +57,6 @@ export class StaticGameServersService
   async onModuleInit() {
     this.installLoggers();
     await this.removeDeadGameServers();
-
-    this.events.gameChanges
-      .pipe(
-        filter(
-          ({ oldGame, newGame }) => !oldGame.gameServer && !!newGame.gameServer,
-        ),
-        filter(
-          ({ newGame }) =>
-            newGame.gameServer.provider === staticGameServerProviderName,
-        ),
-      )
-      .subscribe(
-        async ({ newGame }) =>
-          await this.onGameServerAssigned(newGame._id, newGame.gameServer.id),
-      );
-
     this.gameServersService.registerProvider(this);
   }
 
@@ -222,14 +206,11 @@ export class StaticGameServersService
     );
   }
 
-  private async onGameServerAssigned(
-    gameId: Types.ObjectId,
-    gameServerId: string,
-  ) {
+  async onGameServerAssigned({ gameServerId, gameId }) {
     await this.updateGameServer(gameServerId, { game: gameId });
     this.events.gameChanges
       .pipe(
-        filter(({ newGame }) => newGame.id === gameId.toString()),
+        filter(({ newGame }) => newGame.id === gameId),
         filter(
           ({ oldGame, newGame }) =>
             oldGame.isInProgress() && !newGame.isInProgress(),

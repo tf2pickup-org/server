@@ -1,11 +1,7 @@
-import { GameServer } from '@/game-servers/models/game-server';
-import { createRcon } from '@/utils/create-rcon';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Exclude, Type } from 'class-transformer';
-import { Rcon } from 'rcon-client/lib';
+import { Exclude, Transform, Type } from 'class-transformer';
 import { Document } from 'mongoose';
-import { app } from '@/app';
-import { ServemeTfApiService } from '../services/serveme-tf-api.service';
+import { MongooseDocument } from '@/utils/mongoose-document';
 
 @Schema()
 class ServemeTfReservation {
@@ -38,37 +34,25 @@ const servemeTfReservationSchema =
   SchemaFactory.createForClass(ServemeTfReservation);
 
 @Schema()
-export class ServemeTfGameServer extends GameServer {
+export class ServemeTfGameServer extends MongooseDocument {
+  @Transform(({ value, obj }) => value ?? obj._id?.toString())
+  id!: string;
+
+  @Prop({ required: true, trim: true })
+  name: string;
+
+  @Prop({ required: true, trim: true })
+  address: string;
+
+  @Prop({ required: true })
+  port: string;
+
   @Exclude({ toPlainOnly: true })
   @Type(() => ServemeTfReservation)
   @Prop({ type: servemeTfReservationSchema, _id: false })
   reservation: ServemeTfReservation;
-
-  async rcon(): Promise<Rcon> {
-    return await createRcon({
-      host: this.address,
-      port: parseInt(this.port, 10),
-      rconPassword: this.reservation.rcon,
-    });
-  }
-
-  async getLogsecret(): Promise<string> {
-    return this.reservation.logsecret;
-  }
-
-  async start(): Promise<this> {
-    const servemeTfApiService = app.get(ServemeTfApiService);
-    await servemeTfApiService.waitForServerToStart(this.reservation.id);
-    return this;
-  }
 }
 
 export type ServemeTfGameServerDocument = ServemeTfGameServer & Document;
 export const servemeTfGameServerSchema =
   SchemaFactory.createForClass(ServemeTfGameServer);
-
-export function isServemeTfGameServer(
-  gameServer: GameServer,
-): gameServer is ServemeTfGameServer {
-  return gameServer.provider === 'serveme.tf';
-}

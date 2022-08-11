@@ -14,8 +14,8 @@ import {
   GameServerDiagnosticRun,
   GameServerDiagnosticRunDocument,
 } from '../models/game-server-diagnostic-run';
-import { GameServersService } from '../../../services/game-servers.service';
 import { StaticGameServer } from '../models/static-game-server';
+import { StaticGameServersService } from './static-game-servers.service';
 
 @Injectable()
 export class GameServerDiagnosticsService {
@@ -24,7 +24,7 @@ export class GameServerDiagnosticsService {
   constructor(
     @InjectModel(GameServerDiagnosticRun.name)
     private gameServerDiagnosticRunModel: Model<GameServerDiagnosticRunDocument>,
-    private gameServersService: GameServersService,
+    private readonly staticGameServersService: StaticGameServersService,
     private moduleRef: ModuleRef,
   ) {}
 
@@ -40,7 +40,7 @@ export class GameServerDiagnosticsService {
   }
 
   async runDiagnostics(gameServerId: string): Promise<string> {
-    await this.gameServersService.getById(gameServerId);
+    await this.staticGameServersService.getById(gameServerId);
     const runners = await this.collectAllRunners();
     const checks = runners.map((runner) => ({
       name: runner.name,
@@ -89,7 +89,7 @@ export class GameServerDiagnosticsService {
       let shouldStop = false;
 
       const fn = async () => {
-        const gameServer = (await this.gameServersService.getById(
+        const gameServer = (await this.staticGameServersService.getById(
           diagnosticRun.gameServer.toString(),
         )) as StaticGameServer;
 
