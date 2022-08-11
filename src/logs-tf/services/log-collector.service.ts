@@ -11,9 +11,10 @@ import {
 } from '@nestjs/common';
 import { Mutex } from 'async-mutex';
 import { Cache } from 'cache-manager';
+import { concatMap, from, map, merge } from 'rxjs';
 import { LogsTfApiService } from './logs-tf-api.service';
 
-const cacheKeyForGameId = (gameId: string) => `logs/${gameId}`;
+const cacheKeyForGameId = (gameId: string) => `${gameId}/logs`;
 
 @Injectable()
 export class LogCollectorService implements OnModuleInit {
@@ -29,12 +30,21 @@ export class LogCollectorService implements OnModuleInit {
   ) {}
 
   onModuleInit() {
-    this.logReceiverService.data.subscribe(
-      async (logMessage) => await this.processLogMessage(logMessage),
-    );
-    this.events.matchEnded.subscribe(
-      async ({ gameId }) => await this.uploadLogs(gameId),
-    );
+    // make sure log lines & match end events are processed in order
+    merge(
+      this.logReceiverService.data.pipe(
+        map((logMessage) => () => this.processLogMessage(logMessage)),
+      ),
+      this.events.matchEnded.pipe(
+        map(
+          ({ gameId }) =>
+            () =>
+              this.uploadLogs(gameId),
+        ),
+      ),
+    )
+      .pipe(concatMap((handle) => from(handle())))
+      .subscribe();
   }
 
   async processLogMessage(logMessage: LogMessage) {
