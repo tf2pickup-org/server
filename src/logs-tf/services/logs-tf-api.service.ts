@@ -3,7 +3,7 @@ import { logsTfUploadEndpoint } from '@configs/urls';
 import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
 import { lastValueFrom, of } from 'rxjs';
-import { map, switchMap } from 'rxjs/operators';
+import { catchError, map, switchMap } from 'rxjs/operators';
 import { LogsTfUploadError } from '../errors/logs-tf-upload.error';
 
 interface UploadLogsResponse {
@@ -41,6 +41,13 @@ export class LogsTfApiService {
               return of(`https://logs.tf${data.url}`);
             } else {
               throw new LogsTfUploadError(data.error);
+            }
+          }),
+          catchError((error) => {
+            if (error.response?.data?.error) {
+              throw new LogsTfUploadError(error.response.data.error);
+            } else {
+              throw new LogsTfUploadError(error);
             }
           }),
         ),
