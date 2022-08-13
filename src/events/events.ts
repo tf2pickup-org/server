@@ -57,6 +57,10 @@ export class Events {
   readonly mapVotesChange = new Subject<{ results: MapVoteResult[] }>();
 
   readonly mapPoolChange = new Subject<{ maps: MapPoolEntry[] }>();
+  readonly mapsScrambled = new Subject<{
+    mapOptions: string[];
+    actorId?: string;
+  }>();
 
   readonly gameCreated = new Subject<{ game: Game }>();
   readonly gameChanges = new Subject<{

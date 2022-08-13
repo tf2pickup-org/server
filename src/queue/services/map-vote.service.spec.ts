@@ -179,6 +179,17 @@ describe('MapVoteService', () => {
     });
   });
 
+  describe('#scramble()', () => {
+    it('should emit the mapsScrambled event', async () =>
+      new Promise<void>((resolve) => {
+        events.mapsScrambled.subscribe(({ actorId }) => {
+          expect(actorId).toEqual('FAKE_ACTOR_ID');
+          resolve();
+        });
+        service.scramble('FAKE_ACTOR_ID');
+      }));
+  });
+
   it('should reset the votes when map pool changes', async () => {
     service.voteForMap('FAKE_ID', 'cp_badlands');
     await mapModel.create({ name: 'cp_gullywash_final1' });

@@ -1,5 +1,44 @@
 
 
+## [9.1.7](https://github.com/tf2pickup-pl/server/compare/9.1.6...9.1.7) (2022-08-07)
+
+
+### Bug Fixes
+
+* **game-coordinator:** bring back reinitialize server ([#1838](https://github.com/tf2pickup-pl/server/issues/1838)) ([7e2b3f0](https://github.com/tf2pickup-pl/server/commit/7e2b3f0aa2d0348304db2ffce0a92e8928776ad6))
+* **game-coordinator:** don't kick players when they are subbing for themselves ([#1839](https://github.com/tf2pickup-pl/server/issues/1839)) ([57344b2](https://github.com/tf2pickup-pl/server/commit/57344b241c2df553a02d456ae148aae2c08c3df9))
+
+## [9.1.6](https://github.com/tf2pickup-org/server/compare/9.1.5...9.1.6) (2022-08-05)
+
+
+### Bug Fixes
+
+* **deps:** update dependency discord.js to v13.9.2 ([#1829](https://github.com/tf2pickup-org/server/issues/1829)) ([a2f521a](https://github.com/tf2pickup-org/server/commit/a2f521ad99c83f0d1f3421e6e69d6f4cb01eded0))
+* **deps:** update dependency mongoose to v6.5.1 ([#1836](https://github.com/tf2pickup-org/server/issues/1836)) ([1beb992](https://github.com/tf2pickup-org/server/commit/1beb992ba47cb20fedd509b9a2708bb21df676d7))
+* **deps:** update nest monorepo to v9.0.7 ([#1828](https://github.com/tf2pickup-org/server/issues/1828)) ([ac874a8](https://github.com/tf2pickup-org/server/commit/ac874a82d04cb3187bbeae78fda27f34d8385e3a))
+* **deps:** update nest monorepo to v9.0.8 ([#1835](https://github.com/tf2pickup-org/server/issues/1835)) ([db49ddc](https://github.com/tf2pickup-org/server/commit/db49ddc0650e7e172cf297711760f3c1a4a22953))
+* **games:** fix Game.findPlayerSlot() error ([#1837](https://github.com/tf2pickup-org/server/issues/1837)) ([2162e3f](https://github.com/tf2pickup-org/server/commit/2162e3f642fe6655e45fa7329e146a36add72c8a))
+
+## [9.1.5](https://github.com/tf2pickup-org/server/compare/9.1.4...9.1.5) (2022-07-27)
+
+
+### Bug Fixes
+
+* **discord:** delete substitution notification when the game ends ([#1826](https://github.com/tf2pickup-org/server/issues/1826)) ([1b2a830](https://github.com/tf2pickup-org/server/commit/1b2a8300dade8a18375395467fbc6d9763426699))
+
+## [9.1.4](https://github.com/tf2pickup-org/server/compare/9.1.3...9.1.4) (2022-07-27)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @nestjs/serve-static to v3 ([#1790](https://github.com/tf2pickup-org/server/issues/1790)) ([e0c2c30](https://github.com/tf2pickup-org/server/commit/e0c2c30eb3e0240ee52a8ce6fd6a017cbd3f445a))
+* **deps:** update dependency discord.js to v13.9.1 ([#1815](https://github.com/tf2pickup-org/server/issues/1815)) ([8968026](https://github.com/tf2pickup-org/server/commit/89680264a47e85e5c6cc3733753b0400631dd98d))
+* **deps:** update dependency helmet to v5.1.1 ([#1814](https://github.com/tf2pickup-org/server/issues/1814)) ([0e307bf](https://github.com/tf2pickup-org/server/commit/0e307bfc41bfba6ff7c1c1eb17f972725a8a3e97))
+* **deps:** update dependency mongodb to v4.8.1 ([#1822](https://github.com/tf2pickup-org/server/issues/1822)) ([959d093](https://github.com/tf2pickup-org/server/commit/959d0937f0f4a9a41faa01d7fa977da0bb231267))
+* **deps:** update dependency mongoose to v6.4.7 ([#1820](https://github.com/tf2pickup-org/server/issues/1820)) ([a7d3f2c](https://github.com/tf2pickup-org/server/commit/a7d3f2cee411eacde01f182d6e67c6083d3f0731))
+* **deps:** update dependency mongoose to v6.5.0 ([#1824](https://github.com/tf2pickup-org/server/issues/1824)) ([e1f4be6](https://github.com/tf2pickup-org/server/commit/e1f4be6dfb5d0d6865beced9322d2164c8469216))
+* **discord:** cache player substitute notifications ([#1823](https://github.com/tf2pickup-org/server/issues/1823)) ([5214b76](https://github.com/tf2pickup-org/server/commit/5214b76ce5ae888d10ecc75e9ad378393a852033))
+
 ## [9.1.3](https://github.com/tf2pickup-org/server/compare/9.1.2...9.1.3) (2022-07-23)
 
 

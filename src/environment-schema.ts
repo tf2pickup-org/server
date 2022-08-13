@@ -21,12 +21,7 @@ export const environmentSchema = object({
   REDIS_URL: any().optional(),
   STEAM_API_KEY: string().required(),
   LOGS_TF_API_KEY: string().required(),
-  KEY_STORE_PASSPHARE: string().optional(),
-  KEY_STORE_PASSPHRASE: when('KEY_STORE_PASSPHARE', {
-    is: exist(),
-    then: any().forbidden(),
-    otherwise: string().required(),
-  }),
+  KEY_STORE_PASSPHRASE: string().required(),
   SUPER_USER: string()
     .required()
     .pattern(/^\d{17}$/, { name: 'SteamID64' }),

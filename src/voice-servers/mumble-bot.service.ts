@@ -165,6 +165,10 @@ export class MumbleBotService implements OnModuleInit, OnModuleDestroy {
 
   @Cron(CronExpression.EVERY_10_MINUTES)
   async removeOldChannels() {
+    if (!this.client?.user?.channel) {
+      return;
+    }
+
     /**
      * For each channel lookup the assigned game and see whether it has ended.
      * For ended games, make sure there are no players in the corresponding voice channel and then remove it.
