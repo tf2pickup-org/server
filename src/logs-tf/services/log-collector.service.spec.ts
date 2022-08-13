@@ -137,5 +137,14 @@ describe('LogCollectorService', () => {
     it('should clear cache', async () => {
       expect(await cache.get(`${mockGame.id}/logs`)).toBe(undefined);
     });
+
+    describe('when the upload fails', () => {
+      beforeEach(() => {
+        logsTfApiService.uploadLogs.mockRejectedValue('FAKE_ERROR');
+      });
+
+      // eslint-disable-next-line jest/expect-expect, @typescript-eslint/no-empty-function
+      it('should handle gracefully', async () => {});
+    });
   });
 });

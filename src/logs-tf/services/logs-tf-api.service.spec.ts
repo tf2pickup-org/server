@@ -36,6 +36,7 @@ describe('LogsTfApiService', () => {
         of({
           data: {
             url: '/420',
+            success: true,
           },
           status: 200,
         } as any),

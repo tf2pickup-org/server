@@ -66,16 +66,23 @@ export class LogCollectorService implements OnModuleInit {
   }
 
   async uploadLogs(gameId: string) {
-    const key = cacheKeyForGameId(gameId);
     const game = await this.gamesService.getById(gameId);
     this.logger.log(`uploading logs for game #${game.number}...`);
-    const logsUrl = await this.logsTfApiService.uploadLogs(
-      game.map,
-      `${this.environment.websiteName} #${game.number}`,
-      await this.cache.get<string>(key),
-    );
-    this.logger.log(`game #${game.number} logs URL: ${logsUrl}`);
-    await this.cache.del(key);
-    this.events.logsUploaded.next({ gameId, logsUrl });
+
+    try {
+      const key = cacheKeyForGameId(gameId);
+      const logsUrl = await this.logsTfApiService.uploadLogs(
+        game.map,
+        `${this.environment.websiteName} #${game.number}`,
+        await this.cache.get<string>(key),
+      );
+      this.logger.log(`game #${game.number} logs URL: ${logsUrl}`);
+      await this.cache.del(key);
+      this.events.logsUploaded.next({ gameId, logsUrl });
+    } catch (error) {
+      this.logger.error(
+        `uploading logs for game #${game.number} failed: ${error}`,
+      );
+    }
   }
 }
