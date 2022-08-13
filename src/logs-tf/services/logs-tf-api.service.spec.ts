@@ -2,7 +2,7 @@ import { Environment } from '@/environment/environment';
 import { logsTfUploadEndpoint } from '@configs/urls';
 import { HttpService } from '@nestjs/axios';
 import { Test, TestingModule } from '@nestjs/testing';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { LogsTfApiService } from './logs-tf-api.service';
 
 jest.mock('@nestjs/axios');
@@ -64,13 +64,15 @@ describe('LogsTfApiService', () => {
     describe('when the upload has failed', () => {
       beforeEach(() => {
         httpService.post.mockReturnValueOnce(
-          of({
-            data: {
-              success: false,
-              error: 'SOME_FAKE_ERROR',
+          throwError(() => ({
+            response: {
+              data: {
+                success: false,
+                error: 'SOME_FAKE_ERROR',
+              },
+              status: 200,
             },
-            status: 200,
-          } as any),
+          })),
         );
       });
 
