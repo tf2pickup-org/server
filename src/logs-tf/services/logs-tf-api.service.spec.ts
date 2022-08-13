@@ -9,6 +9,7 @@ jest.mock('@nestjs/axios');
 jest.mock('@/environment/environment', () => ({
   Environment: jest.fn().mockImplementation(() => ({
     logsTfApiKey: 'FAKE_LOGS_TF_API_KEY',
+    websiteName: 'FAKE_WEBSITE_NAME',
   })),
 }));
 
@@ -52,7 +53,7 @@ describe('LogsTfApiService', () => {
         map: 'cp_badlands',
         key: 'FAKE_LOGS_TF_API_KEY',
         logfile: 'LOG_LINE_1\nLOG_LINE_2',
-        uploader: 'tf2pickup.org',
+        uploader: 'FAKE_WEBSITE_NAME',
       });
       expect(response).toEqual('https://logs.tf/420');
     });

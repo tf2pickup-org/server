@@ -31,7 +31,7 @@ export class LogsTfApiService {
           map: mapName,
           key: this.environment.logsTfApiKey,
           logfile: logFile,
-          uploader: `tf2pickup.org`,
+          uploader: this.environment.websiteName,
         })
         .pipe(
           map((response) => response.data),
