@@ -29,6 +29,7 @@ import {
   isStaticGameServer,
   StaticGameServer,
 } from '@/game-servers/providers/static-game-server/models/static-game-server';
+import { mapsScrambled } from '../notifications/maps-scrambled';
 
 const playerSkillEqual = (
   oldSkill: PlayerSkillType,
@@ -120,6 +121,10 @@ export class AdminNotificationsService implements OnModuleInit {
       .subscribe(({ gameId, playerId, adminId }) =>
         this.onSubstituteRequested(gameId, playerId, adminId),
       );
+
+    this.events.mapsScrambled
+      .pipe(filter(({ actorId }) => !!actorId))
+      .subscribe(({ actorId }) => this.onMapsScrambled(actorId));
   }
 
   private onPlayerRegisters(player: Player) {
@@ -372,6 +377,25 @@ export class AdminNotificationsService implements OnModuleInit {
           game: {
             number: `${game.number}`,
             url: `${this.environment.clientUrl}/game/${game.id}`,
+          },
+          client: {
+            name: new URL(this.environment.clientUrl).hostname,
+            iconUrl: `${this.environment.clientUrl}/${iconUrlPath}`,
+          },
+        }),
+      ],
+    });
+  }
+
+  private async onMapsScrambled(actorId: string) {
+    const actor = await this.playersService.getById(actorId);
+    this.discordService.getAdminsChannel()?.send({
+      embeds: [
+        mapsScrambled({
+          actor: {
+            name: actor.name,
+            profileUrl: `${this.environment.clientUrl}/player/${actor.id}`,
+            avatarUrl: actor.avatar?.small,
           },
           client: {
             name: new URL(this.environment.clientUrl).hostname,

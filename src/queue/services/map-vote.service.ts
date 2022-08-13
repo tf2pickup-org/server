@@ -98,13 +98,14 @@ export class MapVoteService implements OnModuleInit {
   /**
    * Randomly maps that will be available for vote.
    */
-  async scramble() {
+  async scramble(actorId?: string) {
     this.mapOptions = shuffle(
       await this.mapPoolEntryModel.find({ cooldown: { $lte: 0 } }).exec(),
     )
       .slice(0, this.mapVoteOptionCount)
       .map((m) => m.name);
     this.logger.debug(`Map options: ${this.mapOptions.join(',')}`);
+    this.events.mapsScrambled.next({ mapOptions: this.mapOptions, actorId });
     this.votes = [];
     this._results.next(this.getResults());
     return this.results;
