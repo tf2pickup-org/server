@@ -1,5 +1,12 @@
 
 
+# [10.0.0-alpha.2](https://github.com/tf2pickup-org/server/compare/10.0.0-alpha.1...10.0.0-alpha.2) (2022-08-13)
+
+
+### Bug Fixes
+
+* **logs-ts:** handle log upload error ([#1858](https://github.com/tf2pickup-org/server/issues/1858)) ([7c5baf0](https://github.com/tf2pickup-org/server/commit/7c5baf0d1da0237f637ad0cc8072e39648ef43c9))
+
 # [10.0.0-alpha.1](https://github.com/tf2pickup-pl/server/compare/10.0.0-alpha.0...10.0.0-alpha.1) (2022-08-13)
 
 
