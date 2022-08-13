@@ -2,8 +2,9 @@ import { Environment } from '@/environment/environment';
 import { logsTfUploadEndpoint } from '@configs/urls';
 import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
-import { lastValueFrom, of, throwError } from 'rxjs';
+import { lastValueFrom, of } from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
+import { LogsTfUploadError } from '../errors/logs-tf-upload.error';
 
 interface UploadLogsResponse {
   success: boolean;
@@ -39,7 +40,7 @@ export class LogsTfApiService {
             if (data.success) {
               return of(`https://logs.tf${data.url}`);
             } else {
-              return throwError(() => data.error ?? 'unknown error');
+              throw new LogsTfUploadError(data.error);
             }
           }),
         ),
