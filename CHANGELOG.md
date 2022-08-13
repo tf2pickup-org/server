@@ -1,5 +1,28 @@
 
 
+# [10.0.0-alpha.0](https://github.com/tf2pickup-pl/server/compare/9.1.7...10.0.0-alpha.0) (2022-08-13)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @tf2pickup-org/mumble-client to v0.7.0 ([#1845](https://github.com/tf2pickup-pl/server/issues/1845)) ([32cb3b5](https://github.com/tf2pickup-pl/server/commit/32cb3b55902ad08433eb7ed1e36289312be41a2d))
+* **deps:** update dependency discord.js to v13.10.2 ([#1849](https://github.com/tf2pickup-pl/server/issues/1849)) ([17bf89f](https://github.com/tf2pickup-pl/server/commit/17bf89fd842d95c8eeeabb42c01cade5015a1142))
+* **deps:** update dependency mongoose to v6.5.2 ([#1847](https://github.com/tf2pickup-pl/server/issues/1847)) ([b139d07](https://github.com/tf2pickup-pl/server/commit/b139d07bda96826d531865bce5488ef7e3a9e2ed))
+* **deps:** update nest monorepo to v9.0.9 ([#1850](https://github.com/tf2pickup-pl/server/issues/1850)) ([6f924b5](https://github.com/tf2pickup-pl/server/commit/6f924b5475ec38503df256ee0b76fb49e72ef4bb))
+* **environment:** get rid of variable name typo ([#1852](https://github.com/tf2pickup-pl/server/issues/1852)) ([f006924](https://github.com/tf2pickup-pl/server/commit/f0069248be5dffc0a9c02fe55a2a88e76a2516b5))
+* **voice-servers:** get rid of mumble bot warning ([#1841](https://github.com/tf2pickup-pl/server/issues/1841)) ([fc50312](https://github.com/tf2pickup-pl/server/commit/fc50312f739b1ea735bd787697e38f8026fe79bc))
+
+
+### Features
+
+* **discord:** notify admins when maps are scrambled ([#1834](https://github.com/tf2pickup-pl/server/issues/1834)) ([ca36dee](https://github.com/tf2pickup-pl/server/commit/ca36deee6ef1e82d8b9ef96e52c4af914fde322d))
+* **games:** capture & upload game logs ([#1825](https://github.com/tf2pickup-pl/server/issues/1825)) ([fb4da4f](https://github.com/tf2pickup-pl/server/commit/fb4da4fac6ee25f15242036da45eb1609cd09728))
+
+
+### BREAKING CHANGES
+
+* **environment:** KEY_STORE_PASSPHARE environment variable is renamed to KEY_STORE_PASSPHRASE
+
 ## [9.1.7](https://github.com/tf2pickup-pl/server/compare/9.1.6...9.1.7) (2022-08-07)
 
 
