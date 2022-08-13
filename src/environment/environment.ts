@@ -33,6 +33,10 @@ export class Environment {
     return this.configService.get<string>('STEAM_API_KEY');
   }
 
+  get logsTfApiKey() {
+    return this.configService.get<string>('LOGS_TF_API_KEY');
+  }
+
   get keyStoreFile() {
     return this.configService.get<string>('KEY_STORE_FILE');
   }

@@ -96,6 +96,7 @@ jobs:
         LOG_RELAY_ADDRESS: 'host.docker.internal'
         LOG_RELAY_PORT: '9871'
         GAME_SERVER_SECRET: 'xxxxxx'
+        LOGS_TF_API_KEY: 'FAKE_LOGS_TF_API_KEY'
       run: yarn test:e2e
 
     - name: Upload test coverage info
