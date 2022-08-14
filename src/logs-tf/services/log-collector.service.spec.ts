@@ -98,7 +98,7 @@ describe('LogCollectorService', () => {
     });
 
     it('should append the log line', async () => {
-      const logFile = await cache.get(`${mockGame.id}/logs`);
+      const logFile = await cache.get(`games/${mockGame.id}/logs`);
       expect(logFile).toEqual('\nFAKE_LOG_PAYLOAD');
     });
   });
@@ -135,7 +135,7 @@ describe('LogCollectorService', () => {
     });
 
     it('should clear cache', async () => {
-      expect(await cache.get(`${mockGame.id}/logs`)).toBe(undefined);
+      expect(await cache.get(`games/${mockGame.id}/logs`)).toBe(undefined);
     });
 
     describe('when the upload fails', () => {

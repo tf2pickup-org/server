@@ -15,7 +15,7 @@ import { Cache } from 'cache-manager';
 import { concatMap, from, map, merge } from 'rxjs';
 import { LogsTfApiService } from './logs-tf-api.service';
 
-const cacheKeyForGameId = (gameId: string) => `${gameId}/logs`;
+const cacheKeyForGameId = (gameId: string) => `games/${gameId}/logs`;
 
 @Injectable()
 export class LogCollectorService implements OnModuleInit {
