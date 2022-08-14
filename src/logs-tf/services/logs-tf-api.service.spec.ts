@@ -2,6 +2,7 @@ import { Environment } from '@/environment/environment';
 import { logsTfUploadEndpoint } from '@configs/urls';
 import { HttpService } from '@nestjs/axios';
 import { Test, TestingModule } from '@nestjs/testing';
+import * as FormData from 'form-data';
 import { of, throwError } from 'rxjs';
 import { LogsTfApiService } from './logs-tf-api.service';
 
@@ -50,13 +51,11 @@ describe('LogsTfApiService', () => {
           'FAKE_TITLE',
           'LOG_LINE_1\nLOG_LINE_2',
         );
-        expect(httpService.post).toHaveBeenCalledWith(logsTfUploadEndpoint, {
-          title: 'FAKE_TITLE',
-          map: 'cp_badlands',
-          key: 'FAKE_LOGS_TF_API_KEY',
-          logfile: 'LOG_LINE_1\nLOG_LINE_2',
-          uploader: 'FAKE_WEBSITE_NAME',
-        });
+        expect(httpService.post).toHaveBeenCalledWith(
+          logsTfUploadEndpoint,
+          expect.any(FormData),
+          expect.any(Object),
+        );
         expect(response).toEqual('https://logs.tf/420');
       });
     });

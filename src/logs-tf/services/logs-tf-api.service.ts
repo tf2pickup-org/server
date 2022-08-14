@@ -5,6 +5,7 @@ import { Injectable } from '@nestjs/common';
 import { lastValueFrom, of } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
 import { LogsTfUploadError } from '../errors/logs-tf-upload.error';
+import * as FormData from 'form-data';
 
 interface UploadLogsResponse {
   success: boolean;
@@ -25,14 +26,17 @@ export class LogsTfApiService {
     title: string,
     logFile: string,
   ): Promise<string> {
+    const data = new FormData();
+    data.append('title', title);
+    data.append('map', mapName);
+    data.append('key', this.environment.logsTfApiKey);
+    data.append('uploader', this.environment.websiteName);
+    data.append('logfile', Buffer.from(logFile, 'utf-8'));
+
     return await lastValueFrom(
       this.httpService
-        .post<UploadLogsResponse>(logsTfUploadEndpoint, {
-          title,
-          map: mapName,
-          key: this.environment.logsTfApiKey,
-          logfile: logFile,
-          uploader: this.environment.websiteName,
+        .post<UploadLogsResponse>(logsTfUploadEndpoint, data, {
+          headers: data.getHeaders(),
         })
         .pipe(
           map((response) => response.data),
