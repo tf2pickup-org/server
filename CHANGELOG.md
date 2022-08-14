@@ -1,5 +1,13 @@
 
 
+# [10.0.0-alpha.3](https://github.com/tf2pickup-org/server/compare/10.0.0-alpha.2...10.0.0-alpha.3) (2022-08-14)
+
+
+### Bug Fixes
+
+* **logs-tf:** fixup logs.tf cache key ([#1856](https://github.com/tf2pickup-org/server/issues/1856)) ([241347e](https://github.com/tf2pickup-org/server/commit/241347edf862b886c9271331db9b16758b647cce))
+* **logs-tf:** use FormData to upload logfile ([#1859](https://github.com/tf2pickup-org/server/issues/1859)) ([ce43395](https://github.com/tf2pickup-org/server/commit/ce433952836537202851759592ac71a4503034b8))
+
 # [10.0.0-alpha.2](https://github.com/tf2pickup-org/server/compare/10.0.0-alpha.1...10.0.0-alpha.2) (2022-08-13)
 
 
