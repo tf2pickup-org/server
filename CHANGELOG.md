@@ -1,5 +1,13 @@
 
 
+# [10.0.0-alpha.4](https://github.com/tf2pickup-pl/server/compare/10.0.0-alpha.3...10.0.0-alpha.4) (2022-08-14)
+
+
+### Bug Fixes
+
+* **deps:** pin dependency form-data to 4.0.0 ([#1860](https://github.com/tf2pickup-pl/server/issues/1860)) ([116b510](https://github.com/tf2pickup-pl/server/commit/116b51056c2c97d64ddc056783b9bba421605867))
+* **logs-tf:** set maxContentLength ([#1862](https://github.com/tf2pickup-pl/server/issues/1862)) ([577bd10](https://github.com/tf2pickup-pl/server/commit/577bd10ab82b5f6d711bad0f0a66602d4bd326fe))
+
 # [10.0.0-alpha.3](https://github.com/tf2pickup-org/server/compare/10.0.0-alpha.2...10.0.0-alpha.3) (2022-08-14)
 
 
