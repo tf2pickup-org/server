@@ -37,6 +37,7 @@ export class LogsTfApiService {
       this.httpService
         .post<UploadLogsResponse>(logsTfUploadEndpoint, data, {
           headers: data.getHeaders(),
+          maxContentLength: 5 * 1000 * 1000, // 5 MB
         })
         .pipe(
           map((response) => response.data),
