@@ -3,6 +3,7 @@ import { logsTfUploadEndpoint } from '@configs/urls';
 import { Injectable } from '@nestjs/common';
 import { LogsTfUploadError } from '../errors/logs-tf-upload.error';
 import * as FormData from 'form-data';
+import { version } from 'package.json';
 
 interface UploadLogsResponse {
   success: boolean;
@@ -29,7 +30,7 @@ export class LogsTfApiService {
     data.append('title', title);
     data.append('map', params.mapName);
     data.append('key', this.environment.logsTfApiKey);
-    data.append('uploader', this.environment.websiteName);
+    data.append('uploader', `${this.environment.websiteName} ${version}`);
     data.append(
       'logfile',
       Buffer.from(params.logFile, 'utf-8'),
