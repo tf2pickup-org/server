@@ -126,11 +126,11 @@ describe('LogCollectorService', () => {
     });
 
     it('should attempt to upload logs', async () => {
-      expect(logsTfApiService.uploadLogs).toHaveBeenCalledWith(
-        'cp_badlands',
-        'FAKE_WEBSITE #1',
-        'L LOG_LINE_1\nL LOG_LINE_2',
-      );
+      expect(logsTfApiService.uploadLogs).toHaveBeenCalledWith({
+        mapName: 'cp_badlands',
+        gameNumber: mockGame.number,
+        logFile: 'L LOG_LINE_1\nL LOG_LINE_2',
+      });
       expect(logsUploaded).toEqual('FAKE_LOGS_URL');
     });
 
