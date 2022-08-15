@@ -1,11 +1,12 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Transform } from 'class-transformer';
+import { Expose, Transform } from 'class-transformer';
 import { Document, Types } from 'mongoose';
 import { TransformObjectId } from '@/shared/decorators/transform-object-id';
 import { MongooseDocument } from '@/utils/mongoose-document';
 
 @Schema()
 export class StaticGameServer extends MongooseDocument {
+  @Expose()
   @Transform(({ value, obj }) => value ?? obj._id?.toString())
   id!: string;
 

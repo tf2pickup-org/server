@@ -19,6 +19,7 @@ import { Subject } from 'rxjs';
 import { GameServerOption } from '@/game-servers/interfaces/game-server-option';
 import { serverCleanupDelay } from '@configs/game-servers';
 import { Events } from '@/events/events';
+import { GamesService } from '@/games/services/games.service';
 
 interface HeartbeatParams {
   name: string;
@@ -52,11 +53,13 @@ export class StaticGameServersService
     private readonly staticGameServerModel: Model<StaticGameServerDocument>,
     private readonly events: Events,
     private readonly gameServersService: GameServersService,
+    private readonly gamesService: GamesService,
   ) {}
 
   async onModuleInit() {
     this.installLoggers();
     await this.removeDeadGameServers();
+    await this.freeUnusedGameServers();
     this.gameServersService.registerProvider(this);
   }
 
@@ -106,6 +109,20 @@ export class StaticGameServersService
         .find({
           isOnline: true,
           game: { $exists: false },
+        })
+        .sort({ priority: -1 })
+        .lean()
+        .exec(),
+    );
+  }
+
+  async getTakenGameServers(): Promise<StaticGameServer[]> {
+    return plainToInstance(
+      StaticGameServer,
+      await this.staticGameServerModel
+        .find({
+          isOnline: true,
+          game: { $exists: true },
         })
         .sort({ priority: -1 })
         .lean()
@@ -203,6 +220,23 @@ export class StaticGameServersService
     const deadGameServers = await this.getDeadGameServers();
     await Promise.all(
       deadGameServers.map((gameServer) => this.markAsOffline(gameServer.id)),
+    );
+  }
+
+  @Cron(CronExpression.EVERY_MINUTE)
+  async freeUnusedGameServers() {
+    const gameServers = await this.getTakenGameServers();
+    await Promise.all(
+      gameServers.map(async (gameServer) => {
+        const game = await this.gamesService.getById(gameServer.game);
+        if (game.isInProgress()) {
+          return;
+        }
+
+        if (game.endedAt.getTime() + serverCleanupDelay < Date.now()) {
+          await this.freeGameServer(gameServer.id);
+        }
+      }),
     );
   }
 

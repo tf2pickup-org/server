@@ -1,4 +1,5 @@
 import { GameServersModule } from '@/game-servers/game-servers.module';
+import { GamesModule } from '@/games/games.module';
 import { LogReceiverModule } from '@/log-receiver/log-receiver.module';
 import { forwardRef, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
@@ -31,6 +32,7 @@ import { StaticGameServersService } from './services/static-game-servers.service
       },
     ]),
     LogReceiverModule,
+    forwardRef(() => GamesModule),
   ],
   providers: [
     StaticGameServersService,

@@ -41,6 +41,7 @@ export class GameServersService implements OnApplicationBootstrap {
     for (const provider of this.providers) {
       try {
         const option = await provider.findFirstFreeGameServer();
+        console.log(option);
         return {
           ...option,
           provider: provider.gameServerProviderName,
@@ -62,13 +63,15 @@ export class GameServersService implements OnApplicationBootstrap {
 
   async assignGameServer(gameId: string): Promise<Game> {
     return this.mutex.runExclusive(async () => {
-      const game = await this.gamesService.getById(gameId);
+      let game = await this.gamesService.getById(gameId);
       const gameServer = await this.findFreeGameServer();
       this.logger.log(
         `using gameserver ${gameServer.name} for game #${game.number}`,
       );
-      await this.gamesService.update(game.id, {
-        gameServer,
+      game = await this.gamesService.update(game.id, {
+        $set: {
+          gameServer,
+        },
       });
       const provider = this.providerByName(gameServer.provider);
       await provider.onGameServerAssigned?.({

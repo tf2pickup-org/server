@@ -73,7 +73,7 @@ export class Game extends Serializable<GameDto> {
   error?: string;
 
   @Type(() => GameServer)
-  @Prop({ type: gameServerSchema })
+  @Prop({ type: gameServerSchema, _id: false })
   gameServer?: GameServer;
 
   @Type(() => Number)
