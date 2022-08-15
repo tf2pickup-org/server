@@ -74,11 +74,11 @@ export class LogCollectorService implements OnModuleInit {
 
     try {
       const key = cacheKeyForGameId(gameId);
-      const logsUrl = await this.logsTfApiService.uploadLogs(
-        game.map,
-        `${this.environment.websiteName} #${game.number}`,
-        await this.cache.get<string>(key),
-      );
+      const logsUrl = await this.logsTfApiService.uploadLogs({
+        mapName: game.map,
+        gameNumber: game.number,
+        logFile: await this.cache.get<string>(key),
+      });
       this.logger.log(`game #${game.number} logs URL: ${logsUrl}`);
       await this.cache.del(key);
       this.events.logsUploaded.next({ gameId, logsUrl });
