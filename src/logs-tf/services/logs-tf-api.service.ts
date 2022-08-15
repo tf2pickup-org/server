@@ -3,7 +3,7 @@ import { logsTfUploadEndpoint } from '@configs/urls';
 import { Injectable } from '@nestjs/common';
 import { LogsTfUploadError } from '../errors/logs-tf-upload.error';
 import * as FormData from 'form-data';
-import { version } from 'package.json';
+import { version } from '../../../package.json';
 
 interface UploadLogsResponse {
   success: boolean;
