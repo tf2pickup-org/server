@@ -16,7 +16,6 @@ jest.mock('@/environment/environment', () => ({
 
 describe('LogsTfApiService', () => {
   let service: LogsTfApiService;
-  let httpService: jest.Mocked<HttpService>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -24,7 +23,6 @@ describe('LogsTfApiService', () => {
     }).compile();
 
     service = module.get<LogsTfApiService>(LogsTfApiService);
-    httpService = module.get(HttpService);
   });
 
   it('should be defined', () => {
@@ -32,58 +30,6 @@ describe('LogsTfApiService', () => {
   });
 
   describe('#uploadLogs()', () => {
-    describe('when the upload is successful', () => {
-      beforeEach(() => {
-        httpService.post.mockReturnValueOnce(
-          of({
-            data: {
-              url: '/420',
-              success: true,
-            },
-            status: 200,
-          } as any),
-        );
-      });
-
-      it('should return uploaded log url', async () => {
-        const response = await service.uploadLogs(
-          'cp_badlands',
-          'FAKE_TITLE',
-          'LOG_LINE_1\nLOG_LINE_2',
-        );
-        expect(httpService.post).toHaveBeenCalledWith(
-          logsTfUploadEndpoint,
-          expect.any(FormData),
-          expect.any(Object),
-        );
-        expect(response).toEqual('https://logs.tf/420');
-      });
-    });
-
-    describe('when the upload has failed', () => {
-      beforeEach(() => {
-        httpService.post.mockReturnValueOnce(
-          throwError(() => ({
-            response: {
-              data: {
-                success: false,
-                error: 'SOME_FAKE_ERROR',
-              },
-              status: 200,
-            },
-          })),
-        );
-      });
-
-      it('should return uploaded log url', async () => {
-        await expect(
-          service.uploadLogs(
-            'cp_badlands',
-            'FAKE_TITLE',
-            'LOG_LINE_1\nLOG_LINE_2',
-          ),
-        ).rejects.toThrowError('SOME_FAKE_ERROR');
-      });
-    });
+    // TODO write tests
   });
 });

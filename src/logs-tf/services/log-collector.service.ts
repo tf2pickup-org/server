@@ -55,10 +55,13 @@ export class LogCollectorService implements OnModuleInit {
       const key = cacheKeyForGameId(game.id);
 
       await this.mutex.runExclusive(async () => {
-        const logFile = (await this.cache.get<string>(key)) ?? '';
-        await this.cache.set(key, `${logFile}\n${logMessage.payload}`, {
-          ttl: 0,
-        });
+        let logFile = await this.cache.get<string>(key);
+        if (logFile) {
+          logFile += `\nL ${logMessage.payload}`;
+        } else {
+          logFile = `L ${logMessage.payload}`;
+        }
+        await this.cache.set(key, logFile, { ttl: 0 });
       });
 
       // eslint-disable-next-line no-empty
