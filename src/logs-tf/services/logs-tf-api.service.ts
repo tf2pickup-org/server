@@ -30,7 +30,7 @@ export class LogsTfApiService {
     data.append('title', title);
     data.append('map', params.mapName);
     data.append('key', this.environment.logsTfApiKey);
-    data.append('uploader', `${this.environment.websiteName} ${version}`);
+    data.append('uploader', `tf2pickup.org ${version}`);
     data.append(
       'logfile',
       Buffer.from(params.logFile, 'utf-8'),
