@@ -1,5 +1,12 @@
 
 
+# [10.0.0-alpha.5](https://github.com/tf2pickup-org/server/compare/10.0.0-alpha.4...10.0.0-alpha.5) (2022-08-15)
+
+
+### Bug Fixes
+
+* **logs-tf:** ditch axios, fix log lines ([#1865](https://github.com/tf2pickup-org/server/issues/1865)) ([efd0f28](https://github.com/tf2pickup-org/server/commit/efd0f288a7c9601dbfd2c5efdfd6ff4106a82902))
+
 # [10.0.0-alpha.4](https://github.com/tf2pickup-pl/server/compare/10.0.0-alpha.3...10.0.0-alpha.4) (2022-08-14)
 
 
