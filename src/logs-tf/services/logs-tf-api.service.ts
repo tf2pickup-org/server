@@ -1,9 +1,6 @@
 import { Environment } from '@/environment/environment';
 import { logsTfUploadEndpoint } from '@configs/urls';
-import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
-import { lastValueFrom, of } from 'rxjs';
-import { catchError, map, switchMap } from 'rxjs/operators';
 import { LogsTfUploadError } from '../errors/logs-tf-upload.error';
 import * as FormData from 'form-data';
 
@@ -16,10 +13,7 @@ interface UploadLogsResponse {
 
 @Injectable()
 export class LogsTfApiService {
-  constructor(
-    private readonly httpService: HttpService,
-    private readonly environment: Environment,
-  ) {}
+  constructor(private readonly environment: Environment) {}
 
   public async uploadLogs(
     mapName: string,
@@ -33,29 +27,32 @@ export class LogsTfApiService {
     data.append('uploader', this.environment.websiteName);
     data.append('logfile', Buffer.from(logFile, 'utf-8'));
 
-    return await lastValueFrom(
-      this.httpService
-        .post<UploadLogsResponse>(logsTfUploadEndpoint, data, {
-          headers: data.getHeaders(),
-          maxContentLength: 5 * 1000 * 1000, // 5 MB
-        })
-        .pipe(
-          map((response) => response.data),
-          switchMap((data) => {
-            if (data.success) {
-              return of(`https://logs.tf${data.url}`);
-            } else {
-              throw new LogsTfUploadError(data.error);
-            }
-          }),
-          catchError((error) => {
-            if (error.response?.data?.error) {
-              throw new LogsTfUploadError(error.response.data.error);
-            } else {
-              throw new LogsTfUploadError(error);
-            }
-          }),
-        ),
-    );
+    // we're not using axios here because of this issue:
+    // https://github.com/axios/axios/issues/4806
+
+    return new Promise((resolve, reject) => {
+      data.submit(logsTfUploadEndpoint, (error, response) => {
+        if (error) {
+          reject(new LogsTfUploadError(error.message));
+          return;
+        }
+
+        let reply = '';
+        response.on('data', (chunk) => (reply += chunk));
+        response.on('end', () => {
+          const d = JSON.parse(reply) as UploadLogsResponse;
+          if (!d.success) {
+            reject(new LogsTfUploadError(d.error));
+          } else {
+            resolve(`https://logs.tf${d.url}`);
+          }
+        });
+        response.on('error', (error) =>
+          reject(new LogsTfUploadError(error.message)),
+        );
+
+        response.resume();
+      });
+    });
   }
 }

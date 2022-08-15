@@ -99,7 +99,7 @@ describe('LogCollectorService', () => {
 
     it('should append the log line', async () => {
       const logFile = await cache.get(`games/${mockGame.id}/logs`);
-      expect(logFile).toEqual('\nFAKE_LOG_PAYLOAD');
+      expect(logFile).toEqual('L FAKE_LOG_PAYLOAD');
     });
   });
 
@@ -129,7 +129,7 @@ describe('LogCollectorService', () => {
       expect(logsTfApiService.uploadLogs).toHaveBeenCalledWith(
         'cp_badlands',
         'FAKE_WEBSITE #1',
-        '\nLOG_LINE_1\nLOG_LINE_2',
+        'L LOG_LINE_1\nL LOG_LINE_2',
       );
       expect(logsUploaded).toEqual('FAKE_LOGS_URL');
     });
