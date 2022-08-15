@@ -1,5 +1,12 @@
 
 
+# [10.0.0-alpha.6](https://github.com/tf2pickup-org/server/compare/10.0.0-alpha.5...10.0.0-alpha.6) (2022-08-15)
+
+
+### Bug Fixes
+
+* **logs-tf:** append log file name in the log upload request ([#1866](https://github.com/tf2pickup-org/server/issues/1866)) ([be9078d](https://github.com/tf2pickup-org/server/commit/be9078d421cb5f11139e03ef5c0f48b3be9c40f9))
+
 # [10.0.0-alpha.5](https://github.com/tf2pickup-org/server/compare/10.0.0-alpha.4...10.0.0-alpha.5) (2022-08-15)
 
 
