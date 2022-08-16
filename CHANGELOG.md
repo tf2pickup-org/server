@@ -1,3 +1,10 @@
+## [9.1.8](https://github.com/tf2pickup-org/server/compare/9.1.7...9.1.8) (2022-08-16)
+
+
+### Bug Fixes
+
+* **players:** fix player preferences serialization ([#1873](https://github.com/tf2pickup-org/server/issues/1873)) ([d4cd7b5](https://github.com/tf2pickup-org/server/commit/d4cd7b5d59a0cca1e0f9fad905b0259297832ee1))
+
 
 
 ## [9.1.7](https://github.com/tf2pickup-pl/server/compare/9.1.6...9.1.7) (2022-08-07)
