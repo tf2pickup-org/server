@@ -131,7 +131,6 @@ describe('Profile Controller', () => {
   describe('#getPreferences()', () => {
     it("should return the user's preferences", async () => {
       const ret = await controller.getPreferences(player);
-      expect(ret.size).toEqual(1);
       expect(ret['sound-volume']).toEqual('0.5');
     });
   });
@@ -141,7 +140,6 @@ describe('Profile Controller', () => {
       const ret = await controller.savePreferences(player, {
         'sound-volume': '0.9',
       });
-      expect(ret.size).toEqual(1);
       expect(ret['sound-volume']).toEqual('0.9');
       expect(
         playerPreferencesService.updatePlayerPreferences,
