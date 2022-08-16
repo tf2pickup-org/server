@@ -29,6 +29,7 @@ import {
   VoiceServer,
 } from '@/configuration/models/voice-server';
 import { Mutex } from 'async-mutex';
+import { GameServer } from '../models/game-server';
 
 jest.mock('@/players/services/players.service');
 jest.mock('@/players/services/player-skill.service');
@@ -589,7 +590,13 @@ describe('GamesService', () => {
         map: 'cp_badlands',
       });
 
-      const gameServer = new Types.ObjectId();
+      const gameServer: GameServer = {
+        id: 'FAKE_GAMESERVER',
+        name: 'TEST_GAMESERVER',
+        address: 'localhost',
+        port: 27015,
+        provider: 'test',
+      };
       await gameModel.create({
         number: 2,
         slots: [],
