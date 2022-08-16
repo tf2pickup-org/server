@@ -132,7 +132,7 @@ describe('Profile Controller', () => {
     it("should return the user's preferences", async () => {
       const ret = await controller.getPreferences(player);
       expect(ret.size).toEqual(1);
-      expect(ret.get('sound-volume')).toEqual('0.5');
+      expect(ret['sound-volume']).toEqual('0.5');
     });
   });
 
@@ -142,7 +142,7 @@ describe('Profile Controller', () => {
         'sound-volume': '0.9',
       });
       expect(ret.size).toEqual(1);
-      expect(ret.get('sound-volume')).toEqual('0.9');
+      expect(ret['sound-volume']).toEqual('0.9');
       expect(
         playerPreferencesService.updatePlayerPreferences,
       ).toHaveBeenCalledWith('FAKE_ID', new Map([['sound-volume', '0.9']]));
