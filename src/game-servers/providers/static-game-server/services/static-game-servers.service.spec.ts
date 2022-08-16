@@ -1,11 +1,9 @@
-import { Environment } from '@/environment/environment';
 import { Events } from '@/events/events';
 import { NoFreeGameServerAvailableError } from '@/game-servers/errors/no-free-game-server-available.error';
-import {
-  GameServer,
-  gameServerSchema,
-} from '@/game-servers/models/game-server';
 import { GameServersService } from '@/game-servers/services/game-servers.service';
+import { Game, gameSchema } from '@/games/models/game';
+import { GameState } from '@/games/models/game-state';
+import { GamesService } from '@/games/services/games.service';
 import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
 import {
   getConnectionToken,
@@ -13,19 +11,17 @@ import {
   MongooseModule,
 } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
-import { plainToInstance } from 'class-transformer';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { Connection, Error, Model, Types } from 'mongoose';
 import { Rcon } from 'rcon-client';
 import {
   StaticGameServer,
   StaticGameServerDocument,
+  staticGameServerSchema,
 } from '../models/static-game-server';
-import { staticGameServerModelProvider } from '../static-game-server-model.provider';
-import { staticGameServerProviderName } from '../static-game-server-provider-name';
+import { StaticGameServerControls } from '../static-game-server-controls';
 import { StaticGameServersService } from './static-game-servers.service';
 
-jest.mock('@/environment/environment');
 jest.mock('rcon-client', () => {
   return {
     Rcon: jest.fn().mockImplementation(function () {
@@ -48,6 +44,7 @@ jest.mock('rxjs/operators', () => {
 });
 
 jest.mock('@/game-servers/services/game-servers.service');
+jest.mock('@/games/services/games.service');
 
 const waitForDatabase = () =>
   new Promise((resolve) => setTimeout(resolve, 100));
@@ -60,6 +57,7 @@ describe('StaticGameServersService', () => {
   let testGameServer: StaticGameServerDocument;
   let events: Events;
   let gameServersService: jest.Mocked<GameServersService>;
+  let gamesService: GamesService;
 
   beforeAll(async () => (mongod = await MongoMemoryServer.create()));
   afterAll(async () => await mongod.stop());
@@ -70,17 +68,20 @@ describe('StaticGameServersService', () => {
         mongooseTestingModule(mongod),
         MongooseModule.forFeature([
           {
-            name: GameServer.name,
-            schema: gameServerSchema,
+            name: StaticGameServer.name,
+            schema: staticGameServerSchema,
+          },
+          {
+            name: Game.name,
+            schema: gameSchema,
           },
         ]),
       ],
       providers: [
         StaticGameServersService,
         Events,
-        Environment,
-        staticGameServerModelProvider,
         GameServersService,
+        GamesService,
       ],
     }).compile();
 
@@ -89,6 +90,7 @@ describe('StaticGameServersService', () => {
     staticGameServerModel = module.get(getModelToken(StaticGameServer.name));
     events = module.get(Events);
     gameServersService = module.get(GameServersService);
+    gamesService = module.get(GamesService);
   });
 
   beforeEach(async () => {
@@ -99,7 +101,6 @@ describe('StaticGameServersService', () => {
       internalIpAddress: '127.0.0.1',
       rconPassword: '123456',
       isOnline: true,
-      isClean: true,
     })) as StaticGameServerDocument;
   });
 
@@ -120,81 +121,6 @@ describe('StaticGameServersService', () => {
 
   it('should be defined', () => {
     expect(service).toBeDefined();
-  });
-
-  describe('when a gameserver is taken for a game', () => {
-    beforeEach(async () => await service.onModuleInit());
-
-    beforeEach(async () => {
-      const oldGameServer = plainToInstance(
-        StaticGameServer,
-        await staticGameServerModel
-          .findById(testGameServer.id)
-          .orFail()
-          .lean()
-          .exec(),
-      );
-      const newGameServer = plainToInstance(
-        StaticGameServer,
-        await staticGameServerModel
-          .findByIdAndUpdate(
-            testGameServer.id,
-            { $set: { game: new Types.ObjectId() } },
-            { new: true },
-          )
-          .lean()
-          .exec(),
-      );
-      events.gameServerUpdated.next({ oldGameServer, newGameServer });
-      await waitForDatabase();
-    });
-
-    it('should mark the gameserver as dirty', async () => {
-      const gameServer = await staticGameServerModel.findById(
-        testGameServer.id,
-      );
-      expect(gameServer.isClean).toBe(false);
-    });
-  });
-
-  describe('when a gameserver is freed', () => {
-    beforeEach(async () => await service.onModuleInit());
-
-    beforeEach(async () => {
-      testGameServer.game = new Types.ObjectId();
-      testGameServer.isClean = false;
-      await testGameServer.save();
-
-      const oldGameServer = plainToInstance(
-        StaticGameServer,
-        await staticGameServerModel
-          .findById(testGameServer.id)
-          .orFail()
-          .lean()
-          .exec(),
-      );
-      const newGameServer = plainToInstance(
-        StaticGameServer,
-        await staticGameServerModel
-          .findByIdAndUpdate(
-            testGameServer.id,
-            { $unset: { game: 1 } },
-            { new: true },
-          )
-          .lean()
-          .exec(),
-      );
-
-      events.gameServerUpdated.next({ oldGameServer, newGameServer });
-      await waitForDatabase();
-    });
-
-    it('should mark the gameserver as clean', async () => {
-      const gameServer = await staticGameServerModel.findById(
-        testGameServer.id,
-      );
-      expect(gameServer.isClean).toBe(true);
-    });
   });
 
   describe('#onModuleInit()', () => {
@@ -219,12 +145,11 @@ describe('StaticGameServersService', () => {
     });
   });
 
-  describe('#getById(()', () => {
+  describe('#getById()', () => {
     it('should retrieve the gameserver by its id', async () => {
       const gameServer = await service.getById(testGameServer.id);
       expect(gameServer instanceof StaticGameServer).toBe(true);
       expect(gameServer.id).toEqual(testGameServer.id);
-      expect(gameServer.provider).toEqual(staticGameServerProviderName);
     });
 
     describe('when a gameserver does not exist', () => {
@@ -271,7 +196,7 @@ describe('StaticGameServersService', () => {
       let givenGameServerId: string;
       let givenGameServerName: string;
 
-      events.gameServerUpdated.subscribe(({ newGameServer }) => {
+      service.gameServerUpdated.subscribe(({ newGameServer }) => {
         givenGameServerId = newGameServer.id;
         givenGameServerName = newGameServer.name;
       });
@@ -284,18 +209,18 @@ describe('StaticGameServersService', () => {
     });
   });
 
-  describe('#getCleanGameServers()', () => {
-    describe('when there are clean gameservers', () => {
-      it('should return clean game servers', async () => {
+  describe('#getFreeGameServers()', () => {
+    describe('when there are free gameservers', () => {
+      it('should return free game servers', async () => {
         const gameServers = await service.getFreeGameServers();
         expect(gameServers.length).toEqual(1);
-        expect(gameServers.every((gs) => gs.isClean === true)).toBe(true);
+        expect(gameServers.every((gs) => gs.game === undefined)).toBe(true);
       });
     });
 
-    describe('when there are no clean gameservers', () => {
+    describe('when there are no free gameservers', () => {
       beforeEach(async () => {
-        testGameServer.isClean = false;
+        testGameServer.game = new Types.ObjectId();
         await testGameServer.save();
       });
 
@@ -306,45 +231,32 @@ describe('StaticGameServersService', () => {
     });
   });
 
-  describe('#getDirtyGameServers()', () => {
-    describe('when there are dirty gameservers', () => {
+  describe('#getTakenGameServers()', () => {
+    describe('when there are taken gameservers', () => {
       beforeEach(async () => {
-        testGameServer.isClean = false;
-        await testGameServer.save();
-      });
-
-      it('should return dirty gameservers', async () => {
-        const gameServers = await service.getTakenGameServers();
-        expect(gameServers.length).toBe(1);
-        expect(gameServers[0].id).toEqual(testGameServer.id);
-      });
-    });
-
-    describe('when there are dirty gameservers with games assigned', () => {
-      beforeEach(async () => {
-        testGameServer.isClean = false;
         testGameServer.game = new Types.ObjectId();
         await testGameServer.save();
       });
 
-      it('should not return the gameservers', async () => {
+      it('should return taken gameservers', async () => {
         const gameServers = await service.getTakenGameServers();
-        expect(gameServers.length).toBe(0);
+        expect(gameServers.length).toEqual(1);
+        expect(gameServers.every((gs) => gs.game === undefined)).toBe(false);
       });
     });
   });
 
   describe('#findFirstGameServer()', () => {
-    describe('when there are clean gameservers', () => {
+    describe('when there are free gameservers', () => {
       it('should return the first gameserver', async () => {
         const gameServer = await service.findFirstFreeGameServer();
         expect(gameServer.id).toEqual(testGameServer.id);
       });
     });
 
-    describe('when there are no clean gameservers', () => {
+    describe('when there are no free gameservers', () => {
       beforeEach(async () => {
-        testGameServer.isClean = false;
+        testGameServer.game = new Types.ObjectId();
         await testGameServer.save();
       });
 
@@ -369,6 +281,13 @@ describe('StaticGameServersService', () => {
     });
   });
 
+  describe('#getControls()', () => {
+    it('should return controls', async () => {
+      const controls = await service.getControls(testGameServer.id);
+      expect(controls instanceof StaticGameServerControls).toBe(true);
+    });
+  });
+
   describe('#heartbeat()', () => {
     describe('when adding a new gameserver', () => {
       it('should add the gameserver', async () => {
@@ -388,7 +307,7 @@ describe('StaticGameServersService', () => {
 
       it('should emit gameServerAdded event', async () => {
         let emittedGameServer: StaticGameServer;
-        events.gameServerAdded.subscribe(({ gameServer }) => {
+        service.gameServerAdded.subscribe((gameServer) => {
           emittedGameServer = gameServer;
         });
         await service.heartbeat({
@@ -436,40 +355,40 @@ describe('StaticGameServersService', () => {
     });
   });
 
-  describe('#markAsDirty()', () => {
-    it('should mark the gameserver as dirty', async () => {
-      const gs = await service.markAsDirty(testGameServer.id);
-      expect(gs.isClean).toBe(false);
-    });
-  });
-
-  describe('#cleanupServer()', () => {
+  describe('#removeDeadGameServers()', () => {
     beforeEach(async () => {
-      testGameServer.isClean = false;
+      const fiveMinutesAgo = new Date();
+      fiveMinutesAgo.setMinutes(fiveMinutesAgo.getMinutes() - 6);
+      testGameServer.lastHeartbeatAt = fiveMinutesAgo;
       await testGameServer.save();
     });
 
-    it('should mark the gameserver as clean', async () => {
-      await service.cleanupServer(testGameServer.id);
-      const gameServer = await staticGameServerModel.findById(
-        testGameServer.id,
-      );
-      expect(gameServer.isClean).toBe(true);
+    it('should remove dead gameservers', async () => {
+      await service.removeDeadGameServers();
+      const gs = await staticGameServerModel.findById(testGameServer.id);
+      expect(gs.isOnline).toBe(false);
     });
   });
 
-  describe('#cleanDirtyGameServers()', () => {
+  describe('#freeUnusedGameServers()', () => {
     beforeEach(async () => {
-      testGameServer.isClean = false;
+      // @ts-expect-error
+      const game = await gamesService._createOne();
+      game.state = GameState.ended;
+
+      const endedAt = new Date();
+      endedAt.setMinutes(endedAt.getMinutes() - 2);
+      game.endedAt = endedAt;
+      await game.save();
+
+      testGameServer.game = game._id;
       await testGameServer.save();
     });
 
-    it('should mark dirty servers as clean', async () => {
-      await service.cleanDirtyGameServers();
-      const gameServer = await staticGameServerModel.findById(
-        testGameServer.id,
-      );
-      expect(gameServer.isClean).toBe(true);
+    it('should free gameservers that no longer run any game', async () => {
+      await service.freeUnusedGameServers();
+      const gs = await staticGameServerModel.findById(testGameServer.id);
+      expect(gs.game).toBe(undefined);
     });
   });
 });
