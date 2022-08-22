@@ -1,7 +1,7 @@
 import { Environment } from '@/environment/environment';
 import { Events } from '@/events/events';
 import { StaticGameServer } from '@/game-servers/providers/static-game-server/models/static-game-server';
-import { staticGameServerProviderName } from '@/game-servers/providers/static-game-server/static-game-server-provider-name';
+import { StaticGameServersService } from '@/game-servers/providers/static-game-server/services/static-game-servers.service';
 import { Game, gameSchema } from '@/games/models/game';
 import { GameState } from '@/games/models/game-state';
 import { GamesService } from '@/games/services/games.service';
@@ -20,6 +20,9 @@ import { DiscordService } from './discord.service';
 jest.mock('./discord.service');
 jest.mock('@/players/services/players.service');
 jest.mock('@/games/services/games.service');
+jest.mock(
+  '@/game-servers/providers/static-game-server/services/static-game-servers.service',
+);
 
 const environment = {
   clientUrl: 'http://localhost',
@@ -35,6 +38,7 @@ describe('AdminNotificationsService', () => {
   let sentMessages: Subject<any>;
   let connection: Connection;
   let gamesService: GamesService;
+  let staticGameServersService: StaticGameServersService;
 
   beforeAll(async () => (mongod = await MongoMemoryServer.create()));
   afterAll(async () => mongod.stop());
@@ -65,6 +69,7 @@ describe('AdminNotificationsService', () => {
         { provide: Environment, useValue: environment },
         PlayersService,
         GamesService,
+        StaticGameServersService,
       ],
     }).compile();
 
@@ -74,6 +79,10 @@ describe('AdminNotificationsService', () => {
     discordService = module.get(DiscordService);
     connection = module.get(getConnectionToken());
     gamesService = module.get(GamesService);
+    staticGameServersService = module.get(StaticGameServersService);
+    (staticGameServersService.gameServerAdded as Subject<any>) = new Subject();
+    (staticGameServersService.gameServerUpdated as Subject<any>) =
+      new Subject();
     sendSpy = jest
       .spyOn(discordService.getAdminsChannel(), 'send')
       .mockImplementation((message: any) => {
@@ -273,9 +282,9 @@ describe('AdminNotificationsService', () => {
           resolve();
         });
 
-        events.gameServerAdded.next({
-          gameServer: { name: 'fake game server' } as StaticGameServer,
-        });
+        staticGameServersService.gameServerAdded.next({
+          name: 'fake game server',
+        } as StaticGameServer);
       }));
   });
 
@@ -285,16 +294,14 @@ describe('AdminNotificationsService', () => {
         expect(message.embeds[0].title).toEqual('Game server is offline');
       });
 
-      events.gameServerUpdated.next({
+      staticGameServersService.gameServerUpdated.next({
         oldGameServer: {
           name: 'fake game server',
           isOnline: true,
-          provider: staticGameServerProviderName,
         } as StaticGameServer,
         newGameServer: {
           name: 'fake game server',
           isOnline: false,
-          provider: staticGameServerProviderName,
         } as StaticGameServer,
       });
     });
@@ -306,16 +313,14 @@ describe('AdminNotificationsService', () => {
         expect(message.embeds[0].title).toEqual('Game server is back online');
       });
 
-      events.gameServerUpdated.next({
+      staticGameServersService.gameServerUpdated.next({
         oldGameServer: {
           name: 'fake game server',
           isOnline: false,
-          provider: staticGameServerProviderName,
         } as StaticGameServer,
         newGameServer: {
           name: 'fake game server',
           isOnline: true,
-          provider: staticGameServerProviderName,
         } as StaticGameServer,
       });
     });
