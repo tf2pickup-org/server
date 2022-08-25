@@ -50,7 +50,7 @@
     "moment": "2.29.4",
     "mongodb": "4.9.0",
     "mongodb-uri": "0.9.7",
-    "mongoose": "6.5.2",
+    "mongoose": "6.5.3",
     "nestjs-real-ip": "2.2.0",
     "passport": "0.6.0",
     "passport-headerapikey": "1.2.2",
