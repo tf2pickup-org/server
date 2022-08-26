@@ -64,7 +64,7 @@
     "steamid": "2.0.0"
   },
   "devDependencies": {
-    "@nestjs/cli": "9.0.0",
+    "@nestjs/cli": "9.1.1",
     "@nestjs/schematics": "9.0.1",
     "@nestjs/testing": "9.0.11",
     "@release-it/conventional-changelog": "5.1.0",
