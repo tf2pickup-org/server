@@ -41,7 +41,6 @@ export class GameServersService implements OnApplicationBootstrap {
     for (const provider of this.providers) {
       try {
         const option = await provider.findFirstFreeGameServer();
-        console.log(option);
         return {
           ...option,
           provider: provider.gameServerProviderName,
