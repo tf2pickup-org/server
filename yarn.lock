@@ -2991,7 +2991,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"async-mutex@npm:0.3.2, async-mutex@npm:^0.3.2":
+"async-mutex@npm:0.4.0":
+  version: 0.4.0
+  resolution: "async-mutex@npm:0.4.0"
+  dependencies:
+    tslib: ^2.4.0
+  checksum: 813a71728b35a4fbfd64dba719f04726d9133c67b577fcd951b7028c4a675a13ee34e69beb82d621f87bf81f5d4f135c4c44be0448550c7db728547244ef71fc
+  languageName: node
+  linkType: hard
+
+"async-mutex@npm:^0.3.2":
   version: 0.3.2
   resolution: "async-mutex@npm:0.3.2"
   dependencies:
@@ -10227,7 +10236,7 @@ __metadata:
     "@typescript-eslint/eslint-plugin": 5.36.1
     "@typescript-eslint/parser": 5.36.1
     app-root-path: 3.1.0
-    async-mutex: 0.3.2
+    async-mutex: 0.4.0
     cache-manager: 4.1.0
     cache-manager-mongodb: 0.3.0
     cache-manager-redis-store: 2.0.0
