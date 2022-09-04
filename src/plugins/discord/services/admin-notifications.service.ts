@@ -280,7 +280,7 @@ export class AdminNotificationsService implements OnModuleInit {
     });
   }
 
-  private async onGameServerAdded(gameServer: StaticGameServer) {
+  private onGameServerAdded(gameServer: StaticGameServer) {
     this.discordService.getAdminsChannel()?.send({
       embeds: [
         gameServerAdded({
@@ -294,7 +294,7 @@ export class AdminNotificationsService implements OnModuleInit {
     });
   }
 
-  private async onGameServerWentOffline(gameServer: StaticGameServer) {
+  private onGameServerWentOffline(gameServer: StaticGameServer) {
     this.discordService.getAdminsChannel()?.send({
       embeds: [
         gameServerOffline({
@@ -308,7 +308,7 @@ export class AdminNotificationsService implements OnModuleInit {
     });
   }
 
-  private async onGameServerBackOnline(gameServer: StaticGameServer) {
+  private onGameServerBackOnline(gameServer: StaticGameServer) {
     this.discordService.getAdminsChannel()?.send({
       embeds: [
         gameServerOnline({

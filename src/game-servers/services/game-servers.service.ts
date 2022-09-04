@@ -57,11 +57,11 @@ export class GameServersService implements OnApplicationBootstrap {
     gameServer: GameServerOptionWithProvider,
   ): Promise<GameServerControls> {
     const provider = this.providerByName(gameServer.provider);
-    return provider.getControls(gameServer.id);
+    return await provider.getControls(gameServer.id);
   }
 
   async assignGameServer(gameId: string): Promise<Game> {
-    return this.mutex.runExclusive(async () => {
+    return await this.mutex.runExclusive(async () => {
       let game = await this.gamesService.getById(gameId);
       const gameServer = await this.findFreeGameServer();
       this.logger.log(

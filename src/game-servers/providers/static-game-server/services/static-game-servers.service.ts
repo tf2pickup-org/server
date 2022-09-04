@@ -212,7 +212,7 @@ export class StaticGameServersService
   }
 
   async markAsOffline(gameServerId: string): Promise<StaticGameServer> {
-    return this.updateGameServer(gameServerId, { isOnline: false });
+    return await this.updateGameServer(gameServerId, { isOnline: false });
   }
 
   @Cron(CronExpression.EVERY_MINUTE)

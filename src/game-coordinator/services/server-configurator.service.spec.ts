@@ -65,10 +65,6 @@ class RconStub {
   connect = jest.fn();
 }
 
-function flushPromises() {
-  return new Promise((resolve) => setImmediate(resolve));
-}
-
 describe('ServerConfiguratorService', () => {
   let service: ServerConfiguratorService;
   let mongod: MongoMemoryServer;
@@ -194,7 +190,7 @@ describe('ServerConfiguratorService', () => {
   describe('#configureServer()', () => {
     let rcon: RconStub;
 
-    beforeEach(async () => {
+    beforeEach(() => {
       rcon = new RconStub();
       mockGameServerControls.rcon.mockResolvedValue(rcon as unknown as Rcon);
     });

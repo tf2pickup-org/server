@@ -41,7 +41,7 @@ describe('AdminNotificationsService', () => {
   let staticGameServersService: StaticGameServersService;
 
   beforeAll(async () => (mongod = await MongoMemoryServer.create()));
-  afterAll(async () => mongod.stop());
+  afterAll(async () => await mongod.stop());
 
   beforeEach(() => {
     sentMessages = new Subject();
@@ -128,7 +128,7 @@ describe('AdminNotificationsService', () => {
       admin = await playersService._createOne();
     });
 
-    it('should send a message', async () =>
+    it('should send a message', () =>
       new Promise<void>((resolve) => {
         sentMessages.subscribe((message) => {
           expect(message.embeds.length).toBeGreaterThan(0);
@@ -148,7 +148,7 @@ describe('AdminNotificationsService', () => {
       }));
 
     describe("when the update doesn't change anything", () => {
-      it('should not send any messages', async () =>
+      it('should not send any messages', () =>
         new Promise<void>((resolve) => {
           events.playerUpdates.next({
             oldPlayer: player,
@@ -174,7 +174,7 @@ describe('AdminNotificationsService', () => {
       admin = await playersService._createOne();
     });
 
-    it('should send a message', async () =>
+    it('should send a message', () =>
       new Promise<void>((resolve) => {
         sentMessages.subscribe((message) => {
           expect(message.embeds.length).toBeGreaterThan(0);
@@ -206,7 +206,7 @@ describe('AdminNotificationsService', () => {
       admin = await playersService._createOne();
     });
 
-    it('should send a message', async () =>
+    it('should send a message', () =>
       new Promise<void>((resolve) => {
         sentMessages.subscribe((message) => {
           expect(message.embeds.length).toBe(1);
@@ -239,7 +239,7 @@ describe('AdminNotificationsService', () => {
       admin = await playersService._createOne();
     });
 
-    it('should send a message', async () =>
+    it('should send a message', () =>
       new Promise<void>((resolve) => {
         sentMessages.subscribe((message) => {
           expect(message.embeds[0].title).toEqual('Player skill updated');
@@ -257,7 +257,7 @@ describe('AdminNotificationsService', () => {
       }));
 
     describe("when the skill doesn't really change", () => {
-      it('should not send any message', async () =>
+      it('should not send any message', () =>
         new Promise<void>((resolve) => {
           const oldSkill = new Map([[Tf2ClassName.soldier, 2]]);
           events.playerSkillChanged.next({
@@ -275,7 +275,7 @@ describe('AdminNotificationsService', () => {
   });
 
   describe('when the gameServerAdded event emits', () => {
-    it('should send a message', async () =>
+    it('should send a message', () =>
       new Promise<void>((resolve) => {
         sentMessages.subscribe((message) => {
           expect(message.embeds[0].title).toEqual('Game server added');
@@ -289,7 +289,7 @@ describe('AdminNotificationsService', () => {
   });
 
   describe('when the gameServer goes offline', () => {
-    it('should send a message', async () => {
+    it('should send a message', () => {
       sentMessages.subscribe((message) => {
         expect(message.embeds[0].title).toEqual('Game server is offline');
       });
@@ -308,7 +308,7 @@ describe('AdminNotificationsService', () => {
   });
 
   describe('when the gameServer comes back online', () => {
-    it('should send a message', async () => {
+    it('should send a message', () => {
       sentMessages.subscribe((message) => {
         expect(message.embeds[0].title).toEqual('Game server is back online');
       });
@@ -334,7 +334,7 @@ describe('AdminNotificationsService', () => {
       admin = await playersService._createOne();
     });
 
-    it('should send a message', async () =>
+    it('should send a message', () =>
       new Promise<void>((resolve) => {
         sentMessages.subscribe((message) => {
           expect(message.embeds[0].title).toEqual('Game force-ended');
@@ -373,7 +373,7 @@ describe('AdminNotificationsService', () => {
       game = await gamesService._createOne();
     });
 
-    it('should send a notification', async () =>
+    it('should send a notification', () =>
       new Promise<void>((resolve) => {
         sentMessages.subscribe((message) => {
           expect(message.embeds[0].title).toEqual('Substitute requested');
@@ -396,7 +396,7 @@ describe('AdminNotificationsService', () => {
       actor = await playersService._createOne();
     });
 
-    it('should send a notification', async () =>
+    it('should send a notification', () =>
       new Promise<void>((resolve) => {
         sentMessages.subscribe((message) => {
           expect(message.embeds[0].title).toEqual('Maps scrambled');

@@ -477,7 +477,7 @@ describe('GamesService', () => {
       expect(player.activeGame).toBe(undefined);
     });
 
-    it('should emit an event', async () =>
+    it('should emit an event', () =>
       new Promise<void>((resolve) => {
         events.gameChanges.subscribe(({ oldGame, newGame }) => {
           expect(oldGame.id).toEqual(testGame.id);

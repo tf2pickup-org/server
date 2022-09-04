@@ -72,7 +72,7 @@ describe('GameServersService', () => {
     });
 
     describe('when there is a free server available', () => {
-      beforeEach(async () => {
+      beforeEach(() => {
         testGameServerProvider.findFirstFreeGameServer.mockResolvedValue({
           id: 'FAKE_GAME_SERVER',
           name: 'FAKE GAME SERVER',

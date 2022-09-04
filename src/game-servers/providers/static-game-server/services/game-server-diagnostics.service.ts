@@ -14,7 +14,6 @@ import {
   GameServerDiagnosticRun,
   GameServerDiagnosticRunDocument,
 } from '../models/game-server-diagnostic-run';
-import { StaticGameServer } from '../models/static-game-server';
 import { StaticGameServersService } from './static-game-servers.service';
 
 @Injectable()
@@ -75,7 +74,7 @@ export class GameServerDiagnosticsService {
   }
 
   async collectAllRunners(): Promise<DiagnosticCheckRunner[]> {
-    return Promise.all([
+    return await Promise.all([
       this.moduleRef.resolve(RconConnection),
       this.moduleRef.resolve(LogForwarding),
     ]);
@@ -89,9 +88,9 @@ export class GameServerDiagnosticsService {
       let shouldStop = false;
 
       const fn = async () => {
-        const gameServer = (await this.staticGameServersService.getById(
+        const gameServer = await this.staticGameServersService.getById(
           diagnosticRun.gameServer.toString(),
-        )) as StaticGameServer;
+        );
 
         this.logger.log(`Starting diagnostics of ${gameServer.name}...`);
 
