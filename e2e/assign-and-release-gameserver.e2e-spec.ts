@@ -161,7 +161,6 @@ describe('Assign and release gameserver (e2e)', () => {
       .then((response) => {
         const body = response.body;
         expect(body.game).toEqual(gameId);
-        expect(body.isClean).toBe(false);
         expect(body.isOnline).toBe(true);
       });
 
