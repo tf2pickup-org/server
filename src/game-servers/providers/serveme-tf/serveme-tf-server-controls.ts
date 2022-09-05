@@ -24,7 +24,7 @@ export class ServemeTfServerControls implements GameServerControls {
     });
   }
 
-  async getLogsecret(): Promise<string> {
+  getLogsecret(): string {
     return this.gameServer.reservation.logsecret;
   }
 }

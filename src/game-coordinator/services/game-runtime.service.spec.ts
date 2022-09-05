@@ -118,16 +118,8 @@ describe('GameRuntimeService', () => {
 
   describe('when the substituteRequested event is emitted', () => {
     let rcon: jest.Mocked<Rcon>;
-    let gameServer: GameServerOptionWithProvider;
 
     beforeEach(async () => {
-      gameServer = {
-        id: 'FAKE_GAME_SERVER',
-        provider: 'test',
-        name: 'FAKE GAME SERVER',
-        address: 'localhost',
-        port: 27015,
-      };
       rcon = new (Rcon as any)();
       controls.rcon.mockResolvedValue(rcon);
 
@@ -138,7 +130,7 @@ describe('GameRuntimeService', () => {
       await waitABit(100);
     });
 
-    it('should send an in-game notification', async () => {
+    it('should send an in-game notification', () => {
       expect(rcon.send).toHaveBeenCalledWith(
         'say Looking for replacement for fake_player_1...',
       );

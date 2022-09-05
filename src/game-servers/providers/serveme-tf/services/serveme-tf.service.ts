@@ -47,7 +47,7 @@ export class ServemeTfService implements GameServerProvider, OnModuleInit {
     );
   }
 
-  async onGameServerAssigned({ gameId }: { gameId: string }): Promise<void> {
+  onGameServerAssigned({ gameId }: { gameId: string }): void {
     // end the reservation when the game ends
     this.events.gameChanges
       .pipe(

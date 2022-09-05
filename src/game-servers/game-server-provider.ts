@@ -9,5 +9,5 @@ export interface GameServerProvider {
   onGameServerAssigned?: (params: {
     gameServerId: string;
     gameId: string;
-  }) => Promise<void>;
+  }) => void | Promise<void>;
 }

@@ -77,8 +77,8 @@ export class AdminNotificationsService implements OnModuleInit {
       ({ playerId, oldSkill, newSkill, adminId }) =>
         this.onPlayerSkillChanged(playerId, oldSkill, newSkill, adminId),
     );
-    this.staticGameServersService.gameServerAdded.subscribe(
-      async (gameServer) => await this.onGameServerAdded(gameServer),
+    this.staticGameServersService.gameServerAdded.subscribe((gameServer) =>
+      this.onGameServerAdded(gameServer),
     );
     this.staticGameServersService.gameServerUpdated
       .pipe(
@@ -87,9 +87,8 @@ export class AdminNotificationsService implements OnModuleInit {
             oldGameServer.isOnline === true && newGameServer.isOnline === false,
         ),
       )
-      .subscribe(
-        async ({ newGameServer }) =>
-          await this.onGameServerWentOffline(newGameServer),
+      .subscribe(({ newGameServer }) =>
+        this.onGameServerWentOffline(newGameServer),
       );
     this.staticGameServersService.gameServerUpdated
       .pipe(
@@ -98,9 +97,8 @@ export class AdminNotificationsService implements OnModuleInit {
             oldGameServer.isOnline === false && newGameServer.isOnline === true,
         ),
       )
-      .subscribe(
-        async ({ newGameServer }) =>
-          await this.onGameServerBackOnline(newGameServer),
+      .subscribe(({ newGameServer }) =>
+        this.onGameServerBackOnline(newGameServer),
       );
 
     this.events.gameChanges

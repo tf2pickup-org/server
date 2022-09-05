@@ -1,7 +1,7 @@
 import { Rcon } from 'rcon-client/lib';
 
 export interface GameServerControls {
-  start: () => Promise<void>;
-  rcon: () => Promise<Rcon>;
-  getLogsecret: () => Promise<string>;
+  start: () => void | Promise<void>;
+  rcon: () => Rcon | Promise<Rcon>;
+  getLogsecret: () => string | Promise<string>;
 }
