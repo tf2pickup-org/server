@@ -9,8 +9,8 @@ import { waitABit } from './utils/wait-a-bit';
 import * as request from 'supertest';
 import { StaticGameServersService } from '@/game-servers/providers/static-game-server/services/static-game-servers.service';
 import { GameLauncherService } from '@/game-coordinator/services/game-launcher.service';
-import { GameEventHandlerService } from '@/games/services/game-event-handler.service';
 import { configureApplication } from '@/configure-application';
+import { Events } from '@/events/events';
 
 jest.setTimeout(150 * 1000);
 
@@ -165,12 +165,12 @@ describe('Assign and release gameserver (e2e)', () => {
       });
 
     /* pretend the game has started */
-    const gameEventHandlerService = app.get(GameEventHandlerService);
-    await gameEventHandlerService.onMatchStarted(gameId);
+    const events = app.get(Events);
+    events.matchStarted.next({ gameId });
     await waitABit(1000);
 
     /* pretend the game has ended */
-    await gameEventHandlerService.onMatchEnded(gameId);
+    events.matchEnded.next({ gameId });
 
     /* verify the game is marked as ended */
     await request(app.getHttpServer())
