@@ -37,6 +37,15 @@ export class StaticGameServersController {
     return await this.staticGameServersService.getAllGameServers();
   }
 
+  @Get(':id')
+  @UseInterceptors(ClassSerializerInterceptor)
+  @UseFilters(DocumentNotFoundFilter)
+  async getOneGameServer(
+    @Param('id', ObjectIdValidationPipe) gameServerId: string,
+  ) {
+    return await this.staticGameServersService.getById(gameServerId);
+  }
+
   @Post()
   @Secret(SecretPurpose.gameServer)
   @UsePipes(ValidationPipe)

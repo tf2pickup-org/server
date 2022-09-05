@@ -156,7 +156,7 @@ describe('Assign and release gameserver (e2e)', () => {
       });
 
     await request(app.getHttpServer())
-      .get(`/game-servers/${gameServer}`)
+      .get(`/static-game-servers/${gameServer}`)
       .expect(200)
       .then((response) => {
         const body = response.body;
@@ -183,22 +183,13 @@ describe('Assign and release gameserver (e2e)', () => {
       });
 
     /* and now verify the gameserver is released */
+    await waitABit(121 * 1000);
     await request(app.getHttpServer())
-      .get(`/game-servers/${gameServer}`)
+      .get(`/static-game-servers/${gameServer}`)
       .expect(200)
       .then((response) => {
         const body = response.body;
         expect(body.game).toBe(undefined);
-      });
-
-    /* and lastly, make sure the gameserver was cleaned up */
-    await waitABit(121 * 1000);
-    await request(app.getHttpServer())
-      .get(`/game-servers/${gameServer}`)
-      .expect(200)
-      .then((response) => {
-        const body = response.body;
-        expect(body.isClean).toBe(true);
       });
   });
 });
