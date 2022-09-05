@@ -1,11 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { StaticGameServersController } from './static-game-servers.controller';
-import { GameServersService } from '../../../services/game-servers.service';
 import { GameServerDiagnosticsService } from '../services/game-server-diagnostics.service';
 import { Environment } from '@/environment/environment';
 import { StaticGameServersService } from '../services/static-game-servers.service';
 import { StaticGameServer } from '../models/static-game-server';
-import { staticGameServerProviderName } from '../static-game-server-provider-name';
 
 jest.mock('../services/game-server-diagnostics.service');
 jest.mock('../services/static-game-servers.service');
@@ -43,21 +41,15 @@ describe('GameServers Controller', () => {
   beforeEach(() => {
     mockGameServer = {
       id: 'FAKE_GAME_SERVER_ID',
-      provider: staticGameServerProviderName,
       createdAt: new Date(),
       name: 'FAKE_GAME_SERVER',
       address: 'localhost',
       port: '27015',
-      rcon: jest.fn(),
-      getLogsecret: jest.fn(),
       internalIpAddress: 'localhost',
       rconPassword: 'FAKE_RCON_PASSWORD',
       isOnline: true,
-      isClean: true,
       lastHeartbeatAt: new Date(),
       priority: 1,
-      start: jest.fn().mockResolvedValue(mockGameServer),
-      serialize: jest.fn(),
     };
   });
 
