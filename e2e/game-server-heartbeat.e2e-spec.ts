@@ -23,8 +23,8 @@ describe('Game server heartbeat (e2e)', () => {
   });
 
   describe('denies request on wrong secret', () => {
-    it('POST /static-game-servers', async () => {
-      return request(app.getHttpServer())
+    it('POST /static-game-servers', () =>
+      request(app.getHttpServer())
         .post(`/static-game-servers`)
         .send({
           name: 'test',
@@ -33,13 +33,12 @@ describe('Game server heartbeat (e2e)', () => {
           rconPassword: '123456',
         })
         .set('Authorization', 'secret wrongsecret')
-        .expect(401);
-    });
+        .expect(401));
   });
 
   describe('adds game server', () => {
-    it('POST /static-game-servers', async () => {
-      return request(app.getHttpServer())
+    it('POST /static-game-servers', () =>
+      request(app.getHttpServer())
         .post('/static-game-servers')
         .send({
           name: 'test',
@@ -56,7 +55,6 @@ describe('Game server heartbeat (e2e)', () => {
           expect(body.port).toEqual('27015');
           expect(body.rconPassword).toBe('123456');
           expect(body.isOnline).toBe(true);
-        });
-    });
+        }));
   });
 });

@@ -20,7 +20,7 @@ describe('Assign and release gameserver (e2e)', () => {
   let staticGameServersService: StaticGameServersService;
   let gameServer: string;
 
-  const waitForGameServerToComeOnline = async () =>
+  const waitForGameServerToComeOnline = () =>
     new Promise<string>((resolve) => {
       const i = setInterval(async () => {
         const gameServers = await staticGameServersService.getAllGameServers();
