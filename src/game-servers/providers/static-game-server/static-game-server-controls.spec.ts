@@ -1,8 +1,10 @@
+import { Types } from 'mongoose';
+import { StaticGameServer } from './models/static-game-server';
+import { StaticGameServerControls } from './static-game-server-controls';
 import { createRcon } from '@/utils/create-rcon';
 import { Rcon } from 'rcon-client';
-import { StaticGameServer } from './static-game-server';
 
-jest.mock('../utils/generate-logsecret', () => ({
+jest.mock('./utils/generate-logsecret', () => ({
   generateLogsecret: jest.fn().mockReturnValue('FAKE_LOGSECRET'),
 }));
 
@@ -22,13 +24,30 @@ class RconStub {
   end = jest.fn();
 }
 
-describe('StaticGameServer', () => {
+describe('StaticGameServerControls', () => {
+  let controls: StaticGameServerControls;
+  let gameServer: StaticGameServer;
+
+  beforeEach(() => {
+    gameServer = new StaticGameServer();
+    gameServer.id = new Types.ObjectId().toString();
+    gameServer.createdAt = new Date();
+    gameServer.name = 'FAKE_GAMESERVER';
+    gameServer.address = 'localhost';
+    gameServer.port = '27015';
+    gameServer.internalIpAddress = 'localhost';
+    gameServer.rconPassword = 'FAKE_RCON_PASSWORD';
+    gameServer.isOnline = true;
+    gameServer.lastHeartbeatAt = new Date();
+    gameServer.priority = 1;
+
+    controls = new StaticGameServerControls(gameServer);
+  });
+
   describe('#getLogsecret()', () => {
-    let gameServer: StaticGameServer;
     let rcon: RconStub;
 
     beforeEach(() => {
-      gameServer = new StaticGameServer();
       rcon = new RconStub();
 
       (createRcon as jest.MockedFunction<typeof createRcon>).mockResolvedValue(
@@ -37,12 +56,12 @@ describe('StaticGameServer', () => {
     });
 
     it('should generate a logsecret', async () => {
-      const logSecret = await gameServer.getLogsecret();
+      const logSecret = await controls.getLogsecret();
       expect(logSecret).toEqual('FAKE_LOGSECRET');
     });
 
     it('should set the logsecret on the gameserver', async () => {
-      await gameServer.getLogsecret();
+      await controls.getLogsecret();
       expect(rcon.send).toHaveBeenCalledWith('sv_logsecret FAKE_LOGSECRET');
     });
   });
