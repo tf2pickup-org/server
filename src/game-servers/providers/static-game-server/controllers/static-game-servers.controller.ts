@@ -54,7 +54,7 @@ export class StaticGameServersController {
     @Body() heartbeat: GameServerHeartbeat,
     @RealIp() internalIpAddress: string,
   ) {
-    return this.staticGameServersService.heartbeat({
+    return await this.staticGameServersService.heartbeat({
       ...heartbeat,
       internalIpAddress: heartbeat.internalIpAddress ?? internalIpAddress,
     });
