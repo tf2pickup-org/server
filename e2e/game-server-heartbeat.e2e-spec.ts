@@ -54,7 +54,7 @@ describe('Game server heartbeat (e2e)', () => {
           expect(body.name).toEqual('test');
           expect(body.address).toEqual('192.168.1.1');
           expect(body.port).toEqual('27015');
-          expect(body.rconPassword).toBe(undefined);
+          expect(body.rconPassword).toBe('123456');
           expect(body.isOnline).toBe(true);
         });
     });

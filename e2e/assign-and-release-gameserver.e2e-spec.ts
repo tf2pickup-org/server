@@ -151,7 +151,8 @@ describe('Assign and release gameserver (e2e)', () => {
       .expect(200)
       .then((response) => {
         const body = response.body;
-        expect(body.gameServer.id).toEqual(gameServer);
+        expect(body.gameServer).toBeTruthy();
+        expect(body.gameServer.name).toEqual('A Team Fortress 2 server');
       });
 
     await request(app.getHttpServer())
