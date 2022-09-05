@@ -171,6 +171,7 @@ describe('Assign and release gameserver (e2e)', () => {
 
     /* pretend the game has ended */
     events.matchEnded.next({ gameId });
+    await waitABit(1000);
 
     /* verify the game is marked as ended */
     await request(app.getHttpServer())
