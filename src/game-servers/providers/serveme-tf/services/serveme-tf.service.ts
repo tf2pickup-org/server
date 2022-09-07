@@ -21,7 +21,7 @@ import { endReservationDelay } from '../config';
 @Injectable()
 export class ServemeTfService implements GameServerProvider, OnModuleInit {
   readonly gameServerProviderName = 'serveme.tf';
-  private logger = new Logger(ServemeTfService.name);
+  private readonly logger = new Logger(ServemeTfService.name);
 
   constructor(
     private gameServersService: GameServersService,
@@ -33,7 +33,7 @@ export class ServemeTfService implements GameServerProvider, OnModuleInit {
 
   onModuleInit() {
     this.gameServersService.registerProvider(this);
-    this.logger.log('serveme.tf integration enabled');
+    this.logger.verbose('serveme.tf integration enabled');
   }
 
   async getById(gameServerId: string): Promise<ServemeTfGameServer> {

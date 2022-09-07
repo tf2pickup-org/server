@@ -231,7 +231,7 @@ export class ServemeTfApiService {
   }
 
   private async selectServer(options: ServemeTfServerOption[]) {
-    // make sure we dont' take a SDR server
+    // make sure we don't take a SDR server
     // https://partner.steamgames.com/doc/features/multiplayer/steamdatagramrelay
     const nonSdrOptions = options.filter((s) => s.sdr === false);
     const preferredRegion =

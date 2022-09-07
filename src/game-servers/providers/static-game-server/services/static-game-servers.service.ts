@@ -17,7 +17,7 @@ import { GameServerControls } from '@/game-servers/interfaces/game-server-contro
 import { StaticGameServerControls } from '../static-game-server-controls';
 import { Subject } from 'rxjs';
 import { GameServerOption } from '@/game-servers/interfaces/game-server-option';
-import { serverCleanupDelay } from '@configs/game-servers';
+import { serverCleanupDelay } from '../config';
 import { Events } from '@/events/events';
 import { GamesService } from '@/games/services/games.service';
 
