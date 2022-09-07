@@ -14,7 +14,7 @@
       "internalConsoleOptions": "neverOpen"
     },
     {
-      "name": "Debug E2E Test: assign and release gameserver",
+      "name": "Debug e2e test: assign and release gameserver",
       "type": "node",
       "request": "launch",
       "runtimeArgs": [
