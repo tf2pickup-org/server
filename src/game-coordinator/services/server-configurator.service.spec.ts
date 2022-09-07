@@ -44,6 +44,7 @@ import { GameConfigsService } from '@/game-configs/services/game-configs.service
 import { MapPoolEntry } from '@/queue/models/map-pool-entry';
 import { GamesService } from '@/games/services/games.service';
 import { GameServerControls } from '@/game-servers/interfaces/game-server-controls';
+import { GameServerNotAssignedError } from '../errors/game-server-not-assigned.error';
 
 jest.mock('@/queue/services/map-pool.service');
 jest.mock('@/players/services/players.service');
@@ -355,6 +356,18 @@ describe('ServerConfiguratorService', () => {
 
         await expect(service.cleanupServer(mockGame.id)).rejects.toThrowError();
         expect(rcon.end).toHaveBeenCalled();
+      });
+    });
+
+    describe('when the game does not have a server assigned', () => {
+      beforeEach(async () => {
+        await mockGame.update({ $unset: { gameServer: 1 } });
+      });
+
+      it('should throw', async () => {
+        await expect(service.cleanupServer(mockGame.id)).rejects.toThrow(
+          GameServerNotAssignedError,
+        );
       });
     });
   });
