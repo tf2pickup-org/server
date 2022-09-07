@@ -325,6 +325,29 @@ describe('ServerConfiguratorService', () => {
         expect(rcon.end).toHaveBeenCalled();
       });
     });
+
+    describe('when a map change closes the rcon connection', () => {
+      beforeEach(() => {
+        rcon.authenticated = false;
+      });
+
+      it('should reconnect', async () => {
+        await service.configureServer(mockGame.id);
+        expect(rcon.connect).toHaveBeenCalledTimes(1);
+      });
+    });
+
+    describe('when the game does not have a server assigned', () => {
+      beforeEach(async () => {
+        await mockGame.update({ $unset: { gameServer: 1 } });
+      });
+
+      it('should throw', async () => {
+        await expect(service.configureServer(mockGame.id)).rejects.toThrow(
+          GameServerNotAssignedError,
+        );
+      });
+    });
   });
 
   describe('#cleanupServer()', () => {
