@@ -70,11 +70,10 @@ export class ServemeTfService implements GameServerProvider, OnModuleInit {
   }
 
   async getControls(id: string): Promise<GameServerControls> {
-    const gameServer = plainToInstance(
-      ServemeTfGameServer,
-      await this.servemeTfGameServerModel.findById(id).orFail().lean().exec(),
+    return new ServemeTfServerControls(
+      await this.getById(id),
+      this.servemeTfApiService,
     );
-    return new ServemeTfServerControls(gameServer, this.servemeTfApiService);
   }
 
   async findFirstFreeGameServer(): Promise<GameServerOption> {

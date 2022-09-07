@@ -22,9 +22,9 @@ export class GameServerDiagnosticsService {
 
   constructor(
     @InjectModel(GameServerDiagnosticRun.name)
-    private gameServerDiagnosticRunModel: Model<GameServerDiagnosticRunDocument>,
+    private readonly gameServerDiagnosticRunModel: Model<GameServerDiagnosticRunDocument>,
     private readonly staticGameServersService: StaticGameServersService,
-    private moduleRef: ModuleRef,
+    private readonly moduleRef: ModuleRef,
   ) {}
 
   async getDiagnosticRunById(id: string): Promise<GameServerDiagnosticRun> {
