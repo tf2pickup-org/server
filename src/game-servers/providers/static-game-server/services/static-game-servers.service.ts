@@ -251,8 +251,11 @@ export class StaticGameServersService
         ),
         take(1),
         delay(serverCleanupDelay),
+        filter(({ newGame }) => newGame.gameServer?.id === gameServerId),
       )
-      .subscribe(async ({ newGame }) => await this.freeGameServer(newGame.id));
+      .subscribe(
+        async ({ newGame }) => await this.freeGameServer(newGame.gameServer.id),
+      );
   }
 
   private async freeGameServer(gameServerId: string) {

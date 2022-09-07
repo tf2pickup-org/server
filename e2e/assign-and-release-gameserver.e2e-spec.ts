@@ -12,13 +12,13 @@ import { GameLauncherService } from '@/game-coordinator/services/game-launcher.s
 import { configureApplication } from '@/configure-application';
 import { Events } from '@/events/events';
 
-jest.setTimeout(150 * 1000);
+jest.setTimeout(250 * 1000);
 
 describe('Assign and release gameserver (e2e)', () => {
   let app: INestApplication;
   let gameId: string;
   let staticGameServersService: StaticGameServersService;
-  let gameServer: string;
+  let gameServerId: string;
 
   const waitForGameServerToComeOnline = () =>
     new Promise<string>((resolve) => {
@@ -41,7 +41,7 @@ describe('Assign and release gameserver (e2e)', () => {
     await app.listen(3000);
 
     staticGameServersService = app.get(StaticGameServersService);
-    gameServer = await waitForGameServerToComeOnline();
+    gameServerId = await waitForGameServerToComeOnline();
   });
 
   beforeAll(async () => {
@@ -156,7 +156,7 @@ describe('Assign and release gameserver (e2e)', () => {
       });
 
     await request(app.getHttpServer())
-      .get(`/static-game-servers/${gameServer}`)
+      .get(`/static-game-servers/${gameServerId}`)
       .expect(200)
       .then((response) => {
         const body = response.body;
@@ -185,7 +185,7 @@ describe('Assign and release gameserver (e2e)', () => {
     /* and now verify the gameserver is released */
     await waitABit(121 * 1000);
     await request(app.getHttpServer())
-      .get(`/static-game-servers/${gameServer}`)
+      .get(`/static-game-servers/${gameServerId}`)
       .expect(200)
       .then((response) => {
         const body = response.body;
