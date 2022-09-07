@@ -28,6 +28,7 @@ import { GameConfigsService } from '@/game-configs/services/game-configs.service
 import { GamesService } from '@/games/services/games.service';
 import { GameServerNotAssignedError } from '../errors/game-server-not-assigned.error';
 import { generateGameserverPassword } from '@/utils/generate-gameserver-password';
+import { makeConnectString } from '../utils/make-connect-string';
 
 @Injectable()
 export class ServerConfiguratorService {
@@ -136,18 +137,20 @@ export class ServerConfiguratorService {
         logsTfTitle(`${this.environment.websiteName} #${game.number}`),
       );
 
-      const tvPortValue = extractConVarValue(await rcon.send(tvPort()));
-      const tvPasswordValue = extractConVarValue(await rcon.send(tvPassword()));
-
       this.logger.debug(`[${game.gameServer.name}] server ready.`);
 
-      const connectString = `connect ${game.gameServer.address}:${game.gameServer.port}; password ${password}`;
+      const connectString = makeConnectString({
+        address: game.gameServer.address,
+        port: game.gameServer.port,
+        password,
+      });
       this.logger.verbose(`[${game.gameServer.name}] ${connectString}`);
 
-      let stvConnectString = `connect ${game.gameServer.address}:${tvPortValue}`;
-      if (tvPasswordValue?.length > 0) {
-        stvConnectString += `; password ${tvPasswordValue}`;
-      }
+      const stvConnectString = makeConnectString({
+        address: game.gameServer.address,
+        port: extractConVarValue(await rcon.send(tvPort())),
+        password: extractConVarValue(await rcon.send(tvPassword())),
+      });
       this.logger.verbose(`[${game.gameServer.name} stv] ${stvConnectString}`);
 
       return {
