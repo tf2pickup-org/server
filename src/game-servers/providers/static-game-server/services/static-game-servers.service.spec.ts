@@ -1,7 +1,7 @@
 import { Events } from '@/events/events';
 import { NoFreeGameServerAvailableError } from '@/game-servers/errors/no-free-game-server-available.error';
 import { GameServersService } from '@/game-servers/services/game-servers.service';
-import { Game, gameSchema } from '@/games/models/game';
+import { Game, GameDocument, gameSchema } from '@/games/models/game';
 import { GameState } from '@/games/models/game-state';
 import { GamesService } from '@/games/services/games.service';
 import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
@@ -116,6 +116,8 @@ describe('StaticGameServersService', () => {
 
   afterEach(async () => {
     await staticGameServerModel.deleteMany({});
+    // @ts-expect-error
+    await gamesService._reset();
     await connection.close();
   });
 
@@ -371,9 +373,11 @@ describe('StaticGameServersService', () => {
   });
 
   describe('#freeUnusedGameServers()', () => {
+    let game: GameDocument;
+
     beforeEach(async () => {
       // @ts-expect-error
-      const game = await gamesService._createOne();
+      game = await gamesService._createOne();
       game.state = GameState.ended;
 
       const endedAt = new Date();
@@ -389,6 +393,19 @@ describe('StaticGameServersService', () => {
       await service.freeUnusedGameServers();
       const gs = await staticGameServerModel.findById(testGameServer.id);
       expect(gs.game).toBe(undefined);
+    });
+
+    describe('when a game is in progress', () => {
+      beforeEach(async () => {
+        game.state = GameState.started;
+        await game.save();
+      });
+
+      it('should not free the gameserver', async () => {
+        await service.freeUnusedGameServers();
+        const gs = await staticGameServerModel.findById(testGameServer.id);
+        expect(gs.game).toEqual(game._id);
+      });
     });
   });
 });
