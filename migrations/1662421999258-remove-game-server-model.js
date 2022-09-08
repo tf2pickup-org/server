@@ -85,7 +85,6 @@ module.exports.up = function (next) {
                   .collection('staticgameservers')
                   .insertOne({
                     _id: staticGameServer._id,
-                    __v: staticGameServer.__v,
                     address: staticGameServer.address,
                     port: staticGameServer.port,
                     createdAt: staticGameServer.createdAt,
@@ -95,6 +94,7 @@ module.exports.up = function (next) {
                     name: staticGameServer.name,
                     priority: staticGameServer.priority,
                     rconPassword: staticGameServer.rconPassword,
+                    __v: staticGameServer.__v,
                   })
                   .then(() => {
                     gameServersMigrated += 1;
@@ -105,6 +105,52 @@ module.exports.up = function (next) {
           .then(() =>
             db.collection('gameservers').deleteMany({ provider: 'static' }),
           ),
+      ]),
+    )
+    .then(([db]) =>
+      Promise.all([
+        db,
+        db
+          .collection('gameservers')
+          .find({
+            provider: 'serveme.tf',
+          })
+          .toArray()
+          .then((servemeTfServers) =>
+            Promise.all(
+              servemeTfServers.map((servemeTfServer) =>
+                db
+                  .collection('servemetfgameservers')
+                  .insertOne({
+                    _id: servemeTfServer._id,
+                    name: servemeTfServer.name,
+                    address: servemeTfServer.address,
+                    port: servemeTfServer.port,
+                    reservation: { ...servemeTfServer.reservation },
+                    __v: servemeTfServer.__v,
+                  })
+                  .then(() => {
+                    gameServersMigrated += 1;
+                  }),
+              ),
+            ),
+          )
+          .then(() =>
+            db.collection('gameservers').deleteMany({ provider: 'serveme.tf' }),
+          ),
+      ]),
+    )
+    .then(([db]) =>
+      Promise.all([
+        db,
+        db
+          .collection('gameservers')
+          .countDocuments()
+          .then((count) => {
+            if (count === 0) {
+              return db.collection('gameservers').drop();
+            }
+          }),
       ]),
     )
     .then(() =>
