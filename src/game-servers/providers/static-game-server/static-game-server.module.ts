@@ -1,8 +1,8 @@
 import { GameServersModule } from '@/game-servers/game-servers.module';
 import { GamesModule } from '@/games/games.module';
 import { LogReceiverModule } from '@/log-receiver/log-receiver.module';
+import { workaroundModelProvider } from '@/utils/workaround-model-provider';
 import { forwardRef, Module } from '@nestjs/common';
-import { MongooseModule } from '@nestjs/mongoose';
 import { GameServerDiagnosticsController } from './controllers/game-server-diagnostics.controller';
 import { StaticGameServersController } from './controllers/static-game-servers.controller';
 import { LogForwarding } from './diagnostic-checks/log-forwarding';
@@ -20,21 +20,20 @@ import { StaticGameServersService } from './services/static-game-servers.service
 
 @Module({
   imports: [
-    forwardRef(() => GameServersModule),
-    MongooseModule.forFeature([
-      {
-        name: StaticGameServer.name,
-        schema: staticGameServerSchema,
-      },
-      {
-        name: GameServerDiagnosticRun.name,
-        schema: gameServerDiagnosticRunSchema,
-      },
-    ]),
-    LogReceiverModule,
     forwardRef(() => GamesModule),
+    forwardRef(() => GameServersModule),
+    LogReceiverModule,
   ],
   providers: [
+    workaroundModelProvider({
+      name: StaticGameServer.name,
+      schema: staticGameServerSchema,
+    }),
+    workaroundModelProvider({
+      name: GameServerDiagnosticRun.name,
+      schema: gameServerDiagnosticRunSchema,
+    }),
+
     StaticGameServersService,
     GameServerDiagnosticsService,
     RconConnection,
