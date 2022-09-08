@@ -12,8 +12,7 @@ export const environmentSchema = object({
   NODE_ENV: string()
     .valid('development', 'production', 'test')
     .default('development'),
-  // TODO v10: get rid of default value, make it required
-  WEBSITE_NAME: string().default(joi.ref('BOT_NAME')),
+  WEBSITE_NAME: string().required(),
   API_URL: string().required(),
   CLIENT_URL: string().required(),
   BOT_NAME: string().required(),

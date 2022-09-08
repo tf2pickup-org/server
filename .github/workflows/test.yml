@@ -83,6 +83,7 @@ jobs:
 
     - name: Run e2e tests
       env:
+        WEBSITE_NAME: 'tf2pickup.pl e2e testing'
         API_URL: 'http://localhost:3000'
         CLIENT_URL: 'http://localhost:4200'
         BOT_NAME: 'tf2pickup.pl'
