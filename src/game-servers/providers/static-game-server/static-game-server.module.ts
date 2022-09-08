@@ -41,5 +41,6 @@ import { StaticGameServersService } from './services/static-game-servers.service
     LogForwarding,
   ],
   controllers: [StaticGameServersController, GameServerDiagnosticsController],
+  exports: [StaticGameServersService],
 })
 export class StaticGameServerModule {}
