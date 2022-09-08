@@ -1,5 +1,12 @@
 
 
+# [10.0.0-alpha.10](https://github.com/tf2pickup-org/server/compare/10.0.0-alpha.9...10.0.0-alpha.10) (2022-09-08)
+
+
+### Bug Fixes
+
+* **game-servers:** fix GameServersModule exports ([#1922](https://github.com/tf2pickup-org/server/issues/1922)) ([7ddd558](https://github.com/tf2pickup-org/server/commit/7ddd55855e2e9885e8690852ace0537342346643))
+
 # [10.0.0-alpha.9](https://github.com/tf2pickup-org/server/compare/10.0.0-alpha.8...10.0.0-alpha.9) (2022-09-08)
 
 
