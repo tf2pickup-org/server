@@ -13,6 +13,6 @@ import { StaticGameServerModule } from './providers/static-game-server/static-ga
     StaticGameServerModule,
   ],
   providers: [GameServersService],
-  exports: [GameServersService],
+  exports: [GameServersService, GameServersProvidersModule],
 })
 export class GameServersModule {}
