@@ -6,6 +6,7 @@ import { QueuePromptsService } from './services/queue-prompts.service';
 import { AdminNotificationsService } from './services/admin-notifications.service';
 import { GamesModule } from '@/games/games.module';
 import { PlayerSubstitutionNotificationsService } from './services/player-substitution-notifications.service';
+import { GameServersModule } from '@/game-servers/game-servers.module';
 
 @Global()
 @Module({
@@ -13,6 +14,7 @@ import { PlayerSubstitutionNotificationsService } from './services/player-substi
     forwardRef(() => QueueModule),
     forwardRef(() => PlayersModule),
     GamesModule,
+    GameServersModule,
   ],
   providers: [
     DiscordService,
