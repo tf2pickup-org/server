@@ -12,7 +12,7 @@ import { addGamePlayer, delGamePlayer, say } from '../utils/rcon-commands';
 import { Rcon } from 'rcon-client/lib';
 import { Events } from '@/events/events';
 import { GamesService } from '@/games/services/games.service';
-import { Types } from 'mongoose';
+import { GameServerOptionWithProvider } from '@/game-servers/interfaces/game-server-option';
 
 @Injectable()
 export class GameRuntimeService implements OnModuleInit {
@@ -87,10 +87,6 @@ export class GameRuntimeService implements OnModuleInit {
       return;
     }
 
-    const gameServer = await this.gameServersService.getById(
-      game.gameServer.toString(),
-    );
-
     const replacee = await this.playersService.getById(replaceeId);
     const replacement = await this.playersService.getById(replacementId);
     const replacementSlot = game.findPlayerSlot(replacementId);
@@ -100,10 +96,11 @@ export class GameRuntimeService implements OnModuleInit {
       `${replacement.name} is replacing ${replacee.name} on ${replacementSlot.gameClass}.`,
     );
 
+    const controls = await this.gameServersService.getControls(game.gameServer);
     let rcon: Rcon;
 
     try {
-      rcon = await gameServer.rcon();
+      rcon = await controls.rcon();
 
       const cmd = addGamePlayer(
         replacement.steamId,
@@ -127,11 +124,11 @@ export class GameRuntimeService implements OnModuleInit {
     }
   }
 
-  async sayChat(gameServerId: string | Types.ObjectId, message: string) {
-    const gameServer = await this.gameServersService.getById(gameServerId);
+  async sayChat(gameServer: GameServerOptionWithProvider, message: string) {
+    const controls = await this.gameServersService.getControls(gameServer);
     let rcon: Rcon;
     try {
-      rcon = await gameServer.rcon();
+      rcon = await controls.rcon();
       await rcon.send(say(message));
     } catch (e) {
       this.logger.error(e.message);

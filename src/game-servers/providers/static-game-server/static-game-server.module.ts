@@ -1,4 +1,5 @@
 import { GameServersModule } from '@/game-servers/game-servers.module';
+import { GamesModule } from '@/games/games.module';
 import { LogReceiverModule } from '@/log-receiver/log-receiver.module';
 import { forwardRef, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
@@ -10,24 +11,31 @@ import {
   GameServerDiagnosticRun,
   gameServerDiagnosticRunSchema,
 } from './models/game-server-diagnostic-run';
+import {
+  StaticGameServer,
+  staticGameServerSchema,
+} from './models/static-game-server';
 import { GameServerDiagnosticsService } from './services/game-server-diagnostics.service';
 import { StaticGameServersService } from './services/static-game-servers.service';
-import { staticGameServerModelProvider } from './static-game-server-model.provider';
 
 @Module({
   imports: [
     forwardRef(() => GameServersModule),
     MongooseModule.forFeature([
       {
+        name: StaticGameServer.name,
+        schema: staticGameServerSchema,
+      },
+      {
         name: GameServerDiagnosticRun.name,
         schema: gameServerDiagnosticRunSchema,
       },
     ]),
     LogReceiverModule,
+    forwardRef(() => GamesModule),
   ],
   providers: [
     StaticGameServersService,
-    staticGameServerModelProvider,
     GameServerDiagnosticsService,
     RconConnection,
     LogForwarding,

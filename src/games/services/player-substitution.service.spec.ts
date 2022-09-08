@@ -84,7 +84,13 @@ describe('PlayerSubstitutionService', () => {
     // @ts-expect-error
     mockGame = await gamesService._createOne([player1, player2]);
 
-    mockGame.gameServer = new Types.ObjectId();
+    mockGame.gameServer = {
+      id: 'FAKE_GAME_SERVER_ID',
+      provider: 'test',
+      name: 'FAKE GAME SERVER',
+      address: 'localhost',
+      port: 27015,
+    };
     await mockGame.save();
 
     playerBansService.getPlayerActiveBans = () => Promise.resolve([]);

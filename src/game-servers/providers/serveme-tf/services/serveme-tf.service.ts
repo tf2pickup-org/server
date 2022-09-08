@@ -1,25 +1,27 @@
 import { Events } from '@/events/events';
 import { NoFreeGameServerAvailableError } from '@/game-servers/errors/no-free-game-server-available.error';
 import { GameServerProvider } from '@/game-servers/game-server-provider';
-import { GameServer } from '@/game-servers/models/game-server';
+import { GameServerControls } from '@/game-servers/interfaces/game-server-controls';
+import { GameServerOption } from '@/game-servers/interfaces/game-server-option';
 import { GameServersService } from '@/game-servers/services/game-servers.service';
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { plainToInstance } from 'class-transformer';
 import { Model } from 'mongoose';
-import { delay, filter } from 'rxjs/operators';
+import { from } from 'rxjs';
+import { delay, exhaustMap, filter, take } from 'rxjs/operators';
 import {
-  isServemeTfGameServer,
   ServemeTfGameServer,
   ServemeTfGameServerDocument,
 } from '../models/serveme-tf-game-server';
+import { ServemeTfServerControls } from '../serveme-tf-server-controls';
 import { ServemeTfApiService } from './serveme-tf-api.service';
+import { endReservationDelay } from '../config';
 
 @Injectable()
 export class ServemeTfService implements GameServerProvider, OnModuleInit {
   readonly gameServerProviderName = 'serveme.tf';
-  readonly implementingClass = ServemeTfGameServer;
-  private logger = new Logger(ServemeTfService.name);
+  private readonly logger = new Logger(ServemeTfService.name);
 
   constructor(
     private gameServersService: GameServersService,
@@ -30,28 +32,51 @@ export class ServemeTfService implements GameServerProvider, OnModuleInit {
   ) {}
 
   onModuleInit() {
-    // end the reservation when the game ends
-    this.events.gameServerUpdated
-      .pipe(
-        filter(({ newGameServer }) => isServemeTfGameServer(newGameServer)),
-        filter(
-          ({ oldGameServer, newGameServer }) =>
-            !!oldGameServer.game && !newGameServer.game,
-        ),
-        delay(30 * 1000),
-      )
-      .subscribe(
-        async ({ newGameServer }) =>
-          await this.servemeTfApiService.endServerReservation(
-            (newGameServer as ServemeTfGameServer).reservation.id,
-          ),
-      );
-
     this.gameServersService.registerProvider(this);
-    this.logger.log('serveme.tf integration enabled');
+    this.logger.verbose('serveme.tf integration enabled');
   }
 
-  async findFirstFreeGameServer(): Promise<GameServer> {
+  async getById(gameServerId: string): Promise<ServemeTfGameServer> {
+    return plainToInstance(
+      ServemeTfGameServer,
+      await this.servemeTfGameServerModel
+        .findById(gameServerId)
+        .orFail()
+        .lean()
+        .exec(),
+    );
+  }
+
+  onGameServerAssigned({ gameId }: { gameId: string }): void {
+    // end the reservation when the game ends
+    this.events.gameChanges
+      .pipe(
+        filter(({ newGame }) => newGame.id === gameId),
+        filter(({ newGame }) => !!newGame.gameServer),
+        filter(
+          ({ oldGame, newGame }) =>
+            oldGame.isInProgress() && !newGame.isInProgress(),
+        ),
+        take(1),
+        delay(endReservationDelay),
+        exhaustMap(({ newGame }) => from(this.getById(newGame.gameServer.id))),
+      )
+      .subscribe(
+        async (gameServer) =>
+          await this.servemeTfApiService.endServerReservation(
+            gameServer.reservation.id,
+          ),
+      );
+  }
+
+  async getControls(id: string): Promise<GameServerControls> {
+    return new ServemeTfServerControls(
+      await this.getById(id),
+      this.servemeTfApiService,
+    );
+  }
+
+  async findFirstFreeGameServer(): Promise<GameServerOption> {
     try {
       const { reservation } = await this.servemeTfApiService.reserveServer();
       const { id } = await this.servemeTfGameServerModel.create({
@@ -69,10 +94,16 @@ export class ServemeTfService implements GameServerProvider, OnModuleInit {
           steamId: reservation.steam_uid,
         },
       });
-      return plainToInstance(
+      const gameServer = plainToInstance(
         ServemeTfGameServer,
         await this.servemeTfGameServerModel.findById(id).lean().exec(),
       );
+      return {
+        id: gameServer.id,
+        name: gameServer.name,
+        address: gameServer.address,
+        port: parseInt(gameServer.port, 10),
+      };
     } catch (error) {
       this.logger.error(`failed creating reservation: ${error.toString()}`);
       throw new NoFreeGameServerAvailableError();

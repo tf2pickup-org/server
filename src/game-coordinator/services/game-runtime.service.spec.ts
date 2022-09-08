@@ -7,19 +7,15 @@ import { say } from '../utils/rcon-commands';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
 import { Player, PlayerDocument, playerSchema } from '@/players/models/player';
-import { GameServer } from '@/game-servers/models/game-server';
 import { Events } from '@/events/events';
-import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { getConnectionToken, MongooseModule } from '@nestjs/mongoose';
 import { Connection, Error as MongooseError, Types } from 'mongoose';
-import { GameServerNotAssignedError } from '../errors/game-server-not-assigned.error';
 import { Rcon } from 'rcon-client/lib';
-import { staticGameServerProviderName } from '@/game-servers/providers/static-game-server/static-game-server-provider-name';
-import { NotImplementedError } from '@/game-servers/errors/not-implemented.error';
 import { GameDocument, Game, gameSchema } from '@/games/models/game';
-import { SlotStatus } from '@/games/models/slot-status';
-import { Tf2Team } from '@/games/models/tf2-team';
 import { GamesService } from '@/games/services/games.service';
+import { GameServerControls } from '@/game-servers/interfaces/game-server-controls';
+import { GameServerOptionWithProvider } from '@/game-servers/interfaces/game-server-option';
+import { waitABit } from '@/utils/wait-a-bit';
 
 jest.mock('@/games/services/games.service');
 jest.mock('@/game-servers/services/game-servers.service');
@@ -34,11 +30,11 @@ describe('GameRuntimeService', () => {
   let gamesService: GamesService;
   let gameServersService: jest.Mocked<GameServersService>;
   let serverConfiguratorService: jest.Mocked<ServerConfiguratorService>;
-  let mockGameServer: jest.Mocked<GameServer>;
   let mockPlayers: PlayerDocument[];
   let mockGame: GameDocument;
   let events: Events;
   let connection: Connection;
+  let controls: jest.Mocked<GameServerControls>;
 
   beforeAll(async () => (mongod = await MongoMemoryServer.create()));
   afterAll(async () => await mongod.stop());
@@ -72,21 +68,6 @@ describe('GameRuntimeService', () => {
   });
 
   beforeEach(async () => {
-    mockGameServer = {
-      id: new Types.ObjectId().toString(),
-      name: 'FAKE_GAME_SERVER',
-      address: 'FAKE_ADDRESS',
-      port: '1234',
-      createdAt: new Date(),
-      provider: staticGameServerProviderName,
-      rcon: jest.fn().mockRejectedValue('not implemented'),
-      getLogsecret: jest.fn().mockRejectedValue(new NotImplementedError()),
-      start: jest.fn().mockResolvedValue(mockGameServer),
-      serialize: jest.fn(),
-    };
-
-    gameServersService.getById.mockResolvedValue(mockGameServer as any);
-
     mockPlayers = await Promise.all([
       // @ts-expect-error
       playersService._createOne(),
@@ -97,13 +78,26 @@ describe('GameRuntimeService', () => {
     // @ts-expect-error
     mockGame = await gamesService._createOne(mockPlayers);
 
-    mockGame.gameServer = new Types.ObjectId(mockGameServer.id);
+    mockGame.gameServer = {
+      provider: 'test',
+      id: 'FAKE_GAMESERVER',
+      name: 'FAKE GAMESERVER',
+      address: 'localhost',
+      port: 27015,
+    };
     await mockGame.save();
 
     serverConfiguratorService.configureServer.mockResolvedValue({
       connectString: 'FAKE_CONNECT_STRING',
       stvConnectString: 'FAKE_STV_CONNECT_STRING',
     });
+
+    controls = {
+      start: jest.fn(),
+      rcon: jest.fn(),
+      getLogsecret: jest.fn().mockResolvedValue('FAKE_LOGSECRET'),
+    };
+    gameServersService.getControls.mockResolvedValue(controls);
   });
 
   beforeEach(() => {
@@ -122,10 +116,31 @@ describe('GameRuntimeService', () => {
     expect(service).toBeDefined();
   });
 
+  describe('when the substituteRequested event is emitted', () => {
+    let rcon: jest.Mocked<Rcon>;
+
+    beforeEach(async () => {
+      rcon = new (Rcon as any)();
+      controls.rcon.mockResolvedValue(rcon);
+
+      events.substituteRequested.next({
+        gameId: mockGame.id,
+        playerId: mockPlayers[0].id,
+      });
+      await waitABit(100);
+    });
+
+    it('should send an in-game notification', () => {
+      expect(rcon.send).toHaveBeenCalledWith(
+        'say Looking for replacement for fake_player_1...',
+      );
+    });
+  });
+
   describe('when the gameReconfigureRequested event is emitted', () => {
     beforeEach(async () => {
       events.gameReconfigureRequested.next({ gameId: mockGame.id });
-      await new Promise((resolve) => setTimeout(resolve, 100));
+      await waitABit(100);
     });
 
     it('should reconfigure the server', () => {
@@ -191,7 +206,7 @@ describe('GameRuntimeService', () => {
 
     beforeEach(() => {
       rcon = new (Rcon as any)();
-      mockGameServer.rcon.mockResolvedValue(rcon);
+      controls.rcon.mockResolvedValue(rcon);
     });
 
     describe('when the given game does not exist', () => {
@@ -255,28 +270,22 @@ describe('GameRuntimeService', () => {
 
   describe('#sayChat()', () => {
     let rcon: jest.Mocked<Rcon>;
+    let gameServer: GameServerOptionWithProvider;
 
     beforeEach(() => {
+      gameServer = {
+        id: 'FAKE_GAME_SERVER',
+        provider: 'test',
+        name: 'FAKE GAME SERVER',
+        address: 'localhost',
+        port: 27015,
+      };
       rcon = new (Rcon as any)();
-      mockGameServer.rcon.mockResolvedValue(rcon);
-    });
-
-    describe('when the given game server does not exist', () => {
-      beforeEach(() => {
-        gameServersService.getById.mockRejectedValue(
-          new MongooseError.DocumentNotFoundError(''),
-        );
-      });
-
-      it('should throw an error', async () => {
-        await expect(
-          service.sayChat(mockGameServer.id, 'some message'),
-        ).rejects.toThrow(MongooseError.DocumentNotFoundError);
-      });
+      controls.rcon.mockResolvedValue(rcon);
     });
 
     it('should execute the correct commands', async () => {
-      await service.sayChat(mockGameServer.id, 'some message');
+      await service.sayChat(gameServer, 'some message');
       expect(rcon.send).toHaveBeenCalledWith(say('some message'));
     });
 
@@ -286,7 +295,7 @@ describe('GameRuntimeService', () => {
       });
 
       it('should close the RCON connection', async () => {
-        await service.sayChat(mockGameServer.id, 'some message');
+        await service.sayChat(gameServer, 'some message');
         expect(rcon.end).toHaveBeenCalled();
       });
     });

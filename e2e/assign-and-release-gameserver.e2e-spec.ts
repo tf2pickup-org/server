@@ -9,18 +9,18 @@ import { waitABit } from './utils/wait-a-bit';
 import * as request from 'supertest';
 import { StaticGameServersService } from '@/game-servers/providers/static-game-server/services/static-game-servers.service';
 import { GameLauncherService } from '@/game-coordinator/services/game-launcher.service';
-import { GameEventHandlerService } from '@/games/services/game-event-handler.service';
 import { configureApplication } from '@/configure-application';
+import { Events } from '@/events/events';
 
-jest.setTimeout(150 * 1000);
+jest.setTimeout(250 * 1000);
 
 describe('Assign and release gameserver (e2e)', () => {
   let app: INestApplication;
   let gameId: string;
   let staticGameServersService: StaticGameServersService;
-  let gameServer: string;
+  let gameServerId: string;
 
-  const waitForGameServerToComeOnline = async () =>
+  const waitForGameServerToComeOnline = () =>
     new Promise<string>((resolve) => {
       const i = setInterval(async () => {
         const gameServers = await staticGameServersService.getAllGameServers();
@@ -41,7 +41,7 @@ describe('Assign and release gameserver (e2e)', () => {
     await app.listen(3000);
 
     staticGameServersService = app.get(StaticGameServersService);
-    gameServer = await waitForGameServerToComeOnline();
+    gameServerId = await waitForGameServerToComeOnline();
   });
 
   beforeAll(async () => {
@@ -151,26 +151,27 @@ describe('Assign and release gameserver (e2e)', () => {
       .expect(200)
       .then((response) => {
         const body = response.body;
-        expect(body.gameServer.id).toEqual(gameServer);
+        expect(body.gameServer).toBeTruthy();
+        expect(body.gameServer.name).toEqual('A Team Fortress 2 server');
       });
 
     await request(app.getHttpServer())
-      .get(`/game-servers/${gameServer}`)
+      .get(`/static-game-servers/${gameServerId}`)
       .expect(200)
       .then((response) => {
         const body = response.body;
         expect(body.game).toEqual(gameId);
-        expect(body.isClean).toBe(false);
         expect(body.isOnline).toBe(true);
       });
 
     /* pretend the game has started */
-    const gameEventHandlerService = app.get(GameEventHandlerService);
-    await gameEventHandlerService.onMatchStarted(gameId);
+    const events = app.get(Events);
+    events.matchStarted.next({ gameId });
     await waitABit(1000);
 
     /* pretend the game has ended */
-    await gameEventHandlerService.onMatchEnded(gameId);
+    events.matchEnded.next({ gameId });
+    await waitABit(1000);
 
     /* verify the game is marked as ended */
     await request(app.getHttpServer())
@@ -182,22 +183,13 @@ describe('Assign and release gameserver (e2e)', () => {
       });
 
     /* and now verify the gameserver is released */
+    await waitABit(121 * 1000);
     await request(app.getHttpServer())
-      .get(`/game-servers/${gameServer}`)
+      .get(`/static-game-servers/${gameServerId}`)
       .expect(200)
       .then((response) => {
         const body = response.body;
         expect(body.game).toBe(undefined);
-      });
-
-    /* and lastly, make sure the gameserver was cleaned up */
-    await waitABit(121 * 1000);
-    await request(app.getHttpServer())
-      .get(`/game-servers/${gameServer}`)
-      .expect(200)
-      .then((response) => {
-        const body = response.body;
-        expect(body.isClean).toBe(true);
       });
   });
 });

@@ -1,7 +1,7 @@
 import { Environment } from '@/environment/environment';
 import { Events } from '@/events/events';
 import { StaticGameServer } from '@/game-servers/providers/static-game-server/models/static-game-server';
-import { staticGameServerProviderName } from '@/game-servers/providers/static-game-server/static-game-server-provider-name';
+import { StaticGameServersService } from '@/game-servers/providers/static-game-server/services/static-game-servers.service';
 import { Game, gameSchema } from '@/games/models/game';
 import { GameState } from '@/games/models/game-state';
 import { GamesService } from '@/games/services/games.service';
@@ -20,6 +20,9 @@ import { DiscordService } from './discord.service';
 jest.mock('./discord.service');
 jest.mock('@/players/services/players.service');
 jest.mock('@/games/services/games.service');
+jest.mock(
+  '@/game-servers/providers/static-game-server/services/static-game-servers.service',
+);
 
 const environment = {
   clientUrl: 'http://localhost',
@@ -35,9 +38,10 @@ describe('AdminNotificationsService', () => {
   let sentMessages: Subject<any>;
   let connection: Connection;
   let gamesService: GamesService;
+  let staticGameServersService: StaticGameServersService;
 
   beforeAll(async () => (mongod = await MongoMemoryServer.create()));
-  afterAll(async () => mongod.stop());
+  afterAll(async () => await mongod.stop());
 
   beforeEach(() => {
     sentMessages = new Subject();
@@ -65,6 +69,7 @@ describe('AdminNotificationsService', () => {
         { provide: Environment, useValue: environment },
         PlayersService,
         GamesService,
+        StaticGameServersService,
       ],
     }).compile();
 
@@ -74,6 +79,10 @@ describe('AdminNotificationsService', () => {
     discordService = module.get(DiscordService);
     connection = module.get(getConnectionToken());
     gamesService = module.get(GamesService);
+    staticGameServersService = module.get(StaticGameServersService);
+    (staticGameServersService.gameServerAdded as Subject<any>) = new Subject();
+    (staticGameServersService.gameServerUpdated as Subject<any>) =
+      new Subject();
     sendSpy = jest
       .spyOn(discordService.getAdminsChannel(), 'send')
       .mockImplementation((message: any) => {
@@ -119,7 +128,7 @@ describe('AdminNotificationsService', () => {
       admin = await playersService._createOne();
     });
 
-    it('should send a message', async () =>
+    it('should send a message', () =>
       new Promise<void>((resolve) => {
         sentMessages.subscribe((message) => {
           expect(message.embeds.length).toBeGreaterThan(0);
@@ -139,7 +148,7 @@ describe('AdminNotificationsService', () => {
       }));
 
     describe("when the update doesn't change anything", () => {
-      it('should not send any messages', async () =>
+      it('should not send any messages', () =>
         new Promise<void>((resolve) => {
           events.playerUpdates.next({
             oldPlayer: player,
@@ -165,7 +174,7 @@ describe('AdminNotificationsService', () => {
       admin = await playersService._createOne();
     });
 
-    it('should send a message', async () =>
+    it('should send a message', () =>
       new Promise<void>((resolve) => {
         sentMessages.subscribe((message) => {
           expect(message.embeds.length).toBeGreaterThan(0);
@@ -197,7 +206,7 @@ describe('AdminNotificationsService', () => {
       admin = await playersService._createOne();
     });
 
-    it('should send a message', async () =>
+    it('should send a message', () =>
       new Promise<void>((resolve) => {
         sentMessages.subscribe((message) => {
           expect(message.embeds.length).toBe(1);
@@ -230,7 +239,7 @@ describe('AdminNotificationsService', () => {
       admin = await playersService._createOne();
     });
 
-    it('should send a message', async () =>
+    it('should send a message', () =>
       new Promise<void>((resolve) => {
         sentMessages.subscribe((message) => {
           expect(message.embeds[0].title).toEqual('Player skill updated');
@@ -248,7 +257,7 @@ describe('AdminNotificationsService', () => {
       }));
 
     describe("when the skill doesn't really change", () => {
-      it('should not send any message', async () =>
+      it('should not send any message', () =>
         new Promise<void>((resolve) => {
           const oldSkill = new Map([[Tf2ClassName.soldier, 2]]);
           events.playerSkillChanged.next({
@@ -266,56 +275,52 @@ describe('AdminNotificationsService', () => {
   });
 
   describe('when the gameServerAdded event emits', () => {
-    it('should send a message', async () =>
+    it('should send a message', () =>
       new Promise<void>((resolve) => {
         sentMessages.subscribe((message) => {
           expect(message.embeds[0].title).toEqual('Game server added');
           resolve();
         });
 
-        events.gameServerAdded.next({
-          gameServer: { name: 'fake game server' } as StaticGameServer,
-        });
+        staticGameServersService.gameServerAdded.next({
+          name: 'fake game server',
+        } as StaticGameServer);
       }));
   });
 
   describe('when the gameServer goes offline', () => {
-    it('should send a message', async () => {
+    it('should send a message', () => {
       sentMessages.subscribe((message) => {
         expect(message.embeds[0].title).toEqual('Game server is offline');
       });
 
-      events.gameServerUpdated.next({
+      staticGameServersService.gameServerUpdated.next({
         oldGameServer: {
           name: 'fake game server',
           isOnline: true,
-          provider: staticGameServerProviderName,
         } as StaticGameServer,
         newGameServer: {
           name: 'fake game server',
           isOnline: false,
-          provider: staticGameServerProviderName,
         } as StaticGameServer,
       });
     });
   });
 
   describe('when the gameServer comes back online', () => {
-    it('should send a message', async () => {
+    it('should send a message', () => {
       sentMessages.subscribe((message) => {
         expect(message.embeds[0].title).toEqual('Game server is back online');
       });
 
-      events.gameServerUpdated.next({
+      staticGameServersService.gameServerUpdated.next({
         oldGameServer: {
           name: 'fake game server',
           isOnline: false,
-          provider: staticGameServerProviderName,
         } as StaticGameServer,
         newGameServer: {
           name: 'fake game server',
           isOnline: true,
-          provider: staticGameServerProviderName,
         } as StaticGameServer,
       });
     });
@@ -329,7 +334,7 @@ describe('AdminNotificationsService', () => {
       admin = await playersService._createOne();
     });
 
-    it('should send a message', async () =>
+    it('should send a message', () =>
       new Promise<void>((resolve) => {
         sentMessages.subscribe((message) => {
           expect(message.embeds[0].title).toEqual('Game force-ended');
@@ -368,7 +373,7 @@ describe('AdminNotificationsService', () => {
       game = await gamesService._createOne();
     });
 
-    it('should send a notification', async () =>
+    it('should send a notification', () =>
       new Promise<void>((resolve) => {
         sentMessages.subscribe((message) => {
           expect(message.embeds[0].title).toEqual('Substitute requested');
@@ -391,7 +396,7 @@ describe('AdminNotificationsService', () => {
       actor = await playersService._createOne();
     });
 
-    it('should send a notification', async () =>
+    it('should send a notification', () =>
       new Promise<void>((resolve) => {
         sentMessages.subscribe((message) => {
           expect(message.embeds[0].title).toEqual('Maps scrambled');

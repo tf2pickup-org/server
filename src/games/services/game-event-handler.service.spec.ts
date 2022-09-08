@@ -130,12 +130,8 @@ describe('GameEventHandlerService', () => {
   });
 
   describe('#onMatchEnded()', () => {
-    let gameServerId: Types.ObjectId;
-
     beforeEach(async () => {
-      gameServerId = new Types.ObjectId();
       const game = await gameModel.findById(mockGame.id);
-      game.gameServer = gameServerId;
       game.state = GameState.started;
       await game.save();
     });

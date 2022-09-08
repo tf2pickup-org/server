@@ -14,8 +14,7 @@ import {
   GameServerDiagnosticRun,
   GameServerDiagnosticRunDocument,
 } from '../models/game-server-diagnostic-run';
-import { GameServersService } from '../../../services/game-servers.service';
-import { StaticGameServer } from '../models/static-game-server';
+import { StaticGameServersService } from './static-game-servers.service';
 
 @Injectable()
 export class GameServerDiagnosticsService {
@@ -23,9 +22,9 @@ export class GameServerDiagnosticsService {
 
   constructor(
     @InjectModel(GameServerDiagnosticRun.name)
-    private gameServerDiagnosticRunModel: Model<GameServerDiagnosticRunDocument>,
-    private gameServersService: GameServersService,
-    private moduleRef: ModuleRef,
+    private readonly gameServerDiagnosticRunModel: Model<GameServerDiagnosticRunDocument>,
+    private readonly staticGameServersService: StaticGameServersService,
+    private readonly moduleRef: ModuleRef,
   ) {}
 
   async getDiagnosticRunById(id: string): Promise<GameServerDiagnosticRun> {
@@ -40,7 +39,7 @@ export class GameServerDiagnosticsService {
   }
 
   async runDiagnostics(gameServerId: string): Promise<string> {
-    await this.gameServersService.getById(gameServerId);
+    await this.staticGameServersService.getById(gameServerId);
     const runners = await this.collectAllRunners();
     const checks = runners.map((runner) => ({
       name: runner.name,
@@ -75,7 +74,7 @@ export class GameServerDiagnosticsService {
   }
 
   async collectAllRunners(): Promise<DiagnosticCheckRunner[]> {
-    return Promise.all([
+    return await Promise.all([
       this.moduleRef.resolve(RconConnection),
       this.moduleRef.resolve(LogForwarding),
     ]);
@@ -89,9 +88,9 @@ export class GameServerDiagnosticsService {
       let shouldStop = false;
 
       const fn = async () => {
-        const gameServer = (await this.gameServersService.getById(
+        const gameServer = await this.staticGameServersService.getById(
           diagnosticRun.gameServer.toString(),
-        )) as StaticGameServer;
+        );
 
         this.logger.log(`Starting diagnostics of ${gameServer.name}...`);
 

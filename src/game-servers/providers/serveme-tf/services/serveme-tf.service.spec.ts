@@ -1,17 +1,18 @@
 import { Events } from '@/events/events';
 import { NoFreeGameServerAvailableError } from '@/game-servers/errors/no-free-game-server-available.error';
 import { GameServersService } from '@/game-servers/services/game-servers.service';
+import { Game } from '@/games/models/game';
+import { GameState } from '@/games/models/game-state';
 import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
+import { waitABit } from '@/utils/wait-a-bit';
 import {
   getConnectionToken,
   getModelToken,
   MongooseModule,
 } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
-import { plainToInstance } from 'class-transformer';
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import { Connection, Model, Types } from 'mongoose';
-import { Subject } from 'rxjs';
+import { Connection, Model } from 'mongoose';
 import {
   ServemeTfGameServer,
   ServemeTfGameServerDocument,
@@ -19,6 +20,7 @@ import {
 } from '../models/serveme-tf-game-server';
 import { ServemeTfApiService } from './serveme-tf-api.service';
 import { ServemeTfService } from './serveme-tf.service';
+import { ServemeTfServerControls } from '../serveme-tf-server-controls';
 
 jest.mock('@/game-servers/services/game-servers.service');
 jest.mock('./serveme-tf-api.service');
@@ -89,28 +91,80 @@ describe('ServemeTfService', () => {
     expect(gameServersService.registerProvider).toHaveBeenCalledWith(service);
   });
 
-  describe('when a server is released', () => {
-    beforeEach(() => {
-      const oldGameServer = plainToInstance(ServemeTfGameServer, {
-        provider: 'serveme.tf',
-        game: new Types.ObjectId(),
-        reservation: {
-          id: 42,
-        },
+  describe('#onGameServerAssigned()', () => {
+    describe('when a game ends', () => {
+      beforeEach(async () => {
+        const gameServer = await servemeTfGameServerModel.create({
+          name: 'BolusBrigade #12',
+          address: 'bolus.fakkelbrigade.eu',
+          port: '27125',
+          reservation: {
+            id: 1250567,
+            startsAt: new Date('2022-05-05T09:39:11.279Z'),
+            endsAt: new Date('2022-05-05T11:39:11.049Z'),
+            serverId: 307,
+            password: 'FAKE_PASSWORD',
+            rcon: 'FAKE_RCON_PASSWORD',
+            logsecret: 'FAKE_LOGSECRET',
+            steamId: 'FAKE_STEAM_ID',
+          },
+        });
+
+        const oldGame = new Game();
+        oldGame.id = 'FAKE_GAME_ID';
+        oldGame.gameServer = {
+          id: `${gameServer.id}`,
+          name: gameServer.name,
+          provider: 'serveme.tf',
+          address: gameServer.address,
+          port: 27015,
+        };
+        oldGame.state = GameState.started;
+
+        await service.onGameServerAssigned({ gameId: 'FAKE_GAME_ID' });
+
+        const newGame = new Game();
+        newGame.id = oldGame.id;
+        newGame.gameServer = { ...oldGame.gameServer };
+        newGame.state = GameState.ended;
+
+        events.gameChanges.next({ newGame, oldGame });
+        await waitABit(100);
       });
 
-      const newGameServer = plainToInstance(ServemeTfGameServer, {
-        provider: 'serveme.tf',
+      it('should end the reservation', () => {
+        expect(servemeTfApiService.endServerReservation).toHaveBeenCalledWith(
+          1250567,
+        );
+      });
+    });
+  });
+
+  describe('#getControls()', () => {
+    let gameServerId: string;
+
+    beforeEach(async () => {
+      const gameServer = await servemeTfGameServerModel.create({
+        name: 'BolusBrigade #12',
+        address: 'bolus.fakkelbrigade.eu',
+        port: '27125',
         reservation: {
-          id: 42,
+          id: 1250567,
+          startsAt: new Date('2022-05-05T09:39:11.279Z'),
+          endsAt: new Date('2022-05-05T11:39:11.049Z'),
+          serverId: 307,
+          password: 'FAKE_PASSWORD',
+          rcon: 'FAKE_RCON_PASSWORD',
+          logsecret: 'FAKE_LOGSECRET',
+          steamId: 'FAKE_STEAM_ID',
         },
       });
-
-      events.gameServerUpdated.next({ oldGameServer, newGameServer });
+      gameServerId = gameServer.id;
     });
 
-    it('should end the reservation', () => {
-      expect(servemeTfApiService.endServerReservation).toHaveBeenCalledWith(42);
+    it('should return controls', async () => {
+      const controls = await service.getControls(gameServerId);
+      expect(controls instanceof ServemeTfServerControls).toBe(true);
     });
   });
 

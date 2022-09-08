@@ -1,29 +1,25 @@
-import { Environment } from '@/environment/environment';
-import { Events } from '@/events/events';
 import { NoFreeGameServerAvailableError } from '@/game-servers/errors/no-free-game-server-available.error';
 import { GameServerProvider } from '@/game-servers/game-server-provider';
-import { GameServer } from '@/game-servers/models/game-server';
 import { GameServersService } from '@/game-servers/services/game-servers.service';
-import {
-  logAddressDel,
-  delAllGamePlayers,
-  disablePlayerWhitelist,
-} from '@/game-coordinator/utils/rcon-commands';
-import { serverCleanupDelay } from '@configs/game-servers';
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { Mutex } from 'async-mutex';
 import { plainToInstance } from 'class-transformer';
 import { Model, Types, UpdateQuery } from 'mongoose';
-import { Rcon } from 'rcon-client/lib';
-import { delay, filter } from 'rxjs/operators';
+import { delay, filter, take } from 'rxjs/operators';
 import {
-  isStaticGameServer,
   StaticGameServer,
   StaticGameServerDocument,
 } from '../models/static-game-server';
 import { staticGameServerProviderName } from '../static-game-server-provider-name';
+import { GameServerControls } from '@/game-servers/interfaces/game-server-controls';
+import { StaticGameServerControls } from '../static-game-server-controls';
+import { Subject } from 'rxjs';
+import { GameServerOption } from '@/game-servers/interfaces/game-server-option';
+import { serverCleanupDelay } from '../config';
+import { Events } from '@/events/events';
+import { GamesService } from '@/games/services/games.service';
 
 interface HeartbeatParams {
   name: string;
@@ -40,47 +36,30 @@ export class StaticGameServersService
   implements GameServerProvider, OnModuleInit
 {
   readonly gameServerProviderName = staticGameServerProviderName;
-  readonly implementingClass = StaticGameServer;
   readonly priority = Number.MAX_SAFE_INTEGER;
+
+  // events
+  readonly gameServerAdded = new Subject<StaticGameServer>();
+  readonly gameServerUpdated = new Subject<{
+    oldGameServer: StaticGameServer;
+    newGameServer: StaticGameServer;
+  }>();
+
   private readonly logger = new Logger(StaticGameServersService.name);
   private readonly mutex = new Mutex();
 
   constructor(
     @InjectModel(StaticGameServer.name)
-    private staticGameServerModel: Model<StaticGameServerDocument>,
-    private events: Events,
-    private environment: Environment,
-    private gameServersService: GameServersService,
+    private readonly staticGameServerModel: Model<StaticGameServerDocument>,
+    private readonly events: Events,
+    private readonly gameServersService: GameServersService,
+    private readonly gamesService: GamesService,
   ) {}
 
   async onModuleInit() {
     this.installLoggers();
-
-    // mark the server as dirty when it's taken
-    this.events.gameServerUpdated
-      .pipe(
-        filter(({ newGameServer }) => isStaticGameServer(newGameServer)),
-        filter(
-          ({ oldGameServer, newGameServer }) =>
-            !oldGameServer.game && !!newGameServer.game,
-        ),
-      )
-      .subscribe(({ newGameServer }) => this.markAsDirty(newGameServer.id));
-
-    // cleanup the server when it's released
-    this.events.gameServerUpdated
-      .pipe(
-        filter(({ newGameServer }) => isStaticGameServer(newGameServer)),
-        filter(
-          ({ oldGameServer, newGameServer }) =>
-            !!oldGameServer.game && !newGameServer.game,
-        ),
-        delay(serverCleanupDelay),
-      )
-      .subscribe(({ newGameServer }) => this.cleanupServer(newGameServer.id));
-
     await this.removeDeadGameServers();
-    await this.cleanDirtyGameServers();
+    await this.freeUnusedGameServers();
     this.gameServersService.registerProvider(this);
   }
 
@@ -115,7 +94,7 @@ export class StaticGameServersService
           .lean()
           .exec(),
       );
-      this.events.gameServerUpdated.next({
+      this.gameServerUpdated.next({
         oldGameServer,
         newGameServer,
       });
@@ -123,13 +102,12 @@ export class StaticGameServersService
     });
   }
 
-  async getCleanGameServers(): Promise<StaticGameServer[]> {
+  async getFreeGameServers(): Promise<StaticGameServer[]> {
     return plainToInstance(
       StaticGameServer,
       await this.staticGameServerModel
         .find({
           isOnline: true,
-          isClean: true,
           game: { $exists: false },
         })
         .sort({ priority: -1 })
@@ -138,23 +116,38 @@ export class StaticGameServersService
     );
   }
 
-  async getDirtyGameServers(): Promise<StaticGameServer[]> {
+  async getTakenGameServers(): Promise<StaticGameServer[]> {
     return plainToInstance(
       StaticGameServer,
       await this.staticGameServerModel
-        .find({ isClean: false, game: { $exists: false } })
+        .find({
+          isOnline: true,
+          game: { $exists: true },
+        })
+        .sort({ priority: -1 })
         .lean()
         .exec(),
     );
   }
 
-  async findFirstFreeGameServer(): Promise<GameServer> {
-    const gameServers = await this.getCleanGameServers();
+  async findFirstFreeGameServer(): Promise<GameServerOption> {
+    const gameServers = await this.getFreeGameServers();
     if (gameServers.length > 0) {
-      return gameServers[0];
+      const selectedGameServer = gameServers[0];
+      return {
+        id: selectedGameServer.id,
+        name: selectedGameServer.name,
+        address: selectedGameServer.address,
+        port: parseInt(selectedGameServer.port, 10),
+      };
     } else {
       throw new NoFreeGameServerAvailableError();
     }
+  }
+
+  async getControls(id: string): Promise<GameServerControls> {
+    const gameServer = await this.getById(id);
+    return new StaticGameServerControls(gameServer);
   }
 
   async heartbeat(params: HeartbeatParams): Promise<StaticGameServer> {
@@ -192,9 +185,9 @@ export class StaticGameServersService
     );
 
     if (!oldGameServer) {
-      this.events.gameServerAdded.next({ gameServer: newGameServer });
+      this.gameServerAdded.next(newGameServer);
     } else {
-      this.events.gameServerUpdated.next({ oldGameServer, newGameServer });
+      this.gameServerUpdated.next({ oldGameServer, newGameServer });
     }
 
     return newGameServer;
@@ -219,45 +212,7 @@ export class StaticGameServersService
   }
 
   async markAsOffline(gameServerId: string): Promise<StaticGameServer> {
-    return this.updateGameServer(gameServerId, { isOnline: false });
-  }
-
-  async markAsDirty(gameServerId: string): Promise<StaticGameServer> {
-    return await this.updateGameServer(gameServerId, { isClean: false });
-  }
-
-  async cleanupServer(gameServerId: string) {
-    const gameServer = await this.getById(gameServerId);
-    let rcon: Rcon;
-    try {
-      rcon = await gameServer.rcon();
-
-      const logAddress = `${this.environment.logRelayAddress}:${this.environment.logRelayPort}`;
-      this.logger.debug(
-        `[${gameServer.name}] removing log address ${logAddress}...`,
-      );
-      await rcon.send(logAddressDel(logAddress));
-      await rcon.send(delAllGamePlayers());
-      await rcon.send(disablePlayerWhitelist());
-      await this.updateGameServer(gameServerId, { isClean: true });
-      this.logger.verbose(`[${gameServer.name}] server cleaned up`);
-    } catch (error) {
-      throw new Error(
-        `could not cleanup server ${gameServer.name} (${error.message})`,
-      );
-    } finally {
-      await rcon?.end();
-    }
-  }
-
-  async cleanDirtyGameServers() {
-    const dirtyGameSevers = await this.getDirtyGameServers();
-    await Promise.all(
-      dirtyGameSevers.map(
-        async (gameServer) =>
-          await this.updateGameServer(gameServer.id, { isClean: true }),
-      ),
-    );
+    return await this.updateGameServer(gameServerId, { isOnline: false });
   }
 
   @Cron(CronExpression.EVERY_MINUTE)
@@ -268,23 +223,58 @@ export class StaticGameServersService
     );
   }
 
+  @Cron(CronExpression.EVERY_MINUTE)
+  async freeUnusedGameServers() {
+    const gameServers = await this.getTakenGameServers();
+    await Promise.all(
+      gameServers.map(async (gameServer) => {
+        const game = await this.gamesService.getById(gameServer.game);
+        if (game.isInProgress()) {
+          return;
+        }
+
+        if (game.endedAt.getTime() + serverCleanupDelay < Date.now()) {
+          await this.freeGameServer(gameServer.id);
+        }
+      }),
+    );
+  }
+
+  async onGameServerAssigned({ gameServerId, gameId }) {
+    await this.updateGameServer(gameServerId, { game: gameId });
+    this.events.gameChanges
+      .pipe(
+        filter(({ newGame }) => newGame.id === gameId),
+        filter(
+          ({ oldGame, newGame }) =>
+            oldGame.isInProgress() && !newGame.isInProgress(),
+        ),
+        take(1),
+        delay(serverCleanupDelay),
+        filter(({ newGame }) => newGame.gameServer?.id === gameServerId),
+      )
+      .subscribe(
+        async ({ newGame }) => await this.freeGameServer(newGame.gameServer.id),
+      );
+  }
+
+  private async freeGameServer(gameServerId: string) {
+    await this.updateGameServer(gameServerId, { $unset: { game: 1 } });
+  }
+
   private installLoggers() {
-    this.events.gameServerAdded
-      .pipe(filter(({ gameServer }) => isStaticGameServer(gameServer)))
-      .subscribe(({ gameServer }) => {
-        this.logger.log(
-          `game server ${gameServer.name} (${gameServer.address}:${gameServer.port}) added`,
-        );
-      });
+    this.gameServerAdded.subscribe((gameServer) => {
+      this.logger.log(
+        `game server ${gameServer.name} (${gameServer.address}:${gameServer.port}) added`,
+      );
+    });
 
     // log when a server is back online
-    this.events.gameServerUpdated
+    this.gameServerUpdated
       .pipe(
-        filter(({ newGameServer }) => isStaticGameServer(newGameServer)),
         filter(
           ({ oldGameServer, newGameServer }) =>
-            (oldGameServer as StaticGameServer).isOnline === false &&
-            (newGameServer as StaticGameServer).isOnline === true,
+            oldGameServer.isOnline === false && newGameServer.isOnline === true,
         ),
       )
       .subscribe(({ newGameServer }) => {
@@ -294,13 +284,11 @@ export class StaticGameServersService
       });
 
     // log when a server is offline
-    this.events.gameServerUpdated
+    this.gameServerUpdated
       .pipe(
-        filter(({ newGameServer }) => isStaticGameServer(newGameServer)),
         filter(
           ({ oldGameServer, newGameServer }) =>
-            (oldGameServer as StaticGameServer).isOnline === true &&
-            (newGameServer as StaticGameServer).isOnline === false,
+            oldGameServer.isOnline === true && newGameServer.isOnline === false,
         ),
       )
       .subscribe(({ newGameServer }) => {

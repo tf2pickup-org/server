@@ -1,6 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Environment } from '@/environment/environment';
-import { generate } from 'generate-password';
 import { PlayersService } from '@/players/services/players.service';
 import {
   logAddressAdd,
@@ -27,6 +26,9 @@ import { GameServersService } from '@/game-servers/services/game-servers.service
 import { waitABit } from '@/utils/wait-a-bit';
 import { GameConfigsService } from '@/game-configs/services/game-configs.service';
 import { GamesService } from '@/games/services/games.service';
+import { GameServerNotAssignedError } from '../errors/game-server-not-assigned.error';
+import { generateGameserverPassword } from '@/utils/generate-gameserver-password';
+import { makeConnectString } from '../utils/make-connect-string';
 
 @Injectable()
 export class ServerConfiguratorService {
@@ -43,26 +45,40 @@ export class ServerConfiguratorService {
   ) {}
 
   async configureServer(gameId: string) {
-    const game = await this.gamesService.getById(gameId);
-    const server = await this.gameServersService.getById(game.gameServer);
+    let game = await this.gamesService.getById(gameId);
+    if (!game.gameServer) {
+      throw new GameServerNotAssignedError(game.id);
+    }
+
+    const controls = await this.gameServersService.getControls(game.gameServer);
     const configLines = await this.gameConfigsService.compileConfig();
 
-    this.logger.verbose(`starting gameserver ${server.name}`);
-    await server.start();
+    this.logger.verbose(`starting gameserver ${game.gameServer.name}`);
+    await controls.start();
 
-    this.logger.verbose(`configuring server ${server.name}...`);
+    this.logger.verbose(`configuring server ${game.gameServer.name}...`);
 
     let rcon: Rcon;
     try {
-      rcon = await server.rcon();
+      rcon = await controls.rcon();
+
+      const logSecret = await controls.getLogsecret();
+      game = await this.gamesService.update(game.id, { logSecret });
+      this.logger.debug(
+        `[${game.gameServer.name}] logsecret is ${game.logSecret}`,
+      );
 
       const logAddress = `${this.environment.logRelayAddress}:${this.environment.logRelayPort}`;
-      this.logger.debug(`[${server.name}] adding log address ${logAddress}...`);
+      this.logger.debug(
+        `[${game.gameServer.name}] adding log address ${logAddress}...`,
+      );
       await rcon.send(logAddressAdd(logAddress));
 
-      this.logger.debug(`[${server.name}] kicking all players...`);
+      this.logger.debug(`[${game.gameServer.name}] kicking all players...`);
       await rcon.send(kickAll());
-      this.logger.debug(`[${server.name}] changing map to ${game.map}...`);
+      this.logger.debug(
+        `[${game.gameServer.name}] changing map to ${game.map}...`,
+      );
       await rcon.send(changelevel(game.map));
 
       // source servers need a moment after the map has been changed
@@ -78,7 +94,7 @@ export class ServerConfiguratorService {
       const maps = await this.mapPoolService.getMaps();
       const config = maps.find((m) => m.name === game.map)?.execConfig;
       if (config) {
-        this.logger.debug(`[${server.name}] executing ${config}...`);
+        this.logger.debug(`[${game.gameServer.name}] executing ${config}...`);
         await rcon.send(execConfig(config));
         await waitABit(1000 * 10);
       }
@@ -87,13 +103,15 @@ export class ServerConfiguratorService {
         .value;
       if (whitelistId) {
         this.logger.debug(
-          `[${server.name}] setting whitelist ${whitelistId}...`,
+          `[${game.gameServer.name}] setting whitelist ${whitelistId}...`,
         );
         await rcon.send(tftrueWhitelistId(whitelistId));
       }
 
-      const password = generate({ length: 10, numbers: true, uppercase: true });
-      this.logger.debug(`[${server.name}] setting password to ${password}...`);
+      const password = generateGameserverPassword();
+      this.logger.debug(
+        `[${game.gameServer.name}] setting password to ${password}...`,
+      );
       await rcon.send(setPassword(password));
 
       const slots = await Promise.all(
@@ -110,7 +128,7 @@ export class ServerConfiguratorService {
           slot.team,
           slot.gameClass,
         );
-        this.logger.debug(`[${server.name}] ${cmd}`);
+        this.logger.debug(`[${game.gameServer.name}] ${cmd}`);
         await rcon.send(cmd);
       }
 
@@ -119,19 +137,21 @@ export class ServerConfiguratorService {
         logsTfTitle(`${this.environment.websiteName} #${game.number}`),
       );
 
-      const tvPortValue = extractConVarValue(await rcon.send(tvPort()));
-      const tvPasswordValue = extractConVarValue(await rcon.send(tvPassword()));
+      this.logger.debug(`[${game.gameServer.name}] server ready.`);
 
-      this.logger.debug(`[${server.name}] server ready.`);
+      const connectString = makeConnectString({
+        address: game.gameServer.address,
+        port: game.gameServer.port,
+        password,
+      });
+      this.logger.verbose(`[${game.gameServer.name}] ${connectString}`);
 
-      const connectString = `connect ${server.address}:${server.port}; password ${password}`;
-      this.logger.verbose(`[${server.name}] ${connectString}`);
-
-      let stvConnectString = `connect ${server.address}:${tvPortValue}`;
-      if (tvPasswordValue?.length > 0) {
-        stvConnectString += `; password ${tvPasswordValue}`;
-      }
-      this.logger.verbose(`[${server.name} stv] ${stvConnectString}`);
+      const stvConnectString = makeConnectString({
+        address: game.gameServer.address,
+        port: extractConVarValue(await rcon.send(tvPort())),
+        password: extractConVarValue(await rcon.send(tvPassword())),
+      });
+      this.logger.verbose(`[${game.gameServer.name} stv] ${stvConnectString}`);
 
       return {
         connectString,
@@ -139,30 +159,36 @@ export class ServerConfiguratorService {
       };
     } catch (error) {
       throw new Error(
-        `could not configure server ${server.name} (${error.message})`,
+        `could not configure server ${game.gameServer.name} (${error.message})`,
       );
     } finally {
       await rcon?.end();
     }
   }
 
-  async cleanupServer(gameServerId: string) {
-    const gameServer = await this.gameServersService.getById(gameServerId);
+  async cleanupServer(gameId: string) {
+    const game = await this.gamesService.getById(gameId);
+    if (!game.gameServer) {
+      throw new GameServerNotAssignedError(game.id);
+    }
+
+    const controls = await this.gameServersService.getControls(game.gameServer);
+
     let rcon: Rcon;
     try {
-      rcon = await gameServer.rcon();
+      rcon = await controls.rcon();
 
       const logAddress = `${this.environment.logRelayAddress}:${this.environment.logRelayPort}`;
       this.logger.debug(
-        `[${gameServer.name}] removing log address ${logAddress}...`,
+        `[${game.gameServer.name}] removing log address ${logAddress}...`,
       );
       await rcon.send(logAddressDel(logAddress));
       await rcon.send(delAllGamePlayers());
       await rcon.send(disablePlayerWhitelist());
-      this.logger.verbose(`[${gameServer.name}] server cleaned up`);
+      this.logger.verbose(`[${game.gameServer.name}] server cleaned up`);
     } catch (error) {
       throw new Error(
-        `could not cleanup server ${gameServer.name} (${error.message})`,
+        `could not cleanup server ${game.gameServer.name} (${error.message})`,
       );
     } finally {
       await rcon?.end();

@@ -1,6 +1,5 @@
 import { Environment } from '@/environment/environment';
 import { Events } from '@/events/events';
-import { GameServer } from '@/game-servers/models/game-server';
 import { Game } from '@/games/models/game';
 import { GameState } from '@/games/models/game-state';
 import { Player } from '@/players/models/player';
@@ -25,10 +24,8 @@ import { DiscordService } from './discord.service';
 import { URL } from 'url';
 import { substituteRequested } from '../notifications/substitute-requested';
 import { GamesService } from '@/games/services/games.service';
-import {
-  isStaticGameServer,
-  StaticGameServer,
-} from '@/game-servers/providers/static-game-server/models/static-game-server';
+import { StaticGameServer } from '@/game-servers/providers/static-game-server/models/static-game-server';
+import { StaticGameServersService } from '@/game-servers/providers/static-game-server/services/static-game-servers.service';
 import { mapsScrambled } from '../notifications/maps-scrambled';
 
 const playerSkillEqual = (
@@ -60,6 +57,7 @@ export class AdminNotificationsService implements OnModuleInit {
     private environment: Environment,
     private playersService: PlayersService,
     private gamesService: GamesService,
+    private readonly staticGameServersService: StaticGameServersService,
   ) {}
 
   onModuleInit() {
@@ -79,28 +77,24 @@ export class AdminNotificationsService implements OnModuleInit {
       ({ playerId, oldSkill, newSkill, adminId }) =>
         this.onPlayerSkillChanged(playerId, oldSkill, newSkill, adminId),
     );
-    this.events.gameServerAdded.subscribe(({ gameServer }) =>
+    this.staticGameServersService.gameServerAdded.subscribe((gameServer) =>
       this.onGameServerAdded(gameServer),
     );
-    this.events.gameServerUpdated
+    this.staticGameServersService.gameServerUpdated
       .pipe(
-        filter(({ newGameServer }) => isStaticGameServer(newGameServer)),
         filter(
           ({ oldGameServer, newGameServer }) =>
-            (oldGameServer as StaticGameServer).isOnline === true &&
-            (newGameServer as StaticGameServer).isOnline === false,
+            oldGameServer.isOnline === true && newGameServer.isOnline === false,
         ),
       )
       .subscribe(({ newGameServer }) =>
         this.onGameServerWentOffline(newGameServer),
       );
-    this.events.gameServerUpdated
+    this.staticGameServersService.gameServerUpdated
       .pipe(
-        filter(({ newGameServer }) => isStaticGameServer(newGameServer)),
         filter(
           ({ oldGameServer, newGameServer }) =>
-            (oldGameServer as StaticGameServer).isOnline === false &&
-            (newGameServer as StaticGameServer).isOnline === true,
+            oldGameServer.isOnline === false && newGameServer.isOnline === true,
         ),
       )
       .subscribe(({ newGameServer }) =>
@@ -284,7 +278,7 @@ export class AdminNotificationsService implements OnModuleInit {
     });
   }
 
-  private async onGameServerAdded(gameServer: GameServer) {
+  private onGameServerAdded(gameServer: StaticGameServer) {
     this.discordService.getAdminsChannel()?.send({
       embeds: [
         gameServerAdded({
@@ -298,7 +292,7 @@ export class AdminNotificationsService implements OnModuleInit {
     });
   }
 
-  private async onGameServerWentOffline(gameServer: GameServer) {
+  private onGameServerWentOffline(gameServer: StaticGameServer) {
     this.discordService.getAdminsChannel()?.send({
       embeds: [
         gameServerOffline({
@@ -312,7 +306,7 @@ export class AdminNotificationsService implements OnModuleInit {
     });
   }
 
-  private async onGameServerBackOnline(gameServer: GameServer) {
+  private onGameServerBackOnline(gameServer: StaticGameServer) {
     this.discordService.getAdminsChannel()?.send({
       embeds: [
         gameServerOnline({

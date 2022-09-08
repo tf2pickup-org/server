@@ -3,7 +3,6 @@ import { GameLauncherService } from './game-launcher.service';
 import { GameServersService } from '@/game-servers/services/game-servers.service';
 import { ServerConfiguratorService } from './server-configurator.service';
 import { Events } from '@/events/events';
-import { GameServer } from '@/game-servers/models/game-server';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
 import {
@@ -12,9 +11,9 @@ import {
   MongooseModule,
 } from '@nestjs/mongoose';
 import { Model, Types, Error as MongooseError, Connection } from 'mongoose';
-import { staticGameServerProviderName } from '@/game-servers/providers/static-game-server/static-game-server-provider-name';
 import { Game, GameDocument, gameSchema } from '@/games/models/game';
 import { GamesService } from '@/games/services/games.service';
+import { GameServerOptionWithProvider } from '@/game-servers/interfaces/game-server-option';
 
 jest.mock('@/game-servers/services/game-servers.service');
 jest.mock('@/games/services/games.service');
@@ -28,7 +27,7 @@ describe('GameLauncherService', () => {
   let mongod: MongoMemoryServer;
   let game: GameDocument;
   let gameModel: Model<GameDocument>;
-  let mockGameServer: jest.Mocked<GameServer>;
+  let mockGameServer: GameServerOptionWithProvider;
   let connection: Connection;
 
   beforeAll(async () => (mongod = await MongoMemoryServer.create()));
@@ -63,21 +62,14 @@ describe('GameLauncherService', () => {
 
     mockGameServer = {
       id: 'FAKE_GAME_SERVER_ID',
-      provider: staticGameServerProviderName,
-      createdAt: new Date(),
+      provider: 'test',
       name: 'FAKE_GAME_SERVER',
       address: 'localhost',
-      port: '27015',
-      rcon: jest.fn().mockRejectedValue(new Error('not implemented')),
-      getLogsecret: jest.fn().mockResolvedValue('FAKE_LOGSECRET'),
-      start: jest.fn().mockResolvedValue(mockGameServer),
-      serialize: jest.fn(),
+      port: 27015,
     };
   });
 
   beforeEach(async () => {
-    gameServersService.assignGameServer.mockResolvedValue(mockGameServer);
-
     serverConfiguratorService.configureServer.mockResolvedValue({
       connectString: 'FAKE_CONNECT_STRING',
       stvConnectString: 'FAKE_STV_CONNECT_STRING',
@@ -85,6 +77,17 @@ describe('GameLauncherService', () => {
 
     // @ts-expect-error
     game = await gamesService._createOne();
+    gameServersService.assignGameServer.mockImplementation(async () => {
+      game.gameServer = {
+        id: 'FAKE_GAMESERVER',
+        name: 'FAKE GAMESERVER',
+        provider: 'test',
+        address: 'localhost',
+        port: 27015,
+      };
+      await game.save();
+      return game;
+    });
   });
 
   afterEach(async () => {

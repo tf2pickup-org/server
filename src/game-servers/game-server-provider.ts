@@ -1,12 +1,13 @@
-import { GameServer } from './models/game-server';
-
-type GameServerConstructor = {
-  new (...args: any[]): GameServer;
-};
+import { GameServerControls } from './interfaces/game-server-controls';
+import { GameServerOption } from './interfaces/game-server-option';
 
 export interface GameServerProvider {
   readonly gameServerProviderName: string;
-  readonly implementingClass: GameServerConstructor;
   readonly priority?: number;
-  findFirstFreeGameServer: () => Promise<GameServer>;
+  getControls: (gameServerId: string) => Promise<GameServerControls>;
+  findFirstFreeGameServer: () => Promise<GameServerOption>;
+  onGameServerAssigned?: (params: {
+    gameServerId: string;
+    gameId: string;
+  }) => void | Promise<void>;
 }

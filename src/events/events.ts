@@ -1,6 +1,4 @@
 import { ConfigurationEntryKey } from '@/configuration/models/configuration-entry-key';
-import { GameServer } from '@/game-servers/models/game-server';
-import { StaticGameServer } from '@/game-servers/providers/static-game-server/models/static-game-server';
 import { Game } from '@/games/models/game';
 import { Tf2Team } from '@/games/models/tf2-team';
 import { Player } from '@/players/models/player';
@@ -112,12 +110,6 @@ export class Events {
    * @deprecated
    */
   readonly substituteRequestsChange = new Subject<void>();
-
-  readonly gameServerAdded = new Subject<{ gameServer: StaticGameServer }>();
-  readonly gameServerUpdated = new Subject<{
-    oldGameServer: GameServer;
-    newGameServer: GameServer;
-  }>();
 
   readonly configurationEntryChanged = new Subject<{
     entryKey: ConfigurationEntryKey | string;

@@ -37,6 +37,15 @@ export class StaticGameServersController {
     return await this.staticGameServersService.getAllGameServers();
   }
 
+  @Get(':id')
+  @UseInterceptors(ClassSerializerInterceptor)
+  @UseFilters(DocumentNotFoundFilter)
+  async getOneGameServer(
+    @Param('id', ObjectIdValidationPipe) gameServerId: string,
+  ) {
+    return await this.staticGameServersService.getById(gameServerId);
+  }
+
   @Post()
   @Secret(SecretPurpose.gameServer)
   @UsePipes(ValidationPipe)
@@ -45,7 +54,7 @@ export class StaticGameServersController {
     @Body() heartbeat: GameServerHeartbeat,
     @RealIp() internalIpAddress: string,
   ) {
-    return this.staticGameServersService.heartbeat({
+    return await this.staticGameServersService.heartbeat({
       ...heartbeat,
       internalIpAddress: heartbeat.internalIpAddress ?? internalIpAddress,
     });

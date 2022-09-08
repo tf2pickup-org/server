@@ -15,9 +15,9 @@ import {
   gameServerDiagnosticRunSchema,
 } from '../models/game-server-diagnostic-run';
 import { GameServerDiagnosticsService } from './game-server-diagnostics.service';
-import { GameServersService } from '../../../services/game-servers.service';
+import { StaticGameServersService } from './static-game-servers.service';
 
-jest.mock('../../../services/game-servers.service');
+jest.mock('./static-game-servers.service');
 jest.mock('../diagnostic-checks/log-forwarding');
 jest.mock('../diagnostic-checks/rcon-connection');
 
@@ -43,7 +43,7 @@ describe('GameServerDiagnosticsService', () => {
       ],
       providers: [
         GameServerDiagnosticsService,
-        GameServersService,
+        StaticGameServersService,
         RconConnection,
         LogForwarding,
       ],
