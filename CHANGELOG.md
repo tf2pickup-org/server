@@ -1,3 +1,34 @@
+
+
+# [10.0.0-alpha.7](https://github.com/tf2pickup-org/server/compare/10.0.0-alpha.6...10.0.0-alpha.7) (2022-09-08)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @redis/client to v1.3.0 ([#1888](https://github.com/tf2pickup-org/server/issues/1888)) ([1ae08a6](https://github.com/tf2pickup-org/server/commit/1ae08a6be0b5ee0dfefba8b23c83828195e9117f))
+* **deps:** update dependency app-root-path to v3.1.0 ([#1871](https://github.com/tf2pickup-org/server/issues/1871)) ([a73b211](https://github.com/tf2pickup-org/server/commit/a73b211073500175a2782327f598ca5814693ce7))
+* **deps:** update dependency async-mutex to v0.4.0 ([#1912](https://github.com/tf2pickup-org/server/issues/1912)) ([05ead1b](https://github.com/tf2pickup-org/server/commit/05ead1b9bd3fccbbd14de665088fc342eddd63ad))
+* **deps:** update dependency discord.js to v13.10.3 ([#1884](https://github.com/tf2pickup-org/server/issues/1884)) ([2eca2df](https://github.com/tf2pickup-org/server/commit/2eca2dfd513fe3723c1a68cf1fcd83e292897e29))
+* **deps:** update dependency mongodb to v4.9.0 ([#1876](https://github.com/tf2pickup-org/server/issues/1876)) ([c78441c](https://github.com/tf2pickup-org/server/commit/c78441cffd0b8aa25e1c5f71a5e7f7abe05068b6))
+* **deps:** update dependency mongodb to v4.9.1 ([#1908](https://github.com/tf2pickup-org/server/issues/1908)) ([3bbee3f](https://github.com/tf2pickup-org/server/commit/3bbee3f99765b7c05a81ebfa738f43d5b5c6b7e7))
+* **deps:** update dependency mongoose to v6.5.3 ([#1895](https://github.com/tf2pickup-org/server/issues/1895)) ([33f92b8](https://github.com/tf2pickup-org/server/commit/33f92b8155e43555abc8de77af9da7c30feb5517))
+* **deps:** update dependency mongoose to v6.5.4 ([#1906](https://github.com/tf2pickup-org/server/issues/1906)) ([a44d55b](https://github.com/tf2pickup-org/server/commit/a44d55b14ac9ae5ada7cbf5b323fc9c5bafc1091))
+* **deps:** update dependency mongoose to v6.5.5 ([#1919](https://github.com/tf2pickup-org/server/issues/1919)) ([66ec03f](https://github.com/tf2pickup-org/server/commit/66ec03f92e166d7a89a85f6fa80140d8d6c95e38))
+* **deps:** update nest monorepo to v9.0.11 ([#1872](https://github.com/tf2pickup-org/server/issues/1872)) ([f9039df](https://github.com/tf2pickup-org/server/commit/f9039df9609fecf4be0e5a87cceeb1e341983f5a))
+* **logs-tf:** set uploader name to tf2pickup.org ([#1869](https://github.com/tf2pickup-org/server/issues/1869)) ([2a0b2b3](https://github.com/tf2pickup-org/server/commit/2a0b2b3bb20f41128bdd215c60974bf2efe3396c))
+* **players:** fix player preferences serialization ([#1873](https://github.com/tf2pickup-org/server/issues/1873)) ([f223cf0](https://github.com/tf2pickup-org/server/commit/f223cf0925af075783a7596bb0968ddad5b11d03))
+
+
+### Features
+
+* **games:** new game server model ([#1851](https://github.com/tf2pickup-org/server/issues/1851)) ([7c59993](https://github.com/tf2pickup-org/server/commit/7c59993c7e83350927d29435ac32d84f92e67746))
+
+
+### BREAKING CHANGES
+
+* **games:** GameServer model is gone
+* **games:** /game-servers endpoint is removed
+
 ## [9.1.8](https://github.com/tf2pickup-org/server/compare/9.1.7...9.1.8) (2022-08-16)
 
 
