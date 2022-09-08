@@ -1,5 +1,18 @@
 
 
+# [10.0.0-alpha.8](https://github.com/tf2pickup-org/server/compare/10.0.0-alpha.7...10.0.0-alpha.8) (2022-09-08)
+
+
+### Bug Fixes
+
+* **deps:** update dependency helmet to v6 ([#1900](https://github.com/tf2pickup-org/server/issues/1900)) ([8fac4a8](https://github.com/tf2pickup-org/server/commit/8fac4a8fc3a897be73b79da4ad8acd159d6b8198))
+* **discord:** fix DiscordModule imports ([#1920](https://github.com/tf2pickup-org/server/issues/1920)) ([9b71d34](https://github.com/tf2pickup-org/server/commit/9b71d34e0cc1c6e60b7cab32433049d17c104e7e))
+
+
+### Features
+
+* **environment:** make WEBSITE_NAME required ([#1854](https://github.com/tf2pickup-org/server/issues/1854)) ([6fcb6e6](https://github.com/tf2pickup-org/server/commit/6fcb6e68588acf063d12e67feafc449341b70dba))
+
 # [10.0.0-alpha.7](https://github.com/tf2pickup-org/server/compare/10.0.0-alpha.6...10.0.0-alpha.7) (2022-09-08)
 
 
