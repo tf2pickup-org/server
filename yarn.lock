@@ -8481,22 +8481,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mongodb@npm:4.8.1":
-  version: 4.8.1
-  resolution: "mongodb@npm:4.8.1"
-  dependencies:
-    bson: ^4.6.5
-    denque: ^2.0.1
-    mongodb-connection-string-url: ^2.5.2
-    saslprep: ^1.0.3
-    socks: ^2.6.2
-  dependenciesMeta:
-    saslprep:
-      optional: true
-  checksum: 97ff4ebe3fde7b3b5b133d8f7a2e4d6e372c44f8223a6d40b13bb3a705bbbb48ed50958a0fc6b3a33161605723479fced8e0eb83cf7fd5271f7530e6e2d67a2d
-  languageName: node
-  linkType: hard
-
 "mongodb@npm:4.9.1":
   version: 4.9.1
   resolution: "mongodb@npm:4.9.1"
@@ -8574,18 +8558,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mongoose@npm:6.5.5":
-  version: 6.5.5
-  resolution: "mongoose@npm:6.5.5"
+"mongoose@npm:6.6.0":
+  version: 6.6.0
+  resolution: "mongoose@npm:6.6.0"
   dependencies:
     bson: ^4.6.5
     kareem: 2.4.1
-    mongodb: 4.8.1
+    mongodb: 4.9.1
     mpath: 0.9.0
     mquery: 4.0.3
     ms: 2.1.3
     sift: 16.0.0
-  checksum: b3cec2cc3e53e26eae5c091de678e3ea70962570e4af7326100a29fba64bb0a657eb2096743edc73b0647c851d1ca5f9ea4ea8bd6ba463cdae5504d9affa96f2
+  checksum: 41f5bc38fd8cf394b3964b61d351de263a50cbfc94b968c186f94c584211471dbeaea65b6a9b70c84d764219a730616e4242f75263e272f5a171bed520313e2e
   languageName: node
   linkType: hard
 
@@ -10343,7 +10327,7 @@ __metadata:
     mongodb: 4.9.1
     mongodb-memory-server: 8.9.1
     mongodb-uri: 0.9.7
-    mongoose: 6.5.5
+    mongoose: 6.6.0
     nestjs-real-ip: 2.2.0
     passport: 0.6.0
     passport-headerapikey: 1.2.2
