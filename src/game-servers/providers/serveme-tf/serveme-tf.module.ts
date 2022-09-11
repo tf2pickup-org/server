@@ -7,22 +7,23 @@ import { servemeTfConfigurationModelProvider } from './serveme-tf-configuration-
 import { ConfigurationModule } from '@/configuration/configuration.module';
 import { ServemeTfConfigurationService } from './services/serveme-tf-configuration.service';
 import { ServemeTfController } from './controllers/serveme-tf.controller';
-import { MongooseModule } from '@nestjs/mongoose';
 import {
   ServemeTfGameServer,
   servemeTfGameServerSchema,
 } from './models/serveme-tf-game-server';
+import { workaroundModelProvider } from '@/utils/workaround-model-provider';
 
 @Module({
   imports: [
     HttpModule,
     forwardRef(() => GameServersModule),
     ConfigurationModule,
-    MongooseModule.forFeature([
-      { name: ServemeTfGameServer.name, schema: servemeTfGameServerSchema },
-    ]),
   ],
   providers: [
+    workaroundModelProvider({
+      name: ServemeTfGameServer.name,
+      schema: servemeTfGameServerSchema,
+    }),
     ServemeTfService,
     ServemeTfApiService,
     servemeTfConfigurationModelProvider,
