@@ -28,6 +28,7 @@ import { GameDto } from '../dto/game.dto';
 import { Serializable } from '@/shared/serializable';
 import { PaginatedGameListDto } from '../dto/paginated-game-list.dto';
 import { Events } from '@/events/events';
+import { GameServerOptionWithProvider } from '@/game-servers/interfaces/game-server-option';
 
 const sortOptions: string[] = [
   'launched_at',
@@ -142,6 +143,7 @@ export class GamesController {
     @Query('force_end') forceEnd: any,
     @Query('substitute_player') substitutePlayerId: string,
     @Query('substitute_player_cancel') cancelSubstitutePlayerId: string,
+    @Query('assign_gameserver') gameServer: GameServerOptionWithProvider,
     @User() admin: Player,
   ) {
     if (reinitializeServer !== undefined) {
@@ -166,6 +168,10 @@ export class GamesController {
         cancelSubstitutePlayerId,
         admin.id,
       );
+    }
+
+    if (gameServer !== undefined) {
+      await
     }
   }
 }

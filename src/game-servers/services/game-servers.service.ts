@@ -37,6 +37,19 @@ export class GameServersService implements OnApplicationBootstrap {
     this.providers.sort((a, b) => (b.priority ?? 0) - (a.priority ?? 0));
   }
 
+  async findAllGameServerOptions(): Promise<GameServerOptionWithProvider[]> {
+    const options: GameServerOptionWithProvider[] = [];
+    for (const provider of this.providers) {
+      options.push(
+        ...(await provider.findGameServerOptions()).map((option) => ({
+          ...option,
+          provider: provider.gameServerProviderName,
+        })),
+      );
+    }
+    return options;
+  }
+
   async findFreeGameServer(): Promise<GameServerOptionWithProvider> {
     for (const provider of this.providers) {
       try {
@@ -60,10 +73,29 @@ export class GameServersService implements OnApplicationBootstrap {
     return await provider.getControls(gameServer.id);
   }
 
-  async assignGameServer(gameId: string): Promise<Game> {
+  async assignGameServer(
+    gameId: string,
+    gameServer?: GameServerOptionWithProvider,
+  ): Promise<Game> {
     return await this.mutex.runExclusive(async () => {
       let game = await this.gamesService.getById(gameId);
-      const gameServer = await this.findFreeGameServer();
+      if (game.gameServer) {
+        const provider = this.providerByName(game.gameServer.provider);
+        game = await this.gamesService.update(game.id, {
+          $unset: {
+            gameServer: 1,
+          },
+        });
+        await provider.onGameServerUnassigned?.({
+          gameServerId: game.gameServer.id,
+          gameId: game.id,
+        });
+      }
+
+      if (gameServer === undefined) {
+        gameServer = await this.findFreeGameServer();
+      }
+
       this.logger.log(
         `using gameserver ${gameServer.name} for game #${game.number}`,
       );

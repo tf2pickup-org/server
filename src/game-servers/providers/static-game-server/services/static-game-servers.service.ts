@@ -130,6 +130,16 @@ export class StaticGameServersService
     );
   }
 
+  async findGameServerOptions(): Promise<GameServerOption[]> {
+    const gameServers = await this.getFreeGameServers();
+    return gameServers.map((gameServer) => ({
+      id: gameServer.id,
+      name: gameServer.name,
+      address: gameServer.address,
+      port: parseInt(gameServer.port, 10),
+    }));
+  }
+
   async findFirstFreeGameServer(): Promise<GameServerOption> {
     const gameServers = await this.getFreeGameServers();
     if (gameServers.length > 0) {

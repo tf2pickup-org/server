@@ -104,6 +104,10 @@ export class Events {
     adminId?: string;
   }>();
 
+  readonly gameServerReassignRequested = new Subject<{
+    gameId: string;
+  }>();
+
   readonly substituteRequested = new Subject<{
     gameId: string;
     playerId: string;
