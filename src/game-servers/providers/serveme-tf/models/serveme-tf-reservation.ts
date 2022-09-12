@@ -56,7 +56,7 @@ export class ServemeTfReservation extends MongooseDocument {
   status: ReservationStatus;
 
   @Prop()
-  id: number;
+  reservationId: number;
 
   @Prop()
   logsecret: string;

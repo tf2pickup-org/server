@@ -11,7 +11,9 @@ export class ServemeTfServerControls implements GameServerControls {
   ) {}
 
   async start(): Promise<void> {
-    await this.servemeTfApiService.waitForServerToStart(this.reservation.id);
+    await this.servemeTfApiService.waitForServerToStart(
+      this.reservation.reservationId,
+    );
   }
 
   async rcon(): Promise<Rcon> {

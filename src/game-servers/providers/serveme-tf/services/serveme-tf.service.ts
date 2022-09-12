@@ -17,6 +17,39 @@ import {
   ServemeTfReservation,
   ServemeTfReservationDocument,
 } from '../models/serveme-tf-reservation';
+import { ReservationStatus } from '../models/reservation-status';
+
+type ValueType<T> = T extends Promise<infer U> ? U : T;
+
+const toReservationStatus = (
+  status: ValueType<
+    ReturnType<ServemeTfApiService['reserveServer']>
+  >['reservation']['status'],
+): ReservationStatus => {
+  switch (status) {
+    case 'Waiting to start':
+      return ReservationStatus.waitingToStart;
+
+    case 'Starting':
+      return ReservationStatus.starting;
+
+    case 'Server updating, please be patient':
+      return ReservationStatus.serverUpdating;
+
+    case 'Ready':
+    case 'SDR Ready':
+      return ReservationStatus.ready;
+
+    case 'Ending':
+      return ReservationStatus.ending;
+
+    case 'Ended':
+      return ReservationStatus.ended;
+
+    default:
+      return ReservationStatus.unknown;
+  }
+};
 
 @Injectable()
 export class ServemeTfService implements GameServerProvider, OnModuleInit {
@@ -63,7 +96,9 @@ export class ServemeTfService implements GameServerProvider, OnModuleInit {
       )
       .subscribe(
         async (reservation) =>
-          await this.servemeTfApiService.endServerReservation(reservation.id),
+          await this.servemeTfApiService.endServerReservation(
+            reservation.reservationId,
+          ),
       );
   }
 
@@ -85,8 +120,8 @@ export class ServemeTfService implements GameServerProvider, OnModuleInit {
         rcon: reservation.rcon,
         tvPassword: reservation.tv_password,
         tvRelayPassword: reservation.tv_relaypassword,
-        status: reservation.status,
-        id: reservation.id,
+        status: toReservationStatus(reservation.status),
+        reservationId: reservation.id,
         logsecret: reservation.logsecret,
         ended: reservation.ended,
         steamId: reservation.steam_uid,
@@ -107,7 +142,7 @@ export class ServemeTfService implements GameServerProvider, OnModuleInit {
         port: parseInt(reservation.server.port, 10),
       };
     } catch (error) {
-      this.logger.error(`failed creating reservation: ${error.toString()}`);
+      this.logger.error(`failed to create reservation: ${error.toString()}`);
       throw new NoFreeGameServerAvailableError();
     }
   }

@@ -95,7 +95,7 @@ describe('ServemeTfService', () => {
     describe('when a game ends', () => {
       beforeEach(async () => {
         const reservation = await servemeTfReservationModel.create({
-          id: 1250567,
+          reservationId: 1250567,
           password: 'FAKE_PASSWORD',
           rcon: 'FAKE_RCON_PASSWORD',
           logsecret: 'FAKE_LOGSECRET',
@@ -195,7 +195,7 @@ describe('ServemeTfService', () => {
         expect(gameServer.server.name).toEqual('FAKE_SERVER_NAME');
         expect(gameServer.server.ip).toEqual('FAKE_SERVER_ADDRESS');
         expect(gameServer.server.port).toEqual('27015');
-        expect(gameServer.id).toEqual(69);
+        expect(gameServer.reservationId).toEqual(69);
       });
 
       it('should return the gameserver', async () => {
