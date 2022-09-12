@@ -10,13 +10,13 @@ import { plainToInstance } from 'class-transformer';
 import { Model } from 'mongoose';
 import { from } from 'rxjs';
 import { delay, exhaustMap, filter, take } from 'rxjs/operators';
-import {
-  ServemeTfGameServer,
-  ServemeTfGameServerDocument,
-} from '../models/serveme-tf-game-server';
 import { ServemeTfServerControls } from '../serveme-tf-server-controls';
 import { ServemeTfApiService } from './serveme-tf-api.service';
 import { endReservationDelay } from '../config';
+import {
+  ServemeTfReservation,
+  ServemeTfReservationDocument,
+} from '../models/serveme-tf-reservation';
 
 @Injectable()
 export class ServemeTfService implements GameServerProvider, OnModuleInit {
@@ -26,8 +26,8 @@ export class ServemeTfService implements GameServerProvider, OnModuleInit {
   constructor(
     private gameServersService: GameServersService,
     private servemeTfApiService: ServemeTfApiService,
-    @InjectModel(ServemeTfGameServer.name)
-    private servemeTfGameServerModel: Model<ServemeTfGameServerDocument>,
+    @InjectModel(ServemeTfReservation.name)
+    private servemeTfReservationModel: Model<ServemeTfReservationDocument>,
     private events: Events,
   ) {}
 
@@ -36,11 +36,11 @@ export class ServemeTfService implements GameServerProvider, OnModuleInit {
     this.logger.verbose('serveme.tf integration enabled');
   }
 
-  async getById(gameServerId: string): Promise<ServemeTfGameServer> {
+  async getById(reservationId: string): Promise<ServemeTfReservation> {
     return plainToInstance(
-      ServemeTfGameServer,
-      await this.servemeTfGameServerModel
-        .findById(gameServerId)
+      ServemeTfReservation,
+      await this.servemeTfReservationModel
+        .findById(reservationId)
         .orFail()
         .lean()
         .exec(),
@@ -62,10 +62,8 @@ export class ServemeTfService implements GameServerProvider, OnModuleInit {
         exhaustMap(({ newGame }) => from(this.getById(newGame.gameServer.id))),
       )
       .subscribe(
-        async (gameServer) =>
-          await this.servemeTfApiService.endServerReservation(
-            gameServer.reservation.id,
-          ),
+        async (reservation) =>
+          await this.servemeTfApiService.endServerReservation(reservation.id),
       );
   }
 
@@ -79,30 +77,34 @@ export class ServemeTfService implements GameServerProvider, OnModuleInit {
   async findFirstFreeGameServer(): Promise<GameServerOption> {
     try {
       const { reservation } = await this.servemeTfApiService.reserveServer();
-      const { id } = await this.servemeTfGameServerModel.create({
-        name: reservation.server.name,
-        address: reservation.server.ip,
-        port: reservation.server.port,
-        reservation: {
-          id: reservation.id,
-          startsAt: new Date(reservation.starts_at),
-          endsAt: new Date(reservation.ends_at),
-          serverId: reservation.server.id,
-          password: reservation.password,
-          rcon: reservation.rcon,
-          logsecret: reservation.logsecret,
-          steamId: reservation.steam_uid,
+      const { id } = await this.servemeTfReservationModel.create({
+        startsAt: new Date(reservation.starts_at),
+        endsAt: new Date(reservation.ends_at),
+        serverId: reservation.server_id,
+        password: reservation.password,
+        rcon: reservation.rcon,
+        tvPassword: reservation.tv_password,
+        tvRelayPassword: reservation.tv_relaypassword,
+        status: reservation.status,
+        id: reservation.id,
+        logsecret: reservation.logsecret,
+        ended: reservation.ended,
+        steamId: reservation.steam_uid,
+        server: {
+          id: reservation.server.id,
+          name: reservation.server.name,
+          flag: reservation.server.flag,
+          ip: reservation.server.ip,
+          port: reservation.server.port,
+          latitude: reservation.server.latitude,
+          longitude: reservation.server.longitude,
         },
       });
-      const gameServer = plainToInstance(
-        ServemeTfGameServer,
-        await this.servemeTfGameServerModel.findById(id).lean().exec(),
-      );
       return {
-        id: gameServer.id,
-        name: gameServer.name,
-        address: gameServer.address,
-        port: parseInt(gameServer.port, 10),
+        id,
+        name: reservation.server.name,
+        address: reservation.server.ip,
+        port: parseInt(reservation.server.port, 10),
       };
     } catch (error) {
       this.logger.error(`failed creating reservation: ${error.toString()}`);
