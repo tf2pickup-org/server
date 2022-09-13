@@ -12,7 +12,7 @@ import {
 } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import { Connection, Model } from 'mongoose';
+import { Connection, Model, Types } from 'mongoose';
 import { ServemeTfApiService } from './serveme-tf-api.service';
 import { ServemeTfService } from './serveme-tf.service';
 import { ServemeTfServerControls } from '../serveme-tf-server-controls';
@@ -89,6 +89,34 @@ describe('ServemeTfService', () => {
 
   it('should register provider', () => {
     expect(gameServersService.registerProvider).toHaveBeenCalledWith(service);
+  });
+
+  describe('#getById()', () => {
+    let reservationId: Types.ObjectId;
+
+    beforeEach(async () => {
+      const reservation = await servemeTfReservationModel.create({
+        reservationId: 1250567,
+        password: 'FAKE_PASSWORD',
+        rcon: 'FAKE_RCON_PASSWORD',
+        logsecret: 'FAKE_LOGSECRET',
+        steamId: 'FAKE_STEAM_ID',
+        server: {
+          id: 306,
+          name: 'BolusBrigade #12',
+          flag: 'de',
+          ip: 'bolus.fakkelbrigade.eu',
+          port: '27125',
+        },
+      });
+
+      reservationId = reservation._id;
+    });
+
+    it('should return reservation by id', async () => {
+      const reservation = await service.getById(reservationId);
+      expect(reservation.reservationId).toBe(1250567);
+    });
   });
 
   describe('#onGameServerAssigned()', () => {

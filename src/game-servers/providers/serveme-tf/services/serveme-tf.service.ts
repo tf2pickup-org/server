@@ -7,7 +7,7 @@ import { GameServersService } from '@/game-servers/services/game-servers.service
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { plainToInstance } from 'class-transformer';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { from } from 'rxjs';
 import { delay, exhaustMap, filter, take } from 'rxjs/operators';
 import { ServemeTfServerControls } from '../serveme-tf-server-controls';
@@ -69,7 +69,9 @@ export class ServemeTfService implements GameServerProvider, OnModuleInit {
     this.logger.verbose('serveme.tf integration enabled');
   }
 
-  async getById(reservationId: string): Promise<ServemeTfReservation> {
+  async getById(
+    reservationId: string | Types.ObjectId,
+  ): Promise<ServemeTfReservation> {
     return plainToInstance(
       ServemeTfReservation,
       await this.servemeTfReservationModel
