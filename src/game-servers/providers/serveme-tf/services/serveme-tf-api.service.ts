@@ -61,7 +61,7 @@ interface ReservationBounds {
   ends_at: string;
 }
 
-interface ServemeTfReservation extends ReservationBounds {
+interface Reservation extends ReservationBounds {
   server_id: number | null;
   password: string;
   rcon: string;
@@ -75,8 +75,7 @@ interface ServemeTfReservation extends ReservationBounds {
   errors: { [key: string]: { error: string } };
 }
 
-type ActiveServemeTfReservation = ServemeTfReservation &
-  ActiveReservationOptions;
+type ActiveReservation = Reservation & ActiveReservationOptions;
 
 interface ServemeTfEntryResponse {
   reservation: ReservationBounds;
@@ -86,7 +85,7 @@ interface ServemeTfEntryResponse {
 }
 
 interface ServemeTfFindServersResponse {
-  reservation: ServemeTfReservation;
+  reservation: Reservation;
   servers: ServemeTfServerOption[];
   server_configs: { id: number; file: string }[];
   whitelists: { id: number; file: string }[];
@@ -96,7 +95,7 @@ interface ServemeTfFindServersResponse {
 }
 
 interface ServemeTfReservationDetailsResponse {
-  reservation: ActiveServemeTfReservation;
+  reservation: ActiveReservation;
   actions: {
     delete: string;
     idle_reset: string;

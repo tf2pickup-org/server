@@ -1,32 +1,41 @@
 import { Types } from 'mongoose';
-import { ServemeTfGameServer } from './models/serveme-tf-game-server';
 import { ServemeTfServerControls } from './serveme-tf-server-controls';
 import { ServemeTfApiService } from './services/serveme-tf-api.service';
 import { createRcon } from '@/utils/create-rcon';
+import { ServemeTfReservation } from './models/serveme-tf-reservation';
+import { ReservationStatus } from './models/reservation-status';
 
 jest.mock('./services/serveme-tf-api.service');
 jest.mock('@/utils/create-rcon');
 
 describe('ServemeTfServerControls', () => {
   let controls: ServemeTfServerControls;
-  let gameServer: ServemeTfGameServer;
+  let reservation: ServemeTfReservation;
   let servemeTfApiService: jest.Mocked<ServemeTfApiService>;
 
   beforeEach(() => {
-    gameServer = new ServemeTfGameServer();
-    gameServer.id = new Types.ObjectId().toString();
-    gameServer.name = 'BolusBrigade #04';
-    gameServer.address = 'bolus.fakkelbrigade.eu';
-    gameServer.port = '27045';
-    gameServer.reservation = {
-      id: 1251216,
-      startsAt: new Date(),
-      endsAt: new Date(),
-      serverId: 299,
-      password: 'FAKE_PASSWORD',
-      rcon: 'FAKE_RCON_PASSWORD',
-      logsecret: 'FAKE_LOGSECRET',
-      steamId: 'FAKE_STEAM_ID',
+    reservation = new ServemeTfReservation();
+    reservation._id = new Types.ObjectId();
+    reservation.startsAt = new Date();
+    reservation.endsAt = new Date();
+    reservation.serverId = 42;
+    reservation.password = 'FAKE_PASSWORD';
+    reservation.rcon = 'FAKE_RCON_PASSWORD';
+    reservation.tvPassword = 'FAKE_TV_PASSWORD';
+    reservation.tvRelayPassword = 'FAKE_TV_RELAY_PASSWORD';
+    reservation.status = ReservationStatus.ready;
+    reservation.reservationId = 1251216;
+    reservation.logsecret = 'FAKE_LOGSECRET';
+    reservation.ended = false;
+    reservation.steamId = 'FAKE_STEAM_ID';
+    reservation.server = {
+      id: 299,
+      name: 'BolusBrigade #04',
+      flag: 'de',
+      ip: 'bolus.fakkelbrigade.eu',
+      port: '27045',
+      latitude: 0,
+      longitude: 0,
     };
 
     servemeTfApiService = new ServemeTfApiService(
@@ -35,7 +44,7 @@ describe('ServemeTfServerControls', () => {
       null,
     ) as jest.Mocked<ServemeTfApiService>;
 
-    controls = new ServemeTfServerControls(gameServer, servemeTfApiService);
+    controls = new ServemeTfServerControls(reservation, servemeTfApiService);
   });
 
   describe('#start()', () => {

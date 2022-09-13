@@ -8,9 +8,9 @@ import { ConfigurationModule } from '@/configuration/configuration.module';
 import { ServemeTfConfigurationService } from './services/serveme-tf-configuration.service';
 import { ServemeTfController } from './controllers/serveme-tf.controller';
 import {
-  ServemeTfGameServer,
-  servemeTfGameServerSchema,
-} from './models/serveme-tf-game-server';
+  ServemeTfReservation,
+  servemeTfReservationSchema,
+} from './models/serveme-tf-reservation';
 import { workaroundModelProvider } from '@/utils/workaround-model-provider';
 
 @Module({
@@ -21,8 +21,8 @@ import { workaroundModelProvider } from '@/utils/workaround-model-provider';
   ],
   providers: [
     workaroundModelProvider({
-      name: ServemeTfGameServer.name,
-      schema: servemeTfGameServerSchema,
+      name: ServemeTfReservation.name,
+      schema: servemeTfReservationSchema,
     }),
     ServemeTfService,
     ServemeTfApiService,

@@ -12,15 +12,15 @@ import {
 } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import { Connection, Model } from 'mongoose';
-import {
-  ServemeTfGameServer,
-  ServemeTfGameServerDocument,
-  servemeTfGameServerSchema,
-} from '../models/serveme-tf-game-server';
+import { Connection, Model, Types } from 'mongoose';
 import { ServemeTfApiService } from './serveme-tf-api.service';
 import { ServemeTfService } from './serveme-tf.service';
 import { ServemeTfServerControls } from '../serveme-tf-server-controls';
+import {
+  ServemeTfReservation,
+  ServemeTfReservationDocument,
+  servemeTfReservationSchema,
+} from '../models/serveme-tf-reservation';
 
 jest.mock('@/game-servers/services/game-servers.service');
 jest.mock('./serveme-tf-api.service');
@@ -37,7 +37,7 @@ describe('ServemeTfService', () => {
   let service: ServemeTfService;
   let mongod: MongoMemoryServer;
   let connection: Connection;
-  let servemeTfGameServerModel: Model<ServemeTfGameServerDocument>;
+  let servemeTfReservationModel: Model<ServemeTfReservationDocument>;
   let servemeTfApiService: jest.Mocked<ServemeTfApiService>;
   let gameServersService: jest.Mocked<GameServersService>;
   let events: Events;
@@ -51,8 +51,8 @@ describe('ServemeTfService', () => {
         mongooseTestingModule(mongod),
         MongooseModule.forFeature([
           {
-            name: ServemeTfGameServer.name,
-            schema: servemeTfGameServerSchema,
+            name: ServemeTfReservation.name,
+            schema: servemeTfReservationSchema,
           },
         ]),
       ],
@@ -66,8 +66,8 @@ describe('ServemeTfService', () => {
 
     service = module.get<ServemeTfService>(ServemeTfService);
     connection = module.get(getConnectionToken());
-    servemeTfGameServerModel = module.get(
-      getModelToken(ServemeTfGameServer.name),
+    servemeTfReservationModel = module.get(
+      getModelToken(ServemeTfReservation.name),
     );
     servemeTfApiService = module.get(ServemeTfApiService);
     gameServersService = module.get(GameServersService);
@@ -79,7 +79,7 @@ describe('ServemeTfService', () => {
   });
 
   afterEach(async () => {
-    await servemeTfGameServerModel.deleteMany({});
+    await servemeTfReservationModel.deleteMany({});
     await connection.close();
   });
 
@@ -91,33 +91,60 @@ describe('ServemeTfService', () => {
     expect(gameServersService.registerProvider).toHaveBeenCalledWith(service);
   });
 
+  describe('#getById()', () => {
+    let reservationId: Types.ObjectId;
+
+    beforeEach(async () => {
+      const reservation = await servemeTfReservationModel.create({
+        reservationId: 1250567,
+        password: 'FAKE_PASSWORD',
+        rcon: 'FAKE_RCON_PASSWORD',
+        logsecret: 'FAKE_LOGSECRET',
+        steamId: 'FAKE_STEAM_ID',
+        server: {
+          id: 306,
+          name: 'BolusBrigade #12',
+          flag: 'de',
+          ip: 'bolus.fakkelbrigade.eu',
+          port: '27125',
+        },
+      });
+
+      reservationId = reservation._id;
+    });
+
+    it('should return reservation by id', async () => {
+      const reservation = await service.getById(reservationId);
+      expect(reservation.reservationId).toBe(1250567);
+    });
+  });
+
   describe('#onGameServerAssigned()', () => {
     describe('when a game ends', () => {
       beforeEach(async () => {
-        const gameServer = await servemeTfGameServerModel.create({
-          name: 'BolusBrigade #12',
-          address: 'bolus.fakkelbrigade.eu',
-          port: '27125',
-          reservation: {
-            id: 1250567,
-            startsAt: new Date('2022-05-05T09:39:11.279Z'),
-            endsAt: new Date('2022-05-05T11:39:11.049Z'),
-            serverId: 307,
-            password: 'FAKE_PASSWORD',
-            rcon: 'FAKE_RCON_PASSWORD',
-            logsecret: 'FAKE_LOGSECRET',
-            steamId: 'FAKE_STEAM_ID',
+        const reservation = await servemeTfReservationModel.create({
+          reservationId: 1250567,
+          password: 'FAKE_PASSWORD',
+          rcon: 'FAKE_RCON_PASSWORD',
+          logsecret: 'FAKE_LOGSECRET',
+          steamId: 'FAKE_STEAM_ID',
+          server: {
+            id: 306,
+            name: 'BolusBrigade #12',
+            flag: 'de',
+            ip: 'bolus.fakkelbrigade.eu',
+            port: '27125',
           },
         });
 
         const oldGame = new Game();
         oldGame.id = 'FAKE_GAME_ID';
         oldGame.gameServer = {
-          id: `${gameServer.id}`,
-          name: gameServer.name,
+          id: `${reservation._id}`,
+          name: reservation.server.name,
           provider: 'serveme.tf',
-          address: gameServer.address,
-          port: 27015,
+          address: reservation.server.ip,
+          port: 27125,
         };
         oldGame.state = GameState.started;
 
@@ -141,10 +168,10 @@ describe('ServemeTfService', () => {
   });
 
   describe('#getControls()', () => {
-    let gameServerId: string;
+    let reservationId: string;
 
     beforeEach(async () => {
-      const gameServer = await servemeTfGameServerModel.create({
+      const reservation = await servemeTfReservationModel.create({
         name: 'BolusBrigade #12',
         address: 'bolus.fakkelbrigade.eu',
         port: '27125',
@@ -159,11 +186,11 @@ describe('ServemeTfService', () => {
           steamId: 'FAKE_STEAM_ID',
         },
       });
-      gameServerId = gameServer.id;
+      reservationId = reservation._id;
     });
 
     it('should return controls', async () => {
-      const controls = await service.getControls(gameServerId);
+      const controls = await service.getControls(reservationId);
       expect(controls instanceof ServemeTfServerControls).toBe(true);
     });
   });
@@ -192,11 +219,11 @@ describe('ServemeTfService', () => {
 
       it('should store the gameserver in the model', async () => {
         await service.findFirstFreeGameServer();
-        const gameServer = await servemeTfGameServerModel.findOne();
-        expect(gameServer.name).toEqual('FAKE_SERVER_NAME');
-        expect(gameServer.address).toEqual('FAKE_SERVER_ADDRESS');
-        expect(gameServer.port).toEqual('27015');
-        expect(gameServer.reservation.id).toEqual(69);
+        const gameServer = await servemeTfReservationModel.findOne();
+        expect(gameServer.server.name).toEqual('FAKE_SERVER_NAME');
+        expect(gameServer.server.ip).toEqual('FAKE_SERVER_ADDRESS');
+        expect(gameServer.server.port).toEqual('27015');
+        expect(gameServer.reservationId).toEqual(69);
       });
 
       it('should return the gameserver', async () => {
