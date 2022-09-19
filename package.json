@@ -48,7 +48,7 @@
     "lodash": "4.17.21",
     "migrate": "1.8.0",
     "moment": "2.29.4",
-    "mongodb": "4.9.1",
+    "mongodb": "4.10.0",
     "mongodb-uri": "0.9.7",
     "mongoose": "6.6.1",
     "nestjs-real-ip": "2.2.0",
