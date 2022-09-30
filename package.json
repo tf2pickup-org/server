@@ -80,7 +80,7 @@
     "@types/mongoose": "5.11.96",
     "@types/node": "16.11.62",
     "@types/passport": "1.0.11",
-    "@types/passport-jwt": "3.0.6",
+    "@types/passport-jwt": "3.0.7",
     "@types/passport-steam": "1.0.1",
     "@types/pem": "1.9.6",
     "@types/socket.io": "3.0.1",
