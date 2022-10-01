@@ -2085,14 +2085,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/passport-jwt@npm:3.0.6":
-  version: 3.0.6
-  resolution: "@types/passport-jwt@npm:3.0.6"
+"@types/passport-jwt@npm:3.0.7":
+  version: 3.0.7
+  resolution: "@types/passport-jwt@npm:3.0.7"
   dependencies:
     "@types/express": "*"
     "@types/jsonwebtoken": "*"
     "@types/passport-strategy": "*"
-  checksum: aa1e89b30bf77e1147bd5d47118fec38705246d6789b687d7385f037fdc01bed4d1e222e9d3c5c04e871c9a06474853090c17968434f9affefc53bed4dfad32b
+  checksum: c3631b9cb8a858e1ce366de04fe0e4fd350f265e09aad7e586c064ded6183dc011806c58c13a9e4535d66f900d76d6746e9c3d79b83a90ddc7dff679cbcfbe5d
   languageName: node
   linkType: hard
 
@@ -10352,7 +10352,7 @@ __metadata:
     "@types/mongoose": 5.11.96
     "@types/node": 16.11.62
     "@types/passport": 1.0.11
-    "@types/passport-jwt": 3.0.6
+    "@types/passport-jwt": 3.0.7
     "@types/passport-steam": 1.0.1
     "@types/pem": 1.9.6
     "@types/socket.io": 3.0.1
