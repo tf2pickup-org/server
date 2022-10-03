@@ -1918,7 +1918,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/http-cache-semantics@npm:*":
+"@types/http-cache-semantics@npm:*, @types/http-cache-semantics@npm:^4.0.1":
   version: 4.0.1
   resolution: "@types/http-cache-semantics@npm:4.0.1"
   checksum: 1048aacf627829f0d5f00184e16548205cd9f964bf0841c29b36bc504509230c40bc57c39778703a1c965a6f5b416ae2cbf4c1d4589c889d2838dd9dbfccf6e9
@@ -3487,6 +3487,28 @@ __metadata:
   version: 6.0.4
   resolution: "cacheable-lookup@npm:6.0.4"
   checksum: 7aea70f5ea081aed12bf54fc165b9f80b580b0d210c85d55cc8fed2beaa9027fd321c1939c65dad945fe9eb207cea45442e01a48b5aa57542e125b716f022b6d
+  languageName: node
+  linkType: hard
+
+"cacheable-lookup@npm:^7.0.0":
+  version: 7.0.0
+  resolution: "cacheable-lookup@npm:7.0.0"
+  checksum: 9e2856763fc0a7347ab34d704c010440b819d4bb5e3593b664381b7433e942dd22e67ee5581f12256f908e79b82d30b86ebbacf40a081bfe10ee93fbfbc2d6a9
+  languageName: node
+  linkType: hard
+
+"cacheable-request@npm:^10.2.1":
+  version: 10.2.1
+  resolution: "cacheable-request@npm:10.2.1"
+  dependencies:
+    "@types/http-cache-semantics": ^4.0.1
+    get-stream: ^6.0.1
+    http-cache-semantics: ^4.1.0
+    keyv: ^4.5.0
+    mimic-response: ^4.0.0
+    normalize-url: ^7.1.0
+    responselike: ^3.0.0
+  checksum: 11bcee52d676623fbfe4b02b9f30930457796a7320a5db25392238a92a98185ffa7e87619d82a472c411c7f48eada5ec182bab41e6d849a038e84774dcdbba7d
   languageName: node
   linkType: hard
 
@@ -5535,7 +5557,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"form-data-encoder@npm:^2.1.0":
+"form-data-encoder@npm:^2.1.2":
   version: 2.1.2
   resolution: "form-data-encoder@npm:2.1.2"
   checksum: 5c6401e3ebd2ba2adfa151c9fbd1df5adae8b1dd7bca5b18ab25ad1f9b83e20ddffb6b9ff77f5006b93d7ec2032e22828c9543c0bd4b2bc5b05335c31a3ba5b9
@@ -5857,12 +5879,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"git-url-parse@npm:13.0.0":
-  version: 13.0.0
-  resolution: "git-url-parse@npm:13.0.0"
+"git-url-parse@npm:13.1.0":
+  version: 13.1.0
+  resolution: "git-url-parse@npm:13.1.0"
   dependencies:
     git-up: ^7.0.0
-  checksum: 05a3bf51fc5863d26461a815347929a7432e1ebc6763e6a7ee31f510936266f9a82e0f090d09c2c48cd6dba2f17163fa1d860ba4a3ff157083cca5a5d1961c57
+  checksum: 212a9b0343e9199998b6a532efe2014476a7a1283af393663ca49ac28d4768929aad16d3322e2685236065ee394dbc93e7aa63a48956531e984c56d8b5edb54d
   languageName: node
   linkType: hard
 
@@ -5980,23 +6002,22 @@ __metadata:
   languageName: node
   linkType: hard
 
-"got@npm:12.4.1":
-  version: 12.4.1
-  resolution: "got@npm:12.4.1"
+"got@npm:12.5.1":
+  version: 12.5.1
+  resolution: "got@npm:12.5.1"
   dependencies:
     "@sindresorhus/is": ^5.2.0
     "@szmarczak/http-timer": ^5.0.1
-    "@types/cacheable-request": ^6.0.2
-    cacheable-lookup: ^6.0.4
-    cacheable-request: ^7.0.2
+    cacheable-lookup: ^7.0.0
+    cacheable-request: ^10.2.1
     decompress-response: ^6.0.0
-    form-data-encoder: ^2.1.0
+    form-data-encoder: ^2.1.2
     get-stream: ^6.0.1
     http2-wrapper: ^2.1.10
     lowercase-keys: ^3.0.0
     p-cancelable: ^3.0.0
     responselike: ^3.0.0
-  checksum: 56a150ea144c951868d0fb3d288bbcbc2c0d3f8f9c200c6fd60ffdc921f6aeb26d140f57fb973ab89e1aeb03a92c4b6422743e5a74d3cb081715901e249f2640
+  checksum: 479a279e8f0ba39270d500e8998dda897c850a9f43eef716c58fcaa7b5049e74ca3fd8ab70be1e2a59a5c8b59a83b9deab16d4e523423bb1e2dfe17401750efa
   languageName: node
   linkType: hard
 
@@ -6425,9 +6446,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"inquirer@npm:9.1.1":
-  version: 9.1.1
-  resolution: "inquirer@npm:9.1.1"
+"inquirer@npm:9.1.2":
+  version: 9.1.2
+  resolution: "inquirer@npm:9.1.2"
   dependencies:
     ansi-escapes: ^5.0.0
     chalk: ^5.0.1
@@ -6444,7 +6465,7 @@ __metadata:
     strip-ansi: ^7.0.1
     through: ^2.3.6
     wrap-ansi: ^8.0.1
-  checksum: e0b945c34e4ffcb2e4446e6821726e50b2936cd8a0b53d702d8d6ab18634695b69e7481be230fb924afe69087bb7df2afaf39a41c0c2e39854a9c7028507c67d
+  checksum: c1efd2a8a85b351ea6c6dece159c3eef8f499ce4b52b6c1888499edaa585235a92d2f8bad935b6302731234bbe9f4fb4adcebdd8645d8ac442315b5a8227ed2e
   languageName: node
   linkType: hard
 
@@ -7712,6 +7733,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"keyv@npm:^4.5.0":
+  version: 4.5.0
+  resolution: "keyv@npm:4.5.0"
+  dependencies:
+    json-buffer: 3.0.1
+  checksum: d294873cf88ec8f691e5edeb7b4b884f886c5f021a01902a0e243c362449db2b55419d7fb7187d059add747b7398321e39e44d391b65f94935174ce13452714d
+  languageName: node
+  linkType: hard
+
 "kind-of@npm:^6.0.3":
   version: 6.0.3
   resolution: "kind-of@npm:6.0.3"
@@ -8281,6 +8311,13 @@ __metadata:
   version: 3.1.0
   resolution: "mimic-response@npm:3.1.0"
   checksum: 25739fee32c17f433626bf19f016df9036b75b3d84a3046c7d156e72ec963dd29d7fc8a302f55a3d6c5a4ff24259676b15d915aad6480815a969ff2ec0836867
+  languageName: node
+  linkType: hard
+
+"mimic-response@npm:^4.0.0":
+  version: 4.0.0
+  resolution: "mimic-response@npm:4.0.0"
+  checksum: 33b804cc961efe206efdb1fca6a22540decdcfce6c14eb5c0c50e5ae9022267ab22ce8f5568b1f7247ba67500fe20d523d81e0e9f009b321ccd9d472e78d1850
   languageName: node
   linkType: hard
 
@@ -8879,6 +8916,13 @@ __metadata:
   version: 6.1.0
   resolution: "normalize-url@npm:6.1.0"
   checksum: 4a4944631173e7d521d6b80e4c85ccaeceb2870f315584fa30121f505a6dfd86439c5e3fdd8cd9e0e291290c41d0c3599f0cb12ab356722ed242584c30348e50
+  languageName: node
+  linkType: hard
+
+"normalize-url@npm:^7.1.0":
+  version: 7.2.0
+  resolution: "normalize-url@npm:7.2.0"
+  checksum: 7753f081ee997520c9cd855f06975d7ac24b1ef58002e310d5058c831b9a6165ec2ec9fc0c5bc9e886e1257affaffa7c36731ae39073fcf74af07197997d4fb6
   languageName: node
   linkType: hard
 
@@ -9964,9 +10008,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"release-it@npm:15.4.2":
-  version: 15.4.2
-  resolution: "release-it@npm:15.4.2"
+"release-it@npm:15.4.3":
+  version: 15.4.3
+  resolution: "release-it@npm:15.4.3"
   dependencies:
     "@iarna/toml": 2.2.5
     "@octokit/rest": 19.0.4
@@ -9975,10 +10019,10 @@ __metadata:
     cosmiconfig: 7.0.1
     execa: 6.1.0
     form-data: 4.0.0
-    git-url-parse: 13.0.0
+    git-url-parse: 13.1.0
     globby: 13.1.2
-    got: 12.4.1
-    inquirer: 9.1.1
+    got: 12.5.1
+    inquirer: 9.1.2
     is-ci: 3.0.1
     lodash: 4.17.21
     mime-types: 2.1.35
@@ -9997,7 +10041,7 @@ __metadata:
     yargs-parser: 21.1.1
   bin:
     release-it: bin/release-it.js
-  checksum: 0eca55e511af915fd87477f0686db1e5d6a1c33e9bf7310960cf34bef8cb9d8ef3f2a40fccd8400574383133e497426dd48e23a9482c4b7b1b1e74ed33079e75
+  checksum: a3b13867841a4bbd50e100eb878f02f775a2796591887f67519fea0a4c84611cb38d6b837dfb6909c737bb0cc85a4f7b5113aaa0fbe5986e625e82ed29626120
   languageName: node
   linkType: hard
 
@@ -10398,7 +10442,7 @@ __metadata:
     prettier: 2.7.1
     rcon-client: 4.2.3
     reflect-metadata: 0.1.13
-    release-it: 15.4.2
+    release-it: 15.4.3
     rimraf: 3.0.2
     rxjs: 7.5.7
     socket.io-client: 4.5.2
