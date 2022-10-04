@@ -106,6 +106,8 @@ export class Events {
 
   readonly gameServerReassignRequested = new Subject<{
     gameId: string;
+    provider: string;
+    gameServerId: string;
   }>();
 
   readonly substituteRequested = new Subject<{

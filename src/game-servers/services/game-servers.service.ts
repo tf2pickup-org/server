@@ -10,7 +10,10 @@ import { GamesService } from '@/games/services/games.service';
 import { GameServerProvider } from '../game-server-provider';
 import { Game } from '@/games/models/game';
 import { NoFreeGameServerAvailableError } from '../errors/no-free-game-server-available.error';
-import { GameServerOptionWithProvider } from '../interfaces/game-server-option';
+import {
+  GameServerOptionIdentifier,
+  GameServerOptionWithProvider,
+} from '../interfaces/game-server-option';
 import { GameServerControls } from '../interfaces/game-server-controls';
 
 @Injectable()
@@ -75,7 +78,7 @@ export class GameServersService implements OnApplicationBootstrap {
 
   async assignGameServer(
     gameId: string,
-    gameServer?: GameServerOptionWithProvider,
+    gameServer?: GameServerOptionIdentifier,
   ): Promise<Game> {
     return await this.mutex.runExclusive(async () => {
       let game = await this.gamesService.getById(gameId);

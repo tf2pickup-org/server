@@ -8,3 +8,8 @@ export interface GameServerOption {
 export interface GameServerOptionWithProvider extends GameServerOption {
   provider: string;
 }
+
+export interface GameServerOptionIdentifier {
+  id: string;
+  provider: string;
+}

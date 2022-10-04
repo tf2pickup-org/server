@@ -83,7 +83,12 @@ export class ServemeTfService implements GameServerProvider, OnModuleInit {
   }
 
   async findGameServerOptions(): Promise<GameServerOption[]> {
-    return [];
+    return (await this.servemeTfApiService.listServers()).map((option) => ({
+      id: `${option.id}`,
+      name: option.name,
+      address: option.ip,
+      port: parseInt(option.port, 10),
+    }));
   }
 
   onGameServerAssigned({ gameId }: { gameId: string }): void {
