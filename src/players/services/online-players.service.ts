@@ -1,6 +1,4 @@
 import { Events } from '@/events/events';
-import { PlayerOnlineStatusChanged } from '@/player-actions-logger/player-actions/player-online-status-changed';
-import { PlayerActionLoggerService } from '@/player-actions-logger/services/player-action-logger.service';
 import {
   Injectable,
   Logger,
@@ -24,11 +22,7 @@ export class OnlinePlayersService implements OnModuleInit, OnModuleDestroy {
     return Array.from(this._onlinePlayers);
   }
 
-  constructor(
-    private playersGateway: PlayersGateway,
-    private events: Events,
-    private playerActionLoggerService: PlayerActionLoggerService,
-  ) {}
+  constructor(private playersGateway: PlayersGateway, private events: Events) {}
 
   onModuleInit() {
     this.playersGateway.playerConnected.subscribe((socket) => {
@@ -37,15 +31,6 @@ export class OnlinePlayersService implements OnModuleInit, OnModuleDestroy {
         const sockets = this.sockets.get(player.id) || [];
         if (!sockets.includes(socket)) {
           this.logger.debug(`${player.name} connected`);
-          this.playerActionLoggerService.logAction(
-            new PlayerOnlineStatusChanged(
-              player,
-              {
-                ipAddress: socket.conn.remoteAddress,
-              },
-              true,
-            ),
-          );
           this.sockets.set(player.id, [...sockets, socket]);
           if (sockets.length === 0) {
             this.events.playerConnects.next({ playerId: player.id });
@@ -58,15 +43,6 @@ export class OnlinePlayersService implements OnModuleInit, OnModuleDestroy {
       if (socket.user) {
         const player = socket.user;
         this.logger.debug(`${player.name} disconnected`);
-        this.playerActionLoggerService.logAction(
-          new PlayerOnlineStatusChanged(
-            player,
-            {
-              ipAddress: socket.conn.remoteAddress,
-            },
-            false,
-          ),
-        );
         const sockets = this.getSocketsForPlayer(player.id);
         this.sockets.set(
           player.id,

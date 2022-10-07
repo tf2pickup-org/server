@@ -72,6 +72,7 @@ export class Events {
   readonly playerJoinedGameServer = new Subject<{
     gameId: string;
     steamId: string;
+    ipAddress: string;
   }>();
   readonly playerJoinedTeam = new Subject<{
     gameId: string;

@@ -42,15 +42,16 @@ export class GameEventListenerService implements OnModuleInit {
     },
     {
       name: 'player connected',
-      // https://regex101.com/r/uyPW8m/4
+      // https://regex101.com/r/uyPW8m/5
       regex:
-        /^(\d{2}\/\d{2}\/\d{4})\s-\s(\d{2}:\d{2}:\d{2}):\s"(.+)<(\d+)><(\[.[^\]]+\])><>"\sconnected,\saddress\s"(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d{1,5})"$/,
+        /^(\d{2}\/\d{2}\/\d{4})\s-\s(\d{2}:\d{2}:\d{2}):\s"(.+)<(\d+)><(\[.[^\]]+\])><>"\sconnected,\saddress\s"(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}):(\d{1,5})"$/,
       handle: (gameId, matches) => {
         const steamId = new SteamID(matches[5]);
         if (steamId.isValid()) {
           this.events.playerJoinedGameServer.next({
             gameId,
             steamId: steamId.getSteamID64(),
+            ipAddress: matches[6],
           });
         }
       },

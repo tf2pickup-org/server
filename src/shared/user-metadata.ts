@@ -1,4 +1,4 @@
 export interface UserMetadata {
-  ipAddress: string;
+  ipAddress?: string;
   userAgent?: string;
 }

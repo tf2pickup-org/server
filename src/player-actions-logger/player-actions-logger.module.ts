@@ -1,3 +1,5 @@
+import { GamesModule } from '@/games/games.module';
+import { PlayersModule } from '@/players/players.module';
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import {
@@ -14,6 +16,8 @@ import { PlayerActionLoggerService } from './services/player-action-logger.servi
         schema: playerActionEntrySchema,
       },
     ]),
+    PlayersModule,
+    GamesModule,
   ],
   providers: [PlayerActionLoggerService],
   exports: [PlayerActionLoggerService],

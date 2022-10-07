@@ -17,8 +17,8 @@ export class PlayerActionEntry {
   @Prop({ required: true, type: Types.ObjectId, ref: 'Player', index: true })
   player: Types.ObjectId;
 
-  @Prop({ required: true })
-  ipAddress: string;
+  @Prop()
+  ipAddress?: string;
 
   @Prop()
   userAgent?: string;
