@@ -127,7 +127,7 @@ describe('GameEventListenerService', () => {
         });
       }));
 
-    it('demo uploaded', async () =>
+    it('demo uploaded', () =>
       new Promise<void>((resolve) => {
         events.demoUploaded.pipe(take(1)).subscribe(({ gameId, demoUrl }) => {
           expect(gameId).toEqual(game.id);
