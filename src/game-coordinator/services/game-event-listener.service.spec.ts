@@ -143,7 +143,7 @@ describe('GameEventListenerService', () => {
 
     it('player connected', async () =>
       new Promise<void>((resolve) => {
-        events.playerConnected
+        events.playerJoinedGameServer
           .pipe(take(1))
           .subscribe(({ gameId, steamId }) => {
             expect(gameId).toEqual(game.id);
@@ -175,7 +175,7 @@ describe('GameEventListenerService', () => {
 
     it('player disconnected', async () =>
       new Promise<void>((resolve) => {
-        events.playerDisconnected
+        events.playerDisconnectedFromGameServer
           .pipe(take(1))
           .subscribe(({ gameId, steamId }) => {
             expect(gameId).toEqual(game.id);

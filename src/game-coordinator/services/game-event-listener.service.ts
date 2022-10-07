@@ -48,7 +48,7 @@ export class GameEventListenerService implements OnModuleInit {
       handle: (gameId, matches) => {
         const steamId = new SteamID(matches[5]);
         if (steamId.isValid()) {
-          this.events.playerConnected.next({
+          this.events.playerJoinedGameServer.next({
             gameId,
             steamId: steamId.getSteamID64(),
           });
@@ -78,7 +78,7 @@ export class GameEventListenerService implements OnModuleInit {
       handle: (gameId, matches) => {
         const steamId = new SteamID(matches[5]);
         if (steamId.isValid()) {
-          this.events.playerDisconnected.next({
+          this.events.playerDisconnectedFromGameServer.next({
             gameId,
             steamId: steamId.getSteamID64(),
           });

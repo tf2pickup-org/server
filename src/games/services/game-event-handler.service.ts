@@ -39,7 +39,7 @@ export class GameEventHandlerService implements OnModuleInit, OnModuleDestroy {
     this.events.matchEnded.subscribe(
       async ({ gameId }) => await this.onMatchEnded(gameId),
     );
-    this.events.playerConnected.subscribe(
+    this.events.playerJoinedGameServer.subscribe(
       async ({ gameId, steamId }) =>
         await this.onPlayerJoining(gameId, steamId),
     );
@@ -47,7 +47,7 @@ export class GameEventHandlerService implements OnModuleInit, OnModuleDestroy {
       async ({ gameId, steamId }) =>
         await this.onPlayerConnected(gameId, steamId),
     );
-    this.events.playerDisconnected.subscribe(
+    this.events.playerDisconnectedFromGameServer.subscribe(
       async ({ gameId, steamId }) =>
         await this.onPlayerDisconnected(gameId, steamId),
     );
