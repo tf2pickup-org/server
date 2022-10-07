@@ -69,12 +69,15 @@ export class Events {
 
   readonly matchStarted = new Subject<{ gameId: string }>();
   readonly matchEnded = new Subject<{ gameId: string }>();
-  readonly playerConnected = new Subject<{ gameId: string; steamId: string }>();
+  readonly playerJoinedGameServer = new Subject<{
+    gameId: string;
+    steamId: string;
+  }>();
   readonly playerJoinedTeam = new Subject<{
     gameId: string;
     steamId: string;
   }>();
-  readonly playerDisconnected = new Subject<{
+  readonly playerDisconnectedFromGameServer = new Subject<{
     gameId: string;
     steamId: string;
   }>();

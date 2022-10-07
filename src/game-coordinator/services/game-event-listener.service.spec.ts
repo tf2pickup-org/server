@@ -88,7 +88,7 @@ describe('GameEventListenerService', () => {
 
   // TODO These below are e2e tests - we should move them there
   describe('should handle game events', () => {
-    it('match started', async () =>
+    it('match started', () =>
       new Promise<void>((resolve) => {
         events.matchStarted.pipe(take(1)).subscribe(({ gameId }) => {
           expect(gameId).toEqual(game.id);
@@ -100,7 +100,7 @@ describe('GameEventListenerService', () => {
         });
       }));
 
-    it('match ended', async () =>
+    it('match ended', () =>
       new Promise<void>((resolve) => {
         events.matchEnded.pipe(take(1)).subscribe(({ gameId }) => {
           expect(gameId).toEqual(game.id);
@@ -113,7 +113,7 @@ describe('GameEventListenerService', () => {
         });
       }));
 
-    it('logs uploaded', async () =>
+    it('logs uploaded', () =>
       new Promise<void>((resolve) => {
         events.logsUploaded.pipe(take(1)).subscribe(({ gameId, logsUrl }) => {
           expect(gameId).toEqual(game.id);
@@ -127,7 +127,7 @@ describe('GameEventListenerService', () => {
         });
       }));
 
-    it('demo uploaded', async () =>
+    it('demo uploaded', () =>
       new Promise<void>((resolve) => {
         events.demoUploaded.pipe(take(1)).subscribe(({ gameId, demoUrl }) => {
           expect(gameId).toEqual(game.id);
@@ -141,9 +141,9 @@ describe('GameEventListenerService', () => {
         });
       }));
 
-    it('player connected', async () =>
+    it('player connected', () =>
       new Promise<void>((resolve) => {
-        events.playerConnected
+        events.playerJoinedGameServer
           .pipe(take(1))
           .subscribe(({ gameId, steamId }) => {
             expect(gameId).toEqual(game.id);
@@ -157,7 +157,7 @@ describe('GameEventListenerService', () => {
         });
       }));
 
-    it('player joined team', async () =>
+    it('player joined team', () =>
       new Promise<void>((resolve) => {
         events.playerJoinedTeam
           .pipe(take(1))
@@ -173,9 +173,9 @@ describe('GameEventListenerService', () => {
         });
       }));
 
-    it('player disconnected', async () =>
+    it('player disconnected', () =>
       new Promise<void>((resolve) => {
-        events.playerDisconnected
+        events.playerDisconnectedFromGameServer
           .pipe(take(1))
           .subscribe(({ gameId, steamId }) => {
             expect(gameId).toEqual(game.id);
@@ -189,7 +189,7 @@ describe('GameEventListenerService', () => {
         });
       }));
 
-    it('score reported', async () =>
+    it('score reported', () =>
       new Promise<void>((resolve) => {
         events.scoreReported
           .pipe(take(1))
@@ -206,7 +206,7 @@ describe('GameEventListenerService', () => {
         });
       }));
 
-    it('final score reported', async () =>
+    it('final score reported', () =>
       new Promise<void>((resolve) => {
         events.scoreReported
           .pipe(take(1))
