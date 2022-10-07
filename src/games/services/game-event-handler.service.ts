@@ -137,11 +137,11 @@ export class GameEventHandlerService implements OnModuleInit, OnModuleDestroy {
   }
 
   async onLogsUploaded(gameId: string, logsUrl: string): Promise<Game> {
-    return this.gamesService.update(gameId, { logsUrl });
+    return await this.gamesService.update(gameId, { logsUrl });
   }
 
   async onDemoUploaded(gameId: string, demoUrl: string): Promise<Game> {
-    return this.gamesService.update(gameId, { demoUrl });
+    return await this.gamesService.update(gameId, { demoUrl });
   }
 
   async onPlayerJoining(gameId: string, steamId: string): Promise<Game> {
@@ -173,7 +173,7 @@ export class GameEventHandlerService implements OnModuleInit, OnModuleDestroy {
     team: Tf2Team,
     score: number,
   ): Promise<Game> {
-    return this.gamesService.update(gameId, { [`score.${team}`]: score });
+    return await this.gamesService.update(gameId, { [`score.${team}`]: score });
   }
 
   private async setPlayerConnectionStatus(

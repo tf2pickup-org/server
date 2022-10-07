@@ -142,6 +142,7 @@ export class GameEventListenerService implements OnModuleInit {
       const matches = message.match(gameEvent.regex);
       if (matches) {
         try {
+          // skipcq: JS-0032
           const game = await this.gamesService.getByLogSecret(logSecret);
           this.logger.debug(`#${game.number}: ${gameEvent.name}`);
           gameEvent.handle(game.id, matches);
