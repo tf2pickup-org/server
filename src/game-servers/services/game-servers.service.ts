@@ -99,14 +99,14 @@ export class GameServersService implements OnApplicationBootstrap {
         gameServer = await this.findFreeGameServer();
       }
 
-      this.logger.log(
-        `using gameserver ${gameServer.name} for game #${game.number}`,
-      );
       game = await this.gamesService.update(game.id, {
         $set: {
           gameServer,
         },
       });
+      this.logger.log(
+        `using gameserver ${game.gameServer.name} for game #${game.number}`,
+      );
       const provider = this.providerByName(gameServer.provider);
       await provider.onGameServerAssigned?.({
         gameServerId: gameServer.id,

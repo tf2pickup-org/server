@@ -85,7 +85,28 @@ export class GameRuntimeService implements OnModuleInit {
     }
 
     try {
+      game = await this.gameServersService.assignGameServer(game.id);
+      this.logger.verbose(
+        `using server ${game.gameServer.name} for game #${game.number}`,
+      );
 
+      const { connectString, stvConnectString } =
+        await this.serverConfiguratorService.configureServer(game.id);
+
+      game = await this.gamesService.update(game.id, {
+        $set: {
+          connectString,
+          stvConnectString,
+        },
+        $inc: {
+          connectInfoVersion: 1,
+        },
+      });
+
+      this.logger.verbose(`game #${game.number} initialized`);
+      return game;
+    } catch (error) {
+      this.logger.error(`failed to reassign game #${game.number}: ${error}`);
     }
   }
 
