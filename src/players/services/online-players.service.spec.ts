@@ -47,6 +47,9 @@ describe('OnlinePlayersService', () => {
       const socket = {
         id: 'FAKE_SOCKET_ID',
         user: { id: 'FAKE_ID' },
+        conn: {
+          remoteAddress: '127.0.0.1',
+        },
       } as Socket;
       playersGateway.playerConnected.next(socket);
       expect(service.getSocketsForPlayer('FAKE_ID')).toEqual([socket]);

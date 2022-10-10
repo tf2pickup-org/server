@@ -28,14 +28,15 @@ export class OnlinePlayersService implements OnModuleInit, OnModuleDestroy {
     this.playersGateway.playerConnected.subscribe((socket) => {
       if (socket.user) {
         const player = socket.user;
-        const sockets = this.sockets.get(player.id) || [];
+        const sockets = this.getSocketsForPlayer(player.id);
         if (!sockets.includes(socket)) {
           const ipAddress = socket.conn.remoteAddress;
           this.logger.debug(`${player.name} connected from ${ipAddress}`);
-          this.sockets.set(player.id, [...sockets, socket]);
-          if (
-            !sockets.find((socket) => socket.conn.remoteAddress === ipAddress)
-          ) {
+          const isAlreadyConnected = sockets.find(
+            (socket) => socket.conn.remoteAddress === ipAddress,
+          );
+          sockets.push(socket);
+          if (!isAlreadyConnected) {
             this.events.playerConnects.next({
               playerId: player.id,
               metadata: {
@@ -53,10 +54,11 @@ export class OnlinePlayersService implements OnModuleInit, OnModuleDestroy {
         const ipAddress = socket.conn.remoteAddress;
         this.logger.debug(`${player.name} disconnected (${ipAddress})`);
         const sockets = this.getSocketsForPlayer(player.id);
-        this.sockets.set(
-          player.id,
-          sockets.filter((s) => s !== socket),
-        );
+        const index = sockets.indexOf(socket);
+        if (index > -1) {
+          sockets.splice(index, 1);
+        }
+
         this.timers.push(
           setTimeout(
             () => this.verifyPlayer(player.id),
@@ -79,7 +81,10 @@ export class OnlinePlayersService implements OnModuleInit, OnModuleDestroy {
   }
 
   getSocketsForPlayer(playerId: string) {
-    return this.sockets.get(playerId) ?? [];
+    if (!this.sockets.has(playerId)) {
+      this.sockets.set(playerId, []);
+    }
+    return this.sockets.get(playerId);
   }
 
   private verifyPlayer(playerId: string) {

@@ -91,7 +91,10 @@ describe('PlayersGateway', () => {
           expect(args[1].id).toEqual(player.id);
           resolve();
         });
-        events.playerConnects.next({ playerId: player.id });
+        events.playerConnects.next({
+          playerId: player.id,
+          metadata: { ipAddress: '127.0.0.1' },
+        });
       }));
   });
 
