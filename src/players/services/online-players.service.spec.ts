@@ -40,7 +40,7 @@ describe('OnlinePlayersService', () => {
     expect(service).toBeDefined();
   });
 
-  it('should handle player connections and disconnections properly', async () =>
+  it('should handle player connections and disconnections properly', () =>
     new Promise<void>((resolve) => {
       expect(service.getSocketsForPlayer('FAKE_ID')).toEqual([]);
 
