@@ -46,14 +46,14 @@ import * as mongoStore from 'cache-manager-mongodb';
     MongooseModule.forRootAsync({
       imports: [EnvironmentModule],
       inject: [Environment],
-      useFactory: async (environment: Environment) => ({
+      useFactory: (environment: Environment) => ({
         uri: formatMongoose(environment.mongoDbUri),
       }),
     }),
-    CacheModule.registerAsync({
+    CacheModule.register({
       imports: [EnvironmentModule],
       inject: [Environment],
-      useFactory: async (environment: Environment) => {
+      useFactory: (environment: Environment) => {
         if (environment.redisUrl) {
           const redisClientOptions: RedisClientOptions = {
             url: environment.redisUrl,
