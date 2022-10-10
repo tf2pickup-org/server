@@ -145,9 +145,10 @@ describe('GameEventListenerService', () => {
       new Promise<void>((resolve) => {
         events.playerJoinedGameServer
           .pipe(take(1))
-          .subscribe(({ gameId, steamId }) => {
+          .subscribe(({ gameId, steamId, ipAddress }) => {
             expect(gameId).toEqual(game.id);
             expect(steamId).toEqual('76561198074409147');
+            expect(ipAddress).toEqual('83.29.150.132');
             resolve();
           });
         (logReceiverService.data as Subject<any>).next({
