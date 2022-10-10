@@ -10,6 +10,7 @@ import {
 } from '../models/player-action-entry';
 import { PlayerAction } from '../player-actions/player-action';
 import { PlayerConnectedToGameserver } from '../player-actions/player-connected-to-gameserver';
+import { PlayerOnlineStatusChanged } from '../player-actions/player-online-status-changed';
 
 @Injectable()
 export class PlayerActionLoggerService implements OnModuleInit {
@@ -33,6 +34,10 @@ export class PlayerActionLoggerService implements OnModuleInit {
         );
       },
     );
+    this.events.playerConnects.subscribe(async ({ playerId, metadata }) => {
+      const player = await this.playersService.getById(playerId);
+      this.logAction(new PlayerOnlineStatusChanged(player, metadata, true));
+    });
   }
 
   async logAction(action: PlayerAction) {

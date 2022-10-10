@@ -13,6 +13,6 @@ export class PlayerConnectedToGameserver extends PlayerAction {
   }
 
   toString(): string {
-    return `connect to gameserver (game #${this.game.number})`;
+    return `connected to gameserver (game #${this.game.number})`;
   }
 }

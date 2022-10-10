@@ -30,10 +30,18 @@ export class OnlinePlayersService implements OnModuleInit, OnModuleDestroy {
         const player = socket.user;
         const sockets = this.sockets.get(player.id) || [];
         if (!sockets.includes(socket)) {
-          this.logger.debug(`${player.name} connected`);
+          const ipAddress = socket.conn.remoteAddress;
+          this.logger.debug(`${player.name} connected from ${ipAddress}`);
           this.sockets.set(player.id, [...sockets, socket]);
-          if (sockets.length === 0) {
-            this.events.playerConnects.next({ playerId: player.id });
+          if (
+            !sockets.find((socket) => socket.conn.remoteAddress === ipAddress)
+          ) {
+            this.events.playerConnects.next({
+              playerId: player.id,
+              metadata: {
+                ipAddress,
+              },
+            });
           }
         }
       }
@@ -42,7 +50,8 @@ export class OnlinePlayersService implements OnModuleInit, OnModuleDestroy {
     this.playersGateway.playerDisconnected.subscribe((socket) => {
       if (socket.user) {
         const player = socket.user;
-        this.logger.debug(`${player.name} disconnected`);
+        const ipAddress = socket.conn.remoteAddress;
+        this.logger.debug(`${player.name} disconnected (${ipAddress})`);
         const sockets = this.getSocketsForPlayer(player.id);
         this.sockets.set(
           player.id,
