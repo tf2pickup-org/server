@@ -125,4 +125,27 @@ describe('PlayerActionLoggerService', () => {
       expect(entry.action).toEqual('went online');
     });
   });
+
+  describe('when player says in game chat', () => {
+    let player: PlayerDocument;
+
+    beforeEach(async () => {
+      // @ts-expect-error
+      player = await playersService._createOne();
+
+      events.playerSaidInGameChat.next({
+        gameId: 'FAKE_GAME_ID',
+        steamId: player.steamId,
+        message: 'FAKE_MESSAGE',
+      });
+
+      await waitABit(100);
+    });
+
+    it('should log', async () => {
+      const entry = await playerActionEntryModel.findOne();
+      expect(entry.player).toEqual(player._id);
+      expect(entry.action).toEqual('said "FAKE_MESSAGE"');
+    });
+  });
 });

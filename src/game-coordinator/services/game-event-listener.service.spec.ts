@@ -223,5 +223,24 @@ describe('GameEventListenerService', () => {
           password: 'SOME_LOG_SECRET',
         });
       }));
+
+    it('player said', () =>
+      new Promise<void>((resolve) => {
+        events.playerSaidInGameChat
+          .pipe(take(1))
+          .subscribe(({ gameId, steamId, message }) => {
+            expect(gameId).toEqual(game.id);
+            expect(steamId).toEqual('76561198438053224');
+            expect(message).toEqual(
+              'mezzo : u never touched a female why are you taunting me',
+            );
+            resolve();
+          });
+        (logReceiverService.data as Subject<any>).next({
+          payload:
+            '10/07/2022 - 19:49:18: "stick<40><[U:1:477787496]><Red>" say "mezzo : u never touched a female why are you taunting me"',
+          password: 'SOME_LOG_SECRET',
+        });
+      }));
   });
 });

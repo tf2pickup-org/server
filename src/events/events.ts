@@ -86,6 +86,11 @@ export class Events {
     gameId: string;
     steamId: string;
   }>();
+  readonly playerSaidInGameChat = new Subject<{
+    gameId: string;
+    steamId: string;
+    message: string;
+  }>();
   readonly scoreReported = new Subject<{
     gameId: string;
     teamName: Tf2Team;

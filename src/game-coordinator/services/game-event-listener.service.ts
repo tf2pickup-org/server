@@ -123,6 +123,23 @@ export class GameEventListenerService implements OnModuleInit {
         this.events.demoUploaded.next({ gameId, demoUrl });
       },
     },
+    {
+      name: 'player said',
+      // https://regex101.com/r/zpFkkA/1
+      regex:
+        /^(\d{2}\/\d{2}\/\d{4})\s-\s(\d{2}:\d{2}:\d{2}):\s"(.+)<(\d+)><(\[.[^\]]+\])><(.[^>]+)>"\ssay\s"(.+)"$/,
+      handle: (gameId, matches) => {
+        const steamId = new SteamID(matches[5]);
+        if (steamId.isValid()) {
+          const message = matches[7];
+          this.events.playerSaidInGameChat.next({
+            gameId,
+            steamId: steamId.getSteamID64(),
+            message,
+          });
+        }
+      },
+    },
   ];
 
   constructor(

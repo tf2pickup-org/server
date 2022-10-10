@@ -11,6 +11,7 @@ import {
 import { PlayerAction } from '../player-actions/player-action';
 import { PlayerConnectedToGameserver } from '../player-actions/player-connected-to-gameserver';
 import { PlayerOnlineStatusChanged } from '../player-actions/player-online-status-changed';
+import { PlayerSaidInMatchChat } from '../player-actions/player-said-in-match-chat';
 
 @Injectable()
 export class PlayerActionLoggerService implements OnModuleInit {
@@ -37,6 +38,10 @@ export class PlayerActionLoggerService implements OnModuleInit {
     this.events.playerConnects.subscribe(async ({ playerId, metadata }) => {
       const player = await this.playersService.getById(playerId);
       this.logAction(new PlayerOnlineStatusChanged(player, metadata, true));
+    });
+    this.events.playerSaidInGameChat.subscribe(async ({ steamId, message }) => {
+      const player = await this.playersService.findBySteamId(steamId);
+      this.logAction(new PlayerSaidInMatchChat(player, {}, message));
     });
   }
 
