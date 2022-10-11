@@ -130,7 +130,7 @@ describe('FriendsService', () => {
       ]);
     });
 
-    it('should emit the queueFriendshipsChange event', async () =>
+    it('should emit the queueFriendshipsChange event', () =>
       new Promise<void>((resolve) => {
         events.queueFriendshipsChange.subscribe(({ friendships }) => {
           expect(friendships).toEqual([

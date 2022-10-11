@@ -312,7 +312,7 @@ describe('PlayersService', () => {
       });
     });
 
-    it('should emit the playerRegisters event', async () =>
+    it('should emit the playerRegisters event', () =>
       new Promise<void>((resolve) => {
         events.playerRegisters.subscribe(({ player }) => {
           expect(player).toBeTruthy();
@@ -424,7 +424,7 @@ describe('PlayersService', () => {
       expect(ret2.roles).toEqual([]);
     });
 
-    it('should emit playerUpdated event', async () =>
+    it('should emit playerUpdated event', () =>
       new Promise<void>((resolve) => {
         events.playerUpdates.subscribe(({ newPlayer }) => {
           expect(newPlayer.id).toEqual(mockPlayer.id);
