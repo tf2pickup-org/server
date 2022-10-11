@@ -83,10 +83,8 @@ export class MumbleBotService implements OnModuleInit, OnModuleDestroy {
         });
         await this.client.connect();
         this.logger.log(`logged in as ${this.client.user.name}`);
-        const channel = this.client.channels.byName(
-          voiceServerConfig.mumble.channelName,
-        );
-        await this.client.user.moveToChannel(channel.id);
+
+        await this.moveToProperChannel();
 
         const permissions = await this.client.user.channel.getPermissions();
         if (!permissions.canCreateChannel) {
@@ -101,6 +99,8 @@ export class MumbleBotService implements OnModuleInit, OnModuleDestroy {
           `cannot connect to ${voiceServerConfig.mumble.url}:${voiceServerConfig.mumble.port}: ${error}`,
         );
       }
+    } else {
+      await this.client?.disconnect();
     }
   }
 
@@ -200,5 +200,17 @@ export class MumbleBotService implements OnModuleInit, OnModuleDestroy {
         this.logger.error(`cannot remove channel ${channel.name}: ${error}`);
       }
     }
+  }
+
+  private async moveToProperChannel() {
+    const voiceServerConfig = await this.configurationService.getVoiceServer();
+    if (voiceServerConfig.type != SelectedVoiceServer.mumble) {
+      throw new Error('selected voice server is not mumble');
+    }
+
+    const channel = this.client.channels.byName(
+      voiceServerConfig.mumble.channelName,
+    );
+    await this.client.user.moveToChannel(channel.id);
   }
 }
