@@ -29,6 +29,7 @@ import { CertificatesModule } from './certificates/certificates.module';
 import type { RedisClientOptions } from '@redis/client';
 import { GameCoordinatorModule } from './game-coordinator/game-coordinator.module';
 import { LogsTfModule } from './logs-tf/logs-tf.module';
+import { PlayerActionsLoggerModule } from './player-actions-logger/player-actions-logger.module';
 import * as redisStore from 'cache-manager-redis-store';
 import * as mongoStore from 'cache-manager-mongodb';
 
@@ -45,14 +46,14 @@ import * as mongoStore from 'cache-manager-mongodb';
     MongooseModule.forRootAsync({
       imports: [EnvironmentModule],
       inject: [Environment],
-      useFactory: async (environment: Environment) => ({
+      useFactory: (environment: Environment) => ({
         uri: formatMongoose(environment.mongoDbUri),
       }),
     }),
-    CacheModule.registerAsync({
+    CacheModule.register({
       imports: [EnvironmentModule],
       inject: [Environment],
-      useFactory: async (environment: Environment) => {
+      useFactory: (environment: Environment) => {
         if (environment.redisUrl) {
           const redisClientOptions: RedisClientOptions = {
             url: environment.redisUrl,
@@ -95,6 +96,7 @@ import * as mongoStore from 'cache-manager-mongodb';
     CertificatesModule,
     GameCoordinatorModule,
     LogsTfModule,
+    PlayerActionsLoggerModule,
   ],
   controllers: [AppController],
 })

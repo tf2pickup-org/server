@@ -40,31 +40,79 @@ describe('OnlinePlayersService', () => {
     expect(service).toBeDefined();
   });
 
-  it('should handle player connections and disconnections properly', async () =>
-    new Promise<void>((resolve) => {
-      expect(service.getSocketsForPlayer('FAKE_ID')).toEqual([]);
+  describe('when player connects', () => {
+    let socket: Socket;
 
-      const socket = {
-        id: 'FAKE_SOCKET_ID',
+    beforeEach(() => {
+      socket = {
+        id: 'FAKE_SOCKET_1',
         user: { id: 'FAKE_ID' },
+        conn: {
+          remoteAddress: '127.0.0.1',
+        },
+        handshake: {
+          address: '127.0.0.1',
+          headers: {
+            'user-agent': 'JUST_TESTING',
+          },
+        },
       } as Socket;
       playersGateway.playerConnected.next(socket);
-      expect(service.getSocketsForPlayer('FAKE_ID')).toEqual([socket]);
+    });
+
+    it('should mark the player as online', () => {
+      expect(service.getSocketsForPlayer('FAKE_ID').length).toBe(1);
       expect(service.onlinePlayers.includes('FAKE_ID')).toBe(true);
+    });
 
-      playersGateway.playerConnected.next(socket);
-      expect(service.getSocketsForPlayer('FAKE_ID')).toEqual([socket]);
-      expect(service.onlinePlayers.includes('FAKE_ID')).toBe(true);
-
-      playersGateway.playerDisconnected.next(socket);
-      expect(service.getSocketsForPlayer('FAKE_ID')).toEqual([]);
-
-      events.playerDisconnects.subscribe(({ playerId }) => {
-        expect(playerId).toEqual('FAKE_ID');
-        expect(service.onlinePlayers.includes('FAKE_ID')).toBe(false);
-        resolve();
+    describe('and then disconnects', () => {
+      beforeEach(() => {
+        playersGateway.playerDisconnected.next(socket);
+        jest.runAllTimers();
       });
 
-      jest.runAllTimers();
-    }));
+      it('should mark the player as offline', () => {
+        expect(service.getSocketsForPlayer('FAKE_ID').length).toBe(0);
+        expect(service.onlinePlayers.includes('FAKE_ID')).toBe(false);
+      });
+    });
+
+    describe('and then connects from another IP address', () => {
+      let socket2: Socket;
+
+      beforeEach(() => {
+        socket2 = {
+          id: 'FAKE_SOCKET_1',
+          user: { id: 'FAKE_ID' },
+          conn: {
+            remoteAddress: '192.168.0.1',
+          },
+          handshake: {
+            address: '192.168.0.1',
+            headers: {
+              'user-agent': 'JUST_TESTING',
+            },
+          },
+        } as Socket;
+        playersGateway.playerConnected.next(socket2);
+      });
+
+      it('should mark the player as online', () => {
+        expect(service.getSocketsForPlayer('FAKE_ID').length).toBe(2);
+        expect(service.onlinePlayers.includes('FAKE_ID')).toBe(true);
+      });
+
+      describe('and then disconnects', () => {
+        beforeEach(() => {
+          playersGateway.playerDisconnected.next(socket2);
+          jest.runAllTimers();
+        });
+
+        it('should still keep the player marked as online', () => {
+          expect(service.getSocketsForPlayer('FAKE_ID').length).toBe(1);
+          expect(service.onlinePlayers.includes('FAKE_ID')).toBe(true);
+        });
+      });
+    });
+  });
 });

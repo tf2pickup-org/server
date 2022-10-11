@@ -5,6 +5,7 @@ import { Player } from '@/players/models/player';
 import { PlayerBan } from '@/players/models/player-ban';
 import { PlayerSkillType } from '@/players/services/player-skill.service';
 import { MapPoolEntry } from '@/queue/models/map-pool-entry';
+import { UserMetadata } from '@/shared/user-metadata';
 import { Injectable, Logger } from '@nestjs/common';
 import { Subject } from 'rxjs';
 import { MapVoteResult } from '../queue/map-vote-result';
@@ -32,7 +33,10 @@ export class Events {
     newPlayer: Player;
     adminId?: string;
   }>();
-  readonly playerConnects = new Subject<{ playerId: string }>();
+  readonly playerConnects = new Subject<{
+    playerId: string;
+    metadata: UserMetadata;
+  }>();
   readonly playerDisconnects = new Subject<{ playerId: string }>();
   readonly playerBanAdded = new Subject<{ ban: PlayerBan }>();
   readonly playerBanRevoked = new Subject<{
@@ -72,6 +76,7 @@ export class Events {
   readonly playerJoinedGameServer = new Subject<{
     gameId: string;
     steamId: string;
+    ipAddress: string;
   }>();
   readonly playerJoinedTeam = new Subject<{
     gameId: string;
@@ -80,6 +85,11 @@ export class Events {
   readonly playerDisconnectedFromGameServer = new Subject<{
     gameId: string;
     steamId: string;
+  }>();
+  readonly playerSaidInGameChat = new Subject<{
+    gameId: string;
+    steamId: string;
+    message: string;
   }>();
   readonly scoreReported = new Subject<{
     gameId: string;
