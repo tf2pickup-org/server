@@ -39,7 +39,7 @@ describe('PlayerBansService', () => {
   let connection: Connection;
 
   beforeAll(async () => (mongod = await MongoMemoryServer.create()));
-  afterAll(async () => mongod.stop());
+  afterAll(async () => await mongod.stop());
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -159,7 +159,7 @@ describe('PlayerBansService', () => {
         expect(ret.admin.toString()).toEqual(admin.id);
       });
 
-      it('should emit the playerBanAdded event', async () =>
+      it('should emit the playerBanAdded event', () =>
         new Promise<void>((resolve) => {
           events.playerBanAdded.subscribe(({ ban }) => {
             expect(ban.player.toString()).toEqual(player.id.toString());
@@ -169,7 +169,7 @@ describe('PlayerBansService', () => {
           service.addPlayerBan(newBan);
         }));
 
-      it("should emit profile update event on player's socket", async () =>
+      it("should emit profile update event on player's socket", () =>
         new Promise<void>((resolve) => {
           const socket = {
             emit: (eventName: string, update: any) => {
@@ -202,7 +202,7 @@ describe('PlayerBansService', () => {
       });
 
       it('should throw an error', async () => {
-        await expect(service.addPlayerBan(invalidBan)).rejects.toThrowError();
+        await expect(service.addPlayerBan(invalidBan)).rejects.toThrow();
       });
     });
   });
@@ -213,7 +213,7 @@ describe('PlayerBansService', () => {
       expect(ban.end.getTime()).toBeLessThanOrEqual(new Date().getTime());
     });
 
-    it('should emit the playerBanRevoked event', async () =>
+    it('should emit the playerBanRevoked event', () =>
       new Promise<void>((resolve) => {
         events.playerBanRevoked.subscribe(({ ban, adminId }) => {
           expect(adminId).toEqual(admin.id);
@@ -233,7 +233,7 @@ describe('PlayerBansService', () => {
       it('should reject', async () => {
         await expect(
           service.revokeBan(mockPlayerBan.id, admin.id),
-        ).rejects.toThrowError();
+        ).rejects.toThrow();
       });
     });
   });

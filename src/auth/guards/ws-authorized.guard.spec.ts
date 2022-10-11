@@ -20,9 +20,7 @@ describe('WsAuthorizedGuard', () => {
 
     it('should deny', () => {
       const guard = new WsAuthorizedGuard();
-      expect(() => guard.canActivate(context as any)).toThrowError(
-        'unauthorized',
-      );
+      expect(() => guard.canActivate(context as any)).toThrow('unauthorized');
     });
   });
 

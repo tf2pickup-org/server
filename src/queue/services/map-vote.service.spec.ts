@@ -89,7 +89,7 @@ describe('MapVoteService', () => {
     });
 
     it('should deny voting for maps out of pool', () => {
-      expect(() => service.voteForMap('FAKE_ID', 'cp_sunshine')).toThrowError();
+      expect(() => service.voteForMap('FAKE_ID', 'cp_sunshine')).toThrow();
     });
 
     describe('when the player is not in the queue', () => {
@@ -98,9 +98,7 @@ describe('MapVoteService', () => {
       });
 
       it('should deny', () => {
-        expect(() =>
-          service.voteForMap('FAKE_ID', 'cp_badlands'),
-        ).toThrowError();
+        expect(() => service.voteForMap('FAKE_ID', 'cp_badlands')).toThrow();
       });
     });
 
@@ -114,7 +112,7 @@ describe('MapVoteService', () => {
       expect(service.voteCountForMap('cp_badlands')).toEqual(0);
     });
 
-    it('should emit the mapVotesChange event', async () =>
+    it('should emit the mapVotesChange event', () =>
       new Promise<void>((resolve) => {
         events.mapVotesChange.subscribe(({ results }) => {
           expect(results.length).toEqual(3);
@@ -140,7 +138,7 @@ describe('MapVoteService', () => {
       expect(await service.getWinner()).toMatch(/cp_badlands|cp_process_final/);
     });
 
-    it('should eventually reset the vote', async () =>
+    it('should eventually reset the vote', () =>
       new Promise<void>((resolve) => {
         events.mapVotesChange.pipe(skip(1)).subscribe(({ results }) => {
           expect(results.every((r) => r.voteCount === 0)).toBe(true);
@@ -180,7 +178,7 @@ describe('MapVoteService', () => {
   });
 
   describe('#scramble()', () => {
-    it('should emit the mapsScrambled event', async () =>
+    it('should emit the mapsScrambled event', () =>
       new Promise<void>((resolve) => {
         events.mapsScrambled.subscribe(({ actorId }) => {
           expect(actorId).toEqual('FAKE_ACTOR_ID');

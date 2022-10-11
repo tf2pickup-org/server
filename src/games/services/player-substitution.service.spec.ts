@@ -327,7 +327,7 @@ describe('PlayerSubstitutionService', () => {
       it('should reject', async () => {
         await expect(
           service.replacePlayer(mockGame.id, player1.id, player3.id),
-        ).rejects.toThrowError('player is banned');
+        ).rejects.toThrow('player is banned');
       });
     });
 
@@ -335,7 +335,7 @@ describe('PlayerSubstitutionService', () => {
       it('should reject', async () => {
         await expect(
           service.replacePlayer(mockGame.id, player2.id, player3.id),
-        ).rejects.toThrowError();
+        ).rejects.toThrow();
       });
     });
 
@@ -361,7 +361,7 @@ describe('PlayerSubstitutionService', () => {
       it('should reject', async () => {
         await expect(
           service.replacePlayer(mockGame.id, player1.id, player3.id),
-        ).rejects.toThrowError();
+        ).rejects.toThrow();
       });
     });
 
@@ -374,9 +374,7 @@ describe('PlayerSubstitutionService', () => {
       it('should reject', async () => {
         await expect(
           service.replacePlayer(mockGame.id, player1.id, player3.id),
-        ).rejects.toThrowError(
-          'player is involved in a currently running game',
-        );
+        ).rejects.toThrow('player is involved in a currently running game');
       });
     });
 

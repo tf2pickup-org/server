@@ -319,9 +319,7 @@ describe('ServerConfiguratorService', () => {
       });
 
       it('should close the rcon connection even though an RCON command failed', async () => {
-        await expect(
-          service.configureServer(mockGame.id),
-        ).rejects.toThrowError();
+        await expect(service.configureServer(mockGame.id)).rejects.toThrow();
         expect(rcon.end).toHaveBeenCalled();
       });
     });
@@ -377,7 +375,7 @@ describe('ServerConfiguratorService', () => {
       it('should close the rcon connection even though an RCON command failed', async () => {
         rcon.send.mockRejectedValue('some random RCON error');
 
-        await expect(service.cleanupServer(mockGame.id)).rejects.toThrowError();
+        await expect(service.cleanupServer(mockGame.id)).rejects.toThrow();
         expect(rcon.end).toHaveBeenCalled();
       });
     });

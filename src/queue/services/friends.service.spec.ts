@@ -66,9 +66,9 @@ describe('FriendsService', () => {
   describe('markFriend()', () => {
     it('should fail if the queue is in launching state', () => {
       queueService.state = QueueState.launching;
-      expect(() =>
-        service.markFriend('FAKE_MEDIC', 'FAKE_DM_CLASS'),
-      ).toThrowError('cannot make friends at this stage');
+      expect(() => service.markFriend('FAKE_MEDIC', 'FAKE_DM_CLASS')).toThrow(
+        'cannot make friends at this stage',
+      );
     });
 
     it('should fail if the medic is not in the queue', () => {
@@ -130,7 +130,7 @@ describe('FriendsService', () => {
       ]);
     });
 
-    it('should emit the queueFriendshipsChange event', async () =>
+    it('should emit the queueFriendshipsChange event', () =>
       new Promise<void>((resolve) => {
         events.queueFriendshipsChange.subscribe(({ friendships }) => {
           expect(friendships).toEqual([
