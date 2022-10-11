@@ -50,6 +50,12 @@ describe('OnlinePlayersService', () => {
         conn: {
           remoteAddress: '127.0.0.1',
         },
+        handshake: {
+          address: '127.0.0.1',
+          headers: {
+            'user-agent': 'JUST_TESTING',
+          },
+        },
       } as Socket;
       playersGateway.playerConnected.next(socket);
       expect(service.getSocketsForPlayer('FAKE_ID')).toEqual([socket]);

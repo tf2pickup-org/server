@@ -30,7 +30,7 @@ export class OnlinePlayersService implements OnModuleInit, OnModuleDestroy {
         const player = socket.user;
         const sockets = this.getSocketsForPlayer(player.id);
         if (!sockets.includes(socket)) {
-          const ipAddress = socket.conn.remoteAddress;
+          const ipAddress = socket.handshake.address;
           this.logger.debug(`${player.name} connected from ${ipAddress}`);
           const isAlreadyConnected = sockets.find(
             (socket) => socket.conn.remoteAddress === ipAddress,
@@ -41,6 +41,7 @@ export class OnlinePlayersService implements OnModuleInit, OnModuleDestroy {
               playerId: player.id,
               metadata: {
                 ipAddress,
+                userAgent: socket.handshake.headers['user-agent'],
               },
             });
           }
