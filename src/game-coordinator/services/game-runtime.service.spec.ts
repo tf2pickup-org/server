@@ -182,7 +182,7 @@ describe('GameRuntimeService', () => {
       });
 
       it('should throw an error', async () => {
-        await expect(service.reconfigure(anotherGame.id)).rejects.toThrowError(
+        await expect(service.reconfigure(anotherGame.id)).rejects.toThrow(
           'this game has no server assigned',
         );
       });

@@ -202,7 +202,7 @@ describe('PlayerBansService', () => {
       });
 
       it('should throw an error', async () => {
-        await expect(service.addPlayerBan(invalidBan)).rejects.toThrowError();
+        await expect(service.addPlayerBan(invalidBan)).rejects.toThrow();
       });
     });
   });
@@ -233,7 +233,7 @@ describe('PlayerBansService', () => {
       it('should reject', async () => {
         await expect(
           service.revokeBan(mockPlayerBan.id, admin.id),
-        ).rejects.toThrowError();
+        ).rejects.toThrow();
       });
     });
   });

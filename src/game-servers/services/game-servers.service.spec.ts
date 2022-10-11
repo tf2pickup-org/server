@@ -150,7 +150,7 @@ describe('GameServersService', () => {
       });
 
       it('should throw', async () => {
-        await expect(service.assignGameServer(game.id)).rejects.toThrowError();
+        await expect(service.assignGameServer(game.id)).rejects.toThrow();
       });
     });
   });

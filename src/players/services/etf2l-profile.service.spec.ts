@@ -74,7 +74,7 @@ describe('Etf2lProfileService', () => {
       httpService.get.mockReturnValue(
         of({ status: 403, statusText: 'HAHAHA no.' } as any),
       );
-      await expect(service.fetchPlayerInfo('')).rejects.toThrowError(
+      await expect(service.fetchPlayerInfo('')).rejects.toThrow(
         '403: HAHAHA no.',
       );
     });
@@ -88,9 +88,7 @@ describe('Etf2lProfileService', () => {
           },
         })),
       );
-      await expect(service.fetchPlayerInfo('')).rejects.toThrowError(
-        '401: nope',
-      );
+      await expect(service.fetchPlayerInfo('')).rejects.toThrow('401: nope');
     });
   });
 });

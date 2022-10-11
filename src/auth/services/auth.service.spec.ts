@@ -172,9 +172,7 @@ describe('AuthService', () => {
       );
       await refreshTokenModel.create({ value: token });
 
-      await expect(service.refreshTokens(token)).rejects.toThrowError(
-        'jwt expired',
-      );
+      await expect(service.refreshTokens(token)).rejects.toThrow('jwt expired');
     });
 
     it('should throw an error unless the refresh token matches', async () => {
@@ -186,7 +184,7 @@ describe('AuthService', () => {
       );
       await refreshTokenModel.create({ value: token });
 
-      await expect(service.refreshTokens(token)).rejects.toThrowError(
+      await expect(service.refreshTokens(token)).rejects.toThrow(
         'invalid signature',
       );
     });

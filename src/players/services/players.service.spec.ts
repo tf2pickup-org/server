@@ -253,9 +253,9 @@ describe('PlayersService', () => {
       });
 
       it('should deny creating tf2pickup.pl profile', async () => {
-        await expect(
-          service.createPlayer(mockSteamProfile),
-        ).rejects.toThrowError('no etf2l profile');
+        await expect(service.createPlayer(mockSteamProfile)).rejects.toThrow(
+          'no etf2l profile',
+        );
       });
     });
 
@@ -438,7 +438,7 @@ describe('PlayersService', () => {
       it('should reject', async () => {
         await expect(
           service.updatePlayer(new Types.ObjectId().toString(), {}, admin.id),
-        ).rejects.toThrowError();
+        ).rejects.toThrow();
       });
     });
   });

@@ -89,7 +89,7 @@ describe('MapVoteService', () => {
     });
 
     it('should deny voting for maps out of pool', () => {
-      expect(() => service.voteForMap('FAKE_ID', 'cp_sunshine')).toThrowError();
+      expect(() => service.voteForMap('FAKE_ID', 'cp_sunshine')).toThrow();
     });
 
     describe('when the player is not in the queue', () => {
@@ -98,9 +98,7 @@ describe('MapVoteService', () => {
       });
 
       it('should deny', () => {
-        expect(() =>
-          service.voteForMap('FAKE_ID', 'cp_badlands'),
-        ).toThrowError();
+        expect(() => service.voteForMap('FAKE_ID', 'cp_badlands')).toThrow();
       });
     });
 
