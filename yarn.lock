@@ -4585,9 +4585,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"discord.js@npm:13.11.0":
-  version: 13.11.0
-  resolution: "discord.js@npm:13.11.0"
+"discord.js@npm:13.12.0":
+  version: 13.12.0
+  resolution: "discord.js@npm:13.12.0"
   dependencies:
     "@discordjs/builders": ^0.16.0
     "@discordjs/collection": ^0.7.0
@@ -4597,8 +4597,8 @@ __metadata:
     discord-api-types: ^0.33.5
     form-data: ^4.0.0
     node-fetch: ^2.6.7
-    ws: ^8.8.1
-  checksum: a5d51420e65169cb8fcacfedd4bed3bb5767dbee2cc4fe573578c7a8875797b0fdf3454c7c40c40e07db66c4b223a485a87594044f8ba099f02b226123d37af1
+    ws: ^8.9.0
+  checksum: e7121efac94cf8dba04999f1050cc369e03651afe7c2d440edab415cfac5b6072cca908e7c1310f0027805deaa955922c4bc0d531ff48d84202c643a0bd5141e
   languageName: node
   linkType: hard
 
@@ -10417,7 +10417,7 @@ __metadata:
     class-transformer: 0.5.1
     class-validator: 0.13.2
     copyfiles: 2.4.1
-    discord.js: 13.11.0
+    discord.js: 13.12.0
     eslint: 8.25.0
     eslint-config-prettier: 8.5.0
     eslint-plugin-jest: 26.9.0
@@ -12090,9 +12090,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ws@npm:^8.8.1":
-  version: 8.8.1
-  resolution: "ws@npm:8.8.1"
+"ws@npm:^8.9.0":
+  version: 8.9.0
+  resolution: "ws@npm:8.9.0"
   peerDependencies:
     bufferutil: ^4.0.1
     utf-8-validate: ^5.0.2
@@ -12101,7 +12101,7 @@ __metadata:
       optional: true
     utf-8-validate:
       optional: true
-  checksum: 2152cf862cae0693f3775bc688a6afb2e989d19d626d215e70f5fcd8eb55b1c3b0d3a6a4052905ec320e2d7734e20aeedbf9744496d62f15a26ad79cf4cf7dae
+  checksum: 23aa0f021b2eb65c108ec4c3e08c0d81ba01f82b500432dfe327fd6be36079c1d81fdb0eac6464d2a0eb49904d34a9ab8c59619d673fa07b8346f83aeb0cbf12
   languageName: node
   linkType: hard
 
