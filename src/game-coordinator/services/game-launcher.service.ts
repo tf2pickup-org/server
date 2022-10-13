@@ -1,11 +1,9 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import { GameServersService } from '@/game-servers/services/game-servers.service';
 import { ServerConfiguratorService } from './server-configurator.service';
-import { Cron, CronExpression } from '@nestjs/schedule';
-import { Mutex } from 'async-mutex';
 import { GamesService } from '@/games/services/games.service';
 import { Game } from '@/games/models/game';
 import { Events } from '@/events/events';
+import { filter } from 'rxjs';
 
 /**
  * This service is responsible for launching a single game.
@@ -16,61 +14,40 @@ import { Events } from '@/events/events';
 @Injectable()
 export class GameLauncherService implements OnModuleInit {
   private readonly logger = new Logger(GameLauncherService.name);
-  private readonly mutex = new Mutex();
 
   constructor(
     private readonly gamesService: GamesService,
-    private readonly gameServersService: GameServersService,
     private readonly serverConfiguratorService: ServerConfiguratorService,
     private readonly events: Events,
   ) {}
 
   onModuleInit() {
-    this.events.gameCreated.subscribe(
-      async ({ game }) => await this.launch(game.id),
-    );
+    // when a gameserver is assigned to a game, we can configure the gameserver
+    this.events.gameChanges
+      .pipe(
+        filter(
+          ({ oldGame, newGame }) =>
+            JSON.stringify(oldGame.gameServer) !==
+            JSON.stringify(newGame.gameServer),
+        ),
+      )
+      .subscribe(async ({ newGame }) => await this.configureServer(newGame.id));
   }
 
-  /**
-   * Launches the given game.
-   *
-   * @param {string} gameId The id of the game to be launched.
-   * @memberof GameLauncherService
-   */
-  async launch(gameId: string): Promise<Game> {
-    return await this.mutex.runExclusive(
-      async () => await this.doLaunch(gameId),
-    );
-  }
-
-  @Cron(CronExpression.EVERY_MINUTE)
-  async launchOrphanedGames() {
-    return await this.mutex.runExclusive(async () => {
-      const orphanedGames = await this.gamesService.getOrphanedGames();
-      for (const game of orphanedGames) {
-        this.logger.verbose(`launching game #${game.number}...`);
-        await this.doLaunch(game.id);
-      }
-    });
-  }
-
-  private async doLaunch(gameId: string): Promise<Game> {
+  private async configureServer(gameId: string): Promise<Game> {
     let game = await this.gamesService.getById(gameId);
 
-    if (!game.isInProgress()) {
-      this.logger.warn(
-        `trying to launch game #${game.number} that has already been ended`,
-      );
-    }
-
     try {
-      // step 1: obtain a free server
-      game = await this.gameServersService.assignGameServer(game.id);
-      this.logger.verbose(
-        `using server ${game.gameServer.name} for game #${game.number}`,
-      );
+      game = await this.gamesService.update(game.id, {
+        $unset: {
+          connectString: 1,
+          stvConnectString: 1,
+        },
+        $inc: {
+          connectInfoVersion: 1,
+        },
+      });
 
-      // step 3: configure server
       const { connectString, stvConnectString } =
         await this.serverConfiguratorService.configureServer(game.id);
 
@@ -84,10 +61,10 @@ export class GameLauncherService implements OnModuleInit {
         },
       });
 
-      this.logger.verbose(`game #${game.number} initialized`);
+      this.logger.verbose(`game #${game.number} configured`);
       return game;
     } catch (error) {
-      this.logger.error(`Error launching game #${game.number}: ${error}`);
+      this.logger.error(`error launching game #${game.number}: ${error}`);
     }
   }
 }

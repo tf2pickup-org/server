@@ -13,7 +13,6 @@ import { Rcon } from 'rcon-client/lib';
 import { Events } from '@/events/events';
 import { GamesService } from '@/games/services/games.service';
 import { GameServerOptionWithProvider } from '@/game-servers/interfaces/game-server-option';
-import { GameHasAlreadyEndedError } from '../errors/game-has-already-ended.error';
 
 @Injectable()
 export class GameRuntimeService implements OnModuleInit {
@@ -39,10 +38,6 @@ export class GameRuntimeService implements OnModuleInit {
     );
     this.events.gameReconfigureRequested.subscribe(
       async ({ gameId }) => await this.reconfigure(gameId),
-    );
-    this.events.gameServerReassignRequested.subscribe(
-      async ({ gameId, provider, gameServerId }) =>
-        await this.reassign(gameId, provider, gameServerId),
     );
   }
 
@@ -76,38 +71,6 @@ export class GameRuntimeService implements OnModuleInit {
     }
 
     return game;
-  }
-
-  async reassign(gameId: string, provider: string, gameServerId: string) {
-    let game = await this.gamesService.getById(gameId);
-    if (!game.isInProgress()) {
-      throw new GameHasAlreadyEndedError(gameId);
-    }
-
-    try {
-      game = await this.gameServersService.assignGameServer(game.id);
-      this.logger.verbose(
-        `using server ${game.gameServer.name} for game #${game.number}`,
-      );
-
-      const { connectString, stvConnectString } =
-        await this.serverConfiguratorService.configureServer(game.id);
-
-      game = await this.gamesService.update(game.id, {
-        $set: {
-          connectString,
-          stvConnectString,
-        },
-        $inc: {
-          connectInfoVersion: 1,
-        },
-      });
-
-      this.logger.verbose(`game #${game.number} initialized`);
-      return game;
-    } catch (error) {
-      this.logger.error(`failed to reassign game #${game.number}: ${error}`);
-    }
   }
 
   async replacePlayer(

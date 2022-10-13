@@ -28,7 +28,8 @@ import { GameDto } from '../dto/game.dto';
 import { Serializable } from '@/shared/serializable';
 import { PaginatedGameListDto } from '../dto/paginated-game-list.dto';
 import { Events } from '@/events/events';
-import { GameServerOptionWithProvider } from '@/game-servers/interfaces/game-server-option';
+import { GameServerOptionIdentifier } from '@/game-servers/interfaces/game-server-option';
+import { GameServerAssignerService } from '../services/game-server-assigner.service';
 
 const sortOptions: string[] = [
   'launched_at',
@@ -43,6 +44,7 @@ export class GamesController {
     private gamesService: GamesService,
     private playerSubstitutionService: PlayerSubstitutionService,
     private events: Events,
+    private gameServerAssignerService: GameServerAssignerService,
   ) {}
 
   @Get()
@@ -143,7 +145,7 @@ export class GamesController {
     @Query('force_end') forceEnd: any,
     @Query('substitute_player') substitutePlayerId: string,
     @Query('substitute_player_cancel') cancelSubstitutePlayerId: string,
-    @Query('assign_gameserver') gameServer: GameServerOptionWithProvider,
+    @Query('assign_gameserver') gameServer: GameServerOptionIdentifier,
     @User() admin: Player,
   ) {
     if (reinitializeServer !== undefined) {
@@ -171,7 +173,7 @@ export class GamesController {
     }
 
     if (gameServer !== undefined) {
-      await
+      await this.gameServerAssignerService.assignGameServer(gameId, gameServer);
     }
   }
 }

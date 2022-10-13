@@ -103,13 +103,13 @@ describe('GameLauncherService', () => {
     describe('when the game does not exist', () => {
       it('should throw', async () => {
         await expect(
-          service.launch(new Types.ObjectId().toString()),
+          service.assignGameServer(new Types.ObjectId().toString()),
         ).rejects.toThrow(MongooseError.DocumentNotFoundError);
       });
     });
 
     it('should configure the game server', async () => {
-      const ret = await service.launch(game.id);
+      const ret = await service.assignGameServer(game.id);
       expect(serverConfiguratorService.configureServer).toHaveBeenCalledWith(
         game.id,
       );
@@ -119,7 +119,7 @@ describe('GameLauncherService', () => {
 
     it('should increment connectInfoVersion', async () => {
       const v = game.connectInfoVersion;
-      const ret = await service.launch(game.id);
+      const ret = await service.assignGameServer(game.id);
       expect(ret.connectInfoVersion).toEqual(v + 1);
     });
   });
