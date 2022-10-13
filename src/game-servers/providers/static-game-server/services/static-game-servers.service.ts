@@ -155,6 +155,16 @@ export class StaticGameServersService
     }
   }
 
+  async getGameServerOption(gameServerId: string): Promise<GameServerOption> {
+    const gameServer = await this.getById(gameServerId);
+    return {
+      id: gameServer.id,
+      name: gameServer.name,
+      address: gameServer.address,
+      port: parseInt(gameServer.port, 10),
+    };
+  }
+
   async getControls(id: string): Promise<GameServerControls> {
     const gameServer = await this.getById(id);
     return new StaticGameServerControls(gameServer);

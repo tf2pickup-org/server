@@ -69,6 +69,14 @@ export class GameServersService implements OnApplicationBootstrap {
     throw new NoFreeGameServerAvailableError();
   }
 
+  async getGameServerOption(
+    gameServerId: GameServerOptionIdentifier,
+  ): Promise<GameServerOptionWithProvider> {
+    const provider = this.providerByName(gameServerId.provider);
+    const option = await provider.getGameServerOption(gameServerId.id);
+    return { ...option, provider: provider.gameServerProviderName };
+  }
+
   async getControls(
     gameServer: GameServerOptionWithProvider,
   ): Promise<GameServerControls> {
@@ -78,7 +86,7 @@ export class GameServersService implements OnApplicationBootstrap {
 
   async assignGameServer(
     gameId: string,
-    gameServer?: GameServerOptionIdentifier,
+    gameServerId?: GameServerOptionIdentifier,
   ): Promise<Game> {
     return await this.mutex.runExclusive(async () => {
       let game = await this.gamesService.getById(gameId);
@@ -95,8 +103,11 @@ export class GameServersService implements OnApplicationBootstrap {
         });
       }
 
-      if (gameServer === undefined) {
+      let gameServer: GameServerOptionWithProvider;
+      if (gameServerId === undefined) {
         gameServer = await this.findFreeGameServer();
+      } else {
+        gameServer = await this.getGameServerOption(gameServerId);
       }
 
       game = await this.gamesService.update(game.id, {
