@@ -1,6 +1,11 @@
 import { GameServerControls } from './interfaces/game-server-controls';
 import { GameServerOption } from './interfaces/game-server-option';
 
+export enum GameServerUnassignReason {
+  Manual,
+  GameEnded,
+}
+
 export interface GameServerProvider {
   readonly gameServerProviderName: string;
   readonly priority?: number;
@@ -40,5 +45,6 @@ export interface GameServerProvider {
   onGameServerUnassigned?: (params: {
     gameServerId: string;
     gameId: string;
+    reason: GameServerUnassignReason;
   }) => void | Promise<void>;
 }

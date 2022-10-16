@@ -8,8 +8,6 @@ import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { plainToInstance } from 'class-transformer';
 import { Model, Types } from 'mongoose';
-import { from } from 'rxjs';
-import { delay, exhaustMap, filter, take } from 'rxjs/operators';
 import { ServemeTfServerControls } from '../serveme-tf-server-controls';
 import { ServemeTfApiService } from './serveme-tf-api.service';
 import { endReservationDelay } from '../config';
@@ -91,26 +89,17 @@ export class ServemeTfService implements GameServerProvider, OnModuleInit {
     }));
   }
 
-  onGameServerAssigned({ gameId }: { gameId: string }): void {
-    // end the reservation when the game ends
-    this.events.gameChanges
-      .pipe(
-        filter(({ newGame }) => newGame.id === gameId),
-        filter(({ newGame }) => !!newGame.gameServer),
-        filter(
-          ({ oldGame, newGame }) =>
-            oldGame.isInProgress() && !newGame.isInProgress(),
-        ),
-        take(1),
-        delay(endReservationDelay),
-        exhaustMap(({ newGame }) => from(this.getById(newGame.gameServer.id))),
-      )
-      .subscribe(
-        async (reservation) =>
-          await this.servemeTfApiService.endServerReservation(
-            reservation.reservationId,
-          ),
+  onGameServerAssigned() {
+    // TODO reserve server
+  }
+
+  async onGameServerUnassigned({ gameServerId }) {
+    setTimeout(async () => {
+      const reservation = await this.getById(gameServerId);
+      await this.servemeTfApiService.endServerReservation(
+        reservation.reservationId,
       );
+    }, endReservationDelay);
   }
 
   async getControls(id: string): Promise<GameServerControls> {
@@ -156,5 +145,16 @@ export class ServemeTfService implements GameServerProvider, OnModuleInit {
       this.logger.error(`failed to create reservation: ${error.toString()}`);
       throw new NoFreeGameServerAvailableError();
     }
+  }
+
+  async getGameServerOption(gameServerId: string): Promise<GameServerOption> {
+    const servers = await this.servemeTfApiService.listServers();
+    const server = servers.find((server) => `${server.id}` === gameServerId);
+    return {
+      id: `${server.id}`,
+      name: server.name,
+      address: server.ip,
+      port: parseInt(server.port, 10),
+    };
   }
 }

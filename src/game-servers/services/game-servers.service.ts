@@ -7,7 +7,10 @@ import {
 } from '@nestjs/common';
 import { Mutex } from 'async-mutex';
 import { GamesService } from '@/games/services/games.service';
-import { GameServerProvider } from '../game-server-provider';
+import {
+  GameServerProvider,
+  GameServerUnassignReason,
+} from '../game-server-provider';
 import { Game } from '@/games/models/game';
 import { NoFreeGameServerAvailableError } from '../errors/no-free-game-server-available.error';
 import {
@@ -15,16 +18,26 @@ import {
   GameServerOptionWithProvider,
 } from '../interfaces/game-server-option';
 import { GameServerControls } from '../interfaces/game-server-controls';
+import { Events } from '@/events/events';
+import { filter, map, Subject, takeUntil } from 'rxjs';
 
 @Injectable()
 export class GameServersService implements OnApplicationBootstrap {
   private readonly logger = new Logger(GameServersService.name);
   private readonly mutex = new Mutex();
   private readonly providers: GameServerProvider[] = [];
+  private readonly gameEnds = this.events.gameChanges.pipe(
+    filter(
+      ({ oldGame, newGame }) => oldGame.isInProgress && !newGame.isInProgress(),
+    ),
+    map(({ newGame }) => newGame.id),
+  );
+  private readonly gameServerUnassigned = new Subject<string>();
 
   constructor(
     @Inject(forwardRef(() => GamesService))
     private gamesService: GamesService,
+    private events: Events,
   ) {}
 
   onApplicationBootstrap() {
@@ -91,6 +104,7 @@ export class GameServersService implements OnApplicationBootstrap {
     return await this.mutex.runExclusive(async () => {
       let game = await this.gamesService.getById(gameId);
       if (game.gameServer) {
+        const gameServer = game.gameServer;
         const provider = this.providerByName(game.gameServer.provider);
         game = await this.gamesService.update(game.id, {
           $unset: {
@@ -98,8 +112,9 @@ export class GameServersService implements OnApplicationBootstrap {
           },
         });
         await provider.onGameServerUnassigned?.({
-          gameServerId: game.gameServer.id,
+          gameServerId: gameServer.id,
           gameId: game.id,
+          reason: GameServerUnassignReason.Manual,
         });
       }
 
@@ -119,6 +134,24 @@ export class GameServersService implements OnApplicationBootstrap {
         `using gameserver ${game.gameServer.name} for game #${game.number}`,
       );
       const provider = this.providerByName(gameServer.provider);
+
+      this.gameEnds
+        .pipe(
+          filter((gameId) => gameId === game.id),
+          takeUntil(
+            this.gameServerUnassigned.pipe(
+              filter((gameId) => gameId === game.id),
+            ),
+          ),
+        )
+        .subscribe(async (gameId) => {
+          provider.onGameServerUnassigned?.({
+            gameServerId: gameServer.id,
+            gameId,
+            reason: GameServerUnassignReason.GameEnded,
+          });
+        });
+
       await provider.onGameServerAssigned?.({
         gameServerId: gameServer.id,
         gameId: game.id,

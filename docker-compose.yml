@@ -29,6 +29,11 @@ services:
   gameserver:
     image: tf2pickuppl/tf2-gameserver:latest
     environment:
+      - 'SERVER_HOSTNAME=test game server 1'
+      - 'PORT=27015'
+      - 'CLIENT_PORT=27016'
+      - 'STEAM_PORT=27017'
+      - 'STV_PORT=27020'
       - 'RCON_PASSWORD=123456'
       - 'TF2PICKUPORG_API_ADDRESS=127.0.0.1:3000'
       - 'TF2PICKUPORG_SECRET=xxxxxx'
@@ -39,6 +44,7 @@ services:
   gameserver2:
     image: tf2pickuppl/tf2-gameserver:latest
     environment:
+      - 'SERVER_HOSTNAME=test game server 2'
       - 'PORT=27025'
       - 'CLIENT_PORT=27026'
       - 'STEAM_PORT=27027'

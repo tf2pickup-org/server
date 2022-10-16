@@ -1,5 +1,8 @@
 import { NoFreeGameServerAvailableError } from '@/game-servers/errors/no-free-game-server-available.error';
-import { GameServerProvider } from '@/game-servers/game-server-provider';
+import {
+  GameServerProvider,
+  GameServerUnassignReason,
+} from '@/game-servers/game-server-provider';
 import { GameServersService } from '@/game-servers/services/game-servers.service';
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
@@ -7,7 +10,7 @@ import { Cron, CronExpression } from '@nestjs/schedule';
 import { Mutex } from 'async-mutex';
 import { plainToInstance } from 'class-transformer';
 import { Model, Types, UpdateQuery } from 'mongoose';
-import { delay, filter, take } from 'rxjs/operators';
+import { filter } from 'rxjs/operators';
 import {
   StaticGameServer,
   StaticGameServerDocument,
@@ -20,6 +23,7 @@ import { GameServerOption } from '@/game-servers/interfaces/game-server-option';
 import { serverCleanupDelay } from '../config';
 import { Events } from '@/events/events';
 import { GamesService } from '@/games/services/games.service';
+import { Rcon } from 'rcon-client/lib';
 
 interface HeartbeatParams {
   name: string;
@@ -262,23 +266,36 @@ export class StaticGameServersService
 
   async onGameServerAssigned({ gameServerId, gameId }) {
     await this.updateGameServer(gameServerId, { game: gameId });
-    this.events.gameChanges
-      .pipe(
-        filter(({ newGame }) => newGame.id === gameId),
-        filter(
-          ({ oldGame, newGame }) =>
-            oldGame.isInProgress() && !newGame.isInProgress(),
-        ),
-        take(1),
-        delay(serverCleanupDelay),
-        filter(({ newGame }) => newGame.gameServer?.id === gameServerId),
-      )
-      .subscribe(
-        async ({ newGame }) => await this.freeGameServer(newGame.gameServer.id),
-      );
+  }
+
+  async onGameServerUnassigned({ gameServerId, reason }) {
+    switch (reason) {
+      case GameServerUnassignReason.Manual:
+        await this.freeGameServer(gameServerId);
+        break;
+
+      case GameServerUnassignReason.GameEnded:
+        setTimeout(
+          async () => await this.freeGameServer(gameServerId),
+          serverCleanupDelay,
+        );
+        break;
+    }
   }
 
   private async freeGameServer(gameServerId: string) {
+    const controls = await this.getControls(gameServerId);
+    let rcon: Rcon;
+    try {
+      rcon = await controls.rcon();
+      rcon.send(`tv_delaymapchange_protect 0`);
+    } catch (error) {
+      this.logger.error(
+        `failed to execute tv_delaymapchange_protect 0: ${error}`,
+      );
+    } finally {
+      rcon?.end();
+    }
     await this.updateGameServer(gameServerId, { $unset: { game: 1 } });
   }
 

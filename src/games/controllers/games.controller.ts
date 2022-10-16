@@ -11,6 +11,8 @@ import {
   ClassSerializerInterceptor,
   UseInterceptors,
   UseFilters,
+  Body,
+  BadRequestException,
 } from '@nestjs/common';
 import { GamesService } from '../services/games.service';
 import { ObjectIdValidationPipe } from '@/shared/pipes/object-id-validation.pipe';
@@ -145,8 +147,9 @@ export class GamesController {
     @Query('force_end') forceEnd: any,
     @Query('substitute_player') substitutePlayerId: string,
     @Query('substitute_player_cancel') cancelSubstitutePlayerId: string,
-    @Query('assign_gameserver') gameServer: GameServerOptionIdentifier,
+    @Query('assign_gameserver') assignGameserver,
     @User() admin: Player,
+    @Body() body: unknown,
   ) {
     if (reinitializeServer !== undefined) {
       this.events.gameReconfigureRequested.next({ gameId, adminId: admin.id });
@@ -172,8 +175,16 @@ export class GamesController {
       );
     }
 
-    if (gameServer !== undefined) {
-      await this.gameServerAssignerService.assignGameServer(gameId, gameServer);
+    if (assignGameserver !== undefined) {
+      const { id, provider } = body as GameServerOptionIdentifier;
+      if (!id || !provider) {
+        throw new BadRequestException('invalid gameserver identifier');
+      }
+
+      await this.gameServerAssignerService.assignGameServer(gameId, {
+        id,
+        provider,
+      });
     }
   }
 }
