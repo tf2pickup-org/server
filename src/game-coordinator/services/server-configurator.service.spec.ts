@@ -15,9 +15,6 @@ import {
   enablePlayerWhitelist,
   tvPort,
   tvPassword,
-  logAddressDel,
-  delAllGamePlayers,
-  disablePlayerWhitelist,
   tftrueWhitelistId,
   logsTfTitle,
 } from '../utils/rcon-commands';
@@ -346,50 +343,14 @@ describe('ServerConfiguratorService', () => {
         );
       });
     });
-  });
 
-  describe('#cleanupServer()', () => {
-    let rcon: RconStub;
-
-    beforeEach(() => {
-      rcon = new RconStub();
-      mockGameServerControls.rcon.mockResolvedValue(rcon as unknown as Rcon);
-    });
-
-    describe('when the game has a server assigned', () => {
-      it('should execute correct rcon commands', async () => {
-        await service.cleanupServer(mockGame.id);
-
-        expect(rcon.send).toHaveBeenCalledWith(
-          logAddressDel('FAKE_RELAY_ADDRESS:1234'),
-        );
-        expect(rcon.send).toHaveBeenCalledWith(delAllGamePlayers());
-        expect(rcon.send).toHaveBeenCalledWith(disablePlayerWhitelist());
-      });
-
-      it('should close the rcon connection', async () => {
-        await service.cleanupServer(mockGame.id);
-        expect(rcon.end).toHaveBeenCalled();
-      });
-
-      it('should close the rcon connection even though an RCON command failed', async () => {
-        rcon.send.mockRejectedValue('some random RCON error');
-
-        await expect(service.cleanupServer(mockGame.id)).rejects.toThrow();
-        expect(rcon.end).toHaveBeenCalled();
-      });
-    });
-
-    describe('when the game does not have a server assigned', () => {
-      beforeEach(async () => {
-        await mockGame.update({ $unset: { gameServer: 1 } });
-      });
-
-      it('should throw', async () => {
-        await expect(service.cleanupServer(mockGame.id)).rejects.toThrow(
-          GameServerNotAssignedError,
-        );
-      });
+    it('should update game', async () => {
+      const { connectString, stvConnectString } = await service.configureServer(
+        mockGame.id,
+      );
+      const game = await gamesService.getById(mockGame.id);
+      expect(game.connectString).toEqual(connectString);
+      expect(game.stvConnectString).toEqual(stvConnectString);
     });
   });
 });
