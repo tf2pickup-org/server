@@ -1,4 +1,5 @@
 import { GameServerControls } from './interfaces/game-server-controls';
+import { GameServerDetails } from './interfaces/game-server-details';
 import { GameServerOption } from './interfaces/game-server-option';
 
 export enum GameServerUnassignReason {
@@ -21,28 +22,23 @@ export interface GameServerProvider {
   findFirstFreeGameServer: () => Promise<GameServerOption>;
 
   /**
-   * Give full option info for the given gameserver.
-   */
-  getGameServerOption: (gameServerId: string) => Promise<GameServerOption>;
-
-  /**
    * Get direct access to the given gameserver.
-   * This method will be called only for assigned gameservers.
+   * This method will be called only for assigned (taken) gameservers.
    */
   getControls: (gameServerId: string) => Promise<GameServerControls>;
 
   /**
-   * Called whenever a gameserver gets assigned to a game.
+   * Book the given gameserver.
    */
-  onGameServerAssigned?: (params: {
+  takeGameServer: (params: {
     gameServerId: string;
     gameId: string;
-  }) => void | Promise<void>;
+  }) => Promise<GameServerDetails>;
 
   /**
    * Called whenever a gameserver is freed.
    */
-  onGameServerUnassigned?: (params: {
+  releaseGameServer: (params: {
     gameServerId: string;
     gameId: string;
     reason: GameServerUnassignReason;

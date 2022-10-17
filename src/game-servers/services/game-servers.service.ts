@@ -20,6 +20,7 @@ import {
 import { GameServerControls } from '../interfaces/game-server-controls';
 import { Events } from '@/events/events';
 import { filter, map, Subject, takeUntil } from 'rxjs';
+import { GameServerDetailsWithProvider } from '../interfaces/game-server-details';
 
 @Injectable()
 export class GameServersService implements OnApplicationBootstrap {
@@ -82,12 +83,16 @@ export class GameServersService implements OnApplicationBootstrap {
     throw new NoFreeGameServerAvailableError();
   }
 
-  async getGameServerOption(
+  async takeGameServer(
     gameServerId: GameServerOptionIdentifier,
-  ): Promise<GameServerOptionWithProvider> {
+    gameId: string,
+  ): Promise<GameServerDetailsWithProvider> {
     const provider = this.providerByName(gameServerId.provider);
-    const option = await provider.getGameServerOption(gameServerId.id);
-    return { ...option, provider: provider.gameServerProviderName };
+    const gameServer = await provider.takeGameServer({
+      gameServerId: gameServerId.id,
+      gameId,
+    });
+    return { ...gameServer, provider: provider.gameServerProviderName };
   }
 
   async getControls(
@@ -103,7 +108,9 @@ export class GameServersService implements OnApplicationBootstrap {
   ): Promise<Game> {
     return await this.mutex.runExclusive(async () => {
       let game = await this.gamesService.getById(gameId);
+
       if (game.gameServer) {
+        // unassign old gameserver
         const gameServer = game.gameServer;
         const provider = this.providerByName(game.gameServer.provider);
         game = await this.gamesService.update(game.id, {
@@ -111,18 +118,19 @@ export class GameServersService implements OnApplicationBootstrap {
             gameServer: 1,
           },
         });
-        await provider.onGameServerUnassigned?.({
+        await provider.releaseGameServer({
           gameServerId: gameServer.id,
           gameId: game.id,
           reason: GameServerUnassignReason.Manual,
         });
       }
 
-      let gameServer: GameServerOptionWithProvider;
+      let gameServer: GameServerDetailsWithProvider;
       if (gameServerId === undefined) {
-        gameServer = await this.findFreeGameServer();
+        const option = await this.findFreeGameServer();
+        gameServer = await this.takeGameServer(option, gameId);
       } else {
-        gameServer = await this.getGameServerOption(gameServerId);
+        gameServer = await this.takeGameServer(gameServerId, gameId);
       }
 
       game = await this.gamesService.update(game.id, {
@@ -145,17 +153,13 @@ export class GameServersService implements OnApplicationBootstrap {
           ),
         )
         .subscribe(async (gameId) => {
-          provider.onGameServerUnassigned?.({
+          provider.releaseGameServer({
             gameServerId: gameServer.id,
             gameId,
             reason: GameServerUnassignReason.GameEnded,
           });
         });
 
-      await provider.onGameServerAssigned?.({
-        gameServerId: gameServer.id,
-        gameId: game.id,
-      });
       return game;
     });
   }

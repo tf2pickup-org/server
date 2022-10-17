@@ -19,8 +19,10 @@ jest.mock('@/games/services/games.service');
 
 class TestGameServerProvider implements GameServerProvider {
   gameServerProviderName = 'test';
-  getControls = jest.fn();
+  findGameServerOptions = jest.fn();
   findFirstFreeGameServer = jest.fn().mockRejectedValue('no free game servers');
+  getGameServerOption = jest.fn();
+  getControls = jest.fn();
   onGameServerAssigned = jest.fn();
 }
 

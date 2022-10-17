@@ -24,6 +24,7 @@ import { serverCleanupDelay } from '../config';
 import { Events } from '@/events/events';
 import { GamesService } from '@/games/services/games.service';
 import { Rcon } from 'rcon-client/lib';
+import { GameServerDetails } from '@/game-servers/interfaces/game-server-details';
 
 interface HeartbeatParams {
   name: string;
@@ -151,22 +152,10 @@ export class StaticGameServersService
       return {
         id: selectedGameServer.id,
         name: selectedGameServer.name,
-        address: selectedGameServer.address,
-        port: parseInt(selectedGameServer.port, 10),
       };
     } else {
       throw new NoFreeGameServerAvailableError();
     }
-  }
-
-  async getGameServerOption(gameServerId: string): Promise<GameServerOption> {
-    const gameServer = await this.getById(gameServerId);
-    return {
-      id: gameServer.id,
-      name: gameServer.name,
-      address: gameServer.address,
-      port: parseInt(gameServer.port, 10),
-    };
   }
 
   async getControls(id: string): Promise<GameServerControls> {
@@ -264,11 +253,19 @@ export class StaticGameServersService
     );
   }
 
-  async onGameServerAssigned({ gameServerId, gameId }) {
-    await this.updateGameServer(gameServerId, { game: gameId });
+  async takeGameServer({ gameServerId, gameId }): Promise<GameServerDetails> {
+    const gameServer = await this.updateGameServer(gameServerId, {
+      game: gameId,
+    });
+    return {
+      id: gameServer.id,
+      name: gameServer.name,
+      address: gameServer.address,
+      port: parseInt(gameServer.port, 10),
+    };
   }
 
-  async onGameServerUnassigned({ gameServerId, reason }) {
+  async releaseGameServer({ gameServerId, reason }) {
     switch (reason) {
       case GameServerUnassignReason.Manual:
         await this.freeGameServer(gameServerId);

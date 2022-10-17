@@ -72,7 +72,7 @@ export class ServerCleanupService implements OnModuleInit {
       await rcon.send(disablePlayerWhitelist());
       this.logger.verbose(`[${gameServer.name}] server cleaned up`);
     } catch (error) {
-      throw new Error(
+      this.logger.error(
         `could not cleanup server ${gameServer.name} (${error.message})`,
       );
     } finally {

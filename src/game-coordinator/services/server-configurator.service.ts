@@ -196,7 +196,7 @@ export class ServerConfiguratorService implements OnModuleInit {
         stvConnectString,
       };
     } catch (error) {
-      throw new Error(
+      this.logger.error(
         `could not configure server ${game.gameServer.name} (${error.message})`,
       );
     } finally {
