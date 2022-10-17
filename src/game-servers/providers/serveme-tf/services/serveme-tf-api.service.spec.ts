@@ -161,6 +161,21 @@ describe('ServemeTfApiService', () => {
         });
       });
     });
+
+    describe('when the server id is specified', () => {
+      it('should pick the given server', async () => {
+        await service.reserveServer(299);
+        expect(httpService.post).toHaveBeenCalledWith(
+          'CREATE_RESERVATION_FAKE_URL',
+          {
+            reservation: expect.objectContaining({
+              server_id: 299,
+            }),
+          },
+          expect.any(Object),
+        );
+      });
+    });
   });
 
   describe('#waitForServerToStart()', () => {
