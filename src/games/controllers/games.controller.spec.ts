@@ -3,12 +3,14 @@ import { GamesController } from './games.controller';
 import { GamesService } from '../services/games.service';
 import { Game } from '../models/game';
 import { PlayerSubstitutionService } from '../services/player-substitution.service';
-import { UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, UnauthorizedException } from '@nestjs/common';
 import { Player } from '@/players/models/player';
 import { PlayerNotInThisGameError } from '../errors/player-not-in-this-game.error';
 import { Events } from '@/events/events';
+import { GameServerAssignerService } from '../services/game-server-assigner.service';
 
 jest.mock('../services/player-substitution.service');
+jest.mock('../services/game-server-assigner.service');
 
 class GamesServiceStub {
   games: Game[] = [
@@ -53,6 +55,7 @@ describe('Games Controller', () => {
   let gamesService: GamesServiceStub;
   let playerSubstitutionService: PlayerSubstitutionService;
   let events: Events;
+  let gameServerAssignerService: GameServerAssignerService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -60,6 +63,7 @@ describe('Games Controller', () => {
         { provide: GamesService, useClass: GamesServiceStub },
         PlayerSubstitutionService,
         Events,
+        GameServerAssignerService,
       ],
       controllers: [GamesController],
     }).compile();
@@ -68,6 +72,7 @@ describe('Games Controller', () => {
     gamesService = module.get(GamesService);
     playerSubstitutionService = module.get(PlayerSubstitutionService);
     events = module.get(Events);
+    gameServerAssignerService = module.get(GameServerAssignerService);
   });
 
   it('should be defined', () => {
@@ -235,7 +240,9 @@ describe('Games Controller', () => {
         undefined,
         undefined,
         undefined,
+        undefined,
         { id: 'FAKE_ADMIN_ID' } as Player,
+        {},
       );
       expect(emittedGameId).toEqual('FAKE_GAME_ID');
       expect(emittedAdminId).toEqual('FAKE_ADMIN_ID');
@@ -248,7 +255,9 @@ describe('Games Controller', () => {
         '',
         undefined,
         undefined,
+        undefined,
         { id: 'FAKE_ADMIN_ID' } as Player,
+        {},
       );
       expect(gamesService.forceEnd).toHaveBeenCalledWith(
         'FAKE_GAME_ID',
@@ -264,7 +273,9 @@ describe('Games Controller', () => {
         undefined,
         'FAKE_PLAYER_ID',
         undefined,
+        undefined,
         { id: 'FAKE_ADMIN_ID' } as Player,
+        {},
       );
       expect(spy).toHaveBeenCalledWith(
         'FAKE_GAME_ID',
@@ -284,13 +295,54 @@ describe('Games Controller', () => {
         undefined,
         undefined,
         'FAKE_PLAYER_ID',
+        undefined,
         { id: 'FAKE_ADMIN_ID' } as Player,
+        {},
       );
       expect(spy).toHaveBeenCalledWith(
         'FAKE_GAME_ID',
         'FAKE_PLAYER_ID',
         'FAKE_ADMIN_ID',
       );
+    });
+
+    describe('reassign server', () => {
+      it('should reassign gameserver', async () => {
+        await controller.takeAdminAction(
+          'FAKE_GAME_ID',
+          undefined,
+          undefined,
+          undefined,
+          undefined,
+          '',
+          { id: 'FAKE_ADMIN_ID' } as Player,
+          { id: 'FAKE_GAMESERVER_ID', provider: 'FAKE_PROVIDER' },
+        );
+        expect(gameServerAssignerService.assignGameServer).toHaveBeenCalledWith(
+          'FAKE_GAME_ID',
+          {
+            id: 'FAKE_GAMESERVER_ID',
+            provider: 'FAKE_PROVIDER',
+          },
+        );
+      });
+
+      describe('when gameserver is invalid', () => {
+        it('should return 400', async () => {
+          await expect(
+            controller.takeAdminAction(
+              'FAKE_GAME_ID',
+              undefined,
+              undefined,
+              undefined,
+              undefined,
+              '',
+              { id: 'FAKE_ADMIN_ID' } as Player,
+              { id: 'FAKE_GAMESERVER_ID' }, // missing provider
+            ),
+          ).rejects.toThrow(BadRequestException);
+        });
+      });
     });
   });
 });
