@@ -17,6 +17,7 @@ import {
 } from '../models/serveme-tf-reservation';
 import { ReservationStatus } from '../models/reservation-status';
 import { GameServer } from '@/games/models/game-server';
+import { GameServerDetails } from '@/game-servers/interfaces/game-server-details';
 
 type ValueType<T> = T extends Promise<infer U> ? U : T;
 
@@ -113,25 +114,27 @@ export class ServemeTfService implements GameServerProvider, OnModuleInit {
     }, endReservationDelay);
   }
 
-  async getControls(id: string): Promise<GameServerControls> {
-    return new ServemeTfServerControls(
-      await this.getById(id),
-      this.servemeTfApiService,
-    );
-  }
-
-  async findFirstFreeGameServer(): Promise<GameServerOption> {
+  async takeFirstFreeGameServer(): Promise<GameServerDetails> {
     try {
       const { reservation } = await this.servemeTfApiService.reserveServer();
       const id = await this.storeReservation(reservation);
       return {
         id,
         name: reservation.server.name,
+        address: reservation.server.ip,
+        port: parseInt(reservation.server.port, 10),
       };
     } catch (error) {
       this.logger.error(`failed to create reservation: ${error.toString()}`);
       throw new NoFreeGameServerAvailableError();
     }
+  }
+
+  async getControls(id: string): Promise<GameServerControls> {
+    return new ServemeTfServerControls(
+      await this.getById(id),
+      this.servemeTfApiService,
+    );
   }
 
   private async storeReservation(

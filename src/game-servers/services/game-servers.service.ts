@@ -9,7 +9,7 @@ import { Mutex } from 'async-mutex';
 import { GamesService } from '@/games/services/games.service';
 import {
   GameServerProvider,
-  GameServerUnassignReason,
+  GameServerReleaseReason,
 } from '../game-server-provider';
 import { Game } from '@/games/models/game';
 import { NoFreeGameServerAvailableError } from '../errors/no-free-game-server-available.error';
@@ -67,10 +67,12 @@ export class GameServersService implements OnApplicationBootstrap {
     return options;
   }
 
-  async findFreeGameServer(): Promise<GameServerOptionWithProvider> {
+  async takeFirstFreeGameServer(
+    gameId: string,
+  ): Promise<GameServerDetailsWithProvider> {
     for (const provider of this.providers) {
       try {
-        const option = await provider.findFirstFreeGameServer();
+        const option = await provider.takeFirstFreeGameServer({ gameId });
         return {
           ...option,
           provider: provider.gameServerProviderName,
@@ -121,14 +123,13 @@ export class GameServersService implements OnApplicationBootstrap {
         await provider.releaseGameServer({
           gameServerId: gameServer.id,
           gameId: game.id,
-          reason: GameServerUnassignReason.Manual,
+          reason: GameServerReleaseReason.Manual,
         });
       }
 
       let gameServer: GameServerDetailsWithProvider;
       if (gameServerId === undefined) {
-        const option = await this.findFreeGameServer();
-        gameServer = await this.takeGameServer(option, gameId);
+        gameServer = await this.takeFirstFreeGameServer(gameId);
       } else {
         gameServer = await this.takeGameServer(gameServerId, gameId);
       }
@@ -156,7 +157,7 @@ export class GameServersService implements OnApplicationBootstrap {
           provider.releaseGameServer({
             gameServerId: gameServer.id,
             gameId,
-            reason: GameServerUnassignReason.GameEnded,
+            reason: GameServerReleaseReason.GameEnded,
           });
         });
 

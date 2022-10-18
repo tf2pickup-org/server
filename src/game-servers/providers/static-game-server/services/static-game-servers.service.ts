@@ -1,7 +1,7 @@
 import { NoFreeGameServerAvailableError } from '@/game-servers/errors/no-free-game-server-available.error';
 import {
   GameServerProvider,
-  GameServerUnassignReason,
+  GameServerReleaseReason,
 } from '@/game-servers/game-server-provider';
 import { GameServersService } from '@/game-servers/services/game-servers.service';
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
@@ -66,6 +66,68 @@ export class StaticGameServersService
     await this.removeDeadGameServers();
     await this.freeUnusedGameServers();
     this.gameServersService.registerProvider(this);
+  }
+
+  async findGameServerOptions(): Promise<GameServerOption[]> {
+    const gameServers = await this.getFreeGameServers();
+    return gameServers.map((gameServer) => ({
+      id: gameServer.id,
+      name: gameServer.name,
+      address: gameServer.address,
+      port: parseInt(gameServer.port, 10),
+    }));
+  }
+
+  async takeGameServer({ gameServerId, gameId }): Promise<GameServerDetails> {
+    const gameServer = await this.updateGameServer(gameServerId, {
+      game: gameId,
+    });
+    return {
+      id: gameServer.id,
+      name: gameServer.name,
+      address: gameServer.address,
+      port: parseInt(gameServer.port, 10),
+    };
+  }
+
+  async releaseGameServer({ gameServerId, reason }) {
+    switch (reason) {
+      case GameServerReleaseReason.Manual:
+        await this.freeGameServer(gameServerId);
+        break;
+
+      case GameServerReleaseReason.GameEnded:
+        setTimeout(
+          async () => await this.freeGameServer(gameServerId),
+          serverCleanupDelay,
+        );
+        break;
+    }
+  }
+
+  async takeFirstFreeGameServer({ gameId }): Promise<GameServerDetails> {
+    const gameServers = await this.getFreeGameServers();
+    if (gameServers.length > 0) {
+      const selectedGameServer = await this.updateGameServer(
+        gameServers[0].id,
+        {
+          game: gameId,
+        },
+      );
+      return {
+        id: selectedGameServer.id,
+        name: selectedGameServer.name,
+        address: selectedGameServer.address,
+        port: parseInt(selectedGameServer.port, 10),
+      };
+    } else {
+      throw new NoFreeGameServerAvailableError();
+    }
+  }
+
+  async getControls(id: string): Promise<GameServerControls> {
+    const gameServer = await this.getById(id);
+    return new StaticGameServerControls(gameServer);
   }
 
   async getById(
@@ -133,34 +195,6 @@ export class StaticGameServersService
         .lean()
         .exec(),
     );
-  }
-
-  async findGameServerOptions(): Promise<GameServerOption[]> {
-    const gameServers = await this.getFreeGameServers();
-    return gameServers.map((gameServer) => ({
-      id: gameServer.id,
-      name: gameServer.name,
-      address: gameServer.address,
-      port: parseInt(gameServer.port, 10),
-    }));
-  }
-
-  async findFirstFreeGameServer(): Promise<GameServerOption> {
-    const gameServers = await this.getFreeGameServers();
-    if (gameServers.length > 0) {
-      const selectedGameServer = gameServers[0];
-      return {
-        id: selectedGameServer.id,
-        name: selectedGameServer.name,
-      };
-    } else {
-      throw new NoFreeGameServerAvailableError();
-    }
-  }
-
-  async getControls(id: string): Promise<GameServerControls> {
-    const gameServer = await this.getById(id);
-    return new StaticGameServerControls(gameServer);
   }
 
   async heartbeat(params: HeartbeatParams): Promise<StaticGameServer> {
@@ -251,33 +285,6 @@ export class StaticGameServersService
         }
       }),
     );
-  }
-
-  async takeGameServer({ gameServerId, gameId }): Promise<GameServerDetails> {
-    const gameServer = await this.updateGameServer(gameServerId, {
-      game: gameId,
-    });
-    return {
-      id: gameServer.id,
-      name: gameServer.name,
-      address: gameServer.address,
-      port: parseInt(gameServer.port, 10),
-    };
-  }
-
-  async releaseGameServer({ gameServerId, reason }) {
-    switch (reason) {
-      case GameServerUnassignReason.Manual:
-        await this.freeGameServer(gameServerId);
-        break;
-
-      case GameServerUnassignReason.GameEnded:
-        setTimeout(
-          async () => await this.freeGameServer(gameServerId),
-          serverCleanupDelay,
-        );
-        break;
-    }
   }
 
   private async freeGameServer(gameServerId: string) {

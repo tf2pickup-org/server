@@ -2,7 +2,7 @@ import { GameServerControls } from './interfaces/game-server-controls';
 import { GameServerDetails } from './interfaces/game-server-details';
 import { GameServerOption } from './interfaces/game-server-option';
 
-export enum GameServerUnassignReason {
+export enum GameServerReleaseReason {
   Manual,
   GameEnded,
 }
@@ -17,23 +17,12 @@ export interface GameServerProvider {
   findGameServerOptions: () => Promise<GameServerOption[]>;
 
   /**
-   * Find first gameserver that can be used for a game.
-   */
-  findFirstFreeGameServer: () => Promise<GameServerOption>;
-
-  /**
-   * Get direct access to the given gameserver.
-   * This method will be called only for assigned (taken) gameservers.
-   */
-  getControls: (gameServerId: string) => Promise<GameServerControls>;
-
-  /**
    * Book the given gameserver.
    */
   takeGameServer: (params: {
     gameServerId: string;
     gameId: string;
-  }) => Promise<GameServerDetails>;
+  }) => GameServerDetails | Promise<GameServerDetails>;
 
   /**
    * Called whenever a gameserver is freed.
@@ -41,6 +30,19 @@ export interface GameServerProvider {
   releaseGameServer: (params: {
     gameServerId: string;
     gameId: string;
-    reason: GameServerUnassignReason;
+    reason: GameServerReleaseReason;
   }) => void | Promise<void>;
+
+  /**
+   * Find first gameserver that can be used for a game.
+   */
+  takeFirstFreeGameServer: (params: {
+    gameId: string;
+  }) => GameServerDetails | Promise<GameServerDetails>;
+
+  /**
+   * Get direct access to the given gameserver.
+   * This method will be called only for assigned (taken) gameservers.
+   */
+  getControls: (gameServerId: string) => Promise<GameServerControls>;
 }

@@ -20,7 +20,7 @@ jest.mock('@/games/services/games.service');
 class TestGameServerProvider implements GameServerProvider {
   gameServerProviderName = 'test';
   findGameServerOptions = jest.fn();
-  findFirstFreeGameServer = jest.fn().mockRejectedValue('no free game servers');
+  takeFirstFreeGameServer = jest.fn().mockRejectedValue('no free game servers');
   getGameServerOption = jest.fn();
   getControls = jest.fn();
   onGameServerAssigned = jest.fn();
@@ -67,7 +67,7 @@ describe('GameServersService', () => {
   describe('#findFreeGameServer()', () => {
     describe('when there are no registered providers', () => {
       it('should throw an error', async () => {
-        await expect(service.findFreeGameServer()).rejects.toThrow(
+        await expect(service.takeFirstFreeGameServer()).rejects.toThrow(
           NoFreeGameServerAvailableError,
         );
       });
@@ -75,7 +75,7 @@ describe('GameServersService', () => {
 
     describe('when there is a free server available', () => {
       beforeEach(() => {
-        testGameServerProvider.findFirstFreeGameServer.mockResolvedValue({
+        testGameServerProvider.takeFirstFreeGameServer.mockResolvedValue({
           id: 'FAKE_GAME_SERVER',
           name: 'FAKE GAME SERVER',
           address: 'FAKE_ADDRESS',
@@ -84,7 +84,7 @@ describe('GameServersService', () => {
       });
 
       it('should return this gameserver', async () => {
-        const gameServer = await service.findFreeGameServer();
+        const gameServer = await service.takeFirstFreeGameServer();
         expect(gameServer.id).toEqual('FAKE_GAME_SERVER');
       });
     });
@@ -127,7 +127,7 @@ describe('GameServersService', () => {
         slots: [],
       });
 
-      testGameServerProvider.findFirstFreeGameServer.mockResolvedValue({
+      testGameServerProvider.takeFirstFreeGameServer.mockResolvedValue({
         id: 'FAKE_GAME_SERVER',
         name: 'FAKE GAME SERVER',
         address: 'FAKE_ADDRESS',
@@ -146,7 +146,7 @@ describe('GameServersService', () => {
 
     describe('when there are no free game servers', () => {
       beforeEach(() => {
-        testGameServerProvider.findFirstFreeGameServer.mockRejectedValue(
+        testGameServerProvider.takeFirstFreeGameServer.mockRejectedValue(
           'no free gameserver',
         );
       });

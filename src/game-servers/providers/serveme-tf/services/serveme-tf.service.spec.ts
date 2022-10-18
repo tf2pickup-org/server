@@ -218,7 +218,7 @@ describe('ServemeTfService', () => {
       });
 
       it('should store the gameserver in the model', async () => {
-        await service.findFirstFreeGameServer();
+        await service.takeFirstFreeGameServer();
         const gameServer = await servemeTfReservationModel.findOne();
         expect(gameServer.server.name).toEqual('FAKE_SERVER_NAME');
         expect(gameServer.server.ip).toEqual('FAKE_SERVER_ADDRESS');
@@ -227,7 +227,7 @@ describe('ServemeTfService', () => {
       });
 
       it('should return the gameserver', async () => {
-        const ret = await service.findFirstFreeGameServer();
+        const ret = await service.takeFirstFreeGameServer();
         expect(ret).toBeTruthy();
         expect(ret.name).toEqual('FAKE_SERVER_NAME');
       });
@@ -241,7 +241,7 @@ describe('ServemeTfService', () => {
       });
 
       it('should throw', async () => {
-        await expect(service.findFirstFreeGameServer()).rejects.toThrow(
+        await expect(service.takeFirstFreeGameServer()).rejects.toThrow(
           NoFreeGameServerAvailableError,
         );
       });

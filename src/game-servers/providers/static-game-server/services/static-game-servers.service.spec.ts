@@ -251,7 +251,7 @@ describe('StaticGameServersService', () => {
   describe('#findFirstGameServer()', () => {
     describe('when there are free gameservers', () => {
       it('should return the first gameserver', async () => {
-        const gameServer = await service.findFirstFreeGameServer();
+        const gameServer = await service.takeFirstFreeGameServer();
         expect(gameServer.id).toEqual(testGameServer.id);
       });
     });
@@ -263,7 +263,7 @@ describe('StaticGameServersService', () => {
       });
 
       it('should throw an error', async () => {
-        await expect(service.findFirstFreeGameServer()).rejects.toThrow(
+        await expect(service.takeFirstFreeGameServer()).rejects.toThrow(
           NoFreeGameServerAvailableError,
         );
       });
@@ -276,7 +276,7 @@ describe('StaticGameServersService', () => {
       });
 
       it('should throw an error', async () => {
-        await expect(service.findFirstFreeGameServer()).rejects.toThrow(
+        await expect(service.takeFirstFreeGameServer()).rejects.toThrow(
           NoFreeGameServerAvailableError,
         );
       });
