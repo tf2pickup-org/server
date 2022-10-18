@@ -10,7 +10,10 @@ import {
   MongooseModule,
 } from '@nestjs/mongoose';
 import { GamesService } from '@/games/services/games.service';
-import { GameServerProvider } from '../game-server-provider';
+import {
+  GameServerProvider,
+  GameServerReleaseReason,
+} from '../game-server-provider';
 import { NoFreeGameServerAvailableError } from '../errors/no-free-game-server-available.error';
 import { Events } from '@/events/events';
 import { GameServerControls } from '../interfaces/game-server-controls';
@@ -20,10 +23,10 @@ jest.mock('@/games/services/games.service');
 class TestGameServerProvider implements GameServerProvider {
   gameServerProviderName = 'test';
   findGameServerOptions = jest.fn();
+  takeGameServer = jest.fn();
+  releaseGameServer = jest.fn();
   takeFirstFreeGameServer = jest.fn().mockRejectedValue('no free game servers');
-  getGameServerOption = jest.fn();
   getControls = jest.fn();
-  onGameServerAssigned = jest.fn();
 }
 
 describe('GameServersService', () => {
@@ -32,6 +35,7 @@ describe('GameServersService', () => {
   let gameModel: Model<GameDocument>;
   let connection: Connection;
   let testGameServerProvider: TestGameServerProvider;
+  let events: Events;
 
   beforeAll(async () => (mongod = await MongoMemoryServer.create()));
   afterAll(async () => await mongod.stop());
@@ -48,6 +52,7 @@ describe('GameServersService', () => {
     service = module.get<GameServersService>(GameServersService);
     gameModel = module.get(getModelToken(Game.name));
     connection = module.get(getConnectionToken());
+    events = module.get(Events);
   });
 
   beforeEach(() => {
@@ -64,12 +69,12 @@ describe('GameServersService', () => {
     expect(service).toBeDefined();
   });
 
-  describe('#findFreeGameServer()', () => {
+  describe('#takeFirstFreeGameServer()', () => {
     describe('when there are no registered providers', () => {
       it('should throw an error', async () => {
-        await expect(service.takeFirstFreeGameServer()).rejects.toThrow(
-          NoFreeGameServerAvailableError,
-        );
+        await expect(
+          service.takeFirstFreeGameServer('FAKE_GAME_ID'),
+        ).rejects.toThrow(NoFreeGameServerAvailableError);
       });
     });
 
@@ -84,9 +89,36 @@ describe('GameServersService', () => {
       });
 
       it('should return this gameserver', async () => {
-        const gameServer = await service.takeFirstFreeGameServer();
+        const gameServer = await service.takeFirstFreeGameServer(
+          'FAKE_GAME_SERVER',
+        );
         expect(gameServer.id).toEqual('FAKE_GAME_SERVER');
+        expect(gameServer.provider).toEqual('test');
       });
+    });
+  });
+
+  describe('#takeGameServer()', () => {
+    beforeEach(() => {
+      testGameServerProvider.takeGameServer.mockResolvedValue({
+        id: 'FAKE_GAME_SERVER',
+        name: 'FAKE GAME SERVER',
+        address: 'FAKE_ADDRESS',
+        port: 27015,
+      });
+    });
+
+    it('should take the given gameserver', async () => {
+      const server = await service.takeGameServer(
+        { id: 'FAKE_GAME_SERVER', provider: 'test' },
+        'FAKE_GAME_ID',
+      );
+      expect(testGameServerProvider.takeGameServer).toHaveBeenCalledWith({
+        gameServerId: 'FAKE_GAME_SERVER',
+        gameId: 'FAKE_GAME_ID',
+      });
+      expect(server.id).toEqual('FAKE_GAME_SERVER');
+      expect(server.provider).toEqual('test');
     });
   });
 
@@ -105,9 +137,6 @@ describe('GameServersService', () => {
     it('should query the provider for controls', async () => {
       const controls = await service.getControls({
         id: 'FAKE_GAME_SERVER',
-        name: 'FAKE GAME SERVER',
-        address: 'FAKE_ADDRESS',
-        port: 27015,
         provider: 'test',
       });
       expect(controls).toBe(testControls);
@@ -138,8 +167,9 @@ describe('GameServersService', () => {
     it('should assign the server', async () => {
       const newGame = await service.assignGameServer(game.id);
       expect(newGame.gameServer.id).toEqual('FAKE_GAME_SERVER');
-      expect(testGameServerProvider.onGameServerAssigned).toHaveBeenCalledWith({
-        gameServerId: 'FAKE_GAME_SERVER',
+      expect(
+        testGameServerProvider.takeFirstFreeGameServer,
+      ).toHaveBeenCalledWith({
         gameId: game.id,
       });
     });
@@ -153,6 +183,57 @@ describe('GameServersService', () => {
 
       it('should throw', async () => {
         await expect(service.assignGameServer(game.id)).rejects.toThrow();
+      });
+    });
+
+    describe('when trying to assign the specific free gameserver', () => {
+      beforeEach(() => {
+        testGameServerProvider.takeGameServer.mockResolvedValue({
+          id: 'FAKE_GAME_SERVER',
+          name: 'FAKE GAME SERVER',
+          address: 'FAKE_ADDRESS',
+          port: 27015,
+        });
+      });
+
+      it('should assign the given gameserver', async () => {
+        const newGame = await service.assignGameServer(game.id, {
+          id: 'FAKE_GAME_SERVER',
+          provider: 'test',
+        });
+        expect(newGame.gameServer.id).toEqual('FAKE_GAME_SERVER');
+        expect(testGameServerProvider.takeGameServer).toHaveBeenCalledWith({
+          gameServerId: 'FAKE_GAME_SERVER',
+          gameId: game.id,
+        });
+      });
+
+      describe('and the game has a gameserver already assigned', () => {
+        beforeEach(async () => {
+          testGameServerProvider.takeFirstFreeGameServer.mockResolvedValueOnce({
+            id: 'FAKE_GAME_SERVER_2',
+            name: 'FAKE GAME SERVER 2',
+            address: 'FAKE_ADDRESS',
+            port: 27025,
+          });
+
+          await service.assignGameServer(game.id);
+        });
+
+        it('should release the assigned gameserver', async () => {
+          await service.assignGameServer(game.id, {
+            id: 'FAKE_GAME_SERVER',
+            provider: 'test',
+          });
+
+          expect(testGameServerProvider.releaseGameServer).toHaveBeenCalledWith(
+            {
+              gameServerId: 'FAKE_GAME_SERVER_2',
+              gameId: game.id,
+              reason: GameServerReleaseReason.Manual,
+            },
+          );
+        });
       });
     });
   });

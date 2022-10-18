@@ -4,6 +4,7 @@ import {
   Injectable,
   Logger,
   OnApplicationBootstrap,
+  OnModuleInit,
 } from '@nestjs/common';
 import { Mutex } from 'async-mutex';
 import { GamesService } from '@/games/services/games.service';
@@ -19,20 +20,16 @@ import {
 } from '../interfaces/game-server-option';
 import { GameServerControls } from '../interfaces/game-server-controls';
 import { Events } from '@/events/events';
-import { filter, map, Subject, takeUntil } from 'rxjs';
+import { filter, map, Subject } from 'rxjs';
 import { GameServerDetailsWithProvider } from '../interfaces/game-server-details';
 
 @Injectable()
-export class GameServersService implements OnApplicationBootstrap {
+export class GameServersService
+  implements OnApplicationBootstrap, OnModuleInit
+{
   private readonly logger = new Logger(GameServersService.name);
   private readonly mutex = new Mutex();
   private readonly providers: GameServerProvider[] = [];
-  private readonly gameEnds = this.events.gameChanges.pipe(
-    filter(
-      ({ oldGame, newGame }) => oldGame.isInProgress && !newGame.isInProgress(),
-    ),
-    map(({ newGame }) => newGame.id),
-  );
   private readonly gameServerUnassigned = new Subject<string>();
 
   constructor(
@@ -47,6 +44,28 @@ export class GameServersService implements OnApplicationBootstrap {
         .map((p) => p.gameServerProviderName)
         .join(', ')}`,
     );
+  }
+
+  onModuleInit() {
+    // when game ends, release the gameserver
+    this.events.gameChanges
+      .pipe(
+        filter(
+          ({ oldGame, newGame }) =>
+            oldGame.isInProgress && !newGame.isInProgress(),
+        ),
+        map(({ newGame }) => newGame),
+        filter((game) => !!game.gameServer),
+      )
+      .subscribe(async (game) => {
+        const gameServer = game.gameServer;
+        const provider = this.providerByName(gameServer.provider);
+        await provider.releaseGameServer({
+          gameServerId: gameServer.id,
+          gameId: game.id,
+          reason: GameServerReleaseReason.Manual,
+        });
+      });
   }
 
   registerProvider(provider: GameServerProvider) {
@@ -98,7 +117,7 @@ export class GameServersService implements OnApplicationBootstrap {
   }
 
   async getControls(
-    gameServer: GameServerOptionWithProvider,
+    gameServer: GameServerOptionIdentifier,
   ): Promise<GameServerControls> {
     const provider = this.providerByName(gameServer.provider);
     return await provider.getControls(gameServer.id);
@@ -142,24 +161,6 @@ export class GameServersService implements OnApplicationBootstrap {
       this.logger.log(
         `using gameserver ${game.gameServer.name} for game #${game.number}`,
       );
-      const provider = this.providerByName(gameServer.provider);
-
-      this.gameEnds
-        .pipe(
-          filter((gameId) => gameId === game.id),
-          takeUntil(
-            this.gameServerUnassigned.pipe(
-              filter((gameId) => gameId === game.id),
-            ),
-          ),
-        )
-        .subscribe(async (gameId) => {
-          provider.releaseGameServer({
-            gameServerId: gameServer.id,
-            gameId,
-            reason: GameServerReleaseReason.GameEnded,
-          });
-        });
 
       return game;
     });
