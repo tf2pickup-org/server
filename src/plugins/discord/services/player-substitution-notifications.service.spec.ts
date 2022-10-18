@@ -94,11 +94,12 @@ describe('PlayerSubstitutionNotificationsService', () => {
       // @ts-expect-error
       game = await gamesService._createOne([player]);
 
-      (environment.discordQueueNotificationsMentionRole as string) =
-        'TF2 gamers';
+      jest
+        .spyOn(environment, 'discordQueueNotificationsMentionRole', 'get')
+        .mockReturnValue('TF2 gamers');
     });
 
-    it('should notify all players', async () =>
+    it('should notify all players', () =>
       new Promise<void>((resolve) => {
         const channel = discordService.getPlayersChannel();
         channel.send.mockImplementation(() => {
@@ -130,12 +131,13 @@ describe('PlayerSubstitutionNotificationsService', () => {
       // @ts-expect-error
       game = await gamesService._createOne([player]);
 
-      (environment.discordQueueNotificationsMentionRole as string) =
-        'TF2 gamers';
+      jest
+        .spyOn(environment, 'discordQueueNotificationsMentionRole', 'get')
+        .mockReturnValue('TF2 gamers');
     });
 
     beforeEach(
-      async () =>
+      () =>
         new Promise<void>((resolve) => {
           const channel = discordService.getPlayersChannel();
           const originalSend = channel.send;

@@ -82,8 +82,7 @@ describe('Queue Controller', () => {
       { sourcePlayerId: 'FAKE_MEDIC', targetPlayerId: 'FAKE_DM_CLASS' },
     ];
 
-    // @ts-expect-error
-    mapVoteService.results = [];
+    jest.spyOn(mapVoteService, 'results', 'get').mockReturnValue([]);
   });
 
   it('should be defined', () => {

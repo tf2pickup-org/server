@@ -132,8 +132,7 @@ describe('Twitch Controller', () => {
     ];
 
     beforeEach(() => {
-      // @ts-ignore
-      twitchService.streams = streams;
+      jest.spyOn(twitchService, 'streams', 'get').mockReturnValue(streams);
     });
 
     it('should return streams', () => {

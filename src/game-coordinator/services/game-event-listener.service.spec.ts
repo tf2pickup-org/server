@@ -33,6 +33,7 @@ describe('GameEventListenerService', () => {
   let logReceiverService: jest.Mocked<LogReceiverService>;
   let connection: Connection;
   let events: Events;
+  let gameLogs: Subject<any>;
 
   beforeAll(async () => (mongod = await MongoMemoryServer.create()));
   afterAll(async () => await mongod.stop());
@@ -64,8 +65,8 @@ describe('GameEventListenerService', () => {
     connection = module.get(getConnectionToken());
     events = module.get(Events);
 
-    // @ts-expect-error
-    logReceiverService.data = new Subject<any>();
+    gameLogs = new Subject<any>();
+    jest.spyOn(logReceiverService, 'data', 'get').mockReturnValue(gameLogs);
 
     service.onModuleInit();
   });
@@ -94,7 +95,7 @@ describe('GameEventListenerService', () => {
           expect(gameId).toEqual(game.id);
           resolve();
         });
-        (logReceiverService.data as Subject<any>).next({
+        gameLogs.next({
           payload: '01/26/2020 - 20:40:20: World triggered "Round_Start"',
           password: 'SOME_LOG_SECRET',
         });
@@ -106,7 +107,7 @@ describe('GameEventListenerService', () => {
           expect(gameId).toEqual(game.id);
           resolve();
         });
-        (logReceiverService.data as Subject<any>).next({
+        gameLogs.next({
           payload:
             '01/26/2020 - 20:38:49: World triggered "Game_Over" reason "Reached Time Limit"',
           password: 'SOME_LOG_SECRET',
@@ -120,7 +121,7 @@ describe('GameEventListenerService', () => {
           expect(logsUrl).toEqual('http://logs.tf/2458457');
           resolve();
         });
-        (logReceiverService.data as Subject<any>).next({
+        gameLogs.next({
           payload:
             '01/26/2020 - 20:38:52: [TFTrue] The log is available here: http://logs.tf/2458457. Type !log to view it.',
           password: 'SOME_LOG_SECRET',
@@ -134,7 +135,7 @@ describe('GameEventListenerService', () => {
           expect(demoUrl).toEqual('https://demos.tf/427407');
           resolve();
         });
-        (logReceiverService.data as Subject<any>).next({
+        gameLogs.next({
           payload:
             '06/19/2020 - 00:04:28: [demos.tf]: STV available at: https://demos.tf/427407',
           password: 'SOME_LOG_SECRET',
@@ -151,7 +152,7 @@ describe('GameEventListenerService', () => {
             expect(ipAddress).toEqual('83.29.150.132');
             resolve();
           });
-        (logReceiverService.data as Subject<any>).next({
+        gameLogs.next({
           payload:
             '01/26/2020 - 20:03:44: "mały #tf2pickup.pl<366><[U:1:114143419]><>" connected, address "83.29.150.132:27005"',
           password: 'SOME_LOG_SECRET',
@@ -167,7 +168,7 @@ describe('GameEventListenerService', () => {
             expect(steamId).toEqual('76561198074409147');
             resolve();
           });
-        (logReceiverService.data as Subject<any>).next({
+        gameLogs.next({
           payload:
             '01/26/2020 - 20:03:51: "maly<366><[U:1:114143419]><Unassigned>" joined team "Blue"',
           password: 'SOME_LOG_SECRET',
@@ -183,7 +184,7 @@ describe('GameEventListenerService', () => {
             expect(steamId).toEqual('76561198074409147');
             resolve();
           });
-        (logReceiverService.data as Subject<any>).next({
+        gameLogs.next({
           payload:
             '01/26/2020 - 20:38:43: "maly<366><[U:1:114143419]><Blue>" disconnected (reason "Disconnect by user.")',
           password: 'SOME_LOG_SECRET',
@@ -200,7 +201,7 @@ describe('GameEventListenerService', () => {
             expect(score).toEqual(1);
             resolve();
           });
-        (logReceiverService.data as Subject<any>).next({
+        gameLogs.next({
           payload:
             '06/27/2022 - 19:16:41: Team "Red" current score "1" with "6" players',
           password: 'SOME_LOG_SECRET',
@@ -217,7 +218,7 @@ describe('GameEventListenerService', () => {
             expect(score).toEqual(2);
             resolve();
           });
-        (logReceiverService.data as Subject<any>).next({
+        gameLogs.next({
           payload:
             '01/26/2020 - 20:38:49: Team "Blue" final score "2" with "3" players',
           password: 'SOME_LOG_SECRET',
@@ -236,7 +237,7 @@ describe('GameEventListenerService', () => {
             );
             resolve();
           });
-        (logReceiverService.data as Subject<any>).next({
+        gameLogs.next({
           payload:
             '10/07/2022 - 19:49:18: "stick<40><[U:1:477787496]><Red>" say "mezzo : u never touched a female why are you taunting me"',
           password: 'SOME_LOG_SECRET',
