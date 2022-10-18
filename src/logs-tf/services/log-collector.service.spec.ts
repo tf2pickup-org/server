@@ -67,7 +67,7 @@ describe('LogCollectorService', () => {
     events = module.get(Events);
     logsTfApiService = module.get(LogsTfApiService);
 
-    (logReceiverService.data as unknown as Subject<LogMessage>) = log;
+    jest.spyOn(logReceiverService, 'data', 'get').mockReturnValue(log);
   });
 
   beforeEach(async () => {

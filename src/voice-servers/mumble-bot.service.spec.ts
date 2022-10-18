@@ -77,7 +77,7 @@ describe('MumbleBotService', () => {
       clientKey: 'FAKE_CLIENT_KEY',
       certificate: 'FAKE_CERTIFICATE',
     });
-    (environment.botName as string) = 'FAKE_BOT_NAME';
+    jest.spyOn(environment, 'botName', 'get').mockReturnValue('FAKE_BOT_NAME');
   });
 
   beforeEach(async () => {
