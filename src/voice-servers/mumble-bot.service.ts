@@ -105,9 +105,11 @@ export class MumbleBotService implements OnModuleInit, OnModuleDestroy {
   }
 
   async createChannels(game: Game) {
-    if (!this.client) {
+    if (!this.client?.user?.channel) {
       return;
     }
+
+    await this.moveToProperChannel();
 
     try {
       const channelName = `${game.number}`;
@@ -125,7 +127,7 @@ export class MumbleBotService implements OnModuleInit, OnModuleDestroy {
   }
 
   async linkChannels(game: Game) {
-    if (!this.client) {
+    if (!this.client?.user?.channel) {
       return;
     }
 
@@ -168,6 +170,8 @@ export class MumbleBotService implements OnModuleInit, OnModuleDestroy {
     if (!this.client?.user?.channel) {
       return;
     }
+
+    await this.moveToProperChannel();
 
     /**
      * For each channel lookup the assigned game and see whether it has ended.

@@ -106,6 +106,16 @@ describe('MumbleBotService', () => {
     });
   });
 
+  describe('#onModuleDestroy()', () => {
+    it('should disconnect', () => {
+      service.onModuleDestroy();
+
+      // @ts-expect-error
+      const client = Client._lastInstance;
+      expect(client.disconnect).toHaveBeenCalled();
+    });
+  });
+
   describe('when voice server configuration changes', () => {
     let oldClient: Client;
 
