@@ -173,33 +173,35 @@ export class MumbleBotService implements OnModuleInit, OnModuleDestroy {
      * For each channel lookup the assigned game and see whether it has ended.
      * For ended games, make sure there are no players in the corresponding voice channel and then remove it.
      */
-    for (const channel of this.client.user.channel.subChannels) {
-      try {
-        const gameNumber = parseInt(channel.name, 10);
-        if (isNaN(gameNumber)) {
-          continue;
+    await Promise.all(
+      this.client.user.channel.subChannels.map(async (channel) => {
+        try {
+          const gameNumber = parseInt(channel.name, 10);
+          if (isNaN(gameNumber)) {
+            return;
+          }
+
+          const game = await this.gamesService.getByNumber(gameNumber);
+          if (game.isInProgress()) {
+            return;
+          }
+
+          const userCount =
+            channel.subChannels
+              .map((c) => c.users.length)
+              .reduce((prev, curr) => prev + curr, 0) + channel.users.length;
+
+          if (userCount > 0) {
+            return;
+          }
+
+          await channel.remove();
+          this.logger.log(`channel ${channel.name} removed`);
+        } catch (error) {
+          this.logger.error(`cannot remove channel ${channel.name}: ${error}`);
         }
-
-        const game = await this.gamesService.getByNumber(gameNumber);
-        if (game.isInProgress()) {
-          continue;
-        }
-
-        const userCount =
-          channel.subChannels
-            .map((c) => c.users.length)
-            .reduce((prev, curr) => prev + curr, 0) + channel.users.length;
-
-        if (userCount > 0) {
-          continue;
-        }
-
-        await channel.remove();
-        this.logger.log(`channel ${channel.name} removed`);
-      } catch (error) {
-        this.logger.error(`cannot remove channel ${channel.name}: ${error}`);
-      }
-    }
+      }),
+    );
   }
 
   private async moveToProperChannel() {
