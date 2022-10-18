@@ -99,7 +99,7 @@ describe('PlayerSubstitutionNotificationsService', () => {
         .mockReturnValue('TF2 gamers');
     });
 
-    it('should notify all players', async () =>
+    it('should notify all players', () =>
       new Promise<void>((resolve) => {
         const channel = discordService.getPlayersChannel();
         channel.send.mockImplementation(() => {
@@ -137,7 +137,7 @@ describe('PlayerSubstitutionNotificationsService', () => {
     });
 
     beforeEach(
-      async () =>
+      () =>
         new Promise<void>((resolve) => {
           const channel = discordService.getPlayersChannel();
           const originalSend = channel.send;

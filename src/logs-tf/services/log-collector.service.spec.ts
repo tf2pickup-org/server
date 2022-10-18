@@ -125,7 +125,7 @@ describe('LogCollectorService', () => {
       await waitABit(100);
     });
 
-    it('should attempt to upload logs', async () => {
+    it('should attempt to upload logs', () => {
       expect(logsTfApiService.uploadLogs).toHaveBeenCalledWith({
         mapName: 'cp_badlands',
         gameNumber: mockGame.number,
