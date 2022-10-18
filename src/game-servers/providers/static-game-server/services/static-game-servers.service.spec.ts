@@ -1,5 +1,6 @@
 import { Events } from '@/events/events';
 import { NoFreeGameServerAvailableError } from '@/game-servers/errors/no-free-game-server-available.error';
+import { GameServerReleaseReason } from '@/game-servers/game-server-provider';
 import { GameServersService } from '@/game-servers/services/game-servers.service';
 import { Game, GameDocument, gameSchema } from '@/games/models/game';
 import { GameState } from '@/games/models/game-state';
@@ -147,6 +148,110 @@ describe('StaticGameServersService', () => {
     });
   });
 
+  describe('#findGameServerOptions()', () => {
+    describe('when there are free gameservers', () => {
+      it('should return free game servers', async () => {
+        const gameServers = await service.findGameServerOptions();
+        expect(gameServers.length).toEqual(1);
+        expect(gameServers[0]).toEqual({
+          id: testGameServer.id,
+          name: testGameServer.name,
+          address: testGameServer.address,
+          port: 27015,
+        });
+      });
+    });
+
+    describe('when there are no free gameservers', () => {
+      beforeEach(async () => {
+        testGameServer.game = new Types.ObjectId();
+        await testGameServer.save();
+      });
+
+      it('should return an empty array', async () => {
+        const gameServers = await service.getFreeGameServers();
+        expect(gameServers.length).toEqual(0);
+      });
+    });
+  });
+
+  describe('#takeGameServer()', () => {
+    it('should update the gameserver', async () => {
+      const gameServer = await service.takeGameServer({
+        gameServerId: testGameServer.id,
+        gameId: 'FAKE_GAME_ID',
+      });
+      testGameServer = await staticGameServerModel.findById(gameServer.id);
+      expect(testGameServer.game).toEqual('FAKE_GAME_ID');
+      expect(gameServer).toEqual({
+        id: testGameServer.id,
+        name: testGameServer.name,
+        address: testGameServer.address,
+        port: 27015,
+      });
+    });
+  });
+
+  describe('#releaseGameServer()', () => {
+    beforeEach(async () => {
+      testGameServer.game = new Types.ObjectId();
+      await testGameServer.save();
+    });
+
+    it('should update the gameserver', async () => {
+      await service.releaseGameServer({
+        gameServerId: testGameServer.id,
+        reason: GameServerReleaseReason.Manual,
+      });
+      testGameServer = await staticGameServerModel.findById(testGameServer.id);
+      expect(testGameServer.game).toBe(undefined);
+    });
+  });
+
+  describe('#takeFirstFreeGameServer()', () => {
+    describe('when there are free gameservers', () => {
+      it('should return the first gameserver', async () => {
+        const gameServer = await service.takeFirstFreeGameServer({
+          gameId: 'FAKE_GAME_ID',
+        });
+        expect(gameServer.id).toEqual(testGameServer.id);
+      });
+    });
+
+    describe('when there are no free gameservers', () => {
+      beforeEach(async () => {
+        testGameServer.game = new Types.ObjectId();
+        await testGameServer.save();
+      });
+
+      it('should throw an error', async () => {
+        await expect(
+          service.takeFirstFreeGameServer({ gameId: 'FAKE_GAME_ID' }),
+        ).rejects.toThrow(NoFreeGameServerAvailableError);
+      });
+    });
+
+    describe('when there are no online gameservers', () => {
+      beforeEach(async () => {
+        testGameServer.isOnline = false;
+        await testGameServer.save();
+      });
+
+      it('should throw an error', async () => {
+        await expect(
+          service.takeFirstFreeGameServer({ gameId: 'FAKE_GAME_ID' }),
+        ).rejects.toThrow(NoFreeGameServerAvailableError);
+      });
+    });
+  });
+
+  describe('#getControls()', () => {
+    it('should return controls', async () => {
+      const controls = await service.getControls(testGameServer.id);
+      expect(controls instanceof StaticGameServerControls).toBe(true);
+    });
+  });
+
   describe('#getById()', () => {
     it('should retrieve the gameserver by its id', async () => {
       const gameServer = await service.getById(testGameServer.id);
@@ -245,48 +350,6 @@ describe('StaticGameServersService', () => {
         expect(gameServers.length).toEqual(1);
         expect(gameServers.every((gs) => gs.game === undefined)).toBe(false);
       });
-    });
-  });
-
-  describe('#findFirstGameServer()', () => {
-    describe('when there are free gameservers', () => {
-      it('should return the first gameserver', async () => {
-        const gameServer = await service.takeFirstFreeGameServer();
-        expect(gameServer.id).toEqual(testGameServer.id);
-      });
-    });
-
-    describe('when there are no free gameservers', () => {
-      beforeEach(async () => {
-        testGameServer.game = new Types.ObjectId();
-        await testGameServer.save();
-      });
-
-      it('should throw an error', async () => {
-        await expect(service.takeFirstFreeGameServer()).rejects.toThrow(
-          NoFreeGameServerAvailableError,
-        );
-      });
-    });
-
-    describe('when there are no online gameservers', () => {
-      beforeEach(async () => {
-        testGameServer.isOnline = false;
-        await testGameServer.save();
-      });
-
-      it('should throw an error', async () => {
-        await expect(service.takeFirstFreeGameServer()).rejects.toThrow(
-          NoFreeGameServerAvailableError,
-        );
-      });
-    });
-  });
-
-  describe('#getControls()', () => {
-    it('should return controls', async () => {
-      const controls = await service.getControls(testGameServer.id);
-      expect(controls instanceof StaticGameServerControls).toBe(true);
     });
   });
 
