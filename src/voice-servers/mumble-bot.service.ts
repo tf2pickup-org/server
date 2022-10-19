@@ -83,10 +83,8 @@ export class MumbleBotService implements OnModuleInit, OnModuleDestroy {
         });
         await this.client.connect();
         this.logger.log(`logged in as ${this.client.user.name}`);
-        const channel = this.client.channels.byName(
-          voiceServerConfig.mumble.channelName,
-        );
-        await this.client.user.moveToChannel(channel.id);
+
+        await this.moveToProperChannel();
 
         const permissions = await this.client.user.channel.getPermissions();
         if (!permissions.canCreateChannel) {
@@ -101,13 +99,17 @@ export class MumbleBotService implements OnModuleInit, OnModuleDestroy {
           `cannot connect to ${voiceServerConfig.mumble.url}:${voiceServerConfig.mumble.port}: ${error}`,
         );
       }
+    } else {
+      await this.client?.disconnect();
     }
   }
 
   async createChannels(game: Game) {
-    if (!this.client) {
+    if (!this.client?.user?.channel) {
       return;
     }
+
+    await this.moveToProperChannel();
 
     try {
       const channelName = `${game.number}`;
@@ -125,7 +127,7 @@ export class MumbleBotService implements OnModuleInit, OnModuleDestroy {
   }
 
   async linkChannels(game: Game) {
-    if (!this.client) {
+    if (!this.client?.user?.channel) {
       return;
     }
 
@@ -169,36 +171,52 @@ export class MumbleBotService implements OnModuleInit, OnModuleDestroy {
       return;
     }
 
+    await this.moveToProperChannel();
+
     /**
      * For each channel lookup the assigned game and see whether it has ended.
      * For ended games, make sure there are no players in the corresponding voice channel and then remove it.
      */
-    for (const channel of this.client.user.channel.subChannels) {
-      try {
-        const gameNumber = parseInt(channel.name, 10);
-        if (isNaN(gameNumber)) {
-          continue;
+    await Promise.all(
+      this.client.user.channel.subChannels.map(async (channel) => {
+        try {
+          const gameNumber = parseInt(channel.name, 10);
+          if (isNaN(gameNumber)) {
+            return;
+          }
+
+          const game = await this.gamesService.getByNumber(gameNumber);
+          if (game.isInProgress()) {
+            return;
+          }
+
+          const userCount =
+            channel.subChannels
+              .map((c) => c.users.length)
+              .reduce((prev, curr) => prev + curr, 0) + channel.users.length;
+
+          if (userCount > 0) {
+            return;
+          }
+
+          await channel.remove();
+          this.logger.log(`channel ${channel.name} removed`);
+        } catch (error) {
+          this.logger.error(`cannot remove channel ${channel.name}: ${error}`);
         }
+      }),
+    );
+  }
 
-        const game = await this.gamesService.getByNumber(gameNumber);
-        if (game.isInProgress()) {
-          continue;
-        }
-
-        const userCount =
-          channel.subChannels
-            .map((c) => c.users.length)
-            .reduce((prev, curr) => prev + curr, 0) + channel.users.length;
-
-        if (userCount > 0) {
-          continue;
-        }
-
-        await channel.remove();
-        this.logger.log(`channel ${channel.name} removed`);
-      } catch (error) {
-        this.logger.error(`cannot remove channel ${channel.name}: ${error}`);
-      }
+  private async moveToProperChannel() {
+    const voiceServerConfig = await this.configurationService.getVoiceServer();
+    if (voiceServerConfig.type != SelectedVoiceServer.mumble) {
+      throw new Error('selected voice server is not mumble');
     }
+
+    const channel = this.client.channels.byName(
+      voiceServerConfig.mumble.channelName,
+    );
+    await this.client.user.moveToChannel(channel.id);
   }
 }
