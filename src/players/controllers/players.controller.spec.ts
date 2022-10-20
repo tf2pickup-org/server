@@ -3,8 +3,6 @@ import { PlayersController } from './players.controller';
 import { PlayersService } from '../services/players.service';
 import { Player } from '../models/player';
 import { PlayerStatsDto } from '../dto/player-stats.dto';
-import { PlayerSkillService } from '../services/player-skill.service';
-import { PlayerSkill } from '../models/player-skill';
 import { PlayerBansService } from '../services/player-bans.service';
 import {
   NotFoundException,
@@ -26,6 +24,10 @@ class PlayersServiceStub {
     name: 'FAKE_PLAYER_NAME',
     steamId: 'FAKE_STEAM_ID',
     hasAcceptedRules: true,
+    skills: new Map([
+      [Tf2ClassName.scout, 1],
+      [Tf2ClassName.soldier, 2],
+    ]),
   });
   stats: PlayerStatsDto = {
     player: 'FAKE_ID',
@@ -55,23 +57,6 @@ class PlayersServiceStub {
   getPlayerStats(playerId: string) {
     return new Promise((resolve) => resolve(this.stats));
   }
-}
-
-class PlayerSkillServiceStub {
-  skill: PlayerSkill = {
-    player: 'FAKE_ID' as any,
-    skill: new Map<Tf2ClassName, number>([
-      [Tf2ClassName.scout, 2],
-      [Tf2ClassName.soldier, 2],
-      [Tf2ClassName.demoman, 1],
-      [Tf2ClassName.medic, 2],
-    ]),
-    serialize: jest.fn(),
-  };
-
-  getPlayerSkill = jest.fn().mockResolvedValue(this.skill.skill);
-  setPlayerSkill = jest.fn().mockResolvedValue(this.skill.skill);
-  getAll = jest.fn().mockResolvedValue([this.skill]);
 }
 
 class PlayerBansServiceStub {
@@ -120,7 +105,6 @@ class PlayerBansServiceStub {
 describe('Players Controller', () => {
   let controller: PlayersController;
   let playersService: PlayersServiceStub;
-  let playerSkillService: PlayerSkillServiceStub;
   let playerBansService: PlayerBansServiceStub;
   let linkedProfilesService: jest.Mocked<LinkedProfilesService>;
 
@@ -128,7 +112,6 @@ describe('Players Controller', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         { provide: PlayersService, useClass: PlayersServiceStub },
-        { provide: PlayerSkillService, useClass: PlayerSkillServiceStub },
         { provide: PlayerBansService, useClass: PlayerBansServiceStub },
         LinkedProfilesService,
       ],
@@ -138,7 +121,6 @@ describe('Players Controller', () => {
 
     controller = module.get<PlayersController>(PlayersController);
     playersService = module.get(PlayersService);
-    playerSkillService = module.get(PlayerSkillService);
     playerBansService = module.get(PlayerBansService);
     linkedProfilesService = module.get(LinkedProfilesService);
   });
@@ -205,47 +187,29 @@ describe('Players Controller', () => {
     });
   });
 
-  describe('#getAllPlayerSkills()', () => {
-    it("should return all players' skills", async () => {
-      const ret = await controller.getAllPlayerSkills();
-      expect(playerSkillService.getAll).toHaveBeenCalled();
-      expect(ret).toEqual([playerSkillService.skill] as any);
+  describe('#getAllPlayersWithSkills()', () => {
+    it('should return all players with their skills', async () => {
+      await controller.getAllPlayersWithSkills();
+      expect(playersService.getAll).toHaveBeenCalled();
     });
   });
 
   describe('#getPlayerSkill()', () => {
     it('should return player skill', async () => {
       const ret = await controller.getPlayerSkill(playersService.player);
-      expect(playerSkillService.getPlayerSkill).toHaveBeenCalledWith('FAKE_ID');
+      expect(playersService.getById).toHaveBeenCalledWith('FAKE_ID');
+      expect(ret).toEqual({ scout: 1, soldier: 2 });
     });
 
-    it('should return 404', async () => {
-      playerSkillService.getPlayerSkill.mockResolvedValue(null);
-      await expect(
-        controller.getPlayerSkill(playersService.player),
-      ).rejects.toThrow(NotFoundException);
+    it('should return an empty object', async () => {
+      // todo
+      const ret = await controller.getPlayerSkill(playersService.player);
+      expect(ret).toEqual({});
     });
   });
 
   describe('#setPlayerSkill()', () => {
-    it('should set player skill', async () => {
-      const skill = { soldier: 1, medic: 2 };
-      const ret = await controller.setPlayerSkill(
-        playersService.player,
-        skill,
-        {
-          id: 'FAKE_ADMIN_ID',
-        } as any,
-      );
-      expect(playerSkillService.setPlayerSkill).toHaveBeenCalledWith(
-        'FAKE_ID',
-        new Map([
-          ['soldier', 1],
-          ['medic', 2],
-        ]),
-        'FAKE_ADMIN_ID',
-      );
-    });
+    // todo
   });
 
   describe('#getPlayerBans()', () => {

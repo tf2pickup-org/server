@@ -20,7 +20,6 @@ import { PlayersService } from '../services/players.service';
 import { ObjectIdValidationPipe } from '@/shared/pipes/object-id-validation.pipe';
 import { Player } from '../models/player';
 import { Auth } from '@/auth/decorators/auth.decorator';
-import { PlayerSkillService } from '../services/player-skill.service';
 import { PlayerBansService } from '../services/player-bans.service';
 import { PlayerBan } from '../models/player-ban';
 import { User } from '@/auth/decorators/user.decorator';
@@ -35,12 +34,12 @@ import { Serializable } from '@/shared/serializable';
 import { PlayerDto } from '../dto/player.dto';
 import { PlayerSkillDto } from '../dto/player-skill.dto';
 import { PlayerBanDto } from '../dto/player-ban.dto';
+import { PlayerSkillWrapper } from './player-skill-wrapper';
 
 @Controller('players')
 export class PlayersController {
   constructor(
     private playersService: PlayersService,
-    private playerSkillService: PlayerSkillService,
     private playerBansService: PlayerBansService,
     private linkedProfilesService: LinkedProfilesService,
   ) {}
@@ -90,8 +89,10 @@ export class PlayersController {
 
   @Get('/all/skill')
   @Auth(PlayerRole.admin)
-  async getAllPlayerSkills(): Promise<Serializable<PlayerSkillDto>[]> {
-    return await this.playerSkillService.getAll();
+  async getAllPlayersWithSkills(): Promise<Serializable<PlayerSkillDto>[]> {
+    return (await this.playersService.getAll()).map(
+      (player) => new PlayerSkillWrapper(player),
+    );
   }
 
   @Get(':id/skill')
@@ -99,31 +100,26 @@ export class PlayersController {
   async getPlayerSkill(
     @Param('id', PlayerByIdPipe) player: Player,
   ): Promise<{ [gameClass in Tf2ClassName]?: number }> {
-    const skill = await this.playerSkillService.getPlayerSkill(player.id);
-    if (skill) {
-      return Object.fromEntries(skill);
-    } else {
-      throw new NotFoundException();
-    }
+    return player.skill ? Object.fromEntries(player.skill) : {};
   }
 
   @Put(':id/skill')
   @Auth(PlayerRole.admin)
   async setPlayerSkill(
     @Param('id', PlayerByIdPipe) player: Player,
-    @Body() newSkill: { [className in Tf2ClassName]?: number }, // TODO validate
-    @User() user: Player,
+    @Body() skill: { [className in Tf2ClassName]?: number }, // TODO validate
+    @User() admin: Player,
   ): Promise<{ [gameClass in Tf2ClassName]?: number }> {
-    const newSkillAsMap = new Map(Object.entries(newSkill)) as Map<
-      Tf2ClassName,
-      number
-    >;
-    const skill = await this.playerSkillService.setPlayerSkill(
+    player = await this.playersService.updatePlayer(
       player.id,
-      newSkillAsMap,
-      user.id,
+      {
+        $set: {
+          skill,
+        },
+      },
+      admin.id,
     );
-    return Object.fromEntries(skill);
+    return Object.fromEntries(player.skill);
   }
 
   @Get(':id/bans')

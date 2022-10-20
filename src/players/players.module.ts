@@ -4,8 +4,6 @@ import { Etf2lProfileService } from './services/etf2l-profile.service';
 import { Player, playerSchema } from './models/player';
 import { PlayerBansService } from './services/player-bans.service';
 import { PlayerBan, playerBanSchema } from './models/player-ban';
-import { PlayerSkillService } from './services/player-skill.service';
-import { PlayerSkill, playerSkillSchema } from './models/player-skill';
 import { PlayersController } from './controllers/players.controller';
 import { GamesModule } from '@/games/games.module';
 import { OnlinePlayersService } from './services/online-players.service';
@@ -30,7 +28,6 @@ import { OnlinePlayersController } from './controllers/online-players.controller
     MongooseModule.forFeature([
       { name: Player.name, schema: playerSchema },
       { name: PlayerBan.name, schema: playerBanSchema },
-      { name: PlayerSkill.name, schema: playerSkillSchema },
       { name: FuturePlayerSkill.name, schema: futurePlayerSkillSchema },
     ]),
 
@@ -42,7 +39,6 @@ import { OnlinePlayersController } from './controllers/online-players.controller
     PlayersService,
     Etf2lProfileService,
     PlayerBansService,
-    PlayerSkillService,
     OnlinePlayersService,
     PlayersGateway,
     SteamApiService,
@@ -52,7 +48,6 @@ import { OnlinePlayersController } from './controllers/online-players.controller
   exports: [
     PlayersService,
     PlayerBansService,
-    PlayerSkillService,
     OnlinePlayersService,
     LinkedProfilesService,
   ],

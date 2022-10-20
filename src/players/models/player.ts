@@ -1,4 +1,4 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Prop, raw, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
 import { Exclude, Expose, Transform, Type } from 'class-transformer';
 import { PlayerAvatar, playerAvatarSchema } from './player-avatar';
@@ -6,6 +6,7 @@ import { PlayerRole } from './player-role';
 import { TransformObjectId } from '@/shared/decorators/transform-object-id';
 import { Serializable } from '@/shared/serializable';
 import { PlayerDto } from '../dto/player.dto';
+import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 
 @Schema()
 export class Player extends Serializable<PlayerDto> {
@@ -47,6 +48,15 @@ export class Player extends Serializable<PlayerDto> {
   @TransformObjectId()
   @Prop({ ref: 'Game' })
   activeGame?: Types.ObjectId;
+
+  @Type(() => Number)
+  @Prop(
+    raw({
+      type: Map,
+      of: Number,
+    }),
+  )
+  skill?: Map<Tf2ClassName, number>;
 
   async serialize(): Promise<PlayerDto> {
     return {
