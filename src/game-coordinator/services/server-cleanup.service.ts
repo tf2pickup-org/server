@@ -4,6 +4,7 @@ import { GameServerOptionWithProvider } from '@/game-servers/interfaces/game-ser
 import { GameServersService } from '@/game-servers/services/game-servers.service';
 import { GameState } from '@/games/models/game-state';
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { isEqual } from 'lodash';
 import { Rcon } from 'rcon-client/lib';
 import { delayWhen, filter, map, timer } from 'rxjs';
 import {
@@ -29,8 +30,7 @@ export class ServerCleanupService implements OnModuleInit {
         filter(({ oldGame }) => !!oldGame.gameServer),
         filter(
           ({ newGame, oldGame }) =>
-            JSON.stringify(oldGame.gameServer) !==
-            JSON.stringify(newGame.gameServer),
+            !isEqual(oldGame.gameServer, newGame.gameServer),
         ),
         map(({ oldGame }) => oldGame.gameServer),
       )

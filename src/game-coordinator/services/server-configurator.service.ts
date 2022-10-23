@@ -14,7 +14,7 @@ import {
   tftrueWhitelistId,
   logsTfTitle,
 } from '../utils/rcon-commands';
-import { deburr } from 'lodash';
+import { deburr, isEqual } from 'lodash';
 import { extractConVarValue } from '../utils/extract-con-var-value';
 import { Rcon } from 'rcon-client/lib';
 import { MapPoolService } from '@/queue/services/map-pool.service';
@@ -52,8 +52,7 @@ export class ServerConfiguratorService implements OnModuleInit {
         filter(({ newGame }) => !!newGame.gameServer),
         filter(
           ({ oldGame, newGame }) =>
-            JSON.stringify(oldGame.gameServer) !==
-            JSON.stringify(newGame.gameServer),
+            !isEqual(oldGame.gameServer, newGame.gameServer),
         ),
         map(({ newGame }) => newGame.id),
       )
