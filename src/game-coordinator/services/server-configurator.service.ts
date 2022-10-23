@@ -28,6 +28,7 @@ import { generateGameserverPassword } from '@/utils/generate-gameserver-password
 import { makeConnectString } from '../utils/make-connect-string';
 import { Events } from '@/events/events';
 import { filter, map } from 'rxjs';
+import { CannotConfigureGameError } from '../errors/cannot-configure-game.error';
 
 @Injectable()
 export class ServerConfiguratorService implements OnModuleInit {
@@ -56,7 +57,13 @@ export class ServerConfiguratorService implements OnModuleInit {
         ),
         map(({ newGame }) => newGame.id),
       )
-      .subscribe(async (gameId) => await this.configureServer(gameId));
+      .subscribe(async (gameId) => {
+        try {
+          await this.configureServer(gameId);
+        } catch (error) {
+          this.logger.error(error);
+        }
+      });
   }
 
   async configureServer(gameId: string) {
@@ -196,9 +203,7 @@ export class ServerConfiguratorService implements OnModuleInit {
         stvConnectString,
       };
     } catch (error) {
-      this.logger.error(
-        `could not configure server ${game.gameServer.name} (${error.message})`,
-      );
+      throw new CannotConfigureGameError(game.gameServer, error.message);
     } finally {
       await rcon?.end();
     }

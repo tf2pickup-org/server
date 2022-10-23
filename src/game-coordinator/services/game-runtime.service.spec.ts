@@ -277,8 +277,6 @@ describe('GameRuntimeService', () => {
         id: 'FAKE_GAME_SERVER',
         provider: 'test',
         name: 'FAKE GAME SERVER',
-        address: 'localhost',
-        port: 27015,
       };
       rcon = new (Rcon as any)();
       controls.rcon.mockResolvedValue(rcon);

@@ -58,7 +58,6 @@ export class GameServerAssignerService implements OnModuleInit {
     gameServerId?: GameServerOptionIdentifier,
   ): Promise<Game> {
     let game = await this.gamesService.getById(gameId);
-
     if (!game.isInProgress()) {
       throw new GameInWrongStateError(game.id, game.state);
     }
