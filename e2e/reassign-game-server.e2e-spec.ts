@@ -9,7 +9,6 @@ import { waitABit } from './utils/wait-a-bit';
 import * as request from 'supertest';
 import { StaticGameServersService } from '@/game-servers/providers/static-game-server/services/static-game-servers.service';
 import { configureApplication } from '@/configure-application';
-import { Events } from '@/events/events';
 import { AuthService } from '@/auth/services/auth.service';
 import { JwtTokenPurpose } from '@/auth/jwt-token-purpose';
 
@@ -206,13 +205,7 @@ describe('Reassign gameserver (e2e)', () => {
         expect(body.gameServer.name).toEqual(gameServerName);
       });
 
-    /* pretend the game has started */
-    const events = app.get(Events);
-    events.matchStarted.next({ gameId });
-    await waitABit(1000);
-
-    /* pretend the game has ended */
-    events.matchEnded.next({ gameId });
-    await waitABit(1000);
+    const gamesService = app.get(GamesService);
+    await gamesService.forceEnd(gameId);
   });
 });
