@@ -161,6 +161,20 @@ describe('Reassign gameserver (e2e)', () => {
         expect(body.gameServer).toBeTruthy();
       });
 
+    /* wait for the gameserver to be configured */
+    await new Promise<void>((resolve) => {
+      setInterval(async () => {
+        await request(app.getHttpServer())
+          .get(`/games/${gameId}`)
+          .then((response) => {
+            const body = response.body;
+            if (body.stvConnectString) {
+              resolve();
+            }
+          });
+      }, 1000);
+    });
+
     let gameServerName: string;
 
     /* verify /game-servers/options endpoint is protected */
@@ -185,7 +199,8 @@ describe('Reassign gameserver (e2e)', () => {
           })
           .expect(401);
 
-        return await request(app.getHttpServer())
+        // reassign gameserver
+        await request(app.getHttpServer())
           .post(`/games/${gameId}?assign_gameserver`)
           .auth(adminAuthToken, { type: 'bearer' })
           .send({
@@ -193,6 +208,15 @@ describe('Reassign gameserver (e2e)', () => {
             provider: gameServer.provider,
           })
           .expect(200);
+
+        await waitABit(100);
+
+        await request(app.getHttpServer())
+          .get(`/games/${gameId}`)
+          .then((response) => {
+            const body = response.body;
+            expect(body.stvConnectString).toBe(undefined);
+          });
       });
 
     /* verify the gameserver is assigned */
@@ -204,6 +228,20 @@ describe('Reassign gameserver (e2e)', () => {
         expect(body.gameServer).toBeTruthy();
         expect(body.gameServer.name).toEqual(gameServerName);
       });
+
+    /* wait for the gameserver to be configured */
+    await new Promise<void>((resolve) => {
+      setInterval(async () => {
+        await request(app.getHttpServer())
+          .get(`/games/${gameId}`)
+          .then((response) => {
+            const body = response.body;
+            if (body.stvConnectString) {
+              resolve();
+            }
+          });
+      }, 1000);
+    });
 
     const gamesService = app.get(GamesService);
     await gamesService.forceEnd(gameId);

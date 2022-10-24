@@ -164,6 +164,20 @@ describe('Assign and release gameserver (e2e)', () => {
         expect(body.isOnline).toBe(true);
       });
 
+    /* wait for the gameserver to be configured */
+    await new Promise<void>((resolve) => {
+      setInterval(async () => {
+        await request(app.getHttpServer())
+          .get(`/games/${gameId}`)
+          .then((response) => {
+            const body = response.body;
+            if (body.stvConnectString) {
+              resolve();
+            }
+          });
+      }, 1000);
+    });
+
     /* pretend the game has started */
     const events = app.get(Events);
     events.matchStarted.next({ gameId });
