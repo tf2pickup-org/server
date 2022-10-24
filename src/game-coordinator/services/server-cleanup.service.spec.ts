@@ -96,7 +96,7 @@ describe('ServerCleanupService', () => {
       await waitABit(100);
     });
 
-    it('should clean the server up', async () => {
+    it('should clean the server up', () => {
       expect(rcon.send).toHaveBeenCalledWith(
         logAddressDel('FAKE_RELAY_ADDRESS:1234'),
       );
@@ -140,7 +140,7 @@ describe('ServerCleanupService', () => {
       jest.useRealTimers();
     });
 
-    it('should clean the server up', async () => {
+    it('should clean the server up', () => {
       expect(rcon.send).toHaveBeenCalledWith(
         logAddressDel('FAKE_RELAY_ADDRESS:1234'),
       );
@@ -178,7 +178,7 @@ describe('ServerCleanupService', () => {
       await waitABit(100);
     });
 
-    it('should clean the server up', async () => {
+    it('should clean the server up', () => {
       expect(rcon.send).toHaveBeenCalledWith(
         logAddressDel('FAKE_RELAY_ADDRESS:1234'),
       );
