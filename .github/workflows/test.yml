@@ -53,13 +53,35 @@ jobs:
         ports:
           - 27017:27017
 
-      gameserver:
+      gameserver1:
         image: tf2pickuppl/tf2-gameserver
         ports:
           - 27015:27015/tcp
           - 27015:27015/udp
           - 27020:27020/udp
         env:
+          SERVER_HOSTNAME: 'test game server 1'
+          PORT: 27015
+          CLIENT_PORT: 27016
+          STEAM_PORT: 27017
+          STV_PORT: 27020
+          RCON_PASSWORD: '123456'
+          TF2PICKUPORG_API_ADDRESS: 'host.docker.internal:3000'
+          TF2PICKUPORG_SECRET: 'xxxxxx'
+        options: --tty --add-host host.docker.internal:host-gateway
+
+      gameserver2:
+        image: tf2pickuppl/tf2-gameserver
+        ports:
+          - 27025:27025/tcp
+          - 27025:27025/udp
+          - 27030:27030/udp
+        env:
+          SERVER_HOSTNAME: 'test game server 2'
+          PORT: 27025
+          CLIENT_PORT: 27026
+          STEAM_PORT: 27027
+          STV_PORT: 27030
           RCON_PASSWORD: '123456'
           TF2PICKUPORG_API_ADDRESS: 'host.docker.internal:3000'
           TF2PICKUPORG_SECRET: 'xxxxxx'
