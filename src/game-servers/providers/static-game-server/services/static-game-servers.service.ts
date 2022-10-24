@@ -102,6 +102,8 @@ export class StaticGameServersService
           serverCleanupDelay,
         );
         break;
+
+      // no default
     }
   }
 

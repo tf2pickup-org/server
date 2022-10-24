@@ -48,6 +48,7 @@ export class GameServerAssignerService implements OnModuleInit {
       const orphanedGames = await this.gamesService.getOrphanedGames();
       for (const game of orphanedGames) {
         this.logger.verbose(`launching game #${game.number}...`);
+        // skipcq: JS-0032
         await this.doAssignGameServer(game.id);
       }
     });

@@ -72,6 +72,8 @@ export class GamesController {
       case 'launchedAt':
         sortParam = { launchedAt: 1 };
         break;
+
+      // no default
     }
 
     let results: Game[];

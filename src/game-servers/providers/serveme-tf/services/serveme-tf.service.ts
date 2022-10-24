@@ -105,7 +105,7 @@ export class ServemeTfService implements GameServerProvider, OnModuleInit {
     };
   }
 
-  async releaseGameServer({ gameServerId }) {
+  releaseGameServer({ gameServerId }) {
     setTimeout(async () => {
       const reservation = await this.getById(gameServerId);
       await this.servemeTfApiService.endServerReservation(

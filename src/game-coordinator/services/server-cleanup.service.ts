@@ -27,7 +27,7 @@ export class ServerCleanupService implements OnModuleInit {
     // cleanup the gameserver when it gets unassigned
     this.events.gameChanges
       .pipe(
-        filter(({ oldGame }) => !!oldGame.gameServer),
+        filter(({ oldGame }) => Boolean(oldGame.gameServer)),
         filter(
           ({ newGame, oldGame }) =>
             !isEqual(oldGame.gameServer, newGame.gameServer),
@@ -43,13 +43,14 @@ export class ServerCleanupService implements OnModuleInit {
           ({ newGame, oldGame }) =>
             oldGame.isInProgress() && !newGame.isInProgress(),
         ),
-        filter(({ newGame }) => !!newGame.gameServer),
+        filter(({ newGame }) => Boolean(newGame.gameServer)),
         delayWhen(({ newGame }) => {
           switch (newGame.state) {
             case GameState.ended:
               return timer(30 * 1000); // 30 seconds
             case GameState.interrupted:
               return timer(1); // instant
+            // no default
           }
         }),
         map(({ newGame }) => newGame.gameServer),

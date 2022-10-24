@@ -47,7 +47,7 @@ class GamesServiceStub {
   getVoiceChannelUrl(gameId: string, playerId: string) {
     return Promise.resolve(null);
   }
-  forceEnd = jest.fn().mockResolvedValue(void 0);
+  forceEnd = jest.fn().mockResolvedValue(undefined);
 }
 
 describe('Games Controller', () => {

@@ -49,7 +49,7 @@ export class ServerConfiguratorService implements OnModuleInit {
     // when a gameserver is assigned to a game, we can configure the gameserver
     this.events.gameChanges
       .pipe(
-        filter(({ newGame }) => !!newGame.gameServer),
+        filter(({ newGame }) => Boolean(newGame.gameServer)),
         filter(
           ({ oldGame, newGame }) =>
             !isEqual(oldGame.gameServer, newGame.gameServer),
@@ -161,6 +161,7 @@ export class ServerConfiguratorService implements OnModuleInit {
           slot.gameClass,
         );
         this.logger.debug(`[${game.gameServer.name}] ${cmd}`);
+        // skipcq: JS-0032
         await rcon.send(cmd);
       }
 

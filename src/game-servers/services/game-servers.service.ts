@@ -55,7 +55,7 @@ export class GameServersService
             oldGame.isInProgress && !newGame.isInProgress(),
         ),
         map(({ newGame }) => newGame),
-        filter((game) => !!game.gameServer),
+        filter((game) => Boolean(game.gameServer)),
       )
       .subscribe(async (game) => {
         const gameServer = game.gameServer;
@@ -77,6 +77,7 @@ export class GameServersService
     const options: GameServerOptionWithProvider[] = [];
     for (const provider of this.providers) {
       options.push(
+        // skipcq: JS-0032
         ...(await provider.findGameServerOptions()).map((option) => ({
           ...option,
           provider: provider.gameServerProviderName,
@@ -91,6 +92,7 @@ export class GameServersService
   ): Promise<GameServerDetailsWithProvider> {
     for (const provider of this.providers) {
       try {
+        // skipcq: JS-0032
         const option = await provider.takeFirstFreeGameServer({ gameId });
         return {
           ...option,
