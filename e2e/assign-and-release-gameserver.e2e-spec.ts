@@ -8,7 +8,6 @@ import { players } from './test-data';
 import { waitABit } from './utils/wait-a-bit';
 import * as request from 'supertest';
 import { StaticGameServersService } from '@/game-servers/providers/static-game-server/services/static-game-servers.service';
-import { GameLauncherService } from '@/game-coordinator/services/game-launcher.service';
 import { configureApplication } from '@/configure-application';
 import { Events } from '@/events/events';
 
@@ -18,7 +17,6 @@ describe('Assign and release gameserver (e2e)', () => {
   let app: INestApplication;
   let gameId: string;
   let staticGameServersService: StaticGameServersService;
-  let gameServerId: string;
 
   const waitForGameServerToComeOnline = () =>
     new Promise<string>((resolve) => {
@@ -41,7 +39,7 @@ describe('Assign and release gameserver (e2e)', () => {
     await app.listen(3000);
 
     staticGameServersService = app.get(StaticGameServersService);
-    gameServerId = await waitForGameServerToComeOnline();
+    await waitForGameServerToComeOnline();
   });
 
   beforeAll(async () => {
@@ -135,8 +133,7 @@ describe('Assign and release gameserver (e2e)', () => {
       'cp_badlands',
     );
     gameId = game.id;
-    const gameLauncherService = app.get(GameLauncherService);
-    await gameLauncherService.launchOrphanedGames();
+    await waitABit(1000);
   });
 
   afterAll(async () => {
@@ -152,8 +149,11 @@ describe('Assign and release gameserver (e2e)', () => {
       .then((response) => {
         const body = response.body;
         expect(body.gameServer).toBeTruthy();
-        expect(body.gameServer.name).toEqual('A Team Fortress 2 server');
       });
+
+    const gamesService = app.get(GamesService);
+    const game = await gamesService.getById(gameId);
+    const gameServerId = game.gameServer.id;
 
     await request(app.getHttpServer())
       .get(`/static-game-servers/${gameServerId}`)
