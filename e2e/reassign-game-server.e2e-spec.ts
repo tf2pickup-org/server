@@ -23,7 +23,7 @@ describe('Reassign gameserver (e2e)', () => {
   const waitForAllGameServersToComeOnline = () =>
     new Promise<void>((resolve) => {
       const i = setInterval(async () => {
-        const gameServers = await staticGameServersService.getAllGameServers();
+        const gameServers = await staticGameServersService.getFreeGameServers();
         if (gameServers.length >= 2) {
           clearInterval(i);
           resolve();

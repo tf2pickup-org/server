@@ -21,7 +21,7 @@ describe('Assign and release gameserver (e2e)', () => {
   const waitForGameServerToComeOnline = () =>
     new Promise<string>((resolve) => {
       const i = setInterval(async () => {
-        const gameServers = await staticGameServersService.getAllGameServers();
+        const gameServers = await staticGameServersService.getFreeGameServers();
         if (gameServers.length > 0) {
           clearInterval(i);
           resolve(gameServers[0].id);
