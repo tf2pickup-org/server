@@ -16,7 +16,6 @@ import {
   ServemeTfReservationDocument,
 } from '../models/serveme-tf-reservation';
 import { ReservationStatus } from '../models/reservation-status';
-import { GameServer } from '@/games/models/game-server';
 import { GameServerDetails } from '@/game-servers/interfaces/game-server-details';
 
 type ValueType<T> = T extends Promise<infer U> ? U : T;
@@ -91,14 +90,13 @@ export class ServemeTfService implements GameServerProvider, OnModuleInit {
     }));
   }
 
-  async takeGameServer({ gameServerId }): Promise<GameServer> {
+  async takeGameServer({ gameServerId }): Promise<GameServerDetails> {
     const { reservation } = await this.servemeTfApiService.reserveServer(
       parseInt(gameServerId, 10),
     );
     const id = await this.storeReservation(reservation);
     return {
       id,
-      provider: this.gameServerProviderName,
       name: reservation.server.name,
       address: reservation.server.ip,
       port: parseInt(reservation.server.port, 10),
