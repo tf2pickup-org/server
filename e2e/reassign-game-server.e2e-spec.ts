@@ -11,6 +11,7 @@ import { StaticGameServersService } from '@/game-servers/providers/static-game-s
 import { configureApplication } from '@/configure-application';
 import { AuthService } from '@/auth/services/auth.service';
 import { JwtTokenPurpose } from '@/auth/jwt-token-purpose';
+import { waitForTheGameToLaunch } from './utils/wait-for-the-game-to-launch';
 
 jest.setTimeout(250 * 1000);
 
@@ -229,19 +230,7 @@ describe('Reassign gameserver (e2e)', () => {
         expect(body.gameServer.name).toEqual(gameServerName);
       });
 
-    /* wait for the gameserver to be configured */
-    await new Promise<void>((resolve) => {
-      setInterval(async () => {
-        await request(app.getHttpServer())
-          .get(`/games/${gameId}`)
-          .then((response) => {
-            const body = response.body;
-            if (body.stvConnectString) {
-              resolve();
-            }
-          });
-      }, 1000);
-    });
+    await waitForTheGameToLaunch(app, gameId);
 
     const gamesService = app.get(GamesService);
     await gamesService.forceEnd(gameId);

@@ -10,6 +10,7 @@ import * as request from 'supertest';
 import { StaticGameServersService } from '@/game-servers/providers/static-game-server/services/static-game-servers.service';
 import { configureApplication } from '@/configure-application';
 import { Events } from '@/events/events';
+import { waitForTheGameToLaunch } from './utils/wait-for-the-game-to-launch';
 
 jest.setTimeout(250 * 1000);
 
@@ -164,19 +165,7 @@ describe('Assign and release gameserver (e2e)', () => {
         expect(body.isOnline).toBe(true);
       });
 
-    /* wait for the gameserver to be configured */
-    await new Promise<void>((resolve) => {
-      setInterval(async () => {
-        await request(app.getHttpServer())
-          .get(`/games/${gameId}`)
-          .then((response) => {
-            const body = response.body;
-            if (body.stvConnectString) {
-              resolve();
-            }
-          });
-      }, 1000);
-    });
+    await waitForTheGameToLaunch(app, gameId);
 
     /* pretend the game has started */
     const events = app.get(Events);

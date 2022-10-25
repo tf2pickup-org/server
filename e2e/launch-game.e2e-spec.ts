@@ -10,6 +10,7 @@ import { io, Socket } from 'socket.io-client';
 import * as request from 'supertest';
 import { players } from './test-data';
 import { waitABit } from './utils/wait-a-bit';
+import { waitForTheGameToLaunch } from './utils/wait-for-the-game-to-launch';
 
 const connectSocket = (port: number, token: string) =>
   new Promise<Socket>((resolve, reject) => {
@@ -164,6 +165,8 @@ describe('Launch game (e2e)', () => {
             .every((playerId) => isNumber(body[playerId])),
         ).toBe(true);
       });
+
+    await waitForTheGameToLaunch(app, newGameId);
 
     await request(app.getHttpServer())
       .get(`/games/${newGameId}/connect-info`)
