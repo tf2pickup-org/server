@@ -4,7 +4,6 @@ import { Game } from '@/games/models/game';
 import { GameState } from '@/games/models/game-state';
 import { Player } from '@/players/models/player';
 import { PlayerBan } from '@/players/models/player-ban';
-import { PlayerSkillType } from '@/players/services/player-skill.service';
 import { PlayersService } from '@/players/services/players.service';
 import { iconUrlPath } from '@configs/discord';
 import { Injectable, OnModuleInit } from '@nestjs/common';
@@ -27,6 +26,9 @@ import { GamesService } from '@/games/services/games.service';
 import { StaticGameServer } from '@/game-servers/providers/static-game-server/models/static-game-server';
 import { StaticGameServersService } from '@/game-servers/providers/static-game-server/services/static-game-servers.service';
 import { mapsScrambled } from '../notifications/maps-scrambled';
+import { isEqual } from 'lodash';
+
+type PlayerSkillType = Player['skill'];
 
 const playerSkillEqual = (
   oldSkill: PlayerSkillType,
@@ -73,10 +75,21 @@ export class AdminNotificationsService implements OnModuleInit {
     this.events.playerBanRevoked.subscribe(({ ban, adminId }) =>
       this.onPlayerBanRevoked(ban, adminId),
     );
-    this.events.playerSkillChanged.subscribe(
-      ({ playerId, oldSkill, newSkill, adminId }) =>
-        this.onPlayerSkillChanged(playerId, oldSkill, newSkill, adminId),
-    );
+    this.events.playerUpdates
+      .pipe(
+        filter(
+          ({ oldPlayer, newPlayer }) =>
+            !isEqual(oldPlayer.skill, newPlayer.skill),
+        ),
+      )
+      .subscribe(({ oldPlayer, newPlayer, adminId }) =>
+        this.onPlayerSkillChanged(
+          newPlayer.id,
+          oldPlayer.skill,
+          newPlayer.skill,
+          adminId,
+        ),
+      );
     this.staticGameServersService.gameServerAdded.subscribe((gameServer) =>
       this.onGameServerAdded(gameServer),
     );
