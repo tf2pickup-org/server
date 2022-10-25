@@ -119,13 +119,19 @@ describe('AdminNotificationsService', () => {
 
   describe('when the playerUpdates event emits', () => {
     let admin: Player;
-    let player: Player;
+    let oldPlayer: Player;
+    let newPlayer: Player;
 
     beforeEach(async () => {
       // @ts-expect-error
-      player = await playersService._createOne();
+      const playerId = (await playersService._createOne()).id;
       // @ts-expect-error
       admin = await playersService._createOne();
+
+      oldPlayer = await playersService.getById(playerId);
+      newPlayer = await playersService.updatePlayer(playerId, {
+        name: 'NEW_PLAYER_NAME',
+      });
     });
 
     it('should send a message', () =>
@@ -137,12 +143,8 @@ describe('AdminNotificationsService', () => {
         });
 
         events.playerUpdates.next({
-          oldPlayer: player,
-          newPlayer: {
-            ...player,
-            name: 'NEW_PLAYER_NAME',
-            serialize: jest.fn(),
-          },
+          oldPlayer,
+          newPlayer,
           adminId: admin.id,
         });
       }));
@@ -151,8 +153,8 @@ describe('AdminNotificationsService', () => {
       it('should not send any messages', () =>
         new Promise<void>((resolve) => {
           events.playerUpdates.next({
-            oldPlayer: player,
-            newPlayer: player,
+            oldPlayer,
+            newPlayer: oldPlayer,
             adminId: admin.id,
           });
           setTimeout(() => {
@@ -228,13 +230,22 @@ describe('AdminNotificationsService', () => {
       }));
   });
 
-  describe('when the playerSkillChanged event emits', () => {
+  describe('when the skill changes', () => {
     let admin: Player;
-    let player: Player;
+    let oldPlayer: Player;
+    let newPlayer: Player;
 
     beforeEach(async () => {
       // @ts-expect-error
-      player = await playersService._createOne();
+      const playerId = (await playersService._createOne()).id;
+
+      oldPlayer = await playersService.updatePlayer(playerId, {
+        skill: new Map([[Tf2ClassName.soldier, 2]]),
+      });
+      newPlayer = await playersService.updatePlayer(playerId, {
+        skill: new Map([[Tf2ClassName.soldier, 4]]),
+      });
+
       // @ts-expect-error
       admin = await playersService._createOne();
     });
@@ -246,12 +257,9 @@ describe('AdminNotificationsService', () => {
           resolve();
         });
 
-        const oldSkill = new Map([[Tf2ClassName.soldier, 2]]);
-        const newSkill = new Map([[Tf2ClassName.soldier, 4]]);
-        events.playerSkillChanged.next({
-          playerId: player.id,
-          oldSkill,
-          newSkill,
+        events.playerUpdates.next({
+          oldPlayer,
+          newPlayer,
           adminId: admin.id,
         });
       }));
@@ -259,11 +267,9 @@ describe('AdminNotificationsService', () => {
     describe("when the skill doesn't really change", () => {
       it('should not send any message', () =>
         new Promise<void>((resolve) => {
-          const oldSkill = new Map([[Tf2ClassName.soldier, 2]]);
-          events.playerSkillChanged.next({
-            playerId: player.id,
-            oldSkill,
-            newSkill: oldSkill,
+          events.playerUpdates.next({
+            oldPlayer,
+            newPlayer: oldPlayer,
             adminId: admin.id,
           });
           setTimeout(() => {

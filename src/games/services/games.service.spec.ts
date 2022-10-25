@@ -15,7 +15,7 @@ import { GameState } from '../models/game-state';
 import { ConfigurationService } from '@/configuration/services/configuration.service';
 import { PlayerNotInThisGameError } from '../errors/player-not-in-this-game.error';
 import { GameInWrongStateError } from '../errors/game-in-wrong-state.error';
-import { Connection, Model, Types } from 'mongoose';
+import { Connection, Model } from 'mongoose';
 import {
   getConnectionToken,
   getModelToken,
@@ -31,7 +31,6 @@ import { Mutex } from 'async-mutex';
 import { GameServer } from '../models/game-server';
 
 jest.mock('@/players/services/players.service');
-jest.mock('@/players/services/player-skill.service');
 jest.mock('@/configuration/services/configuration.service');
 jest.mock('@/game-servers/services/game-servers.service');
 
@@ -235,6 +234,8 @@ describe('GamesService', () => {
     beforeEach(async () => {
       // @ts-expect-error
       playerWithSkill = await playersService._createOne();
+      playerWithSkill.skill = new Map([[Tf2ClassName.scout, 9]]);
+      await playerWithSkill.save();
 
       slots = [
         {
@@ -394,22 +395,12 @@ describe('GamesService', () => {
     describe('when skill for the player is not defined', () => {
       it('should assign default skill', async () => {
         const game = await service.create(slots, 'cp_fake');
-        const scouts = game.slots.filter(
-          (s) => s.gameClass === Tf2ClassName.scout,
+        expect(game.assignedSkills.get(slots[1].playerId.toString())).toEqual(
+          2,
         );
-        expect(
-          scouts.every(
-            (s) => game.assignedSkills.get(s.player.toString()) === 2,
-          ),
-        ).toBe(true);
-        const soldiers = game.slots.filter(
-          (s) => s.gameClass === Tf2ClassName.soldier,
+        expect(game.assignedSkills.get(slots[4].playerId.toString())).toEqual(
+          3,
         );
-        expect(
-          soldiers.every(
-            (s) => game.assignedSkills.get(s.player.toString()) === 3,
-          ),
-        ).toBe(true);
       });
     });
 

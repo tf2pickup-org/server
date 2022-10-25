@@ -7,7 +7,7 @@ import { PlayerBan } from '@/players/models/player-ban';
 import { PlayersService } from '@/players/services/players.service';
 import { iconUrlPath } from '@configs/discord';
 import { Injectable, OnModuleInit } from '@nestjs/common';
-import { filter } from 'rxjs/operators';
+import { filter, map } from 'rxjs/operators';
 import {
   newPlayer,
   playerBanAdded,
@@ -27,6 +27,8 @@ import { StaticGameServer } from '@/game-servers/providers/static-game-server/mo
 import { StaticGameServersService } from '@/game-servers/providers/static-game-server/services/static-game-servers.service';
 import { mapsScrambled } from '../notifications/maps-scrambled';
 import { isEqual } from 'lodash';
+import { PlayerChanges } from '../player-changes';
+import { extractPlayerChanges } from '../utils/extract-player-changes';
 
 type PlayerSkillType = Player['skill'];
 
@@ -66,9 +68,19 @@ export class AdminNotificationsService implements OnModuleInit {
     this.events.playerRegisters.subscribe(({ player }) =>
       this.onPlayerRegisters(player),
     );
-    this.events.playerUpdates.subscribe(({ oldPlayer, newPlayer, adminId }) =>
-      this.onPlayerUpdates(oldPlayer, newPlayer, adminId),
-    );
+    this.events.playerUpdates
+      .pipe(
+        map(({ oldPlayer, newPlayer, adminId }) => ({
+          oldPlayer,
+          newPlayer,
+          adminId,
+          changes: extractPlayerChanges(oldPlayer, newPlayer),
+        })),
+        filter(({ changes }) => Object.keys(changes).length > 0),
+      )
+      .subscribe(({ newPlayer, changes, adminId }) =>
+        this.onPlayerUpdates(newPlayer, changes, adminId),
+      );
     this.events.playerBanAdded.subscribe(({ ban }) =>
       this.onPlayerBanAdded(ban),
     );
@@ -146,8 +158,8 @@ export class AdminNotificationsService implements OnModuleInit {
   }
 
   private async onPlayerUpdates(
-    oldPlayer: Player,
-    newPlayer: Player,
+    player: Player,
+    changes: PlayerChanges,
     adminId: string,
   ) {
     if (!adminId) {
@@ -155,18 +167,6 @@ export class AdminNotificationsService implements OnModuleInit {
     }
 
     const admin = await this.playersService.getById(adminId);
-
-    const changes: Record<string, { old: string; new: string }> = {};
-    if (oldPlayer.name !== newPlayer.name) {
-      changes.name = { old: oldPlayer.name, new: newPlayer.name };
-    }
-
-    const oldRoles = oldPlayer.roles.join(', ');
-    const newRoles = oldPlayer.roles.join(', ');
-
-    if (oldRoles !== newRoles) {
-      changes.role = { old: oldRoles, new: newRoles };
-    }
 
     if (Object.keys(changes).length === 0) {
       return; // skip empty notification
@@ -176,9 +176,9 @@ export class AdminNotificationsService implements OnModuleInit {
       embeds: [
         playerProfileUpdated({
           player: {
-            name: oldPlayer.name,
-            profileUrl: `${this.environment.clientUrl}/player/${oldPlayer.id}`,
-            avatarUrl: newPlayer.avatar?.medium,
+            name: player.name,
+            profileUrl: `${this.environment.clientUrl}/player/${player.id}`,
+            avatarUrl: player.avatar?.medium,
           },
           admin: {
             name: admin.name,
