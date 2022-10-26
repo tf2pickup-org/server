@@ -89,7 +89,6 @@ describe('QueueService', () => {
 
     // @ts-expect-error
     player = await playersService._createOne({ hasAcceptedRules: true });
-    await player.save();
   });
 
   afterEach(async () => {
@@ -576,7 +575,7 @@ describe('QueueService', () => {
 
     describe('when a player is in the queue', () => {
       beforeEach(async () => {
-        service.join(0, player.id);
+        await service.join(0, player.id);
       });
 
       describe('and after he disconnects', () => {
