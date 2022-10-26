@@ -198,13 +198,33 @@ describe('StaticGameServersService', () => {
       await testGameServer.save();
     });
 
-    it('should update the gameserver', async () => {
-      await service.releaseGameServer({
-        gameServerId: testGameServer.id,
-        reason: GameServerReleaseReason.Manual,
+    describe('when released manually', () => {
+      it('should update the gameserver', async () => {
+        await service.releaseGameServer({
+          gameServerId: testGameServer.id,
+          reason: GameServerReleaseReason.Manual,
+        });
+        testGameServer = await staticGameServerModel.findById(
+          testGameServer.id,
+        );
+        expect(testGameServer.game).toBe(undefined);
       });
-      testGameServer = await staticGameServerModel.findById(testGameServer.id);
-      expect(testGameServer.game).toBe(undefined);
+    });
+
+    describe('when released because the game has ended', () => {
+      it('should update the gameserver', async () => {
+        jest.useFakeTimers();
+        await service.releaseGameServer({
+          gameServerId: testGameServer.id,
+          reason: GameServerReleaseReason.Manual,
+        });
+        jest.runAllTimers();
+        testGameServer = await staticGameServerModel.findById(
+          testGameServer.id,
+        );
+        expect(testGameServer.game).toBe(undefined);
+        jest.useRealTimers();
+      });
     });
   });
 
