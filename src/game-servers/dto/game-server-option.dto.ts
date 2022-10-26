@@ -1,6 +1,6 @@
-export interface GameServerOption {
+export interface GameServerOptionDto {
   id: string;
   provider: string;
   name: string;
-  address: string;
+  flag?: string;
 }

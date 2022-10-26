@@ -155,12 +155,14 @@ describe('ServemeTfService', () => {
           name: 'fake_server_1',
           address: 'localhost',
           port: 27015,
+          flag: 'de',
         },
         {
           id: '2',
           name: 'fake_server_2',
           address: 'localhost',
           port: 27025,
+          flag: 'de',
         },
       ]);
     });

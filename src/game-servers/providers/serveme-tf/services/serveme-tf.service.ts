@@ -1,4 +1,3 @@
-import { Events } from '@/events/events';
 import { NoFreeGameServerAvailableError } from '@/game-servers/errors/no-free-game-server-available.error';
 import { GameServerProvider } from '@/game-servers/game-server-provider';
 import { GameServerControls } from '@/game-servers/interfaces/game-server-controls';
@@ -60,7 +59,6 @@ export class ServemeTfService implements GameServerProvider, OnModuleInit {
     private servemeTfApiService: ServemeTfApiService,
     @InjectModel(ServemeTfReservation.name)
     private servemeTfReservationModel: Model<ServemeTfReservationDocument>,
-    private events: Events,
   ) {}
 
   onModuleInit() {
@@ -87,6 +85,7 @@ export class ServemeTfService implements GameServerProvider, OnModuleInit {
       name: option.name,
       address: option.ip,
       port: parseInt(option.port, 10),
+      flag: option.flag,
     }));
   }
 
