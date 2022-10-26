@@ -186,4 +186,28 @@ describe('ServerCleanupService', () => {
       expect(rcon.send).toHaveBeenCalledWith(disablePlayerWhitelist());
     });
   });
+
+  describe('when an rcon error occurs', () => {
+    let gameServer: GameServer;
+
+    beforeEach(() => {
+      gameServer = new GameServer();
+      gameServer.id = 'FAKE_GAMESERVER_ID';
+      gameServer.provider = 'fake';
+      gameServer.name = 'FAKE GAMESERVER';
+      gameServer.address = 'localhost';
+      gameServer.port = 27015;
+
+      rcon.send.mockRejectedValue('FAKE_RCON_ERROR');
+    });
+
+    it('should handle the error', async () => {
+      await expect(service.cleanupServer(gameServer)).resolves.not.toThrow();
+    });
+
+    it('should close the rcon connection', async () => {
+      await service.cleanupServer(gameServer);
+      expect(rcon.end).toHaveBeenCalled();
+    });
+  });
 });
