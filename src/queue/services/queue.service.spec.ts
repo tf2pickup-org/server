@@ -365,10 +365,12 @@ describe('QueueService', () => {
       describe('when the player joins as the last one', () => {
         beforeEach(async () => {
           for (let i = 0; i < 11; ++i) {
+            // skipcq: JS-0032
             // @ts-expect-error
             const player = await playersService._createOne({
               hasAcceptedRules: true,
             });
+            // skipcq: JS-0032
             await service.join(i, player.id);
           }
         });
@@ -506,11 +508,12 @@ describe('QueueService', () => {
         players = [];
 
         for (let i = 0; i < 12; ++i) {
+          // skipcq: JS-0032
           // @ts-expect-error
           const player = await playersService._createOne({
             hasAcceptedRules: true,
           });
-          await service.join(i, player.id);
+          await service.join(i, player.id); // skipcq: JS-0032
           players.push(player);
         }
 
