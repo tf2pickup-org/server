@@ -4,17 +4,29 @@ import {
   Injectable,
   Logger,
   OnApplicationBootstrap,
+  OnModuleInit,
 } from '@nestjs/common';
 import { Mutex } from 'async-mutex';
 import { GamesService } from '@/games/services/games.service';
-import { GameServerProvider } from '../game-server-provider';
+import {
+  GameServerProvider,
+  GameServerReleaseReason,
+} from '../game-server-provider';
 import { Game } from '@/games/models/game';
 import { NoFreeGameServerAvailableError } from '../errors/no-free-game-server-available.error';
-import { GameServerOptionWithProvider } from '../interfaces/game-server-option';
+import {
+  GameServerOptionIdentifier,
+  GameServerOptionWithProvider,
+} from '../interfaces/game-server-option';
 import { GameServerControls } from '../interfaces/game-server-controls';
+import { Events } from '@/events/events';
+import { filter, map } from 'rxjs';
+import { GameServerDetailsWithProvider } from '../interfaces/game-server-details';
 
 @Injectable()
-export class GameServersService implements OnApplicationBootstrap {
+export class GameServersService
+  implements OnApplicationBootstrap, OnModuleInit
+{
   private readonly logger = new Logger(GameServersService.name);
   private readonly mutex = new Mutex();
   private readonly providers: GameServerProvider[] = [];
@@ -22,6 +34,7 @@ export class GameServersService implements OnApplicationBootstrap {
   constructor(
     @Inject(forwardRef(() => GamesService))
     private gamesService: GamesService,
+    private events: Events,
   ) {}
 
   onApplicationBootstrap() {
@@ -32,15 +45,54 @@ export class GameServersService implements OnApplicationBootstrap {
     );
   }
 
+  onModuleInit() {
+    // when game ends, release the gameserver
+    this.events.gameChanges
+      .pipe(
+        filter(
+          ({ oldGame, newGame }) =>
+            oldGame.isInProgress && !newGame.isInProgress(),
+        ),
+        map(({ newGame }) => newGame),
+        filter((game) => Boolean(game.gameServer)),
+      )
+      .subscribe(async (game) => {
+        const gameServer = game.gameServer;
+        const provider = this.providerByName(gameServer.provider);
+        await provider.releaseGameServer({
+          gameServerId: gameServer.id,
+          gameId: game.id,
+          reason: GameServerReleaseReason.Manual,
+        });
+      });
+  }
+
   registerProvider(provider: GameServerProvider) {
     this.providers.push(provider);
     this.providers.sort((a, b) => (b.priority ?? 0) - (a.priority ?? 0));
   }
 
-  async findFreeGameServer(): Promise<GameServerOptionWithProvider> {
+  async findAllGameServerOptions(): Promise<GameServerOptionWithProvider[]> {
+    const options: GameServerOptionWithProvider[] = [];
+    for (const provider of this.providers) {
+      options.push(
+        // skipcq: JS-0032
+        ...(await provider.findGameServerOptions()).map((option) => ({
+          ...option,
+          provider: provider.gameServerProviderName,
+        })),
+      );
+    }
+    return options;
+  }
+
+  async takeFirstFreeGameServer(
+    gameId: string,
+  ): Promise<GameServerDetailsWithProvider> {
     for (const provider of this.providers) {
       try {
-        const option = await provider.findFirstFreeGameServer();
+        // skipcq: JS-0032
+        const option = await provider.takeFirstFreeGameServer({ gameId });
         return {
           ...option,
           provider: provider.gameServerProviderName,
@@ -53,30 +105,64 @@ export class GameServersService implements OnApplicationBootstrap {
     throw new NoFreeGameServerAvailableError();
   }
 
+  async takeGameServer(
+    gameServerId: GameServerOptionIdentifier,
+    gameId: string,
+  ): Promise<GameServerDetailsWithProvider> {
+    const provider = this.providerByName(gameServerId.provider);
+    const gameServer = await provider.takeGameServer({
+      gameServerId: gameServerId.id,
+      gameId,
+    });
+    return { ...gameServer, provider: provider.gameServerProviderName };
+  }
+
   async getControls(
-    gameServer: GameServerOptionWithProvider,
+    gameServer: GameServerOptionIdentifier,
   ): Promise<GameServerControls> {
     const provider = this.providerByName(gameServer.provider);
     return await provider.getControls(gameServer.id);
   }
 
-  async assignGameServer(gameId: string): Promise<Game> {
+  async assignGameServer(
+    gameId: string,
+    gameServerId?: GameServerOptionIdentifier,
+  ): Promise<Game> {
     return await this.mutex.runExclusive(async () => {
       let game = await this.gamesService.getById(gameId);
-      const gameServer = await this.findFreeGameServer();
-      this.logger.log(
-        `using gameserver ${gameServer.name} for game #${game.number}`,
-      );
+
+      if (game.gameServer) {
+        // unassign old gameserver
+        const gameServer = game.gameServer;
+        const provider = this.providerByName(game.gameServer.provider);
+        game = await this.gamesService.update(game.id, {
+          $unset: {
+            gameServer: 1,
+          },
+        });
+        await provider.releaseGameServer({
+          gameServerId: gameServer.id,
+          gameId: game.id,
+          reason: GameServerReleaseReason.Manual,
+        });
+      }
+
+      let gameServer: GameServerDetailsWithProvider;
+      if (gameServerId === undefined) {
+        gameServer = await this.takeFirstFreeGameServer(gameId);
+      } else {
+        gameServer = await this.takeGameServer(gameServerId, gameId);
+      }
+
       game = await this.gamesService.update(game.id, {
         $set: {
           gameServer,
         },
       });
-      const provider = this.providerByName(gameServer.provider);
-      await provider.onGameServerAssigned?.({
-        gameServerId: gameServer.id,
-        gameId: game.id,
-      });
+      this.logger.log(
+        `using gameserver ${game.gameServer.name} for game #${game.number}`,
+      );
+
       return game;
     });
   }

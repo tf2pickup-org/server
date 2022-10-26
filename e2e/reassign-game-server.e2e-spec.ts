@@ -9,23 +9,25 @@ import { waitABit } from './utils/wait-a-bit';
 import * as request from 'supertest';
 import { StaticGameServersService } from '@/game-servers/providers/static-game-server/services/static-game-servers.service';
 import { configureApplication } from '@/configure-application';
-import { Events } from '@/events/events';
+import { AuthService } from '@/auth/services/auth.service';
+import { JwtTokenPurpose } from '@/auth/jwt-token-purpose';
 import { waitForTheGameToLaunch } from './utils/wait-for-the-game-to-launch';
 
 jest.setTimeout(250 * 1000);
 
-describe('Assign and release gameserver (e2e)', () => {
+describe('Reassign gameserver (e2e)', () => {
   let app: INestApplication;
   let gameId: string;
   let staticGameServersService: StaticGameServersService;
+  let adminAuthToken: string;
 
-  const waitForGameServerToComeOnline = () =>
-    new Promise<string>((resolve) => {
+  const waitForAllGameServersToComeOnline = () =>
+    new Promise<void>((resolve) => {
       const i = setInterval(async () => {
         const gameServers = await staticGameServersService.getFreeGameServers();
-        if (gameServers.length > 0) {
+        if (gameServers.length >= 2) {
           clearInterval(i);
-          resolve(gameServers[0].id);
+          resolve();
         }
       }, 1000);
     });
@@ -40,7 +42,7 @@ describe('Assign and release gameserver (e2e)', () => {
     await app.listen(3000);
 
     staticGameServersService = app.get(StaticGameServersService);
-    await waitForGameServerToComeOnline();
+    await waitForAllGameServersToComeOnline();
   });
 
   beforeAll(async () => {
@@ -134,15 +136,23 @@ describe('Assign and release gameserver (e2e)', () => {
       'cp_badlands',
     );
     gameId = game.id;
+
+    const player = await playersService.findBySteamId(players[0]);
+    const authService = app.get(AuthService);
+    adminAuthToken = await authService.generateJwtToken(
+      JwtTokenPurpose.auth,
+      player.id,
+    );
+
     await waitABit(1000);
   });
 
   afterAll(async () => {
-    await waitABit(40 * 1000); // wait for the gameserver to cleanup
+    await waitABit(1000);
     await app.close();
   });
 
-  it('should assign and release a gameserver', async () => {
+  it('should reassign gameserver', async () => {
     /* verify the gameserver is assigned */
     await request(app.getHttpServer())
       .get(`/games/${gameId}`)
@@ -152,47 +162,65 @@ describe('Assign and release gameserver (e2e)', () => {
         expect(body.gameServer).toBeTruthy();
       });
 
-    const gamesService = app.get(GamesService);
-    const game = await gamesService.getById(gameId);
-    const gameServerId = game.gameServer.id;
-
-    await request(app.getHttpServer())
-      .get(`/static-game-servers/${gameServerId}`)
-      .expect(200)
-      .then((response) => {
-        const body = response.body;
-        expect(body.game).toEqual(gameId);
-        expect(body.isOnline).toBe(true);
-      });
-
     await waitForTheGameToLaunch(app, gameId);
 
-    /* pretend the game has started */
-    const events = app.get(Events);
-    events.matchStarted.next({ gameId });
-    await waitABit(1000);
+    let gameServerName: string;
 
-    /* pretend the game has ended */
-    events.matchEnded.next({ gameId });
-    await waitABit(1000);
+    /* verify /game-servers/options endpoint is protected */
+    await request(app.getHttpServer()).get('/game-servers/options').expect(401);
 
-    /* verify the game is marked as ended */
+    /* fetch gameserver options */
+    await request(app.getHttpServer())
+      .get(`/game-servers/options`)
+      .auth(adminAuthToken, { type: 'bearer' })
+      .expect(200)
+      .then(async (response) => {
+        const body = response.body;
+        expect(body.length > 0).toBe(true);
+        const gameServer = body[0];
+        gameServerName = gameServer.name;
+
+        await request(app.getHttpServer())
+          .post(`/games/${gameId}?assign_gameserver`)
+          .send({
+            id: gameServer.id,
+            provider: gameServer.provider,
+          })
+          .expect(401);
+
+        // reassign gameserver
+        await request(app.getHttpServer())
+          .post(`/games/${gameId}?assign_gameserver`)
+          .auth(adminAuthToken, { type: 'bearer' })
+          .send({
+            id: gameServer.id,
+            provider: gameServer.provider,
+          })
+          .expect(200);
+
+        await waitABit(100);
+
+        await request(app.getHttpServer())
+          .get(`/games/${gameId}`)
+          .then((response) => {
+            const body = response.body;
+            expect(body.stvConnectString).toBe(undefined);
+          });
+      });
+
+    /* verify the gameserver is assigned */
     await request(app.getHttpServer())
       .get(`/games/${gameId}`)
       .expect(200)
       .then((response) => {
         const body = response.body;
-        expect(body.state).toEqual('ended');
+        expect(body.gameServer).toBeTruthy();
+        expect(body.gameServer.name).toEqual(gameServerName);
       });
 
-    /* and now verify the gameserver is released */
-    await waitABit(121 * 1000);
-    await request(app.getHttpServer())
-      .get(`/static-game-servers/${gameServerId}`)
-      .expect(200)
-      .then((response) => {
-        const body = response.body;
-        expect(body.game).toBe(undefined);
-      });
+    await waitForTheGameToLaunch(app, gameId);
+
+    const gamesService = app.get(GamesService);
+    await gamesService.forceEnd(gameId);
   });
 });

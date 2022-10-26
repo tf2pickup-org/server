@@ -118,12 +118,14 @@ export class ServemeTfApiService {
     private servemeTfConfigurationService: ServemeTfConfigurationService,
   ) {}
 
-  async reserveServer(): Promise<ServemeTfReservationDetailsResponse> {
+  async reserveServer(
+    serverId?: number,
+  ): Promise<ServemeTfReservationDetailsResponse> {
     // https://github.com/Arie/serveme#api
     return await lastValueFrom(
       this.fetchServers().pipe(
         switchMap((response) =>
-          from(this.selectServer(response.servers)).pipe(
+          from(this.selectServer(response.servers, serverId)).pipe(
             map((server) => ({ response, server })),
           ),
         ),
@@ -229,7 +231,14 @@ export class ServemeTfApiService {
       .pipe(map((response) => response.data));
   }
 
-  private async selectServer(options: ServemeTfServerOption[]) {
+  private async selectServer(
+    options: ServemeTfServerOption[],
+    serverId?: number,
+  ) {
+    if (serverId) {
+      return options.find((option) => option.id === serverId);
+    }
+
     // make sure we don't take a SDR server
     // https://partner.steamgames.com/doc/features/multiplayer/steamdatagramrelay
     const nonSdrOptions = options.filter((s) => s.sdr === false);

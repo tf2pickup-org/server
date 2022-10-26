@@ -11,6 +11,8 @@ import {
   ClassSerializerInterceptor,
   UseInterceptors,
   UseFilters,
+  Body,
+  BadRequestException,
 } from '@nestjs/common';
 import { GamesService } from '../services/games.service';
 import { ObjectIdValidationPipe } from '@/shared/pipes/object-id-validation.pipe';
@@ -28,6 +30,8 @@ import { GameDto } from '../dto/game.dto';
 import { Serializable } from '@/shared/serializable';
 import { PaginatedGameListDto } from '../dto/paginated-game-list.dto';
 import { Events } from '@/events/events';
+import { GameServerOptionIdentifier } from '@/game-servers/interfaces/game-server-option';
+import { GameServerAssignerService } from '../services/game-server-assigner.service';
 
 const sortOptions: string[] = [
   'launched_at',
@@ -42,6 +46,7 @@ export class GamesController {
     private gamesService: GamesService,
     private playerSubstitutionService: PlayerSubstitutionService,
     private events: Events,
+    private gameServerAssignerService: GameServerAssignerService,
   ) {}
 
   @Get()
@@ -67,6 +72,8 @@ export class GamesController {
       case 'launchedAt':
         sortParam = { launchedAt: 1 };
         break;
+
+      // no default
     }
 
     let results: Game[];
@@ -142,7 +149,9 @@ export class GamesController {
     @Query('force_end') forceEnd: any,
     @Query('substitute_player') substitutePlayerId: string,
     @Query('substitute_player_cancel') cancelSubstitutePlayerId: string,
+    @Query('assign_gameserver') assignGameserver,
     @User() admin: Player,
+    @Body() body: unknown,
   ) {
     if (reinitializeServer !== undefined) {
       this.events.gameReconfigureRequested.next({ gameId, adminId: admin.id });
@@ -166,6 +175,18 @@ export class GamesController {
         cancelSubstitutePlayerId,
         admin.id,
       );
+    }
+
+    if (assignGameserver !== undefined) {
+      const { id, provider } = body as GameServerOptionIdentifier;
+      if (!id || !provider) {
+        throw new BadRequestException('invalid gameserver identifier');
+      }
+
+      await this.gameServerAssignerService.assignGameServer(gameId, {
+        id,
+        provider,
+      });
     }
   }
 }

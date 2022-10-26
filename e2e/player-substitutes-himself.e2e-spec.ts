@@ -11,6 +11,7 @@ import { io, Socket } from 'socket.io-client';
 import * as request from 'supertest';
 import { players } from './test-data';
 import { waitABit } from './utils/wait-a-bit';
+import { waitForTheGameToLaunch } from './utils/wait-for-the-game-to-launch';
 
 describe('Player substitutes himself (e2e)', () => {
   let app: INestApplication;
@@ -152,6 +153,7 @@ describe('Player substitutes himself (e2e)', () => {
   });
 
   afterAll(async () => {
+    await waitForTheGameToLaunch(app, gameId);
     await waitABit(1000);
 
     const gamesService = app.get(GamesService);

@@ -10,6 +10,7 @@ import { io, Socket } from 'socket.io-client';
 import * as request from 'supertest';
 import { players } from './test-data';
 import { waitABit } from './utils/wait-a-bit';
+import { waitForTheGameToLaunch } from './utils/wait-for-the-game-to-launch';
 
 const connectSocket = (port: number, token: string) =>
   new Promise<Socket>((resolve, reject) => {
@@ -50,13 +51,16 @@ describe('Launch game (e2e)', () => {
     const authService = app.get(AuthService);
 
     for (let i = 0; i < 12; ++i) {
+      // skipcq: JS-0032
       const playerId = (await playersService.findBySteamId(players[i])).id;
 
+      // skipcq: JS-0032
       const token = await authService.generateJwtToken(
         JwtTokenPurpose.websocket,
         playerId,
       );
 
+      // skipcq: JS-0032
       const socket = await connectSocket(
         app.getHttpServer().address().port,
         token,
@@ -64,6 +68,7 @@ describe('Launch game (e2e)', () => {
       clients.push({ playerId, socket });
     }
 
+    // skipcq: JS-0032
     authToken = await authService.generateJwtToken(
       JwtTokenPurpose.auth,
       clients[0].playerId,
@@ -93,6 +98,7 @@ describe('Launch game (e2e)', () => {
     let lastSlotId = 0;
     for (let i = 0; i < 12; ++i) {
       clients[i].socket.emit('join queue', { slotId: lastSlotId++ });
+      // skipcq: JS-0032
       await waitABit(150);
     }
 
@@ -117,6 +123,7 @@ describe('Launch game (e2e)', () => {
     // all 12 players ready up
     for (let i = 0; i < 12; ++i) {
       clients[i].socket.emit('player ready');
+      // skipcq: JS-0032
       await waitABit(150);
     }
 
@@ -164,6 +171,8 @@ describe('Launch game (e2e)', () => {
             .every((playerId) => isNumber(body[playerId])),
         ).toBe(true);
       });
+
+    await waitForTheGameToLaunch(app, newGameId);
 
     await request(app.getHttpServer())
       .get(`/games/${newGameId}/connect-info`)

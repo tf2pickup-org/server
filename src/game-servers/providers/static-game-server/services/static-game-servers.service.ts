@@ -1,5 +1,8 @@
 import { NoFreeGameServerAvailableError } from '@/game-servers/errors/no-free-game-server-available.error';
-import { GameServerProvider } from '@/game-servers/game-server-provider';
+import {
+  GameServerProvider,
+  GameServerReleaseReason,
+} from '@/game-servers/game-server-provider';
 import { GameServersService } from '@/game-servers/services/game-servers.service';
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
@@ -7,7 +10,7 @@ import { Cron, CronExpression } from '@nestjs/schedule';
 import { Mutex } from 'async-mutex';
 import { plainToInstance } from 'class-transformer';
 import { Model, Types, UpdateQuery } from 'mongoose';
-import { delay, filter, take } from 'rxjs/operators';
+import { filter } from 'rxjs/operators';
 import {
   StaticGameServer,
   StaticGameServerDocument,
@@ -20,6 +23,8 @@ import { GameServerOption } from '@/game-servers/interfaces/game-server-option';
 import { serverCleanupDelay } from '../config';
 import { Events } from '@/events/events';
 import { GamesService } from '@/games/services/games.service';
+import { Rcon } from 'rcon-client/lib';
+import { GameServerDetails } from '@/game-servers/interfaces/game-server-details';
 
 interface HeartbeatParams {
   name: string;
@@ -61,6 +66,70 @@ export class StaticGameServersService
     await this.removeDeadGameServers();
     await this.freeUnusedGameServers();
     this.gameServersService.registerProvider(this);
+  }
+
+  async findGameServerOptions(): Promise<GameServerOption[]> {
+    const gameServers = await this.getFreeGameServers();
+    return gameServers.map((gameServer) => ({
+      id: gameServer.id,
+      name: gameServer.name,
+      address: gameServer.address,
+      port: parseInt(gameServer.port, 10),
+    }));
+  }
+
+  async takeGameServer({ gameServerId, gameId }): Promise<GameServerDetails> {
+    const gameServer = await this.updateGameServer(gameServerId, {
+      game: gameId,
+    });
+    return {
+      id: gameServer.id,
+      name: gameServer.name,
+      address: gameServer.address,
+      port: parseInt(gameServer.port, 10),
+    };
+  }
+
+  async releaseGameServer({ gameServerId, reason }) {
+    switch (reason) {
+      case GameServerReleaseReason.Manual:
+        await this.freeGameServer(gameServerId);
+        break;
+
+      case GameServerReleaseReason.GameEnded:
+        setTimeout(
+          async () => await this.freeGameServer(gameServerId),
+          serverCleanupDelay,
+        );
+        break;
+
+      // no default
+    }
+  }
+
+  async takeFirstFreeGameServer({ gameId }): Promise<GameServerDetails> {
+    const gameServers = await this.getFreeGameServers();
+    if (gameServers.length > 0) {
+      const selectedGameServer = await this.updateGameServer(
+        gameServers[0].id,
+        {
+          game: gameId,
+        },
+      );
+      return {
+        id: selectedGameServer.id,
+        name: selectedGameServer.name,
+        address: selectedGameServer.address,
+        port: parseInt(selectedGameServer.port, 10),
+      };
+    } else {
+      throw new NoFreeGameServerAvailableError();
+    }
+  }
+
+  async getControls(id: string): Promise<GameServerControls> {
+    const gameServer = await this.getById(id);
+    return new StaticGameServerControls(gameServer);
   }
 
   async getById(
@@ -128,26 +197,6 @@ export class StaticGameServersService
         .lean()
         .exec(),
     );
-  }
-
-  async findFirstFreeGameServer(): Promise<GameServerOption> {
-    const gameServers = await this.getFreeGameServers();
-    if (gameServers.length > 0) {
-      const selectedGameServer = gameServers[0];
-      return {
-        id: selectedGameServer.id,
-        name: selectedGameServer.name,
-        address: selectedGameServer.address,
-        port: parseInt(selectedGameServer.port, 10),
-      };
-    } else {
-      throw new NoFreeGameServerAvailableError();
-    }
-  }
-
-  async getControls(id: string): Promise<GameServerControls> {
-    const gameServer = await this.getById(id);
-    return new StaticGameServerControls(gameServer);
   }
 
   async heartbeat(params: HeartbeatParams): Promise<StaticGameServer> {
@@ -240,25 +289,19 @@ export class StaticGameServersService
     );
   }
 
-  async onGameServerAssigned({ gameServerId, gameId }) {
-    await this.updateGameServer(gameServerId, { game: gameId });
-    this.events.gameChanges
-      .pipe(
-        filter(({ newGame }) => newGame.id === gameId),
-        filter(
-          ({ oldGame, newGame }) =>
-            oldGame.isInProgress() && !newGame.isInProgress(),
-        ),
-        take(1),
-        delay(serverCleanupDelay),
-        filter(({ newGame }) => newGame.gameServer?.id === gameServerId),
-      )
-      .subscribe(
-        async ({ newGame }) => await this.freeGameServer(newGame.gameServer.id),
-      );
-  }
-
   private async freeGameServer(gameServerId: string) {
+    const controls = await this.getControls(gameServerId);
+    let rcon: Rcon;
+    try {
+      rcon = await controls.rcon();
+      rcon.send(`tv_delaymapchange_protect 0`);
+    } catch (error) {
+      this.logger.error(
+        `failed to execute tv_delaymapchange_protect 0: ${error}`,
+      );
+    } finally {
+      rcon?.end();
+    }
     await this.updateGameServer(gameServerId, { $unset: { game: 1 } });
   }
 

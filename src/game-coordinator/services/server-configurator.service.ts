@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { Environment } from '@/environment/environment';
 import { PlayersService } from '@/players/services/players.service';
 import {
@@ -7,17 +7,14 @@ import {
   execConfig,
   setPassword,
   addGamePlayer,
-  logAddressDel,
-  delAllGamePlayers,
   kickAll,
   enablePlayerWhitelist,
-  disablePlayerWhitelist,
   tvPort,
   tvPassword,
   tftrueWhitelistId,
   logsTfTitle,
 } from '../utils/rcon-commands';
-import { deburr } from 'lodash';
+import { deburr, isEqual } from 'lodash';
 import { extractConVarValue } from '../utils/extract-con-var-value';
 import { Rcon } from 'rcon-client/lib';
 import { MapPoolService } from '@/queue/services/map-pool.service';
@@ -29,9 +26,12 @@ import { GamesService } from '@/games/services/games.service';
 import { GameServerNotAssignedError } from '../errors/game-server-not-assigned.error';
 import { generateGameserverPassword } from '@/utils/generate-gameserver-password';
 import { makeConnectString } from '../utils/make-connect-string';
+import { Events } from '@/events/events';
+import { filter, map } from 'rxjs';
+import { CannotConfigureGameError } from '../errors/cannot-configure-game.error';
 
 @Injectable()
-export class ServerConfiguratorService {
+export class ServerConfiguratorService implements OnModuleInit {
   private logger = new Logger(ServerConfiguratorService.name);
 
   constructor(
@@ -42,7 +42,28 @@ export class ServerConfiguratorService {
     private gamesService: GamesService,
     private gameServersService: GameServersService,
     private gameConfigsService: GameConfigsService,
+    private events: Events,
   ) {}
+
+  onModuleInit() {
+    // when a gameserver is assigned to a game, we can configure the gameserver
+    this.events.gameChanges
+      .pipe(
+        filter(({ newGame }) => Boolean(newGame.gameServer)),
+        filter(
+          ({ oldGame, newGame }) =>
+            !isEqual(oldGame.gameServer, newGame.gameServer),
+        ),
+        map(({ newGame }) => newGame.id),
+      )
+      .subscribe(async (gameId) => {
+        try {
+          await this.configureServer(gameId);
+        } catch (error) {
+          this.logger.error(error);
+        }
+      });
+  }
 
   async configureServer(gameId: string) {
     let game = await this.gamesService.getById(gameId);
@@ -61,6 +82,17 @@ export class ServerConfiguratorService {
     let rcon: Rcon;
     try {
       rcon = await controls.rcon();
+
+      // reset connect info
+      game = await this.gamesService.update(game.id, {
+        $unset: {
+          connectString: 1,
+          stvConnectString: 1,
+        },
+        $inc: {
+          connectInfoVersion: 1,
+        },
+      });
 
       const logSecret = await controls.getLogsecret();
       game = await this.gamesService.update(game.id, { logSecret });
@@ -129,6 +161,7 @@ export class ServerConfiguratorService {
           slot.gameClass,
         );
         this.logger.debug(`[${game.gameServer.name}] ${cmd}`);
+        // skipcq: JS-0032
         await rcon.send(cmd);
       }
 
@@ -153,43 +186,24 @@ export class ServerConfiguratorService {
       });
       this.logger.verbose(`[${game.gameServer.name} stv] ${stvConnectString}`);
 
+      game = await this.gamesService.update(game.id, {
+        $set: {
+          connectString,
+          stvConnectString,
+        },
+        $inc: {
+          connectInfoVersion: 1,
+        },
+      });
+
+      this.logger.log(`game #${game.number} configured`);
+
       return {
         connectString,
         stvConnectString,
       };
     } catch (error) {
-      throw new Error(
-        `could not configure server ${game.gameServer.name} (${error.message})`,
-      );
-    } finally {
-      await rcon?.end();
-    }
-  }
-
-  async cleanupServer(gameId: string) {
-    const game = await this.gamesService.getById(gameId);
-    if (!game.gameServer) {
-      throw new GameServerNotAssignedError(game.id);
-    }
-
-    const controls = await this.gameServersService.getControls(game.gameServer);
-
-    let rcon: Rcon;
-    try {
-      rcon = await controls.rcon();
-
-      const logAddress = `${this.environment.logRelayAddress}:${this.environment.logRelayPort}`;
-      this.logger.debug(
-        `[${game.gameServer.name}] removing log address ${logAddress}...`,
-      );
-      await rcon.send(logAddressDel(logAddress));
-      await rcon.send(delAllGamePlayers());
-      await rcon.send(disablePlayerWhitelist());
-      this.logger.verbose(`[${game.gameServer.name}] server cleaned up`);
-    } catch (error) {
-      throw new Error(
-        `could not cleanup server ${game.gameServer.name} (${error.message})`,
-      );
+      throw new CannotConfigureGameError(game.gameServer, error.message);
     } finally {
       await rcon?.end();
     }

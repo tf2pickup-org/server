@@ -12,6 +12,7 @@ import { PlayerSubstitutionService } from './services/player-substitution.servic
 import { ConfigurationModule } from '@/configuration/configuration.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Mutex } from 'async-mutex';
+import { GameServerAssignerService } from './services/game-server-assigner.service';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { Mutex } from 'async-mutex';
     GamesGateway,
     GameEventHandlerService,
     PlayerSubstitutionService,
+    GameServerAssignerService,
   ],
   exports: [GamesService],
   controllers: [GamesController, GamesWithSubstitutionRequestsController],

@@ -1,4 +1,3 @@
-import { Events } from '@/events/events';
 import { NoFreeGameServerAvailableError } from '@/game-servers/errors/no-free-game-server-available.error';
 import { GameServerProvider } from '@/game-servers/game-server-provider';
 import { GameServerControls } from '@/game-servers/interfaces/game-server-controls';
@@ -8,8 +7,6 @@ import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { plainToInstance } from 'class-transformer';
 import { Model, Types } from 'mongoose';
-import { from } from 'rxjs';
-import { delay, exhaustMap, filter, take } from 'rxjs/operators';
 import { ServemeTfServerControls } from '../serveme-tf-server-controls';
 import { ServemeTfApiService } from './serveme-tf-api.service';
 import { endReservationDelay } from '../config';
@@ -18,6 +15,7 @@ import {
   ServemeTfReservationDocument,
 } from '../models/serveme-tf-reservation';
 import { ReservationStatus } from '../models/reservation-status';
+import { GameServerDetails } from '@/game-servers/interfaces/game-server-details';
 
 type ValueType<T> = T extends Promise<infer U> ? U : T;
 
@@ -61,7 +59,6 @@ export class ServemeTfService implements GameServerProvider, OnModuleInit {
     private servemeTfApiService: ServemeTfApiService,
     @InjectModel(ServemeTfReservation.name)
     private servemeTfReservationModel: Model<ServemeTfReservationDocument>,
-    private events: Events,
   ) {}
 
   onModuleInit() {
@@ -82,61 +79,42 @@ export class ServemeTfService implements GameServerProvider, OnModuleInit {
     );
   }
 
-  onGameServerAssigned({ gameId }: { gameId: string }): void {
-    // end the reservation when the game ends
-    this.events.gameChanges
-      .pipe(
-        filter(({ newGame }) => newGame.id === gameId),
-        filter(({ newGame }) => !!newGame.gameServer),
-        filter(
-          ({ oldGame, newGame }) =>
-            oldGame.isInProgress() && !newGame.isInProgress(),
-        ),
-        take(1),
-        delay(endReservationDelay),
-        exhaustMap(({ newGame }) => from(this.getById(newGame.gameServer.id))),
-      )
-      .subscribe(
-        async (reservation) =>
-          await this.servemeTfApiService.endServerReservation(
-            reservation.reservationId,
-          ),
-      );
+  async findGameServerOptions(): Promise<GameServerOption[]> {
+    return (await this.servemeTfApiService.listServers()).map((option) => ({
+      id: `${option.id}`,
+      name: option.name,
+      address: option.ip,
+      port: parseInt(option.port, 10),
+      flag: option.flag,
+    }));
   }
 
-  async getControls(id: string): Promise<GameServerControls> {
-    return new ServemeTfServerControls(
-      await this.getById(id),
-      this.servemeTfApiService,
+  async takeGameServer({ gameServerId }): Promise<GameServerDetails> {
+    const { reservation } = await this.servemeTfApiService.reserveServer(
+      parseInt(gameServerId, 10),
     );
+    const id = await this.storeReservation(reservation);
+    return {
+      id,
+      name: reservation.server.name,
+      address: reservation.server.ip,
+      port: parseInt(reservation.server.port, 10),
+    };
   }
 
-  async findFirstFreeGameServer(): Promise<GameServerOption> {
+  releaseGameServer({ gameServerId }) {
+    setTimeout(async () => {
+      const reservation = await this.getById(gameServerId);
+      await this.servemeTfApiService.endServerReservation(
+        reservation.reservationId,
+      );
+    }, endReservationDelay);
+  }
+
+  async takeFirstFreeGameServer(): Promise<GameServerDetails> {
     try {
       const { reservation } = await this.servemeTfApiService.reserveServer();
-      const { id } = await this.servemeTfReservationModel.create({
-        startsAt: new Date(reservation.starts_at),
-        endsAt: new Date(reservation.ends_at),
-        serverId: reservation.server_id,
-        password: reservation.password,
-        rcon: reservation.rcon,
-        tvPassword: reservation.tv_password,
-        tvRelayPassword: reservation.tv_relaypassword,
-        status: toReservationStatus(reservation.status),
-        reservationId: reservation.id,
-        logsecret: reservation.logsecret,
-        ended: reservation.ended,
-        steamId: reservation.steam_uid,
-        server: {
-          id: reservation.server.id,
-          name: reservation.server.name,
-          flag: reservation.server.flag,
-          ip: reservation.server.ip,
-          port: reservation.server.port,
-          latitude: reservation.server.latitude,
-          longitude: reservation.server.longitude,
-        },
-      });
+      const id = await this.storeReservation(reservation);
       return {
         id,
         name: reservation.server.name,
@@ -147,5 +125,43 @@ export class ServemeTfService implements GameServerProvider, OnModuleInit {
       this.logger.error(`failed to create reservation: ${error.toString()}`);
       throw new NoFreeGameServerAvailableError();
     }
+  }
+
+  async getControls(id: string): Promise<GameServerControls> {
+    return new ServemeTfServerControls(
+      await this.getById(id),
+      this.servemeTfApiService,
+    );
+  }
+
+  private async storeReservation(
+    reservation: Awaited<
+      ReturnType<ServemeTfApiService['reserveServer']>
+    >['reservation'],
+  ): Promise<string> {
+    const { id } = await this.servemeTfReservationModel.create({
+      startsAt: new Date(reservation.starts_at),
+      endsAt: new Date(reservation.ends_at),
+      serverId: reservation.server_id,
+      password: reservation.password,
+      rcon: reservation.rcon,
+      tvPassword: reservation.tv_password,
+      tvRelayPassword: reservation.tv_relaypassword,
+      status: toReservationStatus(reservation.status),
+      reservationId: reservation.id,
+      logsecret: reservation.logsecret,
+      ended: reservation.ended,
+      steamId: reservation.steam_uid,
+      server: {
+        id: reservation.server.id,
+        name: reservation.server.name,
+        flag: reservation.server.flag,
+        ip: reservation.server.ip,
+        port: reservation.server.port,
+        latitude: reservation.server.latitude,
+        longitude: reservation.server.longitude,
+      },
+    });
+    return id;
   }
 }

@@ -1,10 +1,7 @@
 import { Events } from '@/events/events';
 import { NoFreeGameServerAvailableError } from '@/game-servers/errors/no-free-game-server-available.error';
 import { GameServersService } from '@/game-servers/services/game-servers.service';
-import { Game } from '@/games/models/game';
-import { GameState } from '@/games/models/game-state';
 import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
-import { waitABit } from '@/utils/wait-a-bit';
 import {
   getConnectionToken,
   getModelToken,
@@ -12,7 +9,7 @@ import {
 } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import { Connection, Model, Types } from 'mongoose';
+import { Connection, Document, Model, Types } from 'mongoose';
 import { ServemeTfApiService } from './serveme-tf-api.service';
 import { ServemeTfService } from './serveme-tf.service';
 import { ServemeTfServerControls } from '../serveme-tf-server-controls';
@@ -21,6 +18,9 @@ import {
   ServemeTfReservationDocument,
   servemeTfReservationSchema,
 } from '../models/serveme-tf-reservation';
+import { endReservationDelay } from '../config';
+import { waitABit } from '@/utils/wait-a-bit';
+import { ReservationStatus } from '../models/reservation-status';
 
 jest.mock('@/game-servers/services/game-servers.service');
 jest.mock('./serveme-tf-api.service');
@@ -119,49 +119,194 @@ describe('ServemeTfService', () => {
     });
   });
 
-  describe('#onGameServerAssigned()', () => {
-    describe('when a game ends', () => {
-      beforeEach(async () => {
-        const reservation = await servemeTfReservationModel.create({
-          reservationId: 1250567,
+  describe('#findGameServerOptions()', () => {
+    beforeEach(() => {
+      servemeTfApiService.listServers.mockResolvedValue([
+        {
+          id: 1,
+          name: 'fake_server_1',
+          flag: 'de',
+          ip: 'localhost',
+          port: '27015',
+          ip_and_port: 'localhost:27015',
+          sdr: false,
+          latitude: 0,
+          longitude: 0,
+        },
+        {
+          id: 2,
+          name: 'fake_server_2',
+          flag: 'de',
+          ip: 'localhost',
+          port: '27025',
+          ip_and_port: 'localhost:27025',
+          sdr: false,
+          latitude: 0,
+          longitude: 0,
+        },
+      ]);
+    });
+
+    it('should return all available gameservers', async () => {
+      const ret = await service.findGameServerOptions();
+      expect(ret).toEqual([
+        {
+          id: '1',
+          name: 'fake_server_1',
+          address: 'localhost',
+          port: 27015,
+          flag: 'de',
+        },
+        {
+          id: '2',
+          name: 'fake_server_2',
+          address: 'localhost',
+          port: 27025,
+          flag: 'de',
+        },
+      ]);
+    });
+  });
+
+  describe('#takeGameServer()', () => {
+    beforeEach(() => {
+      servemeTfApiService.reserveServer.mockResolvedValue({
+        reservation: {
+          id: 69,
+          starts_at: '2014-04-13T18:00:20.415+02:00',
+          ends_at: '2014-04-13T20:00:20.415+02:00',
+          server_id: 42,
           password: 'FAKE_PASSWORD',
           rcon: 'FAKE_RCON_PASSWORD',
+          first_map: 'cp_badlands',
+          tv_password: 'FAKE_STV_PASSWORD',
+          tv_relaypassword: 'FAKE_RELAYPASSWORD',
+          auto_end: true,
+          errors: {},
           logsecret: 'FAKE_LOGSECRET',
-          steamId: 'FAKE_STEAM_ID',
+          steam_uid: 'FAKE_STEAM_UID',
+          status: 'Ready',
+          server_config_id: null,
+          whitelist_id: 'etf2l_6v6',
+          custom_whitelist_id: null,
+          last_number_of_players: 0,
+          inactive_minute_counter: 0,
+          start_instantly: true,
+          end_instantly: true,
+          provisioned: true,
+          ended: false,
           server: {
-            id: 306,
-            name: 'BolusBrigade #12',
+            id: 42,
+            name: 'FAKE_SERVER_NAME',
             flag: 'de',
-            ip: 'bolus.fakkelbrigade.eu',
-            port: '27125',
+            ip: 'FAKE_SERVER_ADDRESS',
+            port: '27015',
+            ip_and_port: 'localhost:27025',
+            sdr: false,
+            latitude: 0,
+            longitude: 0,
           },
-        });
+        },
+        actions: {
+          delete: 'delete',
+          idle_reset: 'idle_reset',
+        },
+      });
+    });
 
-        const oldGame = new Game();
-        oldGame.id = 'FAKE_GAME_ID';
-        oldGame.gameServer = {
-          id: `${reservation._id}`,
-          name: reservation.server.name,
-          provider: 'serveme.tf',
-          address: reservation.server.ip,
-          port: 27125,
-        };
-        oldGame.state = GameState.started;
+    it('should make the reservation', async () => {
+      const gameServer = await service.takeGameServer({ gameServerId: '42' });
+      expect(servemeTfApiService.reserveServer).toHaveBeenCalledWith(42);
+      expect(gameServer).toEqual({
+        id: expect.any(String),
+        name: 'FAKE_SERVER_NAME',
+        address: 'FAKE_SERVER_ADDRESS',
+        port: 27015,
+      });
+    });
+  });
 
-        await service.onGameServerAssigned({ gameId: 'FAKE_GAME_ID' });
+  describe('#releaseGameServer()', () => {
+    let reservation: Document<ServemeTfReservation>;
 
-        const newGame = new Game();
-        newGame.id = oldGame.id;
-        newGame.gameServer = { ...oldGame.gameServer };
-        newGame.state = GameState.ended;
+    beforeEach(async () => {
+      reservation = await servemeTfReservationModel.create({
+        reservationId: 1250567,
+        password: 'FAKE_PASSWORD',
+        rcon: 'FAKE_RCON_PASSWORD',
+        logsecret: 'FAKE_LOGSECRET',
+        steamId: 'FAKE_STEAM_ID',
+        server: {
+          id: 306,
+          name: 'BolusBrigade #12',
+          flag: 'de',
+          ip: 'bolus.fakkelbrigade.eu',
+          port: '27125',
+        },
+      });
+    });
 
-        events.gameChanges.next({ newGame, oldGame });
-        await waitABit(100);
+    it('should end the reservation', async () => {
+      jest.useFakeTimers();
+      service.releaseGameServer({ gameServerId: reservation.id });
+      jest.runAllTimers();
+      jest.useRealTimers();
+
+      await waitABit(100);
+      expect(servemeTfApiService.endServerReservation).toHaveBeenCalledWith(
+        1250567,
+      );
+    });
+  });
+
+  describe('#takeFirstFreeGameServer()', () => {
+    describe('when the reservation is successful', () => {
+      beforeEach(() => {
+        servemeTfApiService.reserveServer.mockResolvedValue({
+          reservation: {
+            id: 69,
+            starts_at: '2014-04-13T18:00:20.415+02:00',
+            ends_at: '2014-04-13T20:00:20.415+02:00',
+            password: 'FAKE_PASSWORD',
+            rcon: 'FAKE_RCON_PASSWORD',
+            logsecret: 'FAKE_LOGSECRET',
+            steam_uid: 'FAKE_STEAM_UID',
+            server: {
+              id: 42,
+              name: 'FAKE_SERVER_NAME',
+              ip: 'FAKE_SERVER_ADDRESS',
+              port: '27015',
+            },
+          },
+        } as any);
       });
 
-      it('should end the reservation', () => {
-        expect(servemeTfApiService.endServerReservation).toHaveBeenCalledWith(
-          1250567,
+      it('should store the gameserver in the model', async () => {
+        await service.takeFirstFreeGameServer();
+        const gameServer = await servemeTfReservationModel.findOne();
+        expect(gameServer.server.name).toEqual('FAKE_SERVER_NAME');
+        expect(gameServer.server.ip).toEqual('FAKE_SERVER_ADDRESS');
+        expect(gameServer.server.port).toEqual('27015');
+        expect(gameServer.reservationId).toEqual(69);
+      });
+
+      it('should return the gameserver', async () => {
+        const ret = await service.takeFirstFreeGameServer();
+        expect(ret).toBeTruthy();
+        expect(ret.name).toEqual('FAKE_SERVER_NAME');
+      });
+    });
+
+    describe('when the reservation fails', () => {
+      beforeEach(() => {
+        servemeTfApiService.reserveServer.mockRejectedValue(
+          new Error('FAKE_SERVEME_TF_ERROR'),
+        );
+      });
+
+      it('should throw', async () => {
+        await expect(service.takeFirstFreeGameServer()).rejects.toThrow(
+          NoFreeGameServerAvailableError,
         );
       });
     });
@@ -192,59 +337,6 @@ describe('ServemeTfService', () => {
     it('should return controls', async () => {
       const controls = await service.getControls(reservationId);
       expect(controls instanceof ServemeTfServerControls).toBe(true);
-    });
-  });
-
-  describe('#findFirstGameServer()', () => {
-    describe('when the reservation is successful', () => {
-      beforeEach(() => {
-        servemeTfApiService.reserveServer.mockResolvedValue({
-          reservation: {
-            id: 69,
-            starts_at: '2014-04-13T18:00:20.415+02:00',
-            ends_at: '2014-04-13T20:00:20.415+02:00',
-            password: 'FAKE_PASSWORD',
-            rcon: 'FAKE_RCON_PASSWORD',
-            logsecret: 'FAKE_LOGSECRET',
-            steam_uid: 'FAKE_STEAM_UID',
-            server: {
-              id: 42,
-              name: 'FAKE_SERVER_NAME',
-              ip: 'FAKE_SERVER_ADDRESS',
-              port: '27015',
-            },
-          },
-        } as any);
-      });
-
-      it('should store the gameserver in the model', async () => {
-        await service.findFirstFreeGameServer();
-        const gameServer = await servemeTfReservationModel.findOne();
-        expect(gameServer.server.name).toEqual('FAKE_SERVER_NAME');
-        expect(gameServer.server.ip).toEqual('FAKE_SERVER_ADDRESS');
-        expect(gameServer.server.port).toEqual('27015');
-        expect(gameServer.reservationId).toEqual(69);
-      });
-
-      it('should return the gameserver', async () => {
-        const ret = await service.findFirstFreeGameServer();
-        expect(ret).toBeTruthy();
-        expect(ret.name).toEqual('FAKE_SERVER_NAME');
-      });
-    });
-
-    describe('when the reservation fails', () => {
-      beforeEach(() => {
-        servemeTfApiService.reserveServer.mockRejectedValue(
-          new Error('FAKE_SERVEME_TF_ERROR'),
-        );
-      });
-
-      it('should throw', async () => {
-        await expect(service.findFirstFreeGameServer()).rejects.toThrow(
-          NoFreeGameServerAvailableError,
-        );
-      });
     });
   });
 });
