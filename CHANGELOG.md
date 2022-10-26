@@ -1,5 +1,43 @@
 
 
+# [10.0.0-alpha.11](https://github.com/tf2pickup-org/server/compare/10.0.0-alpha.10...10.0.0-alpha.11) (2022-10-26)
+
+
+### Bug Fixes
+
+* **deps:** update dependency cache-manager-redis-store to v3 ([#1994](https://github.com/tf2pickup-org/server/issues/1994)) ([288e933](https://github.com/tf2pickup-org/server/commit/288e933f20a1e18e68f465b0285e5a7cf45f84e3))
+* **deps:** update dependency discord.js to v13.11.0 ([#1942](https://github.com/tf2pickup-org/server/issues/1942)) ([55d2a98](https://github.com/tf2pickup-org/server/commit/55d2a9871bbf5024b0e9f21600c4dd2fca3019bc))
+* **deps:** update dependency discord.js to v13.12.0 ([#1987](https://github.com/tf2pickup-org/server/issues/1987)) ([3f91e5d](https://github.com/tf2pickup-org/server/commit/3f91e5daaf592f822ad957613b3ee38c7a87c4c1))
+* **deps:** update dependency joi to v17.6.1 ([#1950](https://github.com/tf2pickup-org/server/issues/1950)) ([66a340d](https://github.com/tf2pickup-org/server/commit/66a340d0e3592604180217552e701f5d6d44a3f1))
+* **deps:** update dependency joi to v17.6.2 ([#1965](https://github.com/tf2pickup-org/server/issues/1965)) ([468e2f1](https://github.com/tf2pickup-org/server/commit/468e2f119564a0d3b63c32e495ba9ba14ac68edb))
+* **deps:** update dependency joi to v17.6.3 ([#1990](https://github.com/tf2pickup-org/server/issues/1990)) ([9854cd9](https://github.com/tf2pickup-org/server/commit/9854cd96899ac74168d1b23001cb8004a385f35b))
+* **deps:** update dependency joi to v17.6.4 ([#2009](https://github.com/tf2pickup-org/server/issues/2009)) ([bd94422](https://github.com/tf2pickup-org/server/commit/bd9442222aefbee0dce704c736d9a1b0294195bc))
+* **deps:** update dependency mongodb to v4.10.0 ([#1945](https://github.com/tf2pickup-org/server/issues/1945)) ([f9a46fc](https://github.com/tf2pickup-org/server/commit/f9a46fca5df3378781de435c82ee655439c77f7f))
+* **deps:** update dependency mongodb to v4.11.0 ([#2002](https://github.com/tf2pickup-org/server/issues/2002)) ([3994878](https://github.com/tf2pickup-org/server/commit/3994878bb84f716942aa671957f2bc8fe1de4e51))
+* **deps:** update dependency mongoose to v6.6.0 ([#1924](https://github.com/tf2pickup-org/server/issues/1924)) ([39d4a13](https://github.com/tf2pickup-org/server/commit/39d4a1399d2aeb89893898724a8698861d87791d))
+* **deps:** update dependency mongoose to v6.6.1 ([#1939](https://github.com/tf2pickup-org/server/issues/1939)) ([8e22dff](https://github.com/tf2pickup-org/server/commit/8e22dff53bad1c73d10a15e5bbc3242f84a50e89))
+* **deps:** update dependency mongoose to v6.6.2 ([#1957](https://github.com/tf2pickup-org/server/issues/1957)) ([4d886b3](https://github.com/tf2pickup-org/server/commit/4d886b340f5dc20958251018645fba2327c1d491))
+* **deps:** update dependency mongoose to v6.6.3 ([#1969](https://github.com/tf2pickup-org/server/issues/1969)) ([34617fb](https://github.com/tf2pickup-org/server/commit/34617fb2dfe68a522da2ae2501ef7ecf4da0fb88))
+* **deps:** update dependency mongoose to v6.6.4 ([#1973](https://github.com/tf2pickup-org/server/issues/1973)) ([77cee7d](https://github.com/tf2pickup-org/server/commit/77cee7d44f6b4426b0f83ada3639a647a62aa7e3))
+* **deps:** update dependency mongoose to v6.6.5 ([#1980](https://github.com/tf2pickup-org/server/issues/1980)) ([6ba0f1f](https://github.com/tf2pickup-org/server/commit/6ba0f1f380c9b192eea426e5d58b6a361b863528))
+* **deps:** update dependency mongoose to v6.6.6 ([#2005](https://github.com/tf2pickup-org/server/issues/2005)) ([df1223f](https://github.com/tf2pickup-org/server/commit/df1223f0c857487b55df5590548d6911ad5a56da))
+* **deps:** update dependency mongoose to v6.6.7 ([#2007](https://github.com/tf2pickup-org/server/issues/2007)) ([92e92fe](https://github.com/tf2pickup-org/server/commit/92e92fe005fd1d033540affaf9d650eac93e2669))
+* **deps:** update dependency mongoose to v6.7.0 ([#2014](https://github.com/tf2pickup-org/server/issues/2014)) ([d358526](https://github.com/tf2pickup-org/server/commit/d35852614324096ab4fc19569c1c037861c8c872))
+* **deps:** update dependency rxjs to v7.5.7 ([#1955](https://github.com/tf2pickup-org/server/issues/1955)) ([515fe71](https://github.com/tf2pickup-org/server/commit/515fe715f6394df2b5c88e724626b16f4a2cb44d))
+* **deps:** update nest monorepo to v9.1.1 ([#1946](https://github.com/tf2pickup-org/server/issues/1946)) ([e8cf125](https://github.com/tf2pickup-org/server/commit/e8cf125b77e39ca4a15400709108b4734124d2fe))
+* **deps:** update nest monorepo to v9.1.2 ([#1949](https://github.com/tf2pickup-org/server/issues/1949)) ([9189f06](https://github.com/tf2pickup-org/server/commit/9189f0659ad5f69f22fe0a19e5889c271d884d5d))
+* **deps:** update nest monorepo to v9.1.4 ([#1978](https://github.com/tf2pickup-org/server/issues/1978)) ([f98f3aa](https://github.com/tf2pickup-org/server/commit/f98f3aafafeea3fe3ac64f0715fe32cedb819af0))
+* **deps:** update nest monorepo to v9.1.5 ([#2006](https://github.com/tf2pickup-org/server/issues/2006)) ([550230b](https://github.com/tf2pickup-org/server/commit/550230b8032af5f59df8057dfd61660de26b5c67))
+* **deps:** update nest monorepo to v9.1.6 ([#2011](https://github.com/tf2pickup-org/server/issues/2011)) ([71f8f64](https://github.com/tf2pickup-org/server/commit/71f8f6477388d0c7f58559f016d70d80e4d73f96))
+* **game-servers:** workaround model providers ([#1925](https://github.com/tf2pickup-org/server/issues/1925)) ([1edc7d8](https://github.com/tf2pickup-org/server/commit/1edc7d8874171872ae3a7d83beabef2ac226c1dc))
+* **voice-servers:** move mumble bot to proper channel ([#1989](https://github.com/tf2pickup-org/server/issues/1989)) ([891c4a6](https://github.com/tf2pickup-org/server/commit/891c4a68abf99df9ab4049ea0265f40d169d0333))
+
+
+### Features
+
+* **games:** reassign game server ([#1991](https://github.com/tf2pickup-org/server/issues/1991)) ([4c968ba](https://github.com/tf2pickup-org/server/commit/4c968ba858bf6d52fca735374bcc4de25e1e0e0b))
+* log player actions ([#1985](https://github.com/tf2pickup-org/server/issues/1985)) ([e91893c](https://github.com/tf2pickup-org/server/commit/e91893c2c4a4ba1ad04ddff83a6ed7995b3581a1))
+
 # [10.0.0-alpha.10](https://github.com/tf2pickup-org/server/compare/10.0.0-alpha.9...10.0.0-alpha.10) (2022-09-08)
 
 
