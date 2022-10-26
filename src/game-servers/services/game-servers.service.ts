@@ -20,7 +20,7 @@ import {
 } from '../interfaces/game-server-option';
 import { GameServerControls } from '../interfaces/game-server-controls';
 import { Events } from '@/events/events';
-import { filter, map, Subject } from 'rxjs';
+import { filter, map } from 'rxjs';
 import { GameServerDetailsWithProvider } from '../interfaces/game-server-details';
 
 @Injectable()
@@ -30,7 +30,6 @@ export class GameServersService
   private readonly logger = new Logger(GameServersService.name);
   private readonly mutex = new Mutex();
   private readonly providers: GameServerProvider[] = [];
-  private readonly gameServerUnassigned = new Subject<string>();
 
   constructor(
     @Inject(forwardRef(() => GamesService))
