@@ -162,19 +162,7 @@ describe('Reassign gameserver (e2e)', () => {
         expect(body.gameServer).toBeTruthy();
       });
 
-    /* wait for the gameserver to be configured */
-    await new Promise<void>((resolve) => {
-      setInterval(async () => {
-        await request(app.getHttpServer())
-          .get(`/games/${gameId}`)
-          .then((response) => {
-            const body = response.body;
-            if (body.stvConnectString) {
-              resolve();
-            }
-          });
-      }, 1000);
-    });
+    await waitForTheGameToLaunch(app, gameId);
 
     let gameServerName: string;
 

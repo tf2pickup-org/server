@@ -138,7 +138,7 @@ describe('Assign and release gameserver (e2e)', () => {
   });
 
   afterAll(async () => {
-    await waitABit(1000);
+    await waitABit(40 * 1000); // wait for the gameserver to cleanup
     await app.close();
   });
 
