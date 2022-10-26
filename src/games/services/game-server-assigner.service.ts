@@ -4,6 +4,7 @@ import { GameServersService } from '@/game-servers/services/game-servers.service
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { Mutex } from 'async-mutex';
+import { CannotAssignGameServerError } from '../errors/cannot-assign-gameserver.error';
 import { GameInWrongStateError } from '../errors/game-in-wrong-state.error';
 import { Game } from '../models/game';
 import { GamesService } from './games.service';
@@ -21,9 +22,13 @@ export class GameServerAssignerService implements OnModuleInit {
 
   onModuleInit() {
     // when a game is created, give it a gameserver
-    this.events.gameCreated.subscribe(
-      async ({ game }) => await this.assignGameServer(game.id),
-    );
+    this.events.gameCreated.subscribe(async ({ game }) => {
+      try {
+        await this.assignGameServer(game.id);
+      } catch (error) {
+        this.logger.error(error);
+      }
+    });
   }
 
   /**
@@ -74,9 +79,7 @@ export class GameServerAssignerService implements OnModuleInit {
 
       return game;
     } catch (error) {
-      this.logger.error(
-        `failed to assign game #${game.number} a gameserver: ${error}`,
-      );
+      throw new CannotAssignGameServerError(game, error);
     }
   }
 }

@@ -5,6 +5,7 @@ import { waitABit } from '@/utils/wait-a-bit';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
 import { MongoMemoryServer } from 'mongodb-memory-server';
+import { CannotAssignGameServerError } from '../errors/cannot-assign-gameserver.error';
 import { GameInWrongStateError } from '../errors/game-in-wrong-state.error';
 import { Game, gameSchema } from '../models/game';
 import { GameState } from '../models/game-state';
@@ -118,7 +119,7 @@ describe('GameServerAssignerService', () => {
       );
     });
 
-    describe('when a game is in progress', () => {
+    describe('when a game is not in progress', () => {
       beforeEach(async () => {
         await gamesService.update(game.id, { state: GameState.ended });
       });
@@ -130,6 +131,21 @@ describe('GameServerAssignerService', () => {
             provider: 'test',
           }),
         ).rejects.toThrow(GameInWrongStateError);
+      });
+    });
+
+    describe('when the assign process fails', () => {
+      beforeEach(() => {
+        gameServersService.assignGameServer.mockRejectedValue('FAKE_ERROR');
+      });
+
+      it('should throw', async () => {
+        await expect(
+          service.assignGameServer(game.id, {
+            id: 'FAKE_GAMESERVER_ID',
+            provider: 'test',
+          }),
+        ).rejects.toThrow(CannotAssignGameServerError);
       });
     });
   });
