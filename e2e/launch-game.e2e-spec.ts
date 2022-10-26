@@ -54,11 +54,13 @@ describe('Launch game (e2e)', () => {
       // skipcq: JS-0032
       const playerId = (await playersService.findBySteamId(players[i])).id;
 
+      // skipcq: JS-0032
       const token = await authService.generateJwtToken(
         JwtTokenPurpose.websocket,
         playerId,
       );
 
+      // skipcq: JS-0032
       const socket = await connectSocket(
         app.getHttpServer().address().port,
         token,
