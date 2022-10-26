@@ -6,7 +6,8 @@ import { GameState } from '@/games/models/game-state';
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { isEqual } from 'lodash';
 import { Rcon } from 'rcon-client/lib';
-import { delayWhen, filter, map, timer } from 'rxjs';
+import { delayWhen, filter, map, merge, timer } from 'rxjs';
+import { CannotCleanupGameServerError } from '../errors/cannot-cleanup-game-server.error';
 import {
   logAddressDel,
   delAllGamePlayers,
@@ -24,38 +25,42 @@ export class ServerCleanupService implements OnModuleInit {
   ) {}
 
   onModuleInit() {
-    // cleanup the gameserver when it gets unassigned
-    this.events.gameChanges
-      .pipe(
-        filter(({ oldGame }) => Boolean(oldGame.gameServer)),
-        filter(
-          ({ newGame, oldGame }) =>
-            !isEqual(oldGame.gameServer, newGame.gameServer),
-        ),
-        map(({ oldGame }) => oldGame.gameServer),
-      )
-      .subscribe(async (gameServer) => await this.cleanupServer(gameServer));
+    // the gameserver gets unassigned
+    const unassigned = this.events.gameChanges.pipe(
+      filter(({ oldGame }) => Boolean(oldGame.gameServer)),
+      filter(
+        ({ newGame, oldGame }) =>
+          !isEqual(oldGame.gameServer, newGame.gameServer),
+      ),
+      map(({ oldGame }) => oldGame.gameServer),
+    );
 
-    // cleanup the gameserver when the game ends
-    this.events.gameChanges
-      .pipe(
-        filter(
-          ({ newGame, oldGame }) =>
-            oldGame.isInProgress() && !newGame.isInProgress(),
-        ),
-        filter(({ newGame }) => Boolean(newGame.gameServer)),
-        delayWhen(({ newGame }) => {
-          switch (newGame.state) {
-            case GameState.ended:
-              return timer(30 * 1000); // 30 seconds
-            case GameState.interrupted:
-              return timer(1); // instant
-            // no default
-          }
-        }),
-        map(({ newGame }) => newGame.gameServer),
-      )
-      .subscribe(async (gameServer) => await this.cleanupServer(gameServer));
+    // a game ends
+    const gameEnds = this.events.gameChanges.pipe(
+      filter(
+        ({ newGame, oldGame }) =>
+          oldGame.isInProgress() && !newGame.isInProgress(),
+      ),
+      filter(({ newGame }) => Boolean(newGame.gameServer)),
+      delayWhen(({ newGame }) => {
+        switch (newGame.state) {
+          case GameState.ended:
+            return timer(30 * 1000); // 30 seconds
+          case GameState.interrupted:
+            return timer(1); // instant
+          // no default
+        }
+      }),
+      map(({ newGame }) => newGame.gameServer),
+    );
+
+    merge(unassigned, gameEnds).subscribe(async (gameServer) => {
+      try {
+        await this.cleanupServer(gameServer);
+      } catch (error) {
+        this.logger.error(error);
+      }
+    });
   }
 
   async cleanupServer(gameServer: GameServerOptionWithProvider) {
@@ -73,9 +78,7 @@ export class ServerCleanupService implements OnModuleInit {
       await rcon.send(disablePlayerWhitelist());
       this.logger.verbose(`[${gameServer.name}] server cleaned up`);
     } catch (error) {
-      this.logger.error(
-        `could not cleanup server ${gameServer.name} (${error.message})`,
-      );
+      throw new CannotCleanupGameServerError(gameServer, error.message);
     } finally {
       await rcon?.end();
     }

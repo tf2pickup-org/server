@@ -8,6 +8,7 @@ import { GameState } from '@/games/models/game-state';
 import { waitABit } from '@/utils/wait-a-bit';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Rcon } from 'rcon-client/lib';
+import { CannotCleanupGameServerError } from '../errors/cannot-cleanup-game-server.error';
 import {
   delAllGamePlayers,
   disablePlayerWhitelist,
@@ -201,12 +202,10 @@ describe('ServerCleanupService', () => {
       rcon.send.mockRejectedValue('FAKE_RCON_ERROR');
     });
 
-    it('should handle the error', async () => {
-      await expect(service.cleanupServer(gameServer)).resolves.not.toThrow();
-    });
-
-    it('should close the rcon connection', async () => {
-      await service.cleanupServer(gameServer);
+    it('should close the rcon connection and throw', async () => {
+      await expect(service.cleanupServer(gameServer)).rejects.toThrow(
+        CannotCleanupGameServerError,
+      );
       expect(rcon.end).toHaveBeenCalled();
     });
   });
