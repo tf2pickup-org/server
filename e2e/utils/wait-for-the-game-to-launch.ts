@@ -1,4 +1,5 @@
 import { INestApplication } from '@nestjs/common';
+// skipcq: JS-C1003
 import * as request from 'supertest';
 
 export const waitForTheGameToLaunch = (app: INestApplication, gameId: string) =>

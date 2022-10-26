@@ -51,6 +51,7 @@ describe('Launch game (e2e)', () => {
     const authService = app.get(AuthService);
 
     for (let i = 0; i < 12; ++i) {
+      // skipcq: JS-0032
       const playerId = (await playersService.findBySteamId(players[i])).id;
 
       const token = await authService.generateJwtToken(
@@ -65,6 +66,7 @@ describe('Launch game (e2e)', () => {
       clients.push({ playerId, socket });
     }
 
+    // skipcq: JS-0032
     authToken = await authService.generateJwtToken(
       JwtTokenPurpose.auth,
       clients[0].playerId,
@@ -94,6 +96,7 @@ describe('Launch game (e2e)', () => {
     let lastSlotId = 0;
     for (let i = 0; i < 12; ++i) {
       clients[i].socket.emit('join queue', { slotId: lastSlotId++ });
+      // skipcq: JS-0032
       await waitABit(150);
     }
 
@@ -118,6 +121,7 @@ describe('Launch game (e2e)', () => {
     // all 12 players ready up
     for (let i = 0; i < 12; ++i) {
       clients[i].socket.emit('player ready');
+      // skipcq: JS-0032
       await waitABit(150);
     }
 
