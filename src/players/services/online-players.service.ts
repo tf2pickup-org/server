@@ -1,4 +1,5 @@
 import { Events } from '@/events/events';
+import { extractClientIp } from '@/shared/extract-client-ip';
 import {
   Injectable,
   Logger,
@@ -30,7 +31,9 @@ export class OnlinePlayersService implements OnModuleInit, OnModuleDestroy {
         const player = socket.user;
         const sockets = this.getSocketsForPlayer(player.id);
         if (!sockets.includes(socket)) {
-          const ipAddress = socket.handshake.address;
+          const ipAddress =
+            extractClientIp(socket.handshake.headers) ??
+            socket.handshake.address;
           this.logger.debug(`${player.name} connected from ${ipAddress}`);
           const isAlreadyConnected = sockets.find(
             (socket) => socket.conn.remoteAddress === ipAddress,
@@ -52,7 +55,8 @@ export class OnlinePlayersService implements OnModuleInit, OnModuleDestroy {
     this.playersGateway.playerDisconnected.subscribe((socket) => {
       if (socket.user) {
         const player = socket.user;
-        const ipAddress = socket.conn.remoteAddress;
+        const ipAddress =
+          extractClientIp(socket.handshake.headers) ?? socket.handshake.address;
         this.logger.debug(`${player.name} disconnected (${ipAddress})`);
         const sockets = this.getSocketsForPlayer(player.id);
         const index = sockets.indexOf(socket);
