@@ -15,6 +15,9 @@ import {
   UseInterceptors,
   CacheInterceptor,
   CacheTTL,
+  UploadedFile,
+  ParseFilePipe,
+  FileTypeValidator,
 } from '@nestjs/common';
 import { PlayersService } from '../services/players.service';
 import { ObjectIdValidationPipe } from '@/shared/pipes/object-id-validation.pipe';
@@ -35,6 +38,11 @@ import { PlayerDto } from '../dto/player.dto';
 import { PlayerSkillDto } from '../dto/player-skill.dto';
 import { PlayerBanDto } from '../dto/player-ban.dto';
 import { PlayerSkillWrapper } from './player-skill-wrapper';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { Express } from 'express';
+import 'multer';
+import { parse } from 'csv-parse';
+import { Readable } from 'stream';
 
 @Controller('players')
 export class PlayersController {
@@ -176,5 +184,21 @@ export class PlayersController {
       player.id,
     );
     return { playerId: player.id, linkedProfiles };
+  }
+
+  @Post('import-skills')
+  @UseInterceptors(FileInterceptor('skills'))
+  async importSkills(
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [new FileTypeValidator({ fileType: 'csv' })],
+      }),
+    )
+    file: Express.Multer.File,
+  ) {
+    const parser = Readable.from(file.buffer).pipe(parse());
+    for await (const record of parser) {
+      console.log(record);
+    }
   }
 }
