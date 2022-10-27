@@ -3,7 +3,6 @@ import { Game, GameDocument } from '../models/game';
 import { QueueSlot } from '@/queue/queue-slot';
 import { PlayerSlot, pickTeams } from '../utils/pick-teams';
 import { PlayersService } from '@/players/services/players.service';
-import { PlayerSkillService } from '@/players/services/player-skill.service';
 import { QueueConfigService } from '@/queue/services/queue-config.service';
 import { shuffle } from 'lodash';
 import { Events } from '@/events/events';
@@ -37,7 +36,6 @@ export class GamesService {
     @InjectModel('Game') private gameModel: Model<GameDocument>,
     @Inject(forwardRef(() => PlayersService))
     private playersService: PlayersService,
-    private playerSkillService: PlayerSkillService,
     private queueConfigService: QueueConfigService,
     private events: Events,
     private configurationService: ConfigurationService,
@@ -162,7 +160,7 @@ export class GamesService {
     map: string,
     friends: string[][] = [],
   ): Promise<Game> {
-    if (!queueSlots.every((slot) => !!slot.playerId)) {
+    if (!queueSlots.every((slot) => Boolean(slot.playerId))) {
       throw new Error('queue not full');
     }
 
@@ -268,7 +266,7 @@ export class GamesService {
   }
 
   async getMostActivePlayers() {
-    return this.gameModel.aggregate([
+    return await this.gameModel.aggregate([
       { $match: { state: GameState.ended } },
       { $unwind: '$slots' },
       { $group: { _id: '$slots.player', count: { $sum: 1 } } },
@@ -279,7 +277,7 @@ export class GamesService {
   }
 
   async getMostActiveMedics() {
-    return this.gameModel.aggregate([
+    return await this.gameModel.aggregate([
       { $match: { state: 'ended' } },
       { $unwind: '$slots' },
       { $match: { 'slots.gameClass': 'medic' } },
@@ -359,6 +357,8 @@ export class GamesService {
         url.port = `${voiceServer.mumble.port}`;
         return url.toString();
       }
+
+      // no default
     }
   }
 
@@ -371,9 +371,8 @@ export class GamesService {
       throw new Error(`no such player (${playerId})`);
     }
 
-    const skill = await this.playerSkillService.getPlayerSkill(playerId);
-    if (skill) {
-      const skillForClass = skill.get(gameClass);
+    if (player.skill) {
+      const skillForClass = player.skill.get(gameClass);
       return { playerId, gameClass, skill: skillForClass };
     } else {
       const defaultPlayerSkill = (

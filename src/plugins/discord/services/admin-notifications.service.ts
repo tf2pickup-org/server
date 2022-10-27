@@ -4,11 +4,10 @@ import { Game } from '@/games/models/game';
 import { GameState } from '@/games/models/game-state';
 import { Player } from '@/players/models/player';
 import { PlayerBan } from '@/players/models/player-ban';
-import { PlayerSkillType } from '@/players/services/player-skill.service';
 import { PlayersService } from '@/players/services/players.service';
 import { iconUrlPath } from '@configs/discord';
 import { Injectable, OnModuleInit } from '@nestjs/common';
-import { filter } from 'rxjs/operators';
+import { filter, map } from 'rxjs/operators';
 import {
   newPlayer,
   playerBanAdded,
@@ -27,6 +26,11 @@ import { GamesService } from '@/games/services/games.service';
 import { StaticGameServer } from '@/game-servers/providers/static-game-server/models/static-game-server';
 import { StaticGameServersService } from '@/game-servers/providers/static-game-server/services/static-game-servers.service';
 import { mapsScrambled } from '../notifications/maps-scrambled';
+import { isEqual } from 'lodash';
+import { PlayerChanges } from '../player-changes';
+import { extractPlayerChanges } from '../utils/extract-player-changes';
+
+type PlayerSkillType = Player['skill'];
 
 const playerSkillEqual = (
   oldSkill: PlayerSkillType,
@@ -64,19 +68,40 @@ export class AdminNotificationsService implements OnModuleInit {
     this.events.playerRegisters.subscribe(({ player }) =>
       this.onPlayerRegisters(player),
     );
-    this.events.playerUpdates.subscribe(({ oldPlayer, newPlayer, adminId }) =>
-      this.onPlayerUpdates(oldPlayer, newPlayer, adminId),
-    );
+    this.events.playerUpdates
+      .pipe(
+        map(({ oldPlayer, newPlayer, adminId }) => ({
+          oldPlayer,
+          newPlayer,
+          adminId,
+          changes: extractPlayerChanges(oldPlayer, newPlayer),
+        })),
+        filter(({ changes }) => Object.keys(changes).length > 0),
+      )
+      .subscribe(({ newPlayer, changes, adminId }) =>
+        this.onPlayerUpdates(newPlayer, changes, adminId),
+      );
     this.events.playerBanAdded.subscribe(({ ban }) =>
       this.onPlayerBanAdded(ban),
     );
     this.events.playerBanRevoked.subscribe(({ ban, adminId }) =>
       this.onPlayerBanRevoked(ban, adminId),
     );
-    this.events.playerSkillChanged.subscribe(
-      ({ playerId, oldSkill, newSkill, adminId }) =>
-        this.onPlayerSkillChanged(playerId, oldSkill, newSkill, adminId),
-    );
+    this.events.playerUpdates
+      .pipe(
+        filter(
+          ({ oldPlayer, newPlayer }) =>
+            !isEqual(oldPlayer.skill, newPlayer.skill),
+        ),
+      )
+      .subscribe(({ oldPlayer, newPlayer, adminId }) =>
+        this.onPlayerSkillChanged(
+          newPlayer.id,
+          oldPlayer.skill,
+          newPlayer.skill,
+          adminId,
+        ),
+      );
     this.staticGameServersService.gameServerAdded.subscribe((gameServer) =>
       this.onGameServerAdded(gameServer),
     );
@@ -111,13 +136,13 @@ export class AdminNotificationsService implements OnModuleInit {
       );
 
     this.events.substituteRequested
-      .pipe(filter(({ adminId }) => !!adminId))
+      .pipe(filter(({ adminId }) => Boolean(adminId)))
       .subscribe(({ gameId, playerId, adminId }) =>
         this.onSubstituteRequested(gameId, playerId, adminId),
       );
 
     this.events.mapsScrambled
-      .pipe(filter(({ actorId }) => !!actorId))
+      .pipe(filter(({ actorId }) => Boolean(actorId)))
       .subscribe(({ actorId }) => this.onMapsScrambled(actorId));
   }
 
@@ -133,8 +158,8 @@ export class AdminNotificationsService implements OnModuleInit {
   }
 
   private async onPlayerUpdates(
-    oldPlayer: Player,
-    newPlayer: Player,
+    player: Player,
+    changes: PlayerChanges,
     adminId: string,
   ) {
     if (!adminId) {
@@ -142,18 +167,6 @@ export class AdminNotificationsService implements OnModuleInit {
     }
 
     const admin = await this.playersService.getById(adminId);
-
-    const changes: Record<string, { old: string; new: string }> = {};
-    if (oldPlayer.name !== newPlayer.name) {
-      changes.name = { old: oldPlayer.name, new: newPlayer.name };
-    }
-
-    const oldRoles = oldPlayer.roles.join(', ');
-    const newRoles = oldPlayer.roles.join(', ');
-
-    if (oldRoles !== newRoles) {
-      changes.role = { old: oldRoles, new: newRoles };
-    }
 
     if (Object.keys(changes).length === 0) {
       return; // skip empty notification
@@ -163,9 +176,9 @@ export class AdminNotificationsService implements OnModuleInit {
       embeds: [
         playerProfileUpdated({
           player: {
-            name: oldPlayer.name,
-            profileUrl: `${this.environment.clientUrl}/player/${oldPlayer.id}`,
-            avatarUrl: newPlayer.avatar?.medium,
+            name: player.name,
+            profileUrl: `${this.environment.clientUrl}/player/${player.id}`,
+            avatarUrl: player.avatar?.medium,
           },
           admin: {
             name: admin.name,

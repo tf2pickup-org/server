@@ -3,8 +3,6 @@ import { PlayersController } from './players.controller';
 import { PlayersService } from '../services/players.service';
 import { Player } from '../models/player';
 import { PlayerStatsDto } from '../dto/player-stats.dto';
-import { PlayerSkillService } from '../services/player-skill.service';
-import { PlayerSkill } from '../models/player-skill';
 import { PlayerBansService } from '../services/player-bans.service';
 import {
   NotFoundException,
@@ -26,6 +24,10 @@ class PlayersServiceStub {
     name: 'FAKE_PLAYER_NAME',
     steamId: 'FAKE_STEAM_ID',
     hasAcceptedRules: true,
+    skill: {
+      [Tf2ClassName.scout]: 1,
+      [Tf2ClassName.soldier]: 2,
+    },
   });
   stats: PlayerStatsDto = {
     player: 'FAKE_ID',
@@ -37,41 +39,24 @@ class PlayersServiceStub {
       [Tf2ClassName.medic]: 92,
     },
   };
-  getAll() {
-    return new Promise((resolve) => resolve([this.player]));
-  }
-  getById(id: string) {
-    return new Promise((resolve) => resolve(this.player));
-  }
-  findBySteamId(steamId: string) {
-    return new Promise((resolve) => resolve(this.player));
-  }
-  forceCreatePlayer(player: Player) {
-    return new Promise((resolve) => resolve(player));
-  }
-  updatePlayer(playerId: string, update: Partial<Player>) {
-    return new Promise((resolve) => resolve(this.player));
-  }
-  getPlayerStats(playerId: string) {
-    return new Promise((resolve) => resolve(this.stats));
-  }
-}
-
-class PlayerSkillServiceStub {
-  skill: PlayerSkill = {
-    player: 'FAKE_ID' as any,
-    skill: new Map<Tf2ClassName, number>([
-      [Tf2ClassName.scout, 2],
-      [Tf2ClassName.soldier, 2],
-      [Tf2ClassName.demoman, 1],
-      [Tf2ClassName.medic, 2],
-    ]),
-    serialize: jest.fn(),
-  };
-
-  getPlayerSkill = jest.fn().mockResolvedValue(this.skill.skill);
-  setPlayerSkill = jest.fn().mockResolvedValue(this.skill.skill);
-  getAll = jest.fn().mockResolvedValue([this.skill]);
+  getAll = jest.fn().mockResolvedValue([this.player]);
+  getById = jest
+    .fn()
+    .mockImplementation((id: string) => Promise.resolve(this.player));
+  findBySteamId = jest
+    .fn()
+    .mockImplementation((steamId: string) => Promise.resolve(this.player));
+  forceCreatePlayer = jest
+    .fn()
+    .mockImplementation((player: Player) => Promise.resolve(player));
+  updatePlayer = jest
+    .fn()
+    .mockImplementation((playerId: string, update: Partial<Player>) =>
+      Promise.resolve(this.player),
+    );
+  getPlayerStats = jest
+    .fn()
+    .mockImplementation((playerId: string) => Promise.resolve(this.stats));
 }
 
 class PlayerBansServiceStub {
@@ -109,18 +94,17 @@ class PlayerBansServiceStub {
       id: '5db2e53c80e22f6e05200875',
     },
   ];
-  getPlayerBans(playerId: string) {
-    return new Promise((resolve) => resolve(this.bans));
-  }
-  addPlayerBan(ban: any) {
-    return new Promise((resolve) => resolve(ban));
-  }
+  getPlayerBans = jest
+    .fn()
+    .mockImplementation((playerId: string) => Promise.resolve(this.bans));
+  addPlayerBan = jest
+    .fn()
+    .mockImplementation((ban: PlayerBan) => Promise.resolve(ban));
 }
 
 describe('Players Controller', () => {
   let controller: PlayersController;
   let playersService: PlayersServiceStub;
-  let playerSkillService: PlayerSkillServiceStub;
   let playerBansService: PlayerBansServiceStub;
   let linkedProfilesService: jest.Mocked<LinkedProfilesService>;
 
@@ -128,7 +112,6 @@ describe('Players Controller', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         { provide: PlayersService, useClass: PlayersServiceStub },
-        { provide: PlayerSkillService, useClass: PlayerSkillServiceStub },
         { provide: PlayerBansService, useClass: PlayerBansServiceStub },
         LinkedProfilesService,
       ],
@@ -138,7 +121,6 @@ describe('Players Controller', () => {
 
     controller = module.get<PlayersController>(PlayersController);
     playersService = module.get(PlayersService);
-    playerSkillService = module.get(PlayerSkillService);
     playerBansService = module.get(PlayerBansService);
     linkedProfilesService = module.get(LinkedProfilesService);
   });
@@ -205,47 +187,36 @@ describe('Players Controller', () => {
     });
   });
 
-  describe('#getAllPlayerSkills()', () => {
-    it("should return all players' skills", async () => {
-      const ret = await controller.getAllPlayerSkills();
-      expect(playerSkillService.getAll).toHaveBeenCalled();
-      expect(ret).toEqual([playerSkillService.skill] as any);
+  describe('#getAllPlayersWithSkills()', () => {
+    it('should return all players with their skills', async () => {
+      await controller.getAllPlayersWithSkills();
+      expect(playersService.getAll).toHaveBeenCalled();
     });
   });
 
   describe('#getPlayerSkill()', () => {
-    it('should return player skill', async () => {
-      const ret = await controller.getPlayerSkill(playersService.player);
-      expect(playerSkillService.getPlayerSkill).toHaveBeenCalledWith('FAKE_ID');
+    it('should return player skill', () => {
+      const ret = controller.getPlayerSkill(playersService.player);
+      expect(ret).toEqual({ scout: 1, soldier: 2 });
     });
 
-    it('should return 404', async () => {
-      playerSkillService.getPlayerSkill.mockResolvedValue(null);
-      await expect(
-        controller.getPlayerSkill(playersService.player),
-      ).rejects.toThrow(NotFoundException);
+    describe('when the player has no skill set', () => {
+      it('should return an empty object', () => {
+        const playerWithoutSkill = plainToInstance(Player, {
+          _id: 'FAKE_ID_2',
+          name: 'FAKE_2ND_PLAYER_NAME',
+          steamId: 'FAKE_2ND_STEAM_ID',
+          hasAcceptedRules: true,
+        });
+
+        const ret = controller.getPlayerSkill(playerWithoutSkill);
+        expect(ret).toEqual({});
+      });
     });
   });
 
   describe('#setPlayerSkill()', () => {
-    it('should set player skill', async () => {
-      const skill = { soldier: 1, medic: 2 };
-      const ret = await controller.setPlayerSkill(
-        playersService.player,
-        skill,
-        {
-          id: 'FAKE_ADMIN_ID',
-        } as any,
-      );
-      expect(playerSkillService.setPlayerSkill).toHaveBeenCalledWith(
-        'FAKE_ID',
-        new Map([
-          ['soldier', 1],
-          ['medic', 2],
-        ]),
-        'FAKE_ADMIN_ID',
-      );
-    });
+    // todo
   });
 
   describe('#getPlayerBans()', () => {

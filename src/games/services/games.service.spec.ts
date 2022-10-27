@@ -1,7 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { GamesService } from './games.service';
 import { PlayersService } from '@/players/services/players.service';
-import { PlayerSkillService } from '@/players/services/player-skill.service';
 import { Player, PlayerDocument, playerSchema } from '@/players/models/player';
 import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
 import { Game, GameDocument, gameSchema } from '../models/game';
@@ -16,7 +15,7 @@ import { GameState } from '../models/game-state';
 import { ConfigurationService } from '@/configuration/services/configuration.service';
 import { PlayerNotInThisGameError } from '../errors/player-not-in-this-game.error';
 import { GameInWrongStateError } from '../errors/game-in-wrong-state.error';
-import { Connection, Model, Types } from 'mongoose';
+import { Connection, Model } from 'mongoose';
 import {
   getConnectionToken,
   getModelToken,
@@ -32,7 +31,6 @@ import { Mutex } from 'async-mutex';
 import { GameServer } from '../models/game-server';
 
 jest.mock('@/players/services/players.service');
-jest.mock('@/players/services/player-skill.service');
 jest.mock('@/configuration/services/configuration.service');
 jest.mock('@/game-servers/services/game-servers.service');
 
@@ -56,7 +54,6 @@ describe('GamesService', () => {
   let gameModel: Model<GameDocument>;
   let playersService: PlayersService;
   let events: Events;
-  let playerSkillService: jest.Mocked<PlayerSkillService>;
   let configurationService: jest.Mocked<ConfigurationService>;
   let connection: Connection;
 
@@ -79,7 +76,6 @@ describe('GamesService', () => {
         },
         GamesService,
         PlayersService,
-        PlayerSkillService,
         { provide: QueueConfigService, useClass: QueueConfigServiceStub },
         Events,
         ConfigurationService,
@@ -91,7 +87,6 @@ describe('GamesService', () => {
 
     playersService = module.get(PlayersService);
     events = module.get(Events);
-    playerSkillService = module.get(PlayerSkillService);
     configurationService = module.get(ConfigurationService);
     connection = module.get(getConnectionToken());
   });
@@ -234,14 +229,19 @@ describe('GamesService', () => {
 
   describe('#create()', () => {
     let slots: QueueSlot[];
+    let playerWithSkill: PlayerDocument;
 
     beforeEach(async () => {
+      // @ts-expect-error
+      playerWithSkill = await playersService._createOne();
+      playerWithSkill.skill = new Map([[Tf2ClassName.scout, 9]]);
+      await playerWithSkill.save();
+
       slots = [
         {
           id: 0,
           gameClass: Tf2ClassName.scout,
-          // @ts-expect-error
-          playerId: (await playersService._createOne())._id,
+          playerId: playerWithSkill._id,
           ready: true,
           friend: null,
         },
@@ -384,16 +384,6 @@ describe('GamesService', () => {
     });
 
     describe('when skill for a player is defined', () => {
-      beforeEach(() => {
-        playerSkillService.getPlayerSkill.mockImplementation((playerId) => {
-          if (playerId === slots[0].playerId) {
-            return Promise.resolve(new Map([[Tf2ClassName.scout, 9]]));
-          } else {
-            return Promise.resolve(null);
-          }
-        });
-      });
-
       it('should record the given skill', async () => {
         const game = await service.create(slots, 'cp_fake');
         expect(game.assignedSkills.get(slots[0].playerId.toString())).toEqual(
@@ -405,22 +395,12 @@ describe('GamesService', () => {
     describe('when skill for the player is not defined', () => {
       it('should assign default skill', async () => {
         const game = await service.create(slots, 'cp_fake');
-        const scouts = game.slots.filter(
-          (s) => s.gameClass === Tf2ClassName.scout,
+        expect(game.assignedSkills.get(slots[1].playerId.toString())).toEqual(
+          2,
         );
-        expect(
-          scouts.every(
-            (s) => game.assignedSkills.get(s.player.toString()) === 2,
-          ),
-        ).toBe(true);
-        const soldiers = game.slots.filter(
-          (s) => s.gameClass === Tf2ClassName.soldier,
+        expect(game.assignedSkills.get(slots[4].playerId.toString())).toEqual(
+          3,
         );
-        expect(
-          soldiers.every(
-            (s) => game.assignedSkills.get(s.player.toString()) === 3,
-          ),
-        ).toBe(true);
       });
     });
 

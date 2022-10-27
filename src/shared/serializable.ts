@@ -1,3 +1,3 @@
 export abstract class Serializable<T> {
-  abstract serialize(): Promise<T>;
+  abstract serialize(): T | Promise<T>;
 }

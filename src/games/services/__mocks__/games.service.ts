@@ -17,7 +17,6 @@ export class GamesService {
     this.gameModel,
     null,
     null,
-    null,
     this.events,
     null,
     new Mutex(),

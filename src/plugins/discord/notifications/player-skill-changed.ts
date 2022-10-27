@@ -1,6 +1,8 @@
-import { PlayerSkillType } from '@/players/services/player-skill.service';
 import { MessageEmbed } from 'discord.js';
 import { Colors } from './colors';
+import { Player } from '@/players/models/player';
+
+type PlayerSkillType = Player['skill'];
 
 interface PlayerSkillChangedOptions {
   player: {
