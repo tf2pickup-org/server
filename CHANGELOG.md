@@ -1,5 +1,18 @@
 
 
+# [10.0.0-alpha.12](https://github.com/tf2pickup-org/server/compare/10.0.0-alpha.11...10.0.0-alpha.12) (2022-10-27)
+
+
+### Bug Fixes
+
+* **game-servers:** reset connectInfo upon server reassign ([#2019](https://github.com/tf2pickup-org/server/issues/2019)) ([9e25721](https://github.com/tf2pickup-org/server/commit/9e25721d9ffd5e5407fc6ee30d250157272b880e))
+* **player-actions:** fix client IP logging ([#2020](https://github.com/tf2pickup-org/server/issues/2020)) ([027a446](https://github.com/tf2pickup-org/server/commit/027a446c58456ac3a1dce000ced8cf32d2ffe21f))
+
+
+### Features
+
+* **players:** merge PlayerSkill collection ([#2004](https://github.com/tf2pickup-org/server/issues/2004)) ([23b8493](https://github.com/tf2pickup-org/server/commit/23b84931ce4fc93677f22d3b5edffa3de862253a))
+
 # [10.0.0-alpha.11](https://github.com/tf2pickup-org/server/compare/10.0.0-alpha.10...10.0.0-alpha.11) (2022-10-26)
 
 
