@@ -54,9 +54,10 @@ describe('OnlinePlayersService', () => {
           address: '127.0.0.1',
           headers: {
             'user-agent': 'JUST_TESTING',
+            'x-forwarded-for': '192.168.0.1, 127.0.0.1',
           },
         },
-      } as Socket;
+      } as unknown as Socket;
       playersGateway.playerConnected.next(socket);
     });
 
@@ -91,9 +92,10 @@ describe('OnlinePlayersService', () => {
             address: '192.168.0.1',
             headers: {
               'user-agent': 'JUST_TESTING',
+              'x-forwarded-for': '192.168.0.1, 127.0.0.1',
             },
           },
-        } as Socket;
+        } as unknown as Socket;
         playersGateway.playerConnected.next(socket2);
       });
 
