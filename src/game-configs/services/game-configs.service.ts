@@ -26,7 +26,7 @@ export class GameConfigsService implements OnModuleInit {
     this.template = compile(source.toString());
   }
 
-  async compileConfig(): Promise<string[]> {
+  compileConfig(): string[] {
     return this.template(this.variables)
       .split('\n')
       .filter((line) => !isEmpty(line));

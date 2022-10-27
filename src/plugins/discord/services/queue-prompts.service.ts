@@ -84,7 +84,7 @@ export class QueuePromptsService implements OnModuleInit {
   private async slotsToGameClassData(slots: QueueSlot[]) {
     const playerData = await Promise.all(
       slots
-        .filter((slot) => !!slot.playerId)
+        .filter((slot) => Boolean(slot.playerId))
         .map((slot) =>
           this.playersService.getById(slot.playerId).then((player) => ({
             name: player.name,

@@ -128,7 +128,7 @@ describe('ServerConfiguratorService', () => {
       new MapPoolEntry('cp_badlands', 'etf2l_6v6_5cp'),
     ]);
     configurationService.getWhitelistId.mockResolvedValue(new WhitelistId(''));
-    gameConfigsService.compileConfig.mockResolvedValue([
+    gameConfigsService.compileConfig.mockReturnValue([
       'mp_tournament_readymode 1',
     ]);
     mockGameServerControls = {

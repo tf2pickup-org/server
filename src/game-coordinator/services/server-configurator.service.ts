@@ -72,7 +72,7 @@ export class ServerConfiguratorService implements OnModuleInit {
     }
 
     const controls = await this.gameServersService.getControls(game.gameServer);
-    const configLines = await this.gameConfigsService.compileConfig();
+    const configLines = this.gameConfigsService.compileConfig();
 
     this.logger.verbose(`starting gameserver ${game.gameServer.name}`);
     await controls.start();

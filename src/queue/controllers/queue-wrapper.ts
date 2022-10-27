@@ -35,7 +35,7 @@ export class QueueWrapper extends Serializable<QueueDto> {
     this.friendships = params.friendships;
   }
 
-  async serialize(): Promise<QueueDto> {
+  serialize(): QueueDto {
     return {
       config: this.config,
       slots: this.slots.map((s) => new QueueSlotWrapper(s)),

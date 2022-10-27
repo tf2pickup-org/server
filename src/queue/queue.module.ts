@@ -44,7 +44,7 @@ import { QueueConfigModule } from '@/queue-config/queue-config.module';
           'queue',
           `${environment.queueConfig}.json`,
         );
-        return promisify(readFile)(configFileName, 'utf-8');
+        return await promisify(readFile)(configFileName, 'utf-8');
       },
       inject: [Environment],
     },

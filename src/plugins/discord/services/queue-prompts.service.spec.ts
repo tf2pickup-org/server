@@ -207,7 +207,7 @@ describe('QueuePromptsService', () => {
 
   describe('when slots change', () => {
     beforeEach(
-      async () =>
+      () =>
         new Promise<void>((resolve) => {
           events.queueSlotsChange.next({ slots: queueService.slots });
           setTimeout(resolve, 3500);
@@ -252,7 +252,7 @@ describe('QueuePromptsService', () => {
 
     describe('when slots change again', () => {
       beforeEach(
-        async () =>
+        () =>
           new Promise<void>((resolve) => {
             queueService.slots = [
               {
