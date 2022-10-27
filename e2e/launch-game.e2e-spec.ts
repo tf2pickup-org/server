@@ -89,7 +89,7 @@ describe('Launch game (e2e)', () => {
     clients.forEach((player) => player.socket.disconnect());
     clients = [];
 
-    await waitABit(1000);
+    await waitABit(40 * 1000); // wait for the gameserver to cleanup
     await app.close();
   });
 
