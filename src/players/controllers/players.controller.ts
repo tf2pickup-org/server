@@ -97,9 +97,9 @@ export class PlayersController {
 
   @Get(':id/skill')
   @Auth(PlayerRole.admin)
-  async getPlayerSkill(
-    @Param('id', PlayerByIdPipe) player: Player,
-  ): Promise<{ [gameClass in Tf2ClassName]?: number }> {
+  getPlayerSkill(@Param('id', PlayerByIdPipe) player: Player): {
+    [gameClass in Tf2ClassName]?: number;
+  } {
     return player.skill ? Object.fromEntries(player.skill) : {};
   }
 

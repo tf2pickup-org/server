@@ -24,10 +24,10 @@ class PlayersServiceStub {
     name: 'FAKE_PLAYER_NAME',
     steamId: 'FAKE_STEAM_ID',
     hasAcceptedRules: true,
-    skills: new Map([
-      [Tf2ClassName.scout, 1],
-      [Tf2ClassName.soldier, 2],
-    ]),
+    skill: {
+      [Tf2ClassName.scout]: 1,
+      [Tf2ClassName.soldier]: 2,
+    },
   });
   stats: PlayerStatsDto = {
     player: 'FAKE_ID',
@@ -39,24 +39,24 @@ class PlayersServiceStub {
       [Tf2ClassName.medic]: 92,
     },
   };
-  getAll() {
-    return new Promise((resolve) => resolve([this.player]));
-  }
-  getById(id: string) {
-    return new Promise((resolve) => resolve(this.player));
-  }
-  findBySteamId(steamId: string) {
-    return new Promise((resolve) => resolve(this.player));
-  }
-  forceCreatePlayer(player: Player) {
-    return new Promise((resolve) => resolve(player));
-  }
-  updatePlayer(playerId: string, update: Partial<Player>) {
-    return new Promise((resolve) => resolve(this.player));
-  }
-  getPlayerStats(playerId: string) {
-    return new Promise((resolve) => resolve(this.stats));
-  }
+  getAll = jest.fn().mockResolvedValue([this.player]);
+  getById = jest
+    .fn()
+    .mockImplementation((id: string) => Promise.resolve(this.player));
+  findBySteamId = jest
+    .fn()
+    .mockImplementation((steamId: string) => Promise.resolve(this.player));
+  forceCreatePlayer = jest
+    .fn()
+    .mockImplementation((player: Player) => Promise.resolve(player));
+  updatePlayer = jest
+    .fn()
+    .mockImplementation((playerId: string, update: Partial<Player>) =>
+      Promise.resolve(this.player),
+    );
+  getPlayerStats = jest
+    .fn()
+    .mockImplementation((playerId: string) => Promise.resolve(this.stats));
 }
 
 class PlayerBansServiceStub {
@@ -196,14 +196,19 @@ describe('Players Controller', () => {
 
   describe('#getPlayerSkill()', () => {
     it('should return player skill', async () => {
-      const ret = await controller.getPlayerSkill(playersService.player);
-      expect(playersService.getById).toHaveBeenCalledWith('FAKE_ID');
+      const ret = controller.getPlayerSkill(playersService.player);
       expect(ret).toEqual({ scout: 1, soldier: 2 });
     });
 
     it('should return an empty object', async () => {
-      // todo
-      const ret = await controller.getPlayerSkill(playersService.player);
+      const playerWithoutSkill = plainToInstance(Player, {
+        _id: 'FAKE_ID_2',
+        name: 'FAKE_2ND_PLAYER_NAME',
+        steamId: 'FAKE_2ND_STEAM_ID',
+        hasAcceptedRules: true,
+      });
+
+      const ret = controller.getPlayerSkill(playerWithoutSkill);
       expect(ret).toEqual({});
     });
   });
