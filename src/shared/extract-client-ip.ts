@@ -1,10 +1,9 @@
 import { IncomingHttpHeaders } from 'http';
-import { isArray } from 'lodash';
 
 export const extractClientIp = (headers: IncomingHttpHeaders): string => {
   if (headers['x-forwarded-for']) {
     const xForwarderFor = headers['x-forwarded-for'];
-    if (!isArray(xForwarderFor)) {
+    if (!Array.isArray(xForwarderFor)) {
       return xForwarderFor.split(',').at(0).trim();
     } else {
       return xForwarderFor[0];
