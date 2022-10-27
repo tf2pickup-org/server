@@ -3,7 +3,7 @@ import { Game, GameDocument } from '../models/game';
 import { QueueSlot } from '@/queue/queue-slot';
 import { PlayerSlot, pickTeams } from '../utils/pick-teams';
 import { PlayersService } from '@/players/services/players.service';
-import { QueueConfigService } from '@/queue/services/queue-config.service';
+import { QueueConfigService } from '@/queue-config/services/queue-config.service';
 import { shuffle } from 'lodash';
 import { Events } from '@/events/events';
 import { SlotStatus } from '../models/slot-status';

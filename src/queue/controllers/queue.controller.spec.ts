@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { QueueController } from './queue.controller';
-import { QueueConfigService } from '../services/queue-config.service';
+import { QueueConfigService } from '@/queue-config/services/queue-config.service';
 import { QueueService } from '../services/queue.service';
 import { MapVoteService } from '../services/map-vote.service';
 import { QueueAnnouncementsService } from '../services/queue-announcements.service';
@@ -11,7 +11,7 @@ import { QueueState } from '../queue-state';
 import { MapPoolEntry } from '../models/map-pool-entry';
 import { Player } from '@/players/models/player';
 
-jest.mock('../services/queue-config.service');
+jest.mock('@/queue-config/services/queue-config.service');
 jest.mock('../services/queue.service');
 jest.mock('../services/map-vote.service');
 jest.mock('../services/queue-announcements.service');

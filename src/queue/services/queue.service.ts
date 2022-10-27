@@ -9,7 +9,7 @@ import {
 } from '@nestjs/common';
 import { QueueSlot } from '@/queue/queue-slot';
 import { PlayersService } from '@/players/services/players.service';
-import { QueueConfigService } from './queue-config.service';
+import { QueueConfigService } from '@/queue-config/services/queue-config.service';
 import { PlayerBansService } from '@/players/services/player-bans.service';
 import { QueueState } from '../queue-state';
 import { readyUpTimeout, readyStateTimeout } from '@configs/queue';

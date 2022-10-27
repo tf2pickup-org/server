@@ -1,9 +1,9 @@
-import { QueueConfigService } from '@/queue/services/queue-config.service';
+import { QueueConfigService } from '@/queue-config/services/queue-config.service';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { Test, TestingModule } from '@nestjs/testing';
 import { GameConfigsService } from './game-configs.service';
 
-jest.mock('@/queue/services/queue-config.service', () => ({
+jest.mock('@/queue-config/services/queue-config.service', () => ({
   QueueConfigService: jest.fn().mockImplementation(() => ({
     queueConfig: {
       teamSize: 2,

@@ -2,7 +2,7 @@ import { Environment } from '@/environment/environment';
 import { Events } from '@/events/events';
 import { PlayersService } from '@/players/services/players.service';
 import { QueueSlot } from '@/queue/queue-slot';
-import { QueueConfigService } from '@/queue/services/queue-config.service';
+import { QueueConfigService } from '@/queue-config/services/queue-config.service';
 import { QueueService } from '@/queue/services/queue.service';
 import { iconUrlPath, promptPlayerThresholdRatio } from '@configs/discord';
 import {

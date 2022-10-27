@@ -30,6 +30,7 @@ import type { RedisClientOptions } from '@redis/client';
 import { GameCoordinatorModule } from './game-coordinator/game-coordinator.module';
 import { LogsTfModule } from './logs-tf/logs-tf.module';
 import { PlayerActionsLoggerModule } from './player-actions-logger/player-actions-logger.module';
+import { QueueConfigModule } from './queue-config/queue-config.module';
 import * as redisStore from 'cache-manager-redis-store';
 import * as mongoStore from 'cache-manager-mongodb';
 
@@ -97,6 +98,7 @@ import * as mongoStore from 'cache-manager-mongodb';
     GameCoordinatorModule,
     LogsTfModule,
     PlayerActionsLoggerModule,
+    QueueConfigModule,
   ],
   controllers: [AppController],
 })

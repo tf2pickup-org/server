@@ -9,7 +9,7 @@ import {
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
-import { QueueConfigService } from '../services/queue-config.service';
+import { QueueConfigService } from '@/queue-config/services/queue-config.service';
 import { QueueService } from '../services/queue.service';
 import { MapVoteService } from '../services/map-vote.service';
 import { QueueAnnouncementsService } from '../services/queue-announcements.service';

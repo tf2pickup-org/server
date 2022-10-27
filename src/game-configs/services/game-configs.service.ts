@@ -1,4 +1,4 @@
-import { QueueConfigService } from '@/queue/services/queue-config.service';
+import { QueueConfigService } from '@/queue-config/services/queue-config.service';
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { join } from 'path';
 import { compile } from 'handlebars';

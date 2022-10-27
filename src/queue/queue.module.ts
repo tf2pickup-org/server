@@ -1,6 +1,5 @@
 import { Module, forwardRef } from '@nestjs/common';
 import { QueueService } from './services/queue.service';
-import { QueueConfigService } from './services/queue-config.service';
 import { PlayersModule } from '@/players/players.module';
 import { GamesModule } from '@/games/games.module';
 import { MapVoteService } from './services/map-vote.service';
@@ -16,6 +15,7 @@ import { promisify } from 'util';
 import { MapPoolService } from './services/map-pool.service';
 import { MapPoolEntry, mapPoolEntrySchema } from './models/map-pool-entry';
 import { MongooseModule } from '@nestjs/mongoose/dist';
+import { QueueConfigModule } from '@/queue-config/queue-config.module';
 
 @Module({
   imports: [
@@ -27,10 +27,10 @@ import { MongooseModule } from '@nestjs/mongoose/dist';
     ]),
     forwardRef(() => PlayersModule),
     forwardRef(() => GamesModule),
+    QueueConfigModule,
   ],
   providers: [
     QueueService,
-    QueueConfigService,
     MapVoteService,
     QueueGateway,
     AutoGameLauncherService,
@@ -50,13 +50,7 @@ import { MongooseModule } from '@nestjs/mongoose/dist';
     },
     MapPoolService,
   ],
-  exports: [
-    QueueService,
-    QueueConfigService,
-    MapVoteService,
-    QueueGateway,
-    MapPoolService,
-  ],
+  exports: [QueueService, MapVoteService, QueueGateway, MapPoolService],
   controllers: [QueueController],
 })
 export class QueueModule {}
