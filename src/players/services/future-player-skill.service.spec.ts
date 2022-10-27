@@ -14,6 +14,11 @@ import {
   getModelToken,
   MongooseModule,
 } from '@nestjs/mongoose';
+import { Player, playerSchema } from '../models/player';
+import { Events } from '@/events/events';
+import { PlayersService } from './players.service';
+
+jest.mock('./players.service');
 
 describe('FuturePlayerSkillService', () => {
   let service: FuturePlayerSkillService;
@@ -30,12 +35,16 @@ describe('FuturePlayerSkillService', () => {
         mongooseTestingModule(mongod),
         MongooseModule.forFeature([
           {
+            name: Player.name,
+            schema: playerSchema,
+          },
+          {
             name: FuturePlayerSkill.name,
             schema: futurePlayerSkillSchema,
           },
         ]),
       ],
-      providers: [FuturePlayerSkillService],
+      providers: [FuturePlayerSkillService, Events, PlayersService],
     }).compile();
 
     service = module.get<FuturePlayerSkillService>(FuturePlayerSkillService);
@@ -94,13 +103,13 @@ describe('FuturePlayerSkillService', () => {
 
     it('should find the skill', async () => {
       const ret = await service.findSkill('FAKE_STEAM_ID');
-      expect(ret.toObject()).toEqual(
-        expect.objectContaining({ steamId: 'FAKE_STEAM_ID', skill }),
-      );
+      expect(ret).toEqual({ steamId: 'FAKE_STEAM_ID', skill });
     });
 
-    it('should return null', async () => {
-      expect(await service.findSkill('ANOTHER_FAKE_STEAM_ID')).toBe(null);
+    it('should throw', async () => {
+      await expect(
+        service.findSkill('ANOTHER_FAKE_STEAM_ID'),
+      ).rejects.toThrow();
     });
   });
 });
