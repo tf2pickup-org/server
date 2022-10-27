@@ -89,7 +89,6 @@ describe('QueueService', () => {
 
     // @ts-expect-error
     player = await playersService._createOne({ hasAcceptedRules: true });
-    await player.save();
   });
 
   afterEach(async () => {
@@ -234,7 +233,7 @@ describe('QueueService', () => {
     });
 
     describe('#reset()', () => {
-      it('should emit the queueSlotsChange event', async () =>
+      it('should emit the queueSlotsChange event', () =>
         new Promise<void>((resolve) => {
           events.queueSlotsChange.subscribe(({ slots }) => {
             expect(slots.length).toEqual(12);
@@ -341,7 +340,7 @@ describe('QueueService', () => {
         expect(oldSlots[0].playerId).toBeNull();
       });
 
-      it('should emit the playerJoinsQueue event', async () =>
+      it('should emit the playerJoinsQueue event', () =>
         new Promise<void>((resolve) => {
           events.playerJoinsQueue.subscribe(({ playerId }) => {
             expect(playerId).toEqual(player.id);
@@ -351,7 +350,7 @@ describe('QueueService', () => {
           service.join(0, player.id);
         }));
 
-      it('should emit the queueSlotsChange event', async () =>
+      it('should emit the queueSlotsChange event', () =>
         new Promise<void>((resolve) => {
           events.queueSlotsChange.subscribe(({ slots }) => {
             expect(slots).toEqual([
@@ -366,10 +365,12 @@ describe('QueueService', () => {
       describe('when the player joins as the last one', () => {
         beforeEach(async () => {
           for (let i = 0; i < 11; ++i) {
+            // skipcq: JS-0032
             // @ts-expect-error
             const player = await playersService._createOne({
               hasAcceptedRules: true,
             });
+            // skipcq: JS-0032
             await service.join(i, player.id);
           }
         });
@@ -409,7 +410,7 @@ describe('QueueService', () => {
         expect(slot.ready).toBe(false);
       });
 
-      it('should emit the playerLeavesQueue event', async () =>
+      it('should emit the playerLeavesQueue event', () =>
         new Promise<void>((resolve) => {
           events.playerLeavesQueue.subscribe(({ playerId, reason }) => {
             expect(playerId).toEqual(player.id);
@@ -460,7 +461,7 @@ describe('QueueService', () => {
         expect(service.playerCount).toBe(0);
       });
 
-      it('should emit the playerLeavesQueue event', async () =>
+      it('should emit the playerLeavesQueue event', () =>
         new Promise<void>((resolve) => {
           events.playerLeavesQueue.subscribe(({ playerId, reason }) => {
             expect(playerId).toEqual(player.id);
@@ -492,7 +493,7 @@ describe('QueueService', () => {
           await service.join(0, player.id);
         });
 
-        it('should fail', async () => {
+        it('should fail', () => {
           expect(() => service.readyUp(player.id)).toThrow(
             WrongQueueStateError,
           );
@@ -507,11 +508,12 @@ describe('QueueService', () => {
         players = [];
 
         for (let i = 0; i < 12; ++i) {
+          // skipcq: JS-0032
           // @ts-expect-error
           const player = await playersService._createOne({
             hasAcceptedRules: true,
           });
-          await service.join(i, player.id);
+          await service.join(i, player.id); // skipcq: JS-0032
           players.push(player);
         }
 
@@ -534,7 +536,7 @@ describe('QueueService', () => {
           expect(() => service.readyUp(player.id)).toThrow();
         });
 
-        it('should emit the queueSlotsChange event', async () =>
+        it('should emit the queueSlotsChange event', () =>
           new Promise<void>((resolve) => {
             events.queueSlotsChange.subscribe(({ slots }) => {
               expect(slots.length).toEqual(1);
@@ -576,7 +578,7 @@ describe('QueueService', () => {
 
     describe('when a player is in the queue', () => {
       beforeEach(async () => {
-        service.join(0, player.id);
+        await service.join(0, player.id);
       });
 
       describe('and after he disconnects', () => {
