@@ -110,7 +110,7 @@ export class PlayersController {
     @Body() skill: { [className in Tf2ClassName]?: number }, // TODO validate
     @User() admin: Player,
   ): Promise<{ [gameClass in Tf2ClassName]?: number }> {
-    player = await this.playersService.updatePlayer(
+    const newPlayer = await this.playersService.updatePlayer(
       player.id,
       {
         $set: {
@@ -119,7 +119,7 @@ export class PlayersController {
       },
       admin.id,
     );
-    return Object.fromEntries(player.skill);
+    return Object.fromEntries(newPlayer.skill);
   }
 
   @Get(':id/bans')

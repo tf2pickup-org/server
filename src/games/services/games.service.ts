@@ -160,7 +160,7 @@ export class GamesService {
     map: string,
     friends: string[][] = [],
   ): Promise<Game> {
-    if (!queueSlots.every((slot) => !!slot.playerId)) {
+    if (!queueSlots.every((slot) => Boolean(slot.playerId))) {
       throw new Error('queue not full');
     }
 
@@ -266,7 +266,7 @@ export class GamesService {
   }
 
   async getMostActivePlayers() {
-    return this.gameModel.aggregate([
+    return await this.gameModel.aggregate([
       { $match: { state: GameState.ended } },
       { $unwind: '$slots' },
       { $group: { _id: '$slots.player', count: { $sum: 1 } } },
@@ -277,7 +277,7 @@ export class GamesService {
   }
 
   async getMostActiveMedics() {
-    return this.gameModel.aggregate([
+    return await this.gameModel.aggregate([
       { $match: { state: 'ended' } },
       { $unwind: '$slots' },
       { $match: { 'slots.gameClass': 'medic' } },
@@ -357,6 +357,8 @@ export class GamesService {
         url.port = `${voiceServer.mumble.port}`;
         return url.toString();
       }
+
+      // no default
     }
   }
 

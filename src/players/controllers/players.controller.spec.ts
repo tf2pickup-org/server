@@ -94,12 +94,12 @@ class PlayerBansServiceStub {
       id: '5db2e53c80e22f6e05200875',
     },
   ];
-  getPlayerBans(playerId: string) {
-    return new Promise((resolve) => resolve(this.bans));
-  }
-  addPlayerBan(ban: any) {
-    return new Promise((resolve) => resolve(ban));
-  }
+  getPlayerBans = jest
+    .fn()
+    .mockImplementation((playerId: string) => Promise.resolve(this.bans));
+  addPlayerBan = jest
+    .fn()
+    .mockImplementation((ban: PlayerBan) => Promise.resolve(ban));
 }
 
 describe('Players Controller', () => {
@@ -195,21 +195,23 @@ describe('Players Controller', () => {
   });
 
   describe('#getPlayerSkill()', () => {
-    it('should return player skill', async () => {
+    it('should return player skill', () => {
       const ret = controller.getPlayerSkill(playersService.player);
       expect(ret).toEqual({ scout: 1, soldier: 2 });
     });
 
-    it('should return an empty object', async () => {
-      const playerWithoutSkill = plainToInstance(Player, {
-        _id: 'FAKE_ID_2',
-        name: 'FAKE_2ND_PLAYER_NAME',
-        steamId: 'FAKE_2ND_STEAM_ID',
-        hasAcceptedRules: true,
-      });
+    describe('when the player has no skill set', () => {
+      it('should return an empty object', () => {
+        const playerWithoutSkill = plainToInstance(Player, {
+          _id: 'FAKE_ID_2',
+          name: 'FAKE_2ND_PLAYER_NAME',
+          steamId: 'FAKE_2ND_STEAM_ID',
+          hasAcceptedRules: true,
+        });
 
-      const ret = controller.getPlayerSkill(playerWithoutSkill);
-      expect(ret).toEqual({});
+        const ret = controller.getPlayerSkill(playerWithoutSkill);
+        expect(ret).toEqual({});
+      });
     });
   });
 

@@ -136,13 +136,13 @@ export class AdminNotificationsService implements OnModuleInit {
       );
 
     this.events.substituteRequested
-      .pipe(filter(({ adminId }) => !!adminId))
+      .pipe(filter(({ adminId }) => Boolean(adminId)))
       .subscribe(({ gameId, playerId, adminId }) =>
         this.onSubstituteRequested(gameId, playerId, adminId),
       );
 
     this.events.mapsScrambled
-      .pipe(filter(({ actorId }) => !!actorId))
+      .pipe(filter(({ actorId }) => Boolean(actorId)))
       .subscribe(({ actorId }) => this.onMapsScrambled(actorId));
   }
 

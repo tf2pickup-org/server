@@ -58,7 +58,7 @@ export class Player extends Serializable<PlayerDto> {
   )
   skill?: Map<Tf2ClassName, number>;
 
-  async serialize(): Promise<PlayerDto> {
+  serialize(): PlayerDto {
     return {
       id: this.id,
       name: this.name,
