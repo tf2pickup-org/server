@@ -138,6 +138,11 @@ export class GameServersService
         game = await this.gamesService.update(game.id, {
           $unset: {
             gameServer: 1,
+            connectString: 1,
+            stvConnectString: 1,
+          },
+          $inc: {
+            connectInfoVersion: 1,
           },
         });
         await provider.releaseGameServer({

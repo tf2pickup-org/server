@@ -234,6 +234,17 @@ describe('GameServersService', () => {
             },
           );
         });
+
+        it('should reset the connect info', async () => {
+          const ret = await service.assignGameServer(game.id, {
+            id: 'FAKE_GAME_SERVER',
+            provider: 'test',
+          });
+
+          expect(ret.connectString).toBe(undefined);
+          expect(ret.stvConnectString).toBe(undefined);
+          expect(ret.connectInfoVersion).toEqual(game.connectInfoVersion + 1);
+        });
       });
     });
   });
