@@ -8,10 +8,6 @@ import { QueueController } from './controllers/queue.controller';
 import { AutoGameLauncherService } from './services/auto-game-launcher.service';
 import { QueueAnnouncementsService } from './services/queue-announcements.service';
 import { FriendsService } from './services/friends.service';
-import { Environment } from '@/environment/environment';
-import { join } from 'path';
-import { readFile } from 'fs';
-import { promisify } from 'util';
 import { MapPoolService } from './services/map-pool.service';
 import { MapPoolEntry, mapPoolEntrySchema } from './models/map-pool-entry';
 import { MongooseModule } from '@nestjs/mongoose/dist';
@@ -36,18 +32,7 @@ import { QueueConfigModule } from '@/queue-config/queue-config.module';
     AutoGameLauncherService,
     QueueAnnouncementsService,
     FriendsService,
-    {
-      provide: 'QUEUE_CONFIG_JSON',
-      useFactory: async (environment: Environment) => {
-        const configFileName = join(
-          'configs',
-          'queue',
-          `${environment.queueConfig}.json`,
-        );
-        return await promisify(readFile)(configFileName, 'utf-8');
-      },
-      inject: [Environment],
-    },
+
     MapPoolService,
   ],
   exports: [QueueService, MapVoteService, QueueGateway, MapPoolService],
