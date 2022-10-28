@@ -1,13 +1,11 @@
-import { Injectable, Logger, Inject } from '@nestjs/common';
-import { QueueConfig } from '../queue-config';
+import { Injectable, Inject } from '@nestjs/common';
+import { QueueConfig } from '../interfaces/queue-config';
 import { Validator } from 'jsonschema';
-import * as queueConfigSchema from '../queue-config.schema.json';
+import * as queueConfigSchema from '../queue-config.schema.json'; // skipcq: JS-C1003
 
 @Injectable()
 export class QueueConfigService {
   queueConfig: QueueConfig;
-
-  private readonly logger = new Logger(QueueConfigService.name);
 
   constructor(@Inject('QUEUE_CONFIG_JSON') queueConfigJson: string) {
     const config = JSON.parse(queueConfigJson);
@@ -15,7 +13,7 @@ export class QueueConfigService {
     this.queueConfig = config as QueueConfig;
   }
 
-  private validateConfig(config: any) {
+  private validateConfig(config: unknown) {
     new Validator().validate(config, queueConfigSchema, { throwError: true });
   }
 }

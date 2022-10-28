@@ -8,7 +8,7 @@ import { Environment } from '@/environment/environment';
 import { Events } from '@/events/events';
 import { Player, playerSchema } from '@/players/models/player';
 import { PlayersService } from '@/players/services/players.service';
-import { QueueConfigService } from '@/queue/services/queue-config.service';
+import { QueueConfigService } from '@/queue-config/services/queue-config.service';
 import { QueueService } from '@/queue/services/queue.service';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
@@ -24,7 +24,7 @@ import { CacheModule } from '@nestjs/common';
 jest.mock('./discord.service');
 jest.mock('@/queue/services/queue.service');
 jest.mock('@/players/services/players.service');
-jest.mock('@/queue/services/queue-config.service');
+jest.mock('@/queue-config/services/queue-config.service');
 
 const environment = {
   clientUrl: 'https://tf2pickup.pl',
@@ -207,7 +207,7 @@ describe('QueuePromptsService', () => {
 
   describe('when slots change', () => {
     beforeEach(
-      async () =>
+      () =>
         new Promise<void>((resolve) => {
           events.queueSlotsChange.next({ slots: queueService.slots });
           setTimeout(resolve, 3500);
@@ -252,7 +252,7 @@ describe('QueuePromptsService', () => {
 
     describe('when slots change again', () => {
       beforeEach(
-        async () =>
+        () =>
           new Promise<void>((resolve) => {
             queueService.slots = [
               {

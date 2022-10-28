@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { QueueService } from './queue.service';
 import { PlayersService } from '@/players/services/players.service';
-import { QueueConfigService } from './queue-config.service';
+import { QueueConfigService } from '@/queue-config/services/queue-config.service';
 import { PlayerBansService } from '@/players/services/player-bans.service';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { mongooseTestingModule } from '@/utils/testing-mongoose-module';

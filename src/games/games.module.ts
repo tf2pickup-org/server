@@ -13,6 +13,7 @@ import { ConfigurationModule } from '@/configuration/configuration.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Mutex } from 'async-mutex';
 import { GameServerAssignerService } from './services/game-server-assigner.service';
+import { QueueConfigModule } from '@/queue-config/queue-config.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { GameServerAssignerService } from './services/game-server-assigner.servi
     forwardRef(() => PlayersModule),
     QueueModule,
     ConfigurationModule,
+    QueueConfigModule,
   ],
   providers: [
     {

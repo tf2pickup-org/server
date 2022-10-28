@@ -9,7 +9,7 @@ import {
 } from '@nestjs/common';
 import { QueueSlot } from '@/queue/queue-slot';
 import { PlayersService } from '@/players/services/players.service';
-import { QueueConfigService } from './queue-config.service';
+import { QueueConfigService } from '@/queue-config/services/queue-config.service';
 import { PlayerBansService } from '@/players/services/player-bans.service';
 import { QueueState } from '../queue-state';
 import { readyUpTimeout, readyStateTimeout } from '@configs/queue';
@@ -48,7 +48,7 @@ export class QueueService implements OnModuleInit, OnModuleDestroy {
   }
 
   get playerCount(): number {
-    return this.slots.filter((s) => !!s.playerId).length;
+    return this.slots.filter((s) => Boolean(s.playerId)).length;
   }
 
   get readyPlayerCount() {
@@ -103,7 +103,7 @@ export class QueueService implements OnModuleInit, OnModuleDestroy {
   }
 
   isInQueue(playerId: string): boolean {
-    return !!this.slots.find((s) => s.playerId === playerId);
+    return Boolean(this.slots.find((s) => s.playerId === playerId));
   }
 
   reset() {
@@ -260,6 +260,8 @@ export class QueueService implements OnModuleInit, OnModuleDestroy {
       case QueueState.launching:
         this.setState(QueueState.waiting);
         break;
+
+      // no default
     }
   }
 
@@ -274,6 +276,8 @@ export class QueueService implements OnModuleInit, OnModuleDestroy {
       case QueueState.waiting:
         clearTimeout(this.timer);
         break;
+
+      // no default
     }
   }
 
@@ -333,7 +337,7 @@ export class QueueService implements OnModuleInit, OnModuleDestroy {
   }
 
   private unreadyQueue() {
-    const slots = this.slots.filter((s) => !!s.playerId);
+    const slots = this.slots.filter((s) => Boolean(s.playerId));
     slots.forEach((s) => (s.ready = false));
     this.events.queueSlotsChange.next({ slots });
     this.setState(QueueState.waiting);
