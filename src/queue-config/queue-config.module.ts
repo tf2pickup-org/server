@@ -1,8 +1,7 @@
 import { Environment } from '@/environment/environment';
 import { Module } from '@nestjs/common';
-import { readFile } from 'fs';
+import { readFile } from 'fs/promises';
 import { join } from 'path';
-import { promisify } from 'util';
 import { QueueConfigService } from './services/queue-config.service';
 
 @Module({
@@ -16,7 +15,7 @@ import { QueueConfigService } from './services/queue-config.service';
           'queue',
           `${environment.queueConfig}.json`,
         );
-        return await promisify(readFile)(configFileName, 'utf-8');
+        return await readFile(configFileName, 'utf-8');
       },
       inject: [Environment],
     },
