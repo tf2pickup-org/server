@@ -103,7 +103,7 @@ describe('FuturePlayerSkillService', () => {
 
     it('should find the skill', async () => {
       const ret = await service.findSkill('FAKE_STEAM_ID');
-      expect(ret).toEqual({ steamId: 'FAKE_STEAM_ID', skill });
+      expect(ret).toMatchObject({ steamId: 'FAKE_STEAM_ID', skill });
     });
 
     it('should throw', async () => {
