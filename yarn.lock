@@ -2685,6 +2685,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/csv-parse@npm:^1.2.2":
+  version: 1.2.2
+  resolution: "@types/csv-parse@npm:1.2.2"
+  dependencies:
+    csv-parse: "*"
+  checksum: 7ff192eadcc1b301903b8ba5077b9cb114367e2cc779d6a130444d709cb1786c4882560a5558c0f977d50cef79ad467169b9534491b8409595ec10ffa6a562c5
+  languageName: node
+  linkType: hard
+
 "@types/engine.io@npm:*":
   version: 3.1.7
   resolution: "@types/engine.io@npm:3.1.7"
@@ -2900,6 +2909,15 @@ __metadata:
   dependencies:
     mongoose: "*"
   checksum: 65bb2d6c3b4cfff880ef226bdd8fc1bec5346e4f173ddc48b40f21a20585b550595ca0abb9466efdea007031fff5464a0c454d61b1b0a7f1aec83e63c28a52dc
+  languageName: node
+  linkType: hard
+
+"@types/multer@npm:^1.4.7":
+  version: 1.4.7
+  resolution: "@types/multer@npm:1.4.7"
+  dependencies:
+    "@types/express": "*"
+  checksum: 680cb0710aa25264d20cdcdaf34c212b636b55ea141310f06c25354ab1401193c7aa6839f9d22abf64a223fab1f2b8287f2512b0bef7e1628c4e9ffe54b4aeb2
   languageName: node
   linkType: hard
 
@@ -5195,6 +5213,13 @@ __metadata:
   dependencies:
     type-fest: ^1.0.1
   checksum: 91f148f27bcc8582798f0fb3e75a09d9174557f39c3c40a89dd1bd70fb5a14a02548245aa26fa7d663c426ac5026f4729841231c84f9e30e8c8ece5e38656741
+  languageName: node
+  linkType: hard
+
+"csv-parse@npm:*, csv-parse@npm:^5.3.1":
+  version: 5.3.1
+  resolution: "csv-parse@npm:5.3.1"
+  checksum: 18acfe5295d13632ab4bcebf285b9cb4e1450d8843946882b42f313d8ae3b606e508594d29bb17a1ca4864ff7da7d1b8ad060caa0495266c433bace1c663b745
   languageName: node
   linkType: hard
 
@@ -9601,6 +9626,21 @@ __metadata:
   languageName: node
   linkType: hard
 
+"multer@npm:^1.4.5-lts.1":
+  version: 1.4.5-lts.1
+  resolution: "multer@npm:1.4.5-lts.1"
+  dependencies:
+    append-field: ^1.0.0
+    busboy: ^1.0.0
+    concat-stream: ^1.5.2
+    mkdirp: ^0.5.4
+    object-assign: ^4.1.1
+    type-is: ^1.6.4
+    xtend: ^4.0.0
+  checksum: d6dfa78a6ec592b74890412f8962da8a87a3dcfe20f612e039b735b8e0faa72c735516c447f7de694ee0d981eb0a1b892fb9e2402a0348dc6091d18c38d89ecc
+  languageName: node
+  linkType: hard
+
 "mute-stream@npm:0.0.8":
   version: 0.0.8
   resolution: "mute-stream@npm:0.0.8"
@@ -11272,6 +11312,7 @@ __metadata:
     "@tf2pickup-org/mumble-client": 0.7.0
     "@types/cache-manager": 4.0.2
     "@types/cache-manager-redis-store": 2.0.1
+    "@types/csv-parse": ^1.2.2
     "@types/express": 4.17.14
     "@types/helmet": 0.0.48
     "@types/jest": 29.2.0
@@ -11280,6 +11321,7 @@ __metadata:
     "@types/lodash": 4.14.186
     "@types/mongodb-uri": 0.9.1
     "@types/mongoose": 5.11.96
+    "@types/multer": ^1.4.7
     "@types/node": 18.11.7
     "@types/passport": 1.0.11
     "@types/passport-jwt": 3.0.7
@@ -11299,6 +11341,7 @@ __metadata:
     class-transformer: 0.5.1
     class-validator: 0.13.2
     copyfiles: 2.4.1
+    csv-parse: ^5.3.1
     discord.js: 13.12.0
     eslint: 8.26.0
     eslint-config-prettier: 8.5.0
@@ -11319,6 +11362,7 @@ __metadata:
     mongodb-memory-server: 8.9.3
     mongodb-uri: 0.9.7
     mongoose: 6.7.0
+    multer: ^1.4.5-lts.1
     nestjs-real-ip: 2.2.0
     passport: 0.6.0
     passport-headerapikey: 1.2.2
