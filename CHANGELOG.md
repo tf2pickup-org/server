@@ -1,5 +1,12 @@
 
 
+# [10.0.0-beta.0](https://github.com/tf2pickup-org/server/compare/10.0.0-alpha.12...10.0.0-beta.0) (2022-10-29)
+
+
+### Features
+
+* **players:** import future player skill ([#2026](https://github.com/tf2pickup-org/server/issues/2026)) ([99dc1f6](https://github.com/tf2pickup-org/server/commit/99dc1f696bd313e0038c5c75a2a6cd195f711244))
+
 # [10.0.0-alpha.12](https://github.com/tf2pickup-org/server/compare/10.0.0-alpha.11...10.0.0-alpha.12) (2022-10-27)
 
 
