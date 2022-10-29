@@ -150,6 +150,9 @@ module.exports.up = function (next) {
             if (count === 0) {
               return db.collection('gameservers').drop();
             }
+          })
+          .catch(() => {
+            return;
           }),
       ]),
     )
