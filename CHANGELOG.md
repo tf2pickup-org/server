@@ -1,5 +1,12 @@
 
 
+# [10.0.0-beta.1](https://github.com/tf2pickup-org/server/compare/10.0.0-beta.0...10.0.0-beta.1) (2022-10-29)
+
+
+### Bug Fixes
+
+* **migrations:** fix migration ([46e32dc](https://github.com/tf2pickup-org/server/commit/46e32dc8cff1ac25548d8cdf25961e87b4b651e8))
+
 # [10.0.0-beta.0](https://github.com/tf2pickup-org/server/compare/10.0.0-alpha.12...10.0.0-beta.0) (2022-10-29)
 
 
