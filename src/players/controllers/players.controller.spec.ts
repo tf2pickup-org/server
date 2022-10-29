@@ -15,8 +15,10 @@ import { PlayerBan } from '../models/player-ban';
 import { LinkedProfilesService } from '../services/linked-profiles.service';
 import { LinkedProfileProviderName } from '../types/linked-profile-provider-name';
 import { Types } from 'mongoose';
+import { ImportExportSkillService } from '../services/import-export-skill.service';
 
 jest.mock('../services/linked-profiles.service');
+jest.mock('../services/import-export-skill.service');
 
 class PlayersServiceStub {
   player = plainToInstance(Player, {
@@ -107,6 +109,7 @@ describe('Players Controller', () => {
   let playersService: PlayersServiceStub;
   let playerBansService: PlayerBansServiceStub;
   let linkedProfilesService: jest.Mocked<LinkedProfilesService>;
+  let importExportSkillService: jest.Mocked<ImportExportSkillService>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -114,6 +117,7 @@ describe('Players Controller', () => {
         { provide: PlayersService, useClass: PlayersServiceStub },
         { provide: PlayerBansService, useClass: PlayerBansServiceStub },
         LinkedProfilesService,
+        ImportExportSkillService,
       ],
       controllers: [PlayersController],
       imports: [CacheModule.register()],
@@ -123,6 +127,7 @@ describe('Players Controller', () => {
     playersService = module.get(PlayersService);
     playerBansService = module.get(PlayerBansService);
     linkedProfilesService = module.get(LinkedProfilesService);
+    importExportSkillService = module.get(ImportExportSkillService);
   });
 
   it('should be defined', () => {
@@ -280,6 +285,18 @@ describe('Players Controller', () => {
         'FAKE_ID',
       );
       expect(result).toEqual({ playerId: 'FAKE_ID', linkedProfiles });
+    });
+  });
+
+  describe('#importSkills()', () => {
+    it('should import skills from uploaded file', async () => {
+      const ret = await controller.importSkills({
+        buffer: Buffer.from('"76561198074409147",1,2', 'utf-8'),
+      } as Express.Multer.File);
+      expect(
+        importExportSkillService.importRawSkillRecord,
+      ).toHaveBeenCalledWith(['76561198074409147', '1', '2']);
+      expect(ret).toEqual({ noImported: 1 });
     });
   });
 });

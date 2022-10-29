@@ -21,6 +21,8 @@ import { LinkedProfilesService } from './services/linked-profiles.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { HttpModule } from '@nestjs/axios';
 import { OnlinePlayersController } from './controllers/online-players.controller';
+import { ImportExportSkillService } from './services/import-export-skill.service';
+import { QueueConfigModule } from '@/queue-config/queue-config.module';
 
 @Module({
   imports: [
@@ -34,6 +36,7 @@ import { OnlinePlayersController } from './controllers/online-players.controller
     forwardRef(() => GamesModule),
     forwardRef(() => QueueModule),
     ConfigurationModule,
+    QueueConfigModule,
   ],
   providers: [
     PlayersService,
@@ -44,6 +47,7 @@ import { OnlinePlayersController } from './controllers/online-players.controller
     SteamApiService,
     FuturePlayerSkillService,
     LinkedProfilesService,
+    ImportExportSkillService,
   ],
   exports: [
     PlayersService,

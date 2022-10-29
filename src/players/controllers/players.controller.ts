@@ -43,6 +43,8 @@ import { Express } from 'express';
 import 'multer';
 import { parse } from 'csv-parse';
 import { Readable } from 'stream';
+import { ImportExportSkillService } from '../services/import-export-skill.service';
+import { ImportSkillsResponseDto } from '../dto/import-skills-response.dto';
 
 @Controller('players')
 export class PlayersController {
@@ -50,6 +52,7 @@ export class PlayersController {
     private playersService: PlayersService,
     private playerBansService: PlayerBansService,
     private linkedProfilesService: LinkedProfilesService,
+    private readonly importExportSkillService: ImportExportSkillService,
   ) {}
 
   @Get()
@@ -195,10 +198,17 @@ export class PlayersController {
       }),
     )
     file: Express.Multer.File,
-  ) {
+  ): Promise<ImportSkillsResponseDto> {
+    let noImported = 0;
+
     const parser = Readable.from(file.buffer).pipe(parse());
     for await (const record of parser) {
-      console.log(record);
+      await this.importExportSkillService.importRawSkillRecord(record);
+      noImported += 1;
     }
+
+    return {
+      noImported,
+    };
   }
 }
