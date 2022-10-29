@@ -190,6 +190,7 @@ export class PlayersController {
   }
 
   @Post('import-skills')
+  @Auth(PlayerRole.admin)
   @UseInterceptors(FileInterceptor('skills'))
   async importSkills(
     @UploadedFile(
