@@ -12,6 +12,7 @@ import { whitelistIdSchema } from './models/whitelist-id';
 import { etf2lAccountRequiredSchema } from './models/etf2l-account-required';
 import { minimumTf2InGameHoursSchema } from './models/minimum-tf2-in-game-hours';
 import { voiceServerSchema } from './models/voice-server';
+import { denyPlayersWithNoSkillAssignedSchema } from './models/block-players-with-no-skill-assigned';
 
 const configurationModelProvider = MongooseModule.forFeature([
   {
@@ -37,6 +38,10 @@ const configurationModelProvider = MongooseModule.forFeature([
       {
         name: ConfigurationEntryKey.voiceServer,
         schema: voiceServerSchema,
+      },
+      {
+        name: ConfigurationEntryKey.denyPlayersWithNoSkillAssigned,
+        schema: denyPlayersWithNoSkillAssignedSchema,
       },
     ],
   },

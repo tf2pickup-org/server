@@ -27,6 +27,8 @@ import { WrongQueueStateError } from '../errors/wrong-queue-state.error';
 import { CannotJoinAtThisQueueStateError } from '../errors/cannot-join-at-this-queue-state.error';
 import { Mutex } from 'async-mutex';
 import { Cache } from 'cache-manager';
+import { ConfigurationService } from '@/configuration/services/configuration.service';
+import { PlayerDeniedError } from '../errors/player-denied.error';
 
 interface Queue {
   slots: QueueSlot[];
@@ -62,6 +64,7 @@ export class QueueService implements OnModuleInit, OnModuleDestroy {
     private playerBansService: PlayerBansService,
     private events: Events,
     @Inject(CACHE_MANAGER) private readonly cache: Cache,
+    private readonly configurationService: ConfigurationService,
   ) {}
 
   async onModuleInit() {
@@ -128,6 +131,14 @@ export class QueueService implements OnModuleInit, OnModuleDestroy {
         const player = await this.playersService.getById(playerId);
         if (!player.hasAcceptedRules) {
           throw new PlayerHasNotAcceptedRulesError(playerId);
+        }
+
+        if (
+          !player.skill &&
+          (await this.configurationService.getDenyPlayersWithNoSkillAssigned())
+            .value
+        ) {
+          throw new PlayerDeniedError(player, 'no skill assigned');
         }
 
         const bans = await this.playerBansService.getPlayerActiveBans(playerId);

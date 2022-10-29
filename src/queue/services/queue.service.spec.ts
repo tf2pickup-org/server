@@ -19,9 +19,14 @@ import { WrongQueueStateError } from '../errors/wrong-queue-state.error';
 import { Connection, Types } from 'mongoose';
 import { CACHE_MANAGER } from '@nestjs/common';
 import { QueueState } from '../queue-state';
+import { ConfigurationService } from '@/configuration/services/configuration.service';
+import { DenyPlayersWithNoSkillAssigned } from '@/configuration/models/block-players-with-no-skill-assigned';
+import { PlayerDeniedError } from '../errors/player-denied.error';
+import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 
 jest.mock('@/players/services/players.service');
 jest.mock('@/players/services/player-bans.service');
+jest.mock('@/configuration/services/configuration.service');
 
 class QueueConfigServiceStub {
   queueConfig = {
@@ -54,6 +59,7 @@ describe('QueueService', () => {
   let player: PlayerDocument;
   let connection: Connection;
   let cache: CacheStub;
+  let configurationService: jest.Mocked<ConfigurationService>;
 
   beforeAll(async () => (mongod = await MongoMemoryServer.create()));
   afterAll(async () => await mongod.stop());
@@ -73,6 +79,7 @@ describe('QueueService', () => {
         Events,
         { provide: QueueConfigService, useClass: QueueConfigServiceStub },
         { provide: CACHE_MANAGER, useClass: CacheStub },
+        ConfigurationService,
       ],
     }).compile();
 
@@ -82,6 +89,7 @@ describe('QueueService', () => {
     events = module.get(Events);
     connection = module.get(getConnectionToken());
     cache = module.get(CACHE_MANAGER);
+    configurationService = module.get(ConfigurationService);
   });
 
   beforeEach(async () => {
@@ -89,6 +97,10 @@ describe('QueueService', () => {
 
     // @ts-expect-error
     player = await playersService._createOne({ hasAcceptedRules: true });
+
+    configurationService.getDenyPlayersWithNoSkillAssigned.mockResolvedValue(
+      new DenyPlayersWithNoSkillAssigned(false),
+    );
   });
 
   afterEach(async () => {
@@ -276,6 +288,32 @@ describe('QueueService', () => {
           await expect(service.join(0, player.id)).rejects.toThrow(
             PlayerIsBannedError,
           );
+        });
+      });
+
+      describe('when players with no skill assigned are denied', () => {
+        beforeEach(() => {
+          configurationService.getDenyPlayersWithNoSkillAssigned.mockResolvedValue(
+            new DenyPlayersWithNoSkillAssigned(true),
+          );
+        });
+
+        it('should deny player', async () => {
+          await expect(service.join(0, player.id)).rejects.toThrow(
+            PlayerDeniedError,
+          );
+        });
+
+        describe('but the player has skill assigned', () => {
+          beforeEach(async () => {
+            player.skill = new Map([[Tf2ClassName.soldier, 2]]);
+            await player.save();
+          });
+
+          it('should allow player', async () => {
+            await service.join(0, player.id);
+            expect(service.isInQueue(player.id)).toBe(true);
+          });
         });
       });
 
