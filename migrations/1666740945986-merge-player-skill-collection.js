@@ -24,17 +24,19 @@ module.exports.up = function (next) {
                   .updateOne(
                     { _id: skill.player },
                     { $set: { skill: skill.skill } },
-                  )
-                  .catch((reason) => {
-                    console.error(
-                      `could not migrate skill for playerId=${skill.player} (${reason})`,
-                    );
-                  });
+                  );
               }),
             ),
           ),
       ]),
     )
     .then(([db]) => db.collection('playerskills').drop())
-    .then(() => next());
+    .then(() => next())
+    .catch((error) => {
+      if (error.message === 'ns not found') {
+        next();
+      } else {
+        throw error;
+      }
+    });
 };
