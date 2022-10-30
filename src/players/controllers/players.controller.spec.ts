@@ -16,6 +16,7 @@ import { LinkedProfilesService } from '../services/linked-profiles.service';
 import { LinkedProfileProviderName } from '../types/linked-profile-provider-name';
 import { Types } from 'mongoose';
 import { ImportExportSkillService } from '../services/import-export-skill.service';
+import { PlayerSkillRecordMalformedError } from '../errors/player-skill-record-malformed.error';
 
 jest.mock('../services/linked-profiles.service');
 jest.mock('../services/import-export-skill.service');
@@ -297,6 +298,22 @@ describe('Players Controller', () => {
         importExportSkillService.importRawSkillRecord,
       ).toHaveBeenCalledWith(['76561198074409147', '1', '2']);
       expect(ret).toEqual({ noImported: 1 });
+    });
+
+    describe('when import fails', () => {
+      beforeEach(() => {
+        importExportSkillService.importRawSkillRecord.mockRejectedValue(
+          new PlayerSkillRecordMalformedError(5),
+        );
+      });
+
+      it('should handle errors gracefully', async () => {
+        await expect(
+          controller.importSkills({
+            buffer: Buffer.from('"76561198074409147",1,2', 'utf-8'),
+          } as Express.Multer.File),
+        ).rejects.toThrow(BadRequestException);
+      });
     });
   });
 });
