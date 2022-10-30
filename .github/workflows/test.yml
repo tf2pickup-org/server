@@ -123,6 +123,7 @@ jobs:
     - name: Upload test coverage info
       uses: codecov/codecov-action@v3
 
+  # Start the app with a clean database and verify it doesn't crash
   fresh-start:
     name: fresh-start
     runs-on: ubuntu-latest
@@ -166,7 +167,8 @@ jobs:
         GAME_SERVER_SECRET: 'xxxxxx'
         LOGS_TF_API_KEY: 'FAKE_LOGS_TF_API_KEY'
       run: |
-        if [ $(timeout 3m yarn dev) -ne 124 ]; then exit 1; else exit 0; fi
+        timeout 3m yarn dev
+        if [ $? -ne 124 ]; then exit 1; else exit 0; fi
 
   build:
     name: build
