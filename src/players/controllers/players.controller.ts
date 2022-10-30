@@ -45,6 +45,7 @@ import { parse } from 'csv-parse';
 import { Readable } from 'stream';
 import { ImportExportSkillService } from '../services/import-export-skill.service';
 import { ImportSkillsResponseDto } from '../dto/import-skills-response.dto';
+import { PlayerSkillRecordMalformedError } from '../errors/player-skill-record-malformed.error';
 
 @Controller('players')
 export class PlayersController {
@@ -200,16 +201,22 @@ export class PlayersController {
     )
     file: Express.Multer.File,
   ): Promise<ImportSkillsResponseDto> {
-    let noImported = 0;
+    try {
+      let noImported = 0;
 
-    const parser = Readable.from(file.buffer).pipe(parse());
-    for await (const record of parser) {
-      await this.importExportSkillService.importRawSkillRecord(record);
-      noImported += 1;
+      const parser = Readable.from(file.buffer).pipe(parse());
+      for await (const record of parser) {
+        await this.importExportSkillService.importRawSkillRecord(record);
+        noImported += 1;
+      }
+
+      return {
+        noImported,
+      };
+    } catch (error) {
+      if (error instanceof PlayerSkillRecordMalformedError) {
+        throw new BadRequestException(error.toString());
+      }
     }
-
-    return {
-      noImported,
-    };
   }
 }
