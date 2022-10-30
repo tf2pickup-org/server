@@ -1,5 +1,12 @@
 
 
+# [10.0.0-beta.3](https://github.com/tf2pickup-pl/server/compare/10.0.0-beta.2...10.0.0-beta.3) (2022-10-30)
+
+
+### Bug Fixes
+
+* **discord:** fix old skill null assertion ([#2031](https://github.com/tf2pickup-pl/server/issues/2031)) ([a661580](https://github.com/tf2pickup-pl/server/commit/a66158002ad8cdb2d946da9822b13f0b258bee8a))
+
 # [10.0.0-beta.2](https://github.com/tf2pickup-org/server/compare/10.0.0-beta.1...10.0.0-beta.2) (2022-10-30)
 
 
