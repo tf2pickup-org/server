@@ -161,5 +161,12 @@ module.exports.up = function (next) {
         `Migrated ${gamesMigrated} games, ${gameServersMigrated} gameservers`,
       ),
     )
-    .then(() => next());
+    .then(() => next())
+    .catch((error) => {
+      if (error.message === 'ns not found') {
+        next();
+      } else {
+        throw error;
+      }
+    });
 };

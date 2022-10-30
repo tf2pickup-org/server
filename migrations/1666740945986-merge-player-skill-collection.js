@@ -36,5 +36,12 @@ module.exports.up = function (next) {
       ]),
     )
     .then(([db]) => db.collection('playerskills').drop())
-    .then(() => next());
+    .then(() => next())
+    .catch((error) => {
+      if (error.message === 'ns not found') {
+        next();
+      } else {
+        throw error;
+      }
+    });
 };
