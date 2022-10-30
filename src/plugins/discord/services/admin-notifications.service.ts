@@ -32,27 +32,6 @@ import { extractPlayerChanges } from '../utils/extract-player-changes';
 
 type PlayerSkillType = Player['skill'];
 
-const playerSkillEqual = (
-  oldSkill: PlayerSkillType,
-  newSkill: PlayerSkillType,
-) => {
-  if (oldSkill.size !== newSkill.size) {
-    return false;
-  }
-
-  for (const [key, value] of oldSkill) {
-    const currentSkill = newSkill.get(key);
-    if (
-      currentSkill !== value ||
-      (currentSkill === undefined && !newSkill.has(key))
-    ) {
-      return false;
-    }
-  }
-
-  return true;
-};
-
 @Injectable()
 export class AdminNotificationsService implements OnModuleInit {
   constructor(
@@ -260,10 +239,6 @@ export class AdminNotificationsService implements OnModuleInit {
       return;
     }
 
-    if (playerSkillEqual(oldSkill, newSkill)) {
-      return;
-    }
-
     const player = await this.playersService.getById(playerId);
     const admin = await this.playersService.getById(adminId);
 
@@ -284,7 +259,7 @@ export class AdminNotificationsService implements OnModuleInit {
             name: new URL(this.environment.clientUrl).hostname,
             iconUrl: `${this.environment.clientUrl}/${iconUrlPath}`,
           },
-          oldSkill,
+          oldSkill: oldSkill ?? new Map(),
           newSkill,
         }),
       ],
