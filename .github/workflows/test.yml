@@ -125,6 +125,54 @@ jobs:
     - name: Upload test coverage info
       uses: codecov/codecov-action@v3
 
+  fresh-start:
+    name: fresh-start
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [16.x, 18.x]
+
+    services:
+      mongo:
+        image: mongo:4.0
+        ports:
+          - 27017:27017
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: yarn
+
+    - name: Install dependencies
+      run: yarn install --immutable
+
+    - name: Run fresh instance
+      env:
+        WEBSITE_NAME: 'tf2pickup.org fresh'
+        API_URL: 'http://localhost:3000'
+        CLIENT_URL: 'http://localhost:4200'
+        BOT_NAME: 'tf2pickup.pl'
+        MONGODB_URI: 'mongodb://localhost:27017/tf2pickuporg_fresh'
+        STEAM_API_KEY: 'FAKE_API_KEY'
+        KEY_STORE_PASSPHRASE: 'a_password'
+        SUPER_USER: '76561199195756652'
+        QUEUE_CONFIG: '6v6'
+        MUMBLE_SERVER_URL: 'melkor.tf'
+        MUMBLE_CHANNEL_NAME: 'tf2pickup'
+        LOG_RELAY_ADDRESS: 'host.docker.internal'
+        LOG_RELAY_PORT: '9871'
+        GAME_SERVER_SECRET: 'xxxxxx'
+        LOGS_TF_API_KEY: 'FAKE_LOGS_TF_API_KEY'
+      run: |
+        ret=$(timeout 3m yarn dev)
+        if [ $ret -ne 124 ]; then exit 1; else exit 0; fi
+
   build:
     name: build
     runs-on: ubuntu-latest
