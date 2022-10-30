@@ -1,5 +1,22 @@
 
 
+# [10.0.0-beta.2](https://github.com/tf2pickup-org/server/compare/10.0.0-beta.1...10.0.0-beta.2) (2022-10-30)
+
+
+### Bug Fixes
+
+* **players:** handle skill import errors gracefully ([#2028](https://github.com/tf2pickup-org/server/issues/2028)) ([1a7ccbd](https://github.com/tf2pickup-org/server/commit/1a7ccbd560d9e6beffa936ee32a2fae98b2f3bd9))
+
+
+### Features
+
+* make redis required ([#2030](https://github.com/tf2pickup-org/server/issues/2030)) ([9c272d8](https://github.com/tf2pickup-org/server/commit/9c272d87600864e7b45aa7daa762121259614b22))
+
+
+### BREAKING CHANGES
+
+* a working Redis instance is now required
+
 # [10.0.0-beta.1](https://github.com/tf2pickup-org/server/compare/10.0.0-beta.0...10.0.0-beta.1) (2022-10-29)
 
 
