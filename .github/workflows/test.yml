@@ -53,6 +53,11 @@ jobs:
         ports:
           - 27017:27017
 
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+
       gameserver1:
         image: tf2pickuppl/tf2-gameserver
         ports:
@@ -110,6 +115,7 @@ jobs:
         CLIENT_URL: 'http://localhost:4200'
         BOT_NAME: 'tf2pickup.pl'
         MONGODB_URI: 'mongodb://localhost:27017/tf2pickuppl_e2e_tests'
+        REDIS_URL: 'redis://localhost:6379'
         STEAM_API_KEY: 'FAKE_API_KEY'
         KEY_STORE_PASSPHRASE: 'a_password'
         SUPER_USER: '76561199195756652'
@@ -138,6 +144,11 @@ jobs:
         ports:
           - 27017:27017
 
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
@@ -158,6 +169,7 @@ jobs:
         CLIENT_URL: 'http://localhost:4200'
         BOT_NAME: 'tf2pickup.pl'
         MONGODB_URI: 'mongodb://localhost:27017/tf2pickuporg_fresh'
+        REDIS_URL: 'redis://localhost:6379'
         STEAM_API_KEY: 'FAKE_API_KEY'
         KEY_STORE_PASSPHRASE: 'a_password'
         SUPER_USER: '76561199195756652'
