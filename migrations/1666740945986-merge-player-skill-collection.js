@@ -24,12 +24,7 @@ module.exports.up = function (next) {
                   .updateOne(
                     { _id: skill.player },
                     { $set: { skill: skill.skill } },
-                  )
-                  .catch((reason) => {
-                    console.error(
-                      `could not migrate skill for playerId=${skill.player} (${reason})`,
-                    );
-                  });
+                  );
               }),
             ),
           ),
