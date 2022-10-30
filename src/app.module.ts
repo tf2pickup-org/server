@@ -32,7 +32,6 @@ import { LogsTfModule } from './logs-tf/logs-tf.module';
 import { PlayerActionsLoggerModule } from './player-actions-logger/player-actions-logger.module';
 import { QueueConfigModule } from './queue-config/queue-config.module';
 import * as redisStore from 'cache-manager-redis-store';
-import * as mongoStore from 'cache-manager-mongodb';
 
 @Module({
   imports: [
@@ -55,20 +54,13 @@ import * as mongoStore from 'cache-manager-mongodb';
       imports: [EnvironmentModule],
       inject: [Environment],
       useFactory: (environment: Environment) => {
-        if (environment.redisUrl) {
-          const redisClientOptions: RedisClientOptions = {
-            url: environment.redisUrl,
-          };
-          return {
-            store: redisStore,
-            ...redisClientOptions,
-          };
-        } else {
-          return {
-            store: mongoStore,
-            uri: formatMongoose(environment.mongoDbUri),
-          };
-        }
+        const redisClientOptions: RedisClientOptions = {
+          url: environment.redisUrl,
+        };
+        return {
+          store: redisStore,
+          ...redisClientOptions,
+        };
       },
       isGlobal: true,
     }),
