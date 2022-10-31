@@ -62,7 +62,7 @@ export class GameServersService
         await provider.releaseGameServer({
           gameServerId: gameServer.id,
           gameId: game.id,
-          reason: GameServerReleaseReason.Manual,
+          reason: GameServerReleaseReason.GameEnded,
         });
       });
   }
