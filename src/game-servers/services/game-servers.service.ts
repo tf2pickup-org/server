@@ -22,6 +22,7 @@ import { GameServerControls } from '../interfaces/game-server-controls';
 import { Events } from '@/events/events';
 import { filter, map } from 'rxjs';
 import { GameServerDetailsWithProvider } from '../interfaces/game-server-details';
+import { GameState } from '@/games/models/game-state';
 
 @Injectable()
 export class GameServersService
@@ -53,6 +54,7 @@ export class GameServersService
           ({ oldGame, newGame }) =>
             oldGame.isInProgress && !newGame.isInProgress(),
         ),
+        filter(({ newGame }) => newGame.state === GameState.ended),
         map(({ newGame }) => newGame),
         filter((game) => Boolean(game.gameServer)),
       )
