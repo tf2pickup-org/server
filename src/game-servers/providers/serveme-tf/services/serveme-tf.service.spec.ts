@@ -18,9 +18,7 @@ import {
   ServemeTfReservationDocument,
   servemeTfReservationSchema,
 } from '../models/serveme-tf-reservation';
-import { endReservationDelay } from '../config';
 import { waitABit } from '@/utils/wait-a-bit';
-import { ReservationStatus } from '../models/reservation-status';
 
 jest.mock('@/game-servers/services/game-servers.service');
 jest.mock('./serveme-tf-api.service');
