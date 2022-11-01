@@ -1,5 +1,13 @@
 
 
+# [10.0.0-beta.4](https://github.com/tf2pickup-org/server/compare/10.0.0-beta.3...10.0.0-beta.4) (2022-11-01)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @nestjs/mongoose to v9.2.1 ([#2033](https://github.com/tf2pickup-org/server/issues/2033)) ([e24e4ae](https://github.com/tf2pickup-org/server/commit/e24e4ae8625594b1725a5dfd82724532ee6d5182))
+* **game-servers:** fix release reason ([#2034](https://github.com/tf2pickup-org/server/issues/2034)) ([af2efdf](https://github.com/tf2pickup-org/server/commit/af2efdfb4c5d0c91c30e58446b5de199b80a9039))
+
 # [10.0.0-beta.3](https://github.com/tf2pickup-pl/server/compare/10.0.0-beta.2...10.0.0-beta.3) (2022-10-30)
 
 
