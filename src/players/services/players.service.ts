@@ -107,7 +107,7 @@ export class PlayersService implements OnModuleInit {
   }
 
   async findBot(): Promise<Player> {
-    return plainToInstance(
+    return await plainToInstance(
       Player,
       this.playerModel
         .findOne({ name: this.environment.botName })
@@ -216,7 +216,7 @@ export class PlayersService implements OnModuleInit {
    * Without accepting the rules, player cannot join the queue nor any game.
    */
   async acceptTerms(playerId: string): Promise<Player> {
-    return this.updatePlayer(playerId, { hasAcceptedRules: true });
+    return await this.updatePlayer(playerId, { hasAcceptedRules: true });
   }
 
   async getPlayerStats(playerId: string) {
