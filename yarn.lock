@@ -2348,6 +2348,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@redis/client@npm:1.3.1":
+  version: 1.3.1
+  resolution: "@redis/client@npm:1.3.1"
+  dependencies:
+    cluster-key-slot: 1.1.1
+    generic-pool: 3.9.0
+    yallist: 4.0.0
+  checksum: fb82a1a80da941d7de9bcf8a3fa04b58a3c4682473f1331578cd04e6325bf0ea0e17c98bc3bed620c6408f320796265f2b453542e2b53dcc811c0ae8592c2e57
+  languageName: node
+  linkType: hard
+
 "@redis/graph@npm:1.0.1":
   version: 1.0.1
   resolution: "@redis/graph@npm:1.0.1"
@@ -4643,6 +4654,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"cluster-key-slot@npm:1.1.1":
+  version: 1.1.1
+  resolution: "cluster-key-slot@npm:1.1.1"
+  checksum: 2fb7390e7950075acb09fc8aad3dc939abb64b139ba1b5f6341efdd0beda8cdc8b508e5f30d943370cf30ea0c13741c579e0846efd007b328bdc1a5a712264da
+  languageName: node
+  linkType: hard
+
 "co@npm:^4.6.0":
   version: 4.6.0
   resolution: "co@npm:4.6.0"
@@ -6591,6 +6609,13 @@ __metadata:
   version: 3.8.2
   resolution: "generic-pool@npm:3.8.2"
   checksum: f549077d90265e5e4d32a2410205b357ec61cf73d17861f1013637984390e09fe7bf537129a2c6ed30ae57662a57c8d54194f80046408d3349836330f422dbde
+  languageName: node
+  linkType: hard
+
+"generic-pool@npm:3.9.0":
+  version: 3.9.0
+  resolution: "generic-pool@npm:3.9.0"
+  checksum: 3d89e9b2018d2e3bbf44fec78c76b2b7d56d6a484237aa9daf6ff6eedb14b0899dadd703b5d810219baab2eb28e5128fb18b29e91e602deb2eccac14492d8ca8
   languageName: node
   linkType: hard
 
@@ -11191,7 +11216,7 @@ __metadata:
     "@nestjs/serve-static": 3.0.0
     "@nestjs/testing": 9.1.6
     "@nestjs/websockets": 9.1.6
-    "@redis/client": 1.3.0
+    "@redis/client": 1.3.1
     "@release-it/conventional-changelog": 5.1.1
     "@tf2pickup-org/mumble-client": 0.7.0
     "@types/cache-manager": 4.0.2
