@@ -12,6 +12,7 @@ import { MapPoolService } from './services/map-pool.service';
 import { MapPoolEntry, mapPoolEntrySchema } from './models/map-pool-entry';
 import { MongooseModule } from '@nestjs/mongoose/dist';
 import { QueueConfigModule } from '@/queue-config/queue-config.module';
+import { ConfigurationModule } from '@/configuration/configuration.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { QueueConfigModule } from '@/queue-config/queue-config.module';
     forwardRef(() => PlayersModule),
     forwardRef(() => GamesModule),
     QueueConfigModule,
+    ConfigurationModule,
   ],
   providers: [
     QueueService,
