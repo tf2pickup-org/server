@@ -212,8 +212,15 @@ describe('StaticGameServersService', () => {
     });
 
     describe('when released because the game has ended', () => {
-      it('should update the gameserver', async () => {
+      beforeEach(() => {
         jest.useFakeTimers();
+      });
+
+      afterEach(() => {
+        jest.useRealTimers();
+      });
+
+      it('should update the gameserver', async () => {
         await service.releaseGameServer({
           gameServerId: testGameServer.id,
           reason: GameServerReleaseReason.Manual,
@@ -223,7 +230,6 @@ describe('StaticGameServersService', () => {
           testGameServer.id,
         );
         expect(testGameServer.game).toBe(undefined);
-        jest.useRealTimers();
       });
     });
   });
