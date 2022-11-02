@@ -1,5 +1,15 @@
 
 
+# [10.0.0-beta.5](https://github.com/tf2pickup-org/server/compare/10.0.0-beta.4...10.0.0-beta.5) (2022-11-02)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @redis/client to v1.3.1 ([#2041](https://github.com/tf2pickup-org/server/issues/2041)) ([2d8110b](https://github.com/tf2pickup-org/server/commit/2d8110ba33286fb0296609e9618f8177f128b257))
+* **deps:** update dependency joi to v17.7.0 ([#2039](https://github.com/tf2pickup-org/server/issues/2039)) ([a817163](https://github.com/tf2pickup-org/server/commit/a8171632ac60594938abb5950c355a34c98b875e))
+* **players:** atomic player update ([#2042](https://github.com/tf2pickup-org/server/issues/2042)) ([8d7f046](https://github.com/tf2pickup-org/server/commit/8d7f04610096c6592148fb30ed1264c273e6e418))
+* **players:** reduce cache ttl to 30 minutes ([#2040](https://github.com/tf2pickup-org/server/issues/2040)) ([6450ebc](https://github.com/tf2pickup-org/server/commit/6450ebc31a03f7d6f9d6fab3fd5d1be01014e55a))
+
 # [10.0.0-beta.4](https://github.com/tf2pickup-org/server/compare/10.0.0-beta.3...10.0.0-beta.4) (2022-11-01)
 
 
