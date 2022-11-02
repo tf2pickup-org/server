@@ -91,7 +91,7 @@ export class PlayersController {
   // CacheManager's MongoDB backend seems to fail handling the TTL properly, thus
   // caching everything too aggressively.
   @UseInterceptors(CacheInterceptor)
-  @CacheTTL(12 * 60 * 60)
+  @CacheTTL(30 * 60) // 30 minutes
   @Get(':id/stats')
   async getPlayerStats(
     @Param('id', PlayerByIdPipe) player: Player,
