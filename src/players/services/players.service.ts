@@ -21,6 +21,7 @@ import { InsufficientTf2InGameHoursError } from '../errors/insufficient-tf2-in-g
 import { PlayerRole } from '../models/player-role';
 import { ConfigurationService } from '@/configuration/services/configuration.service';
 import { InjectModel } from '@nestjs/mongoose';
+import { Mutex } from 'async-mutex';
 
 interface ForceCreatePlayerOptions {
   name: Player['name'];
@@ -30,7 +31,8 @@ interface ForceCreatePlayerOptions {
 
 @Injectable()
 export class PlayersService implements OnModuleInit {
-  private logger = new Logger(PlayersService.name);
+  private readonly logger = new Logger(PlayersService.name);
+  private readonly mutex = new Mutex();
 
   constructor(
     private environment: Environment,
@@ -105,7 +107,7 @@ export class PlayersService implements OnModuleInit {
   }
 
   async findBot(): Promise<Player> {
-    return plainToInstance(
+    return await plainToInstance(
       Player,
       this.playerModel
         .findOne({ name: this.environment.botName })
@@ -195,16 +197,18 @@ export class PlayersService implements OnModuleInit {
     update: UpdateQuery<Player>,
     adminId?: string,
   ): Promise<Player> {
-    const oldPlayer = await this.getById(playerId);
-    const newPlayer = plainToInstance(
-      Player,
-      await this.playerModel
-        .findOneAndUpdate({ _id: playerId }, update, { new: true })
-        .lean()
-        .exec(),
-    );
-    this.events.playerUpdates.next({ oldPlayer, newPlayer, adminId });
-    return newPlayer;
+    return await this.mutex.runExclusive(async () => {
+      const oldPlayer = await this.getById(playerId);
+      const newPlayer = plainToInstance(
+        Player,
+        await this.playerModel
+          .findOneAndUpdate({ _id: playerId }, update, { new: true })
+          .lean()
+          .exec(),
+      );
+      this.events.playerUpdates.next({ oldPlayer, newPlayer, adminId });
+      return newPlayer;
+    });
   }
 
   /**
@@ -212,7 +216,7 @@ export class PlayersService implements OnModuleInit {
    * Without accepting the rules, player cannot join the queue nor any game.
    */
   async acceptTerms(playerId: string): Promise<Player> {
-    return this.updatePlayer(playerId, { hasAcceptedRules: true });
+    return await this.updatePlayer(playerId, { hasAcceptedRules: true });
   }
 
   async getPlayerStats(playerId: string) {
