@@ -3,6 +3,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { instanceToPlain, plainToInstance } from 'class-transformer';
 import { Model } from 'mongoose';
+import { DenyPlayersWithNoSkillAssigned } from '../models/deny-players-with-no-skill-assigned';
 import {
   ConfigurationEntry,
   ConfigurationEntryDocument,
@@ -65,6 +66,16 @@ export class ConfigurationService {
       await this.get(
         ConfigurationEntryKey.voiceServer,
         instanceToPlain(new VoiceServer()),
+      ),
+    );
+  }
+
+  async getDenyPlayersWithNoSkillAssigned(): Promise<DenyPlayersWithNoSkillAssigned> {
+    return plainToInstance(
+      DenyPlayersWithNoSkillAssigned,
+      await this.get(
+        ConfigurationEntryKey.denyPlayersWithNoSkillAssigned,
+        new DenyPlayersWithNoSkillAssigned(),
       ),
     );
   }

@@ -9,6 +9,7 @@ import {
   UseInterceptors,
   ValidationPipe,
 } from '@nestjs/common';
+import { DenyPlayersWithNoSkillAssigned } from '../models/deny-players-with-no-skill-assigned';
 import { DefaultPlayerSkill } from '../models/default-player-skill';
 import { Etf2lAccountRequired } from '../models/etf2l-account-required';
 import { MinimumTf2InGameHours } from '../models/minimum-tf2-in-game-hours';
@@ -86,5 +87,19 @@ export class ConfigurationController {
   async setVoiceServer(@Body(new ValidationPipe()) voiceServer: VoiceServer) {
     await this.configurationService.set(voiceServer);
     return await this.getVoiceServer();
+  }
+
+  @Get('deny-players-with-no-skill-assigned')
+  async getDenyPlayersWithNoSkillAssigned() {
+    return await this.configurationService.getDenyPlayersWithNoSkillAssigned();
+  }
+
+  @Put('deny-players-with-no-skill-assigned')
+  async setDenyPlayersWithNoSkillAssigned(
+    @Body(new ValidationPipe())
+    denyPlayersWithNoSkillAssigned: DenyPlayersWithNoSkillAssigned,
+  ) {
+    await this.configurationService.set(denyPlayersWithNoSkillAssigned);
+    return await this.getDenyPlayersWithNoSkillAssigned();
   }
 }
