@@ -15,7 +15,7 @@ import { SteamApiService } from './steam-api.service';
 import { PlayerAvatar } from '../models/player-avatar';
 import { Events } from '@/events/events';
 import { plainToInstance } from 'class-transformer';
-import { Error, Model, Types, UpdateQuery } from 'mongoose';
+import { Error, FilterQuery, Model, Types, UpdateQuery } from 'mongoose';
 import { AccountBannedError } from '../errors/account-banned.error';
 import { InsufficientTf2InGameHoursError } from '../errors/insufficient-tf2-in-game-hours.error';
 import { PlayerRole } from '../models/player-role';
@@ -89,6 +89,13 @@ export class PlayersService implements OnModuleInit {
         })
         .lean()
         .exec(),
+    );
+  }
+
+  async find(query: FilterQuery<Player>): Promise<Player[]> {
+    return plainToInstance(
+      Player,
+      await this.playerModel.find(query).lean().exec(),
     );
   }
 
