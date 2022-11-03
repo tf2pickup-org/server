@@ -9,7 +9,7 @@ import {
   UseInterceptors,
   ValidationPipe,
 } from '@nestjs/common';
-import { DenyPlayersWithNoSkillAssigned } from '../models/block-players-with-no-skill-assigned';
+import { DenyPlayersWithNoSkillAssigned } from '../models/deny-players-with-no-skill-assigned';
 import { DefaultPlayerSkill } from '../models/default-player-skill';
 import { Etf2lAccountRequired } from '../models/etf2l-account-required';
 import { MinimumTf2InGameHours } from '../models/minimum-tf2-in-game-hours';

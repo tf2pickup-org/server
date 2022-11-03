@@ -224,4 +224,31 @@ describe('Configuration (e2e)', () => {
       type: 'none',
     });
   });
+
+  it('GET /configuration/deny-players-with-no-skill-assigned', async () => {
+    const response = await request(app.getHttpServer())
+      .get('/configuration/deny-players-with-no-skill-assigned')
+      .expect(200);
+    const body = response.body;
+    expect(body).toEqual({
+      key: 'deny players with no skill assigned',
+      value: false,
+    });
+  });
+
+  it('PUT /configuration/deny-players-with-no-skill-assigned', async () => {
+    const response = await request(app.getHttpServer())
+      .put('/configuration/deny-players-with-no-skill-assigned')
+      .auth(adminAuthToken, { type: 'bearer' })
+      .send({
+        key: 'deny players with no skill assigned',
+        value: true,
+      })
+      .expect(200);
+    const body = response.body;
+    expect(body).toEqual({
+      key: 'deny players with no skill assigned',
+      value: true,
+    });
+  });
 });

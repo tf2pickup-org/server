@@ -20,7 +20,7 @@ import { Connection, Types } from 'mongoose';
 import { CACHE_MANAGER } from '@nestjs/common';
 import { QueueState } from '../queue-state';
 import { ConfigurationService } from '@/configuration/services/configuration.service';
-import { DenyPlayersWithNoSkillAssigned } from '@/configuration/models/block-players-with-no-skill-assigned';
+import { DenyPlayersWithNoSkillAssigned } from '@/configuration/models/deny-players-with-no-skill-assigned';
 import { PlayerDeniedError } from '../errors/player-denied.error';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 
