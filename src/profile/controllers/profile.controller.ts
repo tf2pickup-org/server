@@ -17,6 +17,7 @@ import { PlayersService } from '@/players/services/players.service';
 import { PlayerPreferencesService } from '@/player-preferences/services/player-preferences.service';
 import { ProfileDto } from '../dto/profile.dto';
 import { ProfileService } from '../services/profile.service';
+import { isUndefined } from 'lodash';
 
 @Controller('profile')
 export class ProfileController {
@@ -62,7 +63,7 @@ export class ProfileController {
     @User() user: Player,
     @Query('accept_terms') acceptTerms: string,
   ) {
-    if (acceptTerms !== undefined) {
+    if (!isUndefined(acceptTerms)) {
       await this.playersService.acceptTerms(user.id);
     } else {
       throw new BadRequestException();

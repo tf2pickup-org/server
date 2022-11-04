@@ -87,6 +87,7 @@ describe('Profile Controller', () => {
     });
 
     it('should reject invalid requests', async () => {
+      // skipcq: JS-0127
       await expect(controller.acceptTerms(player, undefined)).rejects.toThrow(
         BadRequestException,
       );

@@ -90,7 +90,9 @@ export class ProfileService implements OnModuleInit {
     return {
       player,
       hasAcceptedRules: player.hasAcceptedRules,
-      activeGameId: player.activeGame?.toString() ?? undefined,
+      ...(Boolean(player.activeGame) && {
+        activeGameId: player.activeGame.toString(),
+      }),
       bans,
       mapVote: this.mapVoteService.playerVote(player.id),
       preferences: Object.fromEntries(preferences),
