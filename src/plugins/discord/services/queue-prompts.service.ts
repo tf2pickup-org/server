@@ -114,9 +114,9 @@ export class QueuePromptsService implements OnModuleInit {
     )) as string;
     if (id) {
       return await this.discordService.getPlayersChannel().messages.fetch(id);
-    } else {
-      return null;
     }
+
+    return null;
   }
 
   @Cron(CronExpression.EVERY_5_MINUTES)

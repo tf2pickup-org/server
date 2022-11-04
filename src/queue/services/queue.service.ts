@@ -197,19 +197,19 @@ export class QueueService implements OnModuleInit, OnModuleDestroy {
 
   leave(playerId: string): QueueSlot {
     const slot = this.findSlotByPlayerId(playerId);
-    if (slot) {
-      if (slot.ready && this.state !== QueueState.waiting) {
-        throw new CannotLeaveAtThisQueueStateError(this.state);
-      }
-
-      this.clearSlot(slot);
-      this.logger.debug(`slot ${slot.id} (gameClass=${slot.gameClass}) free`);
-      this.events.playerLeavesQueue.next({ playerId, reason: 'manual' });
-      this.events.queueSlotsChange.next({ slots: [slot] });
-      return slot;
-    } else {
+    if (!slot) {
       throw new PlayerNotInTheQueueError(playerId);
     }
+
+    if (slot.ready && this.state !== QueueState.waiting) {
+      throw new CannotLeaveAtThisQueueStateError(this.state);
+    }
+
+    this.clearSlot(slot);
+    this.logger.debug(`slot ${slot.id} (gameClass=${slot.gameClass}) free`);
+    this.events.playerLeavesQueue.next({ playerId, reason: 'manual' });
+    this.events.queueSlotsChange.next({ slots: [slot] });
+    return slot;
   }
 
   kick(...playerIds: string[]) {
@@ -240,16 +240,16 @@ export class QueueService implements OnModuleInit, OnModuleDestroy {
     }
 
     const slot = this.findSlotByPlayerId(playerId);
-    if (slot) {
-      slot.ready = true;
-      this.logger.debug(
-        `slot ${slot.id} ready (${this.readyPlayerCount}/${this.requiredPlayerCount})`,
-      );
-      this.events.queueSlotsChange.next({ slots: [slot] });
-      return slot;
-    } else {
+    if (!slot) {
       throw new PlayerNotInTheQueueError(playerId);
     }
+
+    slot.ready = true;
+    this.logger.debug(
+      `slot ${slot.id} ready (${this.readyPlayerCount}/${this.requiredPlayerCount})`,
+    );
+    this.events.queueSlotsChange.next({ slots: [slot] });
+    return slot;
   }
 
   private maybeUpdateState() {

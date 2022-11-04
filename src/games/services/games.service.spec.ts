@@ -452,7 +452,7 @@ describe('GamesService', () => {
     it('should unassign the game', async () => {
       await service.forceEnd(testGame.id);
       const player = await playersService.getById(testPlayer.id);
-      expect(player.activeGame).toBe(undefined);
+      expect(player.activeGame).toBeUndefined();
     });
 
     it('should emit an event', () =>

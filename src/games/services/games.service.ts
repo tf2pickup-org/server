@@ -372,15 +372,12 @@ export class GamesService {
       throw new Error(`no such player (${playerId})`);
     }
 
-    if (player.skill) {
-      const skillForClass = player.skill.get(gameClass);
-      return { playerId, gameClass, skill: skillForClass };
-    } else {
-      const defaultPlayerSkill = (
-        await this.configurationService.getDefaultPlayerSkill()
-      ).value;
-      return { playerId, gameClass, skill: defaultPlayerSkill.get(gameClass) };
-    }
+    const skill = (
+      player?.skill ??
+      (await this.configurationService.getDefaultPlayerSkill()).value
+    ).get(gameClass);
+
+    return { playerId, gameClass, skill };
   }
 
   private async getNextGameNumber(): Promise<number> {
@@ -388,10 +385,7 @@ export class GamesService {
       .findOne()
       .sort({ launchedAt: -1 })
       .exec();
-    if (latestGame) {
-      return latestGame.number + 1;
-    } else {
-      return 1;
-    }
+
+    return latestGame ? latestGame.number + 1 : 1;
   }
 }
