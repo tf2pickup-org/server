@@ -2,7 +2,6 @@ import { Environment } from '@/environment/environment';
 import { Events } from '@/events/events';
 import { PlayersService } from '@/players/services/players.service';
 import { QueueSlot } from '@/queue/queue-slot';
-import { QueueConfigService } from '@/queue-config/services/queue-config.service';
 import { QueueService } from '@/queue/services/queue.service';
 import { iconUrlPath, promptPlayerThresholdRatio } from '@configs/discord';
 import {
@@ -19,6 +18,7 @@ import { DiscordService } from './discord.service';
 import { URL } from 'url';
 import { Cache } from 'cache-manager';
 import { Mutex } from 'async-mutex';
+import { QueueConfig } from '@/queue-config/interfaces/queue-config';
 
 @Injectable()
 export class QueuePromptsService implements OnModuleInit {
@@ -32,7 +32,7 @@ export class QueuePromptsService implements OnModuleInit {
     private environment: Environment,
     private queueService: QueueService,
     private playersService: PlayersService,
-    private queueConfigService: QueueConfigService,
+    @Inject('QUEUE_CONFIG') private queueConfig: QueueConfig,
     @Inject(CACHE_MANAGER) private readonly cache: Cache,
   ) {}
 
@@ -93,11 +93,10 @@ export class QueuePromptsService implements OnModuleInit {
         ),
     );
 
-    return this.queueConfigService.queueConfig.classes.map((gameClass) => ({
+    return this.queueConfig.classes.map((gameClass) => ({
       gameClass: gameClass.name,
       emoji: this.discordService.findEmoji(`tf2${gameClass.name}`),
-      playersRequired:
-        gameClass.count * this.queueConfigService.queueConfig.teamCount,
+      playersRequired: gameClass.count * this.queueConfig.teamCount,
       players: playerData.filter((p) => p.gameClass === gameClass.name),
     }));
   }

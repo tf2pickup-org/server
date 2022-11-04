@@ -9,7 +9,6 @@ import {
 } from '@nestjs/common';
 import { QueueSlot } from '@/queue/queue-slot';
 import { PlayersService } from '@/players/services/players.service';
-import { QueueConfigService } from '@/queue-config/services/queue-config.service';
 import { PlayerBansService } from '@/players/services/player-bans.service';
 import { QueueState } from '../queue-state';
 import { readyUpTimeout, readyStateTimeout } from '@configs/queue';
@@ -29,6 +28,7 @@ import { Mutex } from 'async-mutex';
 import { Cache } from 'cache-manager';
 import { ConfigurationService } from '@/configuration/services/configuration.service';
 import { PlayerDeniedError } from '../errors/player-denied.error';
+import { QueueConfig } from '@/queue-config/interfaces/queue-config';
 
 interface Queue {
   slots: QueueSlot[];
@@ -60,7 +60,8 @@ export class QueueService implements OnModuleInit, OnModuleDestroy {
   constructor(
     @Inject(forwardRef(() => PlayersService))
     private playersService: PlayersService,
-    private queueConfigService: QueueConfigService,
+    @Inject('QUEUE_CONFIG')
+    private readonly queueConfig: QueueConfig,
     private playerBansService: PlayerBansService,
     private events: Events,
     @Inject(CACHE_MANAGER) private readonly cache: Cache,
@@ -299,26 +300,19 @@ export class QueueService implements OnModuleInit, OnModuleDestroy {
     };
 
     let lastId = 0;
-    this.slots = this.queueConfigService.queueConfig.classes.reduce(
-      (prev, curr) => {
-        const tmpSlots = [];
-        for (
-          let i = 0;
-          i < curr.count * this.queueConfigService.queueConfig.teamCount;
-          ++i
-        ) {
-          tmpSlots.push({
-            id: lastId++,
-            gameClass: curr.name,
-            canMakeFriendsWith: curr.canMakeFriendsWith,
-            ...defaultSlot,
-          });
-        }
+    this.slots = this.queueConfig.classes.reduce((prev, curr) => {
+      const tmpSlots = [];
+      for (let i = 0; i < curr.count * this.queueConfig.teamCount; ++i) {
+        tmpSlots.push({
+          id: lastId++,
+          gameClass: curr.name,
+          canMakeFriendsWith: curr.canMakeFriendsWith,
+          ...defaultSlot,
+        });
+      }
 
-        return prev.concat(tmpSlots);
-      },
-      [],
-    );
+      return prev.concat(tmpSlots);
+    }, []);
   }
 
   private clearSlot(slot: QueueSlot) {

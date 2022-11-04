@@ -1,16 +1,15 @@
-import { QueueConfigService } from '@/queue-config/services/queue-config.service';
-import { Injectable } from '@nestjs/common';
+import { QueueConfig } from '@/queue-config/interfaces/queue-config';
+import { Inject, Injectable } from '@nestjs/common';
 import { PlayerSkillRecordMalformedError } from '../errors/player-skill-record-malformed.error';
 import { FuturePlayerSkillService } from './future-player-skill.service';
 
 @Injectable()
 export class ImportExportSkillService {
-  private readonly expectedRecordLength =
-    this.queueConfigService.queueConfig.classes.length + 1;
+  private readonly expectedRecordLength = this.queueConfig.classes.length + 1;
 
   constructor(
     private readonly futurePlayerSkillService: FuturePlayerSkillService,
-    private readonly queueConfigService: QueueConfigService,
+    @Inject('QUEUE_CONFIG') private readonly queueConfig: QueueConfig,
   ) {}
 
   async importRawSkillRecord(record: string[]) {
@@ -20,7 +19,7 @@ export class ImportExportSkillService {
 
     const steamId64 = record[0];
     const skills = new Map(
-      this.queueConfigService.queueConfig.classes
+      this.queueConfig.classes
         .map((gameClass) => gameClass.name)
         .map((name, i) => [name, parseInt(record[i + 1], 10)]),
     );

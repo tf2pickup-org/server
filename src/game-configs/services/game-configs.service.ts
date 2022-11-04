@@ -1,18 +1,20 @@
-import { QueueConfigService } from '@/queue-config/services/queue-config.service';
-import { Injectable, OnModuleInit } from '@nestjs/common';
+import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
 import { join } from 'path';
 import { compile } from 'handlebars';
 import { readFile } from 'fs/promises';
 import { isEmpty } from 'lodash';
+import { QueueConfig } from '@/queue-config/interfaces/queue-config';
 
 @Injectable()
 export class GameConfigsService implements OnModuleInit {
   private template: ReturnType<typeof compile>;
   variables: Record<string, any>;
 
-  constructor(private queueConfigService: QueueConfigService) {
+  constructor(
+    @Inject('QUEUE_CONFIG') private readonly queueConfig: QueueConfig,
+  ) {
     this.variables = {
-      teamSize: this.queueConfigService.queueConfig.classes.reduce(
+      teamSize: this.queueConfig.classes.reduce(
         (prev, curr) => prev + curr.count,
         0,
       ),

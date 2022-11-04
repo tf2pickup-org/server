@@ -8,7 +8,6 @@ import { Environment } from '@/environment/environment';
 import { Events } from '@/events/events';
 import { Player, playerSchema } from '@/players/models/player';
 import { PlayersService } from '@/players/services/players.service';
-import { QueueConfigService } from '@/queue-config/services/queue-config.service';
 import { QueueService } from '@/queue/services/queue.service';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
@@ -24,7 +23,6 @@ import { CacheModule } from '@nestjs/common';
 jest.mock('./discord.service');
 jest.mock('@/queue/services/queue.service');
 jest.mock('@/players/services/players.service');
-jest.mock('@/queue-config/services/queue-config.service');
 
 const environment = {
   clientUrl: 'https://tf2pickup.pl',
@@ -51,24 +49,6 @@ describe('QueuePromptsService', () => {
           requiredPlayerCount: 12,
         } as any),
     );
-
-    (
-      QueueConfigService as jest.MockedClass<typeof QueueConfigService>
-    ).mockImplementation(
-      () =>
-        ({
-          queueConfig: {
-            teamCount: 2,
-            classes: [
-              { name: Tf2ClassName.scout, count: 2 },
-              { name: Tf2ClassName.soldier, count: 2 },
-              { name: Tf2ClassName.demoman, count: 1 },
-              { name: Tf2ClassName.medic, count: 1 },
-            ],
-            whitelistId: '12345',
-          },
-        } as any),
-    );
   });
 
   beforeEach(async () => {
@@ -89,7 +69,18 @@ describe('QueuePromptsService', () => {
         DiscordService,
         QueueService,
         PlayersService,
-        QueueConfigService,
+        {
+          provide: 'QUEUE_CONFIG',
+          useValue: {
+            teamCount: 2,
+            classes: [
+              { name: Tf2ClassName.scout, count: 2 },
+              { name: Tf2ClassName.soldier, count: 2 },
+              { name: Tf2ClassName.demoman, count: 1 },
+              { name: Tf2ClassName.medic, count: 1 },
+            ],
+          },
+        },
         { provide: Environment, useValue: environment },
       ],
     }).compile();
