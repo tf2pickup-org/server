@@ -108,7 +108,7 @@ export class ProfileService implements OnModuleInit {
         .value
     ) {
       restrictions.push({
-        reason: RestrictionReason.accountNeedsAdminReview,
+        reason: RestrictionReason.accountNeedsReview,
         gameClasses: this.queueConfigService.queueConfig.classes.map(
           (gameClass) => gameClass.name,
         ),

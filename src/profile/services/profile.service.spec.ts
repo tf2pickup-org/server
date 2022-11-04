@@ -199,7 +199,7 @@ describe('ProfileService', () => {
         const profile = await service.getProfile(player);
         expect(profile.restrictions).toEqual([
           {
-            reason: RestrictionReason.accountNeedsAdminReview,
+            reason: RestrictionReason.accountNeedsReview,
             gameClasses: [
               Tf2ClassName.scout,
               Tf2ClassName.soldier,
