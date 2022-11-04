@@ -2,31 +2,15 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { ProfileController } from './profile.controller';
 import { Player } from '@/players/models/player';
 import { PlayersService } from '@/players/services/players.service';
-import { PlayerBansService } from '@/players/services/player-bans.service';
-import { MapVoteService } from '@/queue/services/map-vote.service';
 import { BadRequestException } from '@nestjs/common';
 import { PlayerPreferencesService } from '@/player-preferences/services/player-preferences.service';
-import { LinkedProfilesService } from '@/players/services/linked-profiles.service';
-import { serialize } from '@/shared/serialize';
-import { Types } from 'mongoose';
+import { ProfileService } from '../services/profile.service';
 
 jest.mock('@/player-preferences/services/player-preferences.service');
-jest.mock('@/players/services/linked-profiles.service', () => ({
-  LinkedProfilesService: jest.fn().mockImplementation(() => ({
-    getLinkedProfiles: jest.fn().mockResolvedValue([]),
-  })),
-}));
+jest.mock('../services/profile.service');
 
 class PlayersServiceStub {
   acceptTerms = jest.fn().mockResolvedValue(null);
-}
-
-class PlayerBansServiceStub {
-  getPlayerActiveBans = jest.fn().mockResolvedValue([]);
-}
-
-class MapVoteServiceStub {
-  playerVote = jest.fn().mockReturnValue('cp_badlands');
 }
 
 describe('Profile Controller', () => {
@@ -39,10 +23,8 @@ describe('Profile Controller', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         { provide: PlayersService, useClass: PlayersServiceStub },
-        { provide: PlayerBansService, useClass: PlayerBansServiceStub },
-        { provide: MapVoteService, useClass: MapVoteServiceStub },
         PlayerPreferencesService,
-        LinkedProfilesService,
+        ProfileService,
       ],
       controllers: [ProfileController],
     }).compile();
@@ -77,55 +59,6 @@ describe('Profile Controller', () => {
 
   it('should be defined', () => {
     expect(controller).toBeDefined();
-  });
-
-  describe('#getProfile()', () => {
-    it("should return the logged-in user's profile", async () => {
-      const res = await controller.getProfile(player);
-      const serialized = await serialize(res);
-      expect(serialized).toEqual({
-        player: {
-          id: 'FAKE_ID',
-          name: 'FAKE_USER_NAME',
-          steamId: 'FAKE_STEAM_ID',
-          avatar: {
-            small: 'AVATAR_SMALL',
-            medium: 'AVATAR_MEDIUM',
-            large: 'AVATAR_LARGE',
-          },
-          roles: [],
-          _links: [
-            {
-              href: '/players/FAKE_ID/linked-profiles',
-              title: 'Linked profiles',
-            },
-          ],
-        },
-        hasAcceptedRules: true,
-        activeGameId: undefined,
-        bans: [],
-        mapVote: 'cp_badlands',
-        preferences: {
-          'sound-volume': '0.5',
-        },
-        linkedProfiles: [],
-      });
-    });
-
-    describe('when the user is involved in an active game', () => {
-      beforeEach(() => {
-        player.activeGame = new Types.ObjectId();
-      });
-
-      it('should return active game id', async () => {
-        const res = await controller.getProfile(player);
-        expect(await serialize(res)).toEqual(
-          expect.objectContaining({
-            activeGameId: player.activeGame.toString(),
-          }),
-        );
-      });
-    });
   });
 
   describe('#getPreferences()', () => {

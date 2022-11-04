@@ -14,39 +14,22 @@ import { Auth } from '@/auth/decorators/auth.decorator';
 import { User } from '@/auth/decorators/user.decorator';
 import { Player } from '@/players/models/player';
 import { PlayersService } from '@/players/services/players.service';
-import { PlayerBansService } from '@/players/services/player-bans.service';
-import { MapVoteService } from '@/queue/services/map-vote.service';
 import { PlayerPreferencesService } from '@/player-preferences/services/player-preferences.service';
-import { LinkedProfilesService } from '@/players/services/linked-profiles.service';
-import { Serializable } from '@/shared/serializable';
 import { ProfileDto } from '../dto/profile.dto';
-import { ProfileWrapper } from './profile-wrapper';
+import { ProfileService } from '../services/profile.service';
 
 @Controller('profile')
 export class ProfileController {
   constructor(
     private playersService: PlayersService,
-    private playerBansService: PlayerBansService,
-    private mapVoteService: MapVoteService,
     private playerPreferencesService: PlayerPreferencesService,
-    private linkedProfilesService: LinkedProfilesService,
+    private profileService: ProfileService,
   ) {}
 
   @Get()
   @Auth()
-  async getProfile(@User() user: Player): Promise<Serializable<ProfileDto>> {
-    return new ProfileWrapper({
-      player: user,
-      activeGameId: user.activeGame?.toString() ?? undefined,
-      bans: await this.playerBansService.getPlayerActiveBans(user.id),
-      mapVote: this.mapVoteService.playerVote(user.id),
-      preferences: await this.playerPreferencesService.getPlayerPreferences(
-        user.id,
-      ),
-      linkedProfiles: await this.linkedProfilesService.getLinkedProfiles(
-        user.id,
-      ),
-    });
+  async getProfile(@User() user: Player): Promise<ProfileDto> {
+    return await this.profileService.getProfile(user);
   }
 
   @Auth()

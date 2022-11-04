@@ -6,6 +6,8 @@ import { GamesModule } from '@/games/games.module';
 import { QueueModule } from '@/queue/queue.module';
 import { PlayerPreferencesModule } from '@/player-preferences/player-preferences.module';
 import { ProfileService } from './services/profile.service';
+import { ConfigurationModule } from '@/configuration/configuration.module';
+import { QueueConfigModule } from '@/queue-config/queue-config.module';
 
 @Module({
   imports: [
@@ -14,6 +16,8 @@ import { ProfileService } from './services/profile.service';
     PlayersModule,
     QueueModule,
     PlayerPreferencesModule,
+    ConfigurationModule,
+    QueueConfigModule,
   ],
   controllers: [ProfileController],
   providers: [ProfileService],
