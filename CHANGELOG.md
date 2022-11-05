@@ -1,5 +1,18 @@
 
 
+# [10.0.0-beta.6](https://github.com/tf2pickup-org/server/compare/10.0.0-beta.5...10.0.0-beta.6) (2022-11-05)
+
+
+### Bug Fixes
+
+* **deps:** update dependency mongoose to v6.7.1 ([#2043](https://github.com/tf2pickup-org/server/issues/2043)) ([9921b80](https://github.com/tf2pickup-org/server/commit/9921b806ce1d5292c5dbe4cd73df1e691aca9cdd))
+
+
+### Features
+
+* **players:** deny players with no skill assigned ([#2025](https://github.com/tf2pickup-org/server/issues/2025)) ([b6f5823](https://github.com/tf2pickup-org/server/commit/b6f58232591f5e07218f868e0ef61c310f5c44c0))
+* **profile:** add player restrictions ([#2048](https://github.com/tf2pickup-org/server/issues/2048)) ([b06ee4e](https://github.com/tf2pickup-org/server/commit/b06ee4e765c76533ac2f0e5acc0db0003e5be58e))
+
 # [10.0.0-beta.5](https://github.com/tf2pickup-org/server/compare/10.0.0-beta.4...10.0.0-beta.5) (2022-11-02)
 
 
