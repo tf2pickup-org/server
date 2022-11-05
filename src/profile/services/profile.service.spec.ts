@@ -1,15 +1,30 @@
+import { ConfigurationEntryKey } from '@/configuration/models/configuration-entry-key';
+import { ConfigurationService } from '@/configuration/services/configuration.service';
 import { Events } from '@/events/events';
+import { PlayerPreferencesService } from '@/player-preferences/services/player-preferences.service';
 import { Player } from '@/players/models/player';
+import { PlayerBan } from '@/players/models/player-ban';
 import { LinkedProfilesService } from '@/players/services/linked-profiles.service';
 import { OnlinePlayersService } from '@/players/services/online-players.service';
+import { PlayerBansService } from '@/players/services/player-bans.service';
+import { QueueConfigService } from '@/queue-config/services/queue-config.service';
+import { MapVoteService } from '@/queue/services/map-vote.service';
+import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { WebsocketEvent } from '@/websocket-event';
 import { Test, TestingModule } from '@nestjs/testing';
+import { plainToInstance } from 'class-transformer';
 import { Types } from 'mongoose';
 import { Subject } from 'rxjs';
+import { RestrictionReason } from '../interfaces/restriction';
 import { ProfileService } from './profile.service';
 
 jest.mock('@/players/services/online-players.service');
 jest.mock('@/players/services/linked-profiles.service');
+jest.mock('@/players/services/player-bans.service');
+jest.mock('@/queue/services/map-vote.service');
+jest.mock('@/player-preferences/services/player-preferences.service');
+jest.mock('@/configuration/services/configuration.service');
+jest.mock('@/queue-config/services/queue-config.service');
 
 describe('ProfileService', () => {
   let service: ProfileService;
@@ -18,6 +33,11 @@ describe('ProfileService', () => {
   let events: Events;
   let socketEvents: Subject<any>;
   let socket;
+  let playerBansService: jest.Mocked<PlayerBansService>;
+  let mapVoteService: jest.Mocked<MapVoteService>;
+  let playerPreferencesService: jest.Mocked<PlayerPreferencesService>;
+  let configurationService: jest.Mocked<ConfigurationService>;
+  let queueConfigService: jest.Mocked<QueueConfigService>;
 
   beforeEach(() => {
     socketEvents = new Subject();
@@ -33,17 +53,51 @@ describe('ProfileService', () => {
         Events,
         OnlinePlayersService,
         LinkedProfilesService,
+        PlayerBansService,
+        MapVoteService,
+        PlayerPreferencesService,
+        ConfigurationService,
+        QueueConfigService,
       ],
     }).compile();
 
     onlinePlayersService = module.get(OnlinePlayersService);
     linkedProfilesService = module.get(LinkedProfilesService);
+    playerBansService = module.get(PlayerBansService);
+    mapVoteService = module.get(MapVoteService);
+    playerPreferencesService = module.get(PlayerPreferencesService);
+    configurationService = module.get(ConfigurationService);
+    queueConfigService = module.get(QueueConfigService);
 
     onlinePlayersService.getSocketsForPlayer.mockReturnValue([socket]);
 
     events = module.get(Events);
     service = module.get<ProfileService>(ProfileService);
     service.onModuleInit();
+  });
+
+  beforeEach(() => {
+    queueConfigService.queueConfig = {
+      teamCount: 2,
+      classes: [
+        {
+          name: Tf2ClassName.scout,
+          count: 2,
+        },
+        {
+          name: Tf2ClassName.soldier,
+          count: 2,
+        },
+        {
+          name: Tf2ClassName.demoman,
+          count: 1,
+        },
+        {
+          name: Tf2ClassName.medic,
+          count: 1,
+        },
+      ],
+    };
   });
 
   afterEach(() => {
@@ -86,6 +140,75 @@ describe('ProfileService', () => {
     events.playerUpdates.next({
       oldPlayer,
       newPlayer,
+    });
+  });
+
+  describe('#getProfile()', () => {
+    let player: Player;
+
+    const bans: PlayerBan[] = [
+      plainToInstance(PlayerBan, {
+        id: 'FAKE_BAN_ID',
+        player: new Types.ObjectId(),
+        admin: new Types.ObjectId(),
+        start: new Date(),
+        end: new Date(),
+        reason: 'FAKE_BAN_REASON',
+      }),
+    ];
+
+    beforeEach(() => {
+      player = new Player();
+      player.id = 'FAKE_PLAYER_ID';
+      player.hasAcceptedRules = true;
+
+      playerBansService.getPlayerActiveBans.mockResolvedValue(bans);
+      playerPreferencesService.getPlayerPreferences.mockResolvedValue(
+        new Map([['FAKE_PREF', 'FAKE_PREF_VALUE']]),
+      );
+      linkedProfilesService.getLinkedProfiles.mockResolvedValue([]);
+      configurationService.getDenyPlayersWithNoSkillAssigned.mockResolvedValue({
+        key: ConfigurationEntryKey.denyPlayersWithNoSkillAssigned,
+        value: false,
+      });
+      mapVoteService.playerVote.mockReturnValue('cp_badlands');
+    });
+
+    it('should return player profile', async () => {
+      const profile = await service.getProfile(player);
+      expect(profile.activeGameId).toBeUndefined();
+      expect(profile.hasAcceptedRules).toBe(true);
+      expect(profile.bans).toEqual(bans);
+      expect(profile.mapVote).toEqual('cp_badlands');
+      expect(profile.preferences).toEqual({ FAKE_PREF: 'FAKE_PREF_VALUE' });
+      expect(profile.linkedProfiles).toEqual([]);
+      expect(profile.restrictions).toEqual([]);
+    });
+
+    describe('if restricted', () => {
+      beforeEach(() => {
+        configurationService.getDenyPlayersWithNoSkillAssigned.mockResolvedValue(
+          {
+            key: ConfigurationEntryKey.denyPlayersWithNoSkillAssigned,
+            value: true,
+          },
+        );
+      });
+
+      it('should return restriction', async () => {
+        const profile = await service.getProfile(player);
+        expect(profile.restrictions).toEqual([
+          {
+            reason: RestrictionReason.accountNeedsReview,
+            gameClasses: [
+              Tf2ClassName.scout,
+              Tf2ClassName.soldier,
+              Tf2ClassName.demoman,
+              Tf2ClassName.medic,
+            ],
+          },
+        ]);
+      });
     });
   });
 });

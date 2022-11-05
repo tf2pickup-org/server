@@ -1,11 +1,19 @@
+import { ConfigurationService } from '@/configuration/services/configuration.service';
 import { Events } from '@/events/events';
+import { PlayerPreferencesService } from '@/player-preferences/services/player-preferences.service';
+import { Player } from '@/players/models/player';
 import { LinkedProfilesService } from '@/players/services/linked-profiles.service';
 import { OnlinePlayersService } from '@/players/services/online-players.service';
+import { PlayerBansService } from '@/players/services/player-bans.service';
+import { QueueConfigService } from '@/queue-config/services/queue-config.service';
+import { MapVoteService } from '@/queue/services/map-vote.service';
 import { serialize } from '@/shared/serialize';
 import { WebsocketEvent } from '@/websocket-event';
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { isEqual } from 'lodash';
 import { map, filter, concatMap, from } from 'rxjs';
+import { ProfileDto } from '../dto/profile.dto';
+import { Restriction, RestrictionReason } from '../interfaces/restriction';
 
 @Injectable()
 export class ProfileService implements OnModuleInit {
@@ -13,6 +21,11 @@ export class ProfileService implements OnModuleInit {
     private events: Events,
     private onlinePlayersService: OnlinePlayersService,
     private linkedProfilesService: LinkedProfilesService,
+    private playerBansService: PlayerBansService,
+    private mapVoteService: MapVoteService,
+    private playerPreferencesService: PlayerPreferencesService,
+    private configurationService: ConfigurationService,
+    private queueConfigService: QueueConfigService,
   ) {}
 
   onModuleInit() {
@@ -28,6 +41,7 @@ export class ProfileService implements OnModuleInit {
         });
     });
 
+    // update player profile whenever his player record changes
     this.events.playerUpdates
       .pipe(
         concatMap(({ oldPlayer, newPlayer }) =>
@@ -44,6 +58,7 @@ export class ProfileService implements OnModuleInit {
           ),
       );
 
+    // update player's active game info
     this.events.playerUpdates
       .pipe(
         filter(
@@ -60,5 +75,48 @@ export class ProfileService implements OnModuleInit {
             }),
           );
       });
+  }
+
+  async getProfile(player: Player): Promise<ProfileDto> {
+    const [bans, preferences, linkedProfiles, restrictions] = await Promise.all(
+      [
+        await this.playerBansService.getPlayerActiveBans(player.id),
+        await this.playerPreferencesService.getPlayerPreferences(player.id),
+        await this.linkedProfilesService.getLinkedProfiles(player.id),
+        await this.getPlayerRestrictions(player),
+      ],
+    );
+
+    return {
+      player,
+      hasAcceptedRules: player.hasAcceptedRules,
+      ...(Boolean(player.activeGame) && {
+        activeGameId: player.activeGame.toString(),
+      }),
+      bans,
+      mapVote: this.mapVoteService.playerVote(player.id),
+      preferences: Object.fromEntries(preferences),
+      linkedProfiles,
+      restrictions,
+    };
+  }
+
+  private async getPlayerRestrictions(player: Player): Promise<Restriction[]> {
+    const restrictions: Restriction[] = [];
+
+    if (
+      !player.skill &&
+      (await this.configurationService.getDenyPlayersWithNoSkillAssigned())
+        .value
+    ) {
+      restrictions.push({
+        reason: RestrictionReason.accountNeedsReview,
+        gameClasses: this.queueConfigService.queueConfig.classes.map(
+          (gameClass) => gameClass.name,
+        ),
+      });
+    }
+
+    return restrictions;
   }
 }
