@@ -94,6 +94,35 @@ describe('Launch game (e2e)', () => {
   });
 
   it('should launch the game when 12 players join the game and ready up', async () => {
+    await request(app.getHttpServer())
+      .get('/queue/config')
+      .expect(200)
+      .then((response) => {
+        const body = response.body;
+        expect(body).toEqual({
+          teamCount: 2,
+          classes: [
+            {
+              name: 'scout',
+              count: 2,
+            },
+            {
+              name: 'soldier',
+              count: 2,
+            },
+            {
+              name: 'demoman',
+              count: 1,
+            },
+            {
+              name: 'medic',
+              count: 1,
+              canMakeFriendsWith: ['scout', 'soldier', 'demoman'],
+            },
+          ],
+        });
+      });
+
     // all 12 players join the queue
     let lastSlotId = 0;
     for (let i = 0; i < 12; ++i) {
