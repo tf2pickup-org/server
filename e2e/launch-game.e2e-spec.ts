@@ -5,7 +5,7 @@ import { configureApplication } from '@/configure-application';
 import { PlayersService } from '@/players/services/players.service';
 import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
-import { isNumber } from 'lodash';
+import { isNumber, isUndefined } from 'lodash';
 import { io, Socket } from 'socket.io-client';
 import * as request from 'supertest';
 import { players } from './test-data';
@@ -163,9 +163,7 @@ describe('Launch game (e2e)', () => {
       .then((response) => {
         const body = response.body;
         expect(body.state).toEqual('waiting');
-        expect(body.slots.every((slot) => slot.player === undefined)).toBe(
-          true,
-        );
+        expect(body.slots.every((slot) => isUndefined(slot.player))).toBe(true);
       });
 
     // the new game should be announced to all clients
