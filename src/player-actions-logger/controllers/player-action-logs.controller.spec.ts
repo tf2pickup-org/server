@@ -3,13 +3,15 @@ import { PlayerActionsRepositoryService } from '../services/player-actions-repos
 import { PlayerActionLogsController } from './player-action-logs.controller';
 
 jest.mock('../services/player-actions-repository.service');
+jest.mock('../pipes/parse-filters.pipe');
 
 describe('PlayerActionLogsController', () => {
   let controller: PlayerActionLogsController;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      controllers: [PlayerActionLogsController, PlayerActionsRepositoryService],
+      controllers: [PlayerActionLogsController],
+      providers: [PlayerActionsRepositoryService],
     }).compile();
 
     controller = module.get<PlayerActionLogsController>(
