@@ -19,7 +19,7 @@ export class PlayerActionsRepositoryService {
     private readonly playerActionEntryModel: Model<PlayerActionEntryDocument>,
   ) {}
 
-  async get(
+  async find(
     query: PlayerActionsQuery = { limit: 10, filters: {} },
   ): Promise<PlayerActionEntry[]> {
     return plainToInstance(

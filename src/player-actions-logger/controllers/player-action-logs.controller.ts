@@ -27,7 +27,7 @@ export class PlayerActionLogsController {
     limit: number,
     @Query('filter', ParseFiltersPipe) filters: FilterQuery<PlayerActionEntry>,
   ): Promise<Serializable<PlayerActionDto>[]> {
-    return await this.playerActionsRepositoryService.get({
+    return await this.playerActionsRepositoryService.find({
       limit,
       filters,
     });
