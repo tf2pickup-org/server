@@ -15,7 +15,7 @@ import { ParseFiltersPipe } from '../pipes/parse-filters.pipe';
 import { PlayerActionsRepositoryService } from '../services/player-actions-repository.service';
 
 @Controller('player-action-logs')
-// @Auth(PlayerRole.superUser)
+@Auth(PlayerRole.superUser)
 export class PlayerActionLogsController {
   constructor(
     private readonly playerActionsRepositoryService: PlayerActionsRepositoryService,
