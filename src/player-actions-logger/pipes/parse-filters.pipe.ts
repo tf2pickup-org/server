@@ -1,6 +1,7 @@
 import { Player } from '@/players/models/player';
 import { PlayersService } from '@/players/services/players.service';
 import { Injectable, PipeTransform } from '@nestjs/common';
+import { isEmpty } from 'lodash';
 import { FilterQuery } from 'mongoose';
 import { PlayerActionEntry } from '../models/player-action-entry';
 
@@ -11,7 +12,7 @@ export class ParseFiltersPipe implements PipeTransform {
   async transform(input: {
     [key: string]: string;
   }): Promise<FilterQuery<PlayerActionEntry>> {
-    if (!input) {
+    if (isEmpty(input)) {
       return {};
     }
 
