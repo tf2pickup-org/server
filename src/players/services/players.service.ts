@@ -184,9 +184,9 @@ export class PlayersService implements OnModuleInit {
   async forceCreatePlayer(
     playerData: ForceCreatePlayerOptions,
   ): Promise<Player> {
-    const etf2lProfile = await this.etf2lProfileService
+    const etf2lProfile: Etf2lProfile = await this.etf2lProfileService
       .fetchPlayerInfo(playerData.steamId)
-      .catch(() => undefined);
+      .catch(() => null);
 
     const { id } = await this.playerModel.create({
       etf2lProfileId: etf2lProfile?.id,
