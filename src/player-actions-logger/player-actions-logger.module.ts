@@ -7,6 +7,8 @@ import {
   playerActionEntrySchema,
 } from './models/player-action-entry';
 import { PlayerActionLoggerService } from './services/player-action-logger.service';
+import { PlayerActionLogsController } from './controllers/player-action-logs.controller';
+import { PlayerActionsRepositoryService } from './services/player-actions-repository.service';
 
 @Module({
   imports: [
@@ -19,7 +21,8 @@ import { PlayerActionLoggerService } from './services/player-action-logger.servi
     PlayersModule,
     GamesModule,
   ],
-  providers: [PlayerActionLoggerService],
+  providers: [PlayerActionLoggerService, PlayerActionsRepositoryService],
   exports: [PlayerActionLoggerService],
+  controllers: [PlayerActionLogsController],
 })
 export class PlayerActionsLoggerModule {}
