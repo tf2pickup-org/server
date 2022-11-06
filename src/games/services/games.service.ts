@@ -3,7 +3,6 @@ import { Game, GameDocument } from '../models/game';
 import { QueueSlot } from '@/queue/queue-slot';
 import { PlayerSlot, pickTeams } from '../utils/pick-teams';
 import { PlayersService } from '@/players/services/players.service';
-import { QueueConfigService } from '@/queue-config/services/queue-config.service';
 import { shuffle } from 'lodash';
 import { Events } from '@/events/events';
 import { SlotStatus } from '../models/slot-status';
@@ -18,6 +17,7 @@ import { GameInWrongStateError } from '../errors/game-in-wrong-state.error';
 import { SelectedVoiceServer } from '@/configuration/models/voice-server';
 import { plainToInstance } from 'class-transformer';
 import { Mutex } from 'async-mutex';
+import { QueueConfig } from '@/queue-config/interfaces/queue-config';
 
 interface GameSortOptions {
   [key: string]: 1 | -1;
@@ -36,7 +36,8 @@ export class GamesService {
     @InjectModel('Game') private gameModel: Model<GameDocument>,
     @Inject(forwardRef(() => PlayersService))
     private playersService: PlayersService,
-    private queueConfigService: QueueConfigService,
+    @Inject('QUEUE_CONFIG')
+    private readonly queueConfig: QueueConfig,
     private events: Events,
     private configurationService: ConfigurationService,
     @Inject('GAME_MODEL_MUTEX') private mutex: Mutex,
@@ -145,7 +146,7 @@ export class GamesService {
         .lean()
         .exec(),
     );
-    return this.queueConfigService.queueConfig.classes
+    return this.queueConfig.classes
       .map((cls) => cls.name)
       .reduce((prev, gameClass) => {
         prev[gameClass] = allGames.filter(
@@ -371,15 +372,12 @@ export class GamesService {
       throw new Error(`no such player (${playerId})`);
     }
 
-    if (player.skill) {
-      const skillForClass = player.skill.get(gameClass);
-      return { playerId, gameClass, skill: skillForClass };
-    } else {
-      const defaultPlayerSkill = (
-        await this.configurationService.getDefaultPlayerSkill()
-      ).value;
-      return { playerId, gameClass, skill: defaultPlayerSkill.get(gameClass) };
-    }
+    const skill = (
+      player?.skill ??
+      (await this.configurationService.getDefaultPlayerSkill()).value
+    ).get(gameClass);
+
+    return { playerId, gameClass, skill };
   }
 
   private async getNextGameNumber(): Promise<number> {
@@ -387,10 +385,7 @@ export class GamesService {
       .findOne()
       .sort({ launchedAt: -1 })
       .exec();
-    if (latestGame) {
-      return latestGame.number + 1;
-    } else {
-      return 1;
-    }
+
+    return latestGame ? latestGame.number + 1 : 1;
   }
 }

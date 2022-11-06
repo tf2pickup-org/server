@@ -3,13 +3,13 @@ import {
   Controller,
   Delete,
   Get,
+  Inject,
   Param,
   Post,
   Put,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
-import { QueueConfigService } from '@/queue-config/services/queue-config.service';
 import { QueueService } from '../services/queue.service';
 import { MapVoteService } from '../services/map-vote.service';
 import { QueueAnnouncementsService } from '../services/queue-announcements.service';
@@ -26,11 +26,13 @@ import { QueueWrapper } from './queue-wrapper';
 import { MapPoolEntryDto } from '../dto/map-pool-item.dto';
 import { User } from '@/auth/decorators/user.decorator';
 import { Player } from '@/players/models/player';
+import { QueueConfig } from '@/queue-config/interfaces/queue-config';
 
 @Controller('queue')
 export class QueueController {
   constructor(
-    private queueConfigService: QueueConfigService,
+    @Inject('QUEUE_CONFIG')
+    private readonly queueConfig: QueueConfig,
     private queueService: QueueService,
     private mapVoteService: MapVoteService,
     private queueAnnouncementsService: QueueAnnouncementsService,
@@ -41,7 +43,7 @@ export class QueueController {
   @Get()
   async getQueue(): Promise<Serializable<QueueDto>> {
     return new QueueWrapper({
-      config: this.queueConfigService.queueConfig,
+      config: this.queueConfig,
       slots: this.queueService.slots,
       state: this.queueService.state,
       mapVoteResults: this.mapVoteService.results,
@@ -53,7 +55,7 @@ export class QueueController {
 
   @Get('config')
   getQueueConfig() {
-    return this.queueConfigService.queueConfig;
+    return this.queueConfig;
   }
 
   @Get('state')

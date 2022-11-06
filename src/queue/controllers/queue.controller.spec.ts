@@ -1,6 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { QueueController } from './queue.controller';
-import { QueueConfigService } from '@/queue-config/services/queue-config.service';
 import { QueueService } from '../services/queue.service';
 import { MapVoteService } from '../services/map-vote.service';
 import { QueueAnnouncementsService } from '../services/queue-announcements.service';
@@ -11,7 +10,6 @@ import { QueueState } from '../queue-state';
 import { MapPoolEntry } from '../models/map-pool-entry';
 import { Player } from '@/players/models/player';
 
-jest.mock('@/queue-config/services/queue-config.service');
 jest.mock('../services/queue.service');
 jest.mock('../services/map-vote.service');
 jest.mock('../services/queue-announcements.service');
@@ -20,7 +18,6 @@ jest.mock('../services/map-pool.service');
 
 describe('Queue Controller', () => {
   let controller: QueueController;
-  let queueConfigService: jest.Mocked<QueueConfigService>;
   let queueService: jest.Mocked<QueueService>;
   let mapVoteService: jest.Mocked<MapVoteService>;
   let queueAnnouncementsService: jest.Mocked<QueueAnnouncementsService>;
@@ -30,18 +27,17 @@ describe('Queue Controller', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        QueueConfigService,
         QueueService,
         MapVoteService,
         QueueAnnouncementsService,
         FriendsService,
         MapPoolService,
+        { provide: 'QUEUE_CONFIG', useValue: {} },
       ],
       controllers: [QueueController],
     }).compile();
 
     controller = module.get<QueueController>(QueueController);
-    queueConfigService = module.get(QueueConfigService);
     queueService = module.get(QueueService);
     mapVoteService = module.get(MapVoteService);
     queueAnnouncementsService = module.get(QueueAnnouncementsService);
@@ -50,9 +46,6 @@ describe('Queue Controller', () => {
   });
 
   beforeEach(() => {
-    // @ts-expect-error
-    queueConfigService.queueConfig = { some_param: 'some_value' };
-
     queueService.slots = [
       {
         id: 0,
@@ -100,14 +93,6 @@ describe('Queue Controller', () => {
         substituteRequests: expect.any(Array),
         friendships: expect.any(Array),
       });
-    });
-  });
-
-  describe('#getQueueConfig()', () => {
-    it('should return queue config', () => {
-      expect(controller.getQueueConfig()).toEqual(
-        queueConfigService.queueConfig,
-      );
     });
   });
 

@@ -5,7 +5,6 @@ import { Player, PlayerDocument, playerSchema } from '@/players/models/player';
 import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
 import { Game, GameDocument, gameSchema } from '../models/game';
 import { QueueSlot } from '@/queue/queue-slot';
-import { QueueConfigService } from '@/queue-config/services/queue-config.service';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { Tf2Team } from '../models/tf2-team';
 import { Events } from '@/events/events';
@@ -33,20 +32,6 @@ import { GameServer } from '../models/game-server';
 jest.mock('@/players/services/players.service');
 jest.mock('@/configuration/services/configuration.service');
 jest.mock('@/game-servers/services/game-servers.service');
-
-class QueueConfigServiceStub {
-  queueConfig = {
-    classes: [
-      { name: 'scout', count: 2 },
-      { name: 'soldier', count: 2 },
-      { name: 'demoman', count: 1 },
-      { name: 'medic', count: 1 },
-    ],
-    teamCount: 2,
-    readyUpTimeout: 1000,
-    queueReadyTimeout: 2000,
-  };
-}
 
 describe('GamesService', () => {
   let service: GamesService;
@@ -76,7 +61,20 @@ describe('GamesService', () => {
         },
         GamesService,
         PlayersService,
-        { provide: QueueConfigService, useClass: QueueConfigServiceStub },
+        {
+          provide: 'QUEUE_CONFIG',
+          useValue: {
+            classes: [
+              { name: 'scout', count: 2 },
+              { name: 'soldier', count: 2 },
+              { name: 'demoman', count: 1 },
+              { name: 'medic', count: 1 },
+            ],
+            teamCount: 2,
+            readyUpTimeout: 1000,
+            queueReadyTimeout: 2000,
+          },
+        },
         Events,
         ConfigurationService,
       ],
@@ -454,7 +452,7 @@ describe('GamesService', () => {
     it('should unassign the game', async () => {
       await service.forceEnd(testGame.id);
       const player = await playersService.getById(testPlayer.id);
-      expect(player.activeGame).toBe(undefined);
+      expect(player.activeGame).toBeUndefined();
     });
 
     it('should emit an event', () =>

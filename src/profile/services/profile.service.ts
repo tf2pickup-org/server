@@ -5,11 +5,11 @@ import { Player } from '@/players/models/player';
 import { LinkedProfilesService } from '@/players/services/linked-profiles.service';
 import { OnlinePlayersService } from '@/players/services/online-players.service';
 import { PlayerBansService } from '@/players/services/player-bans.service';
-import { QueueConfigService } from '@/queue-config/services/queue-config.service';
+import { QueueConfig } from '@/queue-config/interfaces/queue-config';
 import { MapVoteService } from '@/queue/services/map-vote.service';
 import { serialize } from '@/shared/serialize';
 import { WebsocketEvent } from '@/websocket-event';
-import { Injectable, OnModuleInit } from '@nestjs/common';
+import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
 import { isEqual } from 'lodash';
 import { map, filter, concatMap, from } from 'rxjs';
 import { ProfileDto } from '../dto/profile.dto';
@@ -25,7 +25,7 @@ export class ProfileService implements OnModuleInit {
     private mapVoteService: MapVoteService,
     private playerPreferencesService: PlayerPreferencesService,
     private configurationService: ConfigurationService,
-    private queueConfigService: QueueConfigService,
+    @Inject('QUEUE_CONFIG') private readonly queueConfig: QueueConfig,
   ) {}
 
   onModuleInit() {
@@ -111,7 +111,7 @@ export class ProfileService implements OnModuleInit {
     ) {
       restrictions.push({
         reason: RestrictionReason.accountNeedsReview,
-        gameClasses: this.queueConfigService.queueConfig.classes.map(
+        gameClasses: this.queueConfig.classes.map(
           (gameClass) => gameClass.name,
         ),
       });

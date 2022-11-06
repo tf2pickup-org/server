@@ -1,7 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { QueueService } from './queue.service';
 import { PlayersService } from '@/players/services/players.service';
-import { QueueConfigService } from '@/queue-config/services/queue-config.service';
 import { PlayerBansService } from '@/players/services/player-bans.service';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
@@ -27,21 +26,6 @@ import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 jest.mock('@/players/services/players.service');
 jest.mock('@/players/services/player-bans.service');
 jest.mock('@/configuration/services/configuration.service');
-
-class QueueConfigServiceStub {
-  queueConfig = {
-    classes: [
-      { name: 'scout', count: 2 },
-      { name: 'soldier', count: 2 },
-      { name: 'demoman', count: 1 },
-      { name: 'medic', count: 1 },
-    ],
-    teamCount: 2,
-    maps: ['fake_map_1', 'fake_map_2'],
-    readyUpTimeout: 1000,
-    queueReadyTimeout: 2000,
-  };
-}
 
 class CacheStub {
   set = jest.fn();
@@ -77,7 +61,18 @@ describe('QueueService', () => {
         PlayersService,
         PlayerBansService,
         Events,
-        { provide: QueueConfigService, useClass: QueueConfigServiceStub },
+        {
+          provide: 'QUEUE_CONFIG',
+          useValue: {
+            classes: [
+              { name: 'scout', count: 2 },
+              { name: 'soldier', count: 2 },
+              { name: 'demoman', count: 1 },
+              { name: 'medic', count: 1 },
+            ],
+            teamCount: 2,
+          },
+        },
         { provide: CACHE_MANAGER, useClass: CacheStub },
         ConfigurationService,
       ],

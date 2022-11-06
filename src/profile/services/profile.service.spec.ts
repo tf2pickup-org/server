@@ -7,7 +7,6 @@ import { PlayerBan } from '@/players/models/player-ban';
 import { LinkedProfilesService } from '@/players/services/linked-profiles.service';
 import { OnlinePlayersService } from '@/players/services/online-players.service';
 import { PlayerBansService } from '@/players/services/player-bans.service';
-import { QueueConfigService } from '@/queue-config/services/queue-config.service';
 import { MapVoteService } from '@/queue/services/map-vote.service';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { WebsocketEvent } from '@/websocket-event';
@@ -24,7 +23,6 @@ jest.mock('@/players/services/player-bans.service');
 jest.mock('@/queue/services/map-vote.service');
 jest.mock('@/player-preferences/services/player-preferences.service');
 jest.mock('@/configuration/services/configuration.service');
-jest.mock('@/queue-config/services/queue-config.service');
 
 describe('ProfileService', () => {
   let service: ProfileService;
@@ -37,7 +35,6 @@ describe('ProfileService', () => {
   let mapVoteService: jest.Mocked<MapVoteService>;
   let playerPreferencesService: jest.Mocked<PlayerPreferencesService>;
   let configurationService: jest.Mocked<ConfigurationService>;
-  let queueConfigService: jest.Mocked<QueueConfigService>;
 
   beforeEach(() => {
     socketEvents = new Subject();
@@ -57,7 +54,30 @@ describe('ProfileService', () => {
         MapVoteService,
         PlayerPreferencesService,
         ConfigurationService,
-        QueueConfigService,
+        {
+          provide: 'QUEUE_CONFIG',
+          useValue: {
+            teamCount: 2,
+            classes: [
+              {
+                name: Tf2ClassName.scout,
+                count: 2,
+              },
+              {
+                name: Tf2ClassName.soldier,
+                count: 2,
+              },
+              {
+                name: Tf2ClassName.demoman,
+                count: 1,
+              },
+              {
+                name: Tf2ClassName.medic,
+                count: 1,
+              },
+            ],
+          },
+        },
       ],
     }).compile();
 
@@ -67,37 +87,12 @@ describe('ProfileService', () => {
     mapVoteService = module.get(MapVoteService);
     playerPreferencesService = module.get(PlayerPreferencesService);
     configurationService = module.get(ConfigurationService);
-    queueConfigService = module.get(QueueConfigService);
 
     onlinePlayersService.getSocketsForPlayer.mockReturnValue([socket]);
 
     events = module.get(Events);
     service = module.get<ProfileService>(ProfileService);
     service.onModuleInit();
-  });
-
-  beforeEach(() => {
-    queueConfigService.queueConfig = {
-      teamCount: 2,
-      classes: [
-        {
-          name: Tf2ClassName.scout,
-          count: 2,
-        },
-        {
-          name: Tf2ClassName.soldier,
-          count: 2,
-        },
-        {
-          name: Tf2ClassName.demoman,
-          count: 1,
-        },
-        {
-          name: Tf2ClassName.medic,
-          count: 1,
-        },
-      ],
-    };
   });
 
   afterEach(() => {
