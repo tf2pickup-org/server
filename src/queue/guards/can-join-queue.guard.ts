@@ -1,15 +1,13 @@
 import { ConfigurationService } from '@/configuration/services/configuration.service';
 import { PlayerBansService } from '@/players/services/player-bans.service';
-import { PlayersService } from '@/players/services/players.service';
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { WsException } from '@nestjs/websockets';
 import { Socket } from 'socket.io';
-import { PlayerDeniedError } from '../errors/player-denied.error';
+import { DenyReason, PlayerDeniedError } from '../errors/player-denied.error';
 
 @Injectable()
 export class CanJoinQueueGuard implements CanActivate {
   constructor(
-    private readonly playersService: PlayersService,
     private readonly configurationService: ConfigurationService,
     private readonly playerBansService: PlayerBansService,
   ) {}
@@ -21,7 +19,7 @@ export class CanJoinQueueGuard implements CanActivate {
     }
 
     if (!player.hasAcceptedRules) {
-      throw new PlayerDeniedError(player, 'player has not accepted rules');
+      throw new PlayerDeniedError(player, DenyReason.playerHasNotAcceptedRules);
     }
 
     if (
@@ -29,16 +27,16 @@ export class CanJoinQueueGuard implements CanActivate {
       (await this.configurationService.getDenyPlayersWithNoSkillAssigned())
         .value
     ) {
-      throw new PlayerDeniedError(player, 'no skill assigned');
+      throw new PlayerDeniedError(player, DenyReason.noSkillAssigned);
     }
 
     const bans = await this.playerBansService.getPlayerActiveBans(player.id);
     if (bans.length > 0) {
-      throw new PlayerDeniedError(player, 'player is banned');
+      throw new PlayerDeniedError(player, DenyReason.playerIsBanned);
     }
 
     if (player.activeGame) {
-      throw new PlayerDeniedError(player, 'player is involved in a game');
+      throw new PlayerDeniedError(player, DenyReason.playerIsInvolvedInGame);
     }
 
     return true;
