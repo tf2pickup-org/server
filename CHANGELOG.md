@@ -1,5 +1,21 @@
 
 
+# [10.0.0-beta.7](https://github.com/tf2pickup-org/server/compare/10.0.0-beta.6...10.0.0-beta.7) (2022-11-07)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @nestjs/axios to v1 ([#2045](https://github.com/tf2pickup-org/server/issues/2045)) ([bbd54da](https://github.com/tf2pickup-org/server/commit/bbd54dae57f5f343b9ccff690c757c3f3d5a4ea0))
+* **deps:** update dependency mongoose to v6.7.2 ([#2054](https://github.com/tf2pickup-org/server/issues/2054)) ([f92c713](https://github.com/tf2pickup-org/server/commit/f92c713caf8775dba292cc17bb1375d8bf3cdb6d))
+* **deps:** update nest monorepo to v9.2.0 ([#2051](https://github.com/tf2pickup-org/server/issues/2051)) ([0719314](https://github.com/tf2pickup-org/server/commit/0719314fe0276b270c8907c995316255e9f9d74f))
+* **discord:** align bullets in prompts ([#2055](https://github.com/tf2pickup-org/server/issues/2055)) ([4c19cb4](https://github.com/tf2pickup-org/server/commit/4c19cb42ac6fd7a2ad3de5b30147ed120df9f3ff))
+* **queue:** synchronous join queue ([#2052](https://github.com/tf2pickup-org/server/issues/2052)) ([f7a8bb2](https://github.com/tf2pickup-org/server/commit/f7a8bb247046038bcce0ccaf4b14acb83e6e42cf))
+
+
+### Features
+
+* **player-actions:** player actions controller ([#2044](https://github.com/tf2pickup-org/server/issues/2044)) ([b1c3288](https://github.com/tf2pickup-org/server/commit/b1c3288727765b8a737e50405b39976fd8fbe526))
+
 # [10.0.0-beta.6](https://github.com/tf2pickup-org/server/compare/10.0.0-beta.5...10.0.0-beta.6) (2022-11-05)
 
 
