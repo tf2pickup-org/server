@@ -133,9 +133,9 @@ export class QueueService implements OnModuleInit, OnModuleDestroy {
       targetSlot.ready = true;
     }
 
-    // this.logger.debug(
-    //   `player ${player.name} joined the queue (slotId=${targetSlot.id}, gameClass=${targetSlot.gameClass})`,
-    // );
+    this.logger.debug(
+      `player ${playerId} joined the queue (slotId=${targetSlot.id}, gameClass=${targetSlot.gameClass})`,
+    );
 
     // is player joining instead of only changing slots?
     if (oldSlots.length === 0) {
