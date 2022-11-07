@@ -1,4 +1,8 @@
-import { PlayerInvolvedInGameError } from '@/queue/errors/player-involved-in-game.error';
+import { Player } from '@/players/models/player';
+import {
+  DenyReason,
+  PlayerDeniedError,
+} from '@/queue/errors/player-denied.error';
 import { AllExceptionsFilter } from './all-exceptions.filter';
 
 describe('AllExceptionsFilter', () => {
@@ -17,8 +21,14 @@ describe('AllExceptionsFilter', () => {
       }),
     };
 
+    const player = new Player();
+    player.name = 'FAKE_PLAYER_NAME';
+
     const filter = new AllExceptionsFilter();
-    filter.catch(new PlayerInvolvedInGameError('FAKE_PLAYER_ID'), host as any);
+    filter.catch(
+      new PlayerDeniedError(player, DenyReason.playerIsBanned),
+      host as any,
+    );
     expect(socket.emit).toHaveBeenCalledWith('exception', {
       message: expect.any(String),
     });
