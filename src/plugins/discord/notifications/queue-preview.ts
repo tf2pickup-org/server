@@ -32,7 +32,7 @@ export const queuePreview = (
     value:
       gameClassData.players.length > 0
         ? gameClassData.players
-            .map((player) => `\u2000\u25CF\u2000${player.name}`)
+            .map((player) => `\u25CF\u2000${player.name}`)
             .join('\n')
         : '\u200B',
     inline: true,
