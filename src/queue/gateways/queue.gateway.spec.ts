@@ -101,8 +101,8 @@ describe('QueueGateway', () => {
   });
 
   describe('#joinQueue()', () => {
-    it('should join the queue', async () => {
-      await gateway.joinQueue({ user: { id: 'FAKE_PLAYER_ID' } } as Socket, {
+    it('should join the queue', () => {
+      gateway.joinQueue({ user: { id: 'FAKE_PLAYER_ID' } } as Socket, {
         slotId: 5,
       });
       expect(queueService.join).toHaveBeenCalledWith(5, 'FAKE_PLAYER_ID');
@@ -128,7 +128,7 @@ describe('QueueGateway', () => {
   });
 
   describe('#markFriend()', () => {
-    it('should mark friend', async () => {
+    it('should mark friend', () => {
       gateway.markFriend({ user: { id: 'FAKE_PLAYER_ID' } } as Socket, {
         friendPlayerId: 'FAKE_FRIEND_ID',
       });

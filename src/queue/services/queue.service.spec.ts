@@ -216,7 +216,7 @@ describe('QueueService', () => {
       });
 
       describe('when the player tries to join an already occupied slot', () => {
-        beforeEach(async () => {
+        beforeEach(() => {
           service.join(0, 'FAKE_PLAYER_2_ID');
         });
 
