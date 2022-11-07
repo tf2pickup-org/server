@@ -1,31 +1,14 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { QueueService } from './queue.service';
-import { PlayersService } from '@/players/services/players.service';
-import { PlayerBansService } from '@/players/services/player-bans.service';
-import { MongoMemoryServer } from 'mongodb-memory-server';
-import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
-import { Player, PlayerDocument, playerSchema } from '@/players/models/player';
+import { Player, PlayerDocument } from '@/players/models/player';
 import { Events } from '@/events/events';
-import { getConnectionToken, MongooseModule } from '@nestjs/mongoose';
-import { NoSuchPlayerError } from '../errors/no-such-player.error';
-import { PlayerHasNotAcceptedRulesError } from '../errors/player-has-not-accepted-rules.error';
-import { PlayerIsBannedError } from '../errors/player-is-banned.error';
-import { PlayerInvolvedInGameError } from '../errors/player-involved-in-game.error';
 import { NoSuchSlotError } from '../errors/no-such-slot.error';
 import { SlotOccupiedError } from '../errors/slot-occupied.error';
 import { PlayerNotInTheQueueError } from '../errors/player-not-in-the-queue.error';
 import { WrongQueueStateError } from '../errors/wrong-queue-state.error';
-import { Connection, Types } from 'mongoose';
+import { Types } from 'mongoose';
 import { CACHE_MANAGER } from '@nestjs/common';
 import { QueueState } from '../queue-state';
-import { ConfigurationService } from '@/configuration/services/configuration.service';
-import { DenyPlayersWithNoSkillAssigned } from '@/configuration/models/deny-players-with-no-skill-assigned';
-import { PlayerDeniedError } from '../errors/player-denied.error';
-import { Tf2ClassName } from '@/shared/models/tf2-class-name';
-
-jest.mock('@/players/services/players.service');
-jest.mock('@/players/services/player-bans.service');
-jest.mock('@/configuration/services/configuration.service');
 
 class CacheStub {
   set = jest.fn();
@@ -36,30 +19,14 @@ const waitForImmediate = () => new Promise((resolve) => setImmediate(resolve));
 
 describe('QueueService', () => {
   let service: QueueService;
-  let mongod: MongoMemoryServer;
-  let playersService: PlayersService;
-  let playerBansService: PlayerBansService;
   let events: Events;
-  let player: PlayerDocument;
-  let connection: Connection;
+  let player: Player;
   let cache: CacheStub;
-  let configurationService: jest.Mocked<ConfigurationService>;
-
-  beforeAll(async () => (mongod = await MongoMemoryServer.create()));
-  afterAll(async () => await mongod.stop());
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      imports: [
-        mongooseTestingModule(mongod),
-        MongooseModule.forFeature([
-          { name: Player.name, schema: playerSchema },
-        ]),
-      ],
       providers: [
         QueueService,
-        PlayersService,
-        PlayerBansService,
         Events,
         {
           provide: 'QUEUE_CONFIG',
@@ -74,35 +41,22 @@ describe('QueueService', () => {
           },
         },
         { provide: CACHE_MANAGER, useClass: CacheStub },
-        ConfigurationService,
       ],
     }).compile();
 
     service = module.get<QueueService>(QueueService);
-    playersService = module.get(PlayersService);
-    playerBansService = module.get(PlayerBansService);
     events = module.get(Events);
-    connection = module.get(getConnectionToken());
     cache = module.get(CACHE_MANAGER);
-    configurationService = module.get(ConfigurationService);
   });
 
-  beforeEach(async () => {
-    playerBansService.getPlayerActiveBans = () => Promise.resolve([]);
-
-    // @ts-expect-error
-    player = await playersService._createOne({ hasAcceptedRules: true });
-
-    configurationService.getDenyPlayersWithNoSkillAssigned.mockResolvedValue(
-      new DenyPlayersWithNoSkillAssigned(false),
-    );
+  beforeEach(() => {
+    player = new Player();
+    player._id = new Types.ObjectId();
+    player.id = player._id.toString();
   });
 
-  afterEach(async () => {
+  afterEach(() => {
     service.onModuleDestroy();
-    // @ts-expect-error
-    await playersService._reset();
-    await connection.close();
   });
 
   it('should be defined', () => {
@@ -253,121 +207,40 @@ describe('QueueService', () => {
     });
 
     describe('#join()', () => {
-      it("should fail if the given player doesn't exist", async () => {
-        await expect(
-          service.join(0, new Types.ObjectId().toString()),
-        ).rejects.toThrow(NoSuchPlayerError);
-      });
-
-      describe('when the player has not accepted rules', () => {
-        beforeEach(async () => {
-          player.hasAcceptedRules = false;
-          await player.save();
-        });
-
-        it('should fail', async () => {
-          await expect(service.join(0, player.id)).rejects.toThrow(
-            PlayerHasNotAcceptedRulesError,
-          );
-        });
-      });
-
-      describe('when the player is banned', () => {
-        beforeEach(() => {
-          jest
-            .spyOn(playerBansService, 'getPlayerActiveBans')
-            .mockResolvedValue([{} as any]);
-        });
-
-        it('should fail', async () => {
-          await expect(service.join(0, player.id)).rejects.toThrow(
-            PlayerIsBannedError,
-          );
-        });
-      });
-
-      describe('when players with no skill assigned are denied', () => {
-        beforeEach(() => {
-          configurationService.getDenyPlayersWithNoSkillAssigned.mockResolvedValue(
-            new DenyPlayersWithNoSkillAssigned(true),
-          );
-        });
-
-        it('should deny player', async () => {
-          await expect(service.join(0, player.id)).rejects.toThrow(
-            PlayerDeniedError,
-          );
-        });
-
-        describe('but the player has skill assigned', () => {
-          beforeEach(async () => {
-            player.skill = new Map([[Tf2ClassName.soldier, 2]]);
-            await player.save();
-          });
-
-          it('should allow player', async () => {
-            await service.join(0, player.id);
-            expect(service.isInQueue(player.id)).toBe(true);
-          });
-        });
-      });
-
-      describe('when the player is playing a game', () => {
-        beforeEach(async () => {
-          player.activeGame = new Types.ObjectId();
-          await player.save();
-        });
-
-        it('should fail', async () => {
-          await expect(service.join(0, player.id)).rejects.toThrow(
-            PlayerInvolvedInGameError,
-          );
-        });
-      });
-
       describe('when the player tries to join an invalid slot', () => {
-        it('should fail', async () => {
-          await expect(service.join(1234567, player.id)).rejects.toThrow(
+        it('should fail', () => {
+          expect(() => service.join(1234567, player.id)).toThrow(
             NoSuchSlotError,
           );
         });
       });
 
       describe('when the player tries to join an already occupied slot', () => {
-        let player2: PlayerDocument;
-
         beforeEach(async () => {
-          // @ts-expect-error
-          player2 = await playersService._createOne();
-          player2.hasAcceptedRules = true;
-          await player2.save();
-
-          await service.join(0, player2.id);
+          service.join(0, 'FAKE_PLAYER_2_ID');
         });
 
-        it('should fail when trying to take a slot that was already occupied', async () => {
-          await expect(service.join(0, player.id)).rejects.toThrow(
-            SlotOccupiedError,
-          );
+        it('should fail when trying to take a slot that was already occupied', () => {
+          expect(() => service.join(0, player.id)).toThrow(SlotOccupiedError);
         });
       });
 
-      it('should add the player to the given slot', async () => {
-        const slots = await service.join(0, player.id);
+      it('should add the player to the given slot', () => {
+        const slots = service.join(0, player.id);
         const slot = slots.find((s) => s.playerId === player.id);
         expect(slot).toBeDefined();
         expect(slot.id).toBe(0);
         expect(service.playerCount).toBe(1);
       });
 
-      it('should return the player via isInQueue()', async () => {
-        await service.join(0, player.id);
+      it('should return the player via isInQueue()', () => {
+        service.join(0, player.id);
         expect(service.isInQueue(player.id)).toBe(true);
       });
 
-      it('should remove the player from already taken slot', async () => {
-        const oldSlots = await service.join(0, player.id);
-        const newSlots = await service.join(1, player.id);
+      it('should remove the player from already taken slot', () => {
+        const oldSlots = service.join(0, player.id);
+        const newSlots = service.join(1, player.id);
         expect(newSlots.length).toEqual(2);
         expect(newSlots.find((s) => s.playerId === player.id)).toBeDefined();
         expect(oldSlots[0].playerId).toBeNull();
@@ -396,20 +269,14 @@ describe('QueueService', () => {
         }));
 
       describe('when the player joins as the last one', () => {
-        beforeEach(async () => {
+        beforeEach(() => {
           for (let i = 0; i < 11; ++i) {
-            // skipcq: JS-0032
-            // @ts-expect-error
-            const player = await playersService._createOne({
-              hasAcceptedRules: true,
-            });
-            // skipcq: JS-0032
-            await service.join(i, player.id);
+            service.join(i, `FAKE_PLAYER_${i}_ID`);
           }
         });
 
-        it('should ready-up the slot immediately', async () => {
-          const slots = await service.join(11, player.id);
+        it('should ready-up the slot immediately', () => {
+          const slots = service.join(11, player.id);
           expect(slots[0].ready).toBe(true);
         });
       });
@@ -432,8 +299,8 @@ describe('QueueService', () => {
     });
 
     describe('#leave()', () => {
-      beforeEach(async () => {
-        await service.join(0, player.id);
+      beforeEach(() => {
+        service.join(0, player.id);
       });
 
       it('should reset the slot', () => {
@@ -482,8 +349,8 @@ describe('QueueService', () => {
     });
 
     describe('#kick()', () => {
-      beforeEach(async () => {
-        await service.join(0, player.id);
+      beforeEach(() => {
+        service.join(0, player.id);
       });
 
       it('should reset the slot', () => {
@@ -522,8 +389,8 @@ describe('QueueService', () => {
 
     describe('#readyUp()', () => {
       describe('when the queue is not in ready up state', () => {
-        beforeEach(async () => {
-          await service.join(0, player.id);
+        beforeEach(() => {
+          service.join(0, player.id);
         });
 
         it('should fail', () => {
@@ -535,18 +402,15 @@ describe('QueueService', () => {
     });
 
     describe('when the queue is in the ready state', () => {
-      let players: PlayerDocument[];
+      let players: Player[];
 
       beforeEach(async () => {
         players = [];
 
         for (let i = 0; i < 12; ++i) {
-          // skipcq: JS-0032
-          // @ts-expect-error
-          const player = await playersService._createOne({
-            hasAcceptedRules: true,
-          });
-          await service.join(i, player.id); // skipcq: JS-0032
+          const player = new Player();
+          player.id = `FAKE_PLAYER_${i}_ID`;
+          service.join(i, player.id);
           players.push(player);
         }
 
@@ -581,9 +445,9 @@ describe('QueueService', () => {
           }));
       });
 
-      it('should ready up joining players immediately', async () => {
+      it('should ready up joining players immediately', () => {
         const slot = service.leave(players[0].id);
-        const slots = await service.join(slot.id, players[0].id);
+        const slots = service.join(slot.id, players[0].id);
         expect(slots[0].ready).toBe(true);
       });
 
@@ -610,8 +474,8 @@ describe('QueueService', () => {
     });
 
     describe('when a player is in the queue', () => {
-      beforeEach(async () => {
-        await service.join(0, player.id);
+      beforeEach(() => {
+        service.join(0, player.id);
       });
 
       describe('and after he disconnects', () => {
@@ -628,7 +492,7 @@ describe('QueueService', () => {
         beforeEach(() => {
           events.playerBanAdded.next({
             ban: {
-              player: player.id,
+              player: player._id,
               admin: new Types.ObjectId(),
               start: new Date(),
               end: new Date(),

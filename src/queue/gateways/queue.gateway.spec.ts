@@ -9,6 +9,8 @@ import { Socket } from 'socket.io';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { QueueSlotWrapper } from '../controllers/queue-slot-wrapper';
 import { QueueState } from '../queue-state';
+import { ConfigurationService } from '@/configuration/services/configuration.service';
+import { PlayerBansService } from '@/players/services/player-bans.service';
 
 jest.mock('../services/queue.service');
 jest.mock('socket.io');
@@ -16,6 +18,8 @@ jest.mock('../services/map-vote.service');
 jest.mock('../services/queue-announcements.service');
 jest.mock('../services/friends.service');
 jest.mock('../controllers/queue-slot-wrapper');
+jest.mock('@/configuration/services/configuration.service');
+jest.mock('@/players/services/player-bans.service');
 
 const mockSubstituteRequests = [
   {
@@ -44,6 +48,8 @@ describe('QueueGateway', () => {
         MapVoteService,
         QueueAnnouncementsService,
         FriendsService,
+        ConfigurationService,
+        PlayerBansService,
       ],
     }).compile();
 
@@ -56,7 +62,7 @@ describe('QueueGateway', () => {
   });
 
   beforeEach(() => {
-    queueService.join.mockResolvedValue([
+    queueService.join.mockReturnValue([
       {
         id: 5,
         playerId: 'FAKE_PLAYER_ID',

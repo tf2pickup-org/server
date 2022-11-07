@@ -2,14 +2,11 @@ import {
   Injectable,
   Logger,
   Inject,
-  forwardRef,
   OnModuleInit,
   OnModuleDestroy,
   CACHE_MANAGER,
 } from '@nestjs/common';
 import { QueueSlot } from '@/queue/queue-slot';
-import { PlayersService } from '@/players/services/players.service';
-import { PlayerBansService } from '@/players/services/player-bans.service';
 import { QueueState } from '../queue-state';
 import { readyUpTimeout, readyStateTimeout } from '@configs/queue';
 import { Events } from '@/events/events';
@@ -20,7 +17,6 @@ import { PlayerNotInTheQueueError } from '../errors/player-not-in-the-queue.erro
 import { WrongQueueStateError } from '../errors/wrong-queue-state.error';
 import { CannotJoinAtThisQueueStateError } from '../errors/cannot-join-at-this-queue-state.error';
 import { Cache } from 'cache-manager';
-import { ConfigurationService } from '@/configuration/services/configuration.service';
 import { QueueConfig } from '@/queue-config/interfaces/queue-config';
 
 interface Queue {
@@ -50,14 +46,10 @@ export class QueueService implements OnModuleInit, OnModuleDestroy {
   }
 
   constructor(
-    @Inject(forwardRef(() => PlayersService))
-    private playersService: PlayersService,
     @Inject('QUEUE_CONFIG')
     private readonly queueConfig: QueueConfig,
-    private playerBansService: PlayerBansService,
     private events: Events,
     @Inject(CACHE_MANAGER) private readonly cache: Cache,
-    private readonly configurationService: ConfigurationService,
   ) {}
 
   async onModuleInit() {

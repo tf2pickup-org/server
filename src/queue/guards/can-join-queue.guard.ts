@@ -13,7 +13,7 @@ export class CanJoinQueueGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const player = (context.switchToWs().getClient() as Socket).user;
+    const player = context.switchToWs().getClient<Socket>().user;
     if (!player) {
       throw new WsException('not logged in');
     }
