@@ -13,21 +13,14 @@ import { PlayerBansService } from '@/players/services/player-bans.service';
 import { QueueState } from '../queue-state';
 import { readyUpTimeout, readyStateTimeout } from '@configs/queue';
 import { Events } from '@/events/events';
-import { Error } from 'mongoose';
-import { NoSuchPlayerError } from '../errors/no-such-player.error';
-import { PlayerHasNotAcceptedRulesError } from '../errors/player-has-not-accepted-rules.error';
-import { PlayerIsBannedError } from '../errors/player-is-banned.error';
-import { PlayerInvolvedInGameError } from '../errors/player-involved-in-game.error';
 import { NoSuchSlotError } from '../errors/no-such-slot.error';
 import { SlotOccupiedError } from '../errors/slot-occupied.error';
 import { CannotLeaveAtThisQueueStateError } from '../errors/cannot-leave-at-this-queue-state.error';
 import { PlayerNotInTheQueueError } from '../errors/player-not-in-the-queue.error';
 import { WrongQueueStateError } from '../errors/wrong-queue-state.error';
 import { CannotJoinAtThisQueueStateError } from '../errors/cannot-join-at-this-queue-state.error';
-import { Mutex } from 'async-mutex';
 import { Cache } from 'cache-manager';
 import { ConfigurationService } from '@/configuration/services/configuration.service';
-import { PlayerDeniedError } from '../errors/player-denied.error';
 import { QueueConfig } from '@/queue-config/interfaces/queue-config';
 
 interface Queue {
@@ -43,7 +36,6 @@ export class QueueService implements OnModuleInit, OnModuleDestroy {
   private logger = new Logger(QueueService.name);
   private timer?: NodeJS.Timer;
   private immediates: NodeJS.Immediate[] = [];
-  private mutex = new Mutex();
 
   get requiredPlayerCount(): number {
     return this.slots.length;
@@ -122,77 +114,45 @@ export class QueueService implements OnModuleInit, OnModuleDestroy {
    * @param {number} slotId Slot id to take.
    * @param {string} playerId ID of the player who joins the queue.
    */
-  async join(slotId: number, playerId: string): Promise<QueueSlot[]> {
-    return await this.mutex.runExclusive(async () => {
-      try {
-        if (this.state === QueueState.launching) {
-          throw new CannotJoinAtThisQueueStateError(this.state);
-        }
+  join(slotId: number, playerId: string): QueueSlot[] {
+    if (this.state === QueueState.launching) {
+      throw new CannotJoinAtThisQueueStateError(this.state);
+    }
 
-        const player = await this.playersService.getById(playerId);
-        if (!player.hasAcceptedRules) {
-          throw new PlayerHasNotAcceptedRulesError(playerId);
-        }
+    const targetSlot = this.getSlotById(slotId);
+    if (!targetSlot) {
+      throw new NoSuchSlotError(slotId);
+    }
 
-        if (
-          !player.skill &&
-          (await this.configurationService.getDenyPlayersWithNoSkillAssigned())
-            .value
-        ) {
-          throw new PlayerDeniedError(player, 'no skill assigned');
-        }
+    if (targetSlot.playerId) {
+      throw new SlotOccupiedError(slotId);
+    }
 
-        const bans = await this.playerBansService.getPlayerActiveBans(playerId);
-        if (bans.length > 0) {
-          throw new PlayerIsBannedError(playerId);
-        }
+    // remove player from any slot(s) he could be occupying
+    const oldSlots = this.slots.filter((s) => s.playerId === playerId);
+    oldSlots.forEach((s) => this.clearSlot(s));
 
-        if (player.activeGame) {
-          throw new PlayerInvolvedInGameError(playerId);
-        }
+    targetSlot.playerId = playerId;
 
-        const targetSlot = this.getSlotById(slotId);
-        if (!targetSlot) {
-          throw new NoSuchSlotError(slotId);
-        }
+    if (
+      this.state === QueueState.ready ||
+      this.playerCount === this.requiredPlayerCount
+    ) {
+      targetSlot.ready = true;
+    }
 
-        if (targetSlot.playerId) {
-          throw new SlotOccupiedError(slotId);
-        }
+    // this.logger.debug(
+    //   `player ${player.name} joined the queue (slotId=${targetSlot.id}, gameClass=${targetSlot.gameClass})`,
+    // );
 
-        // remove player from any slot(s) he could be occupying
-        const oldSlots = this.slots.filter((s) => s.playerId === playerId);
-        oldSlots.forEach((s) => this.clearSlot(s));
+    // is player joining instead of only changing slots?
+    if (oldSlots.length === 0) {
+      this.events.playerJoinsQueue.next({ playerId });
+    }
 
-        targetSlot.playerId = playerId;
-
-        if (
-          this.state === QueueState.ready ||
-          this.playerCount === this.requiredPlayerCount
-        ) {
-          targetSlot.ready = true;
-        }
-
-        this.logger.debug(
-          `player ${player.name} joined the queue (slotId=${targetSlot.id}, gameClass=${targetSlot.gameClass})`,
-        );
-
-        // is player joining instead of only changing slots?
-        if (oldSlots.length === 0) {
-          this.events.playerJoinsQueue.next({ playerId });
-        }
-
-        const slots = [targetSlot, ...oldSlots];
-        this.events.queueSlotsChange.next({ slots });
-        return slots;
-      } catch (error) {
-        if (error instanceof Error.DocumentNotFoundError) {
-          throw new NoSuchPlayerError(playerId);
-        } else {
-          throw error;
-        }
-      }
-    });
+    const slots = [targetSlot, ...oldSlots];
+    this.events.queueSlotsChange.next({ slots });
+    return slots;
   }
 
   leave(playerId: string): QueueSlot {

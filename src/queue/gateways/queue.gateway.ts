@@ -7,7 +7,7 @@ import { QueueService } from '../services/queue.service';
 import { WsAuthorized } from '@/auth/decorators/ws-authorized.decorator';
 import { Socket } from 'socket.io';
 import { MapVoteService } from '../services/map-vote.service';
-import { OnModuleInit, UseFilters } from '@nestjs/common';
+import { OnModuleInit, UseFilters, UseGuards } from '@nestjs/common';
 import { QueueAnnouncementsService } from '../services/queue-announcements.service';
 import { FriendsService } from '../services/friends.service';
 import { Events } from '@/events/events';
@@ -18,6 +18,7 @@ import { serialize } from '@/shared/serialize';
 import { Serializable } from '@/shared/serializable';
 import { QueueSlotDto } from '../dto/queue-slot.dto';
 import { QueueSlotWrapper } from '../controllers/queue-slot-wrapper';
+import { CanJoinQueueGuard } from '../guards/can-join-queue.guard';
 
 @WebSocketGateway()
 export class QueueGateway implements OnGatewayInit, OnModuleInit {
@@ -66,15 +67,15 @@ export class QueueGateway implements OnGatewayInit, OnModuleInit {
   }
 
   @UseFilters(AllExceptionsFilter)
-  @WsAuthorized()
+  @UseGuards(CanJoinQueueGuard)
   @SubscribeMessage('join queue')
-  async joinQueue(
+  joinQueue(
     client: Socket,
     payload: { slotId: number },
-  ): Promise<Serializable<QueueSlotDto>[]> {
-    return (await this.queueService.join(payload.slotId, client.user.id)).map(
-      (s) => new QueueSlotWrapper(s),
-    );
+  ): Serializable<QueueSlotDto>[] {
+    return this.queueService
+      .join(payload.slotId, client.user.id)
+      .map((s) => new QueueSlotWrapper(s));
   }
 
   @UseFilters(AllExceptionsFilter)
