@@ -217,12 +217,12 @@ describe('QueuePromptsService', () => {
             fields: [
               {
                 name: '<emoji:tf2scout> scout (1/4)',
-                value: '\u2000\u25CF\u2000fake_player_1',
+                value: '\u25CF\u2000fake_player_1',
                 inline: true,
               },
               {
                 name: '<emoji:tf2soldier> soldier (1/4)',
-                value: '\u2000\u25CF\u2000fake_player_2',
+                value: '\u25CF\u2000fake_player_2',
                 inline: true,
               },
               {
@@ -232,7 +232,7 @@ describe('QueuePromptsService', () => {
               },
               {
                 name: '<emoji:tf2medic> medic (1/2)',
-                value: '\u2000\u25CF\u2000fake_player_3',
+                value: '\u25CF\u2000fake_player_3',
                 inline: true,
               },
             ],
@@ -335,13 +335,12 @@ describe('QueuePromptsService', () => {
               fields: [
                 {
                   name: '<emoji:tf2scout> scout (1/4)',
-                  value: '\u2000\u25CF\u2000fake_player_1',
+                  value: '\u25CF\u2000fake_player_1',
                   inline: true,
                 },
                 {
                   name: '<emoji:tf2soldier> soldier (2/4)',
-                  value:
-                    '\u2000\u25CF\u2000fake_player_2\n\u2000\u25CF\u2000fake_player_3',
+                  value: '\u25CF\u2000fake_player_2\n\u25CF\u2000fake_player_3',
                   inline: true,
                 },
                 {
