@@ -1,4 +1,9 @@
+## [9.1.9](https://github.com/tf2pickup-org/server/compare/9.1.8...9.1.9) (2022-11-08)
 
+
+### Bug Fixes
+
+* **serveme-tf:** enable gameserver plugins ([#2056](https://github.com/tf2pickup-org/server/issues/2056)) ([b17469c](https://github.com/tf2pickup-org/server/commit/b17469c0f1bc0a828769279677cfae7b71967667))
 
 # [10.0.0-beta.7](https://github.com/tf2pickup-org/server/compare/10.0.0-beta.6...10.0.0-beta.7) (2022-11-07)
 
