@@ -11,6 +11,7 @@ import { QueueSlotWrapper } from '../controllers/queue-slot-wrapper';
 import { QueueState } from '../queue-state';
 import { ConfigurationService } from '@/configuration/services/configuration.service';
 import { PlayerBansService } from '@/players/services/player-bans.service';
+import { PlayersService } from '@/players/services/players.service';
 
 jest.mock('../services/queue.service');
 jest.mock('socket.io');
@@ -20,6 +21,9 @@ jest.mock('../services/friends.service');
 jest.mock('../controllers/queue-slot-wrapper');
 jest.mock('@/configuration/services/configuration.service');
 jest.mock('@/players/services/player-bans.service');
+jest.mock('@/players/services/players.service', () => ({
+  PlayersService: jest.fn().mockImplementation(() => ({})),
+}));
 
 const mockSubstituteRequests = [
   {
@@ -50,6 +54,7 @@ describe('QueueGateway', () => {
         FriendsService,
         ConfigurationService,
         PlayerBansService,
+        PlayersService,
       ],
     }).compile();
 

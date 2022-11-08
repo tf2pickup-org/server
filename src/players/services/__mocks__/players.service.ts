@@ -14,12 +14,12 @@ export class PlayersService {
     @InjectModel(Player.name) private playerModel: Model<PlayerDocument>,
   ) {}
 
-  async getById(id: string) {
+  getById = jest.fn().mockImplementation(async (id: string) => {
     return plainToInstance(
       Player,
       await this.playerModel.findById(id).orFail().lean().exec(),
     );
-  }
+  });
 
   async getManyById(...ids: string[]): Promise<Player[]> {
     return plainToInstance(

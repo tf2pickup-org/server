@@ -3,6 +3,7 @@ import { ConfigurationService } from '@/configuration/services/configuration.ser
 import { Player } from '@/players/models/player';
 import { PlayerBan } from '@/players/models/player-ban';
 import { PlayerBansService } from '@/players/services/player-bans.service';
+import { PlayersService } from '@/players/services/players.service';
 import { ExecutionContext } from '@nestjs/common';
 import { WsException } from '@nestjs/websockets';
 import { Types } from 'mongoose';
@@ -11,11 +12,13 @@ import { CanJoinQueueGuard } from './can-join-queue.guard';
 
 jest.mock('@/configuration/services/configuration.service');
 jest.mock('@/players/services/player-bans.service');
+jest.mock('@/players/services/players.service');
 
 describe('CanJoinQueueGuard', () => {
   let guard: CanJoinQueueGuard;
   let configurationService: jest.Mocked<ConfigurationService>;
   let playerBansService: jest.Mocked<PlayerBansService>;
+  let playersService: jest.Mocked<PlayersService>;
 
   beforeEach(() => {
     configurationService = new ConfigurationService(
@@ -28,7 +31,20 @@ describe('CanJoinQueueGuard', () => {
       null,
       null,
     ) as jest.Mocked<PlayerBansService>;
-    guard = new CanJoinQueueGuard(configurationService, playerBansService);
+    playersService = new PlayersService(
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+    ) as jest.Mocked<PlayersService>;
+    guard = new CanJoinQueueGuard(
+      configurationService,
+      playerBansService,
+      playersService,
+    );
   });
 
   beforeEach(() => {
@@ -70,6 +86,7 @@ describe('CanJoinQueueGuard', () => {
         player = new Player();
         player.hasAcceptedRules = false;
         client.user = player;
+        playersService.getById.mockResolvedValue(player);
       });
 
       it('should deny', async () => {
@@ -86,6 +103,7 @@ describe('CanJoinQueueGuard', () => {
         player = new Player();
         player.hasAcceptedRules = true;
         client.user = player;
+        playersService.getById.mockResolvedValue(player);
       });
 
       describe('and he should be denied', () => {
@@ -119,6 +137,7 @@ describe('CanJoinQueueGuard', () => {
         player = new Player();
         player.hasAcceptedRules = true;
         client.user = player;
+        playersService.getById.mockResolvedValue(player);
 
         const ban = new PlayerBan();
         playerBansService.getPlayerActiveBans.mockResolvedValue([ban]);
@@ -139,6 +158,7 @@ describe('CanJoinQueueGuard', () => {
         player.hasAcceptedRules = true;
         player.activeGame = new Types.ObjectId();
         client.user = player;
+        playersService.getById.mockResolvedValue(player);
       });
 
       it('should deny', async () => {
