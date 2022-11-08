@@ -1,5 +1,6 @@
 import { ConfigurationService } from '@/configuration/services/configuration.service';
 import { PlayerBansService } from '@/players/services/player-bans.service';
+import { PlayersService } from '@/players/services/players.service';
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { WsException } from '@nestjs/websockets';
 import { Socket } from 'socket.io';
@@ -10,14 +11,16 @@ export class CanJoinQueueGuard implements CanActivate {
   constructor(
     private readonly configurationService: ConfigurationService,
     private readonly playerBansService: PlayerBansService,
+    private readonly playersService: PlayersService,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const player = context.switchToWs().getClient<Socket>().user;
-    if (!player) {
+    const socket = context.switchToWs().getClient<Socket>();
+    if (!socket.user) {
       throw new WsException('not logged in');
     }
 
+    const player = await this.playersService.getById(socket.user.id);
     if (!player.hasAcceptedRules) {
       throw new PlayerDeniedError(player, DenyReason.playerHasNotAcceptedRules);
     }
