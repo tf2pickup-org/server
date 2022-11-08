@@ -12,6 +12,7 @@ import {
   MongooseModule,
 } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
+import { isUndefined } from 'lodash';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { Connection, Error, Model, Types } from 'mongoose';
 import { Rcon } from 'rcon-client';
@@ -207,7 +208,7 @@ describe('StaticGameServersService', () => {
         testGameServer = await staticGameServerModel.findById(
           testGameServer.id,
         );
-        expect(testGameServer.game).toBe(undefined);
+        expect(testGameServer.game).toBeUndefined();
       });
     });
 
@@ -220,7 +221,7 @@ describe('StaticGameServersService', () => {
         testGameServer = await staticGameServerModel.findById(
           testGameServer.id,
         );
-        expect(testGameServer.game).toBe(undefined);
+        expect(testGameServer.game).toBeUndefined();
       });
     });
 
@@ -242,7 +243,7 @@ describe('StaticGameServersService', () => {
         testGameServer = await staticGameServerModel.findById(
           testGameServer.id,
         );
-        expect(testGameServer.game).toBe(undefined);
+        expect(testGameServer.game).toBeUndefined();
       });
     });
   });
@@ -360,7 +361,7 @@ describe('StaticGameServersService', () => {
       it('should return free game servers', async () => {
         const gameServers = await service.getFreeGameServers();
         expect(gameServers.length).toEqual(1);
-        expect(gameServers.every((gs) => gs.game === undefined)).toBe(true);
+        expect(gameServers.every((gs) => isUndefined(gs.game))).toBe(true);
       });
     });
 
@@ -387,7 +388,7 @@ describe('StaticGameServersService', () => {
       it('should return taken gameservers', async () => {
         const gameServers = await service.getTakenGameServers();
         expect(gameServers.length).toEqual(1);
-        expect(gameServers.every((gs) => gs.game === undefined)).toBe(false);
+        expect(gameServers.every((gs) => isUndefined(gs.game))).toBe(false);
       });
     });
   });
@@ -494,7 +495,7 @@ describe('StaticGameServersService', () => {
     it('should free gameservers that no longer run any game', async () => {
       await service.freeUnusedGameServers();
       const gs = await staticGameServerModel.findById(testGameServer.id);
-      expect(gs.game).toBe(undefined);
+      expect(gs.game).toBeUndefined();
     });
 
     describe('when a game is in progress', () => {

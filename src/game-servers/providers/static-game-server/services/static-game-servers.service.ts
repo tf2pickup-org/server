@@ -123,9 +123,9 @@ export class StaticGameServersService
         address: selectedGameServer.address,
         port: parseInt(selectedGameServer.port, 10),
       };
-    } else {
-      throw new NoFreeGameServerAvailableError();
     }
+
+    throw new NoFreeGameServerAvailableError();
   }
 
   async getControls(id: string): Promise<GameServerControls> {
