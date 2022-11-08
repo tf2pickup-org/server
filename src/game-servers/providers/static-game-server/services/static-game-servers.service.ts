@@ -93,6 +93,7 @@ export class StaticGameServersService
   async releaseGameServer({ gameServerId, reason }) {
     switch (reason) {
       case GameServerReleaseReason.Manual:
+      case GameServerReleaseReason.GameInterrupted:
         await this.freeGameServer(gameServerId);
         break;
 
@@ -122,9 +123,9 @@ export class StaticGameServersService
         address: selectedGameServer.address,
         port: parseInt(selectedGameServer.port, 10),
       };
-    } else {
-      throw new NoFreeGameServerAvailableError();
     }
+
+    throw new NoFreeGameServerAvailableError();
   }
 
   async getControls(id: string): Promise<GameServerControls> {

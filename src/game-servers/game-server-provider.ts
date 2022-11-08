@@ -5,6 +5,7 @@ import { GameServerOption } from './interfaces/game-server-option';
 export enum GameServerReleaseReason {
   Manual,
   GameEnded,
+  GameInterrupted,
 }
 
 export interface GameServerProvider {

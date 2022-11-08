@@ -22,6 +22,7 @@ import { GameServerControls } from '../interfaces/game-server-controls';
 import { Events } from '@/events/events';
 import { filter, map } from 'rxjs';
 import { GameServerDetailsWithProvider } from '../interfaces/game-server-details';
+import { isUndefined } from 'lodash';
 import { GameState } from '@/games/models/game-state';
 
 @Injectable()
@@ -54,17 +55,20 @@ export class GameServersService
           ({ oldGame, newGame }) =>
             oldGame.isInProgress && !newGame.isInProgress(),
         ),
-        filter(({ newGame }) => newGame.state === GameState.ended),
         map(({ newGame }) => newGame),
         filter((game) => Boolean(game.gameServer)),
       )
       .subscribe(async (game) => {
         const gameServer = game.gameServer;
         const provider = this.providerByName(gameServer.provider);
+        const reason: GameServerReleaseReason = {
+          [GameState.ended]: GameServerReleaseReason.GameEnded,
+          [GameState.interrupted]: GameServerReleaseReason.GameInterrupted,
+        }[game.state];
         await provider.releaseGameServer({
           gameServerId: gameServer.id,
           gameId: game.id,
-          reason: GameServerReleaseReason.GameEnded,
+          reason,
         });
       });
   }
@@ -155,7 +159,7 @@ export class GameServersService
       }
 
       let gameServer: GameServerDetailsWithProvider;
-      if (gameServerId === undefined) {
+      if (isUndefined(gameServerId)) {
         gameServer = await this.takeFirstFreeGameServer(gameId);
       } else {
         gameServer = await this.takeGameServer(gameServerId, gameId);
