@@ -139,6 +139,7 @@ export class ServemeTfApiService {
                 rcon: response.reservation.rcon ?? generateRconPassword(),
                 password: generateGameserverPassword(),
                 server_id: server.id,
+                enable_plugins: true,
               },
             },
             this.config,
