@@ -23,6 +23,7 @@ import { Events } from '@/events/events';
 import { filter, map } from 'rxjs';
 import { GameServerDetailsWithProvider } from '../interfaces/game-server-details';
 import { isUndefined } from 'lodash';
+import { GameState } from '@/games/models/game-state';
 
 @Injectable()
 export class GameServersService
@@ -60,10 +61,14 @@ export class GameServersService
       .subscribe(async (game) => {
         const gameServer = game.gameServer;
         const provider = this.providerByName(gameServer.provider);
+        const reason: GameServerReleaseReason = {
+          [GameState.ended]: GameServerReleaseReason.GameEnded,
+          [GameState.interrupted]: GameServerReleaseReason.GameInterrupted,
+        }[game.state];
         await provider.releaseGameServer({
           gameServerId: gameServer.id,
           gameId: game.id,
-          reason: GameServerReleaseReason.GameEnded,
+          reason,
         });
       });
   }

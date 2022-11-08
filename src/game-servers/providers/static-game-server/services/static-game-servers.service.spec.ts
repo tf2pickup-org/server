@@ -211,6 +211,19 @@ describe('StaticGameServersService', () => {
       });
     });
 
+    describe('when the game was force-ended', () => {
+      it('should update the gameserver', async () => {
+        await service.releaseGameServer({
+          gameServerId: testGameServer.id,
+          reason: GameServerReleaseReason.GameInterrupted,
+        });
+        testGameServer = await staticGameServerModel.findById(
+          testGameServer.id,
+        );
+        expect(testGameServer.game).toBe(undefined);
+      });
+    });
+
     describe('when released because the game has ended', () => {
       beforeEach(() => {
         jest.useFakeTimers();
