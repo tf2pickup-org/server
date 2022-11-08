@@ -22,6 +22,7 @@ import { GameServerControls } from '../interfaces/game-server-controls';
 import { Events } from '@/events/events';
 import { filter, map } from 'rxjs';
 import { GameServerDetailsWithProvider } from '../interfaces/game-server-details';
+import { isUndefined } from 'lodash';
 
 @Injectable()
 export class GameServersService
@@ -153,7 +154,7 @@ export class GameServersService
       }
 
       let gameServer: GameServerDetailsWithProvider;
-      if (gameServerId === undefined) {
+      if (isUndefined(gameServerId)) {
         gameServer = await this.takeFirstFreeGameServer(gameId);
       } else {
         gameServer = await this.takeGameServer(gameServerId, gameId);
