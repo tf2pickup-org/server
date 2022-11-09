@@ -1,3 +1,16 @@
+
+
+# [10.0.0-beta.8](https://github.com/tf2pickup-org/server/compare/10.0.0-beta.7...10.0.0-beta.8) (2022-11-09)
+
+
+### Bug Fixes
+
+* **game-servers:** release gameserver on game force-end as well ([#2057](https://github.com/tf2pickup-org/server/issues/2057)) ([ff8f5e1](https://github.com/tf2pickup-org/server/commit/ff8f5e14658a80959ba24dd8fb2c15104a1a0c05))
+* **queue:** fetch player in CanJoinQueueGuard ([#2058](https://github.com/tf2pickup-org/server/issues/2058)) ([f00f5ae](https://github.com/tf2pickup-org/server/commit/f00f5ae76d49012bdfef38d4107a3a0a4fd68103))
+* relax REDIS_URL schema ([#2059](https://github.com/tf2pickup-org/server/issues/2059)) ([07243f3](https://github.com/tf2pickup-org/server/commit/07243f3b375103fa4b0288a8bb9c9dd581b12412))
+* relax REDIS_URL schema ([#2059](https://github.com/tf2pickup-org/server/issues/2059)) ([c16e09d](https://github.com/tf2pickup-org/server/commit/c16e09dead6ee8199f8d0895c711d6dc820ea186))
+* **serveme-tf:** enable gameserver plugins ([#2056](https://github.com/tf2pickup-org/server/issues/2056)) ([334ff96](https://github.com/tf2pickup-org/server/commit/334ff964d1f8527b17a22c3aec3e4ff27b0f054a))
+
 ## [9.1.9](https://github.com/tf2pickup-org/server/compare/9.1.8...9.1.9) (2022-11-08)
 
 
