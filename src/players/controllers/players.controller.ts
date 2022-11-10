@@ -46,6 +46,7 @@ import { Readable } from 'stream';
 import { ImportExportSkillService } from '../services/import-export-skill.service';
 import { ImportSkillsResponseDto } from '../dto/import-skills-response.dto';
 import { PlayerSkillRecordMalformedError } from '../errors/player-skill-record-malformed.error';
+import { ValidateSkillPipe } from '../pipes/validate-skill.pipe';
 
 @Controller('players')
 export class PlayersController {
@@ -117,9 +118,10 @@ export class PlayersController {
 
   @Put(':id/skill')
   @Auth(PlayerRole.admin)
+  @UsePipes(ValidateSkillPipe)
   async setPlayerSkill(
     @Param('id', PlayerByIdPipe) player: Player,
-    @Body() skill: { [className in Tf2ClassName]?: number }, // TODO validate
+    @Body() skill: { [className in Tf2ClassName]?: number },
     @User() admin: Player,
   ): Promise<{ [gameClass in Tf2ClassName]?: number }> {
     const newPlayer = await this.playersService.updatePlayer(

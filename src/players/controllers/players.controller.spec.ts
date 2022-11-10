@@ -17,6 +17,7 @@ import { LinkedProfileProviderName } from '../types/linked-profile-provider-name
 import { Types } from 'mongoose';
 import { ImportExportSkillService } from '../services/import-export-skill.service';
 import { PlayerSkillRecordMalformedError } from '../errors/player-skill-record-malformed.error';
+import { QueueConfig } from '@/queue-config/interfaces/queue-config';
 
 jest.mock('../services/linked-profiles.service');
 jest.mock('../services/import-export-skill.service');
@@ -105,6 +106,28 @@ class PlayerBansServiceStub {
     .mockImplementation((ban: PlayerBan) => Promise.resolve(ban));
 }
 
+const queueConfig: QueueConfig = {
+  teamCount: 2,
+  classes: [
+    {
+      name: Tf2ClassName.scout,
+      count: 2,
+    },
+    {
+      name: Tf2ClassName.soldier,
+      count: 2,
+    },
+    {
+      name: Tf2ClassName.demoman,
+      count: 1,
+    },
+    {
+      name: Tf2ClassName.medic,
+      count: 1,
+    },
+  ],
+};
+
 describe('Players Controller', () => {
   let controller: PlayersController;
   let playersService: PlayersServiceStub;
@@ -119,6 +142,10 @@ describe('Players Controller', () => {
         { provide: PlayerBansService, useClass: PlayerBansServiceStub },
         LinkedProfilesService,
         ImportExportSkillService,
+        {
+          provide: 'QUEUE_CONFIG',
+          useValue: queueConfig,
+        },
       ],
       controllers: [PlayersController],
       imports: [CacheModule.register()],
