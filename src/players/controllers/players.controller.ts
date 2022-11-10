@@ -47,6 +47,7 @@ import { ImportExportSkillService } from '../services/import-export-skill.servic
 import { ImportSkillsResponseDto } from '../dto/import-skills-response.dto';
 import { PlayerSkillRecordMalformedError } from '../errors/player-skill-record-malformed.error';
 import { ValidateSkillPipe } from '../pipes/validate-skill.pipe';
+import { isUndefined } from 'lodash';
 
 @Controller('players')
 export class PlayersController {
@@ -177,7 +178,7 @@ export class PlayersController {
       throw new BadRequestException("the given ban is not of the user's");
     }
 
-    if (revoke !== undefined) {
+    if (!isUndefined(revoke)) {
       return await this.playerBansService.revokeBan(banId, user.id);
     }
   }

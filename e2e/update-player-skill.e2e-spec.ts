@@ -52,4 +52,20 @@ describe('Update player skill (e2e)', () => {
         .expect(401);
     });
   });
+
+  describe('when logged in', () => {
+    // eslint-disable-next-line jest/expect-expect
+    it('PUT /players/:playerId/skill', async () => {
+      await request(app.getHttpServer())
+        .put(`/players/${playerId}/skill`)
+        .auth(adminAuthToken, { type: 'bearer' })
+        .send({
+          scout: 2,
+          soldier: 3,
+          demoman: 4,
+          medic: 5,
+        })
+        .expect(200);
+    });
+  });
 });
