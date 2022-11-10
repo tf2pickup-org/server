@@ -24,13 +24,15 @@ describe('Environment', () => {
   });
 
   [
+    'WEBSITE_NAME',
     'API_URL',
     'CLIENT_URL',
     'BOT_NAME',
     'MONGODB_URI',
+    'REDIS_URL',
     'STEAM_API_KEY',
-    // TODO v10: enable test below
-    // 'KEY_STORE_PASSPHRASE',
+    'LOGS_TF_API_KEY',
+    'KEY_STORE_PASSPHRASE',
     'SUPER_USER',
     'QUEUE_CONFIG',
     'LOG_RELAY_ADDRESS',
@@ -43,6 +45,8 @@ describe('Environment', () => {
     'DISCORD_ADMIN_NOTIFICATIONS_CHANNEL',
     'TWITCH_CLIENT_ID',
     'TWITCH_CLIENT_SECRET',
+    'SERVEME_TF_API_ENDPOINT',
+    'SERVEME_TF_API_KEY',
   ].forEach((varName) => {
     const getterName = varName
       .toLowerCase()
