@@ -129,7 +129,15 @@ describe('StatisticsService', () => {
           map: 'cp_process_f7',
         },
       ]);
+
+      jest.useFakeTimers({
+        legacyFakeTimers: false,
+        now: new Date('2020-06-06'),
+        doNotFake: ['nextTick'],
+      });
     });
+
+    afterEach(() => jest.useRealTimers());
 
     it('should return game launch per day count', async () => {
       const ret = await service.getGameLaunchesPerDay();
