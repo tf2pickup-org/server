@@ -14,19 +14,14 @@ export class DocumentsService implements OnModuleInit {
   ) {}
 
   async onModuleInit() {
-    // ensure we have the rules document created
-    try {
-      await this.getDocument('rules');
-    } catch (error) {
-      if (error instanceof Error.DocumentNotFoundError) {
-        const rules = await readFile(
-          join(__dirname, '..', 'default', 'rules.md'),
-        );
-        await this.saveDocument('rules', 'en', rules.toString());
-      } else {
-        throw error;
-      }
-    }
+    await this.initDocument(
+      'rules',
+      join(__dirname, '..', 'default', 'rules.md'),
+    );
+    await this.initDocument(
+      'privacy policy',
+      join(__dirname, '..', 'default', 'privacy-policy.md'),
+    );
   }
 
   async getDocument(name: string, language = 'en'): Promise<Document> {
@@ -52,5 +47,18 @@ export class DocumentsService implements OnModuleInit {
       .lean()
       .exec();
     return plainToInstance(Document, pojo);
+  }
+
+  private async initDocument(name: string, path: string) {
+    try {
+      await this.getDocument(name);
+    } catch (error) {
+      if (error instanceof Error.DocumentNotFoundError) {
+        const document = await readFile(path);
+        await this.saveDocument(name, 'en', document.toString());
+      } else {
+        throw error;
+      }
+    }
   }
 }
