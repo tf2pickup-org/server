@@ -24,10 +24,6 @@ jest.mock('@/players/services/players.service');
 jest.mock('@nestjs/config');
 jest.mock('./games.service');
 
-function flushPromises() {
-  return new Promise((resolve) => setImmediate(resolve));
-}
-
 describe('GameEventHandlerService', () => {
   let service: GameEventHandlerService;
   let mongod: MongoMemoryServer;
@@ -176,7 +172,11 @@ describe('GameEventHandlerService', () => {
       beforeEach(async () => {
         mockGame.slots[0].gameClass = Tf2ClassName.medic;
         await mockGame.save();
+
+        jest.useFakeTimers();
       });
+
+      afterEach(() => jest.useRealTimers());
 
       it('should remove assigned game from medics immediately', async () => {
         const game = await service.onMatchEnded(mockGame.id);
@@ -192,10 +192,8 @@ describe('GameEventHandlerService', () => {
       });
 
       it('should remove assigned game from all players after 5 seconds', async () => {
-        jest.useFakeTimers();
         const game = await service.onMatchEnded(mockGame.id);
-        jest.advanceTimersByTime(5000);
-        await flushPromises();
+        jest.advanceTimersByTime(5500);
         const players = await Promise.all(
           game.slots
             .map((slot) => slot.player)
@@ -204,7 +202,6 @@ describe('GameEventHandlerService', () => {
         expect(players.every((player) => player.activeGame === undefined)).toBe(
           true,
         );
-        jest.useRealTimers();
       });
     });
   });
