@@ -1,5 +1,17 @@
 
 
+# [10.0.0-beta.9](https://github.com/tf2pickup-org/server/compare/10.0.0-beta.8...10.0.0-beta.9) (2022-11-14)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @redis/client to v1.4.0 ([#2062](https://github.com/tf2pickup-org/server/issues/2062)) ([c322762](https://github.com/tf2pickup-org/server/commit/c322762701d17ad9d1258b1ad67da8fb8ab0f792))
+
+
+### Features
+
+* **documents:** add privacy policy ([#2065](https://github.com/tf2pickup-org/server/issues/2065)) ([8576cb2](https://github.com/tf2pickup-org/server/commit/8576cb2394381f5b48190a329ed99c48ae1e09c6))
+
 # [10.0.0-beta.8](https://github.com/tf2pickup-org/server/compare/10.0.0-beta.7...10.0.0-beta.8) (2022-11-09)
 
 
