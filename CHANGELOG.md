@@ -1,5 +1,12 @@
 
 
+# [10.0.0-rc.0](https://github.com/tf2pickup-org/server/compare/10.0.0-beta.9...10.0.0-rc.0) (2022-11-14)
+
+
+### Bug Fixes
+
+* **players:** validate player skill ([#2063](https://github.com/tf2pickup-org/server/issues/2063)) ([4216f8c](https://github.com/tf2pickup-org/server/commit/4216f8cd495cee9612201ac1d6c5dbb760745a92))
+
 # [10.0.0-beta.9](https://github.com/tf2pickup-org/server/compare/10.0.0-beta.8...10.0.0-beta.9) (2022-11-14)
 
 
