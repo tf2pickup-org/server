@@ -19,7 +19,8 @@ const config: JestConfigWithTsJest = {
   testEnvironment: 'node',
   setupFiles: ['trace-unhandled/register'],
   fakeTimers: {
-    legacyFakeTimers: true,
+    legacyFakeTimers: false,
+    doNotFake: ['nextTick', 'setImmediate'],
   },
 };
 
