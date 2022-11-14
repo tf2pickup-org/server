@@ -19,6 +19,7 @@ import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { Error, Types } from 'mongoose';
 import { Mutex } from 'async-mutex';
 import { Tf2Team } from '../models/tf2-team';
+import { isUndefined } from 'lodash';
 
 jest.mock('@/players/services/players.service');
 jest.mock('@nestjs/config');
@@ -186,7 +187,7 @@ describe('GameEventHandlerService', () => {
             .map((slot) => slot.player)
             .map((playerId) => playersService.getById(playerId.toString())),
         );
-        expect(players.every((player) => player.activeGame === undefined)).toBe(
+        expect(players.every((player) => isUndefined(player.activeGame))).toBe(
           true,
         );
       });
@@ -199,7 +200,7 @@ describe('GameEventHandlerService', () => {
             .map((slot) => slot.player)
             .map((playerId) => playersService.getById(playerId.toString())),
         );
-        expect(players.every((player) => player.activeGame === undefined)).toBe(
+        expect(players.every((player) => isUndefined(player.activeGame))).toBe(
           true,
         );
       });
