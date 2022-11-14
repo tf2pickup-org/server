@@ -119,10 +119,9 @@ export class PlayersController {
 
   @Put(':id/skill')
   @Auth(PlayerRole.admin)
-  @UsePipes(ValidateSkillPipe)
   async setPlayerSkill(
     @Param('id', PlayerByIdPipe) player: Player,
-    @Body() skill: { [className in Tf2ClassName]?: number },
+    @Body(ValidateSkillPipe) skill: { [className in Tf2ClassName]?: number },
     @User() admin: Player,
   ): Promise<{ [gameClass in Tf2ClassName]?: number }> {
     const newPlayer = await this.playersService.updatePlayer(
