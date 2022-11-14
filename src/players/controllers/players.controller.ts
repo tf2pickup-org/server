@@ -46,6 +46,8 @@ import { Readable } from 'stream';
 import { ImportExportSkillService } from '../services/import-export-skill.service';
 import { ImportSkillsResponseDto } from '../dto/import-skills-response.dto';
 import { PlayerSkillRecordMalformedError } from '../errors/player-skill-record-malformed.error';
+import { ValidateSkillPipe } from '../pipes/validate-skill.pipe';
+import { isUndefined } from 'lodash';
 
 @Controller('players')
 export class PlayersController {
@@ -119,7 +121,7 @@ export class PlayersController {
   @Auth(PlayerRole.admin)
   async setPlayerSkill(
     @Param('id', PlayerByIdPipe) player: Player,
-    @Body() skill: { [className in Tf2ClassName]?: number }, // TODO validate
+    @Body(ValidateSkillPipe) skill: { [className in Tf2ClassName]?: number },
     @User() admin: Player,
   ): Promise<{ [gameClass in Tf2ClassName]?: number }> {
     const newPlayer = await this.playersService.updatePlayer(
@@ -175,7 +177,7 @@ export class PlayersController {
       throw new BadRequestException("the given ban is not of the user's");
     }
 
-    if (revoke !== undefined) {
+    if (!isUndefined(revoke)) {
       return await this.playerBansService.revokeBan(banId, user.id);
     }
   }
