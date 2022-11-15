@@ -21,9 +21,9 @@ export class ParseFiltersPipe implements PipeTransform {
 
     for (const [key, value] of Object.entries(input)) {
       if (key.startsWith('player.')) {
-        playerQuery[key.split('.').slice(1).join('.')] = value;
+        playerQuery[key.split('.').slice(1).join('.')] = new RegExp(value);
       } else {
-        query[key] = value;
+        query[key] = new RegExp(value);
       }
     }
 
