@@ -156,8 +156,6 @@ describe('Player substitutes another player (e2e)', () => {
     console.log('ended');
 
     playerSocket.disconnect();
-    playerSocket = void 0;
-
     await waitABit(1000);
     await app.close();
   });
