@@ -27,6 +27,7 @@ describe('Player substitutes another player (e2e)', () => {
 
     app = moduleFixture.createNestApplication({ forceCloseConnections: true });
     configureApplication(app);
+    app.enableShutdownHooks();
     await app.listen(3000);
 
     playersService = app.get(PlayersService);
