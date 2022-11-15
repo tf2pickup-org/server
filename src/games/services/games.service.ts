@@ -120,13 +120,13 @@ export class GamesService {
   async getPlayerGameCount(
     playerId: string,
     options: GetPlayerGameCountOptions = {},
-  ) {
+  ): Promise<number> {
     const defaultOptions: GetPlayerGameCountOptions = { endedOnly: false };
     const _options = { ...defaultOptions, ...options };
 
     let criteria: any = { 'slots.player': new Types.ObjectId(playerId) };
     if (_options.endedOnly) {
-      criteria = { ...criteria, state: 'ended' };
+      criteria = { ...criteria, state: GameState.ended };
     }
 
     return await this.gameModel.countDocuments(criteria);
@@ -135,25 +135,58 @@ export class GamesService {
   async getPlayerPlayedClassCount(
     playerId: string,
   ): Promise<{ [gameClass in Tf2ClassName]?: number }> {
-    // FIXME store player stats in a separate model to avoid this query
-    const allGames = plainToInstance(
-      Game,
-      await this.gameModel
-        .find({
-          'slots.player': new Types.ObjectId(playerId),
-          state: GameState.ended,
-        })
-        .lean()
-        .exec(),
-    );
-    return this.queueConfig.classes
-      .map((cls) => cls.name)
-      .reduce((prev, gameClass) => {
-        prev[gameClass] = allGames.filter(
-          (g) => g.findPlayerSlot(playerId)?.gameClass === gameClass,
-        ).length;
-        return prev;
-      }, {});
+    return (
+      await this.gameModel.aggregate<{
+        [gameClass in Tf2ClassName]?: number;
+      }>([
+        {
+          $unwind: {
+            path: '$slots',
+          },
+        },
+        {
+          $match: {
+            state: GameState.ended,
+            'slots.status': {
+              $in: [null, 'active'],
+            },
+            'slots.player': new Types.ObjectId(playerId),
+          },
+        },
+        {
+          $group: {
+            _id: '$slots.gameClass',
+            count: {
+              $sum: 1,
+            },
+          },
+        },
+        {
+          $group: {
+            _id: null,
+            results: {
+              $push: {
+                k: '$_id',
+                v: '$count',
+              },
+            },
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            results: {
+              $arrayToObject: '$results',
+            },
+          },
+        },
+        {
+          $replaceRoot: {
+            newRoot: '$results',
+          },
+        },
+      ])
+    )[0];
   }
 
   async create(
