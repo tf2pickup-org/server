@@ -148,10 +148,12 @@ describe('Player substitutes another player (e2e)', () => {
 
   afterAll(async () => {
     await waitForTheGameToLaunch(app, gameId);
+    console.log('launched');
     await waitABit(1000);
 
     const gamesService = app.get(GamesService);
     await gamesService.forceEnd(gameId);
+    console.log('ended');
 
     playerSocket.disconnect();
     playerSocket = void 0;
