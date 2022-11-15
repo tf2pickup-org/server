@@ -154,7 +154,7 @@ describe('Player substitutes another player (e2e)', () => {
     await gamesService.forceEnd(gameId);
 
     playerSocket.disconnect();
-    playerSocket = undefined;
+    playerSocket = void 0;
 
     await waitABit(1000);
     await app.close();
