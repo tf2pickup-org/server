@@ -32,7 +32,7 @@ describe('ParseFiltersPipe', () => {
     });
     expect(query).toEqual({
       player: ['FAKE_PLAYER_ID'],
-      ipAddress: /127\.0\.0\.1/,
+      ipAddress: /127.0.0.1/,
     });
   });
 });
