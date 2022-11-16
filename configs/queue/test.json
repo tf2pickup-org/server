@@ -5,5 +5,8 @@
       "name": "soldier",
       "count": 1
     }
-  ]
+  ],
+  "readyUpTimeout": 10000,
+  "readyStateTimeout": 15000,
+  "mapCooldown": 2
 }

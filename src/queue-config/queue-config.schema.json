@@ -26,6 +26,15 @@
           }
         }
       }
+    },
+    "readyUpTimeout": {
+      "type": "integer"
+    },
+    "readyStateTimeout": {
+      "type": "integer"
+    },
+    "mapCooldown" : {
+      "type": "integer"
     }
   },
   "$defs": {

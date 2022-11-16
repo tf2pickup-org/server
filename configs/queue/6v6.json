@@ -18,5 +18,8 @@
       "count": 1,
       "canMakeFriendsWith": ["scout", "soldier", "demoman"]
     }
-  ]
+  ],
+  "readyUpTimeout": 40000,
+  "readyStateTimeout": 60000,
+  "mapCooldown": 2
 }
