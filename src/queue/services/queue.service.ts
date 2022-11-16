@@ -8,7 +8,6 @@ import {
 } from '@nestjs/common';
 import { QueueSlot } from '@/queue/queue-slot';
 import { QueueState } from '../queue-state';
-import { readyUpTimeout, readyStateTimeout } from '@configs/queue';
 import { Events } from '@/events/events';
 import { NoSuchSlotError } from '../errors/no-such-slot.error';
 import { SlotOccupiedError } from '../errors/slot-occupied.error';
@@ -233,7 +232,10 @@ export class QueueService implements OnModuleInit, OnModuleDestroy {
     switch (state) {
       case QueueState.ready:
         clearTimeout(this.timer);
-        this.timer = setTimeout(() => this.onReadyUpTimeout(), readyUpTimeout);
+        this.timer = setTimeout(
+          () => this.onReadyUpTimeout(),
+          this.queueConfig.readyUpTimeout,
+        );
         break;
 
       case QueueState.launching:
@@ -277,7 +279,8 @@ export class QueueService implements OnModuleInit, OnModuleDestroy {
       this.kickUnreadyPlayers();
     }
 
-    const nextTimeout = readyStateTimeout - readyUpTimeout;
+    const nextTimeout =
+      this.queueConfig.readyStateTimeout - this.queueConfig.readyUpTimeout;
 
     if (nextTimeout > 0) {
       clearTimeout(this.timer);

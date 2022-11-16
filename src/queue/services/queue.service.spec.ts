@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { QueueService } from './queue.service';
-import { Player, PlayerDocument } from '@/players/models/player';
+import { Player } from '@/players/models/player';
 import { Events } from '@/events/events';
 import { NoSuchSlotError } from '../errors/no-such-slot.error';
 import { SlotOccupiedError } from '../errors/slot-occupied.error';
@@ -38,6 +38,9 @@ describe('QueueService', () => {
               { name: 'medic', count: 1 },
             ],
             teamCount: 2,
+            readyUpTimeout: 40000,
+            readyStateTimeout: 60000,
+            mapCooldown: 2,
           },
         },
         { provide: CACHE_MANAGER, useClass: CacheStub },

@@ -126,6 +126,9 @@ const queueConfig: QueueConfig = {
       count: 1,
     },
   ],
+  readyUpTimeout: 40000,
+  readyStateTimeout: 60000,
+  mapCooldown: 2,
 };
 
 describe('Players Controller', () => {

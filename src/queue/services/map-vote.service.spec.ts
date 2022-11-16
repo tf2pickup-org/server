@@ -41,7 +41,17 @@ describe('MapVoteService', () => {
           },
         ]),
       ],
-      providers: [MapVoteService, QueueService, Events],
+      providers: [
+        MapVoteService,
+        QueueService,
+        Events,
+        {
+          provide: 'QUEUE_CONFIG',
+          useValue: {
+            mapCooldown: 2,
+          },
+        },
+      ],
     }).compile();
 
     service = module.get<MapVoteService>(MapVoteService);

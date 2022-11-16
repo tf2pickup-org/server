@@ -1,13 +1,13 @@
-import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { QueueService } from './queue.service';
 import { maxBy, shuffle } from 'lodash';
 import { BehaviorSubject } from 'rxjs';
 import { MapVoteResult } from '../map-vote-result';
-import { mapCooldown } from '@configs/queue';
 import { Events } from '@/events/events';
 import { MapPoolEntry, MapPoolEntryDocument } from '../models/map-pool-entry';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { QueueConfig } from '@/queue-config/interfaces/queue-config';
 
 interface MapVote {
   playerId: string;
@@ -34,6 +34,8 @@ export class MapVoteService implements OnModuleInit {
     private mapPoolEntryModel: Model<MapPoolEntryDocument>,
     private queueService: QueueService,
     private events: Events,
+    @Inject('QUEUE_CONFIG')
+    private readonly queueConfig: QueueConfig,
   ) {}
 
   async onModuleInit() {
@@ -89,7 +91,7 @@ export class MapVoteService implements OnModuleInit {
     );
     await this.mapPoolEntryModel.updateOne(
       { name: map },
-      { cooldown: mapCooldown },
+      { cooldown: this.queueConfig.mapCooldown },
     );
     setImmediate(() => this.scramble());
     return map;
