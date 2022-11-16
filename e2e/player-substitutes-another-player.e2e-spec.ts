@@ -148,17 +148,14 @@ describe('Player substitutes another player (e2e)', () => {
 
   afterAll(async () => {
     await waitForTheGameToLaunch(app, gameId);
-    console.log('first');
     await waitABit(1000);
 
     const gamesService = app.get(GamesService);
     await gamesService.forceEnd(gameId);
-    console.log('second');
 
     playerSocket.disconnect();
     await waitABit(1000);
     await app.close();
-    console.log('third');
   });
 
   it('should substitute a player', async () => {
