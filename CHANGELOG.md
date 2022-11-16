@@ -1,5 +1,13 @@
 
 
+# [10.0.0-rc.1](https://github.com/tf2pickup-org/server/compare/10.0.0-rc.0...10.0.0-rc.1) (2022-11-16)
+
+
+### Bug Fixes
+
+* **games:** getPlayerPlayedClassCount() aggregation ([#2072](https://github.com/tf2pickup-org/server/issues/2072)) ([ccde2a7](https://github.com/tf2pickup-org/server/commit/ccde2a711772bc3f55cfcf0f79393e5a8b7cb9b5))
+* **player-action-logger:** use regexes in filters ([#2071](https://github.com/tf2pickup-org/server/issues/2071)) ([bff28c5](https://github.com/tf2pickup-org/server/commit/bff28c5e5117a0e6248b7b6be281e7a9785e3772))
+
 # [10.0.0-rc.0](https://github.com/tf2pickup-org/server/compare/10.0.0-beta.9...10.0.0-rc.0) (2022-11-14)
 
 
