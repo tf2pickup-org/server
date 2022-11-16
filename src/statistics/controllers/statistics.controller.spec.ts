@@ -93,7 +93,7 @@ describe('StatisticsController', () => {
     });
 
     it('should return game launches per day', async () => {
-      expect(await controller.getGameLaunchesPerDay()).toEqual([
+      expect(await controller.getGameLaunchesPerDay(new Date())).toEqual([
         {
           day: '2012-11-11',
           count: 2,

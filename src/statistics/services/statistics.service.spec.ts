@@ -140,7 +140,9 @@ describe('StatisticsService', () => {
     afterEach(() => jest.useRealTimers());
 
     it('should return game launch per day count', async () => {
-      const ret = await service.getGameLaunchesPerDay();
+      const since = new Date();
+      since.setFullYear(since.getFullYear() - 1);
+      const ret = await service.getGameLaunchesPerDay(since);
       expect(ret.find((r) => r.day === '2021-11-11').count).toBe(2);
       expect(ret.find((r) => r.day === '2021-11-12').count).toBe(1);
     });

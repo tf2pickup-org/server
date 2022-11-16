@@ -124,15 +124,12 @@ export class StatisticsService {
     ]);
   }
 
-  async getGameLaunchesPerDay(): Promise<GameLaunchesPerDay[]> {
-    const after = new Date();
-    after.setFullYear(after.getFullYear() - 1);
-
+  async getGameLaunchesPerDay(since: Date): Promise<GameLaunchesPerDay[]> {
     return await this.gameModel.aggregate([
       {
         $match: {
           launchedAt: {
-            $gte: after,
+            $gte: since,
           },
         },
       },
