@@ -9,7 +9,6 @@ export const waitForTheGameToLaunch = (app: INestApplication, gameId: string) =>
         .get(`/games/${gameId}`)
         .then((response) => {
           const body = response.body;
-          console.log(body);
           if (body.stvConnectString) {
             clearInterval(i);
             resolve();

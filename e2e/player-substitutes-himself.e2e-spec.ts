@@ -151,10 +151,11 @@ describe('Player substitutes himself (e2e)', () => {
       'cp_badlands',
     );
     gameId = game.id;
+    await waitABit(1000);
+    await waitForTheGameToLaunch(app, gameId);
   });
 
   afterAll(async () => {
-    await waitForTheGameToLaunch(app, gameId);
     await waitABit(1000);
 
     const gamesService = app.get(GamesService);

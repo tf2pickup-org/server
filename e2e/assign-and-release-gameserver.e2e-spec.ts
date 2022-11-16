@@ -135,6 +135,7 @@ describe('Assign and release gameserver (e2e)', () => {
     );
     gameId = game.id;
     await waitABit(1000);
+    await waitForTheGameToLaunch(app, gameId);
   });
 
   afterAll(async () => {
@@ -164,8 +165,6 @@ describe('Assign and release gameserver (e2e)', () => {
         expect(body.game).toEqual(gameId);
         expect(body.isOnline).toBe(true);
       });
-
-    await waitForTheGameToLaunch(app, gameId);
 
     /* pretend the game has started */
     const events = app.get(Events);
