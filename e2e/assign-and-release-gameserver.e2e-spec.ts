@@ -191,7 +191,7 @@ describe('Assign and release gameserver (e2e)', () => {
       .expect(200)
       .then((response) => {
         const body = response.body;
-        expect(body.game).toBe(undefined);
+        expect(body.game).toBeUndefined();
       });
   });
 });
