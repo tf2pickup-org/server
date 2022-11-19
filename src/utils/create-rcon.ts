@@ -8,6 +8,9 @@ interface CreateRconOptions {
 
 export const createRcon = async (opts: CreateRconOptions): Promise<Rcon> =>
   new Promise((resolve, reject) => {
+    console.log(
+      `rcon ${opts.host}:${opts.port}; password ${opts.rconPassword}`,
+    );
     const rcon = new Rcon({
       host: opts.host,
       port: opts.port,
