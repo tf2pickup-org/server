@@ -45,7 +45,9 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [16.x, 18.x]
+        node-version:
+          - 16.x
+          - 18.x
         test-name:
           - 'e2e/app.e2e-spec.ts'
           - 'e2e/assign-and-release-gameserver.e2e-spec.ts'

@@ -60,6 +60,7 @@ export class ServerConfiguratorService implements OnModuleInit {
         try {
           await this.configureServer(gameId);
         } catch (error) {
+          console.trace();
           this.logger.error(error);
         }
       });
