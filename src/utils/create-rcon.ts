@@ -19,6 +19,7 @@ export const createRcon = async (opts: CreateRconOptions): Promise<Rcon> =>
     });
 
     rcon.on('error', (error) => {
+      console.log(`RCON ERROR: ${error}`);
       return reject(error);
     });
 
