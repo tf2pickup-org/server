@@ -26,7 +26,7 @@ describe('Player substitutes himself (e2e)', () => {
       imports: [AppModule],
     }).compile();
 
-    app = moduleFixture.createNestApplication({ forceCloseConnections: true });
+    app = moduleFixture.createNestApplication();
     configureApplication(app);
     app.enableShutdownHooks();
     await app.listen(3000);
