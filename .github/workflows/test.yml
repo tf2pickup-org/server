@@ -144,6 +144,12 @@ jobs:
     - name: Upload test coverage info
       uses: codecov/codecov-action@v3
 
+    - name: Show gameserver logs
+      if: failure()
+      run: |
+        docker logs "${{ job.services.gameserver1.id }}"
+        docker logs "${{ job.services.gameserver2.id }}"
+
   # Start the app with a clean database and verify it doesn't crash
   fresh-start:
     name: fresh-start
