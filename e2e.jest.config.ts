@@ -18,8 +18,8 @@ const config: JestConfigWithTsJest = {
   preset: 'ts-jest',
   testEnvironment: 'node',
   testMatch: ['<rootDir>/e2e/**/*.e2e-spec.ts'],
-  testTimeout: 3 * 60 * 1000, // 3 minutes
-  slowTestThreshold: 60 * 1000, // 1 minute
+  testTimeout: 5 * 60 * 1000, // 5 minutes
+  slowTestThreshold: 3 * 60 * 1000, // 3 minutes
   setupFiles: ['trace-unhandled/register'],
 };
 export default config;

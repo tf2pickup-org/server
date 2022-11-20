@@ -135,6 +135,7 @@ describe('Assign and release gameserver (e2e)', () => {
     );
     gameId = game.id;
     await waitABit(1000);
+    await waitForTheGameToLaunch(app, gameId);
   });
 
   afterAll(async () => {
@@ -165,8 +166,6 @@ describe('Assign and release gameserver (e2e)', () => {
         expect(body.isOnline).toBe(true);
       });
 
-    await waitForTheGameToLaunch(app, gameId);
-
     /* pretend the game has started */
     const events = app.get(Events);
     events.matchStarted.next({ gameId });
@@ -192,7 +191,7 @@ describe('Assign and release gameserver (e2e)', () => {
       .expect(200)
       .then((response) => {
         const body = response.body;
-        expect(body.game).toBe(undefined);
+        expect(body.game).toBeUndefined();
       });
   });
 });

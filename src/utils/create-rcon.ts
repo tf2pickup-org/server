@@ -6,7 +6,7 @@ interface CreateRconOptions {
   rconPassword: string;
 }
 
-export const createRcon = async (opts: CreateRconOptions): Promise<Rcon> =>
+export const createRcon = (opts: CreateRconOptions): Promise<Rcon> =>
   new Promise((resolve, reject) => {
     const rcon = new Rcon({
       host: opts.host,

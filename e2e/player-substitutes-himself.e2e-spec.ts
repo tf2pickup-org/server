@@ -28,6 +28,7 @@ describe('Player substitutes himself (e2e)', () => {
 
     app = moduleFixture.createNestApplication();
     configureApplication(app);
+    app.enableShutdownHooks();
     await app.listen(3000);
 
     playersService = app.get(PlayersService);
@@ -150,18 +151,17 @@ describe('Player substitutes himself (e2e)', () => {
       'cp_badlands',
     );
     gameId = game.id;
+    await waitABit(1000);
+    await waitForTheGameToLaunch(app, gameId);
   });
 
   afterAll(async () => {
-    await waitForTheGameToLaunch(app, gameId);
     await waitABit(1000);
 
     const gamesService = app.get(GamesService);
     await gamesService.forceEnd(gameId);
 
     playerSocket.disconnect();
-    playerSocket = undefined;
-
     await waitABit(1000);
     await app.close();
   });

@@ -45,7 +45,22 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [16.x, 18.x]
+        node-version:
+          - 16.x
+          - 18.x
+        test-name:
+          - 'e2e/app.e2e-spec.ts'
+          - 'e2e/assign-and-release-gameserver.e2e-spec.ts'
+          - 'e2e/configuration.e2e-spec.ts'
+          - 'e2e/game-server-diagnostics.e2e-spec.ts'
+          - 'e2e/game-server-heartbeat.e2e-spec.ts'
+          - 'e2e/launch-game.e2e-spec.ts'
+          - 'e2e/player-action-logs.e2e-spec.ts'
+          - 'e2e/player-substitutes-another-player.e2e-spec.ts'
+          - 'e2e/player-substitutes-himself.e2e-spec.ts'
+          - 'e2e/reassign-game-server.e2e-spec.ts'
+          - 'e2e/update-player-skill.e2e-spec.ts'
+          - 'e2e/websocket.e2e-spec.ts'
 
     services:
       mongo:
@@ -124,10 +139,16 @@ jobs:
         LOG_RELAY_PORT: '9871'
         GAME_SERVER_SECRET: 'xxxxxx'
         LOGS_TF_API_KEY: 'FAKE_LOGS_TF_API_KEY'
-      run: yarn test:e2e
+      run: yarn test:e2e ${{ matrix.test-name }}
 
     - name: Upload test coverage info
       uses: codecov/codecov-action@v3
+
+    - name: Show gameserver logs
+      if: failure()
+      run: |
+        docker logs "${{ job.services.gameserver1.id }}"
+        docker logs "${{ job.services.gameserver2.id }}"
 
   # Start the app with a clean database and verify it doesn't crash
   fresh-start:
