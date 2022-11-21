@@ -1,5 +1,13 @@
 
 
+# [10.0.0-rc.2](https://github.com/tf2pickup-org/server/compare/10.0.0-rc.1...10.0.0-rc.2) (2022-11-21)
+
+
+### Bug Fixes
+
+* **deps:** update dependency mongodb to v4.12.0 ([#2077](https://github.com/tf2pickup-org/server/issues/2077)) ([b077c3e](https://github.com/tf2pickup-org/server/commit/b077c3e6017a380b210fdb26b35ec67a016fb6ab))
+* **game-servers:** disable soap dm plugin ([#2078](https://github.com/tf2pickup-org/server/issues/2078)) ([a6d4b13](https://github.com/tf2pickup-org/server/commit/a6d4b13b7904f39ea66866a3ad0dc49fccdd1e1b))
+
 # [10.0.0-rc.1](https://github.com/tf2pickup-org/server/compare/10.0.0-rc.0...10.0.0-rc.1) (2022-11-16)
 
 
