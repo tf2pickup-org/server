@@ -11278,7 +11278,7 @@ __metadata:
     release-it: 15.5.0
     rimraf: 3.0.2
     rxjs: 7.5.7
-    socket.io-client: 4.5.3
+    socket.io-client: 4.5.4
     steamid: 2.0.0
     supertest: 6.3.1
     trace-unhandled: 2.0.1
@@ -11406,15 +11406,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"socket.io-client@npm:4.5.3":
-  version: 4.5.3
-  resolution: "socket.io-client@npm:4.5.3"
+"socket.io-client@npm:4.5.4":
+  version: 4.5.4
+  resolution: "socket.io-client@npm:4.5.4"
   dependencies:
     "@socket.io/component-emitter": ~3.1.0
     debug: ~4.3.2
     engine.io-client: ~6.2.3
-    socket.io-parser: ~4.2.0
-  checksum: ebd2dbddece9e8b5926e8f20ed3d0620bdb07de70ece8fb6fa786690f543f420e2ea784a37e46ac470af3cc11f0199d9ecabd8f30eaf63c80974c3eaa7e8a9b0
+    socket.io-parser: ~4.2.1
+  checksum: 8320ce4a96e9c28318b17037e412746b1d612cfba653c3c321c0e49042f0be9aeb8de67d5861e45e9aad32407bb4dd204bfe199565d78d5320aaf65253371b7f
   languageName: node
   linkType: hard
 
@@ -11436,6 +11436,16 @@ __metadata:
     "@socket.io/component-emitter": ~3.1.0
     debug: ~4.3.1
   checksum: 622467a6f13d507f5b830dc35404e99311dce11f89f3fa3fb5fc5f0e3b0395987743115c29ad814bc1b1bc9e4734b14f09398d2da174fa009f429fbefe2b6e54
+  languageName: node
+  linkType: hard
+
+"socket.io-parser@npm:~4.2.1":
+  version: 4.2.1
+  resolution: "socket.io-parser@npm:4.2.1"
+  dependencies:
+    "@socket.io/component-emitter": ~3.1.0
+    debug: ~4.3.1
+  checksum: 2582202f22538d7e6b4436991378cb4cea3b2f8219cda24923ae35afd291ab5ad6120e7d093e41738256b6c6ad10c667dd25753c2d9a2340fead04e9286f152d
   languageName: node
   linkType: hard
 
