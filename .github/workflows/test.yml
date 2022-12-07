@@ -14,7 +14,7 @@ on:
 jobs:
   unit-tests:
     name: unit
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
 
     strategy:
       matrix:
@@ -41,7 +41,7 @@ jobs:
 
   e2e-tests:
     name: end-to-end
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
 
     strategy:
       matrix:
@@ -153,7 +153,7 @@ jobs:
   # Start the app with a clean database and verify it doesn't crash
   fresh-start:
     name: fresh-start
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
 
     strategy:
       matrix:
@@ -203,7 +203,7 @@ jobs:
 
   build:
     name: build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
 
     strategy:
       matrix:
