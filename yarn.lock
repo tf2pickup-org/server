@@ -8702,10 +8702,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"kareem@npm:2.4.1":
-  version: 2.4.1
-  resolution: "kareem@npm:2.4.1"
-  checksum: 83c8d8f5ea82e58fa9f43f62f65576ac32fc7c5f817deb2708c68996eb586bf3dc236404a4570c548730a041e29a6553f61f8a744fa96a1093e5dc28b4ce598f
+"kareem@npm:2.5.0":
+  version: 2.5.0
+  resolution: "kareem@npm:2.5.0"
+  checksum: 292e80b32fb44e1801c5eb25b150e4b42e6ddf8a9c38ac67f99d4e7164dc7d9e874ea9b6ffaa42d6c3e76c8dd28ae5723643f3b5c8cb5c481af07118ce1475e3
   languageName: node
   linkType: hard
 
@@ -9498,25 +9498,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mongodb@npm:4.11.0, mongodb@npm:~4.11.0":
-  version: 4.11.0
-  resolution: "mongodb@npm:4.11.0"
-  dependencies:
-    "@aws-sdk/credential-providers": ^3.186.0
-    bson: ^4.7.0
-    denque: ^2.1.0
-    mongodb-connection-string-url: ^2.5.4
-    saslprep: ^1.0.3
-    socks: ^2.7.1
-  dependenciesMeta:
-    "@aws-sdk/credential-providers":
-      optional: true
-    saslprep:
-      optional: true
-  checksum: 3080c2f58dc712ca6d0a34b0f4101c3ca66fbf86360b2a5ea2b64a9f757b4a0d7b77851688657fc3240ac748ddcd69c21ec2f7c785f10cb7d41e00e863f415ec
-  languageName: node
-  linkType: hard
-
 "mongodb@npm:4.12.1":
   version: 4.12.1
   resolution: "mongodb@npm:4.12.1"
@@ -9551,6 +9532,25 @@ __metadata:
   languageName: node
   linkType: hard
 
+"mongodb@npm:~4.11.0":
+  version: 4.11.0
+  resolution: "mongodb@npm:4.11.0"
+  dependencies:
+    "@aws-sdk/credential-providers": ^3.186.0
+    bson: ^4.7.0
+    denque: ^2.1.0
+    mongodb-connection-string-url: ^2.5.4
+    saslprep: ^1.0.3
+    socks: ^2.7.1
+  dependenciesMeta:
+    "@aws-sdk/credential-providers":
+      optional: true
+    saslprep:
+      optional: true
+  checksum: 3080c2f58dc712ca6d0a34b0f4101c3ca66fbf86360b2a5ea2b64a9f757b4a0d7b77851688657fc3240ac748ddcd69c21ec2f7c785f10cb7d41e00e863f415ec
+  languageName: node
+  linkType: hard
+
 "mongoose@npm:*":
   version: 6.3.2
   resolution: "mongoose@npm:6.3.2"
@@ -9566,18 +9566,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mongoose@npm:6.7.4":
-  version: 6.7.4
-  resolution: "mongoose@npm:6.7.4"
+"mongoose@npm:6.8.0":
+  version: 6.8.0
+  resolution: "mongoose@npm:6.8.0"
   dependencies:
     bson: ^4.7.0
-    kareem: 2.4.1
-    mongodb: 4.11.0
+    kareem: 2.5.0
+    mongodb: 4.12.1
     mpath: 0.9.0
     mquery: 4.0.3
     ms: 2.1.3
     sift: 16.0.1
-  checksum: 7d86bcf3cb71fc4c598a2b6bd98ef5ddc8233f4d27faafaa40c2ad1ec6d4c6020ab7948ae825ec1dd216358e0eecfc12d968c7705acabf1d1473085b15afb3cb
+  checksum: 565fbf795cfe9b753fc4cf7787c2d3804cefb3a203705b25d41f7c67d628f96dfc644560a69d97ec0546a279339a703de72d011f5ac82b1369ba73972d5b581f
   languageName: node
   linkType: hard
 
@@ -11404,7 +11404,7 @@ __metadata:
     mongodb: 4.12.1
     mongodb-memory-server: 8.10.1
     mongodb-uri: 0.9.7
-    mongoose: 6.7.4
+    mongoose: 6.8.0
     multer: ^1.4.5-lts.1
     nestjs-real-ip: 2.2.0
     passport: 0.6.0
