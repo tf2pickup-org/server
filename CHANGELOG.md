@@ -1,5 +1,22 @@
 
 
+# [10.0.0](https://github.com/tf2pickup-org/server/compare/10.0.0-rc.2...10.0.0) (2022-12-12)
+
+
+### Bug Fixes
+
+* **ci:** use ubuntu 20.04 runners ([#2102](https://github.com/tf2pickup-org/server/issues/2102)) ([e05458f](https://github.com/tf2pickup-org/server/commit/e05458f707a7520a00dba9ce54c0514583c59c44))
+* **deps:** update dependency @redis/client to v1.4.2 ([#2089](https://github.com/tf2pickup-org/server/issues/2089)) ([73cac7e](https://github.com/tf2pickup-org/server/commit/73cac7eb0268ea1512e4cb06d9dced6047b41ba1))
+* **deps:** update dependency axios to v1.2.1 ([#2083](https://github.com/tf2pickup-org/server/issues/2083)) ([beb5709](https://github.com/tf2pickup-org/server/commit/beb57093e7bd04cde570d653722412ba8aa09be1))
+* **deps:** update dependency class-validator to v0.14.0 ([#2108](https://github.com/tf2pickup-org/server/issues/2108)) ([13af8de](https://github.com/tf2pickup-org/server/commit/13af8decc1f39e1726744d7d72c9cae5cbbbada7))
+* **deps:** update dependency helmet to v6.0.1 ([#2095](https://github.com/tf2pickup-org/server/issues/2095)) ([8276a14](https://github.com/tf2pickup-org/server/commit/8276a147ab5f1c3a13c168a4f0b3d47e598c0184))
+* **deps:** update dependency mongodb to v4.12.1 ([#2087](https://github.com/tf2pickup-org/server/issues/2087)) ([a64cd8a](https://github.com/tf2pickup-org/server/commit/a64cd8afc5ce03010576c9dc38dde794608b9cc8))
+* **deps:** update dependency mongoose to v6.7.3 ([#2084](https://github.com/tf2pickup-org/server/issues/2084)) ([e86057e](https://github.com/tf2pickup-org/server/commit/e86057e443fb7aac8e16daa8e170e4dbc165480c))
+* **deps:** update dependency mongoose to v6.7.4 ([#2092](https://github.com/tf2pickup-org/server/issues/2092)) ([d60df2e](https://github.com/tf2pickup-org/server/commit/d60df2ebb91fcd3d4a526acd86c9da77f425bf05))
+* **deps:** update dependency mongoose to v6.8.0 ([#2096](https://github.com/tf2pickup-org/server/issues/2096)) ([27b59bc](https://github.com/tf2pickup-org/server/commit/27b59bc103fb41200fe22522fca3722eee48a199))
+* **deps:** update dependency rxjs to v7.6.0 ([#2109](https://github.com/tf2pickup-org/server/issues/2109)) ([901795a](https://github.com/tf2pickup-org/server/commit/901795abe1ef4ed0df2da195dae4c56bb748da1b))
+* **deps:** update nest monorepo to v9.2.1 ([#2094](https://github.com/tf2pickup-org/server/issues/2094)) ([2e5cbcc](https://github.com/tf2pickup-org/server/commit/2e5cbcc1abdf996197354f0aec3a5aefcd76b52d))
+
 # [10.0.0-rc.2](https://github.com/tf2pickup-org/server/compare/10.0.0-rc.1...10.0.0-rc.2) (2022-11-21)
 
 
