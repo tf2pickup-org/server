@@ -1,5 +1,12 @@
 
 
+## [10.0.1](https://github.com/tf2pickup-org/server/compare/10.0.0...10.0.1) (2022-12-12)
+
+
+### Bug Fixes
+
+* **game-servers:** mark all players as offline when changing the gameserver ([#2111](https://github.com/tf2pickup-org/server/issues/2111)) ([f02eeaa](https://github.com/tf2pickup-org/server/commit/f02eeaa64522cde7e7abee076a0ef49c21a48850))
+
 # [10.0.0](https://github.com/tf2pickup-org/server/compare/10.0.0-rc.2...10.0.0) (2022-12-12)
 
 
