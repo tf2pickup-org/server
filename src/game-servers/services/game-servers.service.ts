@@ -24,6 +24,7 @@ import { filter, map } from 'rxjs';
 import { GameServerDetailsWithProvider } from '../interfaces/game-server-details';
 import { isUndefined } from 'lodash';
 import { GameState } from '@/games/models/game-state';
+import { PlayerConnectionStatus } from '@/games/models/player-connection-status';
 
 @Injectable()
 export class GameServersService
@@ -142,6 +143,9 @@ export class GameServersService
         const gameServer = game.gameServer;
         const provider = this.providerByName(game.gameServer.provider);
         game = await this.gamesService.update(game.id, {
+          $set: {
+            'slots.$[].connectionStatus': PlayerConnectionStatus.offline,
+          },
           $unset: {
             gameServer: 1,
             connectString: 1,

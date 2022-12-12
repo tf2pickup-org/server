@@ -3,7 +3,7 @@ import { GameServersService } from './game-servers.service';
 import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { Game, GameDocument, gameSchema } from '@/games/models/game';
-import { Connection, Model } from 'mongoose';
+import { Connection, Model, Types } from 'mongoose';
 import {
   getConnectionToken,
   getModelToken,
@@ -17,6 +17,10 @@ import {
 import { NoFreeGameServerAvailableError } from '../errors/no-free-game-server-available.error';
 import { Events } from '@/events/events';
 import { GameServerControls } from '../interfaces/game-server-controls';
+import { Tf2Team } from '@/games/models/tf2-team';
+import { Tf2ClassName } from '@/shared/models/tf2-class-name';
+import { SlotStatus } from '@/games/models/slot-status';
+import { PlayerConnectionStatus } from '@/games/models/player-connection-status';
 
 jest.mock('@/games/services/games.service');
 
@@ -244,6 +248,41 @@ describe('GameServersService', () => {
           expect(ret.connectString).toBe(undefined);
           expect(ret.stvConnectString).toBe(undefined);
           expect(ret.connectInfoVersion).toEqual(game.connectInfoVersion + 1);
+        });
+
+        describe('when there are players', () => {
+          beforeEach(async () => {
+            game.slots = [
+              {
+                player: new Types.ObjectId(),
+                team: Tf2Team.blu,
+                gameClass: Tf2ClassName.soldier,
+                status: SlotStatus.active,
+                connectionStatus: PlayerConnectionStatus.connected,
+              },
+              {
+                player: new Types.ObjectId(),
+                team: Tf2Team.red,
+                gameClass: Tf2ClassName.soldier,
+                status: SlotStatus.active,
+                connectionStatus: PlayerConnectionStatus.joining,
+              },
+            ];
+            await game.save();
+          });
+
+          it('should set player connection status of all players to offline', async () => {
+            const ret = await service.assignGameServer(game.id, {
+              id: 'FAKE_GAME_SERVER',
+              provider: 'test',
+            });
+            expect(ret.slots.length > 0).toBe(true);
+            expect(
+              ret.slots.every(
+                (s) => s.connectionStatus === PlayerConnectionStatus.offline,
+              ),
+            ).toBe(true);
+          });
         });
       });
     });
