@@ -268,6 +268,7 @@ describe('GameServersService', () => {
                 connectionStatus: PlayerConnectionStatus.joining,
               },
             ];
+            await game.save();
           });
 
           it('should set player connection status of all players to offline', async () => {
@@ -275,6 +276,7 @@ describe('GameServersService', () => {
               id: 'FAKE_GAME_SERVER',
               provider: 'test',
             });
+            expect(ret.slots.length > 0).toBe(true);
             expect(
               ret.slots.every(
                 (s) => s.connectionStatus === PlayerConnectionStatus.offline,
