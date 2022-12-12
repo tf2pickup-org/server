@@ -3,7 +3,6 @@ import { generateGameserverPassword } from '@/utils/generate-gameserver-password
 import { generateRconPassword } from '@/utils/generate-rcon-password';
 import { HttpService } from '@nestjs/axios';
 import { Injectable, Logger } from '@nestjs/common';
-import { AxiosRequestConfig } from 'axios';
 import { sample } from 'lodash';
 import {
   of,
@@ -105,7 +104,7 @@ interface ServemeTfReservationDetailsResponse {
 @Injectable()
 export class ServemeTfApiService {
   private logger = new Logger(ServemeTfApiService.name);
-  private readonly config: AxiosRequestConfig = {
+  private readonly config: Parameters<HttpService['post']>[2] = {
     params: {
       api_key: this.environment.servemeTfApiKey,
     },
