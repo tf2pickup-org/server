@@ -1,5 +1,21 @@
 
 
+# [10.1.0](https://github.com/tf2pickup-org/server/compare/10.0.1...10.1.0) (2022-12-21)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @nestjs/axios to v1.0.1 ([#2121](https://github.com/tf2pickup-org/server/issues/2121)) ([5913858](https://github.com/tf2pickup-org/server/commit/59138583057e2470497522237a40d89f960a4a83))
+* **deps:** update dependency jsonwebtoken to v9 ([#2126](https://github.com/tf2pickup-org/server/issues/2126)) ([5d1036e](https://github.com/tf2pickup-org/server/commit/5d1036e97769e863b80297df3a849d5db43453e3))
+* **deps:** update dependency mongodb to v4.13.0 ([#2122](https://github.com/tf2pickup-org/server/issues/2122)) ([97edbc9](https://github.com/tf2pickup-org/server/commit/97edbc9566c0ab76b2945ccf0b6fd6fe72b325fd))
+* **deps:** update dependency mongoose to v6.8.1 ([#2124](https://github.com/tf2pickup-org/server/issues/2124)) ([2b9c6f5](https://github.com/tf2pickup-org/server/commit/2b9c6f5255861cff961cc5ae21b1513e7bcd4be0))
+* **deps:** update dependency rxjs to v7.8.0 ([#2117](https://github.com/tf2pickup-org/server/issues/2117)) ([b416ed5](https://github.com/tf2pickup-org/server/commit/b416ed55a7ca70ea45fe8854504f949ce8d74fdb))
+
+
+### Features
+
+* **statistics:** configurable game-launches-per-day endpoint ([#2076](https://github.com/tf2pickup-org/server/issues/2076)) ([d01d09b](https://github.com/tf2pickup-org/server/commit/d01d09b43c5e7ac49a76d340bd12bcbfa7be6cc9))
+
 ## [10.0.1](https://github.com/tf2pickup-org/server/compare/10.0.0...10.0.1) (2022-12-12)
 
 
