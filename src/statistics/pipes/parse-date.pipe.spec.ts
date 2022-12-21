@@ -13,7 +13,7 @@ describe('ParseDatePipe', () => {
     });
 
     it('should parse valid date', () => {
-      expect(pipe.transform('2022-11-16')).toEqual(new Date(2022, 11, 16));
+      expect(pipe.transform('2022-11-16')).toEqual(new Date(2022, 10, 16));
     });
   });
 });

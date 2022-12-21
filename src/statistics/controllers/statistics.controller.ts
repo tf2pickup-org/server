@@ -1,6 +1,7 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import { Controller, DefaultValuePipe, Get, Query } from '@nestjs/common';
 import { ParseDatePipe } from '../pipes/parse-date.pipe';
 import { StatisticsService } from '../services/statistics.service';
+import { sub } from 'date-fns';
 
 @Controller('statistics')
 export class StatisticsController {
@@ -17,7 +18,14 @@ export class StatisticsController {
   }
 
   @Get('game-launches-per-day')
-  async getGameLaunchesPerDay(@Query('since', ParseDatePipe) since: Date) {
+  async getGameLaunchesPerDay(
+    @Query(
+      'since',
+      ParseDatePipe,
+      new DefaultValuePipe(sub(Date.now(), { years: 1 })),
+    )
+    since: Date,
+  ) {
     return await this.statisticsService.getGameLaunchesPerDay(since);
   }
 }
