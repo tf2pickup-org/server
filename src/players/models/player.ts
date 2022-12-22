@@ -58,6 +58,10 @@ export class Player extends Serializable<PlayerDto> {
   )
   skill?: Map<Tf2ClassName, number>;
 
+  // With each automatic substitution the cooldown level is increased
+  @Prop({ default: 0 })
+  cooldownLevel: number;
+
   serialize(): PlayerDto {
     return {
       id: this.id,

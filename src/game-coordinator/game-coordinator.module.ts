@@ -10,6 +10,7 @@ import { GameEventListenerService } from './services/game-event-listener.service
 import { GameRuntimeService } from './services/game-runtime.service';
 import { ServerConfiguratorService } from './services/server-configurator.service';
 import { ServerCleanupService } from './services/server-cleanup.service';
+import { PlayerBehaviorHandlerService } from './services/player-behavior-handler.service';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { ServerCleanupService } from './services/server-cleanup.service';
     GameRuntimeService,
     GameEventListenerService,
     ServerCleanupService,
+    PlayerBehaviorHandlerService,
   ],
   exports: [GameRuntimeService],
 })
