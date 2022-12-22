@@ -1,5 +1,12 @@
 
 
+## [10.1.1](https://github.com/tf2pickup-org/server/compare/10.1.0...10.1.1) (2022-12-22)
+
+
+### Bug Fixes
+
+* **serveme.tf:** fix serveme.tf API query ([#2128](https://github.com/tf2pickup-org/server/issues/2128)) ([b93e702](https://github.com/tf2pickup-org/server/commit/b93e702f1ffbbc8eacbeb88f891fc911611a0cac))
+
 # [10.1.0](https://github.com/tf2pickup-org/server/compare/10.0.1...10.1.0) (2022-12-21)
 
 
