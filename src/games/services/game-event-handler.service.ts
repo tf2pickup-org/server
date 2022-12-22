@@ -18,6 +18,7 @@ import { plainToInstance } from 'class-transformer';
 import { GamesService } from './games.service';
 import { Mutex } from 'async-mutex';
 import { Tf2Team } from '../models/tf2-team';
+import { GameEventType } from '../models/game-event';
 
 @Injectable()
 export class GameEventHandlerService implements OnModuleInit, OnModuleDestroy {
@@ -106,9 +107,16 @@ export class GameEventHandlerService implements OnModuleInit, OnModuleDestroy {
           .findOneAndUpdate(
             { _id: new Types.ObjectId(gameId), state: GameState.started },
             {
-              state: GameState.ended,
-              endedAt: new Date(),
-              'slots.$[element].status': `${SlotStatus.active}`,
+              $set: {
+                state: GameState.ended,
+                'slots.$[element].status': `${SlotStatus.active}`,
+              },
+              $push: {
+                events: {
+                  at: new Date(),
+                  event: GameEventType.Ended,
+                },
+              },
             },
             {
               new: true, // return updated document

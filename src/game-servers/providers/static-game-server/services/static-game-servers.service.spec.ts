@@ -3,6 +3,7 @@ import { NoFreeGameServerAvailableError } from '@/game-servers/errors/no-free-ga
 import { GameServerReleaseReason } from '@/game-servers/game-server-provider';
 import { GameServersService } from '@/game-servers/services/game-servers.service';
 import { Game, GameDocument, gameSchema } from '@/games/models/game';
+import { GameEventType } from '@/games/models/game-event';
 import { GameState } from '@/games/models/game-state';
 import { GamesService } from '@/games/services/games.service';
 import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
@@ -12,6 +13,7 @@ import {
   MongooseModule,
 } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
+import { sub } from 'date-fns';
 import { isUndefined } from 'lodash';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { Connection, Error, Model, Types } from 'mongoose';
@@ -483,9 +485,10 @@ describe('StaticGameServersService', () => {
       game = await gamesService._createOne();
       game.state = GameState.ended;
 
-      const endedAt = new Date();
-      endedAt.setMinutes(endedAt.getMinutes() - 2);
-      game.endedAt = endedAt;
+      game.events.push({
+        at: sub(new Date(), { minutes: 2 }),
+        event: GameEventType.Ended,
+      });
       await game.save();
 
       testGameServer.game = game._id;
