@@ -42,6 +42,7 @@ import { MapPoolEntry } from '@/queue/models/map-pool-entry';
 import { GamesService } from '@/games/services/games.service';
 import { GameServerControls } from '@/game-servers/interfaces/game-server-controls';
 import { GameServerNotAssignedError } from '../errors/game-server-not-assigned.error';
+import { GameEventType } from '@/games/models/game-event';
 
 jest.mock('@/queue/services/map-pool.service');
 jest.mock('@/players/services/players.service');
@@ -351,6 +352,9 @@ describe('ServerConfiguratorService', () => {
       const game = await gamesService.getById(mockGame.id);
       expect(game.connectString).toEqual(connectString);
       expect(game.stvConnectString).toEqual(stvConnectString);
+      expect(game.events.at(game.events.length - 1).event).toBe(
+        GameEventType.GameServerInitialized,
+      );
     });
   });
 });
