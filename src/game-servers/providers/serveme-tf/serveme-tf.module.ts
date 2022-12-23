@@ -1,4 +1,3 @@
-import { HttpModule } from '@nestjs/axios';
 import { forwardRef, Module } from '@nestjs/common';
 import { ServemeTfService } from './services/serveme-tf.service';
 import { ServemeTfApiService } from './services/serveme-tf-api.service';
@@ -12,6 +11,7 @@ import {
   servemeTfReservationSchema,
 } from './models/serveme-tf-reservation';
 import { workaroundModelProvider } from '@/utils/workaround-model-provider';
+import { HttpModule } from '@/http.module';
 
 @Module({
   imports: [

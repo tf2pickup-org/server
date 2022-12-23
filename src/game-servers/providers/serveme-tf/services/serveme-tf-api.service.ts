@@ -108,9 +108,6 @@ export class ServemeTfApiService {
     params: {
       api_key: this.environment.servemeTfApiKey,
     },
-    headers: {
-      'Accept-Encoding': 'gzip,deflate,compress', // https://github.com/axios/axios/issues/5346
-    },
   };
   private readonly endpointUrl = `https://${this.environment.servemeTfApiEndpoint}/api/reservations`;
 
