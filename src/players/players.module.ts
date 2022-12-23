@@ -19,20 +19,20 @@ import {
 import { ConfigurationModule } from '@/configuration/configuration.module';
 import { LinkedProfilesService } from './services/linked-profiles.service';
 import { MongooseModule } from '@nestjs/mongoose';
-import { HttpModule } from '@nestjs/axios';
 import { OnlinePlayersController } from './controllers/online-players.controller';
 import { ImportExportSkillService } from './services/import-export-skill.service';
 import { QueueConfigModule } from '@/queue-config/queue-config.module';
+import { HttpModule } from '@/http.module';
 
 @Module({
   imports: [
-    HttpModule,
     MongooseModule.forFeature([
       { name: Player.name, schema: playerSchema },
       { name: PlayerBan.name, schema: playerBanSchema },
       { name: FuturePlayerSkill.name, schema: futurePlayerSkillSchema },
     ]),
 
+    HttpModule,
     forwardRef(() => GamesModule),
     forwardRef(() => QueueModule),
     ConfigurationModule,
