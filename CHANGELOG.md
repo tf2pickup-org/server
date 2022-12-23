@@ -1,5 +1,12 @@
 
 
+## [10.1.2](https://github.com/tf2pickup-org/server/compare/10.1.1...10.1.2) (2022-12-23)
+
+
+### Bug Fixes
+
+* **core:** workaround axios v1.2.1 http issue ([#2129](https://github.com/tf2pickup-org/server/issues/2129)) ([8c7d212](https://github.com/tf2pickup-org/server/commit/8c7d2125b6d48320057163d53c305b10373a535f))
+
 ## [10.1.1](https://github.com/tf2pickup-org/server/compare/10.1.0...10.1.1) (2022-12-22)
 
 
