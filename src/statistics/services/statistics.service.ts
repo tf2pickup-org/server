@@ -149,7 +149,7 @@ export class StatisticsService {
             $dateToString: {
               format: '%Y-%m-%d',
               date: {
-                $first: '$events.at',
+                $arrayElemAt: ['$events.at', 0],
               },
             },
           },

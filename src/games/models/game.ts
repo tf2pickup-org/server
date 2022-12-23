@@ -38,8 +38,8 @@ export class Game extends Serializable<GameDto> {
   })
   events: GameEvent[];
 
-  get launchedAt(): Date {
-    return this.events.find((e) => e.event === GameEventType.Created)[0].at;
+  get launchedAt() {
+    return this.events.find((e) => e.event === GameEventType.Created).at;
   }
 
   get endedAt(): Date | undefined {
