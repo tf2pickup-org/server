@@ -14,6 +14,7 @@ import { Etf2lAccountRequired } from '../models/etf2l-account-required';
 import { MinimumTf2InGameHours } from '../models/minimum-tf2-in-game-hours';
 import { VoiceServer } from '../models/voice-server';
 import { WhitelistId } from '../models/whitelist-id';
+import { TimeToJoinGameServer } from '../models/time-to-join-game-server';
 
 @Injectable()
 export class ConfigurationService {
@@ -80,7 +81,17 @@ export class ConfigurationService {
     );
   }
 
-  private async get(key: ConfigurationEntryKey, defaultValue: any) {
+  async getTimeToJoinGameServer(): Promise<TimeToJoinGameServer> {
+    return plainToInstance(
+      TimeToJoinGameServer,
+      await this.get(
+        ConfigurationEntryKey.timeToJoinGameServer,
+        new TimeToJoinGameServer(),
+      ),
+    );
+  }
+
+  private async get<T>(key: ConfigurationEntryKey, defaultValue: T) {
     try {
       return await this.configurationEntryModel
         .findOne({ key })

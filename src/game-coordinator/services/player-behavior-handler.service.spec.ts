@@ -18,10 +18,13 @@ import { PlayerConnectionStatus } from '@/games/models/player-connection-status'
 import { SlotStatus } from '@/games/models/slot-status';
 import { sub } from 'date-fns';
 import { GameEventType } from '@/games/models/game-event';
+import { ConfigurationService } from '@/configuration/services/configuration.service';
+import { ConfigurationEntryKey } from '@/configuration/models/configuration-entry-key';
 
 jest.mock('@/games/services/games.service');
 jest.mock('@/players/services/players.service');
 jest.mock('@/games/services/player-substitution.service');
+jest.mock('@/configuration/services/configuration.service');
 
 describe('PlayerBehaviorHandlerService', () => {
   let service: PlayerBehaviorHandlerService;
@@ -31,6 +34,7 @@ describe('PlayerBehaviorHandlerService', () => {
   let connection: Connection;
   let bot: PlayerDocument;
   let playerSubstitutionService: jest.Mocked<PlayerSubstitutionService>;
+  let configurationService: jest.Mocked<ConfigurationService>;
 
   beforeAll(async () => (mongod = await MongoMemoryServer.create()));
   afterAll(async () => await mongod.stop());
@@ -50,6 +54,7 @@ describe('PlayerBehaviorHandlerService', () => {
         PlayersService,
         PlayerSubstitutionService,
         Events,
+        ConfigurationService,
       ],
     }).compile();
 
@@ -60,11 +65,16 @@ describe('PlayerBehaviorHandlerService', () => {
     gamesService = module.get(GamesService);
     connection = module.get(getConnectionToken());
     playerSubstitutionService = module.get(PlayerSubstitutionService);
+    configurationService = module.get(ConfigurationService);
   });
 
   beforeEach(async () => {
     bot = await playersService._createOne();
     playersService.findBot.mockResolvedValue(bot);
+    configurationService.getTimeToJoinGameServer.mockResolvedValue({
+      key: ConfigurationEntryKey.timeToJoinGameServer,
+      value: 60 * 1000,
+    });
   });
 
   afterEach(async () => {
@@ -89,9 +99,9 @@ describe('PlayerBehaviorHandlerService', () => {
         game = await gamesService._createOne([player1, player2]);
         game.slots.find((s) => s.player === player1._id).connectionStatus =
           PlayerConnectionStatus.connected;
-        game.events[0].at = sub(new Date(), { minutes: 7 });
+        game.events[0].at = sub(new Date(), { minutes: 3 });
         game.events.push({
-          at: sub(new Date(), { minutes: 5 }),
+          at: sub(new Date(), { minutes: 2 }),
           event: GameEventType.GameServerInitialized,
         });
         await game.save();
