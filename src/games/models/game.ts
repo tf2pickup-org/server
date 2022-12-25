@@ -6,6 +6,7 @@ import { Prop, raw, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Exclude, Expose, Transform, Type } from 'class-transformer';
 import { Document, Types } from 'mongoose';
 import { GameDto } from '../dto/game.dto';
+import { GameEvent, gameEventSchema, GameEventType } from './game-event';
 import { GameServer, gameServerSchema } from './game-server';
 import { GameSlot, gameSlotSchema } from './game-slot';
 import { GameState } from './game-state';
@@ -24,11 +25,27 @@ export class Game extends Serializable<GameDto> {
   @Transform(({ value, obj }) => value ?? obj._id.toString())
   id: string;
 
-  @Prop({ default: () => new Date() })
-  launchedAt?: Date;
+  @Prop({
+    type: [gameEventSchema],
+    required: true,
+    default: () => [
+      {
+        at: new Date(),
+        event: GameEventType.Created,
+      },
+    ],
+    _id: false,
+  })
+  events: GameEvent[];
 
-  @Prop()
-  endedAt?: Date;
+  get launchedAt() {
+    return this.events.find((e) => e.event === GameEventType.Created).at;
+  }
+
+  get endedAt(): Date | undefined {
+    const events = this.events.find((e) => e.event === GameEventType.Ended);
+    return events?.at ?? undefined;
+  }
 
   @Prop({ required: true, unique: true })
   number!: number;

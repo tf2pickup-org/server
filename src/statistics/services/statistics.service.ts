@@ -36,7 +36,9 @@ export class StatisticsService {
         $project: {
           dayOfWeek: {
             $dayOfWeek: {
-              date: '$launchedAt',
+              date: {
+                $arrayElemAt: ['$events.at', 0],
+              },
               timezone,
             },
           },
@@ -48,7 +50,9 @@ export class StatisticsService {
                     $in: [
                       {
                         $hour: {
-                          date: '$launchedAt',
+                          date: {
+                            $arrayElemAt: ['$events.at', 0],
+                          },
                           timezone,
                         },
                       },
@@ -62,7 +66,9 @@ export class StatisticsService {
                     $in: [
                       {
                         $hour: {
-                          date: '$launchedAt',
+                          date: {
+                            $arrayElemAt: ['$events.at', 0],
+                          },
                           timezone,
                         },
                       },
@@ -76,7 +82,9 @@ export class StatisticsService {
                     $in: [
                       {
                         $hour: {
-                          date: '$launchedAt',
+                          date: {
+                            $arrayElemAt: ['$events.at', 0],
+                          },
                           timezone,
                         },
                       },
@@ -90,7 +98,9 @@ export class StatisticsService {
                     $in: [
                       {
                         $hour: {
-                          date: '$launchedAt',
+                          date: {
+                            $arrayElemAt: ['$events.at', 0],
+                          },
                           timezone,
                         },
                       },
@@ -128,7 +138,7 @@ export class StatisticsService {
     return await this.gameModel.aggregate([
       {
         $match: {
-          launchedAt: {
+          'events.0.at': {
             $gte: since,
           },
         },
@@ -138,7 +148,9 @@ export class StatisticsService {
           _id: {
             $dateToString: {
               format: '%Y-%m-%d',
-              date: '$launchedAt',
+              date: {
+                $arrayElemAt: ['$events.at', 0],
+              },
             },
           },
           count: { $sum: 1 },

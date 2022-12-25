@@ -1,4 +1,5 @@
 import { Game, GameDocument, gameSchema } from '@/games/models/game';
+import { GameEventType } from '@/games/models/game-event';
 import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
 import {
   getConnectionToken,
@@ -79,17 +80,32 @@ describe('StatisticsService', () => {
       await gameModel.create([
         {
           number: 1,
-          launchedAt: new Date(2021, 10, 11, 13, 0),
+          events: [
+            {
+              at: new Date(2021, 10, 11, 13, 0),
+              event: GameEventType.Created,
+            },
+          ],
           map: 'cp_process_f7',
         },
         {
           number: 2,
-          launchedAt: new Date(2021, 10, 11, 19, 0),
+          events: [
+            {
+              at: new Date(2021, 10, 11, 19, 0),
+              event: GameEventType.Created,
+            },
+          ],
           map: 'cp_process_f7',
         },
         {
           number: 3,
-          launchedAt: new Date(2021, 10, 11, 22, 0),
+          events: [
+            {
+              at: new Date(2021, 10, 11, 22, 0),
+              event: GameEventType.Created,
+            },
+          ],
           map: 'cp_process_f7',
         },
       ]);
@@ -115,17 +131,32 @@ describe('StatisticsService', () => {
       await gameModel.create([
         {
           number: 1,
-          launchedAt: new Date(2021, 10, 11, 13, 0),
+          events: [
+            {
+              at: new Date(2021, 10, 11, 13, 0),
+              event: GameEventType.Created,
+            },
+          ],
           map: 'cp_process_f7',
         },
         {
           number: 2,
-          launchedAt: new Date(2021, 10, 11, 19, 0),
+          events: [
+            {
+              at: new Date(2021, 10, 11, 19, 0),
+              event: GameEventType.Created,
+            },
+          ],
           map: 'cp_process_f7',
         },
         {
           number: 3,
-          launchedAt: new Date(2021, 10, 12, 22, 0),
+          events: [
+            {
+              at: new Date(2021, 10, 12, 22, 0),
+              event: GameEventType.Created,
+            },
+          ],
           map: 'cp_process_f7',
         },
       ]);

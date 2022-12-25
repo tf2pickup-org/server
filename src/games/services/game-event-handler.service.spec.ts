@@ -20,6 +20,7 @@ import { Error, Types } from 'mongoose';
 import { Mutex } from 'async-mutex';
 import { Tf2Team } from '../models/tf2-team';
 import { isUndefined } from 'lodash';
+import { GameEventType } from '../models/game-event';
 
 jest.mock('@/players/services/players.service');
 jest.mock('@nestjs/config');
@@ -136,6 +137,13 @@ describe('GameEventHandlerService', () => {
     it('should update state', async () => {
       const game = await service.onMatchEnded(mockGame.id);
       expect(game.state).toEqual(GameState.ended);
+    });
+
+    it('should push event', async () => {
+      const game = await service.onMatchEnded(mockGame.id);
+      expect(
+        game.events.find((e) => e.event === GameEventType.Ended),
+      ).toBeTruthy();
     });
 
     it('should emit the gameChanges events', async () => {
