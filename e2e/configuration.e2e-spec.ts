@@ -273,7 +273,7 @@ describe('Configuration (e2e)', () => {
     const body = response.body;
     expect(body).toEqual({
       key: 'time to join game server',
-      value: 30000,
+      value: 300000,
     });
   });
 
@@ -283,13 +283,13 @@ describe('Configuration (e2e)', () => {
       .auth(adminAuthToken, { type: 'bearer' })
       .send({
         key: 'time to join game server',
-        value: 42000,
+        value: 420000,
       })
       .expect(200);
     const body = response.body;
     expect(body).toEqual({
       key: 'time to join game server',
-      value: 42000,
+      value: 420000,
     });
 
     const response2 = await request(app.getHttpServer())
@@ -298,7 +298,7 @@ describe('Configuration (e2e)', () => {
     const body2 = response2.body;
     expect(body2).toEqual({
       key: 'time to join game server',
-      value: 42000,
+      value: 420000,
     });
   });
 });
