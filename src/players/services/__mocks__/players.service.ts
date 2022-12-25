@@ -46,6 +46,8 @@ export class PlayersService {
     );
   }
 
+  findBot = jest.fn();
+
   async _reset() {
     await this.playerModel.deleteMany({}).exec();
   }
