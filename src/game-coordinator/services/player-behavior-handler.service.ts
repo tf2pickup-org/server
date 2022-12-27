@@ -38,8 +38,8 @@ export class PlayerBehaviorHandlerService {
                   slot.connectionStatus === PlayerConnectionStatus.offline,
               )
               .map(async (slot) => {
-                this.logger.warn(
-                  `player ${slot.player} has not joined the game on time`,
+                this.logger.log(
+                  `player ${slot.player} has not joined the game on time; requesting substitute`,
                 );
                 return await this.playerSubstitutionService.substitutePlayer(
                   game.id,
