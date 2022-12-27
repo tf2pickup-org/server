@@ -99,6 +99,13 @@ describe('GameEventHandlerService', () => {
       expect(game.state).toEqual(GameState.started);
     });
 
+    it('should reset game score', async () => {
+      const game = await service.onMatchStarted(mockGame.id);
+      expect(game.score).toBeTruthy();
+      expect(game.score.get(Tf2Team.blu)).toEqual(0);
+      expect(game.score.get(Tf2Team.red)).toEqual(0);
+    });
+
     it('should emit the gameChanges event', async () => {
       let event: Game;
       events.gameChanges.subscribe(({ newGame: game }) => {
