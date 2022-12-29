@@ -18,7 +18,6 @@ import { GamesService } from '../services/games.service';
 import { ObjectIdValidationPipe } from '@/shared/pipes/object-id-validation.pipe';
 import { Auth } from '@/auth/decorators/auth.decorator';
 import { PlayerSubstitutionService } from '../services/player-substitution.service';
-import { IsOneOfPipe } from '@/shared/pipes/is-one-of.pipe';
 import { Game } from '../models/game';
 import { User } from '@/auth/decorators/user.decorator';
 import { Player } from '@/players/models/player';
@@ -32,13 +31,7 @@ import { PaginatedGameListDto } from '../dto/paginated-game-list.dto';
 import { Events } from '@/events/events';
 import { GameServerOptionIdentifier } from '@/game-servers/interfaces/game-server-option';
 import { GameServerAssignerService } from '../services/game-server-assigner.service';
-
-const sortOptions: string[] = [
-  'launched_at',
-  'launchedAt',
-  '-launched_at',
-  '-launchedAt',
-];
+import { ParseSortParamsPipe } from '../pipes/parse-sort-params.pipe';
 
 @Controller('games')
 export class GamesController {
@@ -53,40 +46,21 @@ export class GamesController {
   async getGames(
     @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
     @Query('offset', new DefaultValuePipe(0), ParseIntPipe) offset: number,
-    @Query(
-      'sort',
-      new DefaultValuePipe('-launched_at'),
-      new IsOneOfPipe(sortOptions),
-    )
-    sort: string,
+    @Query('sort', new DefaultValuePipe('-launched_at'), ParseSortParamsPipe)
+    sort: Record<string, 1 | -1>,
     @Query('playerId') playerId?: string,
   ): Promise<PaginatedGameListDto> {
-    let sortParam: { launchedAt: 1 | -1 };
-    switch (sort) {
-      case '-launched_at':
-      case '-launchedAt':
-        sortParam = { launchedAt: -1 };
-        break;
-
-      case 'launched_at':
-      case 'launchedAt':
-        sortParam = { launchedAt: 1 };
-        break;
-
-      // no default
-    }
-
     let results: Game[];
     let itemCount: number;
 
     if (playerId === undefined) {
       [results, itemCount] = await Promise.all([
-        this.gamesService.getGames(sortParam, limit, offset),
+        this.gamesService.getGames(sort, limit, offset),
         this.gamesService.getGameCount(),
       ]);
     } else {
       [results, itemCount] = await Promise.all([
-        this.gamesService.getPlayerGames(playerId, sortParam, limit, offset),
+        this.gamesService.getPlayerGames(playerId, sort, limit, offset),
         this.gamesService.getPlayerGameCount(playerId),
       ]);
     }

@@ -81,75 +81,35 @@ describe('Games Controller', () => {
 
   describe('#getGames()', () => {
     describe('when playerId is undefined', () => {
-      describe('when sorting with -launched_at', () => {
-        it('should return games', async () => {
-          const spy = jest.spyOn(gamesService, 'getGames');
-          const ret = await controller.getGames(10, 0, '-launched_at');
-          expect(spy).toHaveBeenCalledWith({ launchedAt: -1 }, 10, 0);
-          expect(ret).toEqual({
-            results: gamesService.games,
-            itemCount: 2,
-          });
-        });
-      });
-
-      describe('when sorting with launched_at', () => {
-        it('should return games', async () => {
-          const spy = jest.spyOn(gamesService, 'getGames');
-
-          const ret = await controller.getGames(44, 52, 'launched_at');
-          expect(spy).toHaveBeenCalledWith({ launchedAt: 1 }, 44, 52);
-          expect(ret).toEqual({
-            results: gamesService.games,
-            itemCount: 2,
-          });
+      it('should return games', async () => {
+        const spy = jest.spyOn(gamesService, 'getGames');
+        const ret = await controller.getGames(10, 0, { 'events.0.at': -1 });
+        expect(spy).toHaveBeenCalledWith({ 'events.0.at': -1 }, 10, 0);
+        expect(ret).toEqual({
+          results: gamesService.games,
+          itemCount: 2,
         });
       });
     });
 
     describe('when playerId is specified', () => {
-      describe('when sorting with -launched_at', () => {
-        it('should return player games', async () => {
-          const spy = jest.spyOn(gamesService, 'getPlayerGames');
-          const ret = await controller.getGames(
-            10,
-            0,
-            '-launched_at',
-            'FAKE_PLAYER_ID',
-          );
-          expect(spy).toHaveBeenCalledWith(
-            'FAKE_PLAYER_ID',
-            { launchedAt: -1 },
-            10,
-            0,
-          );
-          expect(ret).toEqual({
-            results: gamesService.games,
-            itemCount: 1,
-          });
-        });
-      });
-
-      describe('when sorting with launched_at', () => {
-        it('should return player games', async () => {
-          const spy = jest.spyOn(gamesService, 'getPlayerGames');
-
-          const ret = await controller.getGames(
-            30,
-            2,
-            'launched_at',
-            'FAKE_PLAYER_ID',
-          );
-          expect(spy).toHaveBeenCalledWith(
-            'FAKE_PLAYER_ID',
-            { launchedAt: 1 },
-            30,
-            2,
-          );
-          expect(ret).toEqual({
-            results: gamesService.games,
-            itemCount: 1,
-          });
+      it('should return player games', async () => {
+        const spy = jest.spyOn(gamesService, 'getPlayerGames');
+        const ret = await controller.getGames(
+          10,
+          0,
+          { 'events.0.at': -1 },
+          'FAKE_PLAYER_ID',
+        );
+        expect(spy).toHaveBeenCalledWith(
+          'FAKE_PLAYER_ID',
+          { 'events.0.at': -1 },
+          10,
+          0,
+        );
+        expect(ret).toEqual({
+          results: gamesService.games,
+          itemCount: 1,
         });
       });
     });
