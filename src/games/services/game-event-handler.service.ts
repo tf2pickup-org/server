@@ -78,7 +78,15 @@ export class GameEventHandlerService implements OnModuleInit, OnModuleDestroy {
           await this.gameModel
             .findOneAndUpdate(
               { _id: new Types.ObjectId(gameId), state: GameState.launching },
-              { state: GameState.started },
+              {
+                $set: {
+                  state: GameState.started,
+                  score: {
+                    [Tf2Team.blu]: 0,
+                    [Tf2Team.red]: 0,
+                  },
+                },
+              },
               { new: true },
             )
             .orFail()
