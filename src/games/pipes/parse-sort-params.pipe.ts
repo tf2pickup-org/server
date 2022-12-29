@@ -2,6 +2,7 @@ import { BadRequestException, Injectable, PipeTransform } from '@nestjs/common';
 
 @Injectable()
 export class ParseSortParamsPipe implements PipeTransform {
+  // skipcq: JS-0105
   transform(value: string): Record<string, 1 | -1> {
     switch (value) {
       case '-launched_at':

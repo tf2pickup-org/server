@@ -83,8 +83,8 @@ export class GamesService {
 
   async getGames(
     sort: GameSortOptions = { 'events.0.at': -1 },
-    limit: number,
-    skip: number,
+    limit = 10,
+    skip = 0,
   ): Promise<Game[]> {
     return plainToInstance(
       Game,
