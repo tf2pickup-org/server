@@ -215,13 +215,19 @@ describe('GamesService', () => {
     });
 
     it('should return games', async () => {
-      const ret = await service.getGames({ launchedAt: -1 }, 10, 0);
+      const ret = await service.getGames({ 'events.0.at': -1 }, 10, 0);
       expect(ret.length).toEqual(2);
     });
 
     it('should honor limit', async () => {
-      const ret = await service.getGames({ launchedAt: -1 }, 1, 0);
+      const ret = await service.getGames({ 'events.0.at': -1 }, 1, 0);
       expect(ret.length).toEqual(1);
+    });
+
+    it('should honor sort', async () => {
+      const ret = await service.getGames({ 'events.0.at': 1 }, 2, 0);
+      expect(ret[0].number).toBe(1);
+      expect(ret[1].number).toBe(2);
     });
   });
 

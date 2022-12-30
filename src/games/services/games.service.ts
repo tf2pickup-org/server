@@ -21,7 +21,6 @@ import { QueueConfig } from '@/queue-config/interfaces/queue-config';
 
 interface GameSortOptions {
   [key: string]: 1 | -1;
-  launchedAt: 1 | -1;
 }
 
 interface GetPlayerGameCountOptions {
@@ -83,9 +82,9 @@ export class GamesService {
   }
 
   async getGames(
-    sort: GameSortOptions = { launchedAt: -1 },
-    limit: number,
-    skip: number,
+    sort: GameSortOptions = { 'events.0.at': -1 },
+    limit = 10,
+    skip = 0,
   ): Promise<Game[]> {
     return plainToInstance(
       Game,
@@ -101,7 +100,7 @@ export class GamesService {
 
   async getPlayerGames(
     playerId: string,
-    sort: GameSortOptions = { launchedAt: -1 },
+    sort: GameSortOptions = { 'events.0.at': -1 },
     limit = 10,
     skip = 0,
   ): Promise<Game[]> {
