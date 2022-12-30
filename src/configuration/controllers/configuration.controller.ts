@@ -16,6 +16,7 @@ import { MinimumTf2InGameHours } from '../models/minimum-tf2-in-game-hours';
 import { VoiceServer } from '../models/voice-server';
 import { WhitelistId } from '../models/whitelist-id';
 import { ConfigurationService } from '../services/configuration.service';
+import { TimeToJoinGameServer } from '../models/time-to-join-game-server';
 
 @Controller('configuration')
 @UseInterceptors(ClassSerializerInterceptor)
@@ -101,5 +102,19 @@ export class ConfigurationController {
   ) {
     await this.configurationService.set(denyPlayersWithNoSkillAssigned);
     return await this.getDenyPlayersWithNoSkillAssigned();
+  }
+
+  @Get('time-to-join-game-server')
+  async getTimeToJoinGameServer() {
+    return await this.configurationService.getTimeToJoinGameServer();
+  }
+
+  @Put('time-to-join-game-server')
+  async setTimeToJoinGameServer(
+    @Body(new ValidationPipe())
+    timeToJoinGameServer: TimeToJoinGameServer,
+  ) {
+    await this.configurationService.set(timeToJoinGameServer);
+    return await this.getTimeToJoinGameServer();
   }
 }

@@ -265,4 +265,40 @@ describe('Configuration (e2e)', () => {
       value: false,
     });
   });
+
+  it('GET /configuration/time-to-join-game-server', async () => {
+    const response = await request(app.getHttpServer())
+      .get('/configuration/time-to-join-game-server')
+      .expect(200);
+    const body = response.body;
+    expect(body).toEqual({
+      key: 'time to join game server',
+      value: 300000,
+    });
+  });
+
+  it('PUT /configuration/time-to-join-game-server', async () => {
+    const response = await request(app.getHttpServer())
+      .put('/configuration/time-to-join-game-server')
+      .auth(adminAuthToken, { type: 'bearer' })
+      .send({
+        key: 'time to join game server',
+        value: 420000,
+      })
+      .expect(200);
+    const body = response.body;
+    expect(body).toEqual({
+      key: 'time to join game server',
+      value: 420000,
+    });
+
+    const response2 = await request(app.getHttpServer())
+      .get('/configuration/time-to-join-game-server')
+      .expect(200);
+    const body2 = response2.body;
+    expect(body2).toEqual({
+      key: 'time to join game server',
+      value: 420000,
+    });
+  });
 });

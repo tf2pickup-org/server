@@ -47,6 +47,12 @@ export class Game extends Serializable<GameDto> {
     return events?.at ?? undefined;
   }
 
+  get lastConfiguredAt(): Date | undefined {
+    return this.events
+      .filter((e) => e.event === GameEventType.GameServerInitialized)
+      .sort((a, b) => b.at.getTime() - a.at.getTime())[0]?.at;
+  }
+
   @Prop({ required: true, unique: true })
   number!: number;
 

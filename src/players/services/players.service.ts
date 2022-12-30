@@ -114,9 +114,9 @@ export class PlayersService implements OnModuleInit {
   }
 
   async findBot(): Promise<Player> {
-    return await plainToInstance(
+    return plainToInstance(
       Player,
-      this.playerModel
+      await this.playerModel
         .findOne({ name: this.environment.botName })
         .orFail()
         .lean()

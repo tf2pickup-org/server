@@ -5,4 +5,5 @@ export enum ConfigurationEntryKey {
   minimumTf2InGameHours = 'minimum tf2 in-game hours',
   voiceServer = 'voice server',
   denyPlayersWithNoSkillAssigned = 'deny players with no skill assigned',
+  timeToJoinGameServer = 'time to join game server',
 }

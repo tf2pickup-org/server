@@ -35,7 +35,7 @@ import { QueueConfigModule } from '@/queue-config/queue-config.module';
     PlayerSubstitutionService,
     GameServerAssignerService,
   ],
-  exports: [GamesService],
+  exports: [GamesService, PlayerSubstitutionService],
   controllers: [GamesController, GamesWithSubstitutionRequestsController],
 })
 export class GamesModule {}
