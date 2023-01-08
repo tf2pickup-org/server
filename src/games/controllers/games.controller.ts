@@ -15,7 +15,6 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { GamesService } from '../services/games.service';
-import { ObjectIdValidationPipe } from '@/shared/pipes/object-id-validation.pipe';
 import { Auth } from '@/auth/decorators/auth.decorator';
 import { PlayerSubstitutionService } from '../services/player-substitution.service';
 import { Game } from '../models/game';
@@ -32,6 +31,7 @@ import { Events } from '@/events/events';
 import { GameServerOptionIdentifier } from '@/game-servers/interfaces/game-server-option';
 import { GameServerAssignerService } from '../services/game-server-assigner.service';
 import { ParseSortParamsPipe } from '../pipes/parse-sort-params.pipe';
+import { GameByIdOrNumberPipe } from '../pipes/game-by-id-or-number.pipe';
 
 @Controller('games')
 export class GamesController {
@@ -71,26 +71,25 @@ export class GamesController {
   @Get(':id')
   @UseFilters(DocumentNotFoundFilter)
   async getGame(
-    @Param('id', ObjectIdValidationPipe) gameId: string,
+    @Param('id', GameByIdOrNumberPipe) game: Game,
   ): Promise<Serializable<GameDto>> {
-    return await this.gamesService.getById(gameId);
+    return game;
   }
 
   @Get(':id/connect-info')
   @Auth()
   @UseFilters(DocumentNotFoundFilter)
   async getConnectInfo(
-    @Param('id', ObjectIdValidationPipe) gameId: string,
+    @Param('id', GameByIdOrNumberPipe) game: Game,
     @User() player: Player,
   ): Promise<ConnectInfoDto> {
     try {
-      const game = await this.gamesService.getById(gameId);
       return {
         gameId: game.id,
         connectInfoVersion: game.connectInfoVersion,
         connectString: game.connectString,
         voiceChannelUrl: await this.gamesService.getVoiceChannelUrl(
-          gameId,
+          game.id,
           player.id,
         ),
       };
@@ -109,8 +108,8 @@ export class GamesController {
   @Auth(PlayerRole.admin)
   @UseFilters(DocumentNotFoundFilter)
   @UseInterceptors(ClassSerializerInterceptor)
-  async getGameSkills(@Param('id', ObjectIdValidationPipe) gameId: string) {
-    return (await this.gamesService.getById(gameId)).assignedSkills;
+  async getGameSkills(@Param('id', GameByIdOrNumberPipe) game: Game) {
+    return game.assignedSkills;
   }
 
   @Post(':id')
@@ -118,7 +117,7 @@ export class GamesController {
   @UseFilters(DocumentNotFoundFilter)
   @HttpCode(200)
   async takeAdminAction(
-    @Param('id', ObjectIdValidationPipe) gameId: string,
+    @Param('id', GameByIdOrNumberPipe) game: Game,
     @Query('reinitialize_server') reinitializeServer: any,
     @Query('force_end') forceEnd: any,
     @Query('substitute_player') substitutePlayerId: string,
@@ -128,16 +127,19 @@ export class GamesController {
     @Body() body: unknown,
   ) {
     if (reinitializeServer !== undefined) {
-      this.events.gameReconfigureRequested.next({ gameId, adminId: admin.id });
+      this.events.gameReconfigureRequested.next({
+        gameId: game.id,
+        adminId: admin.id,
+      });
     }
 
     if (forceEnd !== undefined) {
-      await this.gamesService.forceEnd(gameId, admin.id);
+      await this.gamesService.forceEnd(game.id, admin.id);
     }
 
     if (substitutePlayerId !== undefined) {
       await this.playerSubstitutionService.substitutePlayer(
-        gameId,
+        game.id,
         substitutePlayerId,
         admin.id,
       );
@@ -145,7 +147,7 @@ export class GamesController {
 
     if (cancelSubstitutePlayerId !== undefined) {
       await this.playerSubstitutionService.cancelSubstitutionRequest(
-        gameId,
+        game.id,
         cancelSubstitutePlayerId,
         admin.id,
       );
@@ -157,7 +159,7 @@ export class GamesController {
         throw new BadRequestException('invalid gameserver identifier');
       }
 
-      await this.gameServerAssignerService.assignGameServer(gameId, {
+      await this.gameServerAssignerService.assignGameServer(game.id, {
         id,
         provider,
       });
