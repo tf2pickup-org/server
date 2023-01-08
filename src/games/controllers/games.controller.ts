@@ -68,11 +68,11 @@ export class GamesController {
     return { results, itemCount };
   }
 
+  // skipcq: JS-0105
   @Get(':id')
-  @UseFilters(DocumentNotFoundFilter)
-  async getGame(
+  getGame(
     @Param('id', GameByIdOrNumberPipe) game: Game,
-  ): Promise<Serializable<GameDto>> {
+  ): Serializable<GameDto> {
     return game;
   }
 
@@ -104,11 +104,11 @@ export class GamesController {
     }
   }
 
+  // skipcq: JS-0105
   @Get(':id/skills')
   @Auth(PlayerRole.admin)
-  @UseFilters(DocumentNotFoundFilter)
   @UseInterceptors(ClassSerializerInterceptor)
-  async getGameSkills(@Param('id', GameByIdOrNumberPipe) game: Game) {
+  getGameSkills(@Param('id', GameByIdOrNumberPipe) game: Game) {
     return game.assignedSkills;
   }
 

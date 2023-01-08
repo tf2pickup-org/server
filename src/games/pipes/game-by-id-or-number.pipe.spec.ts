@@ -20,7 +20,7 @@ describe('GameByIdOrNumberPipe', () => {
   let gamesService: MockGamesService;
 
   beforeAll(async () => (mongod = await MongoMemoryServer.create()));
-  afterAll(async () => mongod.stop());
+  afterAll(async () => await mongod.stop());
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
