@@ -52,7 +52,7 @@ export class LogsTfApiService {
         response.on('end', () => {
           const d = JSON.parse(reply) as UploadLogsResponse;
           if (!d.success) {
-            reject(new LogsTfUploadError(d.error));
+            reject(new LogsTfUploadError(d.error ?? 'unknown error'));
           } else {
             resolve(`https://logs.tf${d.url}`);
           }

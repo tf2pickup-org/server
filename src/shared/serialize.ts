@@ -1,13 +1,17 @@
 import { Serializable } from './serializable';
 
-export const serialize = async (
-  object: unknown,
-): Promise<Record<string, any>> => {
+interface StringIndex {
+  [key: string]: any;
+}
+
+export const serialize = async <T extends StringIndex>(
+  object: T,
+): Promise<any> => {
   if (typeof object !== 'object' || object === null) {
     return object;
   }
 
-  if (object instanceof Serializable) {
+  if (object instanceof Serializable<T>) {
     const s = await object.serialize();
     for (const key in s) {
       s[key] = await serialize(s[key]);
@@ -22,11 +26,12 @@ export const serialize = async (
     );
   }
 
+  const ret: Record<string, T[keyof T]> = {};
   await Promise.all(
     Object.keys(object).map(
-      async (key) => (object[key] = await serialize(object[key])),
+      async (key) => (ret[key] = await serialize(object[key])),
     ),
   );
 
-  return object;
+  return ret;
 };

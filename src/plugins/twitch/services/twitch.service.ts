@@ -173,7 +173,7 @@ export class TwitchService implements OnModuleInit {
               return null;
             } else {
               return {
-                playerId: profile.player.toString(),
+                playerId: profile.player?.toString(),
                 id: stream.id,
                 userName: stream.user_name,
                 title: stream.title,
@@ -184,7 +184,7 @@ export class TwitchService implements OnModuleInit {
           }
         }),
       )
-    ).filter((stream) => !!stream);
+    ).filter((stream) => Boolean(stream)) as TwitchStream[];
 
     this._streams.next(streams);
     this.logger.debug('streams refreshed');

@@ -94,7 +94,7 @@ export class OnlinePlayersService implements OnModuleInit, OnModuleDestroy {
 
   private verifyPlayer(playerId: string) {
     const sockets = this.sockets.get(playerId);
-    if (sockets.length === 0) {
+    if (sockets?.length === 0) {
       this.events.playerDisconnects.next({ playerId });
     }
   }

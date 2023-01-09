@@ -2,16 +2,16 @@ import { IsNumberString, IsOptional, IsPort, IsString } from 'class-validator';
 
 export class GameServerHeartbeat {
   @IsString()
-  name: string;
+  name!: string;
 
   @IsString()
-  address: string;
+  address!: string;
 
   @IsPort()
-  port: string;
+  port!: string;
 
   @IsString()
-  rconPassword: string;
+  rconPassword!: string;
 
   @IsOptional()
   @IsNumberString()

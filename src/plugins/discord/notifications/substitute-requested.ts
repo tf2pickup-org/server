@@ -9,7 +9,7 @@ interface SubstituteRequestedOptions {
   admin: {
     name: string;
     profileUrl: string;
-    avatarUrl: string;
+    avatarUrl?: string;
   };
   game: {
     number: string;

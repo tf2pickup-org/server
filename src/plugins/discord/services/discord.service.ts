@@ -13,7 +13,7 @@ export class DiscordService implements OnModuleInit {
       Intents.FLAGS.GUILD_MESSAGES,
     ],
   });
-  private guild: Guild;
+  private guild?: Guild;
   private logger = new Logger(DiscordService.name);
 
   constructor(private environment: Environment) {}
@@ -21,9 +21,11 @@ export class DiscordService implements OnModuleInit {
   onModuleInit() {
     if (this.environment.discordBotToken) {
       this.client.on('ready', () => {
-        this.logger.log(`logged in as ${this.client.user.tag}`);
+        if (this.client.user) {
+          this.logger.log(`logged in as ${this.client.user.tag}`);
+        }
         this.enable();
-        this.getAdminsChannel().send(`Server version ${version} started.`);
+        this.getAdminsChannel()?.send(`Server version ${version} started.`);
         this.installEmojis();
       });
 
@@ -41,11 +43,11 @@ export class DiscordService implements OnModuleInit {
     return this.findChannel(this.environment.discordAdminNotificationsChannel);
   }
 
-  findRole(name: string): Role | null {
+  findRole(name: string): Role | undefined {
     return this.guild?.roles?.cache.find((role) => role.name === name);
   }
 
-  findEmoji(name: string): Emoji {
+  findEmoji(name: string): Emoji | undefined {
     return this.guild?.emojis?.cache.find((emoji) => emoji.name === name);
   }
 
@@ -73,13 +75,15 @@ export class DiscordService implements OnModuleInit {
       const found = this.guild?.emojis.cache.find((e) => e.name === emoji.name);
       if (!found) {
         try {
-          const e = await this.guild.emojis.create(
+          const e = await this.guild?.emojis.create(
             emoji.sourceUrl,
             emoji.name,
             { reason: 'required by the tf2pickup.org server' },
           );
-          installedEmojis.push(e);
-          this.logger.log(`Installed emoji ${emoji.name}`);
+          if (e) {
+            installedEmojis.push(e);
+            this.logger.log(`Installed emoji ${emoji.name}`);
+          }
         } catch (error) {
           this.logger.error(
             `Failed installing emoji '${emoji.name}' (${error}).`,

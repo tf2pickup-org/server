@@ -5,7 +5,7 @@ interface GameForceEndedOptions {
   admin: {
     name: string;
     profileUrl: string;
-    avatarUrl: string;
+    avatarUrl?: string;
   };
   client: {
     name: string;

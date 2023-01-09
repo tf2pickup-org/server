@@ -70,7 +70,7 @@ export class QueueService implements OnModuleInit, OnModuleDestroy {
     this.events.queueSlotsChange.subscribe(() => this.cacheQueue());
     this.events.queueStateChange.subscribe(() => this.cacheQueue());
 
-    const queue: Queue = await this.cache.get('queue');
+    const queue: Queue | undefined = await this.cache.get('queue');
     if (queue) {
       this.slots = queue.slots;
       this.state = queue.state;
@@ -82,11 +82,11 @@ export class QueueService implements OnModuleInit, OnModuleDestroy {
     this.immediates.forEach((i) => clearImmediate(i));
   }
 
-  getSlotById(id: number): QueueSlot {
+  getSlotById(id: number): QueueSlot | undefined {
     return this.slots.find((s) => s.id === id);
   }
 
-  findSlotByPlayerId(playerId: string): QueueSlot {
+  findSlotByPlayerId(playerId: string): QueueSlot | undefined {
     return this.slots.find((s) => s.playerId === playerId);
   }
 
@@ -246,20 +246,16 @@ export class QueueService implements OnModuleInit, OnModuleDestroy {
   }
 
   private resetSlots() {
-    const defaultSlot: Partial<QueueSlot> = {
-      playerId: null,
-      ready: false,
-    };
-
     let lastId = 0;
-    this.slots = this.queueConfig.classes.reduce((prev, curr) => {
-      const tmpSlots = [];
+    this.slots = this.queueConfig.classes.reduce<QueueSlot[]>((prev, curr) => {
+      const tmpSlots: QueueSlot[] = [];
       for (let i = 0; i < curr.count * this.queueConfig.teamCount; ++i) {
         tmpSlots.push({
           id: lastId++,
           gameClass: curr.name,
           canMakeFriendsWith: curr.canMakeFriendsWith,
-          ...defaultSlot,
+          playerId: null,
+          ready: false,
         });
       }
 
@@ -289,8 +285,10 @@ export class QueueService implements OnModuleInit, OnModuleDestroy {
 
   private kickUnreadyPlayers() {
     this.logger.debug('kicking players that are not ready');
-    const slots = this.slots.filter((s) => !s.ready);
-    this.kick(...slots.map((s) => s.playerId));
+    const slots = this.slots
+      .filter((s) => !s.ready)
+      .filter((s) => Boolean(s.playerId));
+    this.kick(...slots.map((s) => s.playerId as string));
   }
 
   private unreadyQueue() {

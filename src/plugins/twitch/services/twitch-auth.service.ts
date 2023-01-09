@@ -25,8 +25,8 @@ const twitchOauth2TokenUrl = 'https://id.twitch.tv/oauth2/token';
 export class TwitchAuthService {
   private readonly redirectUri = `${this.environment.apiUrl}/twitch/auth/return`;
   private logger = new Logger(TwitchAuthService.name);
-  private appAccessToken: string;
-  private tokenExpirationDate: Date;
+  private appAccessToken?: string;
+  private tokenExpirationDate?: Date;
 
   constructor(
     private environment: Environment,

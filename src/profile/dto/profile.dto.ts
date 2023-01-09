@@ -7,9 +7,9 @@ import { Restriction } from '../interfaces/restriction';
 export interface ProfileDto {
   player: Serializable<PlayerDto>;
   hasAcceptedRules: boolean;
-  activeGameId: string;
+  activeGameId?: string;
   bans: Serializable<PlayerBanDto>[];
-  mapVote: string;
+  mapVote?: string;
   preferences: Record<string, string>;
   linkedProfiles: LinkedProfile[];
 

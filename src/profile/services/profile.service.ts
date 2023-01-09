@@ -11,6 +11,7 @@ import { serialize } from '@/shared/serialize';
 import { WebsocketEvent } from '@/websocket-event';
 import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
 import { isEqual } from 'lodash';
+import { Types } from 'mongoose';
 import { map, filter, concatMap, from } from 'rxjs';
 import { ProfileDto } from '../dto/profile.dto';
 import { Restriction, RestrictionReason } from '../interfaces/restriction';
@@ -32,7 +33,7 @@ export class ProfileService implements OnModuleInit {
     this.events.linkedProfilesChanged.subscribe(({ playerId }) => {
       this.onlinePlayersService
         .getSocketsForPlayer(playerId)
-        .forEach(async (socket) => {
+        ?.forEach(async (socket) => {
           socket.emit(WebsocketEvent.profileUpdate, {
             linkedProfiles: await this.linkedProfilesService.getLinkedProfiles(
               playerId,
@@ -53,7 +54,7 @@ export class ProfileService implements OnModuleInit {
       .subscribe((player) =>
         this.onlinePlayersService
           .getSocketsForPlayer(player.id)
-          .forEach((socket) =>
+          ?.forEach((socket) =>
             socket.emit(WebsocketEvent.profileUpdate, { player }),
           ),
       );
@@ -69,7 +70,7 @@ export class ProfileService implements OnModuleInit {
       .subscribe(({ newPlayer }) => {
         this.onlinePlayersService
           .getSocketsForPlayer(newPlayer.id)
-          .forEach((socket) =>
+          ?.forEach((socket) =>
             socket.emit(WebsocketEvent.profileUpdate, {
               activeGameId: newPlayer.activeGame?.toString() ?? null,
             }),
@@ -91,7 +92,7 @@ export class ProfileService implements OnModuleInit {
       player,
       hasAcceptedRules: player.hasAcceptedRules,
       ...(Boolean(player.activeGame) && {
-        activeGameId: player.activeGame.toString(),
+        activeGameId: (player.activeGame as Types.ObjectId).toString(),
       }),
       bans,
       mapVote: this.mapVoteService.playerVote(player.id),

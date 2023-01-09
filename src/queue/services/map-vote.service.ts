@@ -20,14 +20,14 @@ export class MapVoteService implements OnModuleInit {
   private readonly _results = new BehaviorSubject<MapVoteResult[]>([]);
 
   // available options to vote for
-  public mapOptions: string[];
+  public mapOptions: string[] = [];
 
   get results(): MapVoteResult[] {
     return this._results.value;
   }
 
   private readonly mapVoteOptionCount = 3;
-  private votes: MapVote[];
+  private votes: MapVote[] = [];
 
   constructor(
     @InjectModel(MapPoolEntry.name)
@@ -69,7 +69,7 @@ export class MapVoteService implements OnModuleInit {
     this._results.next(this.getResults());
   }
 
-  playerVote(playerId: string): string {
+  playerVote(playerId: string): string | undefined {
     return this.votes.find((v) => v.playerId === playerId)?.map;
   }
 
@@ -77,7 +77,7 @@ export class MapVoteService implements OnModuleInit {
    * Decides the winner and resets the vote.
    */
   async getWinner() {
-    const maxVotes = maxBy(this.results, (r) => r.voteCount).voteCount;
+    const maxVotes = maxBy(this.results, (r) => r.voteCount)?.voteCount;
     const mapsWithMaxVotes = this.results.filter(
       (m) => m.voteCount === maxVotes,
     );

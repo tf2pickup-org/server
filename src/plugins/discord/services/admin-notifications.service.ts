@@ -139,7 +139,7 @@ export class AdminNotificationsService implements OnModuleInit {
   private async onPlayerUpdates(
     player: Player,
     changes: PlayerChanges,
-    adminId: string,
+    adminId?: string,
   ) {
     if (!adminId) {
       return;
@@ -202,7 +202,11 @@ export class AdminNotificationsService implements OnModuleInit {
     });
   }
 
-  private async onPlayerBanRevoked(ban: PlayerBan, adminId: string) {
+  private async onPlayerBanRevoked(ban: PlayerBan, adminId?: string) {
+    if (!adminId) {
+      return;
+    }
+
     const admin = await this.playersService.getById(adminId);
     const player = await this.playersService.getById(ban.player);
 
@@ -233,7 +237,7 @@ export class AdminNotificationsService implements OnModuleInit {
     playerId: string,
     oldSkill: PlayerSkillType,
     newSkill: PlayerSkillType,
-    adminId: string,
+    adminId?: string,
   ) {
     if (!adminId) {
       return;
@@ -308,7 +312,7 @@ export class AdminNotificationsService implements OnModuleInit {
     });
   }
 
-  private async onGameForceEnded(game: Game, adminId: string) {
+  private async onGameForceEnded(game: Game, adminId?: string) {
     if (!adminId) {
       return;
     }
@@ -338,8 +342,12 @@ export class AdminNotificationsService implements OnModuleInit {
   private async onSubstituteRequested(
     gameId: string,
     playerId: string,
-    adminId: string,
+    adminId?: string,
   ) {
+    if (!adminId) {
+      return;
+    }
+
     const admin = await this.playersService.getById(adminId);
     const player = await this.playersService.getById(playerId);
     const game = await this.gamesService.getById(gameId);
@@ -369,7 +377,11 @@ export class AdminNotificationsService implements OnModuleInit {
     });
   }
 
-  private async onMapsScrambled(actorId: string) {
+  private async onMapsScrambled(actorId?: string) {
+    if (!actorId) {
+      return;
+    }
+
     const actor = await this.playersService.getById(actorId);
     this.discordService.getAdminsChannel()?.send({
       embeds: [

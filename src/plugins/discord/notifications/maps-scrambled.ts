@@ -5,7 +5,7 @@ interface MapsScrambledOptions {
   actor: {
     name: string;
     profileUrl: string;
-    avatarUrl: string;
+    avatarUrl?: string;
   };
   client: {
     name: string;
@@ -22,7 +22,7 @@ export const mapsScrambled = (options: MapsScrambledOptions) =>
       url: options.actor.profileUrl,
     })
     .setTitle('Maps scrambled')
-    .setThumbnail(options.actor.avatarUrl)
+    .setThumbnail(options.actor.avatarUrl || '')
     .setFooter({
       text: options.client.name,
       iconURL: options.client.iconUrl,

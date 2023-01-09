@@ -24,7 +24,11 @@ export class LogForwarding implements DiagnosticCheckRunner {
     private environment: Environment,
   ) {}
 
-  async run({ effects }): Promise<DiagnosticCheckResult> {
+  async run({
+    effects,
+  }: {
+    effects: Map<string, any>;
+  }): Promise<DiagnosticCheckResult> {
     const rcon: Rcon = effects.get('rcon connection');
     if (!rcon) {
       return Promise.resolve({
