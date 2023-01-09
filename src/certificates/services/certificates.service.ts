@@ -48,6 +48,8 @@ export class CertificatesService {
           Certificate,
           await this.certificateModel.findById(id).orFail().lean().exec(),
         );
+      } else {
+        throw error;
       }
     }
   }

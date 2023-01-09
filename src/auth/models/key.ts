@@ -4,13 +4,13 @@ import { Document } from 'mongoose';
 @Schema()
 export class Key {
   @Prop({ required: true, unique: true })
-  name: string;
+  name!: string;
 
   @Prop({ required: true })
-  privateKeyEncoded: string;
+  privateKeyEncoded!: string;
 
   @Prop({ required: true })
-  publicKeyEncoded: string;
+  publicKeyEncoded!: string;
 }
 
 export type KeyDocument = Key & Document;

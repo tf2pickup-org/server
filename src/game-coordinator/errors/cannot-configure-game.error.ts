@@ -1,10 +1,14 @@
-import { GameServer } from '@/games/models/game-server';
+import { Game } from '@/games/models/game';
 
 export class CannotConfigureGameError extends Error {
   constructor(
-    public readonly gameServer: GameServer,
+    public readonly game: Game,
     public readonly errorMessage: string,
   ) {
-    super(`cannot configure gameserver ${gameServer.name}: ${errorMessage}`);
+    super(
+      `cannot configure game #${game.number}${
+        game.gameServer ? '(using gameserver ' + game.gameServer.name + ')' : ''
+      }: ${errorMessage}`,
+    );
   }
 }

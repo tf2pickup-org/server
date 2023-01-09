@@ -15,20 +15,20 @@ export class Player extends Serializable<PlayerDto> {
 
   @Exclude({ toPlainOnly: true })
   @TransformObjectId()
-  _id?: Types.ObjectId;
+  _id!: Types.ObjectId;
 
   @Expose()
   @Transform(({ value, obj }) => value ?? obj._id.toString())
-  id?: string;
+  id!: string;
 
   @Prop({ required: true, unique: true, trim: true })
   name!: string;
 
-  @Prop({ unique: true })
-  steamId?: string; // SteamID64 only
+  @Prop({ unique: true, required: true })
+  steamId!: string; // SteamID64 only
 
   @Prop({ default: () => new Date() })
-  joinedAt?: Date;
+  joinedAt!: Date;
 
   @Type(() => PlayerAvatar)
   @Prop({ type: playerAvatarSchema })

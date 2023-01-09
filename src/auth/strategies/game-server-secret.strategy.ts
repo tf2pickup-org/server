@@ -1,4 +1,5 @@
 import { Environment } from '@/environment/environment';
+import { assertIsError } from '@/utils/assert-is-error';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { HeaderAPIKeyStrategy } from 'passport-headerapikey';
@@ -16,11 +17,12 @@ export class GameServerSecretStrategy extends PassportStrategy(
         prefix: 'secret ',
       },
       true,
-      (secret, done) => {
+      (secret: string, done: (err: Error | null, result?: boolean) => void) => {
         try {
           const result = this.validate(secret);
           done(null, result);
         } catch (error) {
+          assertIsError(error);
           done(error);
         }
       },

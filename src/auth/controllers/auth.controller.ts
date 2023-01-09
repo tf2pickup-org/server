@@ -74,7 +74,7 @@ export class AuthController {
     try {
       return await this.authService.refreshTokens(oldRefreshToken);
     } catch (error) {
-      throw new BadRequestException(error.message);
+      throw new BadRequestException(`${error}`);
     }
   }
 

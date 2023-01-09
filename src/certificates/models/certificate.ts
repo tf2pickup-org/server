@@ -6,10 +6,10 @@ import { Document } from 'mongoose';
 @Schema()
 export class Certificate extends MongooseDocument {
   @Transform(({ value, obj }) => value ?? obj._id.toString())
-  id: string;
+  id!: string;
 
   @Prop({ required: true })
-  purpose: string;
+  purpose!: string;
 
   @Prop()
   clientKey?: string;

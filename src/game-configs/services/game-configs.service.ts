@@ -7,7 +7,7 @@ import { QueueConfig } from '@/queue-config/interfaces/queue-config';
 
 @Injectable()
 export class GameConfigsService implements OnModuleInit {
-  private template: ReturnType<typeof compile>;
+  private template!: ReturnType<typeof compile>;
   variables: Record<string, any>;
 
   constructor(

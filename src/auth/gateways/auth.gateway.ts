@@ -14,7 +14,7 @@ declare module 'socket.io' {
 @WebSocketGateway()
 export class AuthGateway implements OnModuleInit {
   @WebSocketServer()
-  server: Server;
+  server?: Server;
 
   constructor(
     private playersService: PlayersService,
@@ -22,7 +22,7 @@ export class AuthGateway implements OnModuleInit {
   ) {}
 
   onModuleInit() {
-    this.server.use(async (socket, next) => {
+    this.server?.use(async (socket, next) => {
       try {
         const { token } = socket.handshake.auth;
         if (token) {
@@ -39,7 +39,7 @@ export class AuthGateway implements OnModuleInit {
         }
         return next();
       } catch (error) {
-        return next(error);
+        return next(new Error(`${error}`));
       }
     });
   }

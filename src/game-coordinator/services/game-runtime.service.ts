@@ -13,6 +13,7 @@ import { Rcon } from 'rcon-client/lib';
 import { Events } from '@/events/events';
 import { GamesService } from '@/games/services/games.service';
 import { GameServerOptionWithProvider } from '@/game-servers/interfaces/game-server-option';
+import { assertIsError } from '@/utils/assert-is-error';
 
 @Injectable()
 export class GameRuntimeService implements OnModuleInit {
@@ -67,6 +68,7 @@ export class GameRuntimeService implements OnModuleInit {
         },
       });
     } catch (e) {
+      assertIsError(e);
       this.logger.error(e.message);
     }
 
@@ -97,7 +99,7 @@ export class GameRuntimeService implements OnModuleInit {
     );
 
     const controls = await this.gameServersService.getControls(game.gameServer);
-    let rcon: Rcon;
+    let rcon: Rcon | undefined;
 
     try {
       rcon = await controls.rcon();
@@ -116,6 +118,7 @@ export class GameRuntimeService implements OnModuleInit {
       this.logger.debug(cmd2);
       await rcon.send(cmd2);
     } catch (e) {
+      assertIsError(e);
       this.logger.error(
         `Error replacing the player on the game server: ${e.message}`,
       );
@@ -126,11 +129,12 @@ export class GameRuntimeService implements OnModuleInit {
 
   async sayChat(gameServer: GameServerOptionWithProvider, message: string) {
     const controls = await this.gameServersService.getControls(gameServer);
-    let rcon: Rcon;
+    let rcon: Rcon | undefined;
     try {
       rcon = await controls.rcon();
       await rcon.send(say(message));
     } catch (e) {
+      assertIsError(e);
       this.logger.error(e.message);
     } finally {
       await rcon?.end();
