@@ -5,16 +5,15 @@ import { ConfigurationService } from '@/configuration/services/configuration.ser
 import { Environment } from '@/environment/environment';
 import { Events } from '@/events/events';
 import { Game, gameSchema } from '@/games/models/game';
-import { GameState } from '@/games/models/game-state';
 import { GameRuntimeService } from '@/game-coordinator/services/game-runtime.service';
 import { GamesService } from '@/games/services/games.service';
 import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
 import { getConnectionToken, MongooseModule } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
-import { Client } from '@tf2pickup-org/mumble-client';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { Connection } from 'mongoose';
 import { MumbleBotService } from './mumble-bot.service';
+import { MumbleBot } from './mumble-bot';
 
 jest.mock('@/environment/environment');
 jest.mock('@/configuration/services/configuration.service');
@@ -22,6 +21,7 @@ jest.mock('@/certificates/services/certificates.service');
 jest.mock('@/games/services/games.service');
 jest.mock('@tf2pickup-org/mumble-client');
 jest.mock('@/game-coordinator/services/game-runtime.service');
+jest.mock('./mumble-bot');
 
 describe('MumbleBotService', () => {
   let service: MumbleBotService;
@@ -84,6 +84,10 @@ describe('MumbleBotService', () => {
     await service.onModuleInit();
   });
 
+  afterEach(() => {
+    (MumbleBot as jest.MockedClass<typeof MumbleBot>).mockClear();
+  });
+
   afterEach(async () => {
     await connection.close();
   });
@@ -92,200 +96,55 @@ describe('MumbleBotService', () => {
     expect(service).toBeDefined();
   });
 
-  it('should connect to the mumble server', () => {
-    // @ts-expect-error
-    const client = Client._lastInstance;
-    expect(client.options).toEqual({
-      host: 'FAKE_MUMBLE_URL',
-      port: 64738,
-      username: 'FAKE_BOT_NAME',
-      clientName: expect.any(String),
-      key: 'FAKE_CLIENT_KEY',
-      cert: 'FAKE_CERTIFICATE',
-      rejectUnauthorized: false,
-    });
-  });
-
-  describe('#onModuleDestroy()', () => {
-    it('should disconnect', () => {
-      service.onModuleDestroy();
-
-      // @ts-expect-error
-      const client = Client._lastInstance;
-      expect(client.disconnect).toHaveBeenCalled();
-    });
-  });
-
-  describe('when voice server configuration changes', () => {
-    let oldClient: Client;
-
-    beforeEach(() => {
-      // @ts-expect-error
-      oldClient = Client._lastInstance;
-
-      events.configurationEntryChanged.next({
-        entryKey: ConfigurationEntryKey.voiceServer,
-      });
-    });
-
-    it('should disconnect', () => {
-      expect(oldClient.disconnect).toHaveBeenCalled();
-    });
-
-    it('should reconnect', () => {
-      // @ts-expect-error
-      const client = Client._lastInstance;
-      expect(client).not.toBe(oldClient);
-      expect(client.connect).toHaveBeenCalled();
-    });
-  });
-
-  it('should self deafen', () => {
-    // @ts-expect-error
-    const client = Client._lastInstance;
-    expect(client.user.setSelfDeaf).toHaveBeenCalledWith(true);
-  });
-
-  describe('when a game is created', () => {
-    beforeEach(() => {
-      const game = new Game();
-      game.number = 1234;
-      events.gameCreated.next({ game });
-    });
-
-    it('should create channels', () => {
-      // @ts-expect-error
-      const client = Client._lastInstance;
-      expect(client.user.channel.subChannels[0].name).toBe('1234');
-      expect(client.user.channel.subChannels[0].subChannels[0].name).toBe(
-        'BLU',
-      );
-      expect(client.user.channel.subChannels[0].subChannels[1].name).toBe(
-        'RED',
-      );
-    });
-  });
-
-  describe('when a game ends', () => {
-    let client;
-
-    beforeEach(() => {
-      // @ts-expect-error
-      client = Client._lastInstance;
-    });
+  describe('when connected', () => {
+    let mockMumbleBot: MumbleBot;
 
     beforeEach(async () => {
-      const ch = await client.user.channel.createSubChannel('2');
-      await ch.createSubChannel('BLU');
-      await ch.createSubChannel('RED');
-
-      const oldGame = new Game();
-      oldGame.number = 2;
-      oldGame.state = GameState.started;
-
-      const newGame = new Game();
-      newGame.number = 2;
-      newGame.state = GameState.ended;
-      events.gameChanges.next({ oldGame, newGame });
+      await service.tryConnect();
+      const mockInstances = (MumbleBot as jest.MockedClass<typeof MumbleBot>)
+        .mock.instances;
+      mockMumbleBot = mockInstances[mockInstances.length - 1];
     });
 
-    it('should link channels', () => {
-      const red = client.user.channel.subChannels[0].subChannels[1];
-      expect(red.link).toHaveBeenCalled();
-      expect(red.links.length).toBe(1);
-    });
-  });
-
-  describe('#removeOldChannels()', () => {
-    let client;
-
-    beforeEach(() => {
-      // @ts-expect-error
-      client = Client._lastInstance;
-    });
-
-    describe('when not connected', () => {
-      beforeEach(() => {
-        client.user = undefined;
+    it('should create new mumble bot and connect', async () => {
+      expect(
+        MumbleBot as jest.MockedClass<typeof MumbleBot>,
+      ).toHaveBeenCalledWith({
+        host: 'FAKE_MUMBLE_URL',
+        port: 64738,
+        username: 'FAKE_BOT_NAME',
+        clientName: expect.any(String),
+        certificate: {
+          id: 'FAKE_ID',
+          purpose: 'mumble',
+          clientKey: 'FAKE_CLIENT_KEY',
+          certificate: 'FAKE_CERTIFICATE',
+        },
+        targetChannelName: undefined,
       });
+      expect(mockMumbleBot.connect).toHaveBeenCalledTimes(1);
+    });
 
-      it('should not do anything', async () => {
-        await expect(service.removeOldChannels()).resolves.not.toThrow();
+    describe('#createChannels()', () => {
+      it('should create channels', async () => {
+        const game = new Game();
+        await service.createChannels(game);
+        expect(mockMumbleBot.setupChannels).toHaveBeenCalledWith(game);
       });
     });
 
-    describe('when there is a channel that is not a game channel', () => {
-      beforeEach(() => {
-        client.user.channel.createSubChannel('not a game channel');
+    describe('#linkChannels()', () => {
+      it('should link channels', async () => {
+        const game = new Game();
+        await service.linkChannels(game);
+        expect(mockMumbleBot.linkChannels).toHaveBeenCalledWith(game);
       });
+    });
 
-      it('should not remove it', async () => {
+    describe('#removeOldChannels()', () => {
+      it('should remove old channels', async () => {
         await service.removeOldChannels();
-        expect(client.user.channel.subChannels.length).toBe(1);
-      });
-    });
-
-    describe('when there are no users', () => {
-      beforeEach(async () => {
-        // @ts-expect-error
-        const game = await gamesService._createOne();
-        game.state = GameState.ended;
-        await game.save();
-
-        await client.user.channel.createSubChannel(`${game.number}`);
-      });
-
-      afterEach(async () => {
-        // @ts-expect-error
-        await gamesService._reset();
-      });
-
-      it('should remove the channel', async () => {
-        await service.removeOldChannels();
-        expect(client.user.channel.subChannels.length).toBe(0);
-      });
-    });
-
-    describe('when there are users in subchannels', () => {
-      beforeEach(async () => {
-        // @ts-expect-error
-        const game = await gamesService._createOne();
-        game.state = GameState.ended;
-        await game.save();
-
-        const ch = await client.user.channel.createSubChannel(`${game.number}`);
-        ch.users.push({});
-      });
-
-      afterEach(async () => {
-        // @ts-expect-error
-        await gamesService._reset();
-      });
-
-      it('should not remove the channel', async () => {
-        await service.removeOldChannels();
-        expect(client.user.channel.subChannels.length).toBe(1);
-      });
-    });
-
-    describe('when the game is in progress', () => {
-      beforeEach(async () => {
-        // @ts-expect-error
-        const game = await gamesService._createOne();
-        game.state = GameState.started;
-        await game.save();
-
-        await client.user.channel.createSubChannel(`${game.number}`);
-      });
-
-      afterEach(async () => {
-        // @ts-expect-error
-        await gamesService._reset();
-      });
-
-      it('should not remove the channel', async () => {
-        await service.removeOldChannels();
-        expect(client.user.channel.subChannels.length).toBe(1);
+        expect(mockMumbleBot.removeObsoleteChannels).toHaveBeenCalled();
       });
     });
   });
