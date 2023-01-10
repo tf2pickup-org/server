@@ -19,7 +19,6 @@ jest.mock('@/environment/environment');
 jest.mock('@/configuration/services/configuration.service');
 jest.mock('@/certificates/services/certificates.service');
 jest.mock('@/games/services/games.service');
-jest.mock('@tf2pickup-org/mumble-client');
 jest.mock('@/game-coordinator/services/game-runtime.service');
 jest.mock('./mumble-bot');
 
