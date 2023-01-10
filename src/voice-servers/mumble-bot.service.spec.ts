@@ -106,7 +106,7 @@ describe('MumbleBotService', () => {
       mockMumbleBot = mockInstances[mockInstances.length - 1];
     });
 
-    it('should create new mumble bot and connect', async () => {
+    it('should create new mumble bot and connect', () => {
       expect(
         MumbleBot as jest.MockedClass<typeof MumbleBot>,
       ).toHaveBeenCalledWith({
