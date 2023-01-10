@@ -52,9 +52,6 @@ export class GamesService {
   getOrphanedGames = jest.fn();
   getPlayerGameCount = jest.fn();
   getPlayerPlayedClassCount = jest.fn();
-  getRunningGames = jest
-    .fn()
-    .mockImplementation(() => this._original.getRunningGames());
 
   async _createOne(players?: Player[]) {
     let lastTeamId = 0;
