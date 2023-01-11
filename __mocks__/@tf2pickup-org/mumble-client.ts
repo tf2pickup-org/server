@@ -57,15 +57,18 @@ class MockUser {
 
   setSelfMute = jest.fn().mockResolvedValue(this);
   setSelfDeaf = jest.fn().mockResolvedValue(this);
+
+  name = 'mock user';
 }
 
 class MockUserManager {}
 
 export class Client {
-  static _lastInstance;
+  static _lastInstance: Client;
   channels = new MockChannelManager();
   users = new MockUserManager();
   user = new MockUser();
+  welcomeText = 'FAKE_WELCOME_TEXT';
 
   constructor(public options: any) {
     Client._lastInstance = this;
