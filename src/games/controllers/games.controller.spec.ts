@@ -15,6 +15,7 @@ jest.mock('../services/game-server-assigner.service');
 class GamesServiceStub {
   games: Game[] = [
     {
+      id: 'FAKE_GAME_ID',
       number: 1,
       map: 'cp_fake_rc1',
       state: 'ended',
@@ -23,6 +24,7 @@ class GamesServiceStub {
       assignedSkills: new Map([['FAKE_PLAYER_ID', 1]]),
     } as Game,
     {
+      id: 'FAKE_GAME_2_ID',
       number: 2,
       map: 'cp_fake_rc2',
       state: 'launching',
@@ -117,28 +119,30 @@ describe('Games Controller', () => {
 
   describe('#getGame()', () => {
     it('should return the given game', async () => {
-      const ret = await controller.getGame('FAKE_ID');
+      const ret = await controller.getGame(gamesService.games[0]);
       expect(ret).toEqual(gamesService.games[0]);
     });
   });
 
   describe('#getConnectInfo()', () => {
     beforeEach(() => {
-      jest.spyOn(gamesService, 'getById').mockResolvedValue({
-        id: 'FAKE_ID',
-        connectInfoVersion: 1,
-        connectString: 'FAKE_CONNECT_STRING',
-      } as Game);
       jest
         .spyOn(gamesService, 'getVoiceChannelUrl')
         .mockResolvedValue('FAKE_VOICE_CHANNEL_URL');
     });
 
     it('should return connect info', async () => {
-      const ret = await controller.getConnectInfo('FAKE_ID', {
-        id: 'FAKE_PLAYER_ID',
-      } as Player);
-      expect(ret.gameId).toEqual('FAKE_ID');
+      const ret = await controller.getConnectInfo(
+        {
+          id: 'FAKE_GAME_ID',
+          connectInfoVersion: 1,
+          connectString: 'FAKE_CONNECT_STRING',
+        } as Game,
+        {
+          id: 'FAKE_PLAYER_ID',
+        } as Player,
+      );
+      expect(ret.gameId).toEqual('FAKE_GAME_ID');
       expect(ret.connectInfoVersion).toEqual(1);
       expect(ret.connectString).toEqual('FAKE_CONNECT_STRING');
       expect(ret.voiceChannelUrl).toEqual('FAKE_VOICE_CHANNEL_URL');
@@ -155,7 +159,7 @@ describe('Games Controller', () => {
 
       it('should reject with 401', async () => {
         await expect(
-          controller.getConnectInfo('FAKE_GAME_ID', {
+          controller.getConnectInfo(gamesService.games[0], {
             id: 'FAKE_PLAYER_ID',
           } as Player),
         ).rejects.toThrow(UnauthorizedException);
@@ -171,7 +175,7 @@ describe('Games Controller', () => {
       });
 
       it('should return undefined', async () => {
-        const ret = await controller.getConnectInfo('FAKE_ID', {
+        const ret = await controller.getConnectInfo(gamesService.games[0], {
           id: 'FAKE_PLAYER_ID',
         } as Player);
         expect(ret.connectString).toBe(undefined);
@@ -181,7 +185,7 @@ describe('Games Controller', () => {
 
   describe('#getGameSkills()', () => {
     it('should return given game assigned skills', async () => {
-      const ret = await controller.getGameSkills('FAKE_ID');
+      const ret = await controller.getGameSkills(gamesService.games[0]);
       expect(ret).toEqual(gamesService.games[0].assignedSkills);
     });
   });
@@ -195,7 +199,7 @@ describe('Games Controller', () => {
       });
 
       await controller.takeAdminAction(
-        'FAKE_GAME_ID',
+        gamesService.games[0],
         '',
         undefined,
         undefined,
@@ -210,7 +214,7 @@ describe('Games Controller', () => {
 
     it('should force end the game', async () => {
       await controller.takeAdminAction(
-        'FAKE_GAME_ID',
+        gamesService.games[0],
         undefined,
         '',
         undefined,
@@ -228,7 +232,7 @@ describe('Games Controller', () => {
     it('should substitute player', async () => {
       const spy = jest.spyOn(playerSubstitutionService, 'substitutePlayer');
       await controller.takeAdminAction(
-        'FAKE_GAME_ID',
+        gamesService.games[0],
         undefined,
         undefined,
         'FAKE_PLAYER_ID',
@@ -250,7 +254,7 @@ describe('Games Controller', () => {
         'cancelSubstitutionRequest',
       );
       await controller.takeAdminAction(
-        'FAKE_GAME_ID',
+        gamesService.games[0],
         undefined,
         undefined,
         undefined,
@@ -269,7 +273,7 @@ describe('Games Controller', () => {
     describe('reassign server', () => {
       it('should reassign gameserver', async () => {
         await controller.takeAdminAction(
-          'FAKE_GAME_ID',
+          gamesService.games[0],
           undefined,
           undefined,
           undefined,
@@ -291,7 +295,7 @@ describe('Games Controller', () => {
         it('should return 400', async () => {
           await expect(
             controller.takeAdminAction(
-              'FAKE_GAME_ID',
+              gamesService.games[0],
               undefined,
               undefined,
               undefined,
