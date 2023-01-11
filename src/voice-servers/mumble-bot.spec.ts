@@ -2,6 +2,7 @@ jest.mock('@tf2pickup-org/mumble-client');
 import { MumbleBot } from './mumble-bot';
 import { Client as MockClient } from '@mocks/@tf2pickup-org/mumble-client';
 import { Game } from '@/games/models/game';
+import { GameState } from '@/games/models/game-state';
 
 describe('MumbleBot', () => {
   let mumbleBot: MumbleBot;
@@ -105,6 +106,53 @@ describe('MumbleBot', () => {
       const red = client.user.channel.subChannels[0].subChannels[1];
       expect(red.link).toHaveBeenCalled();
       expect(red.links.length).toBe(1);
+    });
+  });
+
+  describe('#removeObsoleteChannels()', () => {
+    describe('when there are channels created', () => {
+      let game: Game;
+      let gameChannel: MockClient['user']['channel'];
+
+      beforeEach(async () => {
+        game = new Game();
+        game.id = 'FAKE_GAME_ID';
+        game.number = 3;
+        game.state = GameState.ended;
+
+        gameChannel = await client.user.channel.createSubChannel('3');
+        await gameChannel.createSubChannel('BLU');
+        await gameChannel.createSubChannel('RED');
+      });
+
+      it('should remove the channels', async () => {
+        await mumbleBot.removeObsoleteChannels([]);
+        expect(gameChannel.remove).toHaveBeenCalledTimes(1);
+      });
+
+      describe('when there are users in one of the subchannels', () => {
+        beforeEach(async () => {
+          gameChannel.subChannels[0].users.push({});
+        });
+
+        it('should not remove the channel', async () => {
+          await mumbleBot.removeObsoleteChannels([]);
+          expect(gameChannel.subChannels[0].remove).not.toHaveBeenCalled();
+          expect(gameChannel.remove).not.toHaveBeenCalled();
+        });
+      });
+
+      describe('but the game has not ended yet', () => {
+        beforeEach(() => {
+          game.state = GameState.started;
+        });
+
+        it('should not remove the channel', async () => {
+          await mumbleBot.removeObsoleteChannels([game]);
+          expect(gameChannel.subChannels[0].remove).not.toHaveBeenCalled();
+          expect(gameChannel.remove).not.toHaveBeenCalled();
+        });
+      });
     });
   });
 });
