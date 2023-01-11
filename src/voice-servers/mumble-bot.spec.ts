@@ -131,7 +131,7 @@ describe('MumbleBot', () => {
       });
 
       describe('when there are users in one of the subchannels', () => {
-        beforeEach(async () => {
+        beforeEach(() => {
           gameChannel.subChannels[0].users.push({});
         });
 
