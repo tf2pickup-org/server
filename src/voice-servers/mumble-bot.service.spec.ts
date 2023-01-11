@@ -132,7 +132,7 @@ describe('MumbleBotService', () => {
         expect(mockMumbleBot.setupChannels).toHaveBeenCalledWith(game);
       });
 
-      it('should be called upon game creation', async () => {
+      it('should be called upon game creation', () => {
         const game = new Game();
         events.gameCreated.next({ game });
         expect(mockMumbleBot.setupChannels).toHaveBeenCalledWith(game);
@@ -146,7 +146,7 @@ describe('MumbleBotService', () => {
         expect(mockMumbleBot.linkChannels).toHaveBeenCalledWith(game);
       });
 
-      it('should be called when a game ends', async () => {
+      it('should be called when a game ends', () => {
         const oldGame = new Game();
         oldGame.state = GameState.started;
         const newGame = new Game();
