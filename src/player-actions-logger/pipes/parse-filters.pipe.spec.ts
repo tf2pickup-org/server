@@ -3,7 +3,7 @@ import { ParseFiltersPipe } from './parse-filters.pipe';
 
 jest.mock('@/players/services/players.service', () => ({
   PlayersService: jest.fn().mockImplementation(() => ({
-    find: (query) => Promise.resolve([{ _id: 'FAKE_PLAYER_ID' }]),
+    find: (query: any) => Promise.resolve([{ _id: 'FAKE_PLAYER_ID' }]),
   })),
 }));
 

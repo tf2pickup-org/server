@@ -24,8 +24,4 @@ describe('extractConVarValue()', () => {
     1 users`),
     ).toBeUndefined();
   });
-
-  it('should handle undefined', () => {
-    expect(extractConVarValue(undefined)).toBeUndefined();
-  });
 });

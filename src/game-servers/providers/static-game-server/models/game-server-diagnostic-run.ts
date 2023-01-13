@@ -16,11 +16,11 @@ export class GameServerDiagnosticRun extends MongooseDocument {
 
   @Transform(({ value }) => value.toString())
   @Prop({ required: true, type: Types.ObjectId, ref: 'GameServer' })
-  gameServer: Types.ObjectId;
+  gameServer!: Types.ObjectId;
 
   @Type(() => DiagnosticCheck)
   @Prop({ required: true, type: [diagnosticCheckSchema], _id: false })
-  checks: DiagnosticCheck[];
+  checks!: DiagnosticCheck[];
 
   @Prop({ enum: DiagnosticRunStatus, default: DiagnosticRunStatus.pending })
   status?: DiagnosticRunStatus;

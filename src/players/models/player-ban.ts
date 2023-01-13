@@ -13,11 +13,11 @@ export class PlayerBan extends Serializable<PlayerBanDto> {
 
   @Exclude({ toPlainOnly: true })
   @TransformObjectId()
-  _id?: Types.ObjectId;
+  _id!: Types.ObjectId;
 
   @Expose()
   @Transform(({ value, obj }) => value ?? obj._id?.toString())
-  id?: string;
+  id!: string;
 
   @IsMongoId()
   @TransformObjectId()

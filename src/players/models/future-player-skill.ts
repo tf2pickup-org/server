@@ -10,7 +10,7 @@ import { Document } from 'mongoose';
 @Schema()
 export class FuturePlayerSkill extends MongooseDocument {
   @Prop({ required: true, unique: true })
-  steamId: string;
+  steamId!: string;
 
   @Type(() => Number)
   @Prop(
@@ -19,7 +19,7 @@ export class FuturePlayerSkill extends MongooseDocument {
       of: Number,
     }),
   )
-  skill: Map<Tf2ClassName, number>;
+  skill!: Map<Tf2ClassName, number>;
 }
 
 export type FuturePlayerSkillDocument = FuturePlayerSkill & Document;

@@ -60,7 +60,7 @@ describe('ServemeTfConfigurationService', () => {
   });
 
   it('should create a default configuration', async () => {
-    const c = await servemeTfConfigurationModel.findOne();
+    const c = await servemeTfConfigurationModel.findOne().orFail();
     expect(c).toBeTruthy();
     expect(c.preferredRegion).toBe(null);
   });
@@ -79,7 +79,7 @@ describe('ServemeTfConfigurationService', () => {
       const configuration = new ServemeTfConfiguration();
       configuration.preferredRegion = 'pl';
       await service.setConfiguration(configuration);
-      const c = await servemeTfConfigurationModel.findOne();
+      const c = await servemeTfConfigurationModel.findOne().orFail();
       expect(c.preferredRegion).toEqual(configuration.preferredRegion);
     });
   });
@@ -93,7 +93,7 @@ describe('ServemeTfConfigurationService', () => {
   describe('#setPreferredRegion()', () => {
     it('should save the configuration', async () => {
       await service.setPreferredRegion('PL');
-      const c = await servemeTfConfigurationModel.findOne();
+      const c = await servemeTfConfigurationModel.findOne().orFail();
       expect(c.preferredRegion).toEqual('PL');
     });
   });

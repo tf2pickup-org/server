@@ -24,10 +24,10 @@ export class LinkedProfilesService {
             const profile = await provider.fetchProfile(playerId);
             return { ...instanceToPlain(profile), provider: provider.name };
           } catch (_error) {
-            return null;
+            return undefined;
           }
         }),
       )
-    ).filter((profile) => profile !== null);
+    ).filter((profile): profile is LinkedProfile => Boolean(profile));
   }
 }

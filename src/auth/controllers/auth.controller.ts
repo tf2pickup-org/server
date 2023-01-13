@@ -66,7 +66,7 @@ export class AuthController {
   }
 
   @Post()
-  async refreshToken(@Query('refresh_token') oldRefreshToken: string) {
+  async refreshToken(@Query('refresh_token') oldRefreshToken?: string) {
     if (!oldRefreshToken) {
       throw new BadRequestException('no valid operation specified');
     }

@@ -1,23 +1,23 @@
 import { Connection } from 'mongoose';
-import { MigrationStore } from '../migration.store';
+import { MigrationSet, MigrationStore } from '../migration.store';
 
 export class MongoDbStore implements MigrationStore {
   constructor(private connection: Connection) {}
 
-  async load(callback) {
+  async load(callback: (error: any, data: MigrationSet) => any) {
     const data = await this.connection.db.collection('migrations').findOne({});
-    return callback(null, data ?? {});
+    return callback(null, (data ?? {}) as any);
   }
 
-  async save(data, callback) {
+  async save(set: MigrationSet, callback: (error: any, result: any) => any) {
     const result = await this.connection.db.collection('migrations').updateOne(
       {},
       {
         $set: {
-          lastRun: data.lastRun,
+          lastRun: set.lastRun,
         },
         $push: {
-          migrations: { $each: data.migrations },
+          migrations: { $each: set.migrations },
         },
       },
       {

@@ -207,7 +207,7 @@ describe('QueuePromptsService', () => {
 
     it('should send a new prompt', () => {
       const channel = discordService.getPlayersChannel();
-      expect(channel.send).toHaveBeenCalledWith({
+      expect(channel?.send).toHaveBeenCalledWith({
         embeds: [
           expect.objectContaining({
             title: expect.stringMatching(/3\/12 players in the queue!/),
@@ -365,7 +365,7 @@ describe('QueuePromptsService', () => {
 
       beforeEach(() => {
         message = (discordService as any)._lastMessage;
-        discordService.getPlayersChannel().send('foo');
+        discordService.getPlayersChannel()?.send('foo');
       });
 
       it('should delete the message', async () => {

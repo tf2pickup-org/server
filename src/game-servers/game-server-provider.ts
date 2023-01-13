@@ -8,6 +8,21 @@ export enum GameServerReleaseReason {
   GameInterrupted,
 }
 
+export interface TakeGameServerParams {
+  gameServerId: string;
+  gameId: string;
+}
+
+export interface ReleaseGameServerParams {
+  gameServerId: string;
+  gameId: string;
+  reason: GameServerReleaseReason;
+}
+
+export interface TakeFirstFreeGameServerParams {
+  gameId: string;
+}
+
 export interface GameServerProvider {
   readonly gameServerProviderName: string;
   readonly priority?: number;
@@ -20,26 +35,21 @@ export interface GameServerProvider {
   /**
    * Book the given gameserver.
    */
-  takeGameServer: (params: {
-    gameServerId: string;
-    gameId: string;
-  }) => GameServerDetails | Promise<GameServerDetails>;
+  takeGameServer: (
+    params: TakeGameServerParams,
+  ) => GameServerDetails | Promise<GameServerDetails>;
 
   /**
    * Called whenever a gameserver is freed.
    */
-  releaseGameServer: (params: {
-    gameServerId: string;
-    gameId: string;
-    reason: GameServerReleaseReason;
-  }) => void | Promise<void>;
+  releaseGameServer: (params: ReleaseGameServerParams) => void | Promise<void>;
 
   /**
    * Find first gameserver that can be used for a game.
    */
-  takeFirstFreeGameServer: (params: {
-    gameId: string;
-  }) => GameServerDetails | Promise<GameServerDetails>;
+  takeFirstFreeGameServer: (
+    params: TakeFirstFreeGameServerParams,
+  ) => GameServerDetails | Promise<GameServerDetails>;
 
   /**
    * Get direct access to the given gameserver.

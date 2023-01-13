@@ -9,6 +9,7 @@ import { WrongQueueStateError } from '../errors/wrong-queue-state.error';
 import { Types } from 'mongoose';
 import { CACHE_MANAGER } from '@nestjs/common';
 import { QueueState } from '../queue-state';
+import { QueueSlot } from '../queue-slot';
 
 class CacheStub {
   set = jest.fn();
@@ -229,7 +230,7 @@ describe('QueueService', () => {
         const slots = service.join(0, player.id);
         const slot = slots.find((s) => s.playerId === player.id);
         expect(slot).toBeDefined();
-        expect(slot.id).toBe(0);
+        expect((slot as QueueSlot).id).toBe(0);
         expect(service.playerCount).toBe(1);
       });
 
@@ -290,7 +291,7 @@ describe('QueueService', () => {
               state: QueueState.waiting,
             });
             expect(
-              value.slots.find((s) => s.playerId === player.id),
+              value.slots.find((s: QueueSlot) => s.playerId === player.id),
             ).toBeTruthy();
             resolve();
           });
@@ -341,7 +342,9 @@ describe('QueueService', () => {
               slots: expect.any(Array),
               state: QueueState.waiting,
             });
-            expect(value.slots.every((s) => s.playerId === null)).toBe(true);
+            expect(
+              value.slots.every((s: QueueSlot) => s.playerId === null),
+            ).toBe(true);
             resolve();
           });
           service.leave(player.id);
@@ -356,8 +359,9 @@ describe('QueueService', () => {
       it('should reset the slot', () => {
         service.kick(player.id);
         const slot = service.getSlotById(0);
-        expect(slot.playerId).toBe(null);
-        expect(slot.ready).toBe(false);
+        expect(slot).toBeTruthy();
+        expect((slot as QueueSlot).playerId).toBe(null);
+        expect((slot as QueueSlot).ready).toBe(false);
         expect(service.playerCount).toBe(0);
       });
 
@@ -380,7 +384,9 @@ describe('QueueService', () => {
               slots: expect.any(Array),
               state: QueueState.waiting,
             });
-            expect(value.slots.every((s) => s.playerId === null)).toBe(true);
+            expect(
+              value.slots.every((s: QueueSlot) => s.playerId === null),
+            ).toBe(true);
             resolve();
           });
           service.kick(player.id);
@@ -492,6 +498,8 @@ describe('QueueService', () => {
         beforeEach(() => {
           events.playerBanAdded.next({
             ban: {
+              _id: new Types.ObjectId(),
+              id: 'FAKE_ID',
               player: player._id,
               admin: new Types.ObjectId(),
               start: new Date(),

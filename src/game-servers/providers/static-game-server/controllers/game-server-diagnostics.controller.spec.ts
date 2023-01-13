@@ -4,7 +4,7 @@ import { GameServerDiagnosticsController } from './game-server-diagnostics.contr
 
 jest.mock('../services/game-server-diagnostics.service', () => ({
   GameServerDiagnosticsService: jest.fn().mockImplementation(() => ({
-    getDiagnosticRunById: (id) => Promise.resolve({ id }),
+    getDiagnosticRunById: (id: string) => Promise.resolve({ id }),
   })),
 }));
 

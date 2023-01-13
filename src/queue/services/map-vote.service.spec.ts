@@ -117,7 +117,7 @@ describe('MapVoteService', () => {
         events.mapVotesChange.subscribe(({ results }) => {
           expect(results.length).toEqual(3);
           expect(
-            results.find((r) => r.map === 'cp_badlands').voteCount,
+            results.find((r) => r.map === 'cp_badlands')?.voteCount,
           ).toEqual(1);
           resolve();
         });
@@ -159,7 +159,7 @@ describe('MapVoteService', () => {
       });
 
       it('should set the cooldown', async () => {
-        const map = await mapModel.findOne({ name: 'cp_badlands' });
+        const map = await mapModel.findOne({ name: 'cp_badlands' }).orFail();
         expect(map.cooldown).toEqual(2);
       });
 
@@ -170,7 +170,7 @@ describe('MapVoteService', () => {
         });
 
         it('should decrease the cooldown by 1', async () => {
-          const map = await mapModel.findOne({ name: 'cp_badlands' });
+          const map = await mapModel.findOne({ name: 'cp_badlands' }).orFail();
           expect(map.cooldown).toEqual(1);
         });
       });

@@ -2,7 +2,9 @@ import { Environment } from '@/environment/environment';
 import { Events } from '@/events/events';
 import { GameServerOptionWithProvider } from '@/game-servers/interfaces/game-server-option';
 import { GameServersService } from '@/game-servers/services/game-servers.service';
+import { GameServer } from '@/games/models/game-server';
 import { GameState } from '@/games/models/game-state';
+import { assertIsError } from '@/utils/assert-is-error';
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { isEqual } from 'lodash';
 import { Rcon } from 'rcon-client/lib';
@@ -41,22 +43,23 @@ export class ServerCleanupService implements OnModuleInit {
         ({ newGame, oldGame }) =>
           oldGame.isInProgress() && !newGame.isInProgress(),
       ),
-      filter(({ newGame }) => Boolean(newGame.gameServer)),
-      delayWhen(({ newGame }) => {
-        switch (newGame.state) {
+      map(({ newGame }) => newGame),
+      filter((game) => Boolean(game.gameServer)),
+      delayWhen((game) => {
+        switch (game.state) {
           case GameState.ended:
             return timer(30 * 1000); // 30 seconds
           case GameState.interrupted:
+          default:
             return timer(1); // instant
-          // no default
         }
       }),
-      map(({ newGame }) => newGame.gameServer),
+      map((game) => game.gameServer),
     );
 
     merge(unassigned, gameEnds).subscribe(async (gameServer) => {
       try {
-        await this.cleanupServer(gameServer);
+        await this.cleanupServer(gameServer as GameServer);
       } catch (error) {
         this.logger.error(error);
       }
@@ -65,7 +68,7 @@ export class ServerCleanupService implements OnModuleInit {
 
   async cleanupServer(gameServer: GameServerOptionWithProvider) {
     const controls = await this.gameServersService.getControls(gameServer);
-    let rcon: Rcon;
+    let rcon: Rcon | undefined;
     try {
       rcon = await controls.rcon();
 
@@ -78,6 +81,7 @@ export class ServerCleanupService implements OnModuleInit {
       await rcon.send(disablePlayerWhitelist());
       this.logger.verbose(`[${gameServer.name}] server cleaned up`);
     } catch (error) {
+      assertIsError(error);
       throw new CannotCleanupGameServerError(gameServer, error.message);
     } finally {
       await rcon?.end();

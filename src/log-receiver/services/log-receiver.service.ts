@@ -1,4 +1,5 @@
 import { Environment } from '@/environment/environment';
+import { assertIsError } from '@/utils/assert-is-error';
 import { Injectable, Logger, OnModuleDestroy } from '@nestjs/common';
 import { createSocket } from 'dgram';
 import { Subject } from 'rxjs';
@@ -17,6 +18,7 @@ export class LogReceiverService implements OnModuleDestroy {
         const logMessage = parseLogMessage(message);
         this._data.next(logMessage);
       } catch (error) {
+        assertIsError(error);
         this.logger.debug(error.message);
       }
     });

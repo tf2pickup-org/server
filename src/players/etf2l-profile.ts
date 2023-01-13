@@ -3,7 +3,7 @@ export interface Etf2lProfile {
   name: string;
   country: string;
   classes: string[];
-  bans?: { end: number; reason: string; start: number }[];
+  bans?: { end: number; reason: string; start: number }[] | null;
   registered?: number;
   steam?: {
     avatar: string;

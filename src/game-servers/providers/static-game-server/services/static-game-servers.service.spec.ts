@@ -30,9 +30,9 @@ jest.mock('rcon-client', () => {
   return {
     Rcon: jest.fn().mockImplementation(function () {
       return {
-        connect: jest.fn().mockResolvedValue(this),
-        send: jest.fn().mockResolvedValue(this),
-        end: jest.fn().mockResolvedValue(this),
+        connect: jest.fn().mockReturnThis(),
+        send: jest.fn().mockReturnThis(),
+        end: jest.fn().mockReturnThis(),
         on: jest.fn(),
       };
     }),
@@ -43,7 +43,7 @@ jest.mock('rxjs/operators', () => {
   const operators = jest.requireActual('rxjs/operators');
   return {
     ...operators,
-    delay: jest.fn(() => (s) => s),
+    delay: jest.fn(() => (s: any) => s),
   };
 });
 
@@ -184,7 +184,9 @@ describe('StaticGameServersService', () => {
         gameServerId: testGameServer.id,
         gameId: 'FAKE_GAME_ID',
       });
-      testGameServer = await staticGameServerModel.findById(gameServer.id);
+      testGameServer = await staticGameServerModel
+        .findById(gameServer.id)
+        .orFail();
       expect(testGameServer.game).toEqual('FAKE_GAME_ID');
       expect(gameServer).toEqual({
         id: testGameServer.id,
@@ -204,12 +206,13 @@ describe('StaticGameServersService', () => {
     describe('when released manually', () => {
       it('should update the gameserver', async () => {
         await service.releaseGameServer({
+          gameId: 'FAKE_GAME_ID',
           gameServerId: testGameServer.id,
           reason: GameServerReleaseReason.Manual,
         });
-        testGameServer = await staticGameServerModel.findById(
-          testGameServer.id,
-        );
+        testGameServer = await staticGameServerModel
+          .findById(testGameServer.id)
+          .orFail();
         expect(testGameServer.game).toBeUndefined();
       });
     });
@@ -217,12 +220,13 @@ describe('StaticGameServersService', () => {
     describe('when the game was force-ended', () => {
       it('should update the gameserver', async () => {
         await service.releaseGameServer({
+          gameId: 'FAKE_GAME_ID',
           gameServerId: testGameServer.id,
           reason: GameServerReleaseReason.GameInterrupted,
         });
-        testGameServer = await staticGameServerModel.findById(
-          testGameServer.id,
-        );
+        testGameServer = await staticGameServerModel
+          .findById(testGameServer.id)
+          .orFail();
         expect(testGameServer.game).toBeUndefined();
       });
     });
@@ -238,13 +242,14 @@ describe('StaticGameServersService', () => {
 
       it('should update the gameserver', async () => {
         await service.releaseGameServer({
+          gameId: 'FAKE_GAME_ID',
           gameServerId: testGameServer.id,
           reason: GameServerReleaseReason.Manual,
         });
         jest.runAllTimers();
-        testGameServer = await staticGameServerModel.findById(
-          testGameServer.id,
-        );
+        testGameServer = await staticGameServerModel
+          .findById(testGameServer.id)
+          .orFail();
         expect(testGameServer.game).toBeUndefined();
       });
     });
@@ -337,13 +342,13 @@ describe('StaticGameServersService', () => {
       });
       expect(ret.name).toEqual('updated game server');
       expect(
-        (await staticGameServerModel.findById(testGameServer.id)).name,
+        (await staticGameServerModel.findById(testGameServer.id).orFail()).name,
       ).toEqual('updated game server');
     });
 
     it('should emit the gameServerUpdated event', async () => {
-      let givenGameServerId: string;
-      let givenGameServerName: string;
+      let givenGameServerId: string | undefined;
+      let givenGameServerName: string | undefined;
 
       service.gameServerUpdated.subscribe(({ newGameServer }) => {
         givenGameServerId = newGameServer.id;
@@ -413,7 +418,7 @@ describe('StaticGameServersService', () => {
       });
 
       it('should emit gameServerAdded event', async () => {
-        let emittedGameServer: StaticGameServer;
+        let emittedGameServer: StaticGameServer | undefined;
         service.gameServerAdded.subscribe((gameServer) => {
           emittedGameServer = gameServer;
         });
@@ -425,8 +430,8 @@ describe('StaticGameServersService', () => {
           internalIpAddress: '127.0.0.1',
         });
         expect(emittedGameServer).toBeTruthy();
-        expect(emittedGameServer.name).toEqual('test game server');
-        expect(emittedGameServer.isOnline).toBe(true);
+        expect(emittedGameServer?.name).toEqual('test game server');
+        expect(emittedGameServer?.isOnline).toBe(true);
       });
     });
   });
@@ -472,7 +477,9 @@ describe('StaticGameServersService', () => {
 
     it('should remove dead gameservers', async () => {
       await service.removeDeadGameServers();
-      const gs = await staticGameServerModel.findById(testGameServer.id);
+      const gs = await staticGameServerModel
+        .findById(testGameServer.id)
+        .orFail();
       expect(gs.isOnline).toBe(false);
     });
   });
@@ -497,7 +504,9 @@ describe('StaticGameServersService', () => {
 
     it('should free gameservers that no longer run any game', async () => {
       await service.freeUnusedGameServers();
-      const gs = await staticGameServerModel.findById(testGameServer.id);
+      const gs = await staticGameServerModel
+        .findById(testGameServer.id)
+        .orFail();
       expect(gs.game).toBeUndefined();
     });
 
@@ -509,7 +518,9 @@ describe('StaticGameServersService', () => {
 
       it('should not free the gameserver', async () => {
         await service.freeUnusedGameServers();
-        const gs = await staticGameServerModel.findById(testGameServer.id);
+        const gs = await staticGameServerModel
+          .findById(testGameServer.id)
+          .orFail();
         expect(gs.game).toEqual(game._id);
       });
     });

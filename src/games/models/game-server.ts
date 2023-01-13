@@ -3,19 +3,19 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 @Schema()
 export class GameServer {
   @Prop({ required: true })
-  id: string;
+  id!: string;
 
   @Prop({ required: true })
-  provider: string;
+  provider!: string;
 
   @Prop({ required: true, trim: true })
-  name: string;
+  name!: string;
 
   @Prop({ required: true })
-  address: string;
+  address!: string;
 
   @Prop({ required: true })
-  port: number;
+  port!: number;
 }
 
 export const gameServerSchema = SchemaFactory.createForClass(GameServer);

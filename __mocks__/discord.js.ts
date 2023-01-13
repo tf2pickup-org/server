@@ -1,5 +1,6 @@
 import { EventEmitter } from 'events';
-import { Collection } from '../node_modules/discord.js/src';
+
+const { Collection, MessageEmbed, Intents } = jest.requireActual('discord.js');
 
 export class Message {}
 
@@ -59,7 +60,7 @@ export class Client extends EventEmitter {
     cache: new Collection([['guild1', new Guild('FAKE_GUILD')]]),
   };
 
-  constructor(public readonly options) {
+  constructor(public readonly options: any) {
     super();
     Client._instance = this;
   }
@@ -69,4 +70,4 @@ export class Client extends EventEmitter {
   }
 }
 
-export { MessageEmbed, Intents } from '../node_modules/discord.js/src';
+export { MessageEmbed, Intents };

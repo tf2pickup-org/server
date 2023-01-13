@@ -6,25 +6,25 @@ import { ReservationStatus } from './reservation-status';
 @Schema()
 class ServemeTfServer {
   @Prop()
-  id: number;
+  id!: number;
 
   @Prop()
-  name: string;
+  name!: string;
 
   @Prop()
-  flag: string;
+  flag!: string;
 
   @Prop()
-  ip: string;
+  ip!: string;
 
   @Prop()
-  port: string;
+  port!: string;
 
   @Prop()
-  latitude: number;
+  latitude!: number;
 
   @Prop()
-  longitude: number;
+  longitude!: number;
 }
 
 const servemeTfServerSchema = SchemaFactory.createForClass(ServemeTfServer);
@@ -32,43 +32,43 @@ const servemeTfServerSchema = SchemaFactory.createForClass(ServemeTfServer);
 @Schema()
 export class ServemeTfReservation extends MongooseDocument {
   @Prop()
-  startsAt: Date;
+  startsAt!: Date;
 
   @Prop()
-  endsAt: Date;
+  endsAt!: Date;
 
   @Prop()
-  serverId: number;
+  serverId!: number;
 
   @Prop()
-  password: string;
+  password!: string;
 
   @Prop()
-  rcon: string;
+  rcon!: string;
 
   @Prop()
-  tvPassword: string;
+  tvPassword!: string;
 
   @Prop()
-  tvRelayPassword: string;
+  tvRelayPassword!: string;
 
   @Prop({ enum: ReservationStatus, default: ReservationStatus.unknown })
-  status: ReservationStatus;
+  status!: ReservationStatus;
 
   @Prop()
-  reservationId: number;
+  reservationId!: number;
 
   @Prop()
-  logsecret: string;
+  logsecret!: string;
 
   @Prop()
-  ended: boolean;
+  ended!: boolean;
 
   @Prop()
-  steamId: string;
+  steamId!: string;
 
   @Prop({ type: servemeTfServerSchema, _id: false })
-  server: ServemeTfServer;
+  server!: ServemeTfServer;
 }
 
 export const servemeTfReservationSchema =

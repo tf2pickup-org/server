@@ -30,7 +30,7 @@ describe('ProfileService', () => {
   let linkedProfilesService: jest.Mocked<LinkedProfilesService>;
   let events: Events;
   let socketEvents: Subject<any>;
-  let socket;
+  let socket: any;
   let playerBansService: jest.Mocked<PlayerBansService>;
   let mapVoteService: jest.Mocked<MapVoteService>;
   let playerPreferencesService: jest.Mocked<PlayerPreferencesService>;
@@ -39,7 +39,8 @@ describe('ProfileService', () => {
   beforeEach(() => {
     socketEvents = new Subject();
     socket = {
-      emit: (eventName, data) => socketEvents.next({ eventName, data }),
+      emit: (eventName: string, data: any) =>
+        socketEvents.next({ eventName, data }),
     };
   });
 

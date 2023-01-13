@@ -21,7 +21,7 @@ export class StaticGameServerControls implements GameServerControls {
 
   async getLogsecret(): Promise<string> {
     const logsecret = generateLogsecret();
-    let rcon: Rcon;
+    let rcon: Rcon | undefined;
     try {
       rcon = await this.rcon();
       await rcon.send(svLogsecret(logsecret));

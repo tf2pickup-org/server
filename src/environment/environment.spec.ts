@@ -16,7 +16,7 @@ describe('Environment', () => {
     environment = module.get<Environment>(Environment);
     configService = module.get(ConfigService);
 
-    configService.get = (varName) => varName;
+    configService.get = (varName: string) => varName;
   });
 
   it('should be defined', () => {
@@ -51,7 +51,7 @@ describe('Environment', () => {
     const getterName = varName
       .toLowerCase()
       .replace(/_(.)/g, (_, p1) => p1.toString().toUpperCase())
-      .replace('mongodb', 'mongoDb');
+      .replace('mongodb', 'mongoDb') as keyof Environment;
 
     it(`should return value for ${getterName}`, () => {
       expect(environment[getterName]).toEqual(varName);

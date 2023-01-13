@@ -67,6 +67,10 @@ export class PlayerSubstitutionNotificationsService implements OnModuleInit {
       const game = await this.gamesService.getById(gameId);
       const slot = game.findPlayerSlot(playerId);
 
+      if (!slot) {
+        return;
+      }
+
       const embed = substituteRequest({
         gameNumber: game.number,
         gameClass: slot.gameClass,
@@ -94,7 +98,7 @@ export class PlayerSubstitutionNotificationsService implements OnModuleInit {
 
     const message = await this.discordService
       .getPlayersChannel()
-      .messages.fetch(messageId as Snowflake);
+      ?.messages.fetch(messageId as Snowflake);
     if (!message) {
       return;
     }

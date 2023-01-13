@@ -7,6 +7,7 @@ import { AuthService } from '@/auth/services/auth.service';
 import { JsonWebTokenError } from 'jsonwebtoken';
 import { BadRequestException } from '@nestjs/common';
 import { Player } from '@/players/models/player';
+import { Types } from 'mongoose';
 
 jest.mock('../services/twitch.service');
 jest.mock('../services/twitch-auth.service');
@@ -97,6 +98,7 @@ describe('Twitch Controller', () => {
       twitchService.deleteUserProfile.mockResolvedValue({
         userId: 'FAKE_USER_ID',
         login: 'FAKE_LOGIN',
+        player: new Types.ObjectId(),
       });
     });
 

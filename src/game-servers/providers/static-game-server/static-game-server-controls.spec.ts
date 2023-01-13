@@ -11,8 +11,8 @@ jest.mock('./utils/generate-logsecret', () => ({
 jest.mock('rcon-client', () => ({
   Rcon: jest.fn().mockImplementation(function () {
     return {
-      send: jest.fn().mockResolvedValue(this),
-      end: jest.fn().mockResolvedValue(this),
+      send: jest.fn().mockReturnThis(),
+      end: jest.fn().mockReturnThis(),
     };
   }),
 }));

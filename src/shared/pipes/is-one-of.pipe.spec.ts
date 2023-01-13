@@ -7,9 +7,12 @@ describe('IsOneOfPipe', () => {
   });
 
   it("should return the value if it's allowed", () => {
-    expect(new IsOneOfPipe(['one', 'two']).transform('one', null)).toEqual(
-      'one',
-    );
+    expect(
+      new IsOneOfPipe(['one', 'two']).transform('one', {
+        data: 'value',
+        type: 'param',
+      }),
+    ).toEqual('one');
   });
 
   it('should throw an error if the value is not allowed', () => {

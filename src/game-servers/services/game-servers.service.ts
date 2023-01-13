@@ -25,6 +25,7 @@ import { GameServerDetailsWithProvider } from '../interfaces/game-server-details
 import { isUndefined } from 'lodash';
 import { GameState } from '@/games/models/game-state';
 import { PlayerConnectionStatus } from '@/games/models/player-connection-status';
+import { GameServer } from '@/games/models/game-server';
 
 @Injectable()
 export class GameServersService
@@ -59,13 +60,13 @@ export class GameServersService
         map(({ newGame }) => newGame),
         filter((game) => Boolean(game.gameServer)),
       )
-      .subscribe(async (game) => {
-        const gameServer = game.gameServer;
+      .subscribe(async (game: Game) => {
+        const gameServer = game.gameServer as GameServer;
         const provider = this.providerByName(gameServer.provider);
-        const reason: GameServerReleaseReason = {
+        const reason = {
           [GameState.ended]: GameServerReleaseReason.GameEnded,
           [GameState.interrupted]: GameServerReleaseReason.GameInterrupted,
-        }[game.state];
+        }[game.state as GameState.ended | GameState.interrupted];
         await provider.releaseGameServer({
           gameServerId: gameServer.id,
           gameId: game.id,
@@ -175,7 +176,9 @@ export class GameServersService
         },
       });
       this.logger.log(
-        `using gameserver ${game.gameServer.name} for game #${game.number}`,
+        `using gameserver ${(game.gameServer as GameServer).name} for game #${
+          game.number
+        }`,
       );
 
       return game;
@@ -183,8 +186,12 @@ export class GameServersService
   }
 
   private providerByName(providerName: string): GameServerProvider {
-    return this.providers.find(
+    const provider = this.providers.find(
       (provider) => provider.gameServerProviderName === providerName,
     );
+    if (!provider) {
+      throw new Error(`no such provider: ${providerName}`);
+    }
+    return provider;
   }
 }

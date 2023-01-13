@@ -12,7 +12,7 @@ class Message {
 
 @Injectable()
 export class DiscordService {
-  _lastMessage = null;
+  _lastMessage: Message | null = null;
 
   playersChannel = {
     send: jest.fn().mockImplementation(() => {

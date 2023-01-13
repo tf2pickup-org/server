@@ -1,10 +1,10 @@
 class MockChannel {
   id = 0;
   name = '';
-  subChannels = [];
-  links = [];
-  users = [];
-  parent = undefined;
+  subChannels: MockChannel[] = [];
+  links: MockChannel[] = [];
+  users: MockUser[] = [];
+  parent: MockChannel | undefined = undefined;
 
   getPermissions = jest.fn().mockResolvedValue({
     canJoinChannel: true,
@@ -27,9 +27,9 @@ class MockChannel {
   });
 
   remove = jest.fn().mockImplementation(() => {
-    const index = this.parent.subChannels.indexOf(this);
-    if (index !== -1) {
-      this.parent.subChannels.splice(index, 1);
+    const index = this.parent?.subChannels.indexOf(this);
+    if (index && index !== -1) {
+      this.parent?.subChannels.splice(index, 1);
     }
   });
 }
@@ -48,7 +48,7 @@ class MockChannelManager {
   });
 }
 
-class MockUser {
+export class MockUser {
   channel = new MockChannel();
 
   moveToChannel = jest.fn().mockImplementation((channelId: number) => {

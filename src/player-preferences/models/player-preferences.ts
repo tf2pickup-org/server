@@ -12,7 +12,7 @@ export class PlayerPreferences {
       of: String,
     }),
   )
-  preferences: Map<string, string>;
+  preferences!: Map<string, string>;
 }
 
 export type PlayerPreferencesDocument = PlayerPreferences & Document;

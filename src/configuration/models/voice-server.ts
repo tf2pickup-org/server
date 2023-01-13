@@ -12,10 +12,10 @@ export enum SelectedVoiceServer {
 @Schema()
 export class MumbleOptions {
   @Prop()
-  url: string;
+  url!: string;
 
   @Prop()
-  port: number;
+  port!: number;
 
   @Prop()
   password?: string;

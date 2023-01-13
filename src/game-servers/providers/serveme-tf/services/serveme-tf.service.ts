@@ -1,5 +1,9 @@
 import { NoFreeGameServerAvailableError } from '@/game-servers/errors/no-free-game-server-available.error';
-import { GameServerProvider } from '@/game-servers/game-server-provider';
+import {
+  GameServerProvider,
+  ReleaseGameServerParams,
+  TakeGameServerParams,
+} from '@/game-servers/game-server-provider';
 import { GameServerControls } from '@/game-servers/interfaces/game-server-controls';
 import { GameServerOption } from '@/game-servers/interfaces/game-server-option';
 import { GameServersService } from '@/game-servers/services/game-servers.service';
@@ -16,6 +20,7 @@ import {
 } from '../models/serveme-tf-reservation';
 import { ReservationStatus } from '../models/reservation-status';
 import { GameServerDetails } from '@/game-servers/interfaces/game-server-details';
+import { assertIsError } from '@/utils/assert-is-error';
 
 type ValueType<T> = T extends Promise<infer U> ? U : T;
 
@@ -89,7 +94,9 @@ export class ServemeTfService implements GameServerProvider, OnModuleInit {
     }));
   }
 
-  async takeGameServer({ gameServerId }): Promise<GameServerDetails> {
+  async takeGameServer({
+    gameServerId,
+  }: TakeGameServerParams): Promise<GameServerDetails> {
     const { reservation } = await this.servemeTfApiService.reserveServer(
       parseInt(gameServerId, 10),
     );
@@ -102,7 +109,7 @@ export class ServemeTfService implements GameServerProvider, OnModuleInit {
     };
   }
 
-  releaseGameServer({ gameServerId }) {
+  releaseGameServer({ gameServerId }: ReleaseGameServerParams) {
     setTimeout(async () => {
       const reservation = await this.getById(gameServerId);
       await this.servemeTfApiService.endServerReservation(
@@ -122,6 +129,7 @@ export class ServemeTfService implements GameServerProvider, OnModuleInit {
         port: parseInt(reservation.server.port, 10),
       };
     } catch (error) {
+      assertIsError(error);
       this.logger.error(`failed to create reservation: ${error.toString()}`);
       throw new NoFreeGameServerAvailableError();
     }

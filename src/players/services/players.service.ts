@@ -137,7 +137,7 @@ export class PlayersService implements OnModuleInit {
 
     await this.verifyTf2InGameHours(steamProfile.id);
 
-    let etf2lProfile: Etf2lProfile;
+    let etf2lProfile: Etf2lProfile | undefined;
     let name = steamProfile.displayName;
 
     const { value: isEtf2lAccountRequired } =
@@ -149,8 +149,8 @@ export class PlayersService implements OnModuleInit {
       );
 
       if (
-        etf2lProfile.bans?.filter((ban) => ban.end > Date.now() / 1000).length >
-        0
+        (etf2lProfile.bans?.filter((ban) => ban.end > Date.now() / 1000)
+          .length ?? 0) > 0
       ) {
         throw new AccountBannedError(steamProfile.id);
       }
@@ -184,9 +184,10 @@ export class PlayersService implements OnModuleInit {
   async forceCreatePlayer(
     playerData: ForceCreatePlayerOptions,
   ): Promise<Player> {
-    const etf2lProfile: Etf2lProfile = await this.etf2lProfileService
-      .fetchPlayerInfo(playerData.steamId)
-      .catch(() => null);
+    const etf2lProfile: Etf2lProfile | undefined =
+      await this.etf2lProfileService
+        .fetchPlayerInfo(playerData.steamId)
+        .catch(() => undefined);
 
     const { id } = await this.playerModel.create({
       etf2lProfileId: etf2lProfile?.id,
@@ -252,7 +253,9 @@ export class PlayersService implements OnModuleInit {
 
     await Promise.all(
       players.map(async (player) => {
-        const game = await this.gamesService.getById(player.activeGame);
+        const game = await this.gamesService.getById(
+          player.activeGame as Types.ObjectId,
+        );
         if (!game.isInProgress()) {
           await this.updatePlayer(player.id, { $unset: { activeGame: 1 } });
         }

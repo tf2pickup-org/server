@@ -19,6 +19,7 @@ import {
   servemeTfReservationSchema,
 } from '../models/serveme-tf-reservation';
 import { waitABit } from '@/utils/wait-a-bit';
+import { GameServerReleaseReason } from '@/game-servers/game-server-provider';
 
 jest.mock('@/game-servers/services/game-servers.service');
 jest.mock('./serveme-tf-api.service');
@@ -27,7 +28,7 @@ jest.mock('rxjs/operators', () => {
   const operators = jest.requireActual('rxjs/operators');
   return {
     ...operators,
-    delay: jest.fn(() => (s) => s),
+    delay: jest.fn(() => (s: any) => s),
   };
 });
 
@@ -213,7 +214,10 @@ describe('ServemeTfService', () => {
     });
 
     it('should make the reservation', async () => {
-      const gameServer = await service.takeGameServer({ gameServerId: '42' });
+      const gameServer = await service.takeGameServer({
+        gameServerId: '42',
+        gameId: 'FAKE_GAME_ID',
+      });
       expect(servemeTfApiService.reserveServer).toHaveBeenCalledWith(42);
       expect(gameServer).toEqual({
         id: expect.any(String),
@@ -246,7 +250,11 @@ describe('ServemeTfService', () => {
 
     it('should end the reservation', async () => {
       jest.useFakeTimers();
-      service.releaseGameServer({ gameServerId: reservation.id });
+      service.releaseGameServer({
+        gameServerId: reservation.id,
+        gameId: 'FAKE_GAME_ID',
+        reason: GameServerReleaseReason.GameEnded,
+      });
       jest.runAllTimers();
       jest.useRealTimers();
 
@@ -281,7 +289,7 @@ describe('ServemeTfService', () => {
 
       it('should store the gameserver in the model', async () => {
         await service.takeFirstFreeGameServer();
-        const gameServer = await servemeTfReservationModel.findOne();
+        const gameServer = await servemeTfReservationModel.findOne().orFail();
         expect(gameServer.server.name).toEqual('FAKE_SERVER_NAME');
         expect(gameServer.server.ip).toEqual('FAKE_SERVER_ADDRESS');
         expect(gameServer.server.port).toEqual('27015');

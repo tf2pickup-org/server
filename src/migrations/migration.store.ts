@@ -1,8 +1,8 @@
 // https://github.com/tj/node-migrate/blob/main/examples/custom-state-storage/mongo-state-storage.js
 
-interface MigrationSet {
+export interface MigrationSet {
   lastRun?: string;
-  migrations: any[];
+  migrations?: any[];
 }
 
 export interface MigrationStore {

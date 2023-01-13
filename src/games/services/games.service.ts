@@ -200,10 +200,13 @@ export class GamesService {
     const players: PlayerSlot[] = await Promise.all(
       queueSlots.map((slot) => this.queueSlotToPlayerSlot(slot)),
     );
-    const assignedSkills = players.reduce((prev, curr) => {
-      prev[curr.playerId] = curr.skill;
-      return prev;
-    }, {});
+    const assignedSkills = players.reduce<{ [playerId: string]: number }>(
+      (prev, curr) => {
+        prev[curr.playerId] = curr.skill;
+        return prev;
+      },
+      {},
+    );
     const slots = pickTeams(shuffle(players), { friends }).map((s) => ({
       ...s,
       player: new Types.ObjectId(s.playerId),
@@ -375,9 +378,13 @@ export class GamesService {
         return null;
 
       case SelectedVoiceServer.staticLink:
-        return voiceServer.staticLink;
+        return voiceServer.staticLink as string;
 
       case SelectedVoiceServer.mumble: {
+        if (!voiceServer.mumble) {
+          throw Error('configuration malformed');
+        }
+
         const url = new URL(`mumble://${voiceServer.mumble.url}`);
         url.pathname = `${voiceServer.mumble.channelName}/${
           game.number
@@ -399,15 +406,20 @@ export class GamesService {
     queueSlot: QueueSlot,
   ): Promise<PlayerSlot> {
     const { playerId, gameClass } = queueSlot;
+    if (!playerId) {
+      throw new Error(`queue slot ${queueSlot.id} has no player`);
+    }
+
     const player = await this.playersService.getById(playerId);
     if (!player) {
       throw new Error(`no such player (${playerId})`);
     }
 
-    const skill = (
-      player?.skill ??
-      (await this.configurationService.getDefaultPlayerSkill()).value
-    ).get(gameClass);
+    const skill =
+      (
+        player?.skill ??
+        (await this.configurationService.getDefaultPlayerSkill()).value
+      ).get(gameClass) ?? 0;
 
     return { playerId, gameClass, skill };
   }

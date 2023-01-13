@@ -166,9 +166,9 @@ export class ServemeTfApiService {
             'Server updating, please be patient',
           ].includes(status),
         ),
-        map(() => null),
+        map(() => void 0),
       ),
-      { defaultValue: null },
+      { defaultValue: void 0 },
     );
   }
 
@@ -234,9 +234,12 @@ export class ServemeTfApiService {
   private async selectServer(
     options: ServemeTfServerOption[],
     serverId?: number,
-  ) {
+  ): Promise<ServemeTfServerOption> {
     if (serverId) {
-      return options.find((option) => option.id === serverId);
+      const ret = options.find((option) => option.id === serverId);
+      if (!ret) {
+        throw new Error(`no such server option (serverId=${serverId})`);
+      }
     }
 
     // make sure we don't take a SDR server
@@ -247,6 +250,12 @@ export class ServemeTfApiService {
     const matchingOptions = nonSdrOptions.filter(
       (s) => s.flag === preferredRegion,
     );
-    return sample(matchingOptions.length > 0 ? matchingOptions : nonSdrOptions);
+    const option = sample(
+      matchingOptions.length > 0 ? matchingOptions : nonSdrOptions,
+    );
+    if (!option) {
+      throw new Error(`could not find any gameservers meeting given criteria`);
+    }
+    return option;
   }
 }

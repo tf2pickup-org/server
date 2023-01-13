@@ -11,7 +11,9 @@ import { isNumber, isObject } from 'lodash';
 type PlayerSkillType = { [gameClass in Tf2ClassName]?: number };
 
 @Injectable()
-export class ValidateSkillPipe implements PipeTransform {
+export class ValidateSkillPipe
+  implements PipeTransform<unknown, PlayerSkillType>
+{
   constructor(
     @Inject('QUEUE_CONFIG') private readonly queueConfig: QueueConfig,
   ) {}
@@ -26,7 +28,7 @@ export class ValidateSkillPipe implements PipeTransform {
         throw new BadRequestException(`no skill for ${gameClass}`);
       }
 
-      if (!isNumber(value[gameClass])) {
+      if (!isNumber((value as { [key: string]: number })[gameClass])) {
         throw new BadRequestException(`skill value must be a number`);
       }
     }

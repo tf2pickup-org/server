@@ -2,6 +2,9 @@ import { NoFreeGameServerAvailableError } from '@/game-servers/errors/no-free-ga
 import {
   GameServerProvider,
   GameServerReleaseReason,
+  ReleaseGameServerParams,
+  TakeFirstFreeGameServerParams,
+  TakeGameServerParams,
 } from '@/game-servers/game-server-provider';
 import { GameServersService } from '@/game-servers/services/game-servers.service';
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
@@ -78,7 +81,10 @@ export class StaticGameServersService
     }));
   }
 
-  async takeGameServer({ gameServerId, gameId }): Promise<GameServerDetails> {
+  async takeGameServer({
+    gameServerId,
+    gameId,
+  }: TakeGameServerParams): Promise<GameServerDetails> {
     const gameServer = await this.updateGameServer(gameServerId, {
       game: gameId,
     });
@@ -90,7 +96,7 @@ export class StaticGameServersService
     };
   }
 
-  async releaseGameServer({ gameServerId, reason }) {
+  async releaseGameServer({ gameServerId, reason }: ReleaseGameServerParams) {
     switch (reason) {
       case GameServerReleaseReason.Manual:
       case GameServerReleaseReason.GameInterrupted:
@@ -108,7 +114,9 @@ export class StaticGameServersService
     }
   }
 
-  async takeFirstFreeGameServer({ gameId }): Promise<GameServerDetails> {
+  async takeFirstFreeGameServer({
+    gameId,
+  }: TakeFirstFreeGameServerParams): Promise<GameServerDetails> {
     const gameServers = await this.getFreeGameServers();
     if (gameServers.length > 0) {
       const selectedGameServer = await this.updateGameServer(
@@ -278,12 +286,17 @@ export class StaticGameServersService
     const gameServers = await this.getTakenGameServers();
     await Promise.all(
       gameServers.map(async (gameServer) => {
-        const game = await this.gamesService.getById(gameServer.game);
+        const game = await this.gamesService.getById(
+          gameServer.game as Types.ObjectId,
+        );
         if (game.isInProgress()) {
           return;
         }
 
-        if (game.endedAt.getTime() + serverCleanupDelay < Date.now()) {
+        if (
+          (game.endedAt as Date).getTime() + serverCleanupDelay <
+          Date.now()
+        ) {
           await this.freeGameServer(gameServer.id);
         }
       }),
@@ -292,7 +305,7 @@ export class StaticGameServersService
 
   private async freeGameServer(gameServerId: string) {
     const controls = await this.getControls(gameServerId);
-    let rcon: Rcon;
+    let rcon: Rcon | undefined;
     try {
       rcon = await controls.rcon();
       rcon.send(`tv_delaymapchange_protect 0`);

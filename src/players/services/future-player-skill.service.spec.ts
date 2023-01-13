@@ -66,7 +66,7 @@ describe('FuturePlayerSkillService', () => {
 
     it('should insert player skill', async () => {
       await service.registerSkill('FAKE_STEAM_ID', skill);
-      const doc = await futurePlayerSkillModel.findOne();
+      const doc = await futurePlayerSkillModel.findOne().orFail();
       expect(doc.toObject()).toEqual(
         expect.objectContaining({ steamId: 'FAKE_STEAM_ID', skill }),
       );
@@ -83,7 +83,7 @@ describe('FuturePlayerSkillService', () => {
       it('should update player skill', async () => {
         const newSkill = new Map([[Tf2ClassName.soldier, 6]]);
         await service.registerSkill('FAKE_STEAM_ID', newSkill);
-        const doc = await futurePlayerSkillModel.findOne();
+        const doc = await futurePlayerSkillModel.findOne().orFail();
         expect(doc.toObject()).toEqual(
           expect.objectContaining({
             steamId: 'FAKE_STEAM_ID',

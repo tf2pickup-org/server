@@ -18,7 +18,7 @@ import { Key, KeyDocument, keySchema } from './models/key';
 describe('importOrGenerateKeys()', () => {
   let mongod: MongoMemoryServer;
   let keyModel: Model<KeyDocument>;
-  let environment: Partial<Environment>;
+  let environment: Environment;
   let connection: Connection;
 
   beforeAll(async () => (mongod = await MongoMemoryServer.create()));
@@ -27,7 +27,7 @@ describe('importOrGenerateKeys()', () => {
   beforeEach(() => {
     environment = {
       keyStorePassphrase: 'FAKE_PASSPHRASE',
-    };
+    } as Environment;
   });
 
   beforeEach(async () => {

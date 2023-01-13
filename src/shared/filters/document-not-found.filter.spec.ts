@@ -1,5 +1,6 @@
 import { DocumentNotFoundFilter } from './document-not-found.filter';
 import { Error } from 'mongoose';
+import { Request, Response } from 'express';
 
 describe('DocumentNotFoundFilter', () => {
   it('should be defined', () => {
@@ -10,7 +11,7 @@ describe('DocumentNotFoundFilter', () => {
     const response = {
       status: jest.fn().mockImplementation(() => response),
       json: jest.fn().mockImplementation(() => response),
-    };
+    } as unknown as jest.Mocked<Response>;
 
     const request = {
       url: '/some/invalid/path',

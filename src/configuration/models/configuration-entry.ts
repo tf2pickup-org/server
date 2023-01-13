@@ -8,7 +8,7 @@ import { ConfigurationEntryKey } from './configuration-entry-key';
 })
 export class ConfigurationEntry {
   @Prop({ unique: true })
-  key: ConfigurationEntryKey | string;
+  key!: ConfigurationEntryKey | string;
 }
 
 export type ConfigurationEntryDocument = ConfigurationEntry & Document;

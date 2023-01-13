@@ -32,7 +32,7 @@ jest.mock('@/configuration/services/configuration.service');
 jest.mock('@/games/services/games.service');
 
 class EnvironmentStub {
-  superUser = null;
+  superUser = 'SUPER_USER_ID';
   botName = 'FAKE_BOT_NAME';
 }
 
@@ -496,7 +496,7 @@ describe('PlayersService', () => {
 
       it('should release the player', async () => {
         await service.releaseAllPlayers();
-        const player = await playerModel.findById(mockPlayer.id);
+        const player = await playerModel.findById(mockPlayer.id).orFail();
         expect(player.activeGame).toBe(undefined);
       });
     });

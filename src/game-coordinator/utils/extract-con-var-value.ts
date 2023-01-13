@@ -10,6 +10,6 @@ export function extractConVarValue(rconResponse: string): string {
       ?.split(/\r?\n/)[0]
       // https://regex101.com/r/jeIrq2/1
       ?.match(/^"(.[^"]*)"\s=\s"(.*)"(\s\(\s?def\.\s"(.*)"\s?\))?$/)?.[2]
-      ?.toString()
+      ?.toString() ?? ''
   );
 }
