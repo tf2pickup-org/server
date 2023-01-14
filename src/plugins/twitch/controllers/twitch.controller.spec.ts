@@ -107,7 +107,11 @@ describe('Twitch Controller', () => {
       expect(twitchService.deleteUserProfile).toHaveBeenCalledWith(
         'FAKE_USER_ID',
       );
-      expect(ret).toEqual({ userId: 'FAKE_USER_ID', login: 'FAKE_LOGIN' });
+      expect(ret).toEqual({
+        userId: 'FAKE_USER_ID',
+        login: 'FAKE_LOGIN',
+        player: expect.any(String),
+      });
     });
   });
 

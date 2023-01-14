@@ -187,7 +187,7 @@ export class ServerConfiguratorService implements OnModuleInit {
 
       const stvConnectString = makeConnectString({
         address: game.gameServer.address,
-        port: extractConVarValue(await rcon.send(tvPort())),
+        port: extractConVarValue(await rcon.send(tvPort())) ?? 27020,
         password: extractConVarValue(await rcon.send(tvPassword())),
       });
       this.logger.verbose(`[${game.gameServer.name} stv] ${stvConnectString}`);

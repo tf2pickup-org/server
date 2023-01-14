@@ -62,7 +62,7 @@ describe('ServemeTfConfigurationService', () => {
   it('should create a default configuration', async () => {
     const c = await servemeTfConfigurationModel.findOne().orFail();
     expect(c).toBeTruthy();
-    expect(c.preferredRegion).toBe(null);
+    expect(c.preferredRegion).toBe(undefined);
   });
 
   describe('#getConfiguration()', () => {
@@ -86,7 +86,7 @@ describe('ServemeTfConfigurationService', () => {
 
   describe('#getPreferredRegion()', () => {
     it('should return the preferred region', async () => {
-      expect(await service.getPreferredRegion()).toBe(null);
+      expect(await service.getPreferredRegion()).toBe(undefined);
     });
   });
 

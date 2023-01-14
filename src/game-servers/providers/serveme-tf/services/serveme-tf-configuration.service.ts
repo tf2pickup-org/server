@@ -37,7 +37,7 @@ export class ServemeTfConfigurationService implements OnModuleInit {
     await this.servemeTfConfigurationModel.updateOne({}, configuration);
   }
 
-  async getPreferredRegion(): Promise<string | null> {
+  async getPreferredRegion(): Promise<string | undefined> {
     return (await this.getConfiguration()).preferredRegion;
   }
 

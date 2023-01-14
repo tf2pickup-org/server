@@ -24,7 +24,7 @@ export class Player extends Serializable<PlayerDto> {
   @Prop({ required: true, unique: true, trim: true })
   name!: string;
 
-  @Prop({ unique: true, required: true })
+  @Prop({ unique: true })
   steamId!: string; // SteamID64 only
 
   @Prop({ default: () => new Date() })
