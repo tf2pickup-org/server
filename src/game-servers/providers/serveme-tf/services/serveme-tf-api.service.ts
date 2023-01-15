@@ -240,6 +240,7 @@ export class ServemeTfApiService {
       if (!ret) {
         throw new Error(`no such server option (serverId=${serverId})`);
       }
+      return ret;
     }
 
     // make sure we don't take a SDR server

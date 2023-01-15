@@ -199,7 +199,7 @@ describe('ServerCleanupService', () => {
       gameServer.address = 'localhost';
       gameServer.port = 27015;
 
-      rcon.send.mockRejectedValue('FAKE_RCON_ERROR');
+      rcon.send.mockRejectedValue(new Error('FAKE_RCON_ERROR'));
     });
 
     it('should close the rcon connection and throw', async () => {

@@ -136,7 +136,9 @@ describe('GameServerAssignerService', () => {
 
     describe('when the assign process fails', () => {
       beforeEach(() => {
-        gameServersService.assignGameServer.mockRejectedValue('FAKE_ERROR');
+        gameServersService.assignGameServer.mockRejectedValue(
+          new Error('FAKE_ERROR'),
+        );
       });
 
       it('should throw', async () => {

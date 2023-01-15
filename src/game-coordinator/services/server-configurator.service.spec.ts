@@ -44,6 +44,7 @@ import { GameServerControls } from '@/game-servers/interfaces/game-server-contro
 import { GameServerNotAssignedError } from '../errors/game-server-not-assigned.error';
 import { GameEventType } from '@/games/models/game-event';
 import { PlayerConnectionStatus } from '@/games/models/player-connection-status';
+import { CannotConfigureGameError } from '../errors/cannot-configure-game.error';
 
 jest.mock('@/queue/services/map-pool.service');
 jest.mock('@/players/services/players.service');
@@ -316,11 +317,13 @@ describe('ServerConfiguratorService', () => {
 
     describe('when an RCON command failed', () => {
       beforeEach(() => {
-        rcon.send.mockRejectedValue('some random RCON error');
+        rcon.send.mockRejectedValue(new Error('some random RCON error'));
       });
 
       it('should close the rcon connection even though an RCON command failed', async () => {
-        await expect(service.configureServer(mockGame.id)).rejects.toThrow();
+        await expect(service.configureServer(mockGame.id)).rejects.toThrow(
+          CannotConfigureGameError,
+        );
         expect(rcon.end).toHaveBeenCalled();
       });
     });

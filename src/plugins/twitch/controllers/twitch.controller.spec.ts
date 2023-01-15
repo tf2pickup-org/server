@@ -110,7 +110,7 @@ describe('Twitch Controller', () => {
       expect(ret).toEqual({
         userId: 'FAKE_USER_ID',
         login: 'FAKE_LOGIN',
-        player: expect.any(String),
+        player: expect.any(Types.ObjectId),
       });
     });
   });
