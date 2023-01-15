@@ -174,7 +174,7 @@ describe('Player substitutes another player (e2e)', () => {
       .expect(200)
       .then((response) => {
         const body = response.body;
-        const slot = body.slots.find((s) => s.player.id === replacee.id);
+        const slot = body.slots.find((s: any) => s.player.id === replacee.id);
         expect(slot.status).toEqual('waiting for substitute');
       });
 
@@ -195,11 +195,11 @@ describe('Player substitutes another player (e2e)', () => {
       .then((response) => {
         const body = response.body;
         expect(
-          body.slots.find((s) => s.player.id === replacement.id).status,
+          body.slots.find((s: any) => s.player.id === replacement.id).status,
         ).toBe('active');
-        expect(body.slots.find((s) => s.player.id === replacee.id).status).toBe(
-          'replaced',
-        );
+        expect(
+          body.slots.find((s: any) => s.player.id === replacee.id).status,
+        ).toBe('replaced');
       });
   });
 });

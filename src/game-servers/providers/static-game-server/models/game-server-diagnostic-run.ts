@@ -23,7 +23,7 @@ export class GameServerDiagnosticRun extends MongooseDocument {
   checks!: DiagnosticCheck[];
 
   @Prop({ enum: DiagnosticRunStatus, default: DiagnosticRunStatus.pending })
-  status?: DiagnosticRunStatus;
+  status!: DiagnosticRunStatus;
 
   getCheckByName(name: string) {
     return this.checks.find((check) => check.name === name);

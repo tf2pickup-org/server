@@ -11,6 +11,7 @@ import { StaticGameServersService } from '@/game-servers/providers/static-game-s
 import { configureApplication } from '@/configure-application';
 import { Events } from '@/events/events';
 import { waitForTheGameToLaunch } from './utils/wait-for-the-game-to-launch';
+import { GameServer } from '@/games/models/game-server';
 
 jest.setTimeout(250 * 1000);
 
@@ -155,7 +156,8 @@ describe('Assign and release gameserver (e2e)', () => {
 
     const gamesService = app.get(GamesService);
     const game = await gamesService.getById(gameId);
-    const gameServerId = game.gameServer.id;
+    expect(game.gameServer).toBeTruthy();
+    const gameServerId = (game.gameServer as GameServer).id;
 
     await request(app.getHttpServer())
       .get(`/static-game-servers/${gameServerId}`)

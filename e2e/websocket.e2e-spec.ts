@@ -12,7 +12,7 @@ import { players } from './test-data';
 describe('Websocket (e2e)', () => {
   let app: INestApplication;
   let player: Player;
-  let socket: Socket;
+  let socket: Socket | undefined;
 
   beforeAll(async () => {
     const moduleFixture = await Test.createTestingModule({
@@ -34,7 +34,7 @@ describe('Websocket (e2e)', () => {
   });
 
   afterEach(() => {
-    socket.disconnect();
+    socket?.disconnect();
     socket = undefined;
   });
 
@@ -44,7 +44,7 @@ describe('Websocket (e2e)', () => {
         socket = io(`http://localhost:${app.getHttpServer().address().port}`);
         socket.on('connect_error', (error) => reject(error));
         socket.on('connect', () => {
-          expect(socket.connected).toBe(true);
+          expect(socket?.connected).toBe(true);
           resolve();
         });
       }));
@@ -68,7 +68,7 @@ describe('Websocket (e2e)', () => {
         });
         socket.on('connect_error', (error) => reject(error));
         socket.on('connect', () => {
-          expect(socket.connected).toBe(true);
+          expect(socket?.connected).toBe(true);
           resolve();
         });
       }));
@@ -92,7 +92,7 @@ describe('Websocket (e2e)', () => {
 
       it('should receive profile update events', async () =>
         new Promise<void>((resolve) => {
-          socket.on('profile update', (changes) => {
+          socket?.on('profile update', (changes) => {
             expect(changes).toMatchObject({
               player: { name: 'maly updated', id: player.id },
             });

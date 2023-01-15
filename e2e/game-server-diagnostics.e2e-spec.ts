@@ -104,7 +104,7 @@ describe('Game server diagnostics (e2e)', () => {
           expect(body.gameServer).toEqual(gameServer);
           expect(body.status).toEqual('completed');
           expect(
-            body.checks.every((check) => check.status === 'completed'),
+            body.checks.every((check: any) => check.status === 'completed'),
           ).toBe(true);
         });
     });
