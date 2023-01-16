@@ -75,13 +75,13 @@ export class DiscordService implements OnModuleInit {
       const found = this.guild?.emojis.cache.find((e) => e.name === emoji.name);
       if (!found) {
         try {
-          const e = await this.guild?.emojis.create(
+          const newEmoji = await this.guild?.emojis.create(
             emoji.sourceUrl,
             emoji.name,
             { reason: 'required by the tf2pickup.org server' },
           );
-          if (e) {
-            installedEmojis.push(e);
+          if (newEmoji) {
+            installedEmojis.push(newEmoji);
             this.logger.log(`Installed emoji ${emoji.name}`);
           }
         } catch (error) {

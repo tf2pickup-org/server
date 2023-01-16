@@ -60,15 +60,15 @@ describe('ServemeTfConfigurationService', () => {
   });
 
   it('should create a default configuration', async () => {
-    const c = await servemeTfConfigurationModel.findOne().orFail();
-    expect(c).toBeTruthy();
-    expect(c.preferredRegion).toBe(undefined);
+    const configuration = await servemeTfConfigurationModel.findOne().orFail();
+    expect(configuration).toBeTruthy();
+    expect(configuration.preferredRegion).toBe(undefined);
   });
 
   describe('#getConfiguration()', () => {
     it('should return the configuration', async () => {
-      const c = await service.getConfiguration();
-      expect(c).toMatchObject({
+      const configuration = await service.getConfiguration();
+      expect(configuration).toMatchObject({
         key: 'serveme-tf',
       });
     });
@@ -79,8 +79,8 @@ describe('ServemeTfConfigurationService', () => {
       const configuration = new ServemeTfConfiguration();
       configuration.preferredRegion = 'pl';
       await service.setConfiguration(configuration);
-      const c = await servemeTfConfigurationModel.findOne().orFail();
-      expect(c.preferredRegion).toEqual(configuration.preferredRegion);
+      const cfg = await servemeTfConfigurationModel.findOne().orFail();
+      expect(cfg.preferredRegion).toEqual(configuration.preferredRegion);
     });
   });
 
@@ -93,8 +93,10 @@ describe('ServemeTfConfigurationService', () => {
   describe('#setPreferredRegion()', () => {
     it('should save the configuration', async () => {
       await service.setPreferredRegion('PL');
-      const c = await servemeTfConfigurationModel.findOne().orFail();
-      expect(c.preferredRegion).toEqual('PL');
+      const configuration = await servemeTfConfigurationModel
+        .findOne()
+        .orFail();
+      expect(configuration.preferredRegion).toEqual('PL');
     });
   });
 });

@@ -8,8 +8,8 @@ import { Socket } from 'socket.io';
 @Catch()
 export class AllExceptionsFilter extends BaseWsExceptionFilter {
   // skipcq: JS-0105
-  catch(exception: any, host: ArgumentsHost) {
+  catch(exception: unknown, host: ArgumentsHost) {
     const socket = host.switchToWs().getClient<Socket>();
-    socket.emit('exception', { message: exception.toString() });
+    socket.emit('exception', { message: `${exception}` });
   }
 }

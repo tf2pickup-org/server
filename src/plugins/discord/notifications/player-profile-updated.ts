@@ -26,9 +26,11 @@ interface PlayerProfileUpdatedOptions {
 
 const generateChangesText = (changes: Record<string, Change>) => {
   const changesText = [];
-  for (const name in Object.keys(changes)) {
+  for (const name of Object.keys(changes)) {
     changesText.push(
-      `${name}: **${changes[name].old} => ${changes[name].new}**`,
+      `${name}: **${changes[name]?.old ?? '__not set__'} => ${
+        changes[name].new
+      }**`,
     );
   }
 

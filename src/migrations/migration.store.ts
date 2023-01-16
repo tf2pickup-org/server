@@ -6,6 +6,8 @@ export interface MigrationSet {
 }
 
 export interface MigrationStore {
+  // skipcq: JS-0323
   load: (callback: (error: any, data: MigrationSet) => any) => any;
+  // skipcq: JS-0323
   save: (set: MigrationSet, callback: (error: any, result: any) => any) => any;
 }

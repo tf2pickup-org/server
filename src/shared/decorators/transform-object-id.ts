@@ -12,6 +12,9 @@ export const TransformObjectId: () => PropertyDecorator =
 
         case TransformationType.CLASS_TO_CLASS:
           return obj[propertyKey];
+
+        default:
+          return void 0;
       }
     })(target, propertyKey);
   };

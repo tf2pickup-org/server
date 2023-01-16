@@ -70,13 +70,13 @@ export class QueuePromptsService implements OnModuleInit {
         message.edit({ embeds: [embed] });
       } else {
         if (this.playerThresholdMet()) {
-          const message = await this.discordService
+          const sentMessage = await this.discordService
             .getPlayersChannel()
             ?.send({ embeds: [embed] });
-          if (message) {
+          if (sentMessage) {
             await this.cache.set(
               this.queuePromptMessageIdCacheKey,
-              message.id,
+              sentMessage.id,
               {
                 ttl: 0,
               },
@@ -121,9 +121,9 @@ export class QueuePromptsService implements OnModuleInit {
       this.queuePromptMessageIdCacheKey,
     )) as string;
     if (id) {
-      return (await this.discordService.getPlayersChannel())?.messages.fetch(
-        id,
-      );
+      return this.discordService.getPlayersChannel()?.messages.fetch(id);
+    } else {
+      return void 0;
     }
   }
 

@@ -7,7 +7,7 @@ import {
 import { MigrationStore } from '../migration.store';
 import { FileStore, load } from 'migrate';
 import { resolve as pathResolve } from 'path';
-import * as appRoot from 'app-root-path';
+import appRoot from 'app-root-path';
 
 @Injectable()
 export class MigrationsService implements OnApplicationBootstrap {
@@ -35,11 +35,11 @@ export class MigrationsService implements OnApplicationBootstrap {
             return reject(error);
           }
 
-          set.up((error) => {
+          return set.up((error) => {
             if (error) {
               return reject(error);
             }
-            resolve();
+            return resolve();
           });
         },
       );

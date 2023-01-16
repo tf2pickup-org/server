@@ -18,4 +18,6 @@ export const extractClientIp = (
   if (headers['x-real-ip']) {
     return headers['x-real-ip'].toString();
   }
+
+  return void 0;
 };
