@@ -4,6 +4,7 @@ import * as SteamID from 'steamid';
 
 @Injectable()
 export class SteamIdValidationPipe implements PipeTransform {
+  // skipcq: JS-0105
   transform(value: string) {
     try {
       const sid = new SteamID(value);

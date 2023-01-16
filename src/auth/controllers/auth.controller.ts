@@ -89,6 +89,7 @@ export class AuthController {
     return { wsToken };
   }
 
+  // skipcq: JS-0105
   private mapToClientError(error: unknown): string {
     if (error instanceof Tf2InGameHoursVerificationError) {
       return 'cannot verify in-game hours for TF2';

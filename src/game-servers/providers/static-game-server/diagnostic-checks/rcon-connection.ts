@@ -10,6 +10,7 @@ export class RconConnection implements DiagnosticCheckRunner {
   name = 'rcon connection';
   critical = true;
 
+  // skipcq: JS-0105
   async run({
     gameServer,
   }: {

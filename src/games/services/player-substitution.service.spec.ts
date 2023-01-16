@@ -438,7 +438,7 @@ describe('PlayerSubstitutionService', () => {
         );
         expect(
           game.slots.filter(
-            (s) => s.player.toString().localeCompare(player1.id) == 0,
+            (s) => s.player.toString().localeCompare(player1.id) === 0,
           ).length,
         ).toEqual(2);
       });

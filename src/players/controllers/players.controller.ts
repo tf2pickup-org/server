@@ -63,6 +63,7 @@ export class PlayersController {
     return await this.playersService.getAll();
   }
 
+  // skipcq: JS-0105
   @Get(':id')
   getPlayer(
     @Param('id', PlayerByIdPipe) player: Player,
@@ -109,6 +110,7 @@ export class PlayersController {
     );
   }
 
+  // skipcq: JS-0105
   @Get(':id/skill')
   @Auth(PlayerRole.admin)
   getPlayerSkill(@Param('id', PlayerByIdPipe) player: Player): {
