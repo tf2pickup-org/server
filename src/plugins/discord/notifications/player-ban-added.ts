@@ -34,9 +34,7 @@ export const playerBanAdded = (options: PlayerBanAddedOptions) =>
     .setDescription(
       [
         `Player: **[${options.player.name}](${options.player.profileUrl})**`,
-        `Reason: ${
-          options.reason ? '**' + options.reason + '**' : '__no reason__'
-        }`,
+        `Reason: ${options.reason ? `**${options.reason}**` : '__no reason__'}`,
         `Ends: **${moment(options.ends).fromNow()}**`,
       ].join('\n'),
     )

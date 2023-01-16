@@ -21,7 +21,7 @@ describe('Game server diagnostics (e2e)', () => {
   let staticGameServersService: StaticGameServersService;
   let gameServer: string;
 
-  const waitForDiagnosticRunToComplete = async (runId: string) =>
+  const waitForDiagnosticRunToComplete = (runId: string) =>
     new Promise<void>((resolve) => {
       const isDone = async () => {
         const run = await diagnosticsService.getDiagnosticRunById(runId);
@@ -39,7 +39,7 @@ describe('Game server diagnostics (e2e)', () => {
       }, 1000);
     });
 
-  const waitForGameServerToComeOnline = async () =>
+  const waitForGameServerToComeOnline = () =>
     new Promise<string>((resolve) => {
       const i = setInterval(async () => {
         const gameServers = await staticGameServersService.getAllGameServers();

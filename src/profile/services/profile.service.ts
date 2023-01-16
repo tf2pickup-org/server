@@ -30,17 +30,19 @@ export class ProfileService implements OnModuleInit {
   ) {}
 
   onModuleInit() {
-    this.events.linkedProfilesChanged.subscribe(({ playerId }) => {
-      this.onlinePlayersService
-        .getSocketsForPlayer(playerId)
-        ?.forEach(async (socket) => {
-          socket.emit(WebsocketEvent.profileUpdate, {
-            linkedProfiles: await this.linkedProfilesService.getLinkedProfiles(
-              playerId,
+    this.events.linkedProfilesChanged.subscribe(
+      async ({ playerId }) =>
+        await Promise.all(
+          this.onlinePlayersService
+            .getSocketsForPlayer(playerId)
+            .map(async (socket) =>
+              socket.emit(WebsocketEvent.profileUpdate, {
+                linkedProfiles:
+                  await this.linkedProfilesService.getLinkedProfiles(playerId),
+              }),
             ),
-          });
-        });
-    });
+        ),
+    );
 
     // update player profile whenever his player record changes
     this.events.playerUpdates
@@ -54,7 +56,7 @@ export class ProfileService implements OnModuleInit {
       .subscribe((player) =>
         this.onlinePlayersService
           .getSocketsForPlayer(player.id)
-          ?.forEach((socket) =>
+          .forEach((socket) =>
             socket.emit(WebsocketEvent.profileUpdate, { player }),
           ),
       );
@@ -70,7 +72,7 @@ export class ProfileService implements OnModuleInit {
       .subscribe(({ newPlayer }) => {
         this.onlinePlayersService
           .getSocketsForPlayer(newPlayer.id)
-          ?.forEach((socket) =>
+          .forEach((socket) =>
             socket.emit(WebsocketEvent.profileUpdate, {
               activeGameId: newPlayer.activeGame?.toString() ?? null,
             }),

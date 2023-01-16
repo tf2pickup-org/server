@@ -23,7 +23,7 @@ interface UploadLogsParams {
 export class LogsTfApiService {
   constructor(private readonly environment: Environment) {}
 
-  public async uploadLogs(params: UploadLogsParams): Promise<string> {
+  public uploadLogs(params: UploadLogsParams): Promise<string> {
     const data = new FormData();
     const title =
       params.title ?? `${this.environment.websiteName} #${params.gameNumber}`;

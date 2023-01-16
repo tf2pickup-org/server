@@ -7,7 +7,7 @@ export class CannotConfigureGameError extends Error {
   ) {
     super(
       `cannot configure game #${game.number}${
-        game.gameServer ? '(using gameserver ' + game.gameServer.name + ')' : ''
+        game.gameServer ? `(using gameserver ${game.gameServer.name})` : ''
       }: ${errorMessage}`,
     );
   }

@@ -4,6 +4,7 @@ import { Inject, OnModuleInit } from '@nestjs/common';
 import { PlayersService } from '@/players/services/players.service';
 import { verify } from 'jsonwebtoken';
 import { Player } from '@/players/models/player';
+import { assertIsError } from '@/utils/assert-is-error';
 
 declare module 'socket.io' {
   interface Socket {
@@ -39,7 +40,8 @@ export class AuthGateway implements OnModuleInit {
         }
         return next();
       } catch (error) {
-        return next(new Error(`${error}`));
+        assertIsError(error);
+        return next(error);
       }
     });
   }

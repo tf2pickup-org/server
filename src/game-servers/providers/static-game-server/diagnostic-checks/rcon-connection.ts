@@ -25,7 +25,7 @@ export class RconConnection implements DiagnosticCheckRunner {
         });
 
         rcon.on('authenticated', () => resolve(rcon));
-        rcon.on('error', () => reject());
+        rcon.on('error', (error) => reject(new Error(error)));
 
         return rcon.connect().catch(reject);
       });

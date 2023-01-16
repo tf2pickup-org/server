@@ -53,6 +53,7 @@ describe('Environment', () => {
       .replace(/_(.)/g, (_, p1) => p1.toString().toUpperCase())
       .replace('mongodb', 'mongoDb') as keyof Environment;
 
+    // skipcq: JS-0378
     it(`should return value for ${getterName}`, () => {
       expect(environment[getterName]).toEqual(varName);
     });

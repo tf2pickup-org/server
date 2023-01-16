@@ -243,6 +243,7 @@ describe('TwitchService', () => {
           resolve();
         });
 
+        // skipcq: JS-0116
         service.saveUserProfile(player.id, 'FAKE_CODE');
       }));
   });
@@ -275,6 +276,7 @@ describe('TwitchService', () => {
           resolve();
         });
 
+        // skipcq: JS-0116
         service.deleteUserProfile(player.id);
       }));
   });
@@ -338,7 +340,7 @@ describe('TwitchService', () => {
     });
 
     describe('when fetching a promoted stream', () => {
-      beforeEach(async () => {
+      beforeEach(() => {
         jest.spyOn(httpService, 'get').mockReturnValue(
           of({
             data: {

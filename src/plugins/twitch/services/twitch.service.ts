@@ -92,7 +92,7 @@ export class TwitchService implements OnModuleInit {
   ): Promise<TwitchTvProfile> {
     return plainToInstance(
       TwitchTvProfile,
-      this.twitchTvProfileModel
+      await this.twitchTvProfileModel
         .findOne({ player: new Types.ObjectId(playerId) })
         .orFail()
         .lean()

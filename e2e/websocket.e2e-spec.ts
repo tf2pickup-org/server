@@ -39,7 +39,7 @@ describe('Websocket (e2e)', () => {
   });
 
   describe('when the user is not authorized', () => {
-    it('should be able to connect without the auth token', async () =>
+    it('should be able to connect without the auth token', () =>
       new Promise<void>((resolve, reject) => {
         socket = io(`http://localhost:${app.getHttpServer().address().port}`);
         socket.on('connect_error', (error) => reject(error));
@@ -114,7 +114,7 @@ describe('Websocket (e2e)', () => {
           resolve();
         });
         socket.on('connect', () => {
-          reject('Connected despite malformed JWT');
+          reject(new Error('Connected despite malformed JWT'));
         });
       }));
 
@@ -130,7 +130,7 @@ describe('Websocket (e2e)', () => {
           resolve();
         });
         socket.on('connect', () => {
-          reject('Connected despite malformed JWT');
+          reject(new Error('Connected despite malformed JWT'));
         });
       }));
   });

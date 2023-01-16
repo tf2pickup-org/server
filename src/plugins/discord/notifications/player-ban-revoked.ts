@@ -32,9 +32,7 @@ export const playerBanRevoked = (options: PlayerBanRevokedOptions) =>
     .setDescription(
       [
         `Player: **[${options.player.name}](${options.player.profileUrl})**`,
-        `Reason: ${
-          options.reason ? '**' + options.reason + '**' : '__no reason__'
-        }`,
+        `Reason: ${options.reason ? `**${options.reason}**` : '__no reason__'}`,
       ].join('\n'),
     )
     .setFooter({

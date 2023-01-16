@@ -2,6 +2,7 @@ import * as Joi from 'joi';
 
 const joi = new Proxy(Joi, {
   get(o, name) {
+    // skipcq: JS-0323
     return (o as any)[name].bind(o);
   },
 });

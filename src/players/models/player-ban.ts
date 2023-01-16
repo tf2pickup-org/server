@@ -43,7 +43,7 @@ export class PlayerBan extends Serializable<PlayerBanDto> {
   @Prop()
   reason?: string;
 
-  async serialize(): Promise<PlayerBanDto> {
+  serialize(): PlayerBanDto {
     return {
       id: this.id,
       player: this.player.toString(),

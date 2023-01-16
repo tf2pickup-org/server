@@ -89,7 +89,7 @@ export class OnlinePlayersService implements OnModuleInit, OnModuleDestroy {
     if (!this.sockets.has(playerId)) {
       this.sockets.set(playerId, []);
     }
-    return this.sockets.get(playerId) ?? [];
+    return this.sockets.get(playerId) as SocketList;
   }
 
   private verifyPlayer(playerId: string) {
