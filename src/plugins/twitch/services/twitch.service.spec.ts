@@ -236,7 +236,7 @@ describe('TwitchService', () => {
       );
     });
 
-    it('should emit the linkedProfilesChanged event', async () =>
+    it('should emit the linkedProfilesChanged event', () =>
       new Promise<void>((resolve) => {
         events.linkedProfilesChanged.subscribe(({ playerId }) => {
           expect(playerId).toEqual(player.id);
@@ -269,7 +269,7 @@ describe('TwitchService', () => {
       expect(profile.player.toString()).toEqual(player.id);
     });
 
-    it('should emit the linkedProfilesChanged event', async () =>
+    it('should emit the linkedProfilesChanged event', () =>
       new Promise<void>((resolve) => {
         events.linkedProfilesChanged.subscribe(({ playerId }) => {
           expect(playerId).toEqual(player.id);

@@ -63,9 +63,9 @@ export class LogCollectorService implements OnModuleInit {
         }
         await this.cache.set(key, logFile, { ttl: 0 });
       });
-
-      // eslint-disable-next-line no-empty
-    } catch (error) {}
+    } catch (error) {
+      // empty
+    }
   }
 
   async uploadLogs(gameId: string) {

@@ -61,7 +61,7 @@ describe('Websocket (e2e)', () => {
       );
     });
 
-    it('should be able to connect with the given auth token', async () =>
+    it('should be able to connect with the given auth token', () =>
       new Promise<void>((resolve, reject) => {
         socket = io(`http://localhost:${app.getHttpServer().address().port}`, {
           auth: { token: `Bearer ${token}` },
@@ -75,7 +75,7 @@ describe('Websocket (e2e)', () => {
 
     describe('and when he is connected', () => {
       beforeEach(
-        async () =>
+        () =>
           new Promise<void>((resolve, reject) => {
             socket = io(
               `http://localhost:${app.getHttpServer().address().port}`,
@@ -90,7 +90,7 @@ describe('Websocket (e2e)', () => {
           }),
       );
 
-      it('should receive profile update events', async () =>
+      it('should receive profile update events', () =>
         new Promise<void>((resolve) => {
           socket?.on('profile update', (changes) => {
             expect(changes).toMatchObject({
@@ -104,7 +104,7 @@ describe('Websocket (e2e)', () => {
         }));
     });
 
-    it('should not be able to connect with a malformed auth token', async () =>
+    it('should not be able to connect with a malformed auth token', () =>
       new Promise<void>((resolve, reject) => {
         socket = io(`http://localhost:${app.getHttpServer().address().port}`, {
           auth: { token: `Bearer SOME_FAKE_TOKEN` },
@@ -118,7 +118,7 @@ describe('Websocket (e2e)', () => {
         });
       }));
 
-    it('should not be able to connect with a fake auth token', async () =>
+    it('should not be able to connect with a fake auth token', () =>
       new Promise<void>((resolve, reject) => {
         const fakeToken =
           'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYxMDY4ZTNlZWEwYjUyNWQxOGQ1MmFmYSIsImlhdCI6MTYyNzgxOTU4MiwiZXhwIjoxNjI3ODIwMTgyfQ.PqgQGMZjSJ5Wn2ce951ygln5j9Lf5zw2k57XKyL4hPs';

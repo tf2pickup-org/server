@@ -23,7 +23,7 @@ export class MigrationsService implements OnApplicationBootstrap {
     this.logger.log('migrations run successfully');
   }
 
-  private async runMigrations() {
+  private runMigrations() {
     return new Promise<void>((resolve, reject) => {
       load(
         {

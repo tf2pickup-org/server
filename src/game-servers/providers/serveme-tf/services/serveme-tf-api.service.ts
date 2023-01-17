@@ -166,9 +166,9 @@ export class ServemeTfApiService {
             'Server updating, please be patient',
           ].includes(status),
         ),
-        map(() => void 0),
+        map(() => undefined),
       ),
-      { defaultValue: void 0 },
+      { defaultValue: undefined },
     );
   }
 

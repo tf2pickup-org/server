@@ -123,7 +123,7 @@ export class QueuePromptsService implements OnModuleInit {
     if (id) {
       return this.discordService.getPlayersChannel()?.messages.fetch(id);
     } else {
-      return void 0;
+      return undefined;
     }
   }
 

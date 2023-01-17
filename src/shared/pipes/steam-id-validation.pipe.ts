@@ -1,5 +1,6 @@
 import { assertIsError } from '@/utils/assert-is-error';
 import { BadRequestException, Injectable, PipeTransform } from '@nestjs/common';
+// skipcq: JS-C1003
 import * as SteamID from 'steamid';
 
 @Injectable()

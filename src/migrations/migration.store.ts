@@ -2,6 +2,7 @@
 
 export interface MigrationSet {
   lastRun?: string;
+  // skipcq: JS-0323
   migrations?: any[];
 }
 

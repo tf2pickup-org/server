@@ -14,7 +14,7 @@ export const TransformObjectId: () => PropertyDecorator =
           return obj[propertyKey];
 
         default:
-          return void 0;
+          return undefined;
       }
     })(target, propertyKey);
   };
