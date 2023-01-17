@@ -92,12 +92,10 @@ export class QueuePromptsService implements OnModuleInit {
       slots
         .filter((slot) => Boolean(slot.playerId))
         .map((slot) =>
-          this.playersService
-            .getById(slot.playerId as string)
-            .then((player) => ({
-              name: player.name,
-              gameClass: slot.gameClass,
-            })),
+          this.playersService.getById(slot.playerId!).then((player) => ({
+            name: player.name,
+            gameClass: slot.gameClass,
+          })),
         ),
     );
 

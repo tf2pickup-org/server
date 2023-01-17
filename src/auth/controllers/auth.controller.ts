@@ -19,6 +19,7 @@ import { Tf2InGameHoursVerificationError } from '@/players/errors/tf2-in-game-ho
 import { InsufficientTf2InGameHoursError } from '@/players/errors/insufficient-tf2-in-game-hours.error';
 import { NoEtf2lAccountError } from '@/players/errors/no-etf2l-account.error';
 import { AccountBannedError } from '@/players/errors/account-banned.error';
+import { assertIsError } from '@/utils/assert-is-error';
 
 @Controller('auth')
 export class AuthController {
@@ -74,7 +75,8 @@ export class AuthController {
     try {
       return await this.authService.refreshTokens(oldRefreshToken);
     } catch (error) {
-      throw new BadRequestException(`${error}`);
+      assertIsError(error);
+      throw new BadRequestException(error.message);
     }
   }
 

@@ -61,7 +61,7 @@ export class GameServersService
         filter((game) => Boolean(game.gameServer)),
       )
       .subscribe(async (game: Game) => {
-        const gameServer = game.gameServer as GameServer;
+        const gameServer = game.gameServer!;
         const provider = this.providerByName(gameServer.provider);
         const reason = {
           [GameState.ended]: GameServerReleaseReason.GameEnded,

@@ -9,8 +9,10 @@ export class StaticGameServerControls implements GameServerControls {
   constructor(private readonly gameServer: StaticGameServer) {}
 
   // skipcq: JS-0105
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  start() {} // the server is always already started
+  start() {
+    // empty
+    // the server is always already started
+  }
 
   async rcon(): Promise<Rcon> {
     return await createRcon({

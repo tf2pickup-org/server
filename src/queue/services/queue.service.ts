@@ -288,7 +288,7 @@ export class QueueService implements OnModuleInit, OnModuleDestroy {
     const slots = this.slots
       .filter((s) => !s.ready)
       .filter((s) => Boolean(s.playerId));
-    this.kick(...slots.map((s) => s.playerId as string));
+    this.kick(...slots.map((s) => s.playerId!));
   }
 
   private unreadyQueue() {

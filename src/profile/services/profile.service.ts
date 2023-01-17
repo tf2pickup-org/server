@@ -10,7 +10,6 @@ import { MapVoteService } from '@/queue/services/map-vote.service';
 import { serialize } from '@/shared/serialize';
 import { WebsocketEvent } from '@/websocket-event';
 import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
-import { Types } from 'mongoose';
 import { map, filter } from 'rxjs';
 import { ProfileDto } from '../dto/profile.dto';
 import { Restriction, RestrictionReason } from '../interfaces/restriction';
@@ -90,7 +89,7 @@ export class ProfileService implements OnModuleInit {
       player,
       hasAcceptedRules: player.hasAcceptedRules,
       ...(Boolean(player.activeGame) && {
-        activeGameId: (player.activeGame as Types.ObjectId).toString(),
+        activeGameId: player.activeGame!.toString(),
       }),
       bans,
       mapVote: this.mapVoteService.playerVote(player.id),

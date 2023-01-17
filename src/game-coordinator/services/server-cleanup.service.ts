@@ -2,7 +2,6 @@ import { Environment } from '@/environment/environment';
 import { Events } from '@/events/events';
 import { GameServerOptionWithProvider } from '@/game-servers/interfaces/game-server-option';
 import { GameServersService } from '@/game-servers/services/game-servers.service';
-import { GameServer } from '@/games/models/game-server';
 import { GameState } from '@/games/models/game-state';
 import { assertIsError } from '@/utils/assert-is-error';
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
@@ -59,7 +58,7 @@ export class ServerCleanupService implements OnModuleInit {
 
     merge(unassigned, gameEnds).subscribe(async (gameServer) => {
       try {
-        await this.cleanupServer(gameServer as GameServer);
+        await this.cleanupServer(gameServer!);
       } catch (error) {
         this.logger.error(error);
       }
