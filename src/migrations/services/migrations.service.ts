@@ -7,7 +7,7 @@ import {
 import { MigrationStore } from '../migration.store';
 import { FileStore, load } from 'migrate';
 import { resolve as pathResolve } from 'path';
-import appRoot from 'app-root-path';
+import * as appRoot from 'app-root-path';
 
 @Injectable()
 export class MigrationsService implements OnApplicationBootstrap {
