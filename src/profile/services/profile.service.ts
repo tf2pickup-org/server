@@ -10,9 +10,8 @@ import { MapVoteService } from '@/queue/services/map-vote.service';
 import { serialize } from '@/shared/serialize';
 import { WebsocketEvent } from '@/websocket-event';
 import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
-import { isEqual } from 'lodash';
 import { Types } from 'mongoose';
-import { map, filter, concatMap, from } from 'rxjs';
+import { map, filter } from 'rxjs';
 import { ProfileDto } from '../dto/profile.dto';
 import { Restriction, RestrictionReason } from '../interfaces/restriction';
 
@@ -45,21 +44,18 @@ export class ProfileService implements OnModuleInit {
     );
 
     // update player profile whenever his player record changes
-    this.events.playerUpdates
-      .pipe(
-        concatMap(({ oldPlayer, newPlayer }) =>
-          from(Promise.all([serialize(oldPlayer), serialize(newPlayer)])),
+    this.events.playerUpdates.pipe(map(({ newPlayer }) => newPlayer)).subscribe(
+      async (player) =>
+        await Promise.all(
+          this.onlinePlayersService
+            .getSocketsForPlayer(player.id)
+            .map(async (socket) =>
+              socket.emit(WebsocketEvent.profileUpdate, {
+                player: await serialize(player),
+              }),
+            ),
         ),
-        filter(([a, b]) => !isEqual(a, b)),
-        map(([, newPlayer]) => newPlayer),
-      )
-      .subscribe((player) =>
-        this.onlinePlayersService
-          .getSocketsForPlayer(player.id)
-          .forEach((socket) =>
-            socket.emit(WebsocketEvent.profileUpdate, { player }),
-          ),
-      );
+    );
 
     // update player's active game info
     this.events.playerUpdates
