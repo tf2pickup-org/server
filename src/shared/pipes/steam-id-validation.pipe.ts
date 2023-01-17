@@ -1,6 +1,6 @@
 import { assertIsError } from '@/utils/assert-is-error';
 import { BadRequestException, Injectable, PipeTransform } from '@nestjs/common';
-import SteamID from 'steamid';
+import * as SteamID from 'steamid';
 
 @Injectable()
 export class SteamIdValidationPipe implements PipeTransform {
