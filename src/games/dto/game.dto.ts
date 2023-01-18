@@ -4,8 +4,8 @@ import { Serializable } from '@/shared/serializable';
 
 export interface GameDto {
   id: string;
-  launchedAt: Date;
-  endedAt?: Date;
+  launchedAt: string;
+  endedAt?: string;
   number: number;
   slots: {
     player: Serializable<PlayerDto>;
@@ -24,7 +24,7 @@ export interface GameDto {
   gameServer?: {
     name: string;
   };
-  score: {
+  score?: {
     blu?: number;
     red?: number;
   };
