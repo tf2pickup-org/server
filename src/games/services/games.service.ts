@@ -18,6 +18,7 @@ import { SelectedVoiceServer } from '@/configuration/models/voice-server';
 import { plainToInstance } from 'class-transformer';
 import { Mutex } from 'async-mutex';
 import { QueueConfig } from '@/queue-config/interfaces/queue-config';
+import { GameEventType } from '../models/game-event';
 
 interface GameSortOptions {
   [key: string]: 1 | -1;
@@ -247,10 +248,17 @@ export class GamesService {
         .findByIdAndUpdate(
           gameId,
           {
-            state: GameState.interrupted,
-            endedAt: new Date(),
-            error: 'ended by admin',
-            'slots.$[element].status': SlotStatus.active,
+            $set: {
+              state: GameState.interrupted,
+              error: 'ended by admin',
+              'slots.$[element].status': SlotStatus.active,
+            },
+            $push: {
+              events: {
+                at: new Date(),
+                event: GameEventType.Ended,
+              },
+            },
           },
           {
             new: true,
