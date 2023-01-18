@@ -9,7 +9,7 @@ const schema = z.object({
   CLIENT_URL: z.string(),
   BOT_NAME: z.string(),
   MONGODB_URI: z.string().url(),
-  REDIS_URL: z.string().url(),
+  REDIS_URL: z.string(),
   STEAM_API_KEY: z.string(),
   LOGS_TF_API_KEY: z.string(),
   KEY_STORE_PASSPHRASE: z.string(),
