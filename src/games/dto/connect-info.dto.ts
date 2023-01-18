@@ -1,6 +1,6 @@
 export interface ConnectInfoDto {
   gameId: string;
   connectInfoVersion: number;
-  connectString: string;
-  voiceChannelUrl: string;
+  connectString?: string;
+  voiceChannelUrl?: string;
 }

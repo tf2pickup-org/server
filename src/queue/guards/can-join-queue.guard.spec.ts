@@ -22,16 +22,19 @@ describe('CanJoinQueueGuard', () => {
 
   beforeEach(() => {
     configurationService = new ConfigurationService(
+      // @ts-ignore
       null,
       null,
     ) as jest.Mocked<ConfigurationService>;
     playerBansService = new PlayerBansService(
+      // @ts-ignore
       null,
       null,
       null,
       null,
     ) as jest.Mocked<PlayerBansService>;
     playersService = new PlayersService(
+      // @ts-ignore
       null,
       null,
       null,

@@ -117,11 +117,11 @@ describe('StatisticsService', () => {
       const ret = await service.getGameLaunchTimeSpans();
       expect(
         ret.find((r) => r.dayOfWeek === 5 && r.timeOfTheDay === 'afternoon')
-          .count,
+          ?.count,
       ).toBe(1);
       expect(
         ret.find((r) => r.dayOfWeek === 5 && r.timeOfTheDay === 'evening')
-          .count,
+          ?.count,
       ).toBe(2);
     });
   });
@@ -174,8 +174,8 @@ describe('StatisticsService', () => {
       const since = new Date();
       since.setFullYear(since.getFullYear() - 1);
       const ret = await service.getGameLaunchesPerDay(since);
-      expect(ret.find((r) => r.day === '2021-11-11').count).toBe(2);
-      expect(ret.find((r) => r.day === '2021-11-12').count).toBe(1);
+      expect(ret.find((r) => r.day === '2021-11-11')?.count).toBe(2);
+      expect(ret.find((r) => r.day === '2021-11-12')?.count).toBe(1);
     });
   });
 });

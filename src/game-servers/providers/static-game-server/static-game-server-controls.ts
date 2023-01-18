@@ -8,8 +8,11 @@ import { generateLogsecret } from './utils/generate-logsecret';
 export class StaticGameServerControls implements GameServerControls {
   constructor(private readonly gameServer: StaticGameServer) {}
 
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  async start() {} // the server is always already started
+  // skipcq: JS-0105
+  start() {
+    // empty
+    // the server is always already started
+  }
 
   async rcon(): Promise<Rcon> {
     return await createRcon({
@@ -21,7 +24,7 @@ export class StaticGameServerControls implements GameServerControls {
 
   async getLogsecret(): Promise<string> {
     const logsecret = generateLogsecret();
-    let rcon: Rcon;
+    let rcon: Rcon | undefined;
     try {
       rcon = await this.rcon();
       await rcon.send(svLogsecret(logsecret));

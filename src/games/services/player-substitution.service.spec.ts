@@ -145,11 +145,11 @@ describe('PlayerSubstitutionService', () => {
       const game = await service.substitutePlayer(mockGame.id, player1.id);
       expect(game.id).toEqual(mockGame.id);
       const slot = game.findPlayerSlot(player1.id);
-      expect(slot.status).toEqual(SlotStatus.waitingForSubstitute);
+      expect(slot?.status).toEqual(SlotStatus.waitingForSubstitute);
     });
 
     it('should emit the gameChanges event', async () => {
-      let event: Game;
+      let event: Game | undefined;
       events.gameChanges.subscribe(({ newGame: game }) => {
         event = game;
       });
@@ -173,8 +173,8 @@ describe('PlayerSubstitutionService', () => {
     });
 
     it('should emit the substituteRequested event', async () => {
-      let emittedGameId: string;
-      let emittedPlayerId: string;
+      let emittedGameId: string | undefined;
+      let emittedPlayerId: string | undefined;
       events.substituteRequested.subscribe(({ gameId, playerId }) => {
         emittedGameId = gameId;
         emittedPlayerId = playerId;
@@ -237,11 +237,11 @@ describe('PlayerSubstitutionService', () => {
         player1.id,
       );
       const slot = game.findPlayerSlot(player1.id);
-      expect(slot.status).toEqual(SlotStatus.active);
+      expect(slot?.status).toEqual(SlotStatus.active);
     });
 
     it('should emit the gameChanges event', async () => {
-      let event: Game;
+      let event: Game | undefined;
 
       events.gameChanges.subscribe(({ newGame: game }) => {
         event = game;
@@ -266,8 +266,8 @@ describe('PlayerSubstitutionService', () => {
     });
 
     it('should emit the substituteCanceled event', async () => {
-      let emittedGameId: string;
-      let emittedPlayerId: string;
+      let emittedGameId: string | undefined;
+      let emittedPlayerId: string | undefined;
       events.substituteRequestCanceled.subscribe(({ gameId, playerId }) => {
         emittedGameId = gameId;
         emittedPlayerId = playerId;
@@ -293,14 +293,14 @@ describe('PlayerSubstitutionService', () => {
       );
       expect(game.id).toEqual(mockGame.id);
       const replaceeSlot = game.findPlayerSlot(player1.id);
-      expect(replaceeSlot.status).toEqual(SlotStatus.replaced);
+      expect(replaceeSlot?.status).toEqual(SlotStatus.replaced);
       const replacementSlot = game.findPlayerSlot(player3.id);
       expect(replacementSlot).toBeTruthy();
-      expect(replacementSlot.status).toEqual(SlotStatus.active);
+      expect(replacementSlot?.status).toEqual(SlotStatus.active);
     });
 
     it('should emit the gameChanges event', async () => {
-      let event: Game;
+      let event: Game | undefined;
       events.gameChanges.subscribe(({ newGame: game }) => {
         event = game;
       });
@@ -348,7 +348,7 @@ describe('PlayerSubstitutionService', () => {
         );
         expect(game.id).toEqual(mockGame.id);
         const slot = game.findPlayerSlot(player1.id);
-        expect(slot.status).toBe(SlotStatus.active);
+        expect(slot?.status).toBe(SlotStatus.active);
         expect(game.slots.length).toBe(2);
       });
     });
@@ -379,9 +379,9 @@ describe('PlayerSubstitutionService', () => {
     });
 
     it('should emit the playerReplaced event', async () => {
-      let emittedGameId: string;
-      let emittedReplaceeId: string;
-      let emittedReplacementId: string;
+      let emittedGameId: string | undefined;
+      let emittedReplaceeId: string | undefined;
+      let emittedReplacementId: string | undefined;
 
       events.playerReplaced.subscribe(
         ({ gameId, replaceeId, replacementId }) => {
@@ -438,7 +438,7 @@ describe('PlayerSubstitutionService', () => {
         );
         expect(
           game.slots.filter(
-            (s) => s.player.toString().localeCompare(player1.id) == 0,
+            (s) => s.player.toString().localeCompare(player1.id) === 0,
           ).length,
         ).toEqual(2);
       });

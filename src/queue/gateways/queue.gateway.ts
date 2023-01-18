@@ -22,7 +22,7 @@ import { CanJoinQueueGuard } from '../guards/can-join-queue.guard';
 
 @WebSocketGateway()
 export class QueueGateway implements OnGatewayInit, OnModuleInit {
-  private socket: Socket;
+  private socket!: Socket;
 
   constructor(
     private queueService: QueueService,

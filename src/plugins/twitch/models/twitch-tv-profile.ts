@@ -6,14 +6,14 @@ import { Types, Document } from 'mongoose';
 @Schema()
 export class TwitchTvProfile extends MongooseDocument {
   @TransformObjectId()
-  @Prop({ ref: 'Player', index: true })
-  player?: Types.ObjectId;
+  @Prop({ ref: 'Player', index: true, required: true })
+  player!: Types.ObjectId;
 
   @Prop({ required: true, index: true })
-  userId: string;
+  userId!: string;
 
   @Prop({ required: true })
-  login: string;
+  login!: string;
 
   @Prop()
   displayName?: string;

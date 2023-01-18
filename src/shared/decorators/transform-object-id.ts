@@ -1,7 +1,7 @@
 import { Transform, TransformationType } from 'class-transformer';
 
 export const TransformObjectId: () => PropertyDecorator =
-  () => (target: unknown, propertyKey: string) => {
+  () => (target: object, propertyKey: string | symbol) => {
     Transform(({ type, obj }) => {
       switch (type) {
         case TransformationType.PLAIN_TO_CLASS:
@@ -12,6 +12,9 @@ export const TransformObjectId: () => PropertyDecorator =
 
         case TransformationType.CLASS_TO_CLASS:
           return obj[propertyKey];
+
+        default:
+          return undefined;
       }
     })(target, propertyKey);
   };

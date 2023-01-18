@@ -75,7 +75,7 @@ describe('Auth Controller', () => {
     it('should be rejected if the token is invalid', async () => {
       jest
         .spyOn(authService, 'refreshTokens')
-        .mockRejectedValue('invalid token' as never);
+        .mockRejectedValue(new Error('invalid token') as never);
       await expect(
         controller.refreshToken('OLD_REFRESH_TOKEN'),
       ).rejects.toThrow(BadRequestException);

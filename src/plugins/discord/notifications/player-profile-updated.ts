@@ -10,12 +10,12 @@ interface PlayerProfileUpdatedOptions {
   player: {
     name: string;
     profileUrl: string;
-    avatarUrl: string;
+    avatarUrl?: string;
   };
   admin: {
     name: string;
     profileUrl: string;
-    avatarUrl: string;
+    avatarUrl?: string;
   };
   client: {
     name: string;
@@ -26,9 +26,11 @@ interface PlayerProfileUpdatedOptions {
 
 const generateChangesText = (changes: Record<string, Change>) => {
   const changesText = [];
-  for (const name in changes) {
+  for (const name of Object.keys(changes)) {
     changesText.push(
-      `${name}: **${changes[name].old} => ${changes[name].new}**`,
+      `${name}: **${changes[name]?.old ?? '__not set__'} => ${
+        changes[name].new
+      }**`,
     );
   }
 
@@ -44,7 +46,7 @@ export const playerProfileUpdated = (options: PlayerProfileUpdatedOptions) =>
       url: options.admin.profileUrl,
     })
     .setTitle('Player profile updated')
-    .setThumbnail(options.player.avatarUrl)
+    .setThumbnail(options.player.avatarUrl || '')
     .setDescription(
       `Player: **[${options.player.name}](${
         options.player.profileUrl

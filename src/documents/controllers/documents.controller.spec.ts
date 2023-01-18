@@ -24,8 +24,9 @@ describe('Documents Controller', () => {
 
   describe('#getDocument', () => {
     beforeEach(() => {
-      documentsService.getDocument.mockImplementation((name, language) =>
-        Promise.resolve({ name, language, body: 'testing' }),
+      documentsService.getDocument.mockImplementation(
+        (name: string, language = 'en') =>
+          Promise.resolve({ name, language, body: 'testing' }),
       );
     });
 

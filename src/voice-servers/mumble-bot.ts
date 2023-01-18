@@ -2,8 +2,10 @@ import { Certificate } from '@/certificates/models/certificate';
 import { Game } from '@/games/models/game';
 import { Tf2Team } from '@/games/models/tf2-team';
 import { Logger } from '@nestjs/common';
-import { Client } from '@tf2pickup-org/mumble-client';
+import { Channel, Client, User } from '@tf2pickup-org/mumble-client';
 import { toUpper } from 'lodash';
+import { MumbleChannelDoesNotExistError } from './errors/mumble-channel-does-not-exist.error';
+import { MumbleClientNotConnectedError } from './errors/mumble-client-not-connected.error';
 
 interface MumbleBotOptions {
   host: string;
@@ -14,6 +16,27 @@ interface MumbleBotOptions {
   clientName?: string;
   certificate: Certificate;
   targetChannelName: string;
+}
+
+function assertChannelExists(
+  channel: Channel | undefined,
+  channelName: string,
+): asserts channel is Channel {
+  if (!channel) {
+    throw new MumbleChannelDoesNotExistError(channelName);
+  }
+}
+
+function assertClientIsConnected(
+  client: Client,
+): asserts client is Client & { user: User } {
+  if (!client.user) {
+    throw new MumbleClientNotConnectedError({
+      host: client.options.host,
+      port: client.options.port,
+      username: client.options.username,
+    });
+  }
 }
 
 // subchannels for each game
@@ -38,9 +61,10 @@ export class MumbleBot {
 
   async connect() {
     await this.client.connect();
+    assertClientIsConnected(this.client);
     this.logger.log(`logged in as ${this.client.user.name}`);
     this.logger.debug(this.client.welcomeText);
-    await this.client.user.setSelfDeaf(true);
+    await this.client.user?.setSelfDeaf(true);
     await this.moveToTargetChannel();
 
     const permissions = await this.client.user.channel.getPermissions();
@@ -56,6 +80,7 @@ export class MumbleBot {
   }
 
   async setupChannels(game: Game) {
+    assertClientIsConnected(this.client);
     await this.moveToTargetChannel();
     const channelName = `${game.number}`;
     const channel = await this.client.user.channel.createSubChannel(
@@ -71,6 +96,7 @@ export class MumbleBot {
   }
 
   async linkChannels(game: Game) {
+    assertClientIsConnected(this.client);
     const channelName = `${game.number}`;
     const gameChannel = this.client.user.channel.subChannels.find(
       (channel) => channel.name === channelName,
@@ -81,10 +107,10 @@ export class MumbleBot {
 
     const [red, blu] = [
       gameChannel.subChannels.find(
-        (channel) => channel.name.toUpperCase() === 'RED',
+        (channel) => channel.name?.toUpperCase() === 'RED',
       ),
       gameChannel.subChannels.find(
-        (channel) => channel.name.toUpperCase() === 'BLU',
+        (channel) => channel.name?.toUpperCase() === 'BLU',
       ),
     ];
     if (red && blu) {
@@ -96,6 +122,7 @@ export class MumbleBot {
   }
 
   async removeObsoleteChannels(runningGames: Game[]) {
+    assertClientIsConnected(this.client);
     await this.moveToTargetChannel();
 
     /**
@@ -105,6 +132,10 @@ export class MumbleBot {
     await Promise.all(
       this.client.user.channel.subChannels.map(async (channel) => {
         try {
+          if (!channel.name) {
+            return;
+          }
+
           const gameNumber = parseInt(channel.name, 10);
           if (isNaN(gameNumber)) {
             return;
@@ -134,6 +165,7 @@ export class MumbleBot {
 
   private async moveToTargetChannel() {
     const channel = this.client.channels.byName(this.options.targetChannelName);
-    await this.client.user.moveToChannel(channel.id);
+    assertChannelExists(channel, this.options.targetChannelName);
+    await this.client.user?.moveToChannel(channel.id);
   }
 }

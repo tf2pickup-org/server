@@ -5,8 +5,9 @@ import {
   OnApplicationBootstrap,
 } from '@nestjs/common';
 import { MigrationStore } from '../migration.store';
-import { load } from 'migrate';
+import { FileStore, load } from 'migrate';
 import { resolve as pathResolve } from 'path';
+// skipcq: JS-C1003
 import * as appRoot from 'app-root-path';
 
 @Injectable()
@@ -14,7 +15,7 @@ export class MigrationsService implements OnApplicationBootstrap {
   private logger = new Logger(MigrationsService.name);
 
   constructor(
-    @Inject('MIGRATION_STORE') private migrationStore: MigrationStore,
+    @Inject('MIGRATION_STORE') private readonly migrationStore: MigrationStore,
   ) {}
 
   async onApplicationBootstrap() {
@@ -23,11 +24,11 @@ export class MigrationsService implements OnApplicationBootstrap {
     this.logger.log('migrations run successfully');
   }
 
-  private async runMigrations() {
+  private runMigrations() {
     return new Promise<void>((resolve, reject) => {
       load(
         {
-          stateStore: this.migrationStore,
+          stateStore: this.migrationStore as FileStore,
           migrationsDirectory: pathResolve(appRoot.toString(), 'migrations'),
         },
         (error, set) => {
@@ -35,11 +36,11 @@ export class MigrationsService implements OnApplicationBootstrap {
             return reject(error);
           }
 
-          set.up((error) => {
+          return set.up((error) => {
             if (error) {
               return reject(error);
             }
-            resolve();
+            return resolve();
           });
         },
       );

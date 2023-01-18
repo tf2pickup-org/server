@@ -88,10 +88,9 @@ export class GamesController {
         gameId: game.id,
         connectInfoVersion: game.connectInfoVersion,
         connectString: game.connectString,
-        voiceChannelUrl: await this.gamesService.getVoiceChannelUrl(
-          game.id,
-          player.id,
-        ),
+        voiceChannelUrl:
+          (await this.gamesService.getVoiceChannelUrl(game.id, player.id)) ??
+          undefined,
       };
     } catch (error) {
       if (error instanceof PlayerNotInThisGameError) {
@@ -120,9 +119,10 @@ export class GamesController {
     @Param('id', GameByIdOrNumberPipe) game: Game,
     @Query('reinitialize_server') reinitializeServer: any,
     @Query('force_end') forceEnd: any,
-    @Query('substitute_player') substitutePlayerId: string,
-    @Query('substitute_player_cancel') cancelSubstitutePlayerId: string,
-    @Query('assign_gameserver') assignGameserver,
+    @Query('substitute_player') substitutePlayerId: string | undefined,
+    @Query('substitute_player_cancel')
+    cancelSubstitutePlayerId: string | undefined,
+    @Query('assign_gameserver') assignGameserver: string | undefined,
     @User() admin: Player,
     @Body() body: unknown,
   ) {

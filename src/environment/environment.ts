@@ -3,7 +3,9 @@ import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class Environment {
-  constructor(private configService: ConfigService) {}
+  constructor(
+    private configService: ConfigService<Record<string, unknown>, true>,
+  ) {}
 
   get websiteName() {
     return this.configService.get<string>('WEBSITE_NAME');

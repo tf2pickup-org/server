@@ -85,16 +85,16 @@ export class OnlinePlayersService implements OnModuleInit, OnModuleDestroy {
     this.timers.forEach((t) => clearTimeout(t));
   }
 
-  getSocketsForPlayer(playerId: string) {
+  getSocketsForPlayer(playerId: string): SocketList {
     if (!this.sockets.has(playerId)) {
       this.sockets.set(playerId, []);
     }
-    return this.sockets.get(playerId);
+    return this.sockets.get(playerId)!;
   }
 
   private verifyPlayer(playerId: string) {
     const sockets = this.sockets.get(playerId);
-    if (sockets.length === 0) {
+    if (sockets?.length === 0) {
       this.events.playerDisconnects.next({ playerId });
     }
   }

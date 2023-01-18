@@ -19,11 +19,11 @@ export class Game extends Serializable<GameDto> {
 
   @Exclude({ toPlainOnly: true })
   @TransformObjectId()
-  _id?: Types.ObjectId;
+  _id!: Types.ObjectId;
 
   @Expose()
   @Transform(({ value, obj }) => value ?? obj._id.toString())
-  id: string;
+  id!: string;
 
   @Prop({
     type: [gameEventSchema],
@@ -36,10 +36,18 @@ export class Game extends Serializable<GameDto> {
     ],
     _id: false,
   })
-  events: GameEvent[];
+  events!: GameEvent[];
 
   get launchedAt() {
-    return this.events.find((e) => e.event === GameEventType.Created).at;
+    const firstEvent = this.events.find(
+      (e) => e.event === GameEventType.Created,
+    );
+
+    if (!firstEvent) {
+      throw Error(`game #${this.number} has no creation event`);
+    }
+
+    return firstEvent.at;
   }
 
   get endedAt(): Date | undefined {
@@ -74,14 +82,14 @@ export class Game extends Serializable<GameDto> {
   map!: string;
 
   @Prop({ index: true, enum: GameState, default: GameState.launching })
-  state?: GameState;
+  state!: GameState;
 
   @Exclude({ toPlainOnly: true })
   @Prop()
   connectString?: string;
 
   @Prop({ default: 0 })
-  connectInfoVersion: number;
+  connectInfoVersion!: number;
 
   @Prop()
   stvConnectString?: string;
@@ -144,7 +152,7 @@ export class Game extends Serializable<GameDto> {
     };
   }
 
-  findPlayerSlot(playerId: string): GameSlot {
+  findPlayerSlot(playerId: string): GameSlot | undefined {
     return this.slots.find((s) => s.player.toString() === playerId);
   }
 

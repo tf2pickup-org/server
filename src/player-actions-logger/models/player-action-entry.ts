@@ -19,7 +19,7 @@ export class PlayerActionEntry extends Serializable<PlayerActionDto> {
 
   @TransformObjectId()
   @Prop({ required: true, type: Types.ObjectId, ref: 'Player', index: true })
-  player: Types.ObjectId;
+  player!: Types.ObjectId;
 
   @Prop()
   ipAddress?: string;
@@ -28,10 +28,10 @@ export class PlayerActionEntry extends Serializable<PlayerActionDto> {
   userAgent?: string;
 
   @Prop({ required: true })
-  action: string;
+  action!: string;
 
   @Prop({ default: () => new Date() })
-  timestamp: Date;
+  timestamp!: Date;
 
   async serialize(): Promise<PlayerActionDto> {
     const playersService = app.get(PlayersService);

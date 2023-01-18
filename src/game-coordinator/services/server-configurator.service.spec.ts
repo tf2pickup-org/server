@@ -43,6 +43,8 @@ import { GamesService } from '@/games/services/games.service';
 import { GameServerControls } from '@/game-servers/interfaces/game-server-controls';
 import { GameServerNotAssignedError } from '../errors/game-server-not-assigned.error';
 import { GameEventType } from '@/games/models/game-event';
+import { PlayerConnectionStatus } from '@/games/models/player-connection-status';
+import { CannotConfigureGameError } from '../errors/cannot-configure-game.error';
 
 jest.mock('@/queue/services/map-pool.service');
 jest.mock('@/players/services/players.service');
@@ -258,12 +260,14 @@ describe('ServerConfiguratorService', () => {
             team: Tf2Team.blu,
             gameClass: Tf2ClassName.soldier,
             status: SlotStatus.active,
+            connectionStatus: PlayerConnectionStatus.offline,
           },
           {
             player: mockPlayer2._id,
             team: Tf2Team.red,
             gameClass: Tf2ClassName.soldier,
             status: SlotStatus.replaced,
+            connectionStatus: PlayerConnectionStatus.offline,
           },
         ];
         await mockGame.save();
@@ -313,11 +317,13 @@ describe('ServerConfiguratorService', () => {
 
     describe('when an RCON command failed', () => {
       beforeEach(() => {
-        rcon.send.mockRejectedValue('some random RCON error');
+        rcon.send.mockRejectedValue(new Error('some random RCON error'));
       });
 
       it('should close the rcon connection even though an RCON command failed', async () => {
-        await expect(service.configureServer(mockGame.id)).rejects.toThrow();
+        await expect(service.configureServer(mockGame.id)).rejects.toThrow(
+          CannotConfigureGameError,
+        );
         expect(rcon.end).toHaveBeenCalled();
       });
     });
@@ -352,7 +358,7 @@ describe('ServerConfiguratorService', () => {
       const game = await gamesService.getById(mockGame.id);
       expect(game.connectString).toEqual(connectString);
       expect(game.stvConnectString).toEqual(stvConnectString);
-      expect(game.events.at(game.events.length - 1).event).toBe(
+      expect(game.events.at(game.events.length - 1)?.event).toBe(
         GameEventType.GameServerInitialized,
       );
     });

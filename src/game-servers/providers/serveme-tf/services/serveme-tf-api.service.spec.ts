@@ -39,7 +39,9 @@ describe('ServemeTfApiService', () => {
     httpService = module.get(HttpService);
     servemeTfConfigurationService = module.get(ServemeTfConfigurationService);
 
-    servemeTfConfigurationService.getPreferredRegion.mockResolvedValue(null);
+    servemeTfConfigurationService.getPreferredRegion.mockResolvedValue(
+      undefined,
+    );
   });
 
   it('should be defined', () => {

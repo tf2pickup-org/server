@@ -47,7 +47,7 @@ class GamesServiceStub {
     return Promise.resolve(1);
   }
   getVoiceChannelUrl(gameId: string, playerId: string) {
-    return Promise.resolve(null);
+    return Promise.resolve('');
   }
   forceEnd = jest.fn().mockResolvedValue(undefined);
 }
@@ -118,8 +118,8 @@ describe('Games Controller', () => {
   });
 
   describe('#getGame()', () => {
-    it('should return the given game', async () => {
-      const ret = await controller.getGame(gamesService.games[0]);
+    it('should return the given game', () => {
+      const ret = controller.getGame(gamesService.games[0]);
       expect(ret).toEqual(gamesService.games[0]);
     });
   });
@@ -192,7 +192,7 @@ describe('Games Controller', () => {
 
   describe('#takeAdminAction()', () => {
     it('should emit the gameReconfigureRequested event', async () => {
-      let emittedGameId: string, emittedAdminId: string;
+      let emittedGameId: string | undefined, emittedAdminId: string | undefined;
       events.gameReconfigureRequested.subscribe(({ gameId, adminId }) => {
         emittedGameId = gameId;
         emittedAdminId = adminId;

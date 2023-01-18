@@ -138,12 +138,14 @@ describe('Launch game (e2e)', () => {
       .then((response) => {
         const body = response.body;
         expect(body.state).toEqual('ready');
-        expect(body.slots.every((slot) => slot.player !== null)).toBe(true);
+        expect(body.slots.every((slot: any) => slot.player !== null)).toBe(
+          true,
+        );
         expect(
           clients
             .map((p) => p.playerId)
             .every((playerId) =>
-              body.slots.find((s) => s.player.id === playerId),
+              body.slots.find((s: any) => s.player.id === playerId),
             ),
         ).toBe(true);
       });
@@ -163,7 +165,9 @@ describe('Launch game (e2e)', () => {
       .then((response) => {
         const body = response.body;
         expect(body.state).toEqual('waiting');
-        expect(body.slots.every((slot) => isUndefined(slot.player))).toBe(true);
+        expect(body.slots.every((slot: any) => isUndefined(slot.player))).toBe(
+          true,
+        );
       });
 
     // the new game should be announced to all clients
@@ -181,7 +185,7 @@ describe('Launch game (e2e)', () => {
           clients
             .map((p) => p.playerId)
             .every((playerId) =>
-              body.slots.find((s) => s.player.id === playerId),
+              body.slots.find((s: any) => s.player.id === playerId),
             ),
         ).toBe(true);
       });

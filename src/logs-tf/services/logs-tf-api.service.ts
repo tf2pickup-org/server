@@ -23,7 +23,7 @@ interface UploadLogsParams {
 export class LogsTfApiService {
   constructor(private readonly environment: Environment) {}
 
-  public async uploadLogs(params: UploadLogsParams): Promise<string> {
+  public uploadLogs(params: UploadLogsParams): Promise<string> {
     const data = new FormData();
     const title =
       params.title ?? `${this.environment.websiteName} #${params.gameNumber}`;
@@ -52,7 +52,7 @@ export class LogsTfApiService {
         response.on('end', () => {
           const d = JSON.parse(reply) as UploadLogsResponse;
           if (!d.success) {
-            reject(new LogsTfUploadError(d.error));
+            reject(new LogsTfUploadError(d.error ?? 'unknown error'));
           } else {
             resolve(`https://logs.tf${d.url}`);
           }

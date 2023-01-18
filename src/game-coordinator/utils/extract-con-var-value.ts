@@ -4,7 +4,7 @@
  * - Host SourceTV port`
  * @param rconResponse The plain rcon response
  */
-export function extractConVarValue(rconResponse: string): string {
+export function extractConVarValue(rconResponse: string): string | undefined {
   return (
     rconResponse
       ?.split(/\r?\n/)[0]

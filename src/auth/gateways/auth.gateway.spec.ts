@@ -30,7 +30,7 @@ describe('AuthGateway', () => {
 
     it('should register middleware', () => {
       gateway.onModuleInit();
-      expect(gateway.server.use).toHaveBeenCalled();
+      expect(gateway.server?.use).toHaveBeenCalled();
     });
   });
 });

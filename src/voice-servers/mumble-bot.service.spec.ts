@@ -114,13 +114,14 @@ describe('MumbleBotService', () => {
         port: 64738,
         username: 'FAKE_BOT_NAME',
         clientName: expect.any(String),
+        password: undefined,
         certificate: {
           id: 'FAKE_ID',
           purpose: 'mumble',
           clientKey: 'FAKE_CLIENT_KEY',
           certificate: 'FAKE_CERTIFICATE',
         },
-        targetChannelName: undefined,
+        targetChannelName: 'tf2pickup',
       });
       expect(mockMumbleBot.connect).toHaveBeenCalledTimes(1);
     });

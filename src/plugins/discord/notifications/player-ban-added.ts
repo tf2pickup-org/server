@@ -6,18 +6,18 @@ interface PlayerBanAddedOptions {
   admin: {
     name: string;
     profileUrl: string;
-    avatarUrl: string;
+    avatarUrl?: string;
   };
   player: {
     name: string;
     profileUrl: string;
-    avatarUrl: string;
+    avatarUrl?: string;
   };
   client: {
     name: string;
     iconUrl: string;
   };
-  reason: string;
+  reason?: string;
   ends: Date;
 }
 
@@ -30,11 +30,11 @@ export const playerBanAdded = (options: PlayerBanAddedOptions) =>
       url: options.admin.profileUrl,
     })
     .setTitle('Player ban added')
-    .setThumbnail(options.player.avatarUrl)
+    .setThumbnail(options.player.avatarUrl ?? '')
     .setDescription(
       [
         `Player: **[${options.player.name}](${options.player.profileUrl})**`,
-        `Reason: **${options.reason}**`,
+        `Reason: ${options.reason ? `**${options.reason}**` : '__no reason__'}`,
         `Ends: **${moment(options.ends).fromNow()}**`,
       ].join('\n'),
     )

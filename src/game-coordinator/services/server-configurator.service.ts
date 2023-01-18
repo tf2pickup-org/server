@@ -30,6 +30,7 @@ import { Events } from '@/events/events';
 import { filter, map } from 'rxjs';
 import { CannotConfigureGameError } from '../errors/cannot-configure-game.error';
 import { GameEventType } from '@/games/models/game-event';
+import { assertIsError } from '@/utils/assert-is-error';
 
 @Injectable()
 export class ServerConfiguratorService implements OnModuleInit {
@@ -80,7 +81,7 @@ export class ServerConfiguratorService implements OnModuleInit {
 
     this.logger.verbose(`configuring server ${game.gameServer.name}...`);
 
-    let rcon: Rcon;
+    let rcon: Rcon | undefined;
     try {
       rcon = await controls.rcon();
 
@@ -97,6 +98,10 @@ export class ServerConfiguratorService implements OnModuleInit {
 
       const logSecret = await controls.getLogsecret();
       game = await this.gamesService.update(game.id, { logSecret });
+      if (!game.gameServer) {
+        throw new GameServerNotAssignedError(game.id);
+      }
+
       this.logger.debug(
         `[${game.gameServer.name}] logsecret is ${game.logSecret}`,
       );
@@ -122,7 +127,7 @@ export class ServerConfiguratorService implements OnModuleInit {
         await rcon.connect();
       }
 
-      await Promise.all(configLines.map(async (line) => await rcon.send(line)));
+      await Promise.all(configLines.map((line) => (rcon as Rcon).send(line)));
 
       const maps = await this.mapPoolService.getMaps();
       const config = maps.find((m) => m.name === game.map)?.execConfig;
@@ -182,7 +187,7 @@ export class ServerConfiguratorService implements OnModuleInit {
 
       const stvConnectString = makeConnectString({
         address: game.gameServer.address,
-        port: extractConVarValue(await rcon.send(tvPort())),
+        port: extractConVarValue(await rcon.send(tvPort())) ?? 27020,
         password: extractConVarValue(await rcon.send(tvPassword())),
       });
       this.logger.verbose(`[${game.gameServer.name} stv] ${stvConnectString}`);
@@ -209,7 +214,8 @@ export class ServerConfiguratorService implements OnModuleInit {
         stvConnectString,
       };
     } catch (error) {
-      throw new CannotConfigureGameError(game.gameServer, error.message);
+      assertIsError(error);
+      throw new CannotConfigureGameError(game, error.message);
     } finally {
       await rcon?.end();
     }

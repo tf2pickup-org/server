@@ -105,11 +105,18 @@ export class GameServerDiagnosticsService {
 
           run = instanceToInstance(run);
           let check = run.getCheckByName(runner.name);
+          if (!check) {
+            break;
+          }
+
           check.status = DiagnosticCheckStatus.running;
           subscriber.next(run);
 
           run = instanceToInstance(run);
           check = run.getCheckByName(runner.name);
+          if (!check) {
+            break;
+          }
 
           const result = await runner.run({ gameServer, effects });
           check.reportedErrors = result.reportedErrors;

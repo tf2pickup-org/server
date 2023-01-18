@@ -93,7 +93,7 @@ function makeAllPossibleLineups(
       possibleLineups.push(prev);
     } else {
       const gameClass = gameClasses[i];
-      const gcLineups = gameClassLineups.get(gameClass);
+      const gcLineups = gameClassLineups.get(gameClass) ?? [];
       for (const lineup of gcLineups) {
         const tmp: PossibleLineup = {
           0: { lineup: [...prev[0].lineup, ...lineup[0].lineup] },
@@ -184,7 +184,7 @@ export function pickTeams(
 
   const selectedLineup = allPossibleLineups[0];
 
-  return [0, 1].flatMap((teamId) =>
+  return ([0, 1] as TeamId[]).flatMap((teamId) =>
     (selectedLineup[teamId] as TeamLineup).lineup.map((slot) => ({
       ...slot,
       team: teams[teamId],

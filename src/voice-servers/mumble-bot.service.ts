@@ -65,7 +65,10 @@ export class MumbleBotService implements OnModuleInit, OnModuleDestroy {
     this.bot?.disconnect();
 
     const voiceServerConfig = await this.configurationService.getVoiceServer();
-    if (voiceServerConfig.type === SelectedVoiceServer.mumble) {
+    if (
+      voiceServerConfig.type === SelectedVoiceServer.mumble &&
+      voiceServerConfig.mumble
+    ) {
       try {
         const certificate = await this.certificatesService.getCertificate(
           'mumble',
@@ -78,7 +81,8 @@ export class MumbleBotService implements OnModuleInit, OnModuleDestroy {
           password: voiceServerConfig.mumble.password,
           clientName: `tf2pickup.org ${version}`,
           certificate,
-          targetChannelName: voiceServerConfig.mumble.channelName,
+          targetChannelName:
+            voiceServerConfig.mumble.channelName ?? 'tf2pickup',
         });
         await this.bot.connect();
       } catch (error) {
@@ -104,10 +108,12 @@ export class MumbleBotService implements OnModuleInit, OnModuleDestroy {
   async linkChannels(game: Game) {
     try {
       await this.bot?.linkChannels(game);
-      await this.gameRuntimeService.sayChat(
-        game.gameServer,
-        'Mumble channels linked',
-      );
+      if (game.gameServer) {
+        await this.gameRuntimeService.sayChat(
+          game.gameServer,
+          'Mumble channels linked',
+        );
+      }
     } catch (error) {
       this.logger.error(
         `cannot link channels for game #${game.number}: ${error}`,

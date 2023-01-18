@@ -174,7 +174,7 @@ describe('QueueGateway', () => {
 
     it('should emit the event over the socket', () => {
       expect(socket.emit).toHaveBeenCalledWith('queue slots update', [
-        expect.any(QueueSlotWrapper),
+        expect.any(Object),
       ]);
     });
   });

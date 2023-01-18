@@ -5,7 +5,7 @@ import { Serializable } from './serializable';
 import { serialize } from './serialize';
 
 export class WebsocketEventEmitter<T> implements OnGatewayInit<Socket> {
-  protected server: Socket;
+  protected server!: Socket;
 
   afterInit(socket: Socket) {
     this.server = socket;

@@ -5,18 +5,18 @@ interface PlayerBanRevokedOptions {
   admin: {
     name: string;
     profileUrl: string;
-    avatarUrl: string;
+    avatarUrl?: string;
   };
   player: {
     name: string;
     profileUrl: string;
-    avatarUrl: string;
+    avatarUrl?: string;
   };
   client: {
     name: string;
     iconUrl: string;
   };
-  reason: string;
+  reason?: string;
 }
 
 export const playerBanRevoked = (options: PlayerBanRevokedOptions) =>
@@ -28,11 +28,11 @@ export const playerBanRevoked = (options: PlayerBanRevokedOptions) =>
       url: options.admin.profileUrl,
     })
     .setTitle('Player ban revoked')
-    .setThumbnail(options.player.avatarUrl)
+    .setThumbnail(options.player.avatarUrl ?? '')
     .setDescription(
       [
         `Player: **[${options.player.name}](${options.player.profileUrl})**`,
-        `Reason: **${options.reason}**`,
+        `Reason: ${options.reason ? `**${options.reason}**` : '__no reason__'}`,
       ].join('\n'),
     )
     .setFooter({

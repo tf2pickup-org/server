@@ -20,7 +20,8 @@
       "@mocks/*": [ "__mocks__/*" ],
       "@configs/*": [ "configs/*" ]
     },
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "strict": true
   },
   "exclude": [
     "node_modules",

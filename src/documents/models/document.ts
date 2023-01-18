@@ -10,12 +10,12 @@ export class Document {
   @IsString()
   @Expose()
   @Prop({ required: true })
-  name: string;
+  name!: string;
 
   @IsLocale()
   @Expose()
   @Prop({ required: true })
-  language: string;
+  language!: string;
 
   @IsOptional()
   @IsString()

@@ -7,6 +7,6 @@ export interface DiagnosticCheckRunner {
 
   run(params: {
     gameServer: StaticGameServer;
-    effects: Map<string, any>;
+    effects: Map<string, unknown>;
   }): Promise<DiagnosticCheckResult>;
 }

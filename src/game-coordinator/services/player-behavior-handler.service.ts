@@ -29,7 +29,7 @@ export class PlayerBehaviorHandlerService {
         .filter((game) => game.state === GameState.launching)
         .filter((game) => Boolean(game.lastConfiguredAt))
         .filter(
-          (game) => game.lastConfiguredAt.getTime() + timeout < Date.now(),
+          (game) => game.lastConfiguredAt!.getTime() + timeout < Date.now(),
         )
         .map(async (game) => {
           return await Promise.all(

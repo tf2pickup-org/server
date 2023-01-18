@@ -196,12 +196,11 @@ export class GameEventHandlerService implements OnModuleInit, OnModuleDestroy {
     gameId: string,
     steamId: string,
     connectionStatus: PlayerConnectionStatus,
-  ) {
+  ): Promise<Game> {
     return await this.mutex.runExclusive(async () => {
       const player = await this.playersService.findBySteamId(steamId);
       if (!player) {
-        this.logger.warn(`no such player: ${steamId}`);
-        return;
+        throw new Error(`no such player: ${steamId}`);
       }
 
       const oldGame = await this.gamesService.getById(gameId);
@@ -231,7 +230,7 @@ export class GameEventHandlerService implements OnModuleInit, OnModuleDestroy {
   }
 
   private async freeAllMedics(gameId: string) {
-    const game = await this.gameModel.findById(gameId);
+    const game = await this.gameModel.findById(gameId).orFail();
 
     await Promise.all(
       game.slots
@@ -246,7 +245,7 @@ export class GameEventHandlerService implements OnModuleInit, OnModuleDestroy {
   }
 
   private async freeAllPlayers(gameId: string) {
-    const game = await this.gameModel.findById(gameId);
+    const game = await this.gameModel.findById(gameId).orFail();
 
     await Promise.all(
       game.slots

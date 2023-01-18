@@ -36,7 +36,7 @@ export class DocumentsService implements OnModuleInit {
   async saveDocument(
     name: string,
     language: string,
-    body: string,
+    body?: string,
   ): Promise<Document> {
     const pojo = await this.documentModel
       .findOneAndUpdate(

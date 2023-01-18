@@ -12,7 +12,7 @@ import { players } from './test-data';
 describe('Websocket (e2e)', () => {
   let app: INestApplication;
   let player: Player;
-  let socket: Socket;
+  let socket: Socket | undefined;
 
   beforeAll(async () => {
     const moduleFixture = await Test.createTestingModule({
@@ -34,17 +34,17 @@ describe('Websocket (e2e)', () => {
   });
 
   afterEach(() => {
-    socket.disconnect();
+    socket?.disconnect();
     socket = undefined;
   });
 
   describe('when the user is not authorized', () => {
-    it('should be able to connect without the auth token', async () =>
+    it('should be able to connect without the auth token', () =>
       new Promise<void>((resolve, reject) => {
         socket = io(`http://localhost:${app.getHttpServer().address().port}`);
         socket.on('connect_error', (error) => reject(error));
         socket.on('connect', () => {
-          expect(socket.connected).toBe(true);
+          expect(socket?.connected).toBe(true);
           resolve();
         });
       }));
@@ -61,21 +61,21 @@ describe('Websocket (e2e)', () => {
       );
     });
 
-    it('should be able to connect with the given auth token', async () =>
+    it('should be able to connect with the given auth token', () =>
       new Promise<void>((resolve, reject) => {
         socket = io(`http://localhost:${app.getHttpServer().address().port}`, {
           auth: { token: `Bearer ${token}` },
         });
         socket.on('connect_error', (error) => reject(error));
         socket.on('connect', () => {
-          expect(socket.connected).toBe(true);
+          expect(socket?.connected).toBe(true);
           resolve();
         });
       }));
 
     describe('and when he is connected', () => {
       beforeEach(
-        async () =>
+        () =>
           new Promise<void>((resolve, reject) => {
             socket = io(
               `http://localhost:${app.getHttpServer().address().port}`,
@@ -90,9 +90,9 @@ describe('Websocket (e2e)', () => {
           }),
       );
 
-      it('should receive profile update events', async () =>
+      it('should receive profile update events', () =>
         new Promise<void>((resolve) => {
-          socket.on('profile update', (changes) => {
+          socket?.on('profile update', (changes) => {
             expect(changes).toMatchObject({
               player: { name: 'maly updated', id: player.id },
             });
@@ -104,7 +104,7 @@ describe('Websocket (e2e)', () => {
         }));
     });
 
-    it('should not be able to connect with a malformed auth token', async () =>
+    it('should not be able to connect with a malformed auth token', () =>
       new Promise<void>((resolve, reject) => {
         socket = io(`http://localhost:${app.getHttpServer().address().port}`, {
           auth: { token: `Bearer SOME_FAKE_TOKEN` },
@@ -114,11 +114,11 @@ describe('Websocket (e2e)', () => {
           resolve();
         });
         socket.on('connect', () => {
-          reject('Connected despite malformed JWT');
+          reject(new Error('Connected despite malformed JWT'));
         });
       }));
 
-    it('should not be able to connect with a fake auth token', async () =>
+    it('should not be able to connect with a fake auth token', () =>
       new Promise<void>((resolve, reject) => {
         const fakeToken =
           'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYxMDY4ZTNlZWEwYjUyNWQxOGQ1MmFmYSIsImlhdCI6MTYyNzgxOTU4MiwiZXhwIjoxNjI3ODIwMTgyfQ.PqgQGMZjSJ5Wn2ce951ygln5j9Lf5zw2k57XKyL4hPs';
@@ -130,7 +130,7 @@ describe('Websocket (e2e)', () => {
           resolve();
         });
         socket.on('connect', () => {
-          reject('Connected despite malformed JWT');
+          reject(new Error('Connected despite malformed JWT'));
         });
       }));
   });

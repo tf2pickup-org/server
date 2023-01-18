@@ -4,7 +4,7 @@ import { Colors } from './colors';
 
 interface QueuePreviewGameClassData {
   gameClass: Tf2ClassName;
-  emoji: Emoji;
+  emoji?: Emoji;
   players: { name: string }[];
   playersRequired: number;
 }

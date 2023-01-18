@@ -215,7 +215,7 @@ describe('GameRuntimeService', () => {
           service.replacePlayer(
             new Types.ObjectId().toString(),
             'FAKE_REPLACEE_ID',
-            null,
+            'FAKE_REPLACEMENT_ID',
           ),
         ).rejects.toThrow(MongooseError.DocumentNotFoundError);
       });

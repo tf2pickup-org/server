@@ -61,7 +61,7 @@ export class ProfileController {
   @HttpCode(204)
   async acceptTerms(
     @User() user: Player,
-    @Query('accept_terms') acceptTerms: string,
+    @Query('accept_terms') acceptTerms?: string,
   ) {
     if (!isUndefined(acceptTerms)) {
       await this.playersService.acceptTerms(user.id);

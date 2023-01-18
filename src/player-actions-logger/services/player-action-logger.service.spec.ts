@@ -94,7 +94,7 @@ describe('PlayerActionLoggerService', () => {
     });
 
     it('should log', async () => {
-      const entry = await playerActionEntryModel.findOne();
+      const entry = await playerActionEntryModel.findOne().orFail();
       expect(entry.player).toEqual(player._id);
       expect(entry.ipAddress).toEqual('127.0.0.1');
       expect(entry.action).toEqual('connected to gameserver (game #1)');
@@ -119,7 +119,7 @@ describe('PlayerActionLoggerService', () => {
     });
 
     it('should log', async () => {
-      const entry = await playerActionEntryModel.findOne();
+      const entry = await playerActionEntryModel.findOne().orFail();
       expect(entry.player).toEqual(player._id);
       expect(entry.ipAddress).toEqual('127.0.0.1');
       expect(entry.action).toEqual('went online');
@@ -143,7 +143,7 @@ describe('PlayerActionLoggerService', () => {
     });
 
     it('should log', async () => {
-      const entry = await playerActionEntryModel.findOne();
+      const entry = await playerActionEntryModel.findOne().orFail();
       expect(entry.player).toEqual(player._id);
       expect(entry.action).toEqual('said "FAKE_MESSAGE"');
     });

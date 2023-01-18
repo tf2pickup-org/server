@@ -170,7 +170,7 @@ describe('GameServersService', () => {
 
     it('should assign the server', async () => {
       const newGame = await service.assignGameServer(game.id);
-      expect(newGame.gameServer.id).toEqual('FAKE_GAME_SERVER');
+      expect(newGame.gameServer?.id).toEqual('FAKE_GAME_SERVER');
       expect(
         testGameServerProvider.takeFirstFreeGameServer,
       ).toHaveBeenCalledWith({
@@ -205,7 +205,7 @@ describe('GameServersService', () => {
           id: 'FAKE_GAME_SERVER',
           provider: 'test',
         });
-        expect(newGame.gameServer.id).toEqual('FAKE_GAME_SERVER');
+        expect(newGame.gameServer?.id).toEqual('FAKE_GAME_SERVER');
         expect(testGameServerProvider.takeGameServer).toHaveBeenCalledWith({
           gameServerId: 'FAKE_GAME_SERVER',
           gameId: game.id,

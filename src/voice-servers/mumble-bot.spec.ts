@@ -1,6 +1,9 @@
 jest.mock('@tf2pickup-org/mumble-client');
 import { MumbleBot } from './mumble-bot';
-import { Client as MockClient } from '@mocks/@tf2pickup-org/mumble-client';
+import {
+  Client as MockClient,
+  MockUser,
+} from '@mocks/@tf2pickup-org/mumble-client';
 import { Game } from '@/games/models/game';
 import { GameState } from '@/games/models/game-state';
 
@@ -132,7 +135,7 @@ describe('MumbleBot', () => {
 
       describe('when there are users in one of the subchannels', () => {
         beforeEach(() => {
-          gameChannel.subChannels[0].users.push({});
+          gameChannel.subChannels[0].users.push(new MockUser());
         });
 
         it('should not remove the channel', async () => {

@@ -10,10 +10,10 @@ export enum GameEventType {
 @Schema()
 export class GameEvent {
   @Prop({ required: true, default: () => new Date() })
-  at: Date;
+  at!: Date;
 
   @Prop({ required: true })
-  event: GameEventType;
+  event!: GameEventType;
 }
 
 export const gameEventSchema = SchemaFactory.createForClass(GameEvent);

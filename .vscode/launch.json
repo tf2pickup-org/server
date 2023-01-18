@@ -28,6 +28,22 @@
       ],
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen"
+    },
+    {
+      "name": "Debug e2e test: launch game",
+      "type": "node",
+      "request": "launch",
+      "runtimeArgs": [
+        "--inspect-brk",
+        "${workspaceFolder}/node_modules/.bin/jest",
+        "--runInBand",
+        "--config",
+        "${workspaceRoot}/e2e.jest.config.ts",
+        "--forceExit",
+        "${workspaceRoot}/e2e/launch-game.e2e-spec.ts"
+      ],
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen"
     }
   ]
 }

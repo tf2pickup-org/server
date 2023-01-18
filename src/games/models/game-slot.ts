@@ -23,13 +23,13 @@ export class GameSlot {
   gameClass!: Tf2ClassName;
 
   @Prop({ index: true, enum: SlotStatus, default: SlotStatus.active })
-  status?: SlotStatus;
+  status!: SlotStatus;
 
   @Prop({
     enum: PlayerConnectionStatus,
     default: PlayerConnectionStatus.offline,
   })
-  connectionStatus?: PlayerConnectionStatus;
+  connectionStatus!: PlayerConnectionStatus;
 }
 
 export const gameSlotSchema = SchemaFactory.createForClass(GameSlot);

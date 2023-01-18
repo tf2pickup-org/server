@@ -39,7 +39,7 @@ export class AutoGameLauncherService {
         if (!sourceSlot || !targetSlot) {
           return false;
         }
-        return sourceSlot.canMakeFriendsWith.includes(targetSlot.gameClass);
+        return sourceSlot.canMakeFriendsWith?.includes(targetSlot.gameClass);
       })
       .map((f) => [f.sourcePlayerId, f.targetPlayerId]);
     await this.gamesService.create(

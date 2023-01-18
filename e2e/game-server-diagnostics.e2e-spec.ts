@@ -21,7 +21,7 @@ describe('Game server diagnostics (e2e)', () => {
   let staticGameServersService: StaticGameServersService;
   let gameServer: string;
 
-  const waitForDiagnosticRunToComplete = async (runId: string) =>
+  const waitForDiagnosticRunToComplete = (runId: string) =>
     new Promise<void>((resolve) => {
       const isDone = async () => {
         const run = await diagnosticsService.getDiagnosticRunById(runId);
@@ -39,7 +39,7 @@ describe('Game server diagnostics (e2e)', () => {
       }, 1000);
     });
 
-  const waitForGameServerToComeOnline = async () =>
+  const waitForGameServerToComeOnline = () =>
     new Promise<string>((resolve) => {
       const i = setInterval(async () => {
         const gameServers = await staticGameServersService.getAllGameServers();
@@ -104,7 +104,7 @@ describe('Game server diagnostics (e2e)', () => {
           expect(body.gameServer).toEqual(gameServer);
           expect(body.status).toEqual('completed');
           expect(
-            body.checks.every((check) => check.status === 'completed'),
+            body.checks.every((check: any) => check.status === 'completed'),
           ).toBe(true);
         });
     });

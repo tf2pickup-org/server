@@ -63,6 +63,7 @@ export class PlayersController {
     return await this.playersService.getAll();
   }
 
+  // skipcq: JS-0105
   @Get(':id')
   getPlayer(
     @Param('id', PlayerByIdPipe) player: Player,
@@ -109,6 +110,7 @@ export class PlayersController {
     );
   }
 
+  // skipcq: JS-0105
   @Get(':id/skill')
   @Auth(PlayerRole.admin)
   getPlayerSkill(@Param('id', PlayerByIdPipe) player: Player): {
@@ -133,7 +135,7 @@ export class PlayersController {
       },
       admin.id,
     );
-    return Object.fromEntries(newPlayer.skill);
+    return Object.fromEntries(newPlayer.skill ?? new Map());
   }
 
   @Get(':id/bans')
@@ -180,6 +182,8 @@ export class PlayersController {
     if (!isUndefined(revoke)) {
       return await this.playerBansService.revokeBan(banId, user.id);
     }
+
+    throw new BadRequestException('action must be specified');
   }
 
   @Get(':id/linked-profiles')
@@ -218,6 +222,8 @@ export class PlayersController {
     } catch (error) {
       if (error instanceof PlayerSkillRecordMalformedError) {
         throw new BadRequestException(error.toString());
+      } else {
+        throw error;
       }
     }
   }

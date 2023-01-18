@@ -14,16 +14,16 @@ export class StaticGameServer extends MongooseDocument {
   createdAt!: Date;
 
   @Prop({ required: true, trim: true })
-  name: string;
+  name!: string;
 
   /**
    * The gameserver's public IP address.
    */
   @Prop({ required: true, trim: true })
-  address: string;
+  address!: string;
 
   @Prop({ required: true })
-  port: string;
+  port!: string;
 
   @TransformObjectId()
   @Prop({ type: Types.ObjectId, ref: 'Game' })
@@ -33,7 +33,7 @@ export class StaticGameServer extends MongooseDocument {
    * The IP address of the gameserver's that the heartbeat came from.
    */
   @Prop()
-  internalIpAddress: string;
+  internalIpAddress!: string;
 
   @Prop({ required: true })
   rconPassword!: string;

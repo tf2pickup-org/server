@@ -20,6 +20,7 @@ import { sub } from 'date-fns';
 import { GameEventType } from '@/games/models/game-event';
 import { ConfigurationService } from '@/configuration/services/configuration.service';
 import { ConfigurationEntryKey } from '@/configuration/models/configuration-entry-key';
+import { GameSlot } from '@/games/models/game-slot';
 
 jest.mock('@/games/services/games.service');
 jest.mock('@/players/services/players.service');
@@ -97,8 +98,10 @@ describe('PlayerBehaviorHandlerService', () => {
         player1 = await playersService._createOne();
         player2 = await playersService._createOne();
         game = await gamesService._createOne([player1, player2]);
-        game.slots.find((s) => s.player === player1._id).connectionStatus =
-          PlayerConnectionStatus.connected;
+        const slot = game.slots.find(
+          (s) => s.player === player1._id,
+        ) as GameSlot;
+        slot.connectionStatus = PlayerConnectionStatus.connected;
         game.events[0].at = sub(new Date(), { minutes: 3 });
         game.events.push({
           at: sub(new Date(), { minutes: 2 }),

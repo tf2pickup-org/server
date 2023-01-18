@@ -7,6 +7,7 @@ import {
   Logger,
 } from '@nestjs/common';
 import { HttpAdapterHost } from '@nestjs/core';
+// skipcq: JS-C1003
 import * as passport from 'passport';
 import { Environment } from '@/environment/environment';
 import { AuthService } from '../services/auth.service';
@@ -19,6 +20,7 @@ import { Tf2InGameHoursVerificationError } from '@/players/errors/tf2-in-game-ho
 import { InsufficientTf2InGameHoursError } from '@/players/errors/insufficient-tf2-in-game-hours.error';
 import { NoEtf2lAccountError } from '@/players/errors/no-etf2l-account.error';
 import { AccountBannedError } from '@/players/errors/account-banned.error';
+import { assertIsError } from '@/utils/assert-is-error';
 
 @Controller('auth')
 export class AuthController {
@@ -66,7 +68,7 @@ export class AuthController {
   }
 
   @Post()
-  async refreshToken(@Query('refresh_token') oldRefreshToken: string) {
+  async refreshToken(@Query('refresh_token') oldRefreshToken?: string) {
     if (!oldRefreshToken) {
       throw new BadRequestException('no valid operation specified');
     }
@@ -74,6 +76,7 @@ export class AuthController {
     try {
       return await this.authService.refreshTokens(oldRefreshToken);
     } catch (error) {
+      assertIsError(error);
       throw new BadRequestException(error.message);
     }
   }
@@ -89,6 +92,7 @@ export class AuthController {
     return { wsToken };
   }
 
+  // skipcq: JS-0105
   private mapToClientError(error: unknown): string {
     if (error instanceof Tf2InGameHoursVerificationError) {
       return 'cannot verify in-game hours for TF2';

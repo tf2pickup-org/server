@@ -6,7 +6,7 @@ interface MakeConnectStringProps {
 
 export const makeConnectString = (props: MakeConnectStringProps) => {
   let connectString = `connect ${props.address}:${props.port}`;
-  if (props.password?.length > 0) {
+  if (props.password) {
     connectString += `; password ${props.password}`;
   }
 

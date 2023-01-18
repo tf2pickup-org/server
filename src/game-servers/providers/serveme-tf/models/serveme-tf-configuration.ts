@@ -16,8 +16,8 @@ export class ServemeTfConfiguration extends MongooseDocument {
 
   @IsOptional()
   @IsString()
-  @Prop({ default: null })
-  preferredRegion?: string | null;
+  @Prop()
+  preferredRegion?: string;
 }
 
 export type ServemeTfConfigurationDocument = ServemeTfConfiguration & Document;

@@ -21,7 +21,7 @@ export class FriendsService implements OnModuleInit {
     this.events.queueSlotsChange.subscribe(() => this.cleanupFriendships());
   }
 
-  markFriend(sourcePlayerId: string, targetPlayerId: string) {
+  markFriend(sourcePlayerId: string, targetPlayerId: string | null) {
     if (this.queueService.state === QueueState.launching) {
       throw new Error('cannot make friends at this stage');
     }

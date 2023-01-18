@@ -181,7 +181,7 @@ describe('Player substitutes himself (e2e)', () => {
       .expect(200)
       .then((response) => {
         const body = response.body;
-        const slot = body.slots.find((s) => s.player.id === player.id);
+        const slot = body.slots.find((s: any) => s.player.id === player.id);
         expect(slot.status).toEqual('waiting for substitute');
       });
 
@@ -203,7 +203,7 @@ describe('Player substitutes himself (e2e)', () => {
       .expect(200)
       .then((response) => {
         const body = response.body;
-        expect(body.slots.every((s) => s.status === 'active')).toBe(true);
+        expect(body.slots.every((s: any) => s.status === 'active')).toBe(true);
       });
 
     expect(substituteRequests.length).toEqual(0);

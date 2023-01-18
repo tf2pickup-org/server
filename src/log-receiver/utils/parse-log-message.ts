@@ -9,7 +9,7 @@ import { LogMessage } from '../types/log-message';
 const packetHeader = Buffer.from([255, 255, 255, 255]);
 const magicStringEndHeader = 'L ';
 
-const extractPassword = (message: Buffer): string => {
+const extractPassword = (message: Buffer): string | null => {
   const start = packetHeader.length + 1;
   const end = message.indexOf(magicStringEndHeader);
   if (end < 0) {
@@ -19,7 +19,7 @@ const extractPassword = (message: Buffer): string => {
   }
 };
 
-const extractPayload = (message: Buffer): string => {
+const extractPayload = (message: Buffer): string | null => {
   let start = message.indexOf(magicStringEndHeader);
   if (start < 0) {
     return null;

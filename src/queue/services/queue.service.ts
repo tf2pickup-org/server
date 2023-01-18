@@ -24,6 +24,11 @@ interface Queue {
   state: QueueState;
 }
 
+const clearSlot = (slot: QueueSlot) => {
+  slot.playerId = null;
+  slot.ready = false;
+};
+
 @Injectable()
 export class QueueService implements OnModuleInit, OnModuleDestroy {
   slots: QueueSlot[] = [];
@@ -70,7 +75,7 @@ export class QueueService implements OnModuleInit, OnModuleDestroy {
     this.events.queueSlotsChange.subscribe(() => this.cacheQueue());
     this.events.queueStateChange.subscribe(() => this.cacheQueue());
 
-    const queue: Queue = await this.cache.get('queue');
+    const queue: Queue | undefined = await this.cache.get('queue');
     if (queue) {
       this.slots = queue.slots;
       this.state = queue.state;
@@ -82,11 +87,11 @@ export class QueueService implements OnModuleInit, OnModuleDestroy {
     this.immediates.forEach((i) => clearImmediate(i));
   }
 
-  getSlotById(id: number): QueueSlot {
+  getSlotById(id: number): QueueSlot | undefined {
     return this.slots.find((s) => s.id === id);
   }
 
-  findSlotByPlayerId(playerId: string): QueueSlot {
+  findSlotByPlayerId(playerId: string): QueueSlot | undefined {
     return this.slots.find((s) => s.playerId === playerId);
   }
 
@@ -122,7 +127,7 @@ export class QueueService implements OnModuleInit, OnModuleDestroy {
 
     // remove player from any slot(s) he could be occupying
     const oldSlots = this.slots.filter((s) => s.playerId === playerId);
-    oldSlots.forEach((s) => this.clearSlot(s));
+    oldSlots.forEach((s) => clearSlot(s));
 
     targetSlot.playerId = playerId;
 
@@ -157,7 +162,7 @@ export class QueueService implements OnModuleInit, OnModuleDestroy {
       throw new CannotLeaveAtThisQueueStateError(this.state);
     }
 
-    this.clearSlot(slot);
+    clearSlot(slot);
     this.logger.debug(`slot ${slot.id} (gameClass=${slot.gameClass}) free`);
     this.events.playerLeavesQueue.next({ playerId, reason: 'manual' });
     this.events.queueSlotsChange.next({ slots: [slot] });
@@ -174,7 +179,7 @@ export class QueueService implements OnModuleInit, OnModuleDestroy {
     for (const playerId of playerIds) {
       const slot = this.findSlotByPlayerId(playerId);
       if (slot) {
-        this.clearSlot(slot);
+        clearSlot(slot);
         this.events.playerLeavesQueue.next({ playerId, reason: 'kicked' });
         this.logger.debug(
           `slot ${slot.id} (gameClass=${slot.gameClass}) free (player was kicked)`,
@@ -246,30 +251,21 @@ export class QueueService implements OnModuleInit, OnModuleDestroy {
   }
 
   private resetSlots() {
-    const defaultSlot: Partial<QueueSlot> = {
-      playerId: null,
-      ready: false,
-    };
-
     let lastId = 0;
-    this.slots = this.queueConfig.classes.reduce((prev, curr) => {
-      const tmpSlots = [];
+    this.slots = this.queueConfig.classes.reduce<QueueSlot[]>((prev, curr) => {
+      const tmpSlots: QueueSlot[] = [];
       for (let i = 0; i < curr.count * this.queueConfig.teamCount; ++i) {
         tmpSlots.push({
           id: lastId++,
           gameClass: curr.name,
           canMakeFriendsWith: curr.canMakeFriendsWith,
-          ...defaultSlot,
+          playerId: null,
+          ready: false,
         });
       }
 
       return prev.concat(tmpSlots);
     }, []);
-  }
-
-  private clearSlot(slot: QueueSlot) {
-    slot.playerId = null;
-    slot.ready = false;
   }
 
   private onReadyUpTimeout() {
@@ -289,8 +285,10 @@ export class QueueService implements OnModuleInit, OnModuleDestroy {
 
   private kickUnreadyPlayers() {
     this.logger.debug('kicking players that are not ready');
-    const slots = this.slots.filter((s) => !s.ready);
-    this.kick(...slots.map((s) => s.playerId));
+    const slots = this.slots
+      .filter((s) => !s.ready)
+      .filter((s) => Boolean(s.playerId));
+    this.kick(...slots.map((s) => s.playerId!));
   }
 
   private unreadyQueue() {

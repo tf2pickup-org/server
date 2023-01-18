@@ -25,7 +25,7 @@ export class PlayerActionsRepositoryService {
     return plainToInstance(
       PlayerActionEntry,
       await this.playerActionEntryModel
-        .find(query.filters)
+        .find(query.filters ?? {})
         .limit(query.limit)
         .sort({ timestamp: -1 })
         .lean()

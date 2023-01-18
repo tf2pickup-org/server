@@ -11,8 +11,9 @@ import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
 import { getConnectionToken, MongooseModule } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
+import { TextChannel } from 'discord.js';
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import { Connection } from 'mongoose';
+import { Connection, Types } from 'mongoose';
 import { Subject } from 'rxjs';
 import { AdminNotificationsService } from './admin-notifications.service';
 import { DiscordService } from './discord.service';
@@ -84,7 +85,7 @@ describe('AdminNotificationsService', () => {
     (staticGameServersService.gameServerUpdated as Subject<any>) =
       new Subject();
     sendSpy = jest
-      .spyOn(discordService.getAdminsChannel(), 'send')
+      .spyOn(discordService.getAdminsChannel() as TextChannel, 'send')
       .mockImplementation((message: any) => {
         sentMessages.next(message);
         return Promise.resolve(message);
@@ -186,6 +187,8 @@ describe('AdminNotificationsService', () => {
 
         events.playerBanAdded.next({
           ban: {
+            _id: new Types.ObjectId(),
+            id: 'FAKE_ID',
             player: player._id,
             admin: admin._id,
             start: new Date(),
@@ -218,6 +221,8 @@ describe('AdminNotificationsService', () => {
 
         events.playerBanRevoked.next({
           ban: {
+            _id: new Types.ObjectId(),
+            id: 'FAKE_ID',
             player: player._id,
             admin: admin._id,
             start: new Date(),

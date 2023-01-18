@@ -144,6 +144,8 @@ describe('PlayerBansService', () => {
         end.setHours(end.getHours() + 1);
 
         newBan = {
+          _id: new Types.ObjectId(),
+          id: 'FAKE_ID',
           player: player._id,
           admin: admin.id,
           start: new Date(),
@@ -179,7 +181,9 @@ describe('PlayerBansService', () => {
             },
           };
 
-          onlinePlayersService.getSocketsForPlayer = () => [socket];
+          onlinePlayersService.getSocketsForPlayer = jest
+            .fn()
+            .mockReturnValue([socket]);
           service.addPlayerBan(newBan);
         }));
     });
@@ -192,6 +196,8 @@ describe('PlayerBansService', () => {
         end.setHours(end.getHours() + 1);
 
         invalidBan = {
+          _id: new Types.ObjectId(),
+          id: 'FAKE_ID',
           player: new Types.ObjectId(),
           admin: admin.id,
           start: new Date(),

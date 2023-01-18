@@ -148,7 +148,7 @@ describe('TwitchService', () => {
   });
 
   describe('#fetchUserProfile()', () => {
-    let spy;
+    let spy: jest.SpyInstance;
 
     beforeEach(() => {
       spy = jest.spyOn(httpService, 'get').mockReturnValue(
@@ -223,10 +223,11 @@ describe('TwitchService', () => {
     it('should register twitch.tv profile', async () => {
       await service.saveUserProfile(player.id, 'FAKE_CODE');
 
-      const profile = await twitchTvProfileModel.findOne({
-        player: player._id,
-      });
-      expect(profile).toBeTruthy();
+      const profile = await twitchTvProfileModel
+        .findOne({
+          player: player._id,
+        })
+        .orFail();
       expect(profile.userId).toEqual('44322889');
       expect(profile.login).toEqual('dallas');
       expect(profile.displayName).toEqual('dallas');
@@ -235,13 +236,14 @@ describe('TwitchService', () => {
       );
     });
 
-    it('should emit the linkedProfilesChanged event', async () =>
+    it('should emit the linkedProfilesChanged event', () =>
       new Promise<void>((resolve) => {
         events.linkedProfilesChanged.subscribe(({ playerId }) => {
           expect(playerId).toEqual(player.id);
           resolve();
         });
 
+        // skipcq: JS-0116
         service.saveUserProfile(player.id, 'FAKE_CODE');
       }));
   });
@@ -267,13 +269,14 @@ describe('TwitchService', () => {
       expect(profile.player.toString()).toEqual(player.id);
     });
 
-    it('should emit the linkedProfilesChanged event', async () =>
+    it('should emit the linkedProfilesChanged event', () =>
       new Promise<void>((resolve) => {
         events.linkedProfilesChanged.subscribe(({ playerId }) => {
           expect(playerId).toEqual(player.id);
           resolve();
         });
 
+        // skipcq: JS-0116
         service.deleteUserProfile(player.id);
       }));
   });
@@ -337,7 +340,7 @@ describe('TwitchService', () => {
     });
 
     describe('when fetching a promoted stream', () => {
-      beforeEach(async () => {
+      beforeEach(() => {
         jest.spyOn(httpService, 'get').mockReturnValue(
           of({
             data: {

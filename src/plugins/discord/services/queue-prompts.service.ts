@@ -70,12 +70,18 @@ export class QueuePromptsService implements OnModuleInit {
         message.edit({ embeds: [embed] });
       } else {
         if (this.playerThresholdMet()) {
-          const message = await this.discordService
+          const sentMessage = await this.discordService
             .getPlayersChannel()
             ?.send({ embeds: [embed] });
-          await this.cache.set(this.queuePromptMessageIdCacheKey, message.id, {
-            ttl: 0,
-          });
+          if (sentMessage) {
+            await this.cache.set(
+              this.queuePromptMessageIdCacheKey,
+              sentMessage.id,
+              {
+                ttl: 0,
+              },
+            );
+          }
         }
       }
     });
@@ -86,7 +92,7 @@ export class QueuePromptsService implements OnModuleInit {
       slots
         .filter((slot) => Boolean(slot.playerId))
         .map((slot) =>
-          this.playersService.getById(slot.playerId).then((player) => ({
+          this.playersService.getById(slot.playerId!).then((player) => ({
             name: player.name,
             gameClass: slot.gameClass,
           })),
@@ -108,22 +114,22 @@ export class QueuePromptsService implements OnModuleInit {
     );
   }
 
-  private async getPromptMessage(): Promise<Message> {
+  private async getPromptMessage(): Promise<Message | undefined> {
     const id = (await this.cache.get(
       this.queuePromptMessageIdCacheKey,
     )) as string;
     if (id) {
-      return await this.discordService.getPlayersChannel().messages.fetch(id);
+      return this.discordService.getPlayersChannel()?.messages.fetch(id);
+    } else {
+      return undefined;
     }
-
-    return null;
   }
 
   @Cron(CronExpression.EVERY_5_MINUTES)
   async ensurePromptIsVisible() {
     const messages = await this.discordService
       .getPlayersChannel()
-      .messages.fetch({ limit: 1 });
+      ?.messages.fetch({ limit: 1 });
     const promptMessage = await this.getPromptMessage();
     if (
       messages?.first()?.id !== promptMessage?.id &&
