@@ -9,7 +9,6 @@ import { GamesModule } from './games/games.module';
 import { GameServersModule } from './game-servers/game-servers.module';
 import { EnvironmentModule } from './environment/environment.module';
 import { ConfigModule } from '@nestjs/config';
-import { environmentSchema } from './environment-schema';
 import { ScheduleModule } from '@nestjs/schedule';
 import { DocumentsModule } from './documents/documents.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
@@ -32,16 +31,14 @@ import { LogsTfModule } from './logs-tf/logs-tf.module';
 import { PlayerActionsLoggerModule } from './player-actions-logger/player-actions-logger.module';
 import { QueueConfigModule } from './queue-config/queue-config.module';
 import * as redisStore from 'cache-manager-redis-store';
+import { validateEnvironment } from './validate-environment';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      validationSchema: environmentSchema,
-      validationOptions: {
-        abortEarly: true,
-      },
       expandVariables: true,
+      validate: validateEnvironment,
     }),
     MongooseModule.forRootAsync({
       imports: [EnvironmentModule],
