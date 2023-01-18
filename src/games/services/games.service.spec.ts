@@ -457,6 +457,11 @@ describe('GamesService', () => {
       expect(player.activeGame).toBeUndefined();
     });
 
+    it('should register the ended event', async () => {
+      const game = await service.forceEnd(testGame.id);
+      expect(game.endedAt).toBeTruthy();
+    });
+
     it('should emit an event', () =>
       new Promise<void>((resolve) => {
         events.gameChanges.subscribe(({ oldGame, newGame }) => {
