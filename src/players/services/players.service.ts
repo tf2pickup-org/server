@@ -210,7 +210,8 @@ export class PlayersService implements OnModuleInit {
       const newPlayer = plainToInstance(
         Player,
         await this.playerModel
-          .findOneAndUpdate({ _id: playerId }, update, { new: true })
+          .findByIdAndUpdate(playerId, update, { new: true })
+          .orFail()
           .lean()
           .exec(),
       );
