@@ -5,11 +5,28 @@ interface StringIndex {
   [key: string]: any;
 }
 
-export const serialize = async <T extends StringIndex>(
-  object: T,
-): Promise<Record<string, unknown> | Record<string, unknown>[]> => {
+type SerializeResult<T> = T extends Serializable<infer R>
+  ? R
+  : Record<keyof T, unknown>;
+
+type Flatten<T> = T extends any[] ? T[number] : T;
+
+export async function serialize<T>(object: T): Promise<SerializeResult<T>>;
+export async function serialize<T>(
+  object: T[],
+): Promise<SerializeResult<Flatten<T>>[]>;
+
+export async function serialize<T extends StringIndex>(
+  object: T | T[],
+): Promise<SerializeResult<T> | SerializeResult<T>[]> {
   if (typeof object !== 'object' || object === null) {
     return object;
+  }
+
+  if (Array.isArray(object)) {
+    return (await Promise.all(
+      object.map(async (element) => await serialize<typeof element>(element)),
+    )) as SerializeResult<T>[];
   }
 
   if (object instanceof Serializable) {
@@ -21,18 +38,12 @@ export const serialize = async <T extends StringIndex>(
     return ret;
   }
 
-  if (Array.isArray(object)) {
-    return (await Promise.all(
-      object.map(async (element) => await serialize(element)),
-    )) as Record<string, unknown>[];
-  }
-
-  const ret: Record<string, unknown> = {};
-  await Promise.all(
-    Object.keys(object).map(
-      async (key) => (ret[key] = await serialize(object[key])),
+  return Object.fromEntries(
+    await Promise.all(
+      Object.entries(object).map(async ([key, value]) => [
+        key,
+        await serialize(value),
+      ]),
     ),
   );
-
-  return ret;
-};
+}
