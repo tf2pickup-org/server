@@ -125,8 +125,8 @@ export class Game extends Serializable<GameDto> {
 
     return {
       id: this.id,
-      launchedAt: this.launchedAt,
-      endedAt: this.endedAt,
+      launchedAt: this.launchedAt.toISOString(),
+      ...(this.endedAt && { endedAt: this.endedAt.toISOString() }),
       number: this.number,
       slots: await Promise.all(
         this.slots.map(async (slot) => ({
@@ -145,10 +145,12 @@ export class Game extends Serializable<GameDto> {
       demoUrl: this.demoUrl,
       error: this.error,
       gameServer: this.gameServer ? { name: this.gameServer.name } : undefined,
-      score: {
-        blu: this.score?.get('blu'),
-        red: this.score?.get('red'),
-      },
+      ...(this.score && {
+        score: {
+          blu: this.score.get('blu'),
+          red: this.score.get('red'),
+        },
+      }),
     };
   }
 

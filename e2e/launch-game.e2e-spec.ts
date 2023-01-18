@@ -181,6 +181,9 @@ describe('Launch game (e2e)', () => {
       .then((response) => {
         const body = response.body;
         expect(body.state).toEqual('launching');
+        expect(body.launchedAt).toMatch(
+          /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/,
+        );
         expect(
           clients
             .map((p) => p.playerId)

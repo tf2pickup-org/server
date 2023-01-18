@@ -48,8 +48,8 @@ export class PlayerBan extends Serializable<PlayerBanDto> {
       id: this.id,
       player: this.player.toString(),
       admin: this.admin.toString(),
-      start: this.start,
-      end: this.end,
+      start: this.start.toISOString(),
+      end: this.end.toISOString(),
       reason: this.reason,
     };
   }

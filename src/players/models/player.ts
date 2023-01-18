@@ -63,7 +63,7 @@ export class Player extends Serializable<PlayerDto> {
       id: this.id,
       name: this.name,
       steamId: this.steamId,
-      joinedAt: this.joinedAt,
+      joinedAt: this.joinedAt.toISOString(),
       avatar: this.avatar
         ? {
             small: this.avatar.small,

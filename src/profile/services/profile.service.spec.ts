@@ -125,11 +125,13 @@ describe('ProfileService', () => {
     });
 
     const oldPlayer = new Player();
+    oldPlayer.joinedAt = new Date();
     oldPlayer.id = 'FAKE_PLAYER_ID';
     oldPlayer.name = 'FAKE_PLAYER_NAME';
     oldPlayer.activeGame = new Types.ObjectId();
 
     const newPlayer = new Player();
+    newPlayer.joinedAt = oldPlayer.joinedAt;
     newPlayer.id = 'FAKE_PLAYER_ID';
     newPlayer.name = 'FAKE_PLAYER_NAME';
 
@@ -155,6 +157,7 @@ describe('ProfileService', () => {
 
     beforeEach(() => {
       player = new Player();
+      player.joinedAt = new Date();
       player.id = 'FAKE_PLAYER_ID';
       player.hasAcceptedRules = true;
 

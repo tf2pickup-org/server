@@ -2,7 +2,7 @@ export interface PlayerDto {
   id: string;
   name: string;
   steamId?: string;
-  joinedAt: Date;
+  joinedAt: string;
   avatar: {
     small?: string;
     medium?: string;
