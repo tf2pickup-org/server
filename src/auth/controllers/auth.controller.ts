@@ -7,6 +7,7 @@ import {
   Logger,
 } from '@nestjs/common';
 import { HttpAdapterHost } from '@nestjs/core';
+// skipcq: JS-C1003
 import * as passport from 'passport';
 import { Environment } from '@/environment/environment';
 import { AuthService } from '../services/auth.service';

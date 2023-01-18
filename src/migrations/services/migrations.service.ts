@@ -7,6 +7,7 @@ import {
 import { MigrationStore } from '../migration.store';
 import { FileStore, load } from 'migrate';
 import { resolve as pathResolve } from 'path';
+// skipcq: JS-C1003
 import * as appRoot from 'app-root-path';
 
 @Injectable()

@@ -52,16 +52,13 @@ export class ProfileService implements OnModuleInit {
         filter(([a, b]) => !isEqual(a, b)),
         map(([, newPlayer]) => newPlayer),
       )
-      .subscribe(
-        async (player) =>
-          await Promise.all(
-            this.onlinePlayersService
-              .getSocketsForPlayer(player.id)
-              .map(async (socket) =>
-                socket.emit(WebsocketEvent.profileUpdate, {
-                  player,
-                }),
-              ),
+      .subscribe((player) =>
+        this.onlinePlayersService
+          .getSocketsForPlayer(player.id)
+          .forEach((socket) =>
+            socket.emit(WebsocketEvent.profileUpdate, {
+              player,
+            }),
           ),
       );
 

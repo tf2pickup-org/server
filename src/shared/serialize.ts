@@ -9,6 +9,7 @@ type SerializeResult<T> = T extends Serializable<infer R>
   ? R
   : Record<keyof T, unknown>;
 
+// skipcq: JS-0323
 type Flatten<T> = T extends any[] ? T[number] : T;
 
 export async function serialize<T>(object: T): Promise<SerializeResult<T>>;
