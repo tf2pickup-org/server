@@ -427,7 +427,7 @@ export class GamesService {
   private async getNextGameNumber(): Promise<number> {
     const latestGame = await this.gameModel
       .findOne()
-      .sort({ launchedAt: -1 })
+      .sort({ 'events.0.at': -1 })
       .exec();
 
     return latestGame ? latestGame.number + 1 : 1;
