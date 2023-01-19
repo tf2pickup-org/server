@@ -140,8 +140,9 @@ export class PlayersService implements OnModuleInit {
     let etf2lProfile: Etf2lProfile | undefined;
     let name = steamProfile.displayName;
 
-    const { value: isEtf2lAccountRequired } =
-      await this.configurationService.isEtf2lAccountRequired();
+    const isEtf2lAccountRequired = await this.configurationService.get<boolean>(
+      'players.etf2l_account_required',
+    );
 
     if (isEtf2lAccountRequired) {
       etf2lProfile = await this.etf2lProfileService.fetchPlayerInfo(
@@ -265,8 +266,9 @@ export class PlayersService implements OnModuleInit {
   }
 
   private async verifyTf2InGameHours(steamId: string) {
-    const { value: minimumTf2InGameHours } =
-      await this.configurationService.getMinimumTf2InGameHours();
+    const minimumTf2InGameHours = await this.configurationService.get<number>(
+      'players.minimum_in_game_hours',
+    );
 
     if (minimumTf2InGameHours <= 0) {
       return;

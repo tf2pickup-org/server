@@ -23,6 +23,7 @@ import { OnlinePlayersController } from './controllers/online-players.controller
 import { ImportExportSkillService } from './services/import-export-skill.service';
 import { QueueConfigModule } from '@/queue-config/queue-config.module';
 import { HttpModule } from '@/http.module';
+import { PlayersConfigurationService } from './services/players-configuration.service';
 
 @Module({
   imports: [
@@ -48,6 +49,7 @@ import { HttpModule } from '@/http.module';
     FuturePlayerSkillService,
     LinkedProfilesService,
     ImportExportSkillService,
+    PlayersConfigurationService,
   ],
   exports: [
     PlayersService,

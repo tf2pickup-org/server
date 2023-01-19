@@ -1,6 +1,6 @@
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { Test, TestingModule } from '@nestjs/testing';
-import { ConfigurationEntry } from '../models/configuration-entry';
+import { ConfigurationItem } from '../models/configuration-item';
 import { ConfigurationEntryKey } from '../models/configuration-entry-key';
 import { DefaultPlayerSkill } from '../models/default-player-skill';
 import { Etf2lAccountRequired } from '../models/etf2l-account-required';
@@ -18,7 +18,7 @@ jest.mock('../services/configuration.service', () => ({
   ConfigurationService: jest.fn().mockImplementation(() => {
     const mockConfiguration = new Map();
     return {
-      set: jest.fn().mockImplementation((entry: ConfigurationEntry) => {
+      set: jest.fn().mockImplementation((entry: ConfigurationItem) => {
         mockConfiguration.set(entry.key, entry);
         return Promise.resolve();
       }),

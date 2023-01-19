@@ -1,7 +1,7 @@
 import {
-  ConfigurationEntry,
-  ConfigurationEntryDocument,
-} from '@/configuration/models/configuration-entry';
+  ConfigurationItem,
+  ConfigurationItemDocument,
+} from '@/configuration/models/configuration-item';
 import { Provider } from '@nestjs/common';
 import { getModelToken } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -12,8 +12,8 @@ import {
 
 export const servemeTfConfigurationModelProvider: Provider = {
   provide: getModelToken(ServemeTfConfiguration.name),
-  inject: [getModelToken(ConfigurationEntry.name)],
-  useFactory: (configurationModel: Model<ConfigurationEntryDocument>) =>
+  inject: [getModelToken(ConfigurationItem.name)],
+  useFactory: (configurationModel: Model<ConfigurationItemDocument>) =>
     configurationModel.discriminator(
       'serveme-tf',
       servemeTfConfigurationSchema,

@@ -10,10 +10,10 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { Connection, Model } from 'mongoose';
 import {
-  ConfigurationEntry,
-  ConfigurationEntryDocument,
-  configurationEntrySchema,
-} from '../models/configuration-entry';
+  ConfigurationItem,
+  ConfigurationItemDocument,
+  configurationItemSchema,
+} from '../models/configuration-item';
 import { ConfigurationEntryKey } from '../models/configuration-entry-key';
 import {
   DefaultPlayerSkill,
@@ -39,7 +39,7 @@ import { ConfigurationService } from './configuration.service';
 describe('ConfigurationService', () => {
   let service: ConfigurationService;
   let mongod: MongoMemoryServer;
-  let configurationEntryModel: Model<ConfigurationEntryDocument>;
+  let configurationEntryModel: Model<ConfigurationItemDocument>;
   let connection: Connection;
   let events: Events;
 
@@ -52,8 +52,8 @@ describe('ConfigurationService', () => {
         mongooseTestingModule(mongod),
         MongooseModule.forFeature([
           {
-            name: ConfigurationEntry.name,
-            schema: configurationEntrySchema,
+            name: ConfigurationItem.name,
+            schema: configurationItemSchema,
             discriminators: [
               {
                 name: ConfigurationEntryKey.defaultPlayerSkill,
@@ -84,7 +84,7 @@ describe('ConfigurationService', () => {
 
     service = module.get<ConfigurationService>(ConfigurationService);
     configurationEntryModel = module.get(
-      getModelToken(ConfigurationEntry.name),
+      getModelToken(ConfigurationItem.name),
     );
     connection = module.get(getConnectionToken());
     events = module.get(Events);
@@ -168,7 +168,7 @@ describe('ConfigurationService', () => {
 
   it('should emit events', async () =>
     new Promise<void>((resolve) => {
-      events.configurationEntryChanged.subscribe(({ entryKey }) => {
+      events.configurationChanged.subscribe(({ key: entryKey }) => {
         expect(entryKey).toEqual(ConfigurationEntryKey.etf2lAccountRequired);
         resolve();
       });

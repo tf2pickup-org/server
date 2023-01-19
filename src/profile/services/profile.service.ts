@@ -110,8 +110,9 @@ export class ProfileService implements OnModuleInit {
 
     if (
       !player.skill &&
-      (await this.configurationService.getDenyPlayersWithNoSkillAssigned())
-        .value
+      (await this.configurationService.get<boolean>(
+        'queue.deny_players_with_no_skill_assigned',
+      ))
     ) {
       restrictions.push({
         reason: RestrictionReason.accountNeedsReview,

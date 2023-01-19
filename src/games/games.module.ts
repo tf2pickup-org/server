@@ -14,6 +14,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { Mutex } from 'async-mutex';
 import { GameServerAssignerService } from './services/game-server-assigner.service';
 import { QueueConfigModule } from '@/queue-config/queue-config.module';
+import { GamesConfigurationService } from './services/games-configuration.service';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { QueueConfigModule } from '@/queue-config/queue-config.module';
     GameEventHandlerService,
     PlayerSubstitutionService,
     GameServerAssignerService,
+    GamesConfigurationService,
   ],
   exports: [GamesService, PlayerSubstitutionService],
   controllers: [GamesController, GamesWithSubstitutionRequestsController],

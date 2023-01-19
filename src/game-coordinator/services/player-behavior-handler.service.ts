@@ -21,8 +21,9 @@ export class PlayerBehaviorHandlerService {
   @Cron(CronExpression.EVERY_30_SECONDS)
   async verifyPlayersJoinedGameServer() {
     const bot = await this.playersService.findBot();
-    const timeout = (await this.configurationService.getTimeToJoinGameServer())
-      .value;
+    const timeout = await this.configurationService.get<number>(
+      'games.join_gameserver_timeout',
+    );
     const gamesLive = await this.gamesService.getRunningGames();
     await Promise.all(
       gamesLive

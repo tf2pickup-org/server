@@ -2,53 +2,15 @@ import { Module } from '@nestjs/common';
 import { ConfigurationService } from './services/configuration.service';
 import { ConfigurationController } from './controllers/configuration.controller';
 import {
-  ConfigurationEntry,
-  configurationEntrySchema,
-} from './models/configuration-entry';
+  ConfigurationItem,
+  configurationItemSchema,
+} from './models/configuration-item';
 import { MongooseModule } from '@nestjs/mongoose';
-import { ConfigurationEntryKey } from './models/configuration-entry-key';
-import { defaultPlayerSkillSchema } from './models/default-player-skill';
-import { whitelistIdSchema } from './models/whitelist-id';
-import { etf2lAccountRequiredSchema } from './models/etf2l-account-required';
-import { minimumTf2InGameHoursSchema } from './models/minimum-tf2-in-game-hours';
-import { voiceServerSchema } from './models/voice-server';
-import { denyPlayersWithNoSkillAssignedSchema } from './models/deny-players-with-no-skill-assigned';
-import { timeToJoinGameServerSchema } from './models/time-to-join-game-server';
 
 const configurationModelProvider = MongooseModule.forFeature([
   {
-    name: ConfigurationEntry.name,
-    schema: configurationEntrySchema,
-    discriminators: [
-      {
-        name: ConfigurationEntryKey.defaultPlayerSkill,
-        schema: defaultPlayerSkillSchema,
-      },
-      {
-        name: ConfigurationEntryKey.whitelistId,
-        schema: whitelistIdSchema,
-      },
-      {
-        name: ConfigurationEntryKey.etf2lAccountRequired,
-        schema: etf2lAccountRequiredSchema,
-      },
-      {
-        name: ConfigurationEntryKey.minimumTf2InGameHours,
-        schema: minimumTf2InGameHoursSchema,
-      },
-      {
-        name: ConfigurationEntryKey.voiceServer,
-        schema: voiceServerSchema,
-      },
-      {
-        name: ConfigurationEntryKey.denyPlayersWithNoSkillAssigned,
-        schema: denyPlayersWithNoSkillAssignedSchema,
-      },
-      {
-        name: ConfigurationEntryKey.timeToJoinGameServer,
-        schema: timeToJoinGameServerSchema,
-      },
-    ],
+    name: ConfigurationItem.name,
+    schema: configurationItemSchema,
   },
 ]);
 
