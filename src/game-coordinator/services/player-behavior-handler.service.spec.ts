@@ -19,7 +19,6 @@ import { SlotStatus } from '@/games/models/slot-status';
 import { sub } from 'date-fns';
 import { GameEventType } from '@/games/models/game-event';
 import { ConfigurationService } from '@/configuration/services/configuration.service';
-import { ConfigurationEntryKey } from '@/configuration/models/configuration-entry-key';
 import { GameSlot } from '@/games/models/game-slot';
 
 jest.mock('@/games/services/games.service');
@@ -72,10 +71,13 @@ describe('PlayerBehaviorHandlerService', () => {
   beforeEach(async () => {
     bot = await playersService._createOne();
     playersService.findBot.mockResolvedValue(bot);
-    configurationService.getTimeToJoinGameServer.mockResolvedValue({
-      key: ConfigurationEntryKey.timeToJoinGameServer,
-      value: 60 * 1000,
-    });
+    configurationService.get.mockImplementation((key) =>
+      Promise.resolve(
+        {
+          'games.join_gameserver_timeout': 60 * 1000,
+        }[key],
+      ),
+    );
   });
 
   afterEach(async () => {

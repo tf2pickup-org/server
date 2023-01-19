@@ -423,7 +423,7 @@ export class GamesService {
         }
         mumbleDirectLink.protocol = 'mumble:';
         mumbleDirectLink.port = `${port}`;
-        return url.toString();
+        return mumbleDirectLink.toString();
       }
 
       // no default

@@ -1,4 +1,3 @@
-import { ConfigurationEntryKey } from '@/configuration/models/configuration-entry-key';
 import { ConfigurationService } from '@/configuration/services/configuration.service';
 import { Player } from '@/players/models/player';
 import { PlayerBan } from '@/players/models/player-ban';
@@ -51,10 +50,13 @@ describe('CanJoinQueueGuard', () => {
   });
 
   beforeEach(() => {
-    configurationService.getDenyPlayersWithNoSkillAssigned.mockResolvedValue({
-      key: ConfigurationEntryKey.denyPlayersWithNoSkillAssigned,
-      value: false,
-    });
+    configurationService.get.mockImplementation((key: string) =>
+      Promise.resolve(
+        {
+          'queue.deny_players_with_no_skill_assigned': false,
+        }[key],
+      ),
+    );
     playerBansService.getPlayerActiveBans.mockResolvedValue([]);
   });
 
@@ -111,11 +113,12 @@ describe('CanJoinQueueGuard', () => {
 
       describe('and he should be denied', () => {
         beforeEach(() => {
-          configurationService.getDenyPlayersWithNoSkillAssigned.mockResolvedValue(
-            {
-              key: ConfigurationEntryKey.denyPlayersWithNoSkillAssigned,
-              value: true,
-            },
+          configurationService.get.mockImplementation((key: string) =>
+            Promise.resolve(
+              {
+                'queue.deny_players_with_no_skill_assigned': true,
+              }[key],
+            ),
           );
         });
 

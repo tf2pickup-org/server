@@ -1,4 +1,3 @@
-import { ConfigurationEntryKey } from '@/configuration/models/configuration-entry-key';
 import { ConfigurationService } from '@/configuration/services/configuration.service';
 import { Events } from '@/events/events';
 import { PlayerPreferencesService } from '@/player-preferences/services/player-preferences.service';
@@ -166,10 +165,13 @@ describe('ProfileService', () => {
         new Map([['FAKE_PREF', 'FAKE_PREF_VALUE']]),
       );
       linkedProfilesService.getLinkedProfiles.mockResolvedValue([]);
-      configurationService.getDenyPlayersWithNoSkillAssigned.mockResolvedValue({
-        key: ConfigurationEntryKey.denyPlayersWithNoSkillAssigned,
-        value: false,
-      });
+      configurationService.get.mockImplementation((key: string) =>
+        Promise.resolve(
+          {
+            'queue.deny_players_with_no_skill_assigned': false,
+          }[key],
+        ),
+      );
       mapVoteService.playerVote.mockReturnValue('cp_badlands');
     });
 
@@ -186,11 +188,12 @@ describe('ProfileService', () => {
 
     describe('if restricted', () => {
       beforeEach(() => {
-        configurationService.getDenyPlayersWithNoSkillAssigned.mockResolvedValue(
-          {
-            key: ConfigurationEntryKey.denyPlayersWithNoSkillAssigned,
-            value: true,
-          },
+        configurationService.get.mockImplementation((key: string) =>
+          Promise.resolve(
+            {
+              'queue.deny_players_with_no_skill_assigned': true,
+            }[key],
+          ),
         );
       });
 

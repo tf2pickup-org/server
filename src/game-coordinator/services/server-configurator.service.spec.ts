@@ -34,7 +34,6 @@ import {
   MongooseModule,
 } from '@nestjs/mongoose';
 import { Connection, Model } from 'mongoose';
-import { WhitelistId } from '@/configuration/models/whitelist-id';
 import { GameServersService } from '@/game-servers/services/game-servers.service';
 import { Events } from '@/events/events';
 import { GameConfigsService } from '@/game-configs/services/game-configs.service';
@@ -130,7 +129,13 @@ describe('ServerConfiguratorService', () => {
     mapPoolService.getMaps.mockResolvedValue([
       new MapPoolEntry('cp_badlands', 'etf2l_6v6_5cp'),
     ]);
-    configurationService.getWhitelistId.mockResolvedValue(new WhitelistId(''));
+    configurationService.get.mockImplementation((key) =>
+      Promise.resolve(
+        {
+          'games.whitelist_id': undefined,
+        }[key],
+      ),
+    );
     gameConfigsService.compileConfig.mockReturnValue([
       'mp_tournament_readymode 1',
     ]);
@@ -239,8 +244,12 @@ describe('ServerConfiguratorService', () => {
 
     describe('when the whitelistId is set', () => {
       beforeEach(() => {
-        configurationService.getWhitelistId.mockResolvedValue(
-          new WhitelistId('FAKE_WHITELIST_ID'),
+        configurationService.get.mockImplementation((key) =>
+          Promise.resolve(
+            {
+              'games.whitelist_id': 'FAKE_WHITELIST_ID',
+            }[key],
+          ),
         );
       });
 
