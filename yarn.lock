@@ -11032,6 +11032,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"rimraf@npm:4.1.1":
+  version: 4.1.1
+  resolution: "rimraf@npm:4.1.1"
+  bin:
+    rimraf: dist/cjs/src/bin.js
+  checksum: f52d46f59c1a532b3d0f73cb5228ff8f7df4ee87b9df95cf655788ea186c935b5c6ab4c45b66f8de5ed1e3690f58ff83f9a5b0ba1ae2e76a9bf36415f37732f7
+  languageName: node
+  linkType: hard
+
 "run-async@npm:^2.4.0":
   version: 2.4.1
   resolution: "run-async@npm:2.4.1"
@@ -11311,7 +11320,7 @@ __metadata:
     rcon-client: 4.2.3
     reflect-metadata: 0.1.13
     release-it: 15.6.0
-    rimraf: 3.0.2
+    rimraf: 4.1.1
     rxjs: 7.8.0
     socket.io-client: 4.5.4
     steamid: 2.0.0
