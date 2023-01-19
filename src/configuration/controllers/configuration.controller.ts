@@ -38,7 +38,7 @@ export class ConfigurationController {
 
   @Put()
   async set(@Body(ValidationPipe) entries: SetConfigurationEntry[]) {
-    return Promise.all(
+    return await Promise.all(
       entries.map(async (entry) => {
         await this.configurationService.set(entry.key, entry.value);
         return await this.configurationService.describe(entry.key);

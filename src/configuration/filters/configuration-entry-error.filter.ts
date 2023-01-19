@@ -4,6 +4,7 @@ import { ConfigurationEntryNotFoundError } from '../errors/configuration-entry-n
 
 @Catch(ConfigurationEntryNotFoundError)
 export class ConfigurationEntryErrorFilter implements ExceptionFilter {
+  // skipcq: JS-0105
   catch(exception: ConfigurationEntryNotFoundError, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();

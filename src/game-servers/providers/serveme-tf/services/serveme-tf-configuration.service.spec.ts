@@ -27,7 +27,7 @@ describe('ServemeTfConfigurationService', () => {
     expect(service).toBeDefined();
   });
 
-  it('should create a default configuration', async () => {
+  it('should create a default configuration', () => {
     expect(configurationService.register).toHaveBeenCalledTimes(1);
   });
 

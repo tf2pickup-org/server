@@ -35,36 +35,32 @@ describe('Configuration (e2e)', () => {
   });
 
   it('whitelist id', async () => {
-    {
-      const response = await request(app.getHttpServer())
-        .get('/configuration?keys=games.whitelist_id')
-        .auth(adminAuthToken, { type: 'bearer' })
-        .expect(200);
-      const body = response.body;
-      expect(body).toEqual([
-        expect.objectContaining({
-          key: 'games.whitelist_id',
-        }),
-      ]);
-      expect(body[0].value).toBeUndefined();
-    }
+    let response = await request(app.getHttpServer())
+      .get('/configuration?keys=games.whitelist_id')
+      .auth(adminAuthToken, { type: 'bearer' })
+      .expect(200);
+    let body = response.body;
+    expect(body).toEqual([
+      expect.objectContaining({
+        key: 'games.whitelist_id',
+      }),
+    ]);
+    expect(body[0].value).toBeUndefined();
 
-    {
-      const response = await request(app.getHttpServer())
-        .put('/configuration')
-        .auth(adminAuthToken, { type: 'bearer' })
-        .send({
-          key: 'games.whitelist_id',
-          value: 'etf2l_6v6',
-        });
-      const body = response.body;
-      expect(body).toEqual([
-        expect.objectContaining({
-          key: 'games.whitelist_id',
-          value: 'etf2l_6v6',
-        }),
-      ]);
-    }
+    response = await request(app.getHttpServer())
+      .put('/configuration')
+      .auth(adminAuthToken, { type: 'bearer' })
+      .send({
+        key: 'games.whitelist_id',
+        value: 'etf2l_6v6',
+      });
+    body = response.body;
+    expect(body).toEqual([
+      expect.objectContaining({
+        key: 'games.whitelist_id',
+        value: 'etf2l_6v6',
+      }),
+    ]);
   });
 
   // eslint-disable-next-line jest/expect-expect

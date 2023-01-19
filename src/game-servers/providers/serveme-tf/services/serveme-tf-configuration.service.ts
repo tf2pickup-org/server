@@ -7,7 +7,7 @@ import { z } from 'zod';
 export class ServemeTfConfigurationService implements OnModuleInit {
   constructor(private readonly configurationService: ConfigurationService) {}
 
-  async onModuleInit() {
+  onModuleInit() {
     this.configurationService.register(
       configurationEntry(
         'serveme_tf.preferred_region',

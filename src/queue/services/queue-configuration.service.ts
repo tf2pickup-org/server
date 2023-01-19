@@ -7,7 +7,7 @@ import { z } from 'zod';
 export class QueueConfigurationService implements OnModuleInit {
   constructor(private readonly configurationService: ConfigurationService) {}
 
-  async onModuleInit() {
+  onModuleInit() {
     this.configurationService.register(
       configurationEntry(
         'queue.deny_players_with_no_skill_assigned',

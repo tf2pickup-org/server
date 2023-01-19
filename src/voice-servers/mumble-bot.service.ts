@@ -100,7 +100,7 @@ export class MumbleBotService implements OnModuleInit, OnModuleDestroy {
 
         this.bot = new MumbleBot({
           host: url,
-          port: port,
+          port,
           username: this.environment.botName,
           password,
           clientName: `tf2pickup.org ${version}`,

@@ -9,7 +9,7 @@ import { VoiceServerType } from '../voice-server-type';
 export class GamesConfigurationService implements OnModuleInit {
   constructor(private readonly configurationService: ConfigurationService) {}
 
-  async onModuleInit() {
+  onModuleInit() {
     this.configurationService.register(
       configurationEntry(
         'games.default_player_skill',

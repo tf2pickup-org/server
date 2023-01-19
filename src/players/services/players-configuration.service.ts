@@ -7,7 +7,7 @@ import { z } from 'zod';
 export class PlayersConfigurationService implements OnModuleInit {
   constructor(private readonly configurationService: ConfigurationService) {}
 
-  async onModuleInit() {
+  onModuleInit() {
     this.configurationService.register(
       configurationEntry('players.etf2l_account_required', z.boolean(), false),
       configurationEntry('players.minimum_in_game_hours', z.number(), 0),

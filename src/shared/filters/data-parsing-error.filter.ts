@@ -4,6 +4,7 @@ import { ZodError } from 'zod';
 
 @Catch(ZodError)
 export class DataParsingErrorFilter implements ExceptionFilter {
+  // skipcq: JS-0105
   catch(exception: ZodError, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();

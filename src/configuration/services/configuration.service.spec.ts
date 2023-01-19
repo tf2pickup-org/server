@@ -128,7 +128,7 @@ describe('ConfigurationService', () => {
   });
 
   describe('#set()', () => {
-    beforeEach(async () => {
+    beforeEach(() => {
       service.register(
         configurationEntry('test.test_entry', z.string(), 'FAKE_DEFAULT_VALUE'),
       );
