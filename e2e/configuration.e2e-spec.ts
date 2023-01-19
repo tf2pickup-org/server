@@ -34,271 +34,73 @@ describe('Configuration (e2e)', () => {
     await app.close();
   });
 
-  it('GET /configuration/whitelist-id', async () => {
-    const response = await request(app.getHttpServer())
-      .get('/configuration/whitelist-id')
-      .expect(200);
-    const body = response.body;
-    expect(body).toEqual({
-      key: 'whitelist id',
-      value: '',
-    });
+  it('whitelist id', async () => {
+    {
+      const response = await request(app.getHttpServer())
+        .get('/configuration?keys=games.whitelist_id')
+        .auth(adminAuthToken, { type: 'bearer' })
+        .expect(200);
+      const body = response.body;
+      expect(body).toEqual([
+        expect.objectContaining({
+          key: 'games.whitelist_id',
+        }),
+      ]);
+      expect(body[0].value).toBeUndefined();
+    }
+
+    {
+      const response = await request(app.getHttpServer())
+        .put('/configuration')
+        .auth(adminAuthToken, { type: 'bearer' })
+        .send({
+          key: 'games.whitelist_id',
+          value: 'etf2l_6v6',
+        });
+      const body = response.body;
+      expect(body).toEqual([
+        expect.objectContaining({
+          key: 'games.whitelist_id',
+          value: 'etf2l_6v6',
+        }),
+      ]);
+    }
   });
 
-  it('PUT /configuration/whitelist-id', async () => {
-    const response = await request(app.getHttpServer())
-      .put('/configuration/whitelist-id')
+  // eslint-disable-next-line jest/expect-expect
+  it('not found', async () => {
+    await request(app.getHttpServer())
+      .get('/configuration?keys=not.existent')
       .auth(adminAuthToken, { type: 'bearer' })
-      .send({
-        key: 'whitelist id',
-        value: 'etf2l_6v6',
-      });
-    const body = response.body;
-    expect(body).toEqual({
-      key: 'whitelist id',
-      value: 'etf2l_6v6',
-    });
-
-    const response2 = await request(app.getHttpServer())
-      .get('/configuration/whitelist-id')
-      .expect(200);
-    const body2 = response2.body;
-    expect(body2).toEqual({
-      key: 'whitelist id',
-      value: 'etf2l_6v6',
-    });
+      .expect(404);
   });
 
-  it('GET /configuration/etf2l-account-required', async () => {
-    const response = await request(app.getHttpServer())
-      .get('/configuration/etf2l-account-required')
-      .expect(200);
-    const body = response.body;
-    expect(body).toEqual({
-      key: 'etf2l account required',
-      value: false,
-    });
-  });
-
-  it('PUT /configuration/etf2l-account-required', async () => {
-    const response = await request(app.getHttpServer())
-      .put('/configuration/etf2l-account-required')
+  // eslint-disable-next-line jest/expect-expect
+  it('malformed', async () => {
+    await request(app.getHttpServer())
+      .put('/configuration')
       .auth(adminAuthToken, { type: 'bearer' })
-      .send({
-        key: 'etf2l account required',
-        value: true,
-      });
-    const body = response.body;
-    expect(body).toEqual({
-      key: 'etf2l account required',
-      value: true,
-    });
-
-    const response2 = await request(app.getHttpServer())
-      .get('/configuration/etf2l-account-required')
-      .expect(200);
-    const body2 = response2.body;
-    expect(body2).toEqual({
-      key: 'etf2l account required',
-      value: true,
-    });
-  });
-
-  it('GET /configuration/minimum-tf2-in-game-hours', async () => {
-    const response = await request(app.getHttpServer())
-      .get('/configuration/minimum-tf2-in-game-hours')
-      .expect(200);
-    const body = response.body;
-    expect(body).toEqual({
-      key: 'minimum tf2 in-game hours',
-      value: 0,
-    });
-  });
-
-  it('PUT /configuration/minimum-tf2-in-game-hours', async () => {
-    const response = await request(app.getHttpServer())
-      .put('/configuration/minimum-tf2-in-game-hours')
-      .auth(adminAuthToken, { type: 'bearer' })
-      .send({
-        key: 'minimum tf2 in-game hours',
-        value: 450,
-      });
-    const body = response.body;
-    expect(body).toEqual({
-      key: 'minimum tf2 in-game hours',
-      value: 450,
-    });
-
-    const response2 = await request(app.getHttpServer())
-      .get('/configuration/minimum-tf2-in-game-hours')
-      .expect(200);
-    const body2 = response2.body;
-    expect(body2).toEqual({
-      key: 'minimum tf2 in-game hours',
-      value: 450,
-    });
-  });
-
-  it('GET /configuration/default-player-skill', async () => {
-    const response = await request(app.getHttpServer())
-      .get('/configuration/default-player-skill')
-      .expect(200);
-    const body = response.body;
-    expect(body).toEqual({
-      key: 'default player skill',
-      value: {
-        scout: 1,
-        soldier: 1,
-        pyro: 1,
-        demoman: 1,
-        heavy: 1,
-        engineer: 1,
-        medic: 1,
-        sniper: 1,
-        spy: 1,
-      },
-    });
-  });
-
-  it('PUT /configuration/default-player-skill', async () => {
-    const response = await request(app.getHttpServer())
-      .put('/configuration/default-player-skill')
-      .auth(adminAuthToken, { type: 'bearer' })
-      .send({
-        key: 'default player skill',
-        value: {
-          scout: 2,
-          soldier: 3,
-          pyro: 4,
-          demoman: 5,
-          heavy: 6,
-          engineer: 7,
-          medic: 8,
-          sniper: 9,
-          spy: 10,
+      .send([
+        {
+          key: 'games.whitelist_id',
+          value: 123456,
         },
-      });
-    const body = response.body;
-    expect(body).toEqual({
-      key: 'default player skill',
-      value: {
-        scout: 2,
-        soldier: 3,
-        pyro: 4,
-        demoman: 5,
-        heavy: 6,
-        engineer: 7,
-        medic: 8,
-        sniper: 9,
-        spy: 10,
-      },
-    });
-
-    const response2 = await request(app.getHttpServer())
-      .get('/configuration/default-player-skill')
-      .expect(200);
-    const body2 = response2.body;
-    expect(body2).toEqual({
-      key: 'default player skill',
-      value: {
-        scout: 2,
-        soldier: 3,
-        pyro: 4,
-        demoman: 5,
-        heavy: 6,
-        engineer: 7,
-        medic: 8,
-        sniper: 9,
-        spy: 10,
-      },
-    });
+      ])
+      .expect(400);
   });
 
-  it('GET /configuration/voice-server', async () => {
-    const response = await request(app.getHttpServer())
-      .get('/configuration/voice-server')
-      .expect(200);
-    const body = response.body;
-    expect(body).toEqual({
-      key: 'voice server',
-      type: 'none',
-    });
-  });
+  // eslint-disable-next-line jest/expect-expect
+  it('unauthorized', async () => {
+    await request(app.getHttpServer())
+      .get('/configuration?keys=games.whitelist_id')
+      .expect(401);
 
-  it('GET /configuration/deny-players-with-no-skill-assigned', async () => {
-    const response = await request(app.getHttpServer())
-      .get('/configuration/deny-players-with-no-skill-assigned')
-      .expect(200);
-    const body = response.body;
-    expect(body).toEqual({
-      key: 'deny players with no skill assigned',
-      value: false,
-    });
-  });
-
-  it('PUT /configuration/deny-players-with-no-skill-assigned', async () => {
-    const response = await request(app.getHttpServer())
-      .put('/configuration/deny-players-with-no-skill-assigned')
-      .auth(adminAuthToken, { type: 'bearer' })
+    await request(app.getHttpServer())
+      .put('/configuration')
       .send({
-        key: 'deny players with no skill assigned',
-        value: true,
+        key: 'games.whitelist_id',
+        value: 'etf2l_6v6',
       })
-      .expect(200);
-    const body = response.body;
-    expect(body).toEqual({
-      key: 'deny players with no skill assigned',
-      value: true,
-    });
-
-    const response2 = await request(app.getHttpServer())
-      .put('/configuration/deny-players-with-no-skill-assigned')
-      .auth(adminAuthToken, { type: 'bearer' })
-      .send({
-        key: 'deny players with no skill assigned',
-        value: false,
-      })
-      .expect(200);
-    const body2 = response2.body;
-    expect(body2).toEqual({
-      key: 'deny players with no skill assigned',
-      value: false,
-    });
-  });
-
-  it('GET /configuration/time-to-join-game-server', async () => {
-    const response = await request(app.getHttpServer())
-      .get('/configuration/time-to-join-game-server')
-      .expect(200);
-    const body = response.body;
-    expect(body).toEqual({
-      key: 'time to join game server',
-      value: 300000,
-    });
-  });
-
-  it('PUT /configuration/time-to-join-game-server', async () => {
-    const response = await request(app.getHttpServer())
-      .put('/configuration/time-to-join-game-server')
-      .auth(adminAuthToken, { type: 'bearer' })
-      .send({
-        key: 'time to join game server',
-        value: 420000,
-      })
-      .expect(200);
-    const body = response.body;
-    expect(body).toEqual({
-      key: 'time to join game server',
-      value: 420000,
-    });
-
-    const response2 = await request(app.getHttpServer())
-      .get('/configuration/time-to-join-game-server')
-      .expect(200);
-    const body2 = response2.body;
-    expect(body2).toEqual({
-      key: 'time to join game server',
-      value: 420000,
-    });
+      .expect(401);
   });
 });

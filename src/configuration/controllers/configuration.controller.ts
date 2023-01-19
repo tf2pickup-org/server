@@ -1,3 +1,5 @@
+import { Auth } from '@/auth/decorators/auth.decorator';
+import { PlayerRole } from '@/players/models/player-role';
 import { DataParsingErrorFilter } from '@/shared/filters/data-parsing-error.filter';
 import {
   Body,
@@ -15,6 +17,7 @@ import { ConfigurationEntryErrorFilter } from '../filters/configuration-entry-er
 import { ConfigurationService } from '../services/configuration.service';
 
 @Controller('configuration')
+@Auth(PlayerRole.admin)
 @UseFilters(ConfigurationEntryErrorFilter)
 @UseFilters(DataParsingErrorFilter)
 export class ConfigurationController {
