@@ -1,52 +1,25 @@
+import { configurationEntry } from '@/configuration/configuration-entry';
+import { ConfigurationService } from '@/configuration/services/configuration.service';
 import { Injectable, OnModuleInit } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { plainToInstance } from 'class-transformer';
-import { Error, Model } from 'mongoose';
-import {
-  ServemeTfConfiguration,
-  ServemeTfConfigurationDocument,
-} from '../models/serveme-tf-configuration';
+import { z } from 'zod';
 
 @Injectable()
 export class ServemeTfConfigurationService implements OnModuleInit {
-  constructor(
-    @InjectModel(ServemeTfConfiguration.name)
-    private servemeTfConfigurationModel: Model<ServemeTfConfigurationDocument>,
-  ) {}
+  constructor(private readonly configurationService: ConfigurationService) {}
 
   async onModuleInit() {
-    try {
-      await this.servemeTfConfigurationModel.findOne().orFail().lean().exec();
-    } catch (error) {
-      if (error instanceof Error.DocumentNotFoundError) {
-        await this.servemeTfConfigurationModel.create({});
-      } else {
-        throw error;
-      }
-    }
-  }
-
-  async getConfiguration(): Promise<ServemeTfConfiguration> {
-    return plainToInstance(
-      ServemeTfConfiguration,
-      await this.servemeTfConfigurationModel.findOne().lean().exec(),
+    this.configurationService.register(
+      configurationEntry(
+        'serveme_tf.preferred_region',
+        z.string().optional(),
+        undefined,
+      ),
     );
   }
 
-  async setConfiguration(configuration: ServemeTfConfiguration): Promise<void> {
-    await this.servemeTfConfigurationModel.updateOne({}, configuration);
-  }
-
   async getPreferredRegion(): Promise<string | undefined> {
-    return (await this.getConfiguration()).preferredRegion;
-  }
-
-  async setPreferredRegion(preferredRegion: string): Promise<void> {
-    await this.servemeTfConfigurationModel.updateOne(
-      {},
-      {
-        preferredRegion,
-      },
+    return await this.configurationService.get<string | undefined>(
+      'serveme_tf.preferred_region',
     );
   }
 }

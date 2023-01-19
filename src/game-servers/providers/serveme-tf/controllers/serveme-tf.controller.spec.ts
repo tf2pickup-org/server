@@ -1,26 +1,21 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { ServemeTfConfiguration } from '../models/serveme-tf-configuration';
 import { ServemeTfApiService } from '../services/serveme-tf-api.service';
-import { ServemeTfConfigurationService } from '../services/serveme-tf-configuration.service';
 import { ServemeTfController } from './serveme-tf.controller';
 
 jest.mock('../services/serveme-tf-api.service');
-jest.mock('../services/serveme-tf-configuration.service');
 
 describe('ServemeTfController', () => {
   let controller: ServemeTfController;
   let servemeTfApiService: jest.Mocked<ServemeTfApiService>;
-  let servemeTfConfigurationService: jest.Mocked<ServemeTfConfigurationService>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [ServemeTfController],
-      providers: [ServemeTfApiService, ServemeTfConfigurationService],
+      providers: [ServemeTfApiService],
     }).compile();
 
     controller = module.get<ServemeTfController>(ServemeTfController);
     servemeTfApiService = module.get(ServemeTfApiService);
-    servemeTfConfigurationService = module.get(ServemeTfConfigurationService);
   });
 
   it('should be defined', () => {
@@ -59,47 +54,6 @@ describe('ServemeTfController', () => {
       const ret = await controller.listAllServers();
       expect(ret.length).toBe(2);
       expect(servemeTfApiService.listServers).toHaveBeenCalledTimes(1);
-    });
-  });
-
-  describe('#getConfiguration()', () => {
-    const configuration: ServemeTfConfiguration = {
-      key: 'serveme-tf',
-      preferredRegion: 'de',
-    };
-
-    beforeEach(() => {
-      servemeTfConfigurationService.getConfiguration.mockResolvedValue(
-        configuration,
-      );
-    });
-
-    it('should return the configuration', async () => {
-      expect(await controller.getConfiguration()).toEqual(configuration);
-      expect(
-        servemeTfConfigurationService.getConfiguration,
-      ).toHaveBeenCalledTimes(1);
-    });
-  });
-
-  describe('#setConfiguration()', () => {
-    const configuration: ServemeTfConfiguration = {
-      key: 'serveme-tf',
-      preferredRegion: 'de',
-    };
-
-    beforeEach(() => {
-      servemeTfConfigurationService.getConfiguration.mockResolvedValue(
-        configuration,
-      );
-    });
-
-    it('should set the configuration and return the updated one', async () => {
-      const ret = await controller.setConfiguration(configuration);
-      expect(
-        servemeTfConfigurationService.setConfiguration,
-      ).toHaveBeenCalledWith(configuration);
-      expect(ret).toEqual(configuration);
     });
   });
 });

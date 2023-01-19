@@ -2,7 +2,6 @@ import { forwardRef, Module } from '@nestjs/common';
 import { ServemeTfService } from './services/serveme-tf.service';
 import { ServemeTfApiService } from './services/serveme-tf-api.service';
 import { GameServersModule } from '@/game-servers/game-servers.module';
-import { servemeTfConfigurationModelProvider } from './serveme-tf-configuration-model.provider';
 import { ConfigurationModule } from '@/configuration/configuration.module';
 import { ServemeTfConfigurationService } from './services/serveme-tf-configuration.service';
 import { ServemeTfController } from './controllers/serveme-tf.controller';
@@ -26,7 +25,6 @@ import { HttpModule } from '@/http.module';
     }),
     ServemeTfService,
     ServemeTfApiService,
-    servemeTfConfigurationModelProvider,
     ServemeTfConfigurationService,
   ],
   controllers: [ServemeTfController],

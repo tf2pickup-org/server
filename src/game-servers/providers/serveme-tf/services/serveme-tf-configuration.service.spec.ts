@@ -1,58 +1,26 @@
-import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
-import {
-  getConnectionToken,
-  getModelToken,
-  MongooseModule,
-} from '@nestjs/mongoose';
+import { ConfigurationService } from '@/configuration/services/configuration.service';
 import { Test, TestingModule } from '@nestjs/testing';
-import { MongoMemoryServer } from 'mongodb-memory-server';
-import { Connection, Model } from 'mongoose';
-import {
-  ServemeTfConfiguration,
-  ServemeTfConfigurationDocument,
-  servemeTfConfigurationSchema,
-} from '../models/serveme-tf-configuration';
 import { ServemeTfConfigurationService } from './serveme-tf-configuration.service';
+
+jest.mock('@/configuration/services/configuration.service');
 
 describe('ServemeTfConfigurationService', () => {
   let service: ServemeTfConfigurationService;
-  let mongod: MongoMemoryServer;
-  let connection: Connection;
-  let servemeTfConfigurationModel: Model<ServemeTfConfigurationDocument>;
-
-  beforeAll(async () => (mongod = await MongoMemoryServer.create()));
-  afterAll(async () => await mongod.stop());
+  let configurationService: jest.Mocked<ConfigurationService>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      imports: [
-        mongooseTestingModule(mongod),
-        MongooseModule.forFeature([
-          {
-            name: ServemeTfConfiguration.name,
-            schema: servemeTfConfigurationSchema,
-          },
-        ]),
-      ],
-      providers: [ServemeTfConfigurationService],
+      providers: [ServemeTfConfigurationService, ConfigurationService],
     }).compile();
 
     service = module.get<ServemeTfConfigurationService>(
       ServemeTfConfigurationService,
     );
-    connection = module.get(getConnectionToken());
-    servemeTfConfigurationModel = module.get(
-      getModelToken(ServemeTfConfiguration.name),
-    );
+    configurationService = module.get(ConfigurationService);
   });
 
   beforeEach(async () => {
     await service.onModuleInit();
-  });
-
-  afterEach(async () => {
-    await servemeTfConfigurationModel.deleteMany({});
-    await connection.close();
   });
 
   it('should be defined', () => {
@@ -60,43 +28,22 @@ describe('ServemeTfConfigurationService', () => {
   });
 
   it('should create a default configuration', async () => {
-    const configuration = await servemeTfConfigurationModel.findOne().orFail();
-    expect(configuration).toBeTruthy();
-    expect(configuration.preferredRegion).toBe(undefined);
-  });
-
-  describe('#getConfiguration()', () => {
-    it('should return the configuration', async () => {
-      const configuration = await service.getConfiguration();
-      expect(configuration).toMatchObject({
-        key: 'serveme-tf',
-      });
-    });
-  });
-
-  describe('#setConfiguration()', () => {
-    it('should save the configuration', async () => {
-      const configuration = new ServemeTfConfiguration();
-      configuration.preferredRegion = 'pl';
-      await service.setConfiguration(configuration);
-      const cfg = await servemeTfConfigurationModel.findOne().orFail();
-      expect(cfg.preferredRegion).toEqual(configuration.preferredRegion);
-    });
+    expect(configurationService.register).toHaveBeenCalledTimes(1);
   });
 
   describe('#getPreferredRegion()', () => {
-    it('should return the preferred region', async () => {
-      expect(await service.getPreferredRegion()).toBe(undefined);
+    beforeEach(() => {
+      configurationService.get.mockImplementation((key) =>
+        Promise.resolve(
+          {
+            'serveme_tf.preferred_region': 'de',
+          }[key],
+        ),
+      );
     });
-  });
 
-  describe('#setPreferredRegion()', () => {
-    it('should save the configuration', async () => {
-      await service.setPreferredRegion('PL');
-      const configuration = await servemeTfConfigurationModel
-        .findOne()
-        .orFail();
-      expect(configuration.preferredRegion).toEqual('PL');
+    it('should return the preferred region', async () => {
+      expect(await service.getPreferredRegion()).toBe('de');
     });
   });
 });
