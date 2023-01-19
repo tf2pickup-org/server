@@ -50,10 +50,12 @@ describe('Configuration (e2e)', () => {
     response = await request(app.getHttpServer())
       .put('/configuration')
       .auth(adminAuthToken, { type: 'bearer' })
-      .send({
-        key: 'games.whitelist_id',
-        value: 'etf2l_6v6',
-      });
+      .send([
+        {
+          key: 'games.whitelist_id',
+          value: 'etf2l_6v6',
+        },
+      ]);
     body = response.body;
     expect(body).toEqual([
       expect.objectContaining({
