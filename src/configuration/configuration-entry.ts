@@ -7,12 +7,12 @@ export interface ConfigurationEntry<SchemaType extends ZodTypeAny> {
   description?: string;
 }
 
-export const configurationEntry = <S extends ZodTypeAny>(
+export const configurationEntry = <SchemaType extends ZodTypeAny>(
   key: string,
-  schema: S,
-  defaultValue: z.infer<S>,
+  schema: SchemaType,
+  defaultValue: z.infer<SchemaType>,
   description?: string,
-): ConfigurationEntry<S> => ({
+): ConfigurationEntry<SchemaType> => ({
   key,
   schema,
   default: defaultValue,
