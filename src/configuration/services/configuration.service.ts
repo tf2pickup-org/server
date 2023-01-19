@@ -9,6 +9,7 @@ import {
   ConfigurationItemDocument,
 } from '../models/configuration-item';
 import { generateSchema } from '@anatine/zod-openapi';
+import { ZodType, ZodTypeAny } from 'zod';
 
 interface ConfigurationEntryDescription {
   key: string;
@@ -22,7 +23,7 @@ type KeyType = string;
 
 @Injectable()
 export class ConfigurationService {
-  private entries = new Map<KeyType, ConfigurationEntry>();
+  private entries = new Map<KeyType, ConfigurationEntry<ZodType<unknown>>>();
 
   constructor(
     @InjectModel(ConfigurationItem.name)
@@ -30,9 +31,13 @@ export class ConfigurationService {
     private events: Events,
   ) {}
 
-  register(entry: ConfigurationEntry) {
-    entry.schema.parse(entry.default);
-    this.entries.set(entry.key, entry);
+  register<S extends ZodTypeAny[]>(
+    ...entries: ConfigurationEntry<S[number]>[]
+  ) {
+    entries.forEach((entry) => {
+      entry.schema.parse(entry.default);
+      this.entries.set(entry.key, entry);
+    });
   }
 
   async get<T>(key: string): Promise<T> {
@@ -54,11 +59,11 @@ export class ConfigurationService {
     const newValue = await entry.schema.parseAsync(value);
     await this.configurationItemModel.findOneAndUpdate(
       { key },
-      { value: newValue },
+      { $set: { value: newValue } },
       { upsert: true },
     );
     this.events.configurationChanged.next({ key, oldValue, newValue });
-    return newValue;
+    return newValue as T;
   }
 
   async describe(key: string): Promise<ConfigurationEntryDescription> {

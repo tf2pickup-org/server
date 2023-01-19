@@ -1,11 +1,20 @@
-import { z } from 'zod';
+import { z, ZodTypeAny } from 'zod';
 
-export interface ConfigurationEntry<
-  T = unknown,
-  V extends z.ZodType<T> = z.ZodTypeAny,
-> {
+export interface ConfigurationEntry<SchemaType extends ZodTypeAny> {
   key: string;
-  schema: V;
-  default: T;
+  schema: SchemaType;
+  default: z.infer<SchemaType>;
   description?: string;
 }
+
+export const configurationEntry = <S extends ZodTypeAny>(
+  key: string,
+  schema: S,
+  defaultValue: z.infer<S>,
+  description?: string,
+): ConfigurationEntry<S> => ({
+  key,
+  schema,
+  default: defaultValue,
+  description,
+});

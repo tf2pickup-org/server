@@ -8,6 +8,8 @@ import {
 import { Test, TestingModule } from '@nestjs/testing';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { Connection, Model } from 'mongoose';
+import { z } from 'zod';
+import { ConfigurationEntry } from '../configuration-entry';
 import {
   ConfigurationItem,
   ConfigurationItemDocument,
@@ -52,5 +54,22 @@ describe('ConfigurationService', () => {
 
   it('should be defined', () => {
     expect(service).toBeDefined();
+  });
+
+  it('should handle strings', async () => {
+    const entry: ConfigurationEntry = {
+      key: 'test.test_entry',
+      schema: z.string(),
+      default: 'FAKE_DEFAULT_VALUE',
+    };
+    service.register(entry);
+
+    expect(await service.get<string>('test.test_entry')).toEqual(
+      'FAKE_DEFAULT_VALUE',
+    );
+    expect(await service.set<string>('test.test_entry', 'NEW_VALUE')).toEqual(
+      'NEW_VALUE',
+    );
+    expect(await service.get<string>('test.test_entry')).toEqual('NEW_VALUE');
   });
 });
