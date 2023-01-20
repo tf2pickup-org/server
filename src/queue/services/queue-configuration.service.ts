@@ -14,6 +14,24 @@ export class QueueConfigurationService implements OnModuleInit {
         z.boolean(),
         false,
       ),
+      configurationEntry(
+        'queue.ready_up_timeout',
+        z.number().positive(),
+        40 * 1000,
+        'Time players have to ready up before they are kicked out of the queue',
+      ),
+      configurationEntry(
+        'queue.ready_state_timeout',
+        z.number().positive(),
+        60 * 1000,
+        'Time the queue stays in the ready-up state before going back to the waiting state, unless all players ready up',
+      ),
+      configurationEntry(
+        'queue.map_cooldown',
+        z.number().positive(),
+        2,
+        'How many times the last played map cannot be an option to vote for.',
+      ),
     );
   }
 }

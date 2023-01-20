@@ -5,10 +5,10 @@ import {
   OnModuleInit,
   OnModuleDestroy,
   CACHE_MANAGER,
+  OnApplicationBootstrap,
 } from '@nestjs/common';
 import { QueueSlot } from '@/queue/queue-slot';
 import { QueueState } from '../queue-state';
-import { readyUpTimeout, readyStateTimeout } from '@configs/queue';
 import { Events } from '@/events/events';
 import { NoSuchSlotError } from '../errors/no-such-slot.error';
 import { SlotOccupiedError } from '../errors/slot-occupied.error';
@@ -18,6 +18,7 @@ import { WrongQueueStateError } from '../errors/wrong-queue-state.error';
 import { CannotJoinAtThisQueueStateError } from '../errors/cannot-join-at-this-queue-state.error';
 import { Cache } from 'cache-manager';
 import { QueueConfig } from '@/queue-config/interfaces/queue-config';
+import { ConfigurationService } from '@/configuration/services/configuration.service';
 
 interface Queue {
   slots: QueueSlot[];
@@ -30,13 +31,17 @@ const clearSlot = (slot: QueueSlot) => {
 };
 
 @Injectable()
-export class QueueService implements OnModuleInit, OnModuleDestroy {
+export class QueueService
+  implements OnModuleInit, OnApplicationBootstrap, OnModuleDestroy
+{
   slots: QueueSlot[] = [];
   state: QueueState = QueueState.waiting;
 
   private logger = new Logger(QueueService.name);
   private timer?: NodeJS.Timer;
   private immediates: NodeJS.Immediate[] = [];
+  private readyUpTimeout = 40 * 1000;
+  private readyStateTimeout = 60 * 1000;
 
   get requiredPlayerCount(): number {
     return this.slots.length;
@@ -55,9 +60,10 @@ export class QueueService implements OnModuleInit, OnModuleDestroy {
     private readonly queueConfig: QueueConfig,
     private events: Events,
     @Inject(CACHE_MANAGER) private readonly cache: Cache,
+    private readonly configurationService: ConfigurationService,
   ) {}
 
-  async onModuleInit() {
+  onModuleInit() {
     this.resetSlots();
     this.events.queueSlotsChange.subscribe(() =>
       this.immediates.push(setImmediate(() => this.maybeUpdateState())),
@@ -74,6 +80,15 @@ export class QueueService implements OnModuleInit, OnModuleDestroy {
 
     this.events.queueSlotsChange.subscribe(() => this.cacheQueue());
     this.events.queueStateChange.subscribe(() => this.cacheQueue());
+  }
+
+  async onApplicationBootstrap() {
+    this.readyUpTimeout = await this.configurationService.get<number>(
+      'queue.ready_up_timeout',
+    );
+    this.readyStateTimeout = await this.configurationService.get<number>(
+      'queue.ready_state_timeout',
+    );
 
     const queue: Queue | undefined = await this.cache.get('queue');
     if (queue) {
@@ -238,7 +253,10 @@ export class QueueService implements OnModuleInit, OnModuleDestroy {
     switch (state) {
       case QueueState.ready:
         clearTimeout(this.timer);
-        this.timer = setTimeout(() => this.onReadyUpTimeout(), readyUpTimeout);
+        this.timer = setTimeout(
+          () => this.onReadyUpTimeout(),
+          this.readyUpTimeout,
+        );
         break;
 
       case QueueState.launching:
@@ -273,7 +291,7 @@ export class QueueService implements OnModuleInit, OnModuleDestroy {
       this.kickUnreadyPlayers();
     }
 
-    const nextTimeout = readyStateTimeout - readyUpTimeout;
+    const nextTimeout = this.readyStateTimeout - this.readyUpTimeout;
 
     if (nextTimeout > 0) {
       clearTimeout(this.timer);

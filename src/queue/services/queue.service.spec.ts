@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { QueueService } from './queue.service';
-import { Player, PlayerDocument } from '@/players/models/player';
+import { Player } from '@/players/models/player';
 import { Events } from '@/events/events';
 import { NoSuchSlotError } from '../errors/no-such-slot.error';
 import { SlotOccupiedError } from '../errors/slot-occupied.error';
@@ -10,6 +10,22 @@ import { Types } from 'mongoose';
 import { CACHE_MANAGER } from '@nestjs/common';
 import { QueueState } from '../queue-state';
 import { QueueSlot } from '../queue-slot';
+import { ConfigurationService } from '@/configuration/services/configuration.service';
+
+jest.mock('@/configuration/services/configuration.service', () => ({
+  ConfigurationService: jest.fn().mockImplementation(() => {
+    return {
+      get: jest.fn().mockImplementation((key: string) =>
+        Promise.resolve(
+          {
+            'queue.ready_up_timeout': 40 * 1000,
+            'queue.ready_state_timeout': 60 * 1000,
+          }[key],
+        ),
+      ),
+    };
+  }),
+}));
 
 class CacheStub {
   set = jest.fn();
@@ -23,6 +39,7 @@ describe('QueueService', () => {
   let events: Events;
   let player: Player;
   let cache: CacheStub;
+  let configurationService: jest.Mocked<ConfigurationService>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -42,6 +59,7 @@ describe('QueueService', () => {
           },
         },
         { provide: CACHE_MANAGER, useClass: CacheStub },
+        ConfigurationService,
       ],
     }).compile();
 
@@ -172,6 +190,7 @@ describe('QueueService', () => {
       });
 
       await service.onModuleInit();
+      await service.onApplicationBootstrap();
     });
 
     it('should restore the queue from cache', () => {
@@ -182,6 +201,7 @@ describe('QueueService', () => {
   describe('when the cache is empty', () => {
     beforeEach(async () => {
       await service.onModuleInit();
+      await service.onApplicationBootstrap();
     });
 
     it('should be empty initially', () => {
