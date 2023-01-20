@@ -21,8 +21,6 @@ import {
   getModelToken,
   MongooseModule,
 } from '@nestjs/mongoose';
-import { Etf2lAccountRequired } from '@/configuration/models/etf2l-account-required';
-import { MinimumTf2InGameHours } from '@/configuration/models/minimum-tf2-in-game-hours';
 import { AccountBannedError } from '../errors/account-banned.error';
 import { GameState } from '@/games/models/game-state';
 import { Game, gameSchema } from '@/games/models/game';
@@ -237,11 +235,13 @@ describe('PlayersService', () => {
     };
 
     beforeEach(() => {
-      configurationService.isEtf2lAccountRequired.mockResolvedValue(
-        new Etf2lAccountRequired(true),
-      );
-      configurationService.getMinimumTf2InGameHours.mockResolvedValue(
-        new MinimumTf2InGameHours(500),
+      configurationService.get.mockImplementation((key: string) =>
+        Promise.resolve(
+          {
+            'players.etf2l_account_required': true,
+            'players.minimum_in_game_hours': 500,
+          }[key],
+        ),
       );
     });
 
@@ -349,8 +349,13 @@ describe('PlayersService', () => {
 
       describe('and nobody cares', () => {
         beforeEach(() => {
-          configurationService.getMinimumTf2InGameHours.mockResolvedValue(
-            new MinimumTf2InGameHours(0),
+          configurationService.get.mockImplementation((key: string) =>
+            Promise.resolve(
+              {
+                'players.etf2l_account_required': true,
+                'players.minimum_in_game_hours': 0,
+              }[key],
+            ),
           );
         });
 

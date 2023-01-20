@@ -1,5 +1,4 @@
 import { Events } from '@/events/events';
-import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
 import {
   getConnectionToken,
@@ -9,37 +8,20 @@ import {
 import { Test, TestingModule } from '@nestjs/testing';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { Connection, Model } from 'mongoose';
+import { z } from 'zod';
+import { configurationEntry } from '../configuration-entry';
+import { ConfigurationEntryNotFoundError } from '../errors/configuration-entry-not-found.error';
 import {
-  ConfigurationEntry,
-  ConfigurationEntryDocument,
-  configurationEntrySchema,
-} from '../models/configuration-entry';
-import { ConfigurationEntryKey } from '../models/configuration-entry-key';
-import {
-  DefaultPlayerSkill,
-  defaultPlayerSkillSchema,
-} from '../models/default-player-skill';
-import {
-  Etf2lAccountRequired,
-  etf2lAccountRequiredSchema,
-} from '../models/etf2l-account-required';
-import {
-  MinimumTf2InGameHours,
-  minimumTf2InGameHoursSchema,
-} from '../models/minimum-tf2-in-game-hours';
-import {
-  MumbleOptions,
-  SelectedVoiceServer,
-  VoiceServer,
-  voiceServerSchema,
-} from '../models/voice-server';
-import { WhitelistId, whitelistIdSchema } from '../models/whitelist-id';
+  ConfigurationItem,
+  ConfigurationItemDocument,
+  configurationItemSchema,
+} from '../models/configuration-item';
 import { ConfigurationService } from './configuration.service';
 
 describe('ConfigurationService', () => {
   let service: ConfigurationService;
   let mongod: MongoMemoryServer;
-  let configurationEntryModel: Model<ConfigurationEntryDocument>;
+  let configurationItemModel: Model<ConfigurationItemDocument>;
   let connection: Connection;
   let events: Events;
 
@@ -52,30 +34,8 @@ describe('ConfigurationService', () => {
         mongooseTestingModule(mongod),
         MongooseModule.forFeature([
           {
-            name: ConfigurationEntry.name,
-            schema: configurationEntrySchema,
-            discriminators: [
-              {
-                name: ConfigurationEntryKey.defaultPlayerSkill,
-                schema: defaultPlayerSkillSchema,
-              },
-              {
-                name: ConfigurationEntryKey.whitelistId,
-                schema: whitelistIdSchema,
-              },
-              {
-                name: ConfigurationEntryKey.etf2lAccountRequired,
-                schema: etf2lAccountRequiredSchema,
-              },
-              {
-                name: ConfigurationEntryKey.minimumTf2InGameHours,
-                schema: minimumTf2InGameHoursSchema,
-              },
-              {
-                name: ConfigurationEntryKey.voiceServer,
-                schema: voiceServerSchema,
-              },
-            ],
+            name: ConfigurationItem.name,
+            schema: configurationItemSchema,
           },
         ]),
       ],
@@ -83,15 +43,13 @@ describe('ConfigurationService', () => {
     }).compile();
 
     service = module.get<ConfigurationService>(ConfigurationService);
-    configurationEntryModel = module.get(
-      getModelToken(ConfigurationEntry.name),
-    );
+    configurationItemModel = module.get(getModelToken(ConfigurationItem.name));
     connection = module.get(getConnectionToken());
     events = module.get(Events);
   });
 
   afterEach(async () => {
-    await configurationEntryModel.deleteMany({});
+    await configurationItemModel.deleteMany({});
     await connection.close();
   });
 
@@ -99,80 +57,128 @@ describe('ConfigurationService', () => {
     expect(service).toBeDefined();
   });
 
-  it('should get default player skill', async () => {
-    expect(await service.getDefaultPlayerSkill()).toBeTruthy();
-  });
+  it('should handle strings', async () => {
+    service.register(
+      configurationEntry('test.test_entry', z.string(), 'FAKE_DEFAULT_VALUE'),
+    );
 
-  it('should set default player skill', async () => {
-    const defaultPlayerSkill = new DefaultPlayerSkill();
-    defaultPlayerSkill.value = new Map([[Tf2ClassName.soldier, 3]]);
-    await service.set(defaultPlayerSkill);
-    const ret = await service.getDefaultPlayerSkill();
-    expect(ret.value.get(Tf2ClassName.soldier)).toEqual(3);
-  });
-
-  it('should get default whitelist id', async () => {
-    expect((await service.getWhitelistId()).value).toEqual('etf2l_6v6');
-  });
-
-  it('should set whitelist id', async () => {
-    const whitelistId = new WhitelistId('etf2l_6v6');
-    await service.set(whitelistId);
-    const ret = await service.getWhitelistId();
-    expect(ret.value).toEqual('etf2l_6v6');
-  });
-
-  it('should return whether etf2l account is required', async () => {
-    expect((await service.isEtf2lAccountRequired()).value).toBe(true);
-  });
-
-  it('should set whether etf2l account is required', async () => {
-    const etf2lAccountRequired = new Etf2lAccountRequired(false);
-    await service.set(etf2lAccountRequired);
-    const ret = await service.isEtf2lAccountRequired();
-    expect(ret.value).toBe(false);
-  });
-
-  it('should return minimum tf2 in-game hours', async () => {
-    expect((await service.getMinimumTf2InGameHours()).value).toEqual(500);
-  });
-
-  it('should set minimum tf2 in-game hours', async () => {
-    const minimumTf2InGameHours = new MinimumTf2InGameHours(1000);
-    await service.set(minimumTf2InGameHours);
-    const ret = await service.getMinimumTf2InGameHours();
-    expect(ret.value).toEqual(1000);
-  });
-
-  it('should get default voice server', async () => {
-    expect((await service.getVoiceServer()).type).toEqual(
-      SelectedVoiceServer.none,
+    expect(await service.get<string>('test.test_entry')).toEqual(
+      'FAKE_DEFAULT_VALUE',
+    );
+    expect(await service.set<string>('test.test_entry', 'NEW_VALUE')).toEqual(
+      'NEW_VALUE',
+    );
+    expect(await service.get<string>('test.test_entry')).toEqual('NEW_VALUE');
+    expect(await service.reset<string>('test.test_entry')).toEqual(
+      'FAKE_DEFAULT_VALUE',
+    );
+    expect(await service.get<string>('test.test_entry')).toEqual(
+      'FAKE_DEFAULT_VALUE',
     );
   });
 
-  it('should set voice server', async () => {
-    const voiceServer = new VoiceServer();
-    voiceServer.type = SelectedVoiceServer.mumble;
+  it('should handle numbers', async () => {
+    service.register(configurationEntry('test.test_entry', z.number(), 42));
 
-    const mumbleOptions = new MumbleOptions();
-    mumbleOptions.url = 'melkor.tf';
-    mumbleOptions.port = 64738;
-    voiceServer.mumble = mumbleOptions;
-
-    await service.set(voiceServer);
-
-    const ret = await service.getVoiceServer();
-    expect(ret.type).toEqual(SelectedVoiceServer.mumble);
-    expect(ret.mumble).toEqual(mumbleOptions);
+    expect(await service.get<number>('test.test_entry')).toEqual(42);
+    expect(await service.set<number>('test.test_entry', 43)).toEqual(43);
+    expect(await service.get<number>('test.test_entry')).toEqual(43);
+    expect(await service.reset<number>('test.test_entry')).toEqual(42);
+    expect(await service.get<number>('test.test_entry')).toEqual(42);
   });
 
-  it('should emit events', async () =>
-    new Promise<void>((resolve) => {
-      events.configurationEntryChanged.subscribe(({ entryKey }) => {
-        expect(entryKey).toEqual(ConfigurationEntryKey.etf2lAccountRequired);
-        resolve();
+  it('should handle objects', async () => {
+    const schema = z.object({
+      foo: z.string(),
+      bar: z.number().optional(),
+    });
+    type TestObjectType = z.infer<typeof schema>;
+
+    service.register(
+      configurationEntry('test.test_entry', schema, { foo: 'foo' }),
+    );
+
+    expect(await service.get<TestObjectType>('test.test_entry')).toEqual({
+      foo: 'foo',
+    });
+    expect(
+      await service.set<TestObjectType>('test.test_entry', {
+        foo: 'bar',
+        bar: 128,
+      }),
+    ).toEqual({ foo: 'bar', bar: 128 });
+    expect(await service.get<TestObjectType>('test.test_entry')).toEqual({
+      foo: 'bar',
+      bar: 128,
+    });
+    expect(await service.reset<TestObjectType>('test.test_entry')).toEqual({
+      foo: 'foo',
+    });
+    expect(await service.get<TestObjectType>('test.test_entry')).toEqual({
+      foo: 'foo',
+    });
+  });
+
+  describe('#get()', () => {
+    it('should throw when trying to access an unregistered value', async () => {
+      await expect(service.get('not.existent')).rejects.toThrow(
+        ConfigurationEntryNotFoundError,
+      );
+    });
+  });
+
+  describe('#set()', () => {
+    beforeEach(() => {
+      service.register(
+        configurationEntry('test.test_entry', z.string(), 'FAKE_DEFAULT_VALUE'),
+      );
+    });
+
+    it('should throw when schema rejects the value', async () => {
+      await expect(service.set('test.test_entry', 42)).rejects.toThrow();
+    });
+  });
+
+  describe('#describe()', () => {
+    beforeEach(() => {
+      service.register(
+        configurationEntry('test.test_entry', z.string(), 'FAKE_DEFAULT_VALUE'),
+      );
+    });
+
+    it('should describe the entry', async () => {
+      expect(await service.describe('test.test_entry')).toEqual({
+        key: 'test.test_entry',
+        schema: { type: 'string' },
+        value: 'FAKE_DEFAULT_VALUE',
+        defaultValue: 'FAKE_DEFAULT_VALUE',
       });
-      const etf2lAccountRequired = new Etf2lAccountRequired(false);
-      service.set(etf2lAccountRequired);
-    }));
+    });
+  });
+
+  describe('#describeAll()', () => {
+    beforeEach(() => {
+      service.register(
+        configurationEntry('test.test_entry', z.string(), 'FAKE_DEFAULT_VALUE'),
+        configurationEntry('test.another_entry', z.number(), 42),
+      );
+    });
+
+    it('should describe all entries', async () => {
+      expect(await service.describeAll()).toEqual([
+        {
+          key: 'test.test_entry',
+          schema: { type: 'string' },
+          value: 'FAKE_DEFAULT_VALUE',
+          defaultValue: 'FAKE_DEFAULT_VALUE',
+        },
+        {
+          key: 'test.another_entry',
+          schema: { type: 'number' },
+          value: 42,
+          defaultValue: 42,
+        },
+      ]);
+    });
+  });
 });

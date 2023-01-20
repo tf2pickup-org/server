@@ -14,9 +14,8 @@ import { GamesService } from '@/games/services/games.service';
 import { Game } from '@/games/models/game';
 import { GameRuntimeService } from '@/game-coordinator/services/game-runtime.service';
 import { version } from '../../package.json';
-import { ConfigurationEntryKey } from '@/configuration/models/configuration-entry-key';
-import { SelectedVoiceServer } from '@/configuration/models/voice-server';
 import { MumbleBot } from './mumble-bot';
+import { VoiceServerType } from '@/games/voice-server-type';
 
 @Injectable()
 export class MumbleBotService implements OnModuleInit, OnModuleDestroy {
@@ -46,10 +45,16 @@ export class MumbleBotService implements OnModuleInit, OnModuleDestroy {
       )
       .subscribe(async ({ newGame }) => await this.linkChannels(newGame));
 
-    this.events.configurationEntryChanged
+    this.events.configurationChanged
       .pipe(
-        filter(
-          ({ entryKey }) => entryKey === ConfigurationEntryKey.voiceServer,
+        filter(({ key }) =>
+          [
+            'games.voice_server_type',
+            'games.voice_server.mumble.url',
+            'games.voice_server.mumble.port',
+            'games.voice_server.mumble.channel_name',
+            'games.voice_server.mumble.password',
+          ].includes(key),
         ),
       )
       .subscribe(async () => await this.tryConnect());
@@ -64,30 +69,48 @@ export class MumbleBotService implements OnModuleInit, OnModuleDestroy {
   async tryConnect() {
     this.bot?.disconnect();
 
-    const voiceServerConfig = await this.configurationService.getVoiceServer();
-    if (
-      voiceServerConfig.type === SelectedVoiceServer.mumble &&
-      voiceServerConfig.mumble
-    ) {
+    const voiceServerType =
+      await this.configurationService.get<VoiceServerType>(
+        'games.voice_server_type',
+      );
+    if (voiceServerType === VoiceServerType.mumble) {
       try {
+        const [url, port, channelName, password] = await Promise.all([
+          this.configurationService.get<string>(
+            'games.voice_server.mumble.url',
+          ),
+          this.configurationService.get<number>(
+            'games.voice_server.mumble.port',
+          ),
+          this.configurationService.get<string>(
+            'games.voice_server.mumble.channel_name',
+          ),
+          this.configurationService.get<string>(
+            'games.voice_server.mumble.password',
+          ),
+        ]);
+
+        if (!url || !channelName) {
+          throw Error('mumble configuration malformed');
+        }
+
         const certificate = await this.certificatesService.getCertificate(
           'mumble',
         );
 
         this.bot = new MumbleBot({
-          host: voiceServerConfig.mumble.url,
-          port: voiceServerConfig.mumble.port,
+          host: url,
+          port,
           username: this.environment.botName,
-          password: voiceServerConfig.mumble.password,
+          password,
           clientName: `tf2pickup.org ${version}`,
           certificate,
-          targetChannelName:
-            voiceServerConfig.mumble.channelName ?? 'tf2pickup',
+          targetChannelName: channelName,
         });
         await this.bot.connect();
       } catch (error) {
         this.logger.error(
-          `cannot connect to ${voiceServerConfig.mumble.url}:${voiceServerConfig.mumble.port}: ${error}`,
+          `cannot connect to ${this.bot?.options.host}:${this.bot?.options.port}: ${error}`,
         );
       }
     } else {

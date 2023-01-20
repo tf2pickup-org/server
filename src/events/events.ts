@@ -1,4 +1,3 @@
-import { ConfigurationEntryKey } from '@/configuration/models/configuration-entry-key';
 import { Game } from '@/games/models/game';
 import { Tf2Team } from '@/games/models/tf2-team';
 import { Player } from '@/players/models/player';
@@ -115,8 +114,10 @@ export class Events {
    */
   readonly substituteRequestsChange = new Subject<void>();
 
-  readonly configurationEntryChanged = new Subject<{
-    entryKey: ConfigurationEntryKey | string;
+  readonly configurationChanged = new Subject<{
+    key: string;
+    oldValue: unknown;
+    newValue: unknown;
   }>();
 
   constructor() {

@@ -1,6 +1,4 @@
 import { CertificatesService } from '@/certificates/services/certificates.service';
-import { ConfigurationEntryKey } from '@/configuration/models/configuration-entry-key';
-import { SelectedVoiceServer } from '@/configuration/models/voice-server';
 import { ConfigurationService } from '@/configuration/services/configuration.service';
 import { Environment } from '@/environment/environment';
 import { Events } from '@/events/events';
@@ -15,6 +13,7 @@ import { Connection } from 'mongoose';
 import { MumbleBotService } from './mumble-bot.service';
 import { MumbleBot } from './mumble-bot';
 import { GameState } from '@/games/models/game-state';
+import { VoiceServerType } from '@/games/voice-server-type';
 
 jest.mock('@/environment/environment');
 jest.mock('@/configuration/services/configuration.service');
@@ -63,14 +62,16 @@ describe('MumbleBotService', () => {
   });
 
   beforeEach(() => {
-    configurationService.getVoiceServer.mockResolvedValue({
-      key: ConfigurationEntryKey.voiceServer,
-      type: SelectedVoiceServer.mumble,
-      mumble: {
-        url: 'FAKE_MUMBLE_URL',
-        port: 64738,
-      },
-    });
+    configurationService.get.mockImplementation((key: string) =>
+      Promise.resolve(
+        {
+          'games.voice_server_type': VoiceServerType.mumble,
+          'games.voice_server.mumble.url': 'FAKE_MUMBLE_URL',
+          'games.voice_server.mumble.port': 64738,
+          'games.voice_server.mumble.channel_name': 'FAKE_CHANNEL_NAME',
+        }[key],
+      ),
+    );
     certificatesService.getCertificate.mockResolvedValue({
       id: 'FAKE_ID',
       purpose: 'mumble',
@@ -121,7 +122,7 @@ describe('MumbleBotService', () => {
           clientKey: 'FAKE_CLIENT_KEY',
           certificate: 'FAKE_CERTIFICATE',
         },
-        targetChannelName: 'tf2pickup',
+        targetChannelName: 'FAKE_CHANNEL_NAME',
       });
       expect(mockMumbleBot.connect).toHaveBeenCalledTimes(1);
     });

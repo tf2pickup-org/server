@@ -137,8 +137,9 @@ export class ServerConfiguratorService implements OnModuleInit {
         await waitABit(1000 * 10);
       }
 
-      const whitelistId = (await this.configurationService.getWhitelistId())
-        .value;
+      const whitelistId = await this.configurationService.get<
+        string | undefined
+      >('games.whitelist_id');
       if (whitelistId) {
         this.logger.debug(
           `[${game.gameServer.name}] setting whitelist ${whitelistId}...`,

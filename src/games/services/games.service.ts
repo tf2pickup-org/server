@@ -14,11 +14,11 @@ import { Model, UpdateQuery, Types } from 'mongoose';
 import { PlayerNotInThisGameError } from '../errors/player-not-in-this-game.error';
 import { URL } from 'url';
 import { GameInWrongStateError } from '../errors/game-in-wrong-state.error';
-import { SelectedVoiceServer } from '@/configuration/models/voice-server';
 import { plainToInstance } from 'class-transformer';
 import { Mutex } from 'async-mutex';
 import { QueueConfig } from '@/queue-config/interfaces/queue-config';
 import { GameEventType } from '../models/game-event';
+import { VoiceServerType } from '../voice-server-type';
 
 interface GameSortOptions {
   [key: string]: 1 | -1;
@@ -380,30 +380,50 @@ export class GamesService {
       throw new PlayerNotInThisGameError(playerId, gameId);
     }
 
-    const voiceServer = await this.configurationService.getVoiceServer();
-    switch (voiceServer.type) {
-      case SelectedVoiceServer.none:
+    const voiceServerType =
+      await this.configurationService.get<VoiceServerType>(
+        'games.voice_server_type',
+      );
+    switch (voiceServerType) {
+      case VoiceServerType.none:
         return null;
 
-      case SelectedVoiceServer.staticLink:
-        return voiceServer.staticLink as string;
+      case VoiceServerType.staticLink:
+        return await this.configurationService.get<string>(
+          'games.voice_server.static_link',
+        );
 
-      case SelectedVoiceServer.mumble: {
-        if (!voiceServer.mumble) {
-          throw Error('configuration malformed');
+      case VoiceServerType.mumble: {
+        const [url, port, channelName, password] = await Promise.all([
+          this.configurationService.get<string>(
+            'games.voice_server.mumble.url',
+          ),
+          this.configurationService.get<number>(
+            'games.voice_server.mumble.port',
+          ),
+          this.configurationService.get<string>(
+            'games.voice_server.mumble.channel_name',
+          ),
+          this.configurationService.get<string>(
+            'games.voice_server.mumble.password',
+          ),
+        ]);
+
+        if (!url || !channelName) {
+          throw Error('mumble configuration malformed');
         }
 
-        const url = new URL(`mumble://${voiceServer.mumble.url}`);
-        url.pathname = `${voiceServer.mumble.channelName}/${
+        const mumbleDirectLink = new URL(`mumble://${url}`);
+        mumbleDirectLink.pathname = `${channelName}/${
           game.number
         }/${slot.team.toUpperCase()}`;
-        url.username = player.name.replace(/\s+/g, '_');
-        if (voiceServer.mumble.password) {
-          url.password = voiceServer.mumble.password;
+        mumbleDirectLink.username = player.name.replace(/\s+/g, '_');
+        if (password) {
+          mumbleDirectLink.password = password;
         }
-        url.protocol = 'mumble:';
-        url.port = `${voiceServer.mumble.port}`;
-        return url.toString();
+        mumbleDirectLink.protocol = 'mumble:';
+        mumbleDirectLink.port = `${port}`;
+        return mumbleDirectLink.toString();
       }
 
       // no default
@@ -423,13 +443,14 @@ export class GamesService {
       throw new Error(`no such player (${playerId})`);
     }
 
-    const skill =
-      (
-        player?.skill ??
-        (await this.configurationService.getDefaultPlayerSkill()).value
-      ).get(gameClass) ?? 0;
+    if (player.skill && player.skill.has(gameClass)) {
+      return { playerId, gameClass, skill: player.skill.get(gameClass)! };
+    }
 
-    return { playerId, gameClass, skill };
+    const defaultPlayerSkill = await this.configurationService.get<
+      Record<Tf2ClassName, number>
+    >('games.default_player_skill');
+    return { playerId, gameClass, skill: defaultPlayerSkill[gameClass] };
   }
 
   private async getNextGameNumber(): Promise<number> {

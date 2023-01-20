@@ -4,22 +4,13 @@ import { Injectable, OnModuleInit } from '@nestjs/common';
 import { z } from 'zod';
 
 @Injectable()
-export class ServemeTfConfigurationService implements OnModuleInit {
+export class PlayersConfigurationService implements OnModuleInit {
   constructor(private readonly configurationService: ConfigurationService) {}
 
   onModuleInit() {
     this.configurationService.register(
-      configurationEntry(
-        'serveme_tf.preferred_region',
-        z.string().optional(),
-        undefined,
-      ),
-    );
-  }
-
-  async getPreferredRegion(): Promise<string | undefined> {
-    return await this.configurationService.get<string | undefined>(
-      'serveme_tf.preferred_region',
+      configurationEntry('players.etf2l_account_required', z.boolean(), false),
+      configurationEntry('players.minimum_in_game_hours', z.number(), 0),
     );
   }
 }
