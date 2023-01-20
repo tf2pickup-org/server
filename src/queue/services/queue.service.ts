@@ -63,7 +63,7 @@ export class QueueService
     private readonly configurationService: ConfigurationService,
   ) {}
 
-  async onModuleInit() {
+  onModuleInit() {
     this.resetSlots();
     this.events.queueSlotsChange.subscribe(() =>
       this.immediates.push(setImmediate(() => this.maybeUpdateState())),
