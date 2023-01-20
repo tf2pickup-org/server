@@ -29,6 +29,7 @@ import { QueueConfigurationService } from './services/queue-configuration.servic
     ConfigurationModule,
   ],
   providers: [
+    QueueConfigurationService,
     QueueService,
     MapVoteService,
     QueueGateway,
@@ -37,8 +38,6 @@ import { QueueConfigurationService } from './services/queue-configuration.servic
     FriendsService,
 
     MapPoolService,
-
-    QueueConfigurationService,
   ],
   exports: [QueueService, MapVoteService, QueueGateway, MapPoolService],
   controllers: [QueueController],

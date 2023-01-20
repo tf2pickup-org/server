@@ -3,11 +3,11 @@ import { QueueService } from './queue.service';
 import { maxBy, shuffle } from 'lodash';
 import { BehaviorSubject } from 'rxjs';
 import { MapVoteResult } from '../map-vote-result';
-import { mapCooldown } from '@configs/queue';
 import { Events } from '@/events/events';
 import { MapPoolEntry, MapPoolEntryDocument } from '../models/map-pool-entry';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { ConfigurationService } from '@/configuration/services/configuration.service';
 
 interface MapVote {
   playerId: string;
@@ -34,6 +34,7 @@ export class MapVoteService implements OnModuleInit {
     private mapPoolEntryModel: Model<MapPoolEntryDocument>,
     private queueService: QueueService,
     private events: Events,
+    private readonly configurationService: ConfigurationService,
   ) {}
 
   async onModuleInit() {
@@ -87,10 +88,10 @@ export class MapVoteService implements OnModuleInit {
       { cooldown: { $gt: 0 } },
       { $inc: { cooldown: -1 } },
     );
-    await this.mapPoolEntryModel.updateOne(
-      { name: map },
-      { cooldown: mapCooldown },
+    const cooldown = await this.configurationService.get<number>(
+      'queue.map_cooldown',
     );
+    await this.mapPoolEntryModel.updateOne({ name: map }, { cooldown });
     setImmediate(() => this.scramble());
     return map;
   }

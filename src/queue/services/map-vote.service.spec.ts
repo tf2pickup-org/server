@@ -16,8 +16,22 @@ import {
   getModelToken,
   MongooseModule,
 } from '@nestjs/mongoose';
+import { ConfigurationService } from '@/configuration/services/configuration.service';
 
 jest.mock('./queue.service');
+jest.mock('@/configuration/services/configuration.service', () => ({
+  ConfigurationService: jest.fn().mockImplementation(() => {
+    return {
+      get: jest.fn().mockImplementation((key: string) =>
+        Promise.resolve(
+          {
+            'queue.map_cooldown': 2,
+          }[key],
+        ),
+      ),
+    };
+  }),
+}));
 
 describe('MapVoteService', () => {
   let mongod: MongoMemoryServer;
@@ -41,7 +55,7 @@ describe('MapVoteService', () => {
           },
         ]),
       ],
-      providers: [MapVoteService, QueueService, Events],
+      providers: [MapVoteService, QueueService, Events, ConfigurationService],
     }).compile();
 
     service = module.get<MapVoteService>(MapVoteService);
