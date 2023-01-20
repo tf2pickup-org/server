@@ -27,7 +27,7 @@ module.exports.up = function (next) {
           case 'whitelist id':
             return {
               key: 'games.whitelist_id',
-              value: entry.value,
+              value: entry.value !== '' ? entry.value : undefined,
             };
 
           case 'etf2l account required':
