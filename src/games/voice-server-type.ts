@@ -1,5 +1,5 @@
 export enum VoiceServerType {
   none = 'none',
-  staticLink = 'staticLink',
+  staticLink = 'static link',
   mumble = 'mumble',
 }

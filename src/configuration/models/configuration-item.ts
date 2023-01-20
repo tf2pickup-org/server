@@ -2,7 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { Document } from 'mongoose';
 
 @Schema({
-  collection: 'configuration2',
+  collection: 'configuration',
   id: false,
   _id: false,
 })
