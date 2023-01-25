@@ -15,10 +15,10 @@ import {
 import { plainToInstance } from 'class-transformer';
 import { LinkedProfilesService } from '@/players/services/linked-profiles.service';
 import { Events } from '@/events/events';
-import { promotedStreams } from '@configs/twitchtv';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { HttpService } from '@nestjs/axios';
+import { ConfigurationService } from '@/configuration/services/configuration.service';
 
 interface TwitchGetUsersResponse {
   data: {
@@ -71,6 +71,7 @@ export class TwitchService implements OnModuleInit {
     private twitchTvProfileModel: Model<TwitchTvProfileDocument>,
     private linkedProfilesService: LinkedProfilesService,
     private events: Events,
+    private readonly configurationService: ConfigurationService,
   ) {}
 
   onModuleInit() {
@@ -143,6 +144,9 @@ export class TwitchService implements OnModuleInit {
   @Cron(CronExpression.EVERY_MINUTE)
   async pollUsersStreams() {
     const users = await this.twitchTvProfileModel.find();
+    const promotedStreams = await this.configurationService.get<string[]>(
+      'twitchtv.promoted_streams',
+    );
     const rawStreams = await this.fetchStreams({
       userIds: users.map((user) => user.userId),
       userLogins: promotedStreams,

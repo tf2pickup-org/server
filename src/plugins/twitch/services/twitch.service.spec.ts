@@ -23,12 +23,14 @@ import {
   getModelToken,
   MongooseModule,
 } from '@nestjs/mongoose';
+import { ConfigurationService } from '@/configuration/services/configuration.service';
 
 jest.mock('../gateways/twitch.gateway');
 jest.mock('./twitch-auth.service');
 jest.mock('@/players/services/player-bans.service');
 jest.mock('@/players/services/players.service');
 jest.mock('@/players/services/linked-profiles.service');
+jest.mock('@/configuration/services/configuration.service');
 
 class HttpServiceStub {
   get(url: string, options: any): Observable<any> {
@@ -75,6 +77,7 @@ describe('TwitchService', () => {
         PlayerBansService,
         LinkedProfilesService,
         Events,
+        ConfigurationService,
       ],
     }).compile();
 
