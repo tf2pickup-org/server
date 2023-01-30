@@ -7,6 +7,8 @@ import { Connection, Types } from 'mongoose';
 import { Player, PlayerDocument, playerSchema } from '../models/player';
 import { PlayersService } from '../services/players.service';
 import { PlayerByIdPipe } from './player-by-id.pipe';
+// eslint-disable-next-line jest/no-mocks-import
+import { PlayersService as MockedPlayersService } from '../services/__mocks__/players.service';
 
 jest.mock('../services/players.service');
 
@@ -14,10 +16,10 @@ describe('PlayerByIdPipe', () => {
   let pipe: PlayerByIdPipe;
   let mongod: MongoMemoryServer;
   let connection: Connection;
-  let playersService: PlayersService;
+  let playersService: MockedPlayersService;
 
   beforeAll(async () => (mongod = await MongoMemoryServer.create()));
-  afterAll(async () => mongod.stop());
+  afterAll(async () => await mongod.stop());
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -34,12 +36,11 @@ describe('PlayerByIdPipe', () => {
     }).compile();
 
     playersService = module.get(PlayersService);
-    pipe = new PlayerByIdPipe(playersService);
+    pipe = new PlayerByIdPipe(playersService as unknown as PlayersService);
     connection = module.get(getConnectionToken());
   });
 
   afterEach(async () => {
-    // @ts-expect-error
     await playersService._reset();
     await connection.close();
   });
@@ -52,13 +53,12 @@ describe('PlayerByIdPipe', () => {
     let player: Player;
 
     beforeEach(async () => {
-      // @ts-expect-error
       player = await playersService._createOne();
     });
 
     it('should fetch the player by id', async () => {
-      const p = await pipe.transform(player.id);
-      expect(p.id).toEqual(player.id);
+      const ret = await pipe.transform(player.id);
+      expect(ret?.id).toEqual(player.id);
     });
   });
 
@@ -66,15 +66,14 @@ describe('PlayerByIdPipe', () => {
     let player: PlayerDocument;
 
     beforeEach(async () => {
-      // @ts-expect-error
       player = await playersService._createOne();
       player.steamId = '76561198074409147';
       await player.save();
     });
 
     it('should fetch the player by steam id', async () => {
-      const p = await pipe.transform(player.steamId);
-      expect(p.id).toEqual(player.id);
+      const ret = await pipe.transform(player.steamId);
+      expect(ret?.id).toEqual(player.id);
     });
   });
 
