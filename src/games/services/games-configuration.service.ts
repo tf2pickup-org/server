@@ -59,6 +59,12 @@ export class GamesConfigurationService implements OnModuleInit {
         5 * 60 * 1000, // 5 minutes
         'Time a player has to connect after the gameserver is configured (milliseconds)',
       ),
+      configurationEntry(
+        'games.rejoin_gameserver_timeout',
+        z.number(),
+        3 * 60 * 1000, // 3 minutes
+        'Time a player has to join the gameserver when they leave it during the game',
+      ),
     );
   }
 }

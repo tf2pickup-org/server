@@ -6,6 +6,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Types } from 'mongoose';
 import { Exclude } from 'class-transformer';
 import { TransformObjectId } from '@/shared/decorators/transform-object-id';
+import { PlayerEvent, playerEventSchema } from './player-event';
 
 @Schema()
 export class GameSlot {
@@ -30,6 +31,13 @@ export class GameSlot {
     default: PlayerConnectionStatus.offline,
   })
   connectionStatus!: PlayerConnectionStatus;
+
+  @Prop({
+    type: [playerEventSchema],
+    required: true,
+    default: [],
+  })
+  events!: PlayerEvent[];
 }
 
 export const gameSlotSchema = SchemaFactory.createForClass(GameSlot);

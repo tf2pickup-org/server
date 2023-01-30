@@ -1,6 +1,7 @@
 import { ConfigurationService } from '@/configuration/services/configuration.service';
 import { GameState } from '@/games/models/game-state';
 import { PlayerConnectionStatus } from '@/games/models/player-connection-status';
+import { PlayerEventType } from '@/games/models/player-event';
 import { GamesService } from '@/games/services/games.service';
 import { PlayerSubstitutionService } from '@/games/services/player-substitution.service';
 import { PlayersService } from '@/players/services/players.service';
@@ -53,5 +54,40 @@ export class PlayerBehaviorHandlerService {
           );
         }),
     );
+  }
+
+  @Cron(CronExpression.EVERY_30_SECONDS)
+  async verifyPlayersRejoinedGameServer() {
+    const bot = await this.playersService.findBot();
+    const timeout = await this.configurationService.get<number>(
+      'games.rejoin_gameserver_timeout',
+    );
+    const gamesLive = await this.gamesService.getRunningGames();
+    for (const game of gamesLive) {
+      if (game.state !== GameState.started) {
+        continue;
+      }
+
+      for (const slot of game.slots) {
+        if (slot.connectionStatus !== PlayerConnectionStatus.offline) {
+          continue;
+        }
+
+        const disconnectedAt = slot.events
+          .filter((e) => e.event === PlayerEventType.leavesGameServer)
+          .sort((a, b) => b.at.getTime() - a.at.getTime())[0]?.at;
+
+        if (disconnectedAt && disconnectedAt.getTime() + timeout < Date.now()) {
+          this.logger.log(
+            `player ${slot.player} disconnected; requesting substitute`,
+          );
+          await this.playerSubstitutionService.substitutePlayer(
+            game.id,
+            slot.player.toString(),
+            bot.id,
+          );
+        }
+      }
+    }
   }
 }

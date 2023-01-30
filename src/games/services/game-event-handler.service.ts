@@ -19,6 +19,7 @@ import { GamesService } from './games.service';
 import { Mutex } from 'async-mutex';
 import { Tf2Team } from '../models/tf2-team';
 import { GameEventType } from '../models/game-event';
+import { PlayerEventType } from '../models/player-event';
 
 @Injectable()
 export class GameEventHandlerService implements OnModuleInit, OnModuleDestroy {
@@ -42,11 +43,11 @@ export class GameEventHandlerService implements OnModuleInit, OnModuleDestroy {
     );
     this.events.playerJoinedGameServer.subscribe(
       async ({ gameId, steamId }) =>
-        await this.onPlayerJoining(gameId, steamId),
+        await this.onPlayerJoinedGameServer(gameId, steamId),
     );
     this.events.playerJoinedTeam.subscribe(
       async ({ gameId, steamId }) =>
-        await this.onPlayerConnected(gameId, steamId),
+        await this.onPlayerJoinedTeam(gameId, steamId),
     );
     this.events.playerDisconnectedFromGameServer.subscribe(
       async ({ gameId, steamId }) =>
@@ -160,27 +161,30 @@ export class GameEventHandlerService implements OnModuleInit, OnModuleDestroy {
     return await this.gamesService.update(gameId, { demoUrl });
   }
 
-  async onPlayerJoining(gameId: string, steamId: string): Promise<Game> {
-    return await this.setPlayerConnectionStatus(
+  async onPlayerJoinedGameServer(
+    gameId: string,
+    steamId: string,
+  ): Promise<Game> {
+    return await this.registerPlayerEvent(
       gameId,
       steamId,
-      PlayerConnectionStatus.joining,
+      PlayerEventType.joinsGameServer,
     );
   }
 
-  async onPlayerConnected(gameId: string, steamId: string): Promise<Game> {
-    return await this.setPlayerConnectionStatus(
+  async onPlayerJoinedTeam(gameId: string, steamId: string): Promise<Game> {
+    return await this.registerPlayerEvent(
       gameId,
       steamId,
-      PlayerConnectionStatus.connected,
+      PlayerEventType.joinsGameServerTeam,
     );
   }
 
   async onPlayerDisconnected(gameId: string, steamId: string): Promise<Game> {
-    return await this.setPlayerConnectionStatus(
+    return await this.registerPlayerEvent(
       gameId,
       steamId,
-      PlayerConnectionStatus.offline,
+      PlayerEventType.leavesGameServer,
     );
   }
 
@@ -192,11 +196,17 @@ export class GameEventHandlerService implements OnModuleInit, OnModuleDestroy {
     return await this.gamesService.update(gameId, { [`score.${team}`]: score });
   }
 
-  private async setPlayerConnectionStatus(
+  private async registerPlayerEvent(
     gameId: string,
     steamId: string,
-    connectionStatus: PlayerConnectionStatus,
+    eventType: PlayerEventType,
   ): Promise<Game> {
+    const connectionStatus: PlayerConnectionStatus = {
+      [PlayerEventType.joinsGameServer]: PlayerConnectionStatus.joining,
+      [PlayerEventType.joinsGameServerTeam]: PlayerConnectionStatus.connected,
+      [PlayerEventType.leavesGameServer]: PlayerConnectionStatus.offline,
+    }[eventType];
+
     return await this.mutex.runExclusive(async () => {
       const player = await this.playersService.findBySteamId(steamId);
       if (!player) {
@@ -210,7 +220,12 @@ export class GameEventHandlerService implements OnModuleInit, OnModuleDestroy {
           .findByIdAndUpdate(
             gameId,
             {
-              'slots.$[element].connectionStatus': connectionStatus,
+              $set: {
+                'slots.$[element].connectionStatus': connectionStatus,
+              },
+              $push: {
+                'slots.$[element].events': { event: eventType },
+              },
             },
             {
               new: true, // return updated document

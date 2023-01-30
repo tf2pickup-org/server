@@ -259,6 +259,7 @@ describe('GameServersService', () => {
                 gameClass: Tf2ClassName.soldier,
                 status: SlotStatus.active,
                 connectionStatus: PlayerConnectionStatus.connected,
+                events: [],
               },
               {
                 player: new Types.ObjectId(),
@@ -266,6 +267,7 @@ describe('GameServersService', () => {
                 gameClass: Tf2ClassName.soldier,
                 status: SlotStatus.active,
                 connectionStatus: PlayerConnectionStatus.joining,
+                events: [],
               },
             ];
             await game.save();

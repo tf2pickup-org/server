@@ -270,6 +270,7 @@ describe('ServerConfiguratorService', () => {
             gameClass: Tf2ClassName.soldier,
             status: SlotStatus.active,
             connectionStatus: PlayerConnectionStatus.offline,
+            events: [],
           },
           {
             player: mockPlayer2._id,
@@ -277,6 +278,7 @@ describe('ServerConfiguratorService', () => {
             gameClass: Tf2ClassName.soldier,
             status: SlotStatus.replaced,
             connectionStatus: PlayerConnectionStatus.offline,
+            events: [],
           },
         ];
         await mockGame.save();
