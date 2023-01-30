@@ -11,7 +11,7 @@ export class PlayersService {
   playerRegistered = new Subject<string>();
 
   constructor(
-    @InjectModel(Player.name) private playerModel: Model<PlayerDocument>,
+    @InjectModel('Player') private playerModel: Model<PlayerDocument>,
   ) {}
 
   getById = jest.fn().mockImplementation(async (id: string) => {

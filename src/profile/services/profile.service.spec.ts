@@ -1,5 +1,7 @@
+import { setApp } from '@/app';
 import { ConfigurationService } from '@/configuration/services/configuration.service';
 import { Events } from '@/events/events';
+import { GamesService } from '@/games/services/games.service';
 import { PlayerPreferencesService } from '@/player-preferences/services/player-preferences.service';
 import { Player } from '@/players/models/player';
 import { PlayerBan } from '@/players/models/player-ban';
@@ -22,6 +24,11 @@ jest.mock('@/players/services/player-bans.service');
 jest.mock('@/queue/services/map-vote.service');
 jest.mock('@/player-preferences/services/player-preferences.service');
 jest.mock('@/configuration/services/configuration.service');
+jest.mock('@/games/services/games.service', () => ({
+  GamesService: jest.fn().mockImplementation(() => ({
+    getPlayerGameCount: jest.fn().mockResolvedValue(0),
+  })),
+}));
 
 describe('ProfileService', () => {
   let service: ProfileService;
@@ -78,8 +85,11 @@ describe('ProfileService', () => {
             ],
           },
         },
+        GamesService,
       ],
     }).compile();
+
+    setApp(module);
 
     onlinePlayersService = module.get(OnlinePlayersService);
     linkedProfilesService = module.get(LinkedProfilesService);

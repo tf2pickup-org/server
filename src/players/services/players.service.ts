@@ -37,7 +37,7 @@ export class PlayersService implements OnModuleInit {
   constructor(
     private environment: Environment,
     private etf2lProfileService: Etf2lProfileService,
-    @InjectModel(Player.name) private playerModel: Model<PlayerDocument>,
+    @InjectModel('Player') private playerModel: Model<PlayerDocument>,
     @Inject(forwardRef(() => GamesService)) private gamesService: GamesService,
     private steamApiService: SteamApiService,
     private events: Events,

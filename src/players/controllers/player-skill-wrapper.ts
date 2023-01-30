@@ -7,9 +7,9 @@ export class PlayerSkillWrapper extends Serializable<PlayerSkillDto> {
     super();
   }
 
-  serialize(): PlayerSkillDto {
+  async serialize(): Promise<PlayerSkillDto> {
     return {
-      ...this.player.serialize(),
+      ...(await this.player.serialize()),
       skill: this.player.skill ? Object.fromEntries(this.player.skill) : {},
     };
   }

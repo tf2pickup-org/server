@@ -7,6 +7,8 @@ import { TransformObjectId } from '@/shared/decorators/transform-object-id';
 import { Serializable } from '@/shared/serializable';
 import { PlayerDto } from '../dto/player.dto';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
+import { GamesService } from '@/games/services/games.service';
+import { app } from '@/app';
 
 @Schema()
 export class Player extends Serializable<PlayerDto> {
@@ -58,7 +60,8 @@ export class Player extends Serializable<PlayerDto> {
   )
   skill?: Map<Tf2ClassName, number>;
 
-  serialize(): PlayerDto {
+  async serialize(): Promise<PlayerDto> {
+    const gamesService = app.get(GamesService);
     return {
       id: this.id,
       name: this.name,
@@ -73,6 +76,7 @@ export class Player extends Serializable<PlayerDto> {
         : {},
       roles: this.roles,
       etf2lProfileId: this.etf2lProfileId,
+      gamesPlayed: await gamesService.getPlayerGameCount(this.id),
       _links: [
         {
           href: `/players/${this.id}/linked-profiles`,
