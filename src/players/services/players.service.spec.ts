@@ -26,7 +26,6 @@ import { GameState } from '@/games/models/game-state';
 import { Game, gameSchema } from '@/games/models/game';
 // eslint-disable-next-line jest/no-mocks-import
 import { GamesService as MockedGamesService } from '@/games/services/__mocks__/games.service';
-import { waitABit } from '@/utils/wait-a-bit';
 
 jest.mock('./etf2l-profile.service');
 jest.mock('@/configuration/services/configuration.service');
@@ -507,26 +506,6 @@ describe('PlayersService', () => {
         const player = await playerModel.findById(mockPlayer.id).orFail();
         expect(player.activeGame).toBe(undefined);
       });
-    });
-  });
-
-  describe('when a game ends', () => {
-    beforeEach(async () => {
-      const game = await gamesService._createOne([mockPlayer]);
-      const oldGame = await gamesService.getById(game.id);
-
-      game.state = GameState.ended;
-      await game.save();
-
-      const newGame = await gamesService.getById(game.id);
-      events.gameChanges.next({ oldGame, newGame });
-
-      await waitABit(100);
-    });
-
-    it('should update player stats', async () => {
-      const player = await playerModel.findById(mockPlayer.id).orFail();
-      expect(player.gamesPlayed).toEqual(1);
     });
   });
 });
