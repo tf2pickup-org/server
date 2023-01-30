@@ -22,6 +22,10 @@ import { PlayerRole } from '../models/player-role';
 import { ConfigurationService } from '@/configuration/services/configuration.service';
 import { InjectModel } from '@nestjs/mongoose';
 import { Mutex } from 'async-mutex';
+import { Game } from '@/games/models/game';
+import { SlotStatus } from '@/games/models/slot-status';
+import { filter, map } from 'rxjs';
+import { GameState } from '@/games/models/game-state';
 
 interface ForceCreatePlayerOptions {
   name: Player['name'];
@@ -59,6 +63,16 @@ export class PlayersService implements OnModuleInit {
     }
 
     await this.releaseAllPlayers();
+
+    this.events.gameChanges
+      .pipe(
+        filter(
+          ({ oldGame, newGame }) =>
+            oldGame.isInProgress() && newGame.state === GameState.ended,
+        ),
+        map(({ newGame }) => newGame),
+      )
+      .subscribe(async (game) => await this.updatePlayersStats(game));
   }
 
   async getAll(): Promise<Player[]> {
@@ -282,5 +296,20 @@ export class PlayersService implements OnModuleInit {
         hoursInTf2,
       );
     }
+  }
+
+  private async updatePlayersStats(game: Game) {
+    const players = game.slots
+      .filter((slot) =>
+        [SlotStatus.active, SlotStatus.waitingForSubstitute].includes(
+          slot.status,
+        ),
+      )
+      .map((slot) => slot.player);
+
+    await this.playerModel.updateMany(
+      { _id: players },
+      { $inc: { gamesPlayed: 1 } },
+    );
   }
 }

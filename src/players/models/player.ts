@@ -58,6 +58,9 @@ export class Player extends Serializable<PlayerDto> {
   )
   skill?: Map<Tf2ClassName, number>;
 
+  @Prop({ default: 0 })
+  gamesPlayed!: number;
+
   serialize(): PlayerDto {
     return {
       id: this.id,
@@ -73,6 +76,7 @@ export class Player extends Serializable<PlayerDto> {
         : {},
       roles: this.roles,
       etf2lProfileId: this.etf2lProfileId,
+      gamesPlayed: this.gamesPlayed,
       _links: [
         {
           href: `/players/${this.id}/linked-profiles`,

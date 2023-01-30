@@ -24,6 +24,9 @@ import {
 import { AccountBannedError } from '../errors/account-banned.error';
 import { GameState } from '@/games/models/game-state';
 import { Game, gameSchema } from '@/games/models/game';
+// eslint-disable-next-line jest/no-mocks-import
+import { GamesService as MockedGamesService } from '@/games/services/__mocks__/games.service';
+import { waitABit } from '@/utils/wait-a-bit';
 
 jest.mock('./etf2l-profile.service');
 jest.mock('@/configuration/services/configuration.service');
@@ -62,7 +65,7 @@ describe('PlayersService', () => {
   let mockPlayer: PlayerDocument;
   let environment: EnvironmentStub;
   let etf2lProfileService: jest.Mocked<Etf2lProfileService>;
-  let gamesService: jest.Mocked<GamesService>;
+  let gamesService: MockedGamesService;
   let steamApiService: SteamApiServiceStub;
   let events: Events;
   let configurationService: jest.Mocked<ConfigurationService>;
@@ -128,6 +131,7 @@ describe('PlayersService', () => {
   });
 
   afterEach(async () => {
+    await gamesService._reset();
     await playerModel.deleteMany({});
     await connection.close();
   });
@@ -490,7 +494,6 @@ describe('PlayersService', () => {
   describe('#releaseAllPlayers()', () => {
     describe('when a player is involved in a game that is no longer running', () => {
       beforeEach(async () => {
-        // @ts-expect-error
         const game = await gamesService._createOne();
         game.state = GameState.ended;
         await game.save();
@@ -504,6 +507,26 @@ describe('PlayersService', () => {
         const player = await playerModel.findById(mockPlayer.id).orFail();
         expect(player.activeGame).toBe(undefined);
       });
+    });
+  });
+
+  describe('when a game ends', () => {
+    beforeEach(async () => {
+      const game = await gamesService._createOne([mockPlayer]);
+      const oldGame = await gamesService.getById(game.id);
+
+      game.state = GameState.ended;
+      await game.save();
+
+      const newGame = await gamesService.getById(game.id);
+      events.gameChanges.next({ oldGame, newGame });
+
+      await waitABit(100);
+    });
+
+    it('should update player stats', async () => {
+      const player = await playerModel.findById(mockPlayer.id).orFail();
+      expect(player.gamesPlayed).toEqual(1);
     });
   });
 });
