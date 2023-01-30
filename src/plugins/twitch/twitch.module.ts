@@ -11,6 +11,8 @@ import {
 } from './models/twitch-tv-profile';
 import { MongooseModule } from '@nestjs/mongoose';
 import { HttpModule } from '@/http.module';
+import { ConfigurationModule } from '@/configuration/configuration.module';
+import { TwitchTvConfigurationService } from './services/twitch-tv-configuration.service';
 
 @Module({
   imports: [
@@ -20,8 +22,14 @@ import { HttpModule } from '@/http.module';
     MongooseModule.forFeature([
       { name: TwitchTvProfile.name, schema: twitchTvProfileSchema },
     ]),
+    ConfigurationModule,
   ],
-  providers: [TwitchService, TwitchAuthService, TwitchGateway],
+  providers: [
+    TwitchService,
+    TwitchAuthService,
+    TwitchGateway,
+    TwitchTvConfigurationService,
+  ],
   exports: [TwitchService],
   controllers: [TwitchController],
 })
