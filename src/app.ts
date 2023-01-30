@@ -1,7 +1,7 @@
-import { INestApplication } from '@nestjs/common';
+import { INestApplicationContext } from '@nestjs/common';
 
-export let app: INestApplication;
+export let app: INestApplicationContext;
 
-export const setApp = (newApp: INestApplication): void => {
+export const setApp = (newApp: INestApplicationContext): void => {
   app = newApp;
 };
