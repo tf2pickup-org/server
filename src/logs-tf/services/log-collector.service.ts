@@ -61,7 +61,7 @@ export class LogCollectorService implements OnModuleInit {
         } else {
           logFile = `L ${logMessage.payload}`;
         }
-        await this.cache.set(key, logFile, { ttl: 0 });
+        await this.cache.set(key, logFile);
       });
     } catch (error) {
       // empty

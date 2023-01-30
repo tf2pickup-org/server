@@ -77,9 +77,6 @@ export class QueuePromptsService implements OnModuleInit {
             await this.cache.set(
               this.queuePromptMessageIdCacheKey,
               sentMessage.id,
-              {
-                ttl: 0,
-              },
             );
           }
         }
