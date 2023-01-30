@@ -32,6 +32,7 @@ import { GameServerOptionIdentifier } from '@/game-servers/interfaces/game-serve
 import { GameServerAssignerService } from '../services/game-server-assigner.service';
 import { ParseSortParamsPipe } from '../pipes/parse-sort-params.pipe';
 import { GameByIdOrNumberPipe } from '../pipes/game-by-id-or-number.pipe';
+import { PlayerByIdPipe } from '@/players/pipes/player-by-id.pipe';
 
 @Controller('games')
 export class GamesController {
@@ -48,20 +49,21 @@ export class GamesController {
     @Query('offset', new DefaultValuePipe(0), ParseIntPipe) offset: number,
     @Query('sort', new DefaultValuePipe('-launched_at'), ParseSortParamsPipe)
     sort: Record<string, 1 | -1>,
-    @Query('playerId') playerId?: string,
+    @Query('player', PlayerByIdPipe)
+    player?: Player,
   ): Promise<PaginatedGameListDto> {
     let results: Game[];
     let itemCount: number;
 
-    if (playerId === undefined) {
+    if (!player) {
       [results, itemCount] = await Promise.all([
         this.gamesService.getGames(sort, limit, offset),
         this.gamesService.getGameCount(),
       ]);
     } else {
       [results, itemCount] = await Promise.all([
-        this.gamesService.getPlayerGames(playerId, sort, limit, offset),
-        this.gamesService.getPlayerGameCount(playerId),
+        this.gamesService.getPlayerGames(player.id, sort, limit, offset),
+        this.gamesService.getPlayerGameCount(player.id),
       ]);
     }
 

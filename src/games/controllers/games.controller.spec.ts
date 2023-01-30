@@ -11,6 +11,7 @@ import { GameServerAssignerService } from '../services/game-server-assigner.serv
 
 jest.mock('../services/player-substitution.service');
 jest.mock('../services/game-server-assigner.service');
+jest.mock('@/players/pipes/player-by-id.pipe');
 
 class GamesServiceStub {
   games: Game[] = [
@@ -94,15 +95,12 @@ describe('Games Controller', () => {
       });
     });
 
-    describe('when playerId is specified', () => {
+    describe('when the player is specified', () => {
       it('should return player games', async () => {
         const spy = jest.spyOn(gamesService, 'getPlayerGames');
-        const ret = await controller.getGames(
-          10,
-          0,
-          { 'events.0.at': -1 },
-          'FAKE_PLAYER_ID',
-        );
+        const ret = await controller.getGames(10, 0, { 'events.0.at': -1 }, {
+          id: 'FAKE_PLAYER_ID',
+        } as Player);
         expect(spy).toHaveBeenCalledWith(
           'FAKE_PLAYER_ID',
           { 'events.0.at': -1 },
