@@ -26,6 +26,8 @@ export class PlayerByIdPipe
 
         case 'steam-id':
           return await this.playersService.findBySteamId(playerId.steamId64);
+
+        // no default
       }
     } catch (error) {
       if (error instanceof Error.DocumentNotFoundError) {

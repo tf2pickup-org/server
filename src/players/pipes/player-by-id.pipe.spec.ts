@@ -19,7 +19,7 @@ describe('PlayerByIdPipe', () => {
   let playersService: MockedPlayersService;
 
   beforeAll(async () => (mongod = await MongoMemoryServer.create()));
-  afterAll(async () => mongod.stop());
+  afterAll(async () => await mongod.stop());
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
