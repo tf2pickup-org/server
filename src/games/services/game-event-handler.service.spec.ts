@@ -21,6 +21,8 @@ import { Mutex } from 'async-mutex';
 import { Tf2Team } from '../models/tf2-team';
 import { isUndefined } from 'lodash';
 import { GameEventType } from '../models/game-event';
+import { PlayerEventType } from '../models/player-event';
+import { PlayerConnectionStatus } from '../models/player-connection-status';
 
 jest.mock('@/players/services/players.service');
 jest.mock('@nestjs/config');
@@ -268,49 +270,67 @@ describe('GameEventHandlerService', () => {
   });
 
   describe('#onPlayerJoining()', () => {
-    it("should update the player's online state", async () => {
-      const game = await service.onPlayerJoining(mockGame.id, player1.steamId);
-      expect(game.findPlayerSlot(player1.id)?.connectionStatus).toEqual(
-        'joining',
+    it("should update the player's online state and push an event", async () => {
+      const game = await service.onPlayerJoinedGameServer(
+        mockGame.id,
+        player1.steamId,
       );
+      expect(game.findPlayerSlot(player1.id)?.connectionStatus).toEqual(
+        PlayerConnectionStatus.joining,
+      );
+      const event = game
+        .findPlayerSlot(player1.id)
+        ?.events.find((e) => e.event === PlayerEventType.joinsGameServer);
+      expect(event).toBeTruthy();
+      expect(event?.at).toBeTruthy();
     });
 
     it('should emit the gameChanges event', async () => {
       let event: Game | undefined;
       events.gameChanges.subscribe(({ newGame: game }) => (event = game));
-      await service.onPlayerJoining(mockGame.id, player1.steamId);
+      await service.onPlayerJoinedGameServer(mockGame.id, player1.steamId);
       expect(event).toMatchObject({ id: mockGame.id });
     });
   });
 
   describe('#onPlayerConnected()', () => {
-    it("should update the player's online state", async () => {
-      const game = await service.onPlayerConnected(
+    it("should update the player's online state and push an event", async () => {
+      const game = await service.onPlayerJoinedTeam(
         mockGame.id,
         player1.steamId,
       );
       expect(game.findPlayerSlot(player1.id)?.connectionStatus).toEqual(
-        'connected',
+        PlayerConnectionStatus.connected,
       );
+      const event = game
+        .findPlayerSlot(player1.id)
+        ?.events.find((e) => e.event === PlayerEventType.joinsGameServerTeam);
+      expect(event).toBeTruthy();
+      expect(event?.at).toBeTruthy();
     });
 
     it('should emit the gameChanges event', async () => {
       let event: Game | undefined;
       events.gameChanges.subscribe(({ newGame: game }) => (event = game));
-      await service.onPlayerConnected(mockGame.id, player1.steamId);
+      await service.onPlayerJoinedTeam(mockGame.id, player1.steamId);
       expect(event).toMatchObject({ id: mockGame.id });
     });
   });
 
   describe('#onPlayerDisconnected()', () => {
-    it("should update the player's online state", async () => {
+    it("should update the player's online state and push an event", async () => {
       const game = await service.onPlayerDisconnected(
         mockGame.id,
         player1.steamId,
       );
       expect(game.findPlayerSlot(player1.id)?.connectionStatus).toEqual(
-        'offline',
+        PlayerConnectionStatus.offline,
       );
+      const event = game
+        .findPlayerSlot(player1.id)
+        ?.events.find((e) => e.event === PlayerEventType.leavesGameServer);
+      expect(event).toBeTruthy();
+      expect(event?.at).toBeTruthy();
     });
 
     it('should emit an the gameChanges event', async () => {
