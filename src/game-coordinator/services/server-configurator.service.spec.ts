@@ -341,7 +341,8 @@ describe('ServerConfiguratorService', () => {
 
     describe('when a map change closes the rcon connection', () => {
       beforeEach(() => {
-        rcon.authenticated = false;
+        rcon.send.mockImplementationOnce(() => (rcon.authenticated = false));
+        rcon.connect.mockImplementation(() => (rcon.authenticated = true));
       });
 
       it('should reconnect', async () => {

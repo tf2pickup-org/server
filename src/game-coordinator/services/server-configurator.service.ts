@@ -74,12 +74,54 @@ export class ServerConfiguratorService implements OnModuleInit {
     }
 
     const controls = await this.gameServersService.getControls(game.gameServer);
-    const configLines = this.gameConfigsService.compileConfig();
 
     this.logger.verbose(`starting gameserver ${game.gameServer.name}`);
     await controls.start();
 
     this.logger.verbose(`configuring server ${game.gameServer.name}...`);
+
+    const password = generateGameserverPassword();
+    const configLines: string[] = [
+      logAddressAdd(
+        `${this.environment.logRelayAddress}:${this.environment.logRelayPort}`,
+      ),
+    ]
+      .concat(kickAll())
+      .concat(changelevel(game.map))
+      .concat(this.gameConfigsService.compileConfig())
+      .concat(
+        await (async () => {
+          // execute config for the selected map
+          const maps = await this.mapPoolService.getMaps();
+          const config = maps.find((m) => m.name === game.map)?.execConfig;
+          return config ? execConfig(config) : '';
+        })(),
+      )
+      .concat(
+        await (async () => {
+          const whitelistId = await this.configurationService.get<
+            string | undefined
+          >('games.whitelist_id');
+          return whitelistId ? tftrueWhitelistId(whitelistId) : '';
+        })(),
+      )
+      .concat(setPassword(password))
+      .concat(
+        await Promise.all(
+          game.activeSlots().map(async (slot) => {
+            const player = await this.playersService.getById(slot.player);
+            return addGamePlayer(
+              player.steamId,
+              deburr(player.name),
+              slot.team,
+              slot.gameClass,
+            );
+          }),
+        ),
+      )
+      .concat(enablePlayerWhitelist())
+      .concat(logsTfTitle(`${this.environment.websiteName} #${game.number}`))
+      .filter((line) => Boolean(line));
 
     let rcon: Rcon | undefined;
     try {
@@ -106,76 +148,17 @@ export class ServerConfiguratorService implements OnModuleInit {
         `[${game.gameServer.name}] logsecret is ${game.logSecret}`,
       );
 
-      const logAddress = `${this.environment.logRelayAddress}:${this.environment.logRelayPort}`;
-      this.logger.debug(
-        `[${game.gameServer.name}] adding log address ${logAddress}...`,
-      );
-      await rcon.send(logAddressAdd(logAddress));
+      for (const line of configLines) {
+        await rcon.send(line);
+        if (/^changelevel|exec/.test(line)) {
+          await waitABit(1000);
+        }
 
-      this.logger.debug(`[${game.gameServer.name}] kicking all players...`);
-      await rcon.send(kickAll());
-      this.logger.debug(
-        `[${game.gameServer.name}] changing map to ${game.map}...`,
-      );
-      await rcon.send(changelevel(game.map));
-
-      // source servers need a moment after the map has been changed
-      await waitABit(1000 * 10);
-
-      // map change might kick us
-      if (!rcon.authenticated) {
-        await rcon.connect();
+        // changelevel might sometimes kick us
+        if (!rcon.authenticated) {
+          await rcon.connect();
+        }
       }
-
-      await Promise.all(configLines.map((line) => (rcon as Rcon).send(line)));
-
-      const maps = await this.mapPoolService.getMaps();
-      const config = maps.find((m) => m.name === game.map)?.execConfig;
-      if (config) {
-        this.logger.debug(`[${game.gameServer.name}] executing ${config}...`);
-        await rcon.send(execConfig(config));
-        await waitABit(1000 * 10);
-      }
-
-      const whitelistId = await this.configurationService.get<
-        string | undefined
-      >('games.whitelist_id');
-      if (whitelistId) {
-        this.logger.debug(
-          `[${game.gameServer.name}] setting whitelist ${whitelistId}...`,
-        );
-        await rcon.send(tftrueWhitelistId(whitelistId));
-      }
-
-      const password = generateGameserverPassword();
-      this.logger.debug(
-        `[${game.gameServer.name}] setting password to ${password}...`,
-      );
-      await rcon.send(setPassword(password));
-
-      const slots = await Promise.all(
-        game.activeSlots().map(async (slot) => ({
-          ...slot,
-          player: await this.playersService.getById(slot.player),
-        })),
-      );
-
-      for (const slot of slots) {
-        const cmd = addGamePlayer(
-          slot.player.steamId,
-          deburr(slot.player.name),
-          slot.team,
-          slot.gameClass,
-        );
-        this.logger.debug(`[${game.gameServer.name}] ${cmd}`);
-        // skipcq: JS-0032
-        await rcon.send(cmd);
-      }
-
-      await rcon.send(enablePlayerWhitelist());
-      await rcon.send(
-        logsTfTitle(`${this.environment.websiteName} #${game.number}`),
-      );
 
       this.logger.debug(`[${game.gameServer.name}] server ready.`);
 
