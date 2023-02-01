@@ -149,6 +149,7 @@ export class ServerConfiguratorService implements OnModuleInit {
       );
 
       for (const line of configLines) {
+        this.logger.debug(`[${game.gameServer.name}] ${line}`);
         await rcon.send(line);
         if (/^changelevel|exec/.test(line)) {
           await waitABit(1000);
