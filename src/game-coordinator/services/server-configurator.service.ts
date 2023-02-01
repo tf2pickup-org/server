@@ -121,6 +121,11 @@ export class ServerConfiguratorService implements OnModuleInit {
       )
       .concat(enablePlayerWhitelist())
       .concat(logsTfTitle(`${this.environment.websiteName} #${game.number}`))
+      .concat(
+        await this.configurationService.get<string[]>(
+          'games.execute_extra_commands',
+        ),
+      )
       .filter((line) => Boolean(line));
 
     let rcon: Rcon | undefined;
