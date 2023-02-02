@@ -7,6 +7,7 @@ import {
   Param,
   Post,
   Put,
+  UseFilters,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
@@ -27,6 +28,7 @@ import { MapPoolEntryDto } from '../dto/map-pool-item.dto';
 import { User } from '@/auth/decorators/user.decorator';
 import { Player } from '@/players/models/player';
 import { QueueConfig } from '@/queue-config/interfaces/queue-config';
+import { MongoDbErrorFilter } from '@/shared/filters/mongo-db-error.filter';
 
 @Controller('queue')
 export class QueueController {
@@ -97,6 +99,7 @@ export class QueueController {
   @Post('maps')
   @Auth(PlayerRole.admin)
   @UsePipes(ValidationPipe)
+  @UseFilters(MongoDbErrorFilter)
   async addMap(
     @Body() map: MapPoolEntry,
   ): Promise<Serializable<MapPoolEntryDto>> {
