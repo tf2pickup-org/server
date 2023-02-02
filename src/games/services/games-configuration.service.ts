@@ -65,6 +65,12 @@ export class GamesConfigurationService implements OnModuleInit {
         3 * 60 * 1000, // 3 minutes
         'Time a player has to join the gameserver when they leave it during the game',
       ),
+      configurationEntry(
+        'games.execute_extra_commands',
+        z.array(z.string()),
+        [],
+        'Execute extra commands via rcon upon configuring the game',
+      ),
     );
   }
 }

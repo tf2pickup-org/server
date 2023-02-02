@@ -81,6 +81,7 @@ describe('ServerConfiguratorService', () => {
   let mockPlayer1: PlayerDocument;
   let mockPlayer2: PlayerDocument;
   let mockGame: GameDocument;
+  let configuration: Record<string, unknown>;
 
   beforeAll(async () => (mongod = await MongoMemoryServer.create()));
   afterAll(async () => await mongod.stop());
@@ -129,12 +130,11 @@ describe('ServerConfiguratorService', () => {
     mapPoolService.getMaps.mockResolvedValue([
       new MapPoolEntry('cp_badlands', 'etf2l_6v6_5cp'),
     ]);
+    configuration = {
+      'games.whitelist_id': undefined,
+    };
     configurationService.get.mockImplementation((key) =>
-      Promise.resolve(
-        {
-          'games.whitelist_id': undefined,
-        }[key],
-      ),
+      Promise.resolve(configuration[key]),
     );
     gameConfigsService.compileConfig.mockReturnValue([
       'mp_tournament_readymode 1',
@@ -244,13 +244,7 @@ describe('ServerConfiguratorService', () => {
 
     describe('when the whitelistId is set', () => {
       beforeEach(() => {
-        configurationService.get.mockImplementation((key) =>
-          Promise.resolve(
-            {
-              'games.whitelist_id': 'FAKE_WHITELIST_ID',
-            }[key],
-          ),
-        );
+        configuration['games.whitelist_id'] = 'FAKE_WHITELIST_ID';
       });
 
       it('should set the whitelist', async () => {
@@ -373,6 +367,19 @@ describe('ServerConfiguratorService', () => {
       expect(game.events.at(game.events.length - 1)?.event).toBe(
         GameEventType.GameServerInitialized,
       );
+    });
+
+    describe('when extra commands are to be executed', () => {
+      beforeEach(() => {
+        configuration['games.execute_extra_commands'] = [
+          'sm_cvar spec_freeze_time 0',
+        ];
+      });
+
+      it('should execute extra commands', async () => {
+        await service.configureServer(mockGame.id);
+        expect(rcon.send).toHaveBeenCalledWith('sm_cvar spec_freeze_time 0');
+      });
     });
   });
 });
