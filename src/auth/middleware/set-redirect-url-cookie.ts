@@ -7,9 +7,11 @@ export const setRedirectUrlCookie = (
   res: Response,
   next: NextFunction,
 ) => {
-  // Set the current url as a cookie so we can redirect to the exact url afterwards
-  if (req.query.url) {
-    res.cookie(redirectUrlCookieName, req.query.url);
+  const referer = req.get('referer');
+
+  // Set the referer url as a cookie so we can redirect to the exact url afterwards
+  if (referer) {
+    res.cookie(redirectUrlCookieName, referer);
   }
 
   next();
