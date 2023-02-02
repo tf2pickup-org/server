@@ -21,6 +21,8 @@ import { InsufficientTf2InGameHoursError } from '@/players/errors/insufficient-t
 import { NoEtf2lAccountError } from '@/players/errors/no-etf2l-account.error';
 import { AccountBannedError } from '@/players/errors/account-banned.error';
 import { assertIsError } from '@/utils/assert-is-error';
+import { Request } from 'express';
+import { parse } from 'cookie';
 
 @Controller('auth')
 export class AuthController {
@@ -36,10 +38,15 @@ export class AuthController {
     // https://github.com/liamcurry/passport-steam/issues/57
     this.adapterHost.httpAdapter?.get(
       '/auth/steam/return',
-      (req, res, next) => {
+      (req: Request, res, next) => {
         return passport.authenticate('steam', async (error, player: Player) => {
-          const url =
-            req.cookies?.[redirectUrlCookieName] || this.environment.clientUrl;
+          let url = this.environment.clientUrl;
+          if (req.headers.cookie) {
+            const cookies = parse(req.headers.cookie);
+            if (redirectUrlCookieName in cookies) {
+              url = cookies[redirectUrlCookieName];
+            }
+          }
 
           if (error) {
             this.logger.warn(`Login error: ${error}`);
