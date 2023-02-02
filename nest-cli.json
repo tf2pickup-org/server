@@ -10,6 +10,10 @@
       {
         "include": "game-configs/configs/*.cfg",
         "outDir": "dist/src"
+      },
+      {
+        "include": "../client/*",
+        "outDir": "dist/client"
       }
     ],
     "watchAssets": true

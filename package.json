@@ -7,7 +7,6 @@
   "scripts": {
     "prebuild": "rimraf dist",
     "build": "nest build",
-    "postbuild": "copyfiles client/** dist/",
     "dev": "nest start --watch --debug",
     "prod": "node dist/src/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\"",
@@ -97,7 +96,6 @@
     "@types/supertest": "2.0.12",
     "@typescript-eslint/eslint-plugin": "5.50.0",
     "@typescript-eslint/parser": "5.50.0",
-    "copyfiles": "2.4.1",
     "eslint": "8.33.0",
     "eslint-config-prettier": "8.6.0",
     "eslint-plugin-jest": "27.2.1",

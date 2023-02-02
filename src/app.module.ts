@@ -64,6 +64,7 @@ import { validateEnvironment } from './validate-environment';
     ScheduleModule.forRoot(),
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'client'),
+      serveRoot: '/static',
     }),
 
     EnvironmentModule,

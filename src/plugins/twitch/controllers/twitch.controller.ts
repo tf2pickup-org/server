@@ -52,7 +52,7 @@ export class TwitchController {
   }
 
   @Get('auth/return')
-  @Redirect('/logged-in-with-twitch-tv.html')
+  @Redirect('/static/logged-in-with-twitch-tv.html')
   async authenticationCallback(
     @Query('code') code: string,
     @Query('state') state: string,
