@@ -38,7 +38,7 @@ export class PlayerActionEntry extends Serializable<PlayerActionDto> {
 
     return {
       player: await playersService.getById(this.player),
-      timestamp: this.timestamp,
+      timestamp: this.timestamp.toISOString(),
       action: this.action,
       ipAddress: this.ipAddress,
       userAgent: this.userAgent,

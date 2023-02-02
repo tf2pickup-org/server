@@ -10,6 +10,7 @@ export class StaticGameServer extends MongooseDocument {
   @Transform(({ value, obj }) => value ?? obj._id?.toString())
   id!: string;
 
+  @Transform(({ value }) => value.toISOString(), { toPlainOnly: true })
   @Prop({ default: () => new Date() })
   createdAt!: Date;
 
@@ -44,6 +45,7 @@ export class StaticGameServer extends MongooseDocument {
   @Prop({ default: false })
   isOnline!: boolean;
 
+  @Transform(({ value }) => value.toISOString(), { toPlainOnly: true })
   @Prop({ default: () => new Date() })
   lastHeartbeatAt?: Date;
 

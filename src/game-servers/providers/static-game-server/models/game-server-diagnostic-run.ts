@@ -11,6 +11,7 @@ export class GameServerDiagnosticRun extends MongooseDocument {
   @Transform(({ value, obj }) => value ?? obj._id?.toString())
   id?: string;
 
+  @Transform(({ value }) => value.toISOString(), { toPlainOnly: true })
   @Prop({ default: () => new Date() })
   launchedAt?: Date;
 
