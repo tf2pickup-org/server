@@ -13,6 +13,7 @@ import {
   tvPassword,
   tftrueWhitelistId,
   logsTfTitle,
+  logsTfAutoupload,
 } from '../utils/rcon-commands';
 import { deburr, isEqual } from 'lodash';
 import { extractConVarValue } from '../utils/extract-con-var-value';
@@ -31,6 +32,7 @@ import { filter, map } from 'rxjs';
 import { CannotConfigureGameError } from '../errors/cannot-configure-game.error';
 import { GameEventType } from '@/games/models/game-event';
 import { assertIsError } from '@/utils/assert-is-error';
+import { LogsTfUploadMethod } from '@/games/logs-tf-upload-method';
 
 @Injectable()
 export class ServerConfiguratorService implements OnModuleInit {
@@ -121,6 +123,13 @@ export class ServerConfiguratorService implements OnModuleInit {
       )
       .concat(enablePlayerWhitelist())
       .concat(logsTfTitle(`${this.environment.websiteName} #${game.number}`))
+      .concat(
+        (await this.configurationService.get<LogsTfUploadMethod>(
+          'games.logs_tf_upload_method',
+        )) !== LogsTfUploadMethod.Gameserver
+          ? logsTfAutoupload(0)
+          : logsTfAutoupload(2),
+      )
       .concat(
         await this.configurationService.get<string[]>(
           'games.execute_extra_commands',

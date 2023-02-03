@@ -3,6 +3,7 @@ import { ConfigurationService } from '@/configuration/services/configuration.ser
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { z } from 'zod';
+import { LogsTfUploadMethod } from '../logs-tf-upload-method';
 import { VoiceServerType } from '../voice-server-type';
 
 @Injectable()
@@ -70,6 +71,12 @@ export class GamesConfigurationService implements OnModuleInit {
         z.array(z.string()),
         [],
         'Execute extra commands via rcon upon configuring the game',
+      ),
+      configurationEntry(
+        'games.logs_tf_upload_method',
+        z.nativeEnum(LogsTfUploadMethod),
+        LogsTfUploadMethod.Backend,
+        'Method of uploading logs to the logs.tf service',
       ),
     );
   }
