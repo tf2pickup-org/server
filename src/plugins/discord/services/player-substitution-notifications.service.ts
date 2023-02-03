@@ -86,7 +86,7 @@ export class PlayerSubstitutionNotificationsService implements OnModuleInit {
             embeds: [embed],
           })
         : await channel.send({ embeds: [embed] });
-      await this.cache.set(cacheKeyForPlayer(playerId), message.id);
+      await this.cache.set(cacheKeyForPlayer(playerId), message.id, 0);
     }
   }
 
