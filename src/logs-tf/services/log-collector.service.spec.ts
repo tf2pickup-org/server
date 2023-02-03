@@ -113,7 +113,7 @@ describe('LogCollectorService', () => {
   describe('when the game ends', () => {
     let logsUploaded: string;
 
-    beforeEach(async () => {
+    beforeEach(() => {
       logsTfApiService.uploadLogs.mockResolvedValue('FAKE_LOGS_URL');
 
       events.logsUploaded
