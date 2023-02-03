@@ -1810,16 +1810,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nestjs/axios@npm:1.0.1":
-  version: 1.0.1
-  resolution: "@nestjs/axios@npm:1.0.1"
-  dependencies:
-    axios: 1.2.1
+"@nestjs/axios@npm:2.0.0":
+  version: 2.0.0
+  resolution: "@nestjs/axios@npm:2.0.0"
   peerDependencies:
     "@nestjs/common": ^7.0.0 || ^8.0.0 || ^9.0.0
+    axios: ^1.3.1
     reflect-metadata: ^0.1.12
     rxjs: ^6.0.0 || ^7.0.0
-  checksum: c24c8c607e33401f4fb39c363760b028d7eeca5056a40cf5e7af0b83d93bcd43ec336383574d07c83a16d914ec4d60bb4a36223ac665e934ba0cd70a334d438d
+  checksum: bfadc38c3eed5aa78a39fa62b3026a99ea019a759f1da299c3efb667b07b1129b9c2eaa74a4a5bd2793983c94e9a77ce6cc3802e2399a8861dad8c14d9705be1
   languageName: node
   linkType: hard
 
@@ -3944,17 +3943,6 @@ __metadata:
   version: 0.4.0
   resolution: "asynckit@npm:0.4.0"
   checksum: 7b78c451df768adba04e2d02e63e2d0bf3b07adcd6e42b4cf665cb7ce899bedd344c69a1dcbce355b5f972d597b25aaa1c1742b52cffd9caccb22f348114f6be
-  languageName: node
-  linkType: hard
-
-"axios@npm:1.2.1":
-  version: 1.2.1
-  resolution: "axios@npm:1.2.1"
-  dependencies:
-    follow-redirects: ^1.15.0
-    form-data: ^4.0.0
-    proxy-from-env: ^1.1.0
-  checksum: c4dc4e119064c9aed09a3de309bedb797a139a6fb372223aafe3e0c10a7d4a14e4d3e9c9d309467fadb9d2b490b891ee3df96ef5b55716bb971910466ff9f0c5
   languageName: node
   linkType: hard
 
@@ -11261,7 +11249,7 @@ __metadata:
   resolution: "server@workspace:."
   dependencies:
     "@anatine/zod-openapi": ^1.12.0
-    "@nestjs/axios": 1.0.1
+    "@nestjs/axios": 2.0.0
     "@nestjs/cli": 9.2.0
     "@nestjs/common": 9.3.2
     "@nestjs/config": 2.3.0
