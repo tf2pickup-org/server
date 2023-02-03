@@ -325,7 +325,7 @@ export class QueueService
     await this.cache.set(
       'queue',
       { slots: this.slots, state: this.state },
-      180 * 1000,
+      180 * 1000, // 3 minutes
     );
   }
 }

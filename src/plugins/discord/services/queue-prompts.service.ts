@@ -77,6 +77,7 @@ export class QueuePromptsService implements OnModuleInit {
             await this.cache.set(
               this.queuePromptMessageIdCacheKey,
               sentMessage.id,
+              0,
             );
           }
         }
@@ -112,9 +113,7 @@ export class QueuePromptsService implements OnModuleInit {
   }
 
   private async getPromptMessage(): Promise<Message | undefined> {
-    const id = (await this.cache.get(
-      this.queuePromptMessageIdCacheKey,
-    )) as string;
+    const id = await this.cache.get<string>(this.queuePromptMessageIdCacheKey);
     if (id) {
       return this.discordService.getPlayersChannel()?.messages.fetch(id);
     } else {
