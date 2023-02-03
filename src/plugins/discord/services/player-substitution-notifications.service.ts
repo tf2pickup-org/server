@@ -9,7 +9,6 @@ import {
   OnModuleInit,
 } from '@nestjs/common';
 import { Cache } from 'cache-manager';
-import { Snowflake } from 'discord.js';
 import { filter, map } from 'rxjs';
 import { substituteRequest } from '../notifications';
 import { DiscordService } from './discord.service';
@@ -91,14 +90,14 @@ export class PlayerSubstitutionNotificationsService implements OnModuleInit {
   }
 
   async deleteNotification(playerId: string) {
-    const messageId = await this.cache.get(cacheKeyForPlayer(playerId));
+    const messageId = await this.cache.get<string>(cacheKeyForPlayer(playerId));
     if (!messageId) {
       return;
     }
 
     const message = await this.discordService
       .getPlayersChannel()
-      ?.messages.fetch(messageId as Snowflake);
+      ?.messages.fetch(messageId);
     if (!message) {
       return;
     }
