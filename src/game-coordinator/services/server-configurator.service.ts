@@ -126,9 +126,9 @@ export class ServerConfiguratorService implements OnModuleInit {
       .concat(
         (await this.configurationService.get<LogsTfUploadMethod>(
           'games.logs_tf_upload_method',
-        )) !== LogsTfUploadMethod.Gameserver
-          ? logsTfAutoupload(0)
-          : logsTfAutoupload(2),
+        )) === LogsTfUploadMethod.Gameserver
+          ? logsTfAutoupload(2)
+          : logsTfAutoupload(0),
       )
       .concat(
         await this.configurationService.get<string[]>(
