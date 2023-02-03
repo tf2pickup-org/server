@@ -1,5 +1,61 @@
 
 
+# [11.0.0-alpha.0](https://github.com/tf2pickup-org/server/compare/10.1.2...11.0.0-alpha.0) (2023-02-03)
+
+
+### Bug Fixes
+
+* **auth:** redirect to referer URL properly ([#2205](https://github.com/tf2pickup-org/server/issues/2205)) ([a20bd76](https://github.com/tf2pickup-org/server/commit/a20bd761b9fb0005850a0a8bf4b7913895250d1c))
+* **deps:** update dependency @nestjs/config to v2.3.0 ([#2199](https://github.com/tf2pickup-org/server/issues/2199)) ([cd36686](https://github.com/tf2pickup-org/server/commit/cd3668696f6439b5070b7a235b7cc5dc4d85b6ff))
+* **deps:** update dependency @redis/client to v1.5.0 ([#2181](https://github.com/tf2pickup-org/server/issues/2181)) ([f4023ed](https://github.com/tf2pickup-org/server/commit/f4023edfaac5cfcffb694817405222f6a65d3aa1))
+* **deps:** update dependency @redis/client to v1.5.2 ([#2183](https://github.com/tf2pickup-org/server/issues/2183)) ([d345984](https://github.com/tf2pickup-org/server/commit/d345984731c42a49a011b6400d3c542a9ef85cd8))
+* **deps:** update dependency @redis/client to v1.5.3 ([#2185](https://github.com/tf2pickup-org/server/issues/2185)) ([e7964d4](https://github.com/tf2pickup-org/server/commit/e7964d43ea7362f392fedb062126fefbffb569f2))
+* **deps:** update dependency @redis/client to v1.5.4 ([#2187](https://github.com/tf2pickup-org/server/issues/2187)) ([c6d7994](https://github.com/tf2pickup-org/server/commit/c6d7994a3f63382962f6b2d433e9ca59565c8192))
+* **deps:** update dependency @redis/client to v1.5.5 ([#2191](https://github.com/tf2pickup-org/server/issues/2191)) ([b7d5282](https://github.com/tf2pickup-org/server/commit/b7d528297fbd29425f6291aff3bef814782fb145))
+* **deps:** update dependency axios to v1.2.2 ([#2140](https://github.com/tf2pickup-org/server/issues/2140)) ([d576609](https://github.com/tf2pickup-org/server/commit/d576609d9525014da99111995c2b4ec0f415ee06))
+* **deps:** update dependency axios to v1.2.3 ([#2165](https://github.com/tf2pickup-org/server/issues/2165)) ([1594fb4](https://github.com/tf2pickup-org/server/commit/1594fb4de1c1c3ddaae85d2336a948766d0f650e))
+* **deps:** update dependency axios to v1.2.4 ([#2179](https://github.com/tf2pickup-org/server/issues/2179)) ([5ab909a](https://github.com/tf2pickup-org/server/commit/5ab909a48ca6a4a4ea3b91a3cc09d1e8a032c423))
+* **deps:** update dependency axios to v1.2.5 ([#2184](https://github.com/tf2pickup-org/server/issues/2184)) ([e599e7f](https://github.com/tf2pickup-org/server/commit/e599e7f666f05fa3b2139e0a69b25db306f644ee))
+* **deps:** update dependency axios to v1.2.6 ([#2186](https://github.com/tf2pickup-org/server/issues/2186)) ([2c68fd1](https://github.com/tf2pickup-org/server/commit/2c68fd1f8328a872d2b064cc4f213e88d1b15227))
+* **deps:** update dependency axios to v1.3.1 ([#2196](https://github.com/tf2pickup-org/server/issues/2196)) ([e7db97c](https://github.com/tf2pickup-org/server/commit/e7db97c26073b72fcc8551ec7347354ac7202b0c))
+* **deps:** update dependency cache-manager to v5 ([#1966](https://github.com/tf2pickup-org/server/issues/1966)) ([a52e79f](https://github.com/tf2pickup-org/server/commit/a52e79f1073e15daedf9deac4f86fe38e806af5c))
+* **deps:** update dependency mongoose to v6.8.2 ([#2139](https://github.com/tf2pickup-org/server/issues/2139)) ([eab7218](https://github.com/tf2pickup-org/server/commit/eab721846006583d9cd8801bb25ecde1ac91ea68))
+* **deps:** update dependency mongoose to v6.8.3 ([#2147](https://github.com/tf2pickup-org/server/issues/2147)) ([60e55e1](https://github.com/tf2pickup-org/server/commit/60e55e1a581119efd4475bc2b8c604a56fff5e90))
+* **deps:** update dependency mongoose to v6.8.4 ([#2163](https://github.com/tf2pickup-org/server/issues/2163)) ([194ca2a](https://github.com/tf2pickup-org/server/commit/194ca2a875ffccef52bc734910a4b2db0b42304b))
+* **deps:** update dependency mongoose to v6.9.0 ([#2182](https://github.com/tf2pickup-org/server/issues/2182)) ([7b39ed6](https://github.com/tf2pickup-org/server/commit/7b39ed67cf502ce7ba3186514ee39dac7a6d0c9e))
+* **deps:** update dependency passport-jwt to v4.0.1 ([#2131](https://github.com/tf2pickup-org/server/issues/2131)) ([25e650d](https://github.com/tf2pickup-org/server/commit/25e650d08da4a705547f43f36fe99e6804294af2))
+* **deps:** update dependency rimraf to v4 ([#2156](https://github.com/tf2pickup-org/server/issues/2156)) ([e5c5e25](https://github.com/tf2pickup-org/server/commit/e5c5e25810bff90bcc6a477c24462f8d6726f46e))
+* **deps:** update dependency rimraf to v4.1.2 ([#2177](https://github.com/tf2pickup-org/server/issues/2177)) ([5592295](https://github.com/tf2pickup-org/server/commit/5592295dd706fb2314f4fd1aa1feac4386434cb1))
+* **deps:** update nest monorepo ([#2200](https://github.com/tf2pickup-org/server/issues/2200)) ([c8be143](https://github.com/tf2pickup-org/server/commit/c8be1434e12fcaeba68b7cd424dd01e1dd5e13ba))
+* **dist:** fix 404 error handling ([#2207](https://github.com/tf2pickup-org/server/issues/2207)) ([578de0b](https://github.com/tf2pickup-org/server/commit/578de0bd19c3027ed71e1ef1f851d8e358c8229d))
+* fix date serialization ([#2166](https://github.com/tf2pickup-org/server/issues/2166)) ([d903fc7](https://github.com/tf2pickup-org/server/commit/d903fc7a59a9dfbf22d81c92475e941ad41c890a))
+* **games:** fix sort param ([#2142](https://github.com/tf2pickup-org/server/issues/2142)) ([921e44d](https://github.com/tf2pickup-org/server/commit/921e44dcf88bc3044ddd44f513a6b1a9e755fd0a))
+* **games:** register game ended event when the game is force-ended ([#2167](https://github.com/tf2pickup-org/server/issues/2167)) ([caa9db8](https://github.com/tf2pickup-org/server/commit/caa9db8bc9e4d9b2224bc0ad37a0fe857df155b4))
+* **games:** reset game score upon match start ([#2135](https://github.com/tf2pickup-org/server/issues/2135)) ([d2a694c](https://github.com/tf2pickup-org/server/commit/d2a694c5bfa96df4c2d42dc5381dd5bfd985c1a0))
+* **players:** migrate player.joinedAt to be of type Date ([#2172](https://github.com/tf2pickup-org/server/issues/2172)) ([1b117a9](https://github.com/tf2pickup-org/server/commit/1b117a9ff6e55ceec5cd415dc05a381cd228c81c))
+* **queue:** handle duplicate map name error ([#2204](https://github.com/tf2pickup-org/server/issues/2204)) ([cdf4e40](https://github.com/tf2pickup-org/server/commit/cdf4e404b5e0d5e79cc49eb7567fd7c22eab23f2))
+* **static-game-servers,admin:** fix date serialization ([#2206](https://github.com/tf2pickup-org/server/issues/2206)) ([3cd363d](https://github.com/tf2pickup-org/server/commit/3cd363d030e849fcf7ce6e01106fb249e7817457))
+* **twitch.tv:** make promoted streams configurable ([#2180](https://github.com/tf2pickup-org/server/issues/2180)) ([6f2624e](https://github.com/tf2pickup-org/server/commit/6f2624e3bdf9ca4201f20d9f26fa060d019ebf75))
+
+
+### Features
+
+* **configuration:** new configuration module ([#2169](https://github.com/tf2pickup-org/server/issues/2169)) ([0ce4cc8](https://github.com/tf2pickup-org/server/commit/0ce4cc82538df8c1c8cb2ef8d92bbeb5498b1ebf))
+* **games:** accept game number param ([#2151](https://github.com/tf2pickup-org/server/issues/2151)) ([1ee8f9e](https://github.com/tf2pickup-org/server/commit/1ee8f9e541ba1d068eeb55b04ade6f4e7ff20695))
+* **games:** accept steamId64 for /games?player endpoint ([#2190](https://github.com/tf2pickup-org/server/issues/2190)) ([82559ac](https://github.com/tf2pickup-org/server/commit/82559ac701499f38a68d6a0697f4ad8080061561))
+* **games:** auto substitute players ([#2132](https://github.com/tf2pickup-org/server/issues/2132)) ([ad17fbd](https://github.com/tf2pickup-org/server/commit/ad17fbddd68ac795749e0311c9753c3ba9f2accd))
+* **games:** auto substitute players that disconnect from the game ([#2194](https://github.com/tf2pickup-org/server/issues/2194)) ([85b6496](https://github.com/tf2pickup-org/server/commit/85b649632578c6f008bc08b721849cb82e9ecea1))
+* **games:** configure logs.tf upload method ([#2208](https://github.com/tf2pickup-org/server/issues/2208)) ([7f7901d](https://github.com/tf2pickup-org/server/commit/7f7901db0620bc306b6c97ab1b71ed39b07b4c3c))
+* **games:** execute extra commands ([#2202](https://github.com/tf2pickup-org/server/issues/2202)) ([2ac383b](https://github.com/tf2pickup-org/server/commit/2ac383be354a88075d9f2f9f495ded1fd45fbe40))
+* **games:** store game events in an array ([#2127](https://github.com/tf2pickup-org/server/issues/2127)) ([81d5f24](https://github.com/tf2pickup-org/server/commit/81d5f24154e7b6d284b4cf84a4589e6bc60afeca))
+* **players:** return player game count in PlayerDTO ([#2189](https://github.com/tf2pickup-org/server/issues/2189)) ([4da6355](https://github.com/tf2pickup-org/server/commit/4da6355cd8bbe49335b244a698099b78052625e6))
+* **queue:** migrate configuration ([#2171](https://github.com/tf2pickup-org/server/issues/2171)) ([f9713c7](https://github.com/tf2pickup-org/server/commit/f9713c771de442b4f90926cfc08d9d4f53ecd21a))
+
+
+### BREAKING CHANGES
+
+* **configuration:** The configuration API is changed.
+
 ## [10.1.2](https://github.com/tf2pickup-org/server/compare/10.1.1...10.1.2) (2022-12-23)
 
 
