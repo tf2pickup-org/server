@@ -1,5 +1,6 @@
-import { Environment } from '@/environment/environment';
+import { ConfigurationService } from '@/configuration/services/configuration.service';
 import { Events } from '@/events/events';
+import { LogsTfUploadMethod } from '@/games/logs-tf-upload-method';
 import { Game, GameDocument, gameSchema } from '@/games/models/game';
 import { GamesService } from '@/games/services/games.service';
 import { LogReceiverService } from '@/log-receiver/services/log-receiver.service';
@@ -19,11 +20,7 @@ import { LogsTfApiService } from './logs-tf-api.service';
 jest.mock('@/log-receiver/services/log-receiver.service');
 jest.mock('@/games/services/games.service');
 jest.mock('./logs-tf-api.service');
-jest.mock('@/environment/environment', () => ({
-  Environment: jest.fn().mockImplementation(() => ({
-    websiteName: 'FAKE_WEBSITE',
-  })),
-}));
+jest.mock('@/configuration/services/configuration.service');
 
 describe('LogCollectorService', () => {
   let service: LogCollectorService;
@@ -36,6 +33,8 @@ describe('LogCollectorService', () => {
   let mockGame: GameDocument;
   let events: Events;
   let logsTfApiService: jest.Mocked<LogsTfApiService>;
+  let configurationService: jest.Mocked<ConfigurationService>;
+  let configuration: Record<string, unknown>;
 
   beforeAll(async () => (mongod = await MongoMemoryServer.create()));
   afterAll(async () => await mongod.stop());
@@ -54,8 +53,8 @@ describe('LogCollectorService', () => {
         GamesService,
         Events,
         LogsTfApiService,
-        Environment,
         Events,
+        ConfigurationService,
       ],
     }).compile();
 
@@ -66,11 +65,19 @@ describe('LogCollectorService', () => {
     gamesService = module.get(GamesService);
     events = module.get(Events);
     logsTfApiService = module.get(LogsTfApiService);
+    configurationService = module.get(ConfigurationService);
 
     jest.spyOn(logReceiverService, 'data', 'get').mockReturnValue(log);
   });
 
   beforeEach(async () => {
+    configuration = {
+      'games.logs_tf_upload_method': LogsTfUploadMethod.Backend,
+    };
+    configurationService.get.mockImplementation((key) =>
+      Promise.resolve(configuration[key]),
+    );
+
     // @ts-expect-error
     mockGame = await gamesService._createOne();
     mockGame.logSecret = 'FAKE_LOGSECRET';
@@ -106,7 +113,7 @@ describe('LogCollectorService', () => {
   describe('when the game ends', () => {
     let logsUploaded: string;
 
-    beforeEach(async () => {
+    beforeEach(() => {
       logsTfApiService.uploadLogs.mockResolvedValue('FAKE_LOGS_URL');
 
       events.logsUploaded
@@ -121,11 +128,12 @@ describe('LogCollectorService', () => {
         password: 'FAKE_LOGSECRET',
         payload: 'LOG_LINE_2',
       });
-      events.matchEnded.next({ gameId: mockGame.id });
-      await waitABit(100);
     });
 
-    it('should attempt to upload logs', () => {
+    it('should attempt to upload logs', async () => {
+      events.matchEnded.next({ gameId: mockGame.id });
+      await waitABit(100);
+
       expect(logsTfApiService.uploadLogs).toHaveBeenCalledWith({
         mapName: 'cp_badlands',
         gameNumber: mockGame.number,
@@ -135,6 +143,9 @@ describe('LogCollectorService', () => {
     });
 
     it('should clear cache', async () => {
+      events.matchEnded.next({ gameId: mockGame.id });
+      await waitABit(100);
+
       expect(await cache.get(`games/${mockGame.id}/logs`)).toBe(undefined);
     });
 
@@ -144,7 +155,24 @@ describe('LogCollectorService', () => {
       });
 
       // eslint-disable-next-line jest/expect-expect, @typescript-eslint/no-empty-function
-      it('should handle gracefully', async () => {});
+      it('should handle gracefully', async () => {
+        events.matchEnded.next({ gameId: mockGame.id });
+        await waitABit(100);
+      });
+    });
+
+    describe('but logs.tf upload is disabled for backend', () => {
+      beforeEach(() => {
+        configuration['games.logs_tf_upload_method'] =
+          LogsTfUploadMethod.Gameserver;
+      });
+
+      it('should not upload logs', async () => {
+        events.matchEnded.next({ gameId: mockGame.id });
+        await waitABit(100);
+
+        expect(logsTfApiService.uploadLogs).not.toHaveBeenCalled();
+      });
     });
   });
 });

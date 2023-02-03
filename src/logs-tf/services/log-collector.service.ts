@@ -1,5 +1,6 @@
-import { Environment } from '@/environment/environment';
+import { ConfigurationService } from '@/configuration/services/configuration.service';
 import { Events } from '@/events/events';
+import { LogsTfUploadMethod } from '@/games/logs-tf-upload-method';
 import { GamesService } from '@/games/services/games.service';
 import { LogReceiverService } from '@/log-receiver/services/log-receiver.service';
 import { LogMessage } from '@/log-receiver/types/log-message';
@@ -28,7 +29,7 @@ export class LogCollectorService implements OnModuleInit {
     @Inject(CACHE_MANAGER) private readonly cache: Cache,
     private readonly events: Events,
     private readonly logsTfApiService: LogsTfApiService,
-    private readonly environment: Environment,
+    private readonly configurationService: ConfigurationService,
   ) {}
 
   onModuleInit() {
@@ -69,6 +70,14 @@ export class LogCollectorService implements OnModuleInit {
   }
 
   async uploadLogs(gameId: string) {
+    if (
+      (await this.configurationService.get<LogsTfUploadMethod>(
+        'games.logs_tf_upload_method',
+      )) !== LogsTfUploadMethod.Backend
+    ) {
+      return;
+    }
+
     const game = await this.gamesService.getById(gameId);
     this.logger.log(`uploading logs for game #${game.number}...`);
 

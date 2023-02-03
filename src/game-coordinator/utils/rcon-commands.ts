@@ -56,6 +56,11 @@ export function logsTfTitle(logsTfTitle: string) {
   return `logstf_title ${logsTfTitle}`;
 }
 
+export function logsTfAutoupload(upload: number) {
+  // Set to 2 to upload logs from all matches. (default)\n - Set to 1 to upload logs from matches with at least 4 players.\n - Set to 0 to disable automatic upload. Admins can still upload logs by typing !ul
+  return `logstf_autoupload ${upload}`;
+}
+
 export function setPassword(password: string) {
   return `sv_password ${password}`;
 }

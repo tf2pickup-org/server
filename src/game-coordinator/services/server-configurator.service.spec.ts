@@ -44,6 +44,7 @@ import { GameServerNotAssignedError } from '../errors/game-server-not-assigned.e
 import { GameEventType } from '@/games/models/game-event';
 import { PlayerConnectionStatus } from '@/games/models/player-connection-status';
 import { CannotConfigureGameError } from '../errors/cannot-configure-game.error';
+import { LogsTfUploadMethod } from '@/games/logs-tf-upload-method';
 
 jest.mock('@/queue/services/map-pool.service');
 jest.mock('@/players/services/players.service');
@@ -132,6 +133,7 @@ describe('ServerConfiguratorService', () => {
     ]);
     configuration = {
       'games.whitelist_id': undefined,
+      'games.logs_tf_upload_method': LogsTfUploadMethod.Backend,
     };
     configurationService.get.mockImplementation((key) =>
       Promise.resolve(configuration[key]),
@@ -238,6 +240,7 @@ describe('ServerConfiguratorService', () => {
       expect(rcon.send).toHaveBeenCalledWith(
         logsTfTitle('FAKE_WEBSITE_NAME #1'),
       );
+      expect(rcon.send).toHaveBeenCalledWith('logstf_autoupload 0');
       expect(rcon.send).toHaveBeenCalledWith(tvPort());
       expect(rcon.send).toHaveBeenCalledWith(tvPassword());
     });
@@ -379,6 +382,18 @@ describe('ServerConfiguratorService', () => {
       it('should execute extra commands', async () => {
         await service.configureServer(mockGame.id);
         expect(rcon.send).toHaveBeenCalledWith('sm_cvar spec_freeze_time 0');
+      });
+    });
+
+    describe('when logs.tf uploading is enabled', () => {
+      beforeEach(() => {
+        configuration['games.logs_tf_upload_method'] =
+          LogsTfUploadMethod.Gameserver;
+      });
+
+      it('should enable logs.tf upload', async () => {
+        await service.configureServer(mockGame.id);
+        expect(rcon.send).toHaveBeenCalledWith('logstf_autoupload 2');
       });
     });
   });
