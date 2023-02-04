@@ -1,5 +1,18 @@
 
 
+# [11.0.0-alpha.1](https://github.com/tf2pickup-org/server/compare/11.0.0-alpha.0...11.0.0-alpha.1) (2023-02-04)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @nestjs/axios to v2 ([#2214](https://github.com/tf2pickup-org/server/issues/2214)) ([4244e99](https://github.com/tf2pickup-org/server/commit/4244e996be3451cb2e7fe561bfbfb0e8a59d4128))
+* **deps:** update dependency @nestjs/schedule to v2.2.0 ([#2212](https://github.com/tf2pickup-org/server/issues/2212)) ([aae424f](https://github.com/tf2pickup-org/server/commit/aae424fa2d51de990210a53370fb5f1d027c9202))
+* **deps:** update dependency axios to v1.3.2 ([#2213](https://github.com/tf2pickup-org/server/issues/2213)) ([6069750](https://github.com/tf2pickup-org/server/commit/6069750a97487c90a802a8902f8a9877ef62f706))
+* **deps:** update dependency cache-manager to v5.1.5 ([#2211](https://github.com/tf2pickup-org/server/issues/2211)) ([385e0c6](https://github.com/tf2pickup-org/server/commit/385e0c69fb3019a6adce6962e248d6d1ae5cc4f5))
+* **deps:** update nest monorepo to v9.3.2 ([#2209](https://github.com/tf2pickup-org/server/issues/2209)) ([4093921](https://github.com/tf2pickup-org/server/commit/4093921273004736e8fc831e509293dd2c28d25e))
+* update cache TTL ([#2215](https://github.com/tf2pickup-org/server/issues/2215)) ([652e8e8](https://github.com/tf2pickup-org/server/commit/652e8e84930946030dc81aae7295514ada2854a3))
+* update cache TTL ([#2215](https://github.com/tf2pickup-org/server/issues/2215)) ([781dcb7](https://github.com/tf2pickup-org/server/commit/781dcb77200d7f75b3db2db5a17be02be312738d))
+
 # [11.0.0-alpha.0](https://github.com/tf2pickup-org/server/compare/10.1.2...11.0.0-alpha.0) (2023-02-03)
 
 
