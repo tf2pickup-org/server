@@ -139,6 +139,7 @@ export class ServemeTfApiService {
                 password: generateGameserverPassword(),
                 server_id: server.id,
                 enable_plugins: true,
+                enable_demos_tf: true,
               },
             },
             this.config,
