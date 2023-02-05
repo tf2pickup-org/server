@@ -1,3 +1,10 @@
+## [10.1.3](https://github.com/tf2pickup-org/server/compare/10.1.2...10.1.3) (2023-02-05)
+
+
+### Bug Fixes
+
+* **serveme.tf:** enable demos.tf support ([#2219](https://github.com/tf2pickup-org/server/issues/2219)) ([868ee40](https://github.com/tf2pickup-org/server/commit/868ee405aa1e940e532a7b883cdf3ab82b7bd0bf))
+
 
 
 ## [10.1.2](https://github.com/tf2pickup-org/server/compare/10.1.1...10.1.2) (2022-12-23)
