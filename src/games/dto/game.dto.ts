@@ -15,7 +15,13 @@ export interface GameDto {
     connectionStatus: 'offline' | 'joining' | 'connected';
   }[];
   map: string;
-  state: 'launching' | 'started' | 'ended' | 'interrupted';
+  state:
+    | 'created'
+    | 'configuring'
+    | 'launching'
+    | 'started'
+    | 'ended'
+    | 'interrupted';
   connectInfoVersion: number;
   stvConnectString?: string;
   logsUrl?: string;

@@ -33,6 +33,7 @@ import { CannotConfigureGameError } from '../errors/cannot-configure-game.error'
 import { GameEventType } from '@/games/models/game-event';
 import { assertIsError } from '@/utils/assert-is-error';
 import { LogsTfUploadMethod } from '@/games/logs-tf-upload-method';
+import { GameState } from '@/games/models/game-state';
 
 @Injectable()
 export class ServerConfiguratorService implements OnModuleInit {
@@ -143,6 +144,9 @@ export class ServerConfiguratorService implements OnModuleInit {
 
       // reset connect info
       game = await this.gamesService.update(game.id, {
+        $set: {
+          state: GameState.configuring,
+        },
         $unset: {
           connectString: 1,
           stvConnectString: 1,
@@ -195,6 +199,7 @@ export class ServerConfiguratorService implements OnModuleInit {
         $set: {
           connectString,
           stvConnectString,
+          state: GameState.launching,
         },
         $inc: {
           connectInfoVersion: 1,

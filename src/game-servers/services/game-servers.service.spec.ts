@@ -21,6 +21,7 @@ import { Tf2Team } from '@/games/models/tf2-team';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { SlotStatus } from '@/games/models/slot-status';
 import { PlayerConnectionStatus } from '@/games/models/player-connection-status';
+import { GameState } from '@/games/models/game-state';
 
 jest.mock('@/games/services/games.service');
 
@@ -248,6 +249,7 @@ describe('GameServersService', () => {
           expect(ret.connectString).toBe(undefined);
           expect(ret.stvConnectString).toBe(undefined);
           expect(ret.connectInfoVersion).toEqual(game.connectInfoVersion + 1);
+          expect(ret.state).toEqual(GameState.created);
         });
 
         describe('when there are players', () => {
