@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 
 export enum PlayerEventType {
+  replacesPlayer = 'replaces player',
   joinsGameServer = 'joins game server',
   joinsGameServerTeam = 'joins game server team',
   leavesGameServer = 'leaves game server',

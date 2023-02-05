@@ -22,6 +22,7 @@ import { merge } from 'rxjs';
 import { Mutex } from 'async-mutex';
 import { GameId } from '../game-id';
 import { PlayerId } from '@/players/types/player-id';
+import { PlayerEventType } from '../models/player-event';
 
 /**
  * A service that handles player substitution logic.
@@ -226,6 +227,12 @@ export class PlayerSubstitutionService implements OnModuleInit {
         player: new Types.ObjectId(replacementId),
         team: slot.team,
         gameClass: slot.gameClass,
+        events: [
+          {
+            at: new Date(),
+            event: PlayerEventType.replacesPlayer,
+          },
+        ],
       };
 
       await this.gameModel.findByIdAndUpdate(gameId, {

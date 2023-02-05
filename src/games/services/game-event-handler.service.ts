@@ -205,6 +205,7 @@ export class GameEventHandlerService implements OnModuleInit, OnModuleDestroy {
     eventType: PlayerEventType,
   ): Promise<Game> {
     const connectionStatus: PlayerConnectionStatus = {
+      [PlayerEventType.replacesPlayer]: PlayerConnectionStatus.offline,
       [PlayerEventType.joinsGameServer]: PlayerConnectionStatus.joining,
       [PlayerEventType.joinsGameServerTeam]: PlayerConnectionStatus.connected,
       [PlayerEventType.leavesGameServer]: PlayerConnectionStatus.offline,

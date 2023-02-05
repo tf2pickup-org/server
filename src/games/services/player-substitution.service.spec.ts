@@ -22,6 +22,7 @@ import { WrongGameSlotStatusError } from '../errors/wrong-game-slot-status.error
 import { GameInWrongStateError } from '../errors/game-in-wrong-state.error';
 import { PlayerId } from '@/players/types/player-id';
 import { GameId } from '../game-id';
+import { PlayerEventType } from '../models/player-event';
 
 jest.mock('@/players/services/players.service');
 jest.mock('./games.service');
@@ -424,6 +425,20 @@ describe('PlayerSubstitutionService', () => {
       await service.replacePlayer(mockGame._id, player1._id, player3._id);
       const player = await playersService.getById(player1._id);
       expect(player.activeGame).toBe(undefined);
+    });
+
+    it('should register event', async () => {
+      const game = await service.replacePlayer(
+        mockGame.id,
+        player1.id,
+        player3.id,
+      );
+      const slot = game.findPlayerSlot(player3.id);
+      expect(
+        slot?.events.find(
+          (event) => event.event === PlayerEventType.replacesPlayer,
+        ),
+      ).toBeTruthy();
     });
 
     describe('when a player1 gets replaced, but then player2 leaves', () => {
