@@ -96,6 +96,11 @@ describe('GameEventHandlerService', () => {
   });
 
   describe('#onMatchStarted()', () => {
+    beforeEach(async () => {
+      mockGame.state = GameState.launching;
+      await mockGame.save();
+    });
+
     it('should update game state', async () => {
       const game = await service.onMatchStarted(mockGame.id);
       expect(game?.state).toEqual(GameState.started);
