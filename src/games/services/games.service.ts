@@ -340,7 +340,14 @@ export class GamesService {
       Game,
       await this.gameModel
         .find({
-          state: { $in: [GameState.launching, GameState.started] },
+          state: {
+            $in: [
+              GameState.created,
+              GameState.configuring,
+              GameState.launching,
+              GameState.started,
+            ],
+          },
           'slots.status': SlotStatus.waitingForSubstitute,
         })
         .lean()
@@ -356,7 +363,7 @@ export class GamesService {
       Game,
       await this.gameModel
         .find({
-          state: GameState.launching,
+          state: [GameState.created],
           gameServer: { $exists: false },
         })
         .lean()

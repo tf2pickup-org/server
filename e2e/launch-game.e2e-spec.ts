@@ -180,7 +180,7 @@ describe('Launch game (e2e)', () => {
       .expect(200)
       .then((response) => {
         const body = response.body;
-        expect(body.state).toEqual('launching');
+        expect(['created', 'configuring'].includes(body.state)).toBe(true);
         expect(body.launchedAt).toMatch(
           /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/,
         );

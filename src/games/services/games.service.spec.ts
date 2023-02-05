@@ -365,7 +365,7 @@ describe('GamesService', () => {
       const game = await service.create(slots, 'cp_fake');
       expect(game.number).toEqual(1);
       expect(game.map).toEqual('cp_fake');
-      expect(game.state).toEqual(GameState.launching);
+      expect(game.state).toEqual(GameState.created);
     });
 
     it('should emit the gameCreated event', async () => {
@@ -379,7 +379,7 @@ describe('GamesService', () => {
       expect(createdGame).toMatchObject({
         number: 1,
         map: 'cp_fake',
-        state: 'launching',
+        state: GameState.created,
       });
     });
 

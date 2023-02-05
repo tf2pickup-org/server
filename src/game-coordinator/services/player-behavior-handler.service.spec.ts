@@ -111,6 +111,7 @@ describe('PlayerBehaviorHandlerService', () => {
           at: sub(new Date(), { minutes: 2 }),
           event: GameEventType.GameServerInitialized,
         });
+        game.state = GameState.launching;
         await game.save();
       });
 

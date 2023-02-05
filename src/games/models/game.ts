@@ -81,7 +81,7 @@ export class Game extends Serializable<GameDto> {
   @Prop({ required: true })
   map!: string;
 
-  @Prop({ index: true, enum: GameState, default: GameState.launching })
+  @Prop({ index: true, enum: GameState, default: GameState.created })
   state!: GameState;
 
   @Exclude({ toPlainOnly: true })
@@ -166,8 +166,14 @@ export class Game extends Serializable<GameDto> {
     );
   }
 
+  // Return true if the game is considered to be in progress.
   isInProgress(): boolean {
-    return [GameState.launching, GameState.started].includes(this.state);
+    return [
+      GameState.created,
+      GameState.configuring,
+      GameState.launching,
+      GameState.started,
+    ].includes(this.state);
   }
 }
 

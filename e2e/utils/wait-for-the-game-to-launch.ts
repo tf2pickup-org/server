@@ -9,7 +9,7 @@ export const waitForTheGameToLaunch = (app: INestApplication, gameId: string) =>
         .get(`/games/${gameId}`)
         .then((response) => {
           const body = response.body;
-          if (body.stvConnectString) {
+          if (body.state === 'launching') {
             clearInterval(i);
             resolve();
           }

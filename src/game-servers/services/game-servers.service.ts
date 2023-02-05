@@ -146,6 +146,7 @@ export class GameServersService
         game = await this.gamesService.update(game.id, {
           $set: {
             'slots.$[].connectionStatus': PlayerConnectionStatus.offline,
+            state: GameState.created,
           },
           $unset: {
             gameServer: 1,
