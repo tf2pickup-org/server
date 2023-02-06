@@ -2,6 +2,7 @@ import { AppModule } from '@/app.module';
 import { JwtTokenPurpose } from '@/auth/jwt-token-purpose';
 import { AuthService } from '@/auth/services/auth.service';
 import { configureApplication } from '@/configure-application';
+import { GameId } from '@/games/game-id';
 import { PlayersService } from '@/players/services/players.service';
 import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
@@ -34,8 +35,8 @@ describe('Launch game (e2e)', () => {
 
   // players[0] is the super-user
   let authToken: string;
-  let newGameId: string;
-  let activeGameId: string;
+  let newGameId: GameId;
+  let activeGameId: GameId;
 
   beforeAll(async () => {
     const moduleFixture = await Test.createTestingModule({

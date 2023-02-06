@@ -4,6 +4,7 @@ import { AuthService } from '@/auth/services/auth.service';
 import { ConfigurationService } from '@/configuration/services/configuration.service';
 import { configureApplication } from '@/configure-application';
 import { Events } from '@/events/events';
+import { GameId } from '@/games/game-id';
 import { GamesService } from '@/games/services/games.service';
 import { PlayersService } from '@/players/services/players.service';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
@@ -17,7 +18,7 @@ import { waitForTheGameToLaunch } from './utils/wait-for-the-game-to-launch';
 describe('Launch game (e2e)', () => {
   let app: INestApplication;
   let playersService: PlayersService;
-  let gameId: string;
+  let gameId: GameId;
   let events: Events;
   let playerSocket: Socket;
   let substituteRequests: any[];
@@ -72,67 +73,67 @@ describe('Launch game (e2e)', () => {
         {
           id: 0,
           gameClass: Tf2ClassName.scout,
-          playerId: (await playersService.findBySteamId(players[0])).id,
+          playerId: (await playersService.findBySteamId(players[0]))._id,
           ready: true,
         },
         {
           id: 1,
           gameClass: Tf2ClassName.scout,
-          playerId: (await playersService.findBySteamId(players[1])).id,
+          playerId: (await playersService.findBySteamId(players[1]))._id,
           ready: true,
         },
         {
           id: 2,
           gameClass: Tf2ClassName.scout,
-          playerId: (await playersService.findBySteamId(players[2])).id,
+          playerId: (await playersService.findBySteamId(players[2]))._id,
           ready: true,
         },
         {
           id: 3,
           gameClass: Tf2ClassName.scout,
-          playerId: (await playersService.findBySteamId(players[3])).id,
+          playerId: (await playersService.findBySteamId(players[3]))._id,
           ready: true,
         },
         {
           id: 4,
           gameClass: Tf2ClassName.soldier,
-          playerId: (await playersService.findBySteamId(players[4])).id,
+          playerId: (await playersService.findBySteamId(players[4]))._id,
           ready: true,
         },
         {
           id: 5,
           gameClass: Tf2ClassName.soldier,
-          playerId: (await playersService.findBySteamId(players[5])).id,
+          playerId: (await playersService.findBySteamId(players[5]))._id,
           ready: true,
         },
         {
           id: 6,
           gameClass: Tf2ClassName.soldier,
-          playerId: (await playersService.findBySteamId(players[6])).id,
+          playerId: (await playersService.findBySteamId(players[6]))._id,
           ready: true,
         },
         {
           id: 7,
           gameClass: Tf2ClassName.soldier,
-          playerId: (await playersService.findBySteamId(players[7])).id,
+          playerId: (await playersService.findBySteamId(players[7]))._id,
           ready: true,
         },
         {
           id: 8,
           gameClass: Tf2ClassName.demoman,
-          playerId: (await playersService.findBySteamId(players[8])).id,
+          playerId: (await playersService.findBySteamId(players[8]))._id,
           ready: true,
         },
         {
           id: 9,
           gameClass: Tf2ClassName.demoman,
-          playerId: (await playersService.findBySteamId(players[9])).id,
+          playerId: (await playersService.findBySteamId(players[9]))._id,
           ready: true,
         },
         {
           id: 10,
           gameClass: Tf2ClassName.medic,
-          playerId: (await playersService.findBySteamId(players[10])).id,
+          playerId: (await playersService.findBySteamId(players[10]))._id,
           ready: true,
           canMakeFriendsWith: [
             Tf2ClassName.scout,
@@ -143,7 +144,7 @@ describe('Launch game (e2e)', () => {
         {
           id: 11,
           gameClass: Tf2ClassName.medic,
-          playerId: (await playersService.findBySteamId(players[11])).id,
+          playerId: (await playersService.findBySteamId(players[11]))._id,
           ready: true,
           canMakeFriendsWith: [
             Tf2ClassName.scout,
@@ -154,7 +155,7 @@ describe('Launch game (e2e)', () => {
       ],
       'cp_badlands',
     );
-    gameId = game.id;
+    gameId = game._id;
     await waitABit(1000);
     await waitForTheGameToLaunch(app, gameId);
 
