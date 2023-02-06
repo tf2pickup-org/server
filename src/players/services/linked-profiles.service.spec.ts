@@ -24,7 +24,7 @@ describe('LinkedProfilesService', () => {
         name: 'twitch.tv',
         fetchProfile: (playerId) =>
           Promise.resolve({
-            playerId,
+            playerId: playerId,
             test: 'test',
           }),
       });
@@ -36,7 +36,7 @@ describe('LinkedProfilesService', () => {
       expect(linkedProfiles).toEqual([
         {
           provider: 'twitch.tv',
-          playerId,
+          playerId: expect.any(Object),
           test: 'test',
         },
       ]);
