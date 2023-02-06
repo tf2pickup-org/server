@@ -7,6 +7,7 @@ import { GameState } from '@/games/models/game-state';
 import { GamesService } from '@/games/services/games.service';
 import { Player, playerSchema } from '@/players/models/player';
 import { PlayersService } from '@/players/services/players.service';
+import { PlayerBanId } from '@/players/types/player-ban-id';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
 import { getConnectionToken, MongooseModule } from '@nestjs/mongoose';
@@ -146,7 +147,7 @@ describe('AdminNotificationsService', () => {
         events.playerUpdates.next({
           oldPlayer,
           newPlayer,
-          adminId: admin.id,
+          adminId: admin._id,
         });
       }));
 
@@ -156,7 +157,7 @@ describe('AdminNotificationsService', () => {
           events.playerUpdates.next({
             oldPlayer,
             newPlayer: oldPlayer,
-            adminId: admin.id,
+            adminId: admin._id,
           });
           setTimeout(() => {
             expect(sendSpy).not.toHaveBeenCalled();
@@ -187,7 +188,7 @@ describe('AdminNotificationsService', () => {
 
         events.playerBanAdded.next({
           ban: {
-            _id: new Types.ObjectId(),
+            _id: new Types.ObjectId() as PlayerBanId,
             id: 'FAKE_ID',
             player: player._id,
             admin: admin._id,
@@ -221,7 +222,7 @@ describe('AdminNotificationsService', () => {
 
         events.playerBanRevoked.next({
           ban: {
-            _id: new Types.ObjectId(),
+            _id: new Types.ObjectId() as PlayerBanId,
             id: 'FAKE_ID',
             player: player._id,
             admin: admin._id,
@@ -230,7 +231,7 @@ describe('AdminNotificationsService', () => {
             reason: 'FAKE_BAN',
             serialize: jest.fn(),
           },
-          adminId: admin.id,
+          adminId: admin._id,
         });
       }));
   });
@@ -265,7 +266,7 @@ describe('AdminNotificationsService', () => {
         events.playerUpdates.next({
           oldPlayer,
           newPlayer,
-          adminId: admin.id,
+          adminId: admin._id,
         });
       }));
 
@@ -275,7 +276,7 @@ describe('AdminNotificationsService', () => {
           events.playerUpdates.next({
             oldPlayer,
             newPlayer: oldPlayer,
-            adminId: admin.id,
+            adminId: admin._id,
           });
           setTimeout(() => {
             expect(sendSpy).not.toHaveBeenCalled();
@@ -363,7 +364,7 @@ describe('AdminNotificationsService', () => {
             state: GameState.interrupted,
             id: 'FAKE_GAME_ID',
           } as Game,
-          adminId: admin.id,
+          adminId: admin._id,
         });
       }));
   });
@@ -392,9 +393,9 @@ describe('AdminNotificationsService', () => {
         });
 
         events.substituteRequested.next({
-          gameId: game.id,
-          playerId: player.id,
-          adminId: admin.id,
+          gameId: game._id,
+          playerId: player._id,
+          adminId: admin._id,
         });
       }));
   });
@@ -416,7 +417,7 @@ describe('AdminNotificationsService', () => {
 
         events.mapsScrambled.next({
           mapOptions: ['cp_badlands', 'cp_process_final', 'cp_granary_pro_rc8'],
-          actorId: actor.id,
+          actorId: actor._id,
         });
       }));
   });

@@ -101,7 +101,12 @@ export class PlayersController {
   async getPlayerStats(
     @Param('id', PlayerByIdPipe) player: Player,
   ): Promise<PlayerStatsDto> {
-    return await this.playersService.getPlayerStats(player._id);
+    const stats = await this.playersService.getPlayerStats(player._id);
+    return {
+      player: stats.player.toString(),
+      gamesPlayed: stats.gamesPlayed,
+      classesPlayed: stats.classesPlayed,
+    };
   }
 
   @Get('/all/skill')

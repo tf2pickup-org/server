@@ -16,6 +16,8 @@ import { GamesService } from '@/games/services/games.service';
 import { GameServerControls } from '@/game-servers/interfaces/game-server-controls';
 import { GameServerOptionWithProvider } from '@/game-servers/interfaces/game-server-option';
 import { waitABit } from '@/utils/wait-a-bit';
+import { GameId } from '@/games/game-id';
+import { PlayerId } from '@/players/types/player-id';
 
 jest.mock('@/games/services/games.service');
 jest.mock('@/game-servers/services/game-servers.service');
@@ -124,8 +126,8 @@ describe('GameRuntimeService', () => {
       controls.rcon.mockResolvedValue(rcon);
 
       events.substituteRequested.next({
-        gameId: mockGame.id,
-        playerId: mockPlayers[0].id,
+        gameId: mockGame._id,
+        playerId: mockPlayers[0]._id,
       });
       await waitABit(100);
     });
@@ -139,36 +141,36 @@ describe('GameRuntimeService', () => {
 
   describe('when the gameReconfigureRequested event is emitted', () => {
     beforeEach(async () => {
-      events.gameReconfigureRequested.next({ gameId: mockGame.id });
+      events.gameReconfigureRequested.next({ gameId: mockGame._id });
       await waitABit(100);
     });
 
     it('should reconfigure the server', () => {
       expect(serverConfiguratorService.configureServer).toHaveBeenCalledWith(
-        mockGame.id,
+        mockGame._id,
       );
     });
   });
 
   describe('#reconfigure()', () => {
     it('should configure the server again', async () => {
-      const ret = await service.reconfigure(mockGame.id);
+      const ret = await service.reconfigure(mockGame._id);
       expect(serverConfiguratorService.configureServer).toHaveBeenCalledWith(
-        mockGame.id,
+        mockGame._id,
       );
       expect(ret.connectString).toEqual('FAKE_CONNECT_STRING');
     });
 
     it('should bump connect info version', async () => {
       const v = mockGame.connectInfoVersion;
-      const ret = await service.reconfigure(mockGame.id);
+      const ret = await service.reconfigure(mockGame._id);
       expect(ret.connectInfoVersion > v).toBe(true);
     });
 
     describe('when the given game does not exist', () => {
       it('should throw an error', async () => {
         await expect(
-          service.reconfigure(new Types.ObjectId().toString()),
+          service.reconfigure(new Types.ObjectId() as GameId),
         ).rejects.toThrow(MongooseError.DocumentNotFoundError);
       });
     });
@@ -182,7 +184,7 @@ describe('GameRuntimeService', () => {
       });
 
       it('should throw an error', async () => {
-        await expect(service.reconfigure(anotherGame.id)).rejects.toThrow(
+        await expect(service.reconfigure(anotherGame._id)).rejects.toThrow(
           'this game has no server assigned',
         );
       });
@@ -196,7 +198,7 @@ describe('GameRuntimeService', () => {
       });
 
       it('should handle the error', async () => {
-        await expect(service.reconfigure(mockGame.id)).resolves.toBeTruthy();
+        await expect(service.reconfigure(mockGame._id)).resolves.toBeTruthy();
       });
     });
   });
@@ -213,9 +215,9 @@ describe('GameRuntimeService', () => {
       it('should throw an error', async () => {
         await expect(
           service.replacePlayer(
-            new Types.ObjectId().toString(),
-            'FAKE_REPLACEE_ID',
-            'FAKE_REPLACEMENT_ID',
+            new Types.ObjectId() as GameId,
+            new Types.ObjectId() as PlayerId,
+            new Types.ObjectId() as PlayerId,
           ),
         ).rejects.toThrow(MongooseError.DocumentNotFoundError);
       });

@@ -18,6 +18,7 @@ import { Types } from 'mongoose';
 import { ImportExportSkillService } from '../services/import-export-skill.service';
 import { PlayerSkillRecordMalformedError } from '../errors/player-skill-record-malformed.error';
 import { QueueConfig } from '@/queue-config/interfaces/queue-config';
+import { PlayerId } from '../types/player-id';
 
 jest.mock('../services/linked-profiles.service');
 jest.mock('../services/import-export-skill.service');
@@ -196,16 +197,17 @@ describe('Players Controller', () => {
 
   describe('#updatePlayer()', () => {
     it('should update the player', async () => {
+      const adminId = new Types.ObjectId() as PlayerId;
       const spy = jest.spyOn(playersService, 'updatePlayer');
       const ret = await controller.updatePlayer(
         playersService.player,
         { name: 'FAKE_NEW_NAME' },
-        { id: 'FAKE_ADMIN_ID' } as any,
+        { _id: adminId } as Player,
       );
       expect(spy).toHaveBeenCalledWith(
-        'FAKE_ID',
+        playersService.player._id,
         { name: 'FAKE_NEW_NAME' },
-        'FAKE_ADMIN_ID',
+        adminId,
       );
       expect(ret).toEqual(playersService.player as any);
     });

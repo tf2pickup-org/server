@@ -24,6 +24,7 @@ import {
   MongooseModule,
 } from '@nestjs/mongoose';
 import { ConfigurationService } from '@/configuration/services/configuration.service';
+import { PlayerId } from '@/players/types/player-id';
 
 jest.mock('../gateways/twitch.gateway');
 jest.mock('./twitch-auth.service');
@@ -135,7 +136,7 @@ describe('TwitchService', () => {
       });
 
       it('should return the requested twitch.tv profile', async () => {
-        const profile = await service.getTwitchTvProfileByPlayerId(player.id);
+        const profile = await service.getTwitchTvProfileByPlayerId(player._id);
         expect(profile.player.toString()).toEqual(player.id);
         expect(profile.userId).toEqual('44322889');
       });
@@ -144,7 +145,9 @@ describe('TwitchService', () => {
     describe('when does not exist', () => {
       it('should throw an error', async () => {
         await expect(
-          service.getTwitchTvProfileByPlayerId(new Types.ObjectId().toString()),
+          service.getTwitchTvProfileByPlayerId(
+            new Types.ObjectId() as PlayerId,
+          ),
         ).rejects.toThrow(Error.DocumentNotFoundError);
       });
     });
@@ -224,7 +227,7 @@ describe('TwitchService', () => {
     });
 
     it('should register twitch.tv profile', async () => {
-      await service.saveUserProfile(player.id, 'FAKE_CODE');
+      await service.saveUserProfile(player._id, 'FAKE_CODE');
 
       const profile = await twitchTvProfileModel
         .findOne({
@@ -242,12 +245,12 @@ describe('TwitchService', () => {
     it('should emit the linkedProfilesChanged event', () =>
       new Promise<void>((resolve) => {
         events.linkedProfilesChanged.subscribe(({ playerId }) => {
-          expect(playerId).toEqual(player.id);
+          expect(playerId).toEqual(player._id);
           resolve();
         });
 
         // skipcq: JS-0116
-        service.saveUserProfile(player.id, 'FAKE_CODE');
+        service.saveUserProfile(player._id, 'FAKE_CODE');
       }));
   });
 
@@ -268,19 +271,19 @@ describe('TwitchService', () => {
     });
 
     it('should return the deleted twitch.tv profile', async () => {
-      const profile = await service.deleteUserProfile(`${player.id}`);
+      const profile = await service.deleteUserProfile(player._id);
       expect(profile.player.toString()).toEqual(player.id);
     });
 
     it('should emit the linkedProfilesChanged event', () =>
       new Promise<void>((resolve) => {
         events.linkedProfilesChanged.subscribe(({ playerId }) => {
-          expect(playerId).toEqual(player.id);
+          expect(playerId).toEqual(player._id);
           resolve();
         });
 
         // skipcq: JS-0116
-        service.deleteUserProfile(player.id);
+        service.deleteUserProfile(player._id);
       }));
   });
 

@@ -232,7 +232,7 @@ export class PlayersService implements OnModuleInit {
 
   async getPlayerStats(playerId: PlayerId) {
     return {
-      player: playerId.toString(),
+      player: playerId,
       gamesPlayed: await this.gamesService.getPlayerGameCount(playerId, {
         endedOnly: true,
       }),

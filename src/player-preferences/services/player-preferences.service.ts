@@ -24,7 +24,7 @@ export class PlayerPreferencesService {
   }
 
   async updatePlayerPreferences(
-    playerId: string,
+    playerId: PlayerId,
     preferences: PreferencesType,
   ): Promise<PreferencesType> {
     const ret = await this.playerPreferences.findOneAndUpdate(

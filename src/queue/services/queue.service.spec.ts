@@ -11,6 +11,8 @@ import { CACHE_MANAGER } from '@nestjs/common';
 import { QueueState } from '../queue-state';
 import { QueueSlot } from '../queue-slot';
 import { ConfigurationService } from '@/configuration/services/configuration.service';
+import { PlayerBanId } from '@/players/types/player-ban-id';
+import { PlayerId } from '@/players/types/player-id';
 
 jest.mock('@/configuration/services/configuration.service', () => ({
   ConfigurationService: jest.fn().mockImplementation(() => {
@@ -70,7 +72,7 @@ describe('QueueService', () => {
 
   beforeEach(() => {
     player = new Player();
-    player._id = new Types.ObjectId();
+    player._id = new Types.ObjectId() as PlayerId;
     player.id = player._id.toString();
   });
 
@@ -230,7 +232,7 @@ describe('QueueService', () => {
     describe('#join()', () => {
       describe('when the player tries to join an invalid slot', () => {
         it('should fail', () => {
-          expect(() => service.join(1234567, player.id)).toThrow(
+          expect(() => service.join(1234567, player._id)).toThrow(
             NoSuchSlotError,
           );
         });
@@ -238,66 +240,68 @@ describe('QueueService', () => {
 
       describe('when the player tries to join an already occupied slot', () => {
         beforeEach(() => {
-          service.join(0, 'FAKE_PLAYER_2_ID');
+          service.join(0, new Types.ObjectId() as PlayerId);
         });
 
         it('should fail when trying to take a slot that was already occupied', () => {
-          expect(() => service.join(0, player.id)).toThrow(SlotOccupiedError);
+          expect(() => service.join(0, player._id)).toThrow(SlotOccupiedError);
         });
       });
 
       it('should add the player to the given slot', () => {
-        const slots = service.join(0, player.id);
-        const slot = slots.find((s) => s.playerId === player.id);
+        const slots = service.join(0, player._id);
+        const slot = slots.find((s) => s.playerId?.equals(player._id));
         expect(slot).toBeDefined();
         expect((slot as QueueSlot).id).toBe(0);
         expect(service.playerCount).toBe(1);
       });
 
       it('should return the player via isInQueue()', () => {
-        service.join(0, player.id);
-        expect(service.isInQueue(player.id)).toBe(true);
+        service.join(0, player._id);
+        expect(service.isInQueue(player._id)).toBe(true);
       });
 
       it('should remove the player from already taken slot', () => {
-        const oldSlots = service.join(0, player.id);
-        const newSlots = service.join(1, player.id);
+        const oldSlots = service.join(0, player._id);
+        const newSlots = service.join(1, player._id);
         expect(newSlots.length).toEqual(2);
-        expect(newSlots.find((s) => s.playerId === player.id)).toBeDefined();
+        expect(
+          newSlots.find((s) => s.playerId?.equals(player._id)),
+        ).toBeDefined();
         expect(oldSlots[0].playerId).toBeNull();
       });
 
       it('should emit the playerJoinsQueue event', () =>
         new Promise<void>((resolve) => {
           events.playerJoinsQueue.subscribe(({ playerId }) => {
-            expect(playerId).toEqual(player.id);
+            expect(playerId).toEqual(player._id);
             resolve();
           });
 
-          service.join(0, player.id);
+          service.join(0, player._id);
         }));
 
       it('should emit the queueSlotsChange event', () =>
         new Promise<void>((resolve) => {
           events.queueSlotsChange.subscribe(({ slots }) => {
             expect(slots).toEqual([
-              { gameClass: 'scout', id: 0, playerId: player.id, ready: false },
+              { gameClass: 'scout', id: 0, playerId: player._id, ready: false },
             ]);
             resolve();
           });
 
-          service.join(0, player.id);
+          service.join(0, player._id);
         }));
 
       describe('when the player joins as the last one', () => {
         beforeEach(() => {
           for (let i = 0; i < 11; ++i) {
-            service.join(i, `FAKE_PLAYER_${i}_ID`);
+            service.join(i, new Types.ObjectId() as PlayerId);
           }
         });
 
         it('should ready-up the slot immediately', () => {
-          const slots = service.join(11, player.id);
+          const slots = service.join(11, player._id);
           expect(slots[0].ready).toBe(true);
         });
       });
@@ -311,21 +315,23 @@ describe('QueueService', () => {
               state: QueueState.waiting,
             });
             expect(
-              value.slots.find((s: QueueSlot) => s.playerId === player.id),
+              value.slots.find((s: QueueSlot) =>
+                s.playerId?.equals(player._id),
+              ),
             ).toBeTruthy();
             resolve();
           });
-          service.join(0, player.id);
+          service.join(0, player._id);
         }));
     });
 
     describe('#leave()', () => {
       beforeEach(() => {
-        service.join(0, player.id);
+        service.join(0, player._id);
       });
 
       it('should reset the slot', () => {
-        const slot = service.leave(player.id);
+        const slot = service.leave(player._id);
         expect(slot.id).toBe(0);
         expect(slot.playerId).toBe(null);
         expect(slot.ready).toBe(false);
@@ -334,21 +340,21 @@ describe('QueueService', () => {
       it('should emit the playerLeavesQueue event', () =>
         new Promise<void>((resolve) => {
           events.playerLeavesQueue.subscribe(({ playerId, reason }) => {
-            expect(playerId).toEqual(player.id);
+            expect(playerId).toEqual(player._id);
             expect(reason).toEqual('manual');
             resolve();
           });
 
-          service.leave(player.id);
+          service.leave(player._id);
         }));
 
       describe('when the slots is already free', () => {
         beforeEach(() => {
-          service.leave(player.id);
+          service.leave(player._id);
         });
 
         it('should throw an error', () => {
-          expect(() => service.leave(player.id)).toThrow(
+          expect(() => service.leave(player._id)).toThrow(
             PlayerNotInTheQueueError,
           );
         });
@@ -367,17 +373,17 @@ describe('QueueService', () => {
             ).toBe(true);
             resolve();
           });
-          service.leave(player.id);
+          service.leave(player._id);
         }));
     });
 
     describe('#kick()', () => {
       beforeEach(() => {
-        service.join(0, player.id);
+        service.join(0, player._id);
       });
 
       it('should reset the slot', () => {
-        service.kick(player.id);
+        service.kick(player._id);
         const slot = service.getSlotById(0);
         expect(slot).toBeTruthy();
         expect((slot as QueueSlot).playerId).toBe(null);
@@ -388,12 +394,12 @@ describe('QueueService', () => {
       it('should emit the playerLeavesQueue event', () =>
         new Promise<void>((resolve) => {
           events.playerLeavesQueue.subscribe(({ playerId, reason }) => {
-            expect(playerId).toEqual(player.id);
+            expect(playerId).toEqual(player._id);
             expect(reason).toEqual('kicked');
             resolve();
           });
 
-          service.kick(player.id);
+          service.kick(player._id);
         }));
 
       it('should update queue cache', () =>
@@ -409,18 +415,18 @@ describe('QueueService', () => {
             ).toBe(true);
             resolve();
           });
-          service.kick(player.id);
+          service.kick(player._id);
         }));
     });
 
     describe('#readyUp()', () => {
       describe('when the queue is not in ready up state', () => {
         beforeEach(() => {
-          service.join(0, player.id);
+          service.join(0, player._id);
         });
 
         it('should fail', () => {
-          expect(() => service.readyUp(player.id)).toThrow(
+          expect(() => service.readyUp(player._id)).toThrow(
             WrongQueueStateError,
           );
         });
@@ -435,8 +441,8 @@ describe('QueueService', () => {
 
         for (let i = 0; i < 12; ++i) {
           const player = new Player();
-          player.id = `FAKE_PLAYER_${i}_ID`;
-          service.join(i, player.id);
+          player._id = new Types.ObjectId() as PlayerId;
+          service.join(i, player._id);
           players.push(player);
         }
 
@@ -450,13 +456,13 @@ describe('QueueService', () => {
       describe('#readyUp()', () => {
         it('should be able to ready-up all players', () => {
           players.forEach((player) => {
-            const slot = service.readyUp(player.id);
+            const slot = service.readyUp(player._id);
             expect(slot.ready).toBe(true);
           });
         });
 
         it('should reject if the given player is not in the queue', () => {
-          expect(() => service.readyUp(player.id)).toThrow();
+          expect(() => service.readyUp(player._id)).toThrow();
         });
 
         it('should emit the queueSlotsChange event', () =>
@@ -467,29 +473,29 @@ describe('QueueService', () => {
               resolve();
             });
 
-            service.readyUp(players[0].id);
+            service.readyUp(players[0]._id);
           }));
       });
 
       it('should ready up joining players immediately', () => {
-        const slot = service.leave(players[0].id);
-        const slots = service.join(slot.id, players[0].id);
+        const slot = service.leave(players[0]._id);
+        const slots = service.join(slot.id, players[0]._id);
         expect(slots[0].ready).toBe(true);
       });
 
       describe('when a player readies up', () => {
         beforeEach(() => {
-          service.readyUp(players[0].id);
+          service.readyUp(players[0]._id);
         });
 
         it('should not allow him to leave', () => {
-          expect(() => service.leave(players[0].id)).toThrow();
+          expect(() => service.leave(players[0]._id)).toThrow();
         });
       });
 
       describe('when all players leave', () => {
         beforeEach(async () => {
-          service.kick(...players.map((p) => p.id));
+          service.kick(...players.map((p) => p._id));
           await waitForImmediate();
         });
 
@@ -501,16 +507,16 @@ describe('QueueService', () => {
 
     describe('when a player is in the queue', () => {
       beforeEach(() => {
-        service.join(0, player.id);
+        service.join(0, player._id);
       });
 
       describe('and after he disconnects', () => {
         beforeEach(() => {
-          events.playerDisconnects.next({ playerId: player.id });
+          events.playerDisconnects.next({ playerId: player._id });
         });
 
         it('should kick him from the queue', () => {
-          expect(service.isInQueue(player.id)).toBe(false);
+          expect(service.isInQueue(player._id)).toBe(false);
         });
       });
 
@@ -518,10 +524,10 @@ describe('QueueService', () => {
         beforeEach(() => {
           events.playerBanAdded.next({
             ban: {
-              _id: new Types.ObjectId(),
+              _id: new Types.ObjectId() as PlayerBanId,
               id: 'FAKE_ID',
               player: player._id,
-              admin: new Types.ObjectId(),
+              admin: new Types.ObjectId() as PlayerId,
               start: new Date(),
               end: new Date(),
               reason: 'unit testing',
@@ -531,7 +537,7 @@ describe('QueueService', () => {
         });
 
         it('should kick him from the queue', () => {
-          expect(service.isInQueue(player.id)).toBe(false);
+          expect(service.isInQueue(player._id)).toBe(false);
         });
       });
     });

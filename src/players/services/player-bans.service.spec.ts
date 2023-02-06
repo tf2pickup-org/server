@@ -17,6 +17,8 @@ import {
   getModelToken,
   MongooseModule,
 } from '@nestjs/mongoose';
+import { PlayerId } from '../types/player-id';
+import { PlayerBanId } from '../types/player-ban-id';
 
 jest.mock('./players.service');
 
@@ -105,15 +107,15 @@ describe('PlayerBansService', () => {
 
   describe('#getById()', () => {
     it('should return the ban by its id', async () => {
-      const ret = await service.getById(mockPlayerBan.id);
-      expect(ret.id).toEqual(mockPlayerBan.id);
-      expect(ret.player.toString()).toEqual(player.id);
+      const ret = await service.getById(mockPlayerBan._id);
+      expect(ret._id).toEqual(mockPlayerBan._id);
+      expect(ret.player).toEqual(player._id);
     });
 
     describe('when the given ban does not exist', () => {
       it('should throw', async () => {
         await expect(
-          service.getById(new Types.ObjectId().toString()),
+          service.getById(new Types.ObjectId() as PlayerBanId),
         ).rejects.toThrow(Error.DocumentNotFoundError);
       });
     });
@@ -121,17 +123,17 @@ describe('PlayerBansService', () => {
 
   describe('#getPlayerBans()', () => {
     it('should query model', async () => {
-      const ret = await service.getPlayerBans(player.id);
+      const ret = await service.getPlayerBans(player._id);
       expect(ret.length).toEqual(1);
-      expect(ret[0].id).toEqual(mockPlayerBan.id);
+      expect(ret[0]._id).toEqual(mockPlayerBan._id);
     });
   });
 
   describe('#getPlayerActiveBans()', () => {
     it('should query model', async () => {
-      const ret = await service.getPlayerActiveBans(player.id);
+      const ret = await service.getPlayerActiveBans(player._id);
       expect(ret.length).toEqual(1);
-      expect(ret[0].id).toEqual(mockPlayerBan.id);
+      expect(ret[0]._id).toEqual(mockPlayerBan._id);
     });
   });
 
@@ -144,7 +146,7 @@ describe('PlayerBansService', () => {
         end.setHours(end.getHours() + 1);
 
         newBan = {
-          _id: new Types.ObjectId(),
+          _id: new Types.ObjectId() as PlayerBanId,
           id: 'FAKE_ID',
           player: player._id,
           admin: admin.id,
@@ -196,9 +198,9 @@ describe('PlayerBansService', () => {
         end.setHours(end.getHours() + 1);
 
         invalidBan = {
-          _id: new Types.ObjectId(),
+          _id: new Types.ObjectId() as PlayerBanId,
           id: 'FAKE_ID',
-          player: new Types.ObjectId(),
+          player: new Types.ObjectId() as PlayerId,
           admin: admin.id,
           start: new Date(),
           end,

@@ -92,7 +92,7 @@ describe('PlayersGateway', () => {
           resolve();
         });
         events.playerConnects.next({
-          playerId: player.id,
+          playerId: player._id,
           metadata: { ipAddress: '127.0.0.1' },
         });
       }));
@@ -113,7 +113,7 @@ describe('PlayersGateway', () => {
           expect(args[1].id).toEqual(player.id);
           resolve();
         });
-        events.playerDisconnects.next({ playerId: player.id });
+        events.playerDisconnects.next({ playerId: player._id });
       }));
   });
 });

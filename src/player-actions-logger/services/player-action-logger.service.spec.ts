@@ -1,4 +1,5 @@
 import { Events } from '@/events/events';
+import { GameId } from '@/games/game-id';
 import { Game, GameDocument, gameSchema } from '@/games/models/game';
 import { GamesService } from '@/games/services/games.service';
 import { Player, PlayerDocument, playerSchema } from '@/players/models/player';
@@ -12,7 +13,7 @@ import {
 } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import { Connection, Model } from 'mongoose';
+import { Connection, Model, Types } from 'mongoose';
 import {
   PlayerActionEntry,
   PlayerActionEntryDocument,
@@ -134,7 +135,7 @@ describe('PlayerActionLoggerService', () => {
       player = await playersService._createOne();
 
       events.playerSaidInGameChat.next({
-        gameId: 'FAKE_GAME_ID',
+        gameId: new Types.ObjectId() as GameId,
         steamId: player.steamId,
         message: 'FAKE_MESSAGE',
       });

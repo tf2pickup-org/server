@@ -20,6 +20,8 @@ import { Connection, Error, Model, Types } from 'mongoose';
 import { PlayerNotInThisGameError } from '../errors/player-not-in-this-game.error';
 import { WrongGameSlotStatusError } from '../errors/wrong-game-slot-status.error';
 import { GameInWrongStateError } from '../errors/game-in-wrong-state.error';
+import { PlayerId } from '@/players/types/player-id';
+import { GameId } from '../game-id';
 
 jest.mock('@/players/services/players.service');
 jest.mock('./games.service');
@@ -112,7 +114,7 @@ describe('PlayerSubstitutionService', () => {
     describe('when the given game does not exist', () => {
       it('should throw an error', async () => {
         await expect(
-          service.substitutePlayer(new Types.ObjectId().toString(), player1.id),
+          service.substitutePlayer(new Types.ObjectId() as GameId, player1.id),
         ).rejects.toThrow(Error.DocumentNotFoundError);
       });
     });
@@ -122,7 +124,7 @@ describe('PlayerSubstitutionService', () => {
         await expect(
           service.substitutePlayer(
             mockGame.id,
-            new Types.ObjectId().toString(),
+            new Types.ObjectId() as PlayerId,
           ),
         ).rejects.toThrow(PlayerNotInThisGameError);
       });
@@ -173,8 +175,8 @@ describe('PlayerSubstitutionService', () => {
     });
 
     it('should emit the substituteRequested event', async () => {
-      let emittedGameId: string | undefined;
-      let emittedPlayerId: string | undefined;
+      let emittedGameId: GameId | undefined;
+      let emittedPlayerId: PlayerId | undefined;
       events.substituteRequested.subscribe(({ gameId, playerId }) => {
         emittedGameId = gameId;
         emittedPlayerId = playerId;
@@ -201,7 +203,7 @@ describe('PlayerSubstitutionService', () => {
       it('should throw an error', async () => {
         await expect(
           service.cancelSubstitutionRequest(
-            new Types.ObjectId().toString(),
+            new Types.ObjectId() as GameId,
             player1.id,
           ),
         ).rejects.toThrow(Error.DocumentNotFoundError);
@@ -213,7 +215,7 @@ describe('PlayerSubstitutionService', () => {
         await expect(
           service.cancelSubstitutionRequest(
             mockGame.id,
-            new Types.ObjectId().toString(),
+            new Types.ObjectId() as PlayerId,
           ),
         ).rejects.toThrow(PlayerNotInThisGameError);
       });
@@ -266,8 +268,8 @@ describe('PlayerSubstitutionService', () => {
     });
 
     it('should emit the substituteCanceled event', async () => {
-      let emittedGameId: string | undefined;
-      let emittedPlayerId: string | undefined;
+      let emittedGameId: GameId | undefined;
+      let emittedPlayerId: PlayerId | undefined;
       events.substituteRequestCanceled.subscribe(({ gameId, playerId }) => {
         emittedGameId = gameId;
         emittedPlayerId = playerId;
@@ -367,7 +369,7 @@ describe('PlayerSubstitutionService', () => {
 
     describe('when the given player is involved in another game', () => {
       beforeEach(async () => {
-        player3.activeGame = new Types.ObjectId();
+        player3.activeGame = new Types.ObjectId() as GameId;
         await player3.save();
       });
 
@@ -379,9 +381,9 @@ describe('PlayerSubstitutionService', () => {
     });
 
     it('should emit the playerReplaced event', async () => {
-      let emittedGameId: string | undefined;
-      let emittedReplaceeId: string | undefined;
-      let emittedReplacementId: string | undefined;
+      let emittedGameId: GameId | undefined;
+      let emittedReplaceeId: PlayerId | undefined;
+      let emittedReplacementId: PlayerId | undefined;
 
       events.playerReplaced.subscribe(
         ({ gameId, replaceeId, replacementId }) => {
@@ -402,7 +404,7 @@ describe('PlayerSubstitutionService', () => {
         service.replacePlayer(
           mockGame.id,
           player1.id,
-          new Types.ObjectId().toString(),
+          new Types.ObjectId() as PlayerId,
         ),
       ).rejects.toThrow(Error.DocumentNotFoundError);
     });

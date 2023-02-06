@@ -110,7 +110,7 @@ describe('QueuePromptsService', () => {
       {
         id: 0,
         gameClass: Tf2ClassName.scout,
-        playerId: players[0].id,
+        playerId: players[0]._id,
         ready: false,
       },
       {
@@ -140,7 +140,7 @@ describe('QueuePromptsService', () => {
       {
         id: 5,
         gameClass: Tf2ClassName.soldier,
-        playerId: players[1].id,
+        playerId: players[1]._id,
         ready: false,
       },
       {
@@ -170,7 +170,7 @@ describe('QueuePromptsService', () => {
       {
         id: 10,
         gameClass: Tf2ClassName.medic,
-        playerId: players[2].id,
+        playerId: players[2]._id,
         ready: false,
       },
       {
@@ -249,7 +249,7 @@ describe('QueuePromptsService', () => {
               {
                 id: 0,
                 gameClass: Tf2ClassName.scout,
-                playerId: players[0].id,
+                playerId: players[0]._id,
                 ready: false,
               },
               {
@@ -279,13 +279,13 @@ describe('QueuePromptsService', () => {
               {
                 id: 5,
                 gameClass: Tf2ClassName.soldier,
-                playerId: players[1].id,
+                playerId: players[1]._id,
                 ready: false,
               },
               {
                 id: 6,
                 gameClass: Tf2ClassName.soldier,
-                playerId: players[2].id,
+                playerId: players[2]._id,
                 ready: false,
               },
               {

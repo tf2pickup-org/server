@@ -1,8 +1,6 @@
 import { BadRequestException } from '@nestjs/common';
 import { Types } from 'mongoose';
 import { ObjectIdOrSteamIdPipe } from './object-id-or-steam-id.pipe';
-import { ObjectIdValidationPipe } from './object-id-validation.pipe';
-import { SteamIdValidationPipe } from './steam-id-validation.pipe';
 
 describe('ObjectIdOrSteamIdPipe', () => {
   let pipe: ObjectIdOrSteamIdPipe;
@@ -17,8 +15,8 @@ describe('ObjectIdOrSteamIdPipe', () => {
 
   describe('given a valid object id', () => {
     it('should return the object id', () => {
-      const objectId = new Types.ObjectId().toString();
-      expect(pipe.transform(objectId)).toEqual({
+      const objectId = new Types.ObjectId();
+      expect(pipe.transform(objectId.toString())).toEqual({
         type: 'object-id',
         objectId,
       });

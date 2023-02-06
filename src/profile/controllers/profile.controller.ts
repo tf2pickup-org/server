@@ -49,7 +49,7 @@ export class ProfileController {
   ) {
     return Object.fromEntries(
       await this.playerPreferencesService.updatePlayerPreferences(
-        user.id,
+        user._id,
         new Map(Object.entries(preferences)),
       ),
     );

@@ -9,6 +9,8 @@ import { MapPoolService } from '../services/map-pool.service';
 import { QueueState } from '../queue-state';
 import { MapPoolEntry } from '../models/map-pool-entry';
 import { Player } from '@/players/models/player';
+import { Types } from 'mongoose';
+import { PlayerId } from '@/players/types/player-id';
 
 jest.mock('../services/queue.service');
 jest.mock('../services/map-vote.service');
@@ -51,7 +53,7 @@ describe('Queue Controller', () => {
         id: 0,
         gameClass: Tf2ClassName.soldier,
         ready: false,
-        playerId: 'FAKE_ID',
+        playerId: new Types.ObjectId() as PlayerId,
       },
       {
         id: 1,
@@ -72,7 +74,10 @@ describe('Queue Controller', () => {
     ]);
 
     friendsService.friendships = [
-      { sourcePlayerId: 'FAKE_MEDIC', targetPlayerId: 'FAKE_DM_CLASS' },
+      {
+        sourcePlayerId: new Types.ObjectId() as PlayerId,
+        targetPlayerId: new Types.ObjectId() as PlayerId,
+      },
     ];
 
     jest.spyOn(mapVoteService, 'results', 'get').mockReturnValue([]);
@@ -117,8 +122,9 @@ describe('Queue Controller', () => {
 
   describe('#scrambleMaps()', () => {
     it('should scramble the maps', async () => {
-      await controller.scrambleMaps({ id: 'FAKE_ADMIN_ID' } as Player);
-      expect(mapVoteService.scramble).toHaveBeenCalledWith('FAKE_ADMIN_ID');
+      const playerId = new Types.ObjectId() as PlayerId;
+      await controller.scrambleMaps({ _id: playerId } as Player);
+      expect(mapVoteService.scramble).toHaveBeenCalledWith(playerId);
     });
   });
 
@@ -138,7 +144,10 @@ describe('Queue Controller', () => {
   describe('#getFriendships()', () => {
     it('should return the frienships', () => {
       expect(controller.getFriendships()).toEqual([
-        { sourcePlayerId: 'FAKE_MEDIC', targetPlayerId: 'FAKE_DM_CLASS' },
+        {
+          sourcePlayerId: expect.any(Types.ObjectId),
+          targetPlayerId: expect.any(Types.ObjectId),
+        },
       ]);
     });
   });

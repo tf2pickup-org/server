@@ -1,4 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { Types } from 'mongoose';
+import { PlayerId } from '../types/player-id';
 import { LinkedProfilesService } from './linked-profiles.service';
 
 describe('LinkedProfilesService', () => {
@@ -29,11 +31,12 @@ describe('LinkedProfilesService', () => {
     });
 
     it('should fetch the linked profile', async () => {
-      const linkedProfiles = await service.getLinkedProfiles('FAKE_PLAYER_ID');
+      const playerId = new Types.ObjectId() as PlayerId;
+      const linkedProfiles = await service.getLinkedProfiles(playerId);
       expect(linkedProfiles).toEqual([
         {
           provider: 'twitch.tv',
-          playerId: 'FAKE_PLAYER_ID',
+          playerId,
           test: 'test',
         },
       ]);

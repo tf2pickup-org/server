@@ -1,6 +1,7 @@
 import { setApp } from '@/app';
 import { ConfigurationService } from '@/configuration/services/configuration.service';
 import { Events } from '@/events/events';
+import { GameId } from '@/games/game-id';
 import { GamesService } from '@/games/services/games.service';
 import { PlayerPreferencesService } from '@/player-preferences/services/player-preferences.service';
 import { Player } from '@/players/models/player';
@@ -8,6 +9,7 @@ import { PlayerBan } from '@/players/models/player-ban';
 import { LinkedProfilesService } from '@/players/services/linked-profiles.service';
 import { OnlinePlayersService } from '@/players/services/online-players.service';
 import { PlayerBansService } from '@/players/services/player-bans.service';
+import { PlayerId } from '@/players/types/player-id';
 import { MapVoteService } from '@/queue/services/map-vote.service';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { WebsocketEvent } from '@/websocket-event';
@@ -122,7 +124,9 @@ describe('ProfileService', () => {
     });
 
     linkedProfilesService.getLinkedProfiles.mockResolvedValue([]);
-    events.linkedProfilesChanged.next({ playerId: 'FAKE_PLAYER_ID' });
+    events.linkedProfilesChanged.next({
+      playerId: new Types.ObjectId() as PlayerId,
+    });
   });
 
   it('should update profile when active game is updated', () => {
@@ -137,7 +141,7 @@ describe('ProfileService', () => {
     oldPlayer.joinedAt = new Date();
     oldPlayer.id = 'FAKE_PLAYER_ID';
     oldPlayer.name = 'FAKE_PLAYER_NAME';
-    oldPlayer.activeGame = new Types.ObjectId();
+    oldPlayer.activeGame = new Types.ObjectId() as GameId;
 
     const newPlayer = new Player();
     newPlayer.joinedAt = oldPlayer.joinedAt;

@@ -114,7 +114,7 @@ export class MapVoteService implements OnModuleInit {
   }
 
   private resetPlayerVote(playerId: PlayerId) {
-    this.votes = [...this.votes.filter((v) => v.playerId !== playerId)];
+    this.votes = [...this.votes.filter((v) => v.playerId.equals(playerId))];
     this._results.next(this.getResults());
   }
 

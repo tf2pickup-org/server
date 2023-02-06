@@ -1,4 +1,5 @@
 import { ConfigurationService } from '@/configuration/services/configuration.service';
+import { GameId } from '@/games/game-id';
 import { Player } from '@/players/models/player';
 import { PlayerBan } from '@/players/models/player-ban';
 import { PlayerBansService } from '@/players/services/player-bans.service';
@@ -162,7 +163,7 @@ describe('CanJoinQueueGuard', () => {
       beforeEach(() => {
         player = new Player();
         player.hasAcceptedRules = true;
-        player.activeGame = new Types.ObjectId();
+        player.activeGame = new Types.ObjectId() as GameId;
         client.user = player;
         playersService.getById.mockResolvedValue(player);
       });

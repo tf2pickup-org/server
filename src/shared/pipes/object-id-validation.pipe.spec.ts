@@ -1,5 +1,5 @@
 import { ObjectIdValidationPipe } from './object-id-validation.pipe';
-import { ObjectId } from 'mongodb';
+import { Types } from 'mongoose';
 
 describe('ObjectIdValidationPipe', () => {
   it('should be defined', () => {
@@ -7,8 +7,10 @@ describe('ObjectIdValidationPipe', () => {
   });
 
   it('should pass valid object id', () => {
-    const id = new ObjectId().toString();
-    expect(new ObjectIdValidationPipe().transform(id)).toEqual(id);
+    const id = new Types.ObjectId().toString();
+    expect(new ObjectIdValidationPipe().transform(id)).toEqual(
+      new Types.ObjectId(id),
+    );
   });
 
   it('should deny invalid object id', () => {
