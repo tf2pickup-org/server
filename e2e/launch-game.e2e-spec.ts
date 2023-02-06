@@ -174,7 +174,7 @@ describe('Launch game (e2e)', () => {
     // the new game should be announced to all clients
     expect(newGameId).toBeTruthy();
     // the new game should be assigned to all players
-    expect(activeGameId).toEqual(newGameId);
+    expect(activeGameId).toEqual(newGameId.toString());
 
     await request(app.getHttpServer())
       .get(`/games/${newGameId}`)
