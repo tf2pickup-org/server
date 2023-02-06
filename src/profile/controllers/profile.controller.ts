@@ -37,7 +37,7 @@ export class ProfileController {
   @Get('/preferences')
   async getPreferences(@User() user: Player) {
     return Object.fromEntries(
-      await this.playerPreferencesService.getPlayerPreferences(user.id),
+      await this.playerPreferencesService.getPlayerPreferences(user._id),
     );
   }
 
@@ -64,7 +64,7 @@ export class ProfileController {
     @Query('accept_terms') acceptTerms?: string,
   ) {
     if (!isUndefined(acceptTerms)) {
-      await this.playersService.acceptTerms(user.id);
+      await this.playersService.acceptTerms(user._id);
     } else {
       throw new BadRequestException();
     }

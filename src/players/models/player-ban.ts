@@ -5,6 +5,8 @@ import { Document, Types } from 'mongoose';
 import { TransformObjectId } from '@/shared/decorators/transform-object-id';
 import { Serializable } from '@/shared/serializable';
 import { PlayerBanDto } from '../dto/player-ban.dto';
+import { PlayerId } from '../types/player-id';
+import { PlayerBanId } from '../types/player-ban-id';
 
 @Schema()
 export class PlayerBan extends Serializable<PlayerBanDto> {
@@ -13,7 +15,7 @@ export class PlayerBan extends Serializable<PlayerBanDto> {
 
   @Exclude({ toPlainOnly: true })
   @TransformObjectId()
-  _id!: Types.ObjectId;
+  _id!: PlayerBanId;
 
   @Expose()
   @Transform(({ value, obj }) => value ?? obj._id?.toString())
@@ -22,12 +24,12 @@ export class PlayerBan extends Serializable<PlayerBanDto> {
   @IsMongoId()
   @TransformObjectId()
   @Prop({ required: true, type: Types.ObjectId, ref: 'Player', index: true })
-  player!: Types.ObjectId;
+  player!: PlayerId;
 
   @IsMongoId()
   @TransformObjectId()
   @Prop({ required: true, type: Types.ObjectId, ref: 'Player', index: true })
-  admin!: Types.ObjectId;
+  admin!: PlayerId;
 
   @IsNotEmpty()
   @Type(() => Date)

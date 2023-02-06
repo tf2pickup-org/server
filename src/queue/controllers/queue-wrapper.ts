@@ -42,7 +42,10 @@ export class QueueWrapper extends Serializable<QueueDto> {
       state: this.state,
       mapVoteResults: this.mapVoteResults,
       substituteRequests: this.substituteRequests,
-      friendships: this.friendships,
+      friendships: this.friendships.map((friendship) => ({
+        sourcePlayerId: friendship.sourcePlayerId.toString(),
+        targetPlayerId: friendship.targetPlayerId.toString(),
+      })),
     };
   }
 }

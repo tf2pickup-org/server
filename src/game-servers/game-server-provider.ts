@@ -1,3 +1,4 @@
+import { GameId } from '@/games/game-id';
 import { GameServerControls } from './interfaces/game-server-controls';
 import { GameServerDetails } from './interfaces/game-server-details';
 import { GameServerOption } from './interfaces/game-server-option';
@@ -10,17 +11,17 @@ export enum GameServerReleaseReason {
 
 export interface TakeGameServerParams {
   gameServerId: string;
-  gameId: string;
+  gameId: GameId;
 }
 
 export interface ReleaseGameServerParams {
   gameServerId: string;
-  gameId: string;
+  gameId: GameId;
   reason: GameServerReleaseReason;
 }
 
 export interface TakeFirstFreeGameServerParams {
-  gameId: string;
+  gameId: GameId;
 }
 
 export interface GameServerProvider {

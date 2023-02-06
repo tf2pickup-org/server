@@ -14,6 +14,9 @@ import { SerializerInterceptor } from '@/shared/interceptors/serializer.intercep
 import { Serializable } from '@/shared/serializable';
 import { GameDto } from '../dto/game.dto';
 import { WebsocketEventEmitter } from '@/shared/websocket-event-emitter';
+import { Types } from 'mongoose';
+import { GameId } from '../game-id';
+import { PlayerId } from '@/players/types/player-id';
 
 @WebSocketGateway()
 export class GamesGateway
@@ -36,9 +39,9 @@ export class GamesGateway
     payload: { gameId: string; replaceeId: string },
   ): Promise<Serializable<GameDto>> {
     return await this.playerSubstitutionService.replacePlayer(
-      payload.gameId,
-      payload.replaceeId,
-      client.user.id,
+      new Types.ObjectId(payload.gameId) as GameId,
+      new Types.ObjectId(payload.replaceeId) as PlayerId,
+      client.user._id,
     );
   }
 

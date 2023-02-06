@@ -8,9 +8,10 @@ import { MapPoolEntry, MapPoolEntryDocument } from '../models/map-pool-entry';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { ConfigurationService } from '@/configuration/services/configuration.service';
+import { PlayerId } from '@/players/types/player-id';
 
 interface MapVote {
-  playerId: string;
+  playerId: PlayerId;
   map: string;
 }
 
@@ -53,7 +54,7 @@ export class MapVoteService implements OnModuleInit {
     return this.votes.filter((v) => v.map === map).length;
   }
 
-  voteForMap(playerId: string, map: string) {
+  voteForMap(playerId: PlayerId, map: string) {
     if (!this.mapOptions.includes(map)) {
       throw new Error('this map is not an option in the vote');
     }
@@ -70,8 +71,8 @@ export class MapVoteService implements OnModuleInit {
     this._results.next(this.getResults());
   }
 
-  playerVote(playerId: string): string | undefined {
-    return this.votes.find((v) => v.playerId === playerId)?.map;
+  playerVote(playerId: PlayerId): string | undefined {
+    return this.votes.find((v) => v.playerId.equals(playerId))?.map;
   }
 
   /**
@@ -99,7 +100,7 @@ export class MapVoteService implements OnModuleInit {
   /**
    * Randomly maps that will be available for vote.
    */
-  async scramble(actorId?: string) {
+  async scramble(actorId?: PlayerId) {
     this.mapOptions = shuffle(
       await this.mapPoolEntryModel.find({ cooldown: { $lte: 0 } }).exec(),
     )
@@ -112,7 +113,7 @@ export class MapVoteService implements OnModuleInit {
     return this.results;
   }
 
-  private resetPlayerVote(playerId: string) {
+  private resetPlayerVote(playerId: PlayerId) {
     this.votes = [...this.votes.filter((v) => v.playerId !== playerId)];
     this._results.next(this.getResults());
   }

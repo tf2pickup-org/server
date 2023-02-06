@@ -5,10 +5,11 @@ import { PlayerNotInTheQueueError } from '../errors/player-not-in-the-queue.erro
 import { CannotMarkPlayerAsFriendError } from '../errors/cannot-mark-player-as-friend.error';
 import { PlayerAlreadyMarkedAsFriendError } from '../errors/player-already-marked-as-friend.error';
 import { QueueState } from '../queue-state';
+import { PlayerId } from '@/players/types/player-id';
 
 export interface Friendship {
-  sourcePlayerId: string;
-  targetPlayerId: string;
+  sourcePlayerId: PlayerId;
+  targetPlayerId: PlayerId;
 }
 
 @Injectable()
@@ -21,7 +22,7 @@ export class FriendsService implements OnModuleInit {
     this.events.queueSlotsChange.subscribe(() => this.cleanupFriendships());
   }
 
-  markFriend(sourcePlayerId: string, targetPlayerId: string | null) {
+  markFriend(sourcePlayerId: PlayerId, targetPlayerId: PlayerId | null) {
     if (this.queueService.state === QueueState.launching) {
       throw new Error('cannot make friends at this stage');
     }
@@ -29,7 +30,9 @@ export class FriendsService implements OnModuleInit {
     if (targetPlayerId === null) {
       // only removing friendship
       this.friendships = [
-        ...this.friendships.filter((f) => f.sourcePlayerId !== sourcePlayerId),
+        ...this.friendships.filter((f) =>
+          f.sourcePlayerId.equals(sourcePlayerId),
+        ),
       ];
     } else {
       const sourcePlayerSlot =
@@ -57,7 +60,9 @@ export class FriendsService implements OnModuleInit {
         );
       }
 
-      if (this.friendships.find((f) => f.targetPlayerId === targetPlayerId)) {
+      if (
+        this.friendships.find((f) => f.targetPlayerId.equals(targetPlayerId))
+      ) {
         throw new PlayerAlreadyMarkedAsFriendError(targetPlayerId);
       }
 

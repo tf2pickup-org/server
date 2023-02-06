@@ -1,3 +1,4 @@
+import { PlayerId } from '@/players/types/player-id';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -15,7 +16,7 @@ export class PlayerPreferencesService {
     private playerPreferences: Model<PlayerPreferencesDocument>,
   ) {}
 
-  async getPlayerPreferences(playerId: string): Promise<PreferencesType> {
+  async getPlayerPreferences(playerId: PlayerId): Promise<PreferencesType> {
     return (
       (await this.playerPreferences.findOne({ player: playerId }))
         ?.preferences ?? new Map()

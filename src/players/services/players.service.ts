@@ -22,6 +22,7 @@ import { PlayerRole } from '../models/player-role';
 import { ConfigurationService } from '@/configuration/services/configuration.service';
 import { InjectModel } from '@nestjs/mongoose';
 import { Mutex } from 'async-mutex';
+import { PlayerId } from '../types/player-id';
 
 interface ForceCreatePlayerOptions {
   name: Player['name'];
@@ -71,14 +72,14 @@ export class PlayersService implements OnModuleInit {
     );
   }
 
-  async getById(id: string | Types.ObjectId): Promise<Player> {
+  async getById(id: PlayerId): Promise<Player> {
     return plainToInstance(
       Player,
       await this.playerModel.findById(id).orFail().lean().exec(),
     );
   }
 
-  async getManyById(...ids: string[]): Promise<Player[]> {
+  async getManyById(...ids: PlayerId[]): Promise<Player[]> {
     return plainToInstance(
       Player,
       await this.playerModel
@@ -202,9 +203,9 @@ export class PlayersService implements OnModuleInit {
   }
 
   async updatePlayer(
-    playerId: string,
+    playerId: PlayerId,
     update: UpdateQuery<Player>,
-    adminId?: string,
+    adminId?: PlayerId,
   ): Promise<Player> {
     return await this.mutex.runExclusive(async () => {
       const oldPlayer = await this.getById(playerId);
@@ -225,13 +226,13 @@ export class PlayersService implements OnModuleInit {
    * Player accepts the rules.
    * Without accepting the rules, player cannot join the queue nor any game.
    */
-  async acceptTerms(playerId: string): Promise<Player> {
+  async acceptTerms(playerId: PlayerId): Promise<Player> {
     return await this.updatePlayer(playerId, { hasAcceptedRules: true });
   }
 
-  async getPlayerStats(playerId: string) {
+  async getPlayerStats(playerId: PlayerId) {
     return {
-      player: playerId,
+      player: playerId.toString(),
       gamesPlayed: await this.gamesService.getPlayerGameCount(playerId, {
         endedOnly: true,
       }),
@@ -255,11 +256,9 @@ export class PlayersService implements OnModuleInit {
 
     await Promise.all(
       players.map(async (player) => {
-        const game = await this.gamesService.getById(
-          player.activeGame as Types.ObjectId,
-        );
+        const game = await this.gamesService.getById(player.activeGame!);
         if (!game.isInProgress()) {
-          await this.updatePlayer(player.id, { $unset: { activeGame: 1 } });
+          await this.updatePlayer(player._id, { $unset: { activeGame: 1 } });
         }
       }),
     );

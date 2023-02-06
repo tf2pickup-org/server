@@ -1,4 +1,5 @@
 import { Events } from '@/events/events';
+import { GameId } from '@/games/game-id';
 import { GamesService } from '@/games/services/games.service';
 import { LogReceiverService } from '@/log-receiver/services/log-receiver.service';
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
@@ -13,7 +14,7 @@ interface GameEvent {
   regex: RegExp;
 
   /* handle the event being triggered */
-  handle: (gameId: string, matches: RegExpMatchArray) => void;
+  handle: (gameId: GameId, matches: RegExpMatchArray) => void;
 }
 
 @Injectable()
@@ -163,7 +164,7 @@ export class GameEventListenerService implements OnModuleInit {
           // skipcq: JS-0032
           const game = await this.gamesService.getByLogSecret(logSecret);
           this.logger.debug(`#${game.number}: ${gameEvent.name}`);
-          gameEvent.handle(game.id, matches);
+          gameEvent.handle(game._id, matches);
         } catch (error) {
           this.logger.warn(`error handling event (${message}): ${error}`);
         }

@@ -19,6 +19,8 @@ import { Mutex } from 'async-mutex';
 import { QueueConfig } from '@/queue-config/interfaces/queue-config';
 import { GameEventType } from '../models/game-event';
 import { VoiceServerType } from '../voice-server-type';
+import { GameId } from '../game-id';
+import { PlayerId } from '@/players/types/player-id';
 
 interface GameSortOptions {
   [key: string]: 1 | -1;
@@ -47,7 +49,7 @@ export class GamesService {
     return await this.gameModel.estimatedDocumentCount();
   }
 
-  async getById(gameId: string | Types.ObjectId): Promise<Game> {
+  async getById(gameId: GameId): Promise<Game> {
     return plainToInstance(
       Game,
       await this.gameModel.findById(gameId).orFail().lean().exec(),
@@ -118,7 +120,7 @@ export class GamesService {
   }
 
   async getPlayerGameCount(
-    playerId: string,
+    playerId: PlayerId,
     options: GetPlayerGameCountOptions = {},
   ): Promise<number> {
     const defaultOptions: GetPlayerGameCountOptions = { endedOnly: false };
@@ -133,7 +135,7 @@ export class GamesService {
   }
 
   async getPlayerPlayedClassCount(
-    playerId: string,
+    playerId: PlayerId,
   ): Promise<{ [gameClass in Tf2ClassName]?: number }> {
     return (
       await this.gameModel.aggregate<{
@@ -192,7 +194,7 @@ export class GamesService {
   async create(
     queueSlots: QueueSlot[],
     map: string,
-    friends: string[][] = [],
+    friends: PlayerId[][] = [],
   ): Promise<Game> {
     if (!queueSlots.every((slot) => Boolean(slot.playerId))) {
       throw new Error('queue not full');
@@ -201,12 +203,12 @@ export class GamesService {
     const players: PlayerSlot[] = await Promise.all(
       queueSlots.map((slot) => this.queueSlotToPlayerSlot(slot)),
     );
-    const assignedSkills = players.reduce<{ [playerId: string]: number }>(
+    const assignedSkills = players.reduce<Map<PlayerId, number>>(
       (prev, curr) => {
-        prev[curr.playerId] = curr.skill;
+        prev.set(curr.playerId, curr.skill);
         return prev;
       },
-      {},
+      new Map<PlayerId, number>(),
     );
     const slots = pickTeams(shuffle(players), { friends }).map((s) => ({
       ...s,
@@ -231,7 +233,7 @@ export class GamesService {
       game.slots
         .map((slot) => slot.player)
         .map((playerId) =>
-          this.playersService.updatePlayer(playerId.toString(), {
+          this.playersService.updatePlayer(playerId, {
             activeGame: game.id,
           }),
         ),
@@ -240,7 +242,7 @@ export class GamesService {
     return game;
   }
 
-  async forceEnd(gameId: string, adminId?: string) {
+  async forceEnd(gameId: GameId, adminId?: PlayerId) {
     const oldGame = await this.getById(gameId);
     const newGame = plainToInstance(
       Game,
@@ -279,7 +281,7 @@ export class GamesService {
       newGame.slots
         .map((slot) => slot.player)
         .map((playerId) =>
-          this.playersService.updatePlayer(playerId.toString(), {
+          this.playersService.updatePlayer(playerId, {
             $unset: { activeGame: 1 },
           }),
         ),
@@ -290,9 +292,9 @@ export class GamesService {
   }
 
   async update(
-    gameId: string | Types.ObjectId,
+    gameId: GameId,
     update: UpdateQuery<Game>,
-    adminId?: string,
+    adminId?: PlayerId,
   ): Promise<Game> {
     return await this.mutex.runExclusive(async () => {
       const oldGame = await this.getById(gameId);
@@ -372,8 +374,8 @@ export class GamesService {
   }
 
   async getVoiceChannelUrl(
-    gameId: string,
-    playerId: string,
+    gameId: GameId,
+    playerId: PlayerId,
   ): Promise<string | null> {
     const game = await this.getById(gameId);
     if (!game.isInProgress()) {

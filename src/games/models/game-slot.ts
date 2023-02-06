@@ -7,6 +7,7 @@ import { Types } from 'mongoose';
 import { Exclude } from 'class-transformer';
 import { TransformObjectId } from '@/shared/decorators/transform-object-id';
 import { PlayerEvent, playerEventSchema } from './player-event';
+import { PlayerId } from '@/players/types/player-id';
 
 @Schema()
 export class GameSlot {
@@ -15,7 +16,7 @@ export class GameSlot {
 
   @TransformObjectId()
   @Prop({ required: true, type: Types.ObjectId, ref: 'Player', index: true })
-  player!: Types.ObjectId;
+  player!: PlayerId;
 
   @Prop({ required: true, enum: Tf2Team })
   team!: Tf2Team;

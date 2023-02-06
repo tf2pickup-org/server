@@ -1,7 +1,9 @@
+import { GameId } from '@/games/game-id';
 import { Game } from '@/games/models/game';
 import { Tf2Team } from '@/games/models/tf2-team';
 import { Player } from '@/players/models/player';
 import { PlayerBan } from '@/players/models/player-ban';
+import { PlayerId } from '@/players/types/player-id';
 import { MapPoolEntry } from '@/queue/models/map-pool-entry';
 import { UserMetadata } from '@/shared/user-metadata';
 import { Injectable, Logger } from '@nestjs/common';
@@ -22,23 +24,23 @@ export class Events {
   readonly playerUpdates = new Subject<{
     oldPlayer: Player;
     newPlayer: Player;
-    adminId?: string;
+    adminId?: PlayerId;
   }>();
   readonly playerConnects = new Subject<{
-    playerId: string;
+    playerId: PlayerId;
     metadata: UserMetadata;
   }>();
-  readonly playerDisconnects = new Subject<{ playerId: string }>();
+  readonly playerDisconnects = new Subject<{ playerId: PlayerId }>();
   readonly playerBanAdded = new Subject<{ ban: PlayerBan }>();
   readonly playerBanRevoked = new Subject<{
     ban: PlayerBan;
-    adminId?: string;
+    adminId?: PlayerId;
   }>();
-  readonly linkedProfilesChanged = new Subject<{ playerId: string }>();
+  readonly linkedProfilesChanged = new Subject<{ playerId: PlayerId }>();
 
-  readonly playerJoinsQueue = new Subject<{ playerId: string }>();
+  readonly playerJoinsQueue = new Subject<{ playerId: PlayerId }>();
   readonly playerLeavesQueue = new Subject<{
-    playerId: string;
+    playerId: PlayerId;
     reason: 'manual' | 'kicked';
   }>();
   readonly queueSlotsChange = new Subject<{ slots: QueueSlot[] }>();
@@ -51,63 +53,63 @@ export class Events {
   readonly mapPoolChange = new Subject<{ maps: MapPoolEntry[] }>();
   readonly mapsScrambled = new Subject<{
     mapOptions: string[];
-    actorId?: string;
+    actorId?: PlayerId;
   }>();
 
   readonly gameCreated = new Subject<{ game: Game }>();
   readonly gameChanges = new Subject<{
     newGame: Game;
     oldGame: Game;
-    adminId?: string;
+    adminId?: PlayerId;
   }>();
 
-  readonly matchStarted = new Subject<{ gameId: string }>();
-  readonly matchEnded = new Subject<{ gameId: string }>();
+  readonly matchStarted = new Subject<{ gameId: GameId }>();
+  readonly matchEnded = new Subject<{ gameId: GameId }>();
   readonly playerJoinedGameServer = new Subject<{
-    gameId: string;
+    gameId: GameId;
     steamId: string;
     ipAddress: string;
   }>();
   readonly playerJoinedTeam = new Subject<{
-    gameId: string;
+    gameId: GameId;
     steamId: string;
   }>();
   readonly playerDisconnectedFromGameServer = new Subject<{
-    gameId: string;
+    gameId: GameId;
     steamId: string;
   }>();
   readonly playerSaidInGameChat = new Subject<{
-    gameId: string;
+    gameId: GameId;
     steamId: string;
     message: string;
   }>();
   readonly scoreReported = new Subject<{
-    gameId: string;
+    gameId: GameId;
     teamName: Tf2Team;
     score: number;
   }>();
-  readonly logsUploaded = new Subject<{ gameId: string; logsUrl: string }>();
-  readonly demoUploaded = new Subject<{ gameId: string; demoUrl: string }>();
+  readonly logsUploaded = new Subject<{ gameId: GameId; logsUrl: string }>();
+  readonly demoUploaded = new Subject<{ gameId: GameId; demoUrl: string }>();
 
   readonly gameReconfigureRequested = new Subject<{
-    gameId: string;
-    adminId?: string;
+    gameId: GameId;
+    adminId?: PlayerId;
   }>();
 
   readonly substituteRequested = new Subject<{
-    gameId: string;
-    playerId: string;
-    adminId?: string;
+    gameId: GameId;
+    playerId: PlayerId;
+    adminId?: PlayerId;
   }>();
   readonly substituteRequestCanceled = new Subject<{
-    gameId: string;
-    playerId: string;
-    adminId?: string;
+    gameId: GameId;
+    playerId: PlayerId;
+    adminId?: PlayerId;
   }>();
   readonly playerReplaced = new Subject<{
-    gameId: string;
-    replaceeId: string;
-    replacementId: string;
+    gameId: GameId;
+    replaceeId: PlayerId;
+    replacementId: PlayerId;
   }>();
   /**
    * @deprecated

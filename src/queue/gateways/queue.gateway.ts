@@ -19,6 +19,8 @@ import { Serializable } from '@/shared/serializable';
 import { QueueSlotDto } from '../dto/queue-slot.dto';
 import { QueueSlotWrapper } from '../controllers/queue-slot-wrapper';
 import { CanJoinQueueGuard } from '../guards/can-join-queue.guard';
+import { Types } from 'mongoose';
+import { PlayerId } from '@/players/types/player-id';
 
 @WebSocketGateway()
 export class QueueGateway implements OnGatewayInit, OnModuleInit {
@@ -74,7 +76,7 @@ export class QueueGateway implements OnGatewayInit, OnModuleInit {
     payload: { slotId: number },
   ): Serializable<QueueSlotDto>[] {
     return this.queueService
-      .join(payload.slotId, client.user.id)
+      .join(payload.slotId, client.user._id)
       .map((s) => new QueueSlotWrapper(s));
   }
 
@@ -82,14 +84,14 @@ export class QueueGateway implements OnGatewayInit, OnModuleInit {
   @WsAuthorized()
   @SubscribeMessage('leave queue')
   leaveQueue(client: Socket): Serializable<QueueSlotDto> {
-    return new QueueSlotWrapper(this.queueService.leave(client.user.id));
+    return new QueueSlotWrapper(this.queueService.leave(client.user._id));
   }
 
   @UseFilters(AllExceptionsFilter)
   @WsAuthorized()
   @SubscribeMessage('player ready')
   playerReady(client: Socket): Serializable<QueueSlotDto> {
-    return new QueueSlotWrapper(this.queueService.readyUp(client.user.id));
+    return new QueueSlotWrapper(this.queueService.readyUp(client.user._id));
   }
 
   @UseFilters(AllExceptionsFilter)
@@ -97,8 +99,8 @@ export class QueueGateway implements OnGatewayInit, OnModuleInit {
   @SubscribeMessage('mark friend')
   markFriend(client: Socket, payload: { friendPlayerId: string }) {
     return this.friendsService.markFriend(
-      client.user.id,
-      payload.friendPlayerId,
+      client.user._id,
+      new Types.ObjectId(payload.friendPlayerId) as PlayerId,
     );
   }
 
@@ -106,7 +108,7 @@ export class QueueGateway implements OnGatewayInit, OnModuleInit {
   @WsAuthorized()
   @SubscribeMessage('vote for map')
   voteForMap(client: Socket, payload: { map: string }) {
-    this.mapVoteService.voteForMap(client.user.id, payload.map);
+    this.mapVoteService.voteForMap(client.user._id, payload.map);
     return payload.map;
   }
 

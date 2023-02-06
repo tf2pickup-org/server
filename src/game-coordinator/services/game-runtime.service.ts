@@ -14,6 +14,8 @@ import { Events } from '@/events/events';
 import { GamesService } from '@/games/services/games.service';
 import { GameServerOptionWithProvider } from '@/game-servers/interfaces/game-server-option';
 import { assertIsError } from '@/utils/assert-is-error';
+import { GameId } from '@/games/game-id';
+import { PlayerId } from '@/players/types/player-id';
 
 @Injectable()
 export class GameRuntimeService implements OnModuleInit {
@@ -42,7 +44,7 @@ export class GameRuntimeService implements OnModuleInit {
     );
   }
 
-  async reconfigure(gameId: string) {
+  async reconfigure(gameId: GameId) {
     let game = await this.gamesService.getById(gameId);
     if (!game.gameServer) {
       throw new Error('this game has no server assigned');
@@ -50,15 +52,15 @@ export class GameRuntimeService implements OnModuleInit {
 
     this.logger.verbose(`game #${game.number} is being reconfigured`);
 
-    game = await this.gamesService.update(game.id, {
+    game = await this.gamesService.update(game._id, {
       $set: { connectString: null, stvConnectString: null },
       $inc: { connectInfoVersion: 1 },
     });
 
     try {
       const { connectString, stvConnectString } =
-        await this.serverConfiguratorService.configureServer(game.id);
-      game = await this.gamesService.update(game.id, {
+        await this.serverConfiguratorService.configureServer(game._id);
+      game = await this.gamesService.update(game._id, {
         $set: {
           connectString,
           stvConnectString,
@@ -76,9 +78,9 @@ export class GameRuntimeService implements OnModuleInit {
   }
 
   async replacePlayer(
-    gameId: string,
-    replaceeId: string,
-    replacementId: string,
+    gameId: GameId,
+    replaceeId: PlayerId,
+    replacementId: PlayerId,
   ) {
     if (replaceeId === replacementId) {
       return;
@@ -145,7 +147,7 @@ export class GameRuntimeService implements OnModuleInit {
     }
   }
 
-  async notifySubstituteRequested(gameId: string, playerId: string) {
+  async notifySubstituteRequested(gameId: GameId, playerId: PlayerId) {
     const game = await this.gamesService.getById(gameId);
     if (game.gameServer) {
       const player = await this.playersService.getById(playerId);

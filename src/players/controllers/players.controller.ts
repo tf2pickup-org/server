@@ -48,6 +48,7 @@ import { ImportSkillsResponseDto } from '../dto/import-skills-response.dto';
 import { PlayerSkillRecordMalformedError } from '../errors/player-skill-record-malformed.error';
 import { ValidateSkillPipe } from '../pipes/validate-skill.pipe';
 import { isUndefined } from 'lodash';
+import { PlayerBanId } from '../types/player-ban-id';
 
 @Controller('players')
 export class PlayersController {
@@ -87,7 +88,11 @@ export class PlayersController {
     @Body() update: Partial<Player>,
     @User() admin: Player,
   ): Promise<Serializable<PlayerDto>> {
-    return await this.playersService.updatePlayer(player.id, update, admin.id);
+    return await this.playersService.updatePlayer(
+      player._id,
+      update,
+      admin._id,
+    );
   }
 
   @UseInterceptors(CacheInterceptor)
@@ -96,7 +101,7 @@ export class PlayersController {
   async getPlayerStats(
     @Param('id', PlayerByIdPipe) player: Player,
   ): Promise<PlayerStatsDto> {
-    return await this.playersService.getPlayerStats(player.id);
+    return await this.playersService.getPlayerStats(player._id);
   }
 
   @Get('/all/skill')
@@ -124,13 +129,13 @@ export class PlayersController {
     @User() admin: Player,
   ): Promise<{ [gameClass in Tf2ClassName]?: number }> {
     const newPlayer = await this.playersService.updatePlayer(
-      player.id,
+      player._id,
       {
         $set: {
           skill,
         },
       },
-      admin.id,
+      admin._id,
     );
     return Object.fromEntries(newPlayer.skill ?? new Map());
   }
@@ -140,7 +145,7 @@ export class PlayersController {
   async getPlayerBans(
     @Param('id', PlayerByIdPipe) player: Player,
   ): Promise<Serializable<PlayerBanDto>[]> {
-    return await this.playerBansService.getPlayerBans(player.id);
+    return await this.playerBansService.getPlayerBans(player._id);
   }
 
   @Post(':id/bans')
@@ -163,7 +168,7 @@ export class PlayersController {
   @HttpCode(200)
   async updatePlayerBan(
     @Param('playerId', PlayerByIdPipe) player: Player,
-    @Param('banId', ObjectIdValidationPipe) banId: string,
+    @Param('banId', ObjectIdValidationPipe) banId: PlayerBanId,
     @Query('revoke') revoke: void,
     @User() user: Player,
   ): Promise<Serializable<PlayerBanDto>> {
@@ -177,7 +182,7 @@ export class PlayersController {
     }
 
     if (!isUndefined(revoke)) {
-      return await this.playerBansService.revokeBan(banId, user.id);
+      return await this.playerBansService.revokeBan(banId, user._id);
     }
 
     throw new BadRequestException('action must be specified');
@@ -188,7 +193,7 @@ export class PlayersController {
     @Param('id', PlayerByIdPipe) player: Player,
   ): Promise<LinkedProfilesDto> {
     const linkedProfiles = await this.linkedProfilesService.getLinkedProfiles(
-      player.id,
+      player._id,
     );
     return { playerId: player.id, linkedProfiles };
   }

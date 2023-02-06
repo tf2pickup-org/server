@@ -2,6 +2,7 @@ import { ConfigurationService } from '@/configuration/services/configuration.ser
 import { Events } from '@/events/events';
 import { PlayerPreferencesService } from '@/player-preferences/services/player-preferences.service';
 import { Player } from '@/players/models/player';
+import { PlayerId } from '@/players/types/player-id';
 import { LinkedProfilesService } from '@/players/services/linked-profiles.service';
 import { OnlinePlayersService } from '@/players/services/online-players.service';
 import { PlayerBansService } from '@/players/services/player-bans.service';
@@ -11,6 +12,7 @@ import { serialize } from '@/shared/serialize';
 import { WebsocketEvent } from '@/websocket-event';
 import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
 import { isEqual } from 'lodash';
+import { Types } from 'mongoose';
 import { map, filter, concatMap, from } from 'rxjs';
 import { ProfileDto } from '../dto/profile.dto';
 import { Restriction, RestrictionReason } from '../interfaces/restriction';
@@ -54,7 +56,7 @@ export class ProfileService implements OnModuleInit {
       )
       .subscribe((player) =>
         this.onlinePlayersService
-          .getSocketsForPlayer(player.id)
+          .getSocketsForPlayer(new Types.ObjectId(player.id) as PlayerId)
           .forEach((socket) =>
             socket.emit(WebsocketEvent.profileUpdate, {
               player,
@@ -72,7 +74,7 @@ export class ProfileService implements OnModuleInit {
       )
       .subscribe(({ newPlayer }) => {
         this.onlinePlayersService
-          .getSocketsForPlayer(newPlayer.id)
+          .getSocketsForPlayer(newPlayer._id)
           .forEach((socket) =>
             socket.emit(WebsocketEvent.profileUpdate, {
               activeGameId: newPlayer.activeGame?.toString() ?? null,
@@ -84,9 +86,9 @@ export class ProfileService implements OnModuleInit {
   async getProfile(player: Player): Promise<ProfileDto> {
     const [bans, preferences, linkedProfiles, restrictions] = await Promise.all(
       [
-        await this.playerBansService.getPlayerActiveBans(player.id),
-        await this.playerPreferencesService.getPlayerPreferences(player.id),
-        await this.linkedProfilesService.getLinkedProfiles(player.id),
+        await this.playerBansService.getPlayerActiveBans(player._id),
+        await this.playerPreferencesService.getPlayerPreferences(player._id),
+        await this.linkedProfilesService.getLinkedProfiles(player._id),
         await this.getPlayerRestrictions(player),
       ],
     );
@@ -98,7 +100,7 @@ export class ProfileService implements OnModuleInit {
         activeGameId: player.activeGame!.toString(),
       }),
       bans,
-      mapVote: this.mapVoteService.playerVote(player.id),
+      mapVote: this.mapVoteService.playerVote(player._id),
       preferences: Object.fromEntries(preferences),
       linkedProfiles,
       restrictions,
