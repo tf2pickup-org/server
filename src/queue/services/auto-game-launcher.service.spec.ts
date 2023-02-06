@@ -101,7 +101,7 @@ describe('AutoGameLauncherService', () => {
     expect(service).toBeDefined();
   });
 
-  it('should launch the game and reset the queue', async () => {
+  it('should launch the game and reset the queue', () => {
     return new Promise<void>((resolve) => {
       events.queueStateChange.next({ state: QueueState.launching });
 

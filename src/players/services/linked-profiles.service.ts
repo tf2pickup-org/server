@@ -6,7 +6,7 @@ import { LinkedProfileProviderName } from '../types/linked-profile-provider-name
 
 interface LinkedProfileProvider {
   name: LinkedProfileProviderName;
-  fetchProfile: (playerId: PlayerId) => Promise<any> | any;
+  fetchProfile: (playerId: PlayerId) => Promise<unknown> | unknown;
 }
 
 @Injectable()
