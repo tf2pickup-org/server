@@ -286,9 +286,7 @@ export class StaticGameServersService
     const gameServers = await this.getTakenGameServers();
     await Promise.all(
       gameServers.map(async (gameServer) => {
-        const game = await this.gamesService.getById(
-          gameServer.game as Types.ObjectId,
-        );
+        const game = await this.gamesService.getById(gameServer.game!);
         if (game.isInProgress()) {
           return;
         }

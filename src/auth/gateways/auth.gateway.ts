@@ -5,6 +5,8 @@ import { PlayersService } from '@/players/services/players.service';
 import { verify } from 'jsonwebtoken';
 import { Player } from '@/players/models/player';
 import { assertIsError } from '@/utils/assert-is-error';
+import { Types } from 'mongoose';
+import { PlayerId } from '@/players/types/player-id';
 
 declare module 'socket.io' {
   interface Socket {
@@ -32,7 +34,9 @@ export class AuthGateway implements OnModuleInit {
             const decodedToken = verify(matches[1], this.websocketSecret, {
               algorithms: ['HS256'],
             }) as { id: string };
-            const player = await this.playersService.getById(decodedToken.id);
+            const player = await this.playersService.getById(
+              new Types.ObjectId(decodedToken.id) as PlayerId,
+            );
             socket.user = player;
           } else {
             return next(new Error('credentials_bad_format'));

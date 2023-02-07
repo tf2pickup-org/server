@@ -118,9 +118,9 @@ describe('PlayerBehaviorHandlerService', () => {
       it('should automatically substitute all the offline players', async () => {
         await service.verifyPlayersJoinedGameServer();
         expect(playerSubstitutionService.substitutePlayer).toHaveBeenCalledWith(
-          game.id,
-          player2.id,
-          bot.id,
+          game._id,
+          player2._id,
+          bot._id,
         );
       });
     });
@@ -209,9 +209,9 @@ describe('PlayerBehaviorHandlerService', () => {
       it('should request substitute for that player', async () => {
         await service.verifyPlayersRejoinedGameServer();
         expect(playerSubstitutionService.substitutePlayer).toHaveBeenCalledWith(
-          game.id,
-          player1.id,
-          bot.id,
+          game._id,
+          player1._id,
+          bot._id,
         );
       });
     });

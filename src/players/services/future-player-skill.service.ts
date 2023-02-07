@@ -55,7 +55,7 @@ export class FuturePlayerSkillService implements OnModuleInit {
   private async maybeSetSkill(player: Player) {
     try {
       const futureSkill = await this.findSkill(player.steamId);
-      await this.playersService.updatePlayer(player.id, {
+      await this.playersService.updatePlayer(player._id, {
         $set: {
           skill: futureSkill.skill,
         },

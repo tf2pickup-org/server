@@ -3,6 +3,7 @@ import { Injectable, NotFoundException, PipeTransform } from '@nestjs/common';
 import { isUndefined } from 'lodash';
 import { Error } from 'mongoose';
 import { Player } from '../models/player';
+import { PlayerId } from '../types/player-id';
 import { PlayersService } from '../services/players.service';
 
 @Injectable()
@@ -22,7 +23,9 @@ export class PlayerByIdPipe
       const playerId = this.objectIdOrSteamIdValidationPipe.transform(value);
       switch (playerId.type) {
         case 'object-id':
-          return await this.playersService.getById(playerId.objectId);
+          return await this.playersService.getById(
+            playerId.objectId as PlayerId,
+          );
 
         case 'steam-id':
           return await this.playersService.findBySteamId(playerId.steamId64);

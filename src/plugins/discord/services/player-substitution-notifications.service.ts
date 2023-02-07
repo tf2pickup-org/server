@@ -1,7 +1,9 @@
 import { Environment } from '@/environment/environment';
 import { Events } from '@/events/events';
+import { GameId } from '@/games/game-id';
 import { SlotStatus } from '@/games/models/slot-status';
 import { GamesService } from '@/games/services/games.service';
+import { PlayerId } from '@/players/types/player-id';
 import {
   CACHE_MANAGER,
   Inject,
@@ -13,7 +15,7 @@ import { filter, map } from 'rxjs';
 import { substituteRequest } from '../notifications';
 import { DiscordService } from './discord.service';
 
-const cacheKeyForPlayer = (playerId: string) =>
+const cacheKeyForPlayer = (playerId: PlayerId) =>
   `player-substitute-notifications/${playerId}`;
 
 @Injectable()
@@ -53,14 +55,13 @@ export class PlayerSubstitutionNotificationsService implements OnModuleInit {
         async (slots) =>
           await Promise.all(
             slots.map(
-              async (slot) =>
-                await this.deleteNotification(slot.player.toString()),
+              async (slot) => await this.deleteNotification(slot.player),
             ),
           ),
       );
   }
 
-  async notifySubstituteRequested(gameId: string, playerId: string) {
+  async notifySubstituteRequested(gameId: GameId, playerId: PlayerId) {
     const channel = this.discordService.getPlayersChannel();
     if (channel) {
       const game = await this.gamesService.getById(gameId);
@@ -89,7 +90,7 @@ export class PlayerSubstitutionNotificationsService implements OnModuleInit {
     }
   }
 
-  async deleteNotification(playerId: string) {
+  async deleteNotification(playerId: PlayerId) {
     const messageId = await this.cache.get<string>(cacheKeyForPlayer(playerId));
     if (!messageId) {
       return;

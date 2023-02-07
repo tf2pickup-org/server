@@ -20,7 +20,7 @@ export class CanJoinQueueGuard implements CanActivate {
       throw new WsException('not logged in');
     }
 
-    const player = await this.playersService.getById(socket.user.id);
+    const player = await this.playersService.getById(socket.user._id);
     if (!player.hasAcceptedRules) {
       throw new PlayerDeniedError(player, DenyReason.playerHasNotAcceptedRules);
     }
@@ -34,7 +34,7 @@ export class CanJoinQueueGuard implements CanActivate {
       throw new PlayerDeniedError(player, DenyReason.noSkillAssigned);
     }
 
-    const bans = await this.playerBansService.getPlayerActiveBans(player.id);
+    const bans = await this.playerBansService.getPlayerActiveBans(player._id);
     if (bans.length > 0) {
       throw new PlayerDeniedError(player, DenyReason.playerIsBanned);
     }

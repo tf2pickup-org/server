@@ -7,6 +7,7 @@ import { Cron, CronExpression } from '@nestjs/schedule';
 import { Mutex } from 'async-mutex';
 import { CannotAssignGameServerError } from '../errors/cannot-assign-gameserver.error';
 import { GameInWrongStateError } from '../errors/game-in-wrong-state.error';
+import { GameId } from '../game-id';
 import { Game } from '../models/game';
 import { GameServer } from '../models/game-server';
 import { GamesService } from './games.service';
@@ -26,7 +27,7 @@ export class GameServerAssignerService implements OnModuleInit {
     // when a game is created, give it a gameserver
     this.events.gameCreated.subscribe(async ({ game }) => {
       try {
-        await this.assignGameServer(game.id);
+        await this.assignGameServer(game._id);
       } catch (error) {
         this.logger.error(error);
       }
@@ -41,7 +42,7 @@ export class GameServerAssignerService implements OnModuleInit {
    * @memberof GameLauncherService
    */
   async assignGameServer(
-    gameId: string,
+    gameId: GameId,
     gameServerId?: GameServerOptionIdentifier,
   ): Promise<Game> {
     return await this.mutex.runExclusive(
@@ -56,23 +57,23 @@ export class GameServerAssignerService implements OnModuleInit {
       for (const game of orphanedGames) {
         this.logger.verbose(`launching game #${game.number}...`);
         // skipcq: JS-0032
-        await this.doAssignGameServer(game.id);
+        await this.doAssignGameServer(game._id);
       }
     });
   }
 
   private async doAssignGameServer(
-    gameId: string,
+    gameId: GameId,
     gameServerId?: GameServerOptionIdentifier,
   ): Promise<Game> {
     let game = await this.gamesService.getById(gameId);
     if (!game.isInProgress()) {
-      throw new GameInWrongStateError(game.id, game.state);
+      throw new GameInWrongStateError(game._id, game.state);
     }
 
     try {
       game = await this.gameServersService.assignGameServer(
-        game.id,
+        game._id,
         gameServerId,
       );
       this.logger.verbose(

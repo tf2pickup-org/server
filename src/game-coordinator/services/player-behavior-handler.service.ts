@@ -46,9 +46,9 @@ export class PlayerBehaviorHandlerService {
                   `player ${slot.player} has not joined the game on time; requesting substitute`,
                 );
                 return await this.playerSubstitutionService.substitutePlayer(
-                  game.id,
-                  slot.player.toString(),
-                  bot.id,
+                  game._id,
+                  slot.player,
+                  bot._id,
                 );
               }),
           );
@@ -82,9 +82,9 @@ export class PlayerBehaviorHandlerService {
             `player ${slot.player} disconnected; requesting substitute`,
           );
           await this.playerSubstitutionService.substitutePlayer(
-            game.id,
-            slot.player.toString(),
-            bot.id,
+            game._id,
+            slot.player,
+            bot._id,
           );
         }
       }

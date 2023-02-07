@@ -1,11 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { instanceToPlain } from 'class-transformer';
+import { PlayerId } from '../types/player-id';
 import { LinkedProfile } from '../types/linked-profile';
 import { LinkedProfileProviderName } from '../types/linked-profile-provider-name';
 
 interface LinkedProfileProvider {
   name: LinkedProfileProviderName;
-  fetchProfile: (playerId: string) => Promise<any> | any;
+  fetchProfile: (playerId: PlayerId) => Promise<unknown> | unknown;
 }
 
 @Injectable()
@@ -16,7 +17,7 @@ export class LinkedProfilesService {
     this.linkedProfileProviders.push(linkedProfileProvider);
   }
 
-  async getLinkedProfiles(playerId: string): Promise<LinkedProfile[]> {
+  async getLinkedProfiles(playerId: PlayerId): Promise<LinkedProfile[]> {
     return (
       await Promise.all(
         this.linkedProfileProviders.map(async (provider) => {

@@ -78,7 +78,7 @@ export class QueueController {
   @Put('map_vote_results/scramble')
   @Auth(PlayerRole.admin)
   async scrambleMaps(@User() actor: Player) {
-    return await this.mapVoteService.scramble(actor.id);
+    return await this.mapVoteService.scramble(actor._id);
   }
 
   @Get('announcements')

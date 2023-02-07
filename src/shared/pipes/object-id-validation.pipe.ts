@@ -9,12 +9,14 @@ import { Types } from 'mongoose';
  * @implements {PipeTransform}
  */
 @Injectable()
-export class ObjectIdValidationPipe implements PipeTransform {
-  transform(value: string) {
+export class ObjectIdValidationPipe
+  implements PipeTransform<string, Types.ObjectId>
+{
+  transform(value: string): Types.ObjectId {
     if (!Types.ObjectId.isValid(value)) {
       throw new BadRequestException(`The provided ID (${value}) is invalid`);
     }
 
-    return value;
+    return new Types.ObjectId(value);
   }
 }

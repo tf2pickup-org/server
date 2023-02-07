@@ -6,8 +6,10 @@ import {
   OnModuleDestroy,
   OnModuleInit,
 } from '@nestjs/common';
+import { Types } from 'mongoose';
 import { Socket } from 'socket.io';
 import { PlayersGateway } from '../gateways/players.gateway';
+import { PlayerId } from '../types/player-id';
 
 type SocketList = Socket[];
 
@@ -19,8 +21,10 @@ export class OnlinePlayersService implements OnModuleInit, OnModuleDestroy {
   private timers: NodeJS.Timeout[] = [];
   private _onlinePlayers = new Set<string>();
 
-  get onlinePlayers(): string[] {
-    return Array.from(this._onlinePlayers);
+  get onlinePlayers(): PlayerId[] {
+    return Array.from(this._onlinePlayers).map(
+      (id) => new Types.ObjectId(id) as PlayerId,
+    );
   }
 
   constructor(private playersGateway: PlayersGateway, private events: Events) {}
@@ -29,7 +33,7 @@ export class OnlinePlayersService implements OnModuleInit, OnModuleDestroy {
     this.playersGateway.playerConnected.subscribe((socket) => {
       if (socket.user) {
         const player = socket.user;
-        const sockets = this.getSocketsForPlayer(player.id);
+        const sockets = this.getSocketsForPlayer(player._id);
         if (!sockets.includes(socket)) {
           const ipAddress =
             extractClientIp(socket.handshake.headers) ??
@@ -41,7 +45,7 @@ export class OnlinePlayersService implements OnModuleInit, OnModuleDestroy {
           sockets.push(socket);
           if (!isAlreadyConnected) {
             this.events.playerConnects.next({
-              playerId: player.id,
+              playerId: player._id,
               metadata: {
                 ipAddress,
                 userAgent: socket.handshake.headers['user-agent'],
@@ -58,7 +62,7 @@ export class OnlinePlayersService implements OnModuleInit, OnModuleDestroy {
         const ipAddress =
           extractClientIp(socket.handshake.headers) ?? socket.handshake.address;
         this.logger.debug(`${player.name} disconnected (${ipAddress})`);
-        const sockets = this.getSocketsForPlayer(player.id);
+        const sockets = this.getSocketsForPlayer(player._id);
         const index = sockets.indexOf(socket);
         if (index > -1) {
           sockets.splice(index, 1);
@@ -66,7 +70,7 @@ export class OnlinePlayersService implements OnModuleInit, OnModuleDestroy {
 
         this.timers.push(
           setTimeout(
-            () => this.verifyPlayer(player.id),
+            () => this.verifyPlayer(player._id),
             this.verifyPlayerTimeout,
           ),
         );
@@ -74,10 +78,10 @@ export class OnlinePlayersService implements OnModuleInit, OnModuleDestroy {
     });
 
     this.events.playerConnects.subscribe(({ playerId }) =>
-      this._onlinePlayers.add(playerId),
+      this._onlinePlayers.add(playerId.toString()),
     );
     this.events.playerDisconnects.subscribe(({ playerId }) =>
-      this._onlinePlayers.delete(playerId),
+      this._onlinePlayers.delete(playerId.toString()),
     );
   }
 
@@ -85,15 +89,16 @@ export class OnlinePlayersService implements OnModuleInit, OnModuleDestroy {
     this.timers.forEach((t) => clearTimeout(t));
   }
 
-  getSocketsForPlayer(playerId: string): SocketList {
-    if (!this.sockets.has(playerId)) {
-      this.sockets.set(playerId, []);
+  getSocketsForPlayer(playerId: PlayerId): SocketList {
+    const playerIdStr = playerId.toString();
+    if (!this.sockets.has(playerIdStr)) {
+      this.sockets.set(playerIdStr, []);
     }
-    return this.sockets.get(playerId)!;
+    return this.sockets.get(playerIdStr)!;
   }
 
-  private verifyPlayer(playerId: string) {
-    const sockets = this.sockets.get(playerId);
+  private verifyPlayer(playerId: PlayerId) {
+    const sockets = this.sockets.get(playerId.toString());
     if (sockets?.length === 0) {
       this.events.playerDisconnects.next({ playerId });
     }

@@ -18,13 +18,16 @@ import { Types } from 'mongoose';
 import { ImportExportSkillService } from '../services/import-export-skill.service';
 import { PlayerSkillRecordMalformedError } from '../errors/player-skill-record-malformed.error';
 import { QueueConfig } from '@/queue-config/interfaces/queue-config';
+import { PlayerId } from '../types/player-id';
 
 jest.mock('../services/linked-profiles.service');
 jest.mock('../services/import-export-skill.service');
 
+const playerId = new Types.ObjectId() as PlayerId;
+
 class PlayersServiceStub {
   player = plainToInstance(Player, {
-    _id: 'FAKE_ID',
+    _id: playerId.toString(),
     name: 'FAKE_PLAYER_NAME',
     steamId: 'FAKE_STEAM_ID',
     hasAcceptedRules: true,
@@ -34,7 +37,7 @@ class PlayersServiceStub {
     },
   });
   stats: PlayerStatsDto = {
-    player: 'FAKE_ID',
+    player: playerId.toString(),
     gamesPlayed: 220,
     classesPlayed: {
       [Tf2ClassName.scout]: 19,
@@ -196,16 +199,17 @@ describe('Players Controller', () => {
 
   describe('#updatePlayer()', () => {
     it('should update the player', async () => {
+      const adminId = new Types.ObjectId() as PlayerId;
       const spy = jest.spyOn(playersService, 'updatePlayer');
       const ret = await controller.updatePlayer(
         playersService.player,
         { name: 'FAKE_NEW_NAME' },
-        { id: 'FAKE_ADMIN_ID' } as any,
+        { _id: adminId } as Player,
       );
       expect(spy).toHaveBeenCalledWith(
-        'FAKE_ID',
+        playersService.player._id,
         { name: 'FAKE_NEW_NAME' },
-        'FAKE_ADMIN_ID',
+        adminId,
       );
       expect(ret).toEqual(playersService.player as any);
     });
@@ -215,7 +219,7 @@ describe('Players Controller', () => {
     it('should return player stats', async () => {
       const spy = jest.spyOn(playersService, 'getPlayerStats');
       const ret = await controller.getPlayerStats(playersService.player);
-      expect(spy).toHaveBeenCalledWith('FAKE_ID');
+      expect(spy).toHaveBeenCalledWith(playerId);
       expect(ret).toEqual(playersService.stats);
     });
   });
@@ -236,7 +240,7 @@ describe('Players Controller', () => {
     describe('when the player has no skill set', () => {
       it('should return an empty object', () => {
         const playerWithoutSkill = plainToInstance(Player, {
-          _id: 'FAKE_ID_2',
+          _id: new Types.ObjectId().toString(),
           name: 'FAKE_2ND_PLAYER_NAME',
           steamId: 'FAKE_2ND_STEAM_ID',
           hasAcceptedRules: true,
@@ -256,7 +260,7 @@ describe('Players Controller', () => {
     it('should return player bans', async () => {
       const spy = jest.spyOn(playerBansService, 'getPlayerBans');
       const ret = await controller.getPlayerBans(playersService.player);
-      expect(spy).toHaveBeenCalledWith('FAKE_ID');
+      expect(spy).toHaveBeenCalledWith(playerId);
       expect(ret).toEqual(playerBansService.bans as any);
     });
   });
@@ -291,7 +295,7 @@ describe('Players Controller', () => {
   describe('#getPlayerLinkedProfiles()', () => {
     const linkedProfiles = [
       {
-        player: '6054cd120504423a7dd0dcc8',
+        player: playerId.toString(),
         userId: '75739124',
         login: 'm_maly',
         displayName: 'm_maly',
@@ -310,9 +314,9 @@ describe('Players Controller', () => {
         playersService.player,
       );
       expect(linkedProfilesService.getLinkedProfiles).toHaveBeenCalledWith(
-        'FAKE_ID',
+        playerId,
       );
-      expect(result).toEqual({ playerId: 'FAKE_ID', linkedProfiles });
+      expect(result).toEqual({ playerId: playerId.toString(), linkedProfiles });
     });
   });
 

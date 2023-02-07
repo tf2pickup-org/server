@@ -12,6 +12,8 @@ import { QueueState } from '../queue-state';
 import { ConfigurationService } from '@/configuration/services/configuration.service';
 import { PlayerBansService } from '@/players/services/player-bans.service';
 import { PlayersService } from '@/players/services/players.service';
+import { Types } from 'mongoose';
+import { PlayerId } from '@/players/types/player-id';
 
 jest.mock('../services/queue.service');
 jest.mock('socket.io');
@@ -70,20 +72,20 @@ describe('QueueGateway', () => {
     queueService.join.mockReturnValue([
       {
         id: 5,
-        playerId: 'FAKE_PLAYER_ID',
+        playerId: new Types.ObjectId() as PlayerId,
         gameClass: Tf2ClassName.scout,
         ready: false,
       },
     ]);
     queueService.leave.mockReturnValue({
       id: 0,
-      playerId: 'FAKE_PLAYER_ID',
+      playerId: new Types.ObjectId() as PlayerId,
       gameClass: Tf2ClassName.scout,
       ready: false,
     });
     queueService.readyUp.mockReturnValue({
       id: 0,
-      playerId: 'FAKE_PLAYER_ID',
+      playerId: new Types.ObjectId() as PlayerId,
       gameClass: Tf2ClassName.scout,
       ready: true,
     });
@@ -107,51 +109,56 @@ describe('QueueGateway', () => {
 
   describe('#joinQueue()', () => {
     it('should join the queue', () => {
-      gateway.joinQueue({ user: { id: 'FAKE_PLAYER_ID' } } as Socket, {
+      const playerId = new Types.ObjectId() as PlayerId;
+      gateway.joinQueue({ user: { _id: playerId } } as Socket, {
         slotId: 5,
       });
-      expect(queueService.join).toHaveBeenCalledWith(5, 'FAKE_PLAYER_ID');
+      expect(queueService.join).toHaveBeenCalledWith(5, playerId);
     });
   });
 
   describe('#leaveQueue()', () => {
     it('should leave the queue', () => {
+      const playerId = new Types.ObjectId() as PlayerId;
       gateway.leaveQueue({
-        user: { id: 'FAKE_PLAYER_ID' },
+        user: { _id: playerId },
       } as Socket);
-      expect(queueService.leave).toHaveBeenCalledWith('FAKE_PLAYER_ID');
+      expect(queueService.leave).toHaveBeenCalledWith(playerId);
     });
   });
 
   describe('#playerReady()', () => {
     it('should ready up the player', () => {
+      const playerId = new Types.ObjectId() as PlayerId;
       gateway.playerReady({
-        user: { id: 'FAKE_PLAYER_ID' },
+        user: { _id: playerId },
       } as Socket);
-      expect(queueService.readyUp).toHaveBeenCalledWith('FAKE_PLAYER_ID');
+      expect(queueService.readyUp).toHaveBeenCalledWith(playerId);
     });
   });
 
   describe('#markFriend()', () => {
     it('should mark friend', () => {
-      gateway.markFriend({ user: { id: 'FAKE_PLAYER_ID' } } as Socket, {
-        friendPlayerId: 'FAKE_FRIEND_ID',
+      const playerId = new Types.ObjectId() as PlayerId;
+      const friendId = new Types.ObjectId() as PlayerId;
+      gateway.markFriend({ user: { _id: playerId } } as Socket, {
+        friendPlayerId: friendId.toString(),
       });
       expect(friendsService.markFriend).toHaveBeenCalledWith(
-        'FAKE_PLAYER_ID',
-        'FAKE_FRIEND_ID',
+        playerId,
+        friendId,
       );
     });
   });
 
   describe('#voteForMap()', () => {
     it('should vote for the map', () => {
-      const ret = gateway.voteForMap(
-        { user: { id: 'FAKE_PLAYER_ID' } } as Socket,
-        { map: 'cp_badlands' },
-      );
+      const playerId = new Types.ObjectId() as PlayerId;
+      const ret = gateway.voteForMap({ user: { _id: playerId } } as Socket, {
+        map: 'cp_badlands',
+      });
       expect(mapVoteService.voteForMap).toHaveBeenCalledWith(
-        'FAKE_PLAYER_ID',
+        playerId,
         'cp_badlands',
       );
       expect(ret).toEqual('cp_badlands');
@@ -164,7 +171,7 @@ describe('QueueGateway', () => {
         slots: [
           {
             id: 0,
-            playerId: 'FAKE_PLAYER_ID',
+            playerId: new Types.ObjectId() as PlayerId,
             ready: true,
             gameClass: Tf2ClassName.soldier,
           },

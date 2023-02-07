@@ -34,6 +34,7 @@ import { GameEventType } from '@/games/models/game-event';
 import { assertIsError } from '@/utils/assert-is-error';
 import { LogsTfUploadMethod } from '@/games/logs-tf-upload-method';
 import { GameState } from '@/games/models/game-state';
+import { GameId } from '@/games/game-id';
 
 @Injectable()
 export class ServerConfiguratorService implements OnModuleInit {
@@ -59,7 +60,7 @@ export class ServerConfiguratorService implements OnModuleInit {
           ({ oldGame, newGame }) =>
             !isEqual(oldGame.gameServer, newGame.gameServer),
         ),
-        map(({ newGame }) => newGame.id),
+        map(({ newGame }) => newGame._id),
       )
       .subscribe(async (gameId) => {
         try {
@@ -70,7 +71,7 @@ export class ServerConfiguratorService implements OnModuleInit {
       });
   }
 
-  async configureServer(gameId: string) {
+  async configureServer(gameId: GameId) {
     let game = await this.gamesService.getById(gameId);
     if (!game.gameServer) {
       throw new GameServerNotAssignedError(game.id);
@@ -143,7 +144,7 @@ export class ServerConfiguratorService implements OnModuleInit {
       rcon = await controls.rcon();
 
       // reset connect info
-      game = await this.gamesService.update(game.id, {
+      game = await this.gamesService.update(game._id, {
         $set: {
           state: GameState.configuring,
         },
@@ -157,7 +158,7 @@ export class ServerConfiguratorService implements OnModuleInit {
       });
 
       const logSecret = await controls.getLogsecret();
-      game = await this.gamesService.update(game.id, { logSecret });
+      game = await this.gamesService.update(game._id, { logSecret });
       if (!game.gameServer) {
         throw new GameServerNotAssignedError(game.id);
       }
@@ -195,7 +196,7 @@ export class ServerConfiguratorService implements OnModuleInit {
       });
       this.logger.verbose(`[${game.gameServer.name} stv] ${stvConnectString}`);
 
-      game = await this.gamesService.update(game.id, {
+      game = await this.gamesService.update(game._id, {
         $set: {
           connectString,
           stvConnectString,

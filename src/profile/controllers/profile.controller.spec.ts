@@ -76,14 +76,14 @@ describe('Profile Controller', () => {
       expect(ret['sound-volume']).toEqual('0.9');
       expect(
         playerPreferencesService.updatePlayerPreferences,
-      ).toHaveBeenCalledWith('FAKE_ID', new Map([['sound-volume', '0.9']]));
+      ).toHaveBeenCalledWith(player._id, new Map([['sound-volume', '0.9']]));
     });
   });
 
   describe('#acceptTerms', () => {
     it('should call players service', async () => {
       await controller.acceptTerms(player, '');
-      expect(playersService.acceptTerms).toHaveBeenCalledWith('FAKE_ID');
+      expect(playersService.acceptTerms).toHaveBeenCalledWith(player._id);
     });
 
     it('should reject invalid requests', async () => {

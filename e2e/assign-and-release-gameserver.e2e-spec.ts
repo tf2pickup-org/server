@@ -12,12 +12,13 @@ import { configureApplication } from '@/configure-application';
 import { Events } from '@/events/events';
 import { waitForTheGameToLaunch } from './utils/wait-for-the-game-to-launch';
 import { GameServer } from '@/games/models/game-server';
+import { GameId } from '@/games/game-id';
 
 jest.setTimeout(250 * 1000);
 
 describe('Assign and release gameserver (e2e)', () => {
   let app: INestApplication;
-  let gameId: string;
+  let gameId: GameId;
   let staticGameServersService: StaticGameServersService;
 
   const waitForGameServerToComeOnline = () =>
@@ -52,67 +53,67 @@ describe('Assign and release gameserver (e2e)', () => {
         {
           id: 0,
           gameClass: Tf2ClassName.scout,
-          playerId: (await playersService.findBySteamId(players[0])).id,
+          playerId: (await playersService.findBySteamId(players[0]))._id,
           ready: true,
         },
         {
           id: 1,
           gameClass: Tf2ClassName.scout,
-          playerId: (await playersService.findBySteamId(players[1])).id,
+          playerId: (await playersService.findBySteamId(players[1]))._id,
           ready: true,
         },
         {
           id: 2,
           gameClass: Tf2ClassName.scout,
-          playerId: (await playersService.findBySteamId(players[2])).id,
+          playerId: (await playersService.findBySteamId(players[2]))._id,
           ready: true,
         },
         {
           id: 3,
           gameClass: Tf2ClassName.scout,
-          playerId: (await playersService.findBySteamId(players[3])).id,
+          playerId: (await playersService.findBySteamId(players[3]))._id,
           ready: true,
         },
         {
           id: 4,
           gameClass: Tf2ClassName.soldier,
-          playerId: (await playersService.findBySteamId(players[4])).id,
+          playerId: (await playersService.findBySteamId(players[4]))._id,
           ready: true,
         },
         {
           id: 5,
           gameClass: Tf2ClassName.soldier,
-          playerId: (await playersService.findBySteamId(players[5])).id,
+          playerId: (await playersService.findBySteamId(players[5]))._id,
           ready: true,
         },
         {
           id: 6,
           gameClass: Tf2ClassName.soldier,
-          playerId: (await playersService.findBySteamId(players[6])).id,
+          playerId: (await playersService.findBySteamId(players[6]))._id,
           ready: true,
         },
         {
           id: 7,
           gameClass: Tf2ClassName.soldier,
-          playerId: (await playersService.findBySteamId(players[7])).id,
+          playerId: (await playersService.findBySteamId(players[7]))._id,
           ready: true,
         },
         {
           id: 8,
           gameClass: Tf2ClassName.demoman,
-          playerId: (await playersService.findBySteamId(players[8])).id,
+          playerId: (await playersService.findBySteamId(players[8]))._id,
           ready: true,
         },
         {
           id: 9,
           gameClass: Tf2ClassName.demoman,
-          playerId: (await playersService.findBySteamId(players[9])).id,
+          playerId: (await playersService.findBySteamId(players[9]))._id,
           ready: true,
         },
         {
           id: 10,
           gameClass: Tf2ClassName.medic,
-          playerId: (await playersService.findBySteamId(players[10])).id,
+          playerId: (await playersService.findBySteamId(players[10]))._id,
           ready: true,
           canMakeFriendsWith: [
             Tf2ClassName.scout,
@@ -123,7 +124,7 @@ describe('Assign and release gameserver (e2e)', () => {
         {
           id: 11,
           gameClass: Tf2ClassName.medic,
-          playerId: (await playersService.findBySteamId(players[11])).id,
+          playerId: (await playersService.findBySteamId(players[11]))._id,
           ready: true,
           canMakeFriendsWith: [
             Tf2ClassName.scout,
@@ -134,9 +135,9 @@ describe('Assign and release gameserver (e2e)', () => {
       ],
       'cp_badlands',
     );
-    gameId = game.id;
+    gameId = game._id;
     await waitABit(1000);
-    await waitForTheGameToLaunch(app, gameId);
+    await waitForTheGameToLaunch(app, gameId.toString());
   });
 
   afterAll(async () => {
@@ -147,7 +148,7 @@ describe('Assign and release gameserver (e2e)', () => {
   it('should assign and release a gameserver', async () => {
     /* verify the gameserver is assigned */
     await request(app.getHttpServer())
-      .get(`/games/${gameId}`)
+      .get(`/games/${gameId.toString()}`)
       .expect(200)
       .then((response) => {
         const body = response.body;
@@ -164,7 +165,7 @@ describe('Assign and release gameserver (e2e)', () => {
       .expect(200)
       .then((response) => {
         const body = response.body;
-        expect(body.game).toEqual(gameId);
+        expect(body.game).toEqual(gameId.toString());
         expect(body.isOnline).toBe(true);
       });
 

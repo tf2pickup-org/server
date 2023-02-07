@@ -8,6 +8,9 @@ import { Player } from '@/players/models/player';
 import { PlayerNotInThisGameError } from '../errors/player-not-in-this-game.error';
 import { Events } from '@/events/events';
 import { GameServerAssignerService } from '../services/game-server-assigner.service';
+import { Types } from 'mongoose';
+import { PlayerId } from '@/players/types/player-id';
+import { GameId } from '../game-id';
 
 jest.mock('../services/player-substitution.service');
 jest.mock('../services/game-server-assigner.service');
@@ -151,7 +154,10 @@ describe('Games Controller', () => {
         jest
           .spyOn(gamesService, 'getVoiceChannelUrl')
           .mockRejectedValue(
-            new PlayerNotInThisGameError('FAKE_PLAYER_ID', 'FAKE_GAME_ID'),
+            new PlayerNotInThisGameError(
+              new Types.ObjectId() as PlayerId,
+              new Types.ObjectId() as GameId,
+            ),
           );
       });
 
@@ -182,15 +188,17 @@ describe('Games Controller', () => {
   });
 
   describe('#getGameSkills()', () => {
-    it('should return given game assigned skills', async () => {
-      const ret = await controller.getGameSkills(gamesService.games[0]);
+    it('should return given game assigned skills', () => {
+      const ret = controller.getGameSkills(gamesService.games[0]);
       expect(ret).toEqual(gamesService.games[0].assignedSkills);
     });
   });
 
   describe('#takeAdminAction()', () => {
     it('should emit the gameReconfigureRequested event', async () => {
-      let emittedGameId: string | undefined, emittedAdminId: string | undefined;
+      const adminId = new Types.ObjectId() as PlayerId;
+      let emittedGameId: GameId | undefined,
+        emittedAdminId: PlayerId | undefined;
       events.gameReconfigureRequested.subscribe(({ gameId, adminId }) => {
         emittedGameId = gameId;
         emittedAdminId = adminId;
@@ -203,14 +211,15 @@ describe('Games Controller', () => {
         undefined,
         undefined,
         undefined,
-        { id: 'FAKE_ADMIN_ID' } as Player,
+        { _id: adminId } as Player,
         {},
       );
-      expect(emittedGameId).toEqual('FAKE_GAME_ID');
-      expect(emittedAdminId).toEqual('FAKE_ADMIN_ID');
+      expect(emittedGameId).toEqual(gamesService.games[0]._id);
+      expect(emittedAdminId).toEqual(adminId);
     });
 
     it('should force end the game', async () => {
+      const adminId = new Types.ObjectId() as PlayerId;
       await controller.takeAdminAction(
         gamesService.games[0],
         undefined,
@@ -218,35 +227,39 @@ describe('Games Controller', () => {
         undefined,
         undefined,
         undefined,
-        { id: 'FAKE_ADMIN_ID' } as Player,
+        { _id: adminId } as Player,
         {},
       );
       expect(gamesService.forceEnd).toHaveBeenCalledWith(
-        'FAKE_GAME_ID',
-        'FAKE_ADMIN_ID',
+        gamesService.games[0]._id,
+        adminId,
       );
     });
 
     it('should substitute player', async () => {
+      const adminId = new Types.ObjectId() as PlayerId;
+      const playerId = new Types.ObjectId() as PlayerId;
       const spy = jest.spyOn(playerSubstitutionService, 'substitutePlayer');
       await controller.takeAdminAction(
         gamesService.games[0],
         undefined,
         undefined,
-        'FAKE_PLAYER_ID',
+        playerId.toString(),
         undefined,
         undefined,
-        { id: 'FAKE_ADMIN_ID' } as Player,
+        { _id: adminId } as Player,
         {},
       );
       expect(spy).toHaveBeenCalledWith(
-        'FAKE_GAME_ID',
-        'FAKE_PLAYER_ID',
-        'FAKE_ADMIN_ID',
+        gamesService.games[0]._id,
+        playerId,
+        adminId,
       );
     });
 
     it('should cancel substitution request', async () => {
+      const playerId = new Types.ObjectId() as PlayerId;
+      const adminId = new Types.ObjectId() as PlayerId;
       const spy = jest.spyOn(
         playerSubstitutionService,
         'cancelSubstitutionRequest',
@@ -256,20 +269,21 @@ describe('Games Controller', () => {
         undefined,
         undefined,
         undefined,
-        'FAKE_PLAYER_ID',
+        playerId.toString(),
         undefined,
-        { id: 'FAKE_ADMIN_ID' } as Player,
+        { _id: adminId } as Player,
         {},
       );
       expect(spy).toHaveBeenCalledWith(
-        'FAKE_GAME_ID',
-        'FAKE_PLAYER_ID',
-        'FAKE_ADMIN_ID',
+        gamesService.games[0]._id,
+        playerId,
+        adminId,
       );
     });
 
     describe('reassign server', () => {
       it('should reassign gameserver', async () => {
+        const adminId = new Types.ObjectId() as PlayerId;
         await controller.takeAdminAction(
           gamesService.games[0],
           undefined,
@@ -277,11 +291,11 @@ describe('Games Controller', () => {
           undefined,
           undefined,
           '',
-          { id: 'FAKE_ADMIN_ID' } as Player,
+          { _id: adminId } as Player,
           { id: 'FAKE_GAMESERVER_ID', provider: 'FAKE_PROVIDER' },
         );
         expect(gameServerAssignerService.assignGameServer).toHaveBeenCalledWith(
-          'FAKE_GAME_ID',
+          gamesService.games[0]._id,
           {
             id: 'FAKE_GAMESERVER_ID',
             provider: 'FAKE_PROVIDER',
@@ -291,6 +305,7 @@ describe('Games Controller', () => {
 
       describe('when gameserver is invalid', () => {
         it('should return 400', async () => {
+          const adminId = new Types.ObjectId() as PlayerId;
           await expect(
             controller.takeAdminAction(
               gamesService.games[0],
@@ -299,7 +314,7 @@ describe('Games Controller', () => {
               undefined,
               undefined,
               '',
-              { id: 'FAKE_ADMIN_ID' } as Player,
+              { _id: adminId } as Player,
               { id: 'FAKE_GAMESERVER_ID' }, // missing provider
             ),
           ).rejects.toThrow(BadRequestException);

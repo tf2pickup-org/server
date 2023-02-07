@@ -10,13 +10,15 @@ import {
   mapPoolEntrySchema,
 } from '../models/map-pool-entry';
 import { skip } from 'rxjs/operators';
-import { Connection, Model } from 'mongoose';
+import { Connection, Model, Types } from 'mongoose';
 import {
   getConnectionToken,
   getModelToken,
   MongooseModule,
 } from '@nestjs/mongoose';
 import { ConfigurationService } from '@/configuration/services/configuration.service';
+import { PlayerId } from '@/players/types/player-id';
+import { waitABit } from '@/utils/wait-a-bit';
 
 jest.mock('./queue.service');
 jest.mock('@/configuration/services/configuration.service', () => ({
@@ -91,7 +93,7 @@ describe('MapVoteService', () => {
 
   describe('#voteForMap()', () => {
     it('should save the vote', () => {
-      service.voteForMap('FAKE_ID', 'cp_badlands');
+      service.voteForMap(new Types.ObjectId() as PlayerId, 'cp_badlands');
       expect(service.results).toEqual(
         expect.arrayContaining([
           { map: 'cp_badlands', voteCount: 1 },
@@ -103,7 +105,9 @@ describe('MapVoteService', () => {
     });
 
     it('should deny voting for maps out of pool', () => {
-      expect(() => service.voteForMap('FAKE_ID', 'cp_sunshine')).toThrow();
+      expect(() =>
+        service.voteForMap(new Types.ObjectId() as PlayerId, 'cp_sunshine'),
+      ).toThrow();
     });
 
     describe('when the player is not in the queue', () => {
@@ -112,15 +116,18 @@ describe('MapVoteService', () => {
       });
 
       it('should deny', () => {
-        expect(() => service.voteForMap('FAKE_ID', 'cp_badlands')).toThrow();
+        expect(() =>
+          service.voteForMap(new Types.ObjectId() as PlayerId, 'cp_badlands'),
+        ).toThrow();
       });
     });
 
     it("should remove the player's vote when the player leaves the queue", () => {
-      service.voteForMap('FAKE_PLAYER_ID', 'cp_badlands');
+      const playerId = new Types.ObjectId() as PlayerId;
+      service.voteForMap(playerId, 'cp_badlands');
       expect(service.voteCountForMap('cp_badlands')).toEqual(1);
       events.playerLeavesQueue.next({
-        playerId: 'FAKE_PLAYER_ID',
+        playerId,
         reason: 'manual',
       });
       expect(service.voteCountForMap('cp_badlands')).toEqual(0);
@@ -136,19 +143,19 @@ describe('MapVoteService', () => {
           resolve();
         });
 
-        service.voteForMap('FAKE_ID', 'cp_badlands');
+        service.voteForMap(new Types.ObjectId() as PlayerId, 'cp_badlands');
       }));
   });
 
   describe('#getWinner()', () => {
     it('should return the map with the most votes', async () => {
-      service.voteForMap('FAKE_ID', 'cp_badlands');
+      service.voteForMap(new Types.ObjectId() as PlayerId, 'cp_badlands');
       expect(await service.getWinner()).toEqual('cp_badlands');
     });
 
     it('should return one of two most-voted maps', async () => {
-      service.voteForMap('FAKE_ID_1', 'cp_badlands');
-      service.voteForMap('FAKE_ID_2', 'cp_process_final');
+      service.voteForMap(new Types.ObjectId() as PlayerId, 'cp_badlands');
+      service.voteForMap(new Types.ObjectId() as PlayerId, 'cp_process_final');
       expect(await service.getWinner()).toMatch(/cp_badlands|cp_process_final/);
     });
 
@@ -162,14 +169,15 @@ describe('MapVoteService', () => {
           resolve();
         });
 
-        service.voteForMap('FAKE_ID_1', 'cp_badlands');
+        service.voteForMap(new Types.ObjectId() as PlayerId, 'cp_badlands');
         service.getWinner();
       }));
 
     describe('when a map is chosen', () => {
       beforeEach(async () => {
-        service.voteForMap('FAKE_ID', 'cp_badlands');
+        service.voteForMap(new Types.ObjectId() as PlayerId, 'cp_badlands');
         await service.getWinner();
+        await waitABit(100);
       });
 
       it('should set the cooldown', async () => {
@@ -179,8 +187,12 @@ describe('MapVoteService', () => {
 
       describe('and when another map is chosen', () => {
         beforeEach(async () => {
-          service.voteForMap('FAKE_ID', 'cp_process_final');
-          await service.getWinner();
+          service.voteForMap(
+            new Types.ObjectId() as PlayerId,
+            'cp_process_final',
+          );
+          const winner = await service.getWinner();
+          await waitABit(100);
         });
 
         it('should decrease the cooldown by 1', async () => {
@@ -194,16 +206,17 @@ describe('MapVoteService', () => {
   describe('#scramble()', () => {
     it('should emit the mapsScrambled event', () =>
       new Promise<void>((resolve) => {
+        const actorId = new Types.ObjectId() as PlayerId;
         events.mapsScrambled.subscribe(({ actorId }) => {
-          expect(actorId).toEqual('FAKE_ACTOR_ID');
+          expect(actorId).toEqual(actorId);
           resolve();
         });
-        service.scramble('FAKE_ACTOR_ID');
+        service.scramble(actorId);
       }));
   });
 
   it('should reset the votes when map pool changes', async () => {
-    service.voteForMap('FAKE_ID', 'cp_badlands');
+    service.voteForMap(new Types.ObjectId() as PlayerId, 'cp_badlands');
     await mapModel.create({ name: 'cp_gullywash_final1' });
     const maps = await mapModel.find();
     events.mapPoolChange.next({ maps });

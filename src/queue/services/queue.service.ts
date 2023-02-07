@@ -19,6 +19,7 @@ import { CannotJoinAtThisQueueStateError } from '../errors/cannot-join-at-this-q
 import { Cache } from 'cache-manager';
 import { QueueConfig } from '@/queue-config/interfaces/queue-config';
 import { ConfigurationService } from '@/configuration/services/configuration.service';
+import { PlayerId } from '@/players/types/player-id';
 
 interface Queue {
   slots: QueueSlot[];
@@ -74,9 +75,7 @@ export class QueueService
     this.events.playerDisconnects.subscribe(({ playerId }) =>
       this.kick(playerId),
     );
-    this.events.playerBanAdded.subscribe(({ ban }) =>
-      this.kick(ban.player.toString()),
-    );
+    this.events.playerBanAdded.subscribe(({ ban }) => this.kick(ban.player));
 
     this.events.queueSlotsChange.subscribe(() => this.cacheQueue());
     this.events.queueStateChange.subscribe(() => this.cacheQueue());
@@ -106,12 +105,12 @@ export class QueueService
     return this.slots.find((s) => s.id === id);
   }
 
-  findSlotByPlayerId(playerId: string): QueueSlot | undefined {
-    return this.slots.find((s) => s.playerId === playerId);
+  findSlotByPlayerId(playerId: PlayerId): QueueSlot | undefined {
+    return this.slots.find((s) => s.playerId?.equals(playerId));
   }
 
-  isInQueue(playerId: string): boolean {
-    return Boolean(this.slots.find((s) => s.playerId === playerId));
+  isInQueue(playerId: PlayerId): boolean {
+    return Boolean(this.slots.find((s) => s.playerId?.equals(playerId)));
   }
 
   reset() {
@@ -126,7 +125,7 @@ export class QueueService
    * @param {number} slotId Slot id to take.
    * @param {string} playerId ID of the player who joins the queue.
    */
-  join(slotId: number, playerId: string): QueueSlot[] {
+  join(slotId: number, playerId: PlayerId): QueueSlot[] {
     if (this.state === QueueState.launching) {
       throw new CannotJoinAtThisQueueStateError(this.state);
     }
@@ -167,7 +166,7 @@ export class QueueService
     return slots;
   }
 
-  leave(playerId: string): QueueSlot {
+  leave(playerId: PlayerId): QueueSlot {
     const slot = this.findSlotByPlayerId(playerId);
     if (!slot) {
       throw new PlayerNotInTheQueueError(playerId);
@@ -184,7 +183,7 @@ export class QueueService
     return slot;
   }
 
-  kick(...playerIds: string[]) {
+  kick(...playerIds: PlayerId[]) {
     if (this.state === QueueState.launching) {
       return;
     }
@@ -206,7 +205,7 @@ export class QueueService
     this.events.queueSlotsChange.next({ slots: updatedSlots });
   }
 
-  readyUp(playerId: string): QueueSlot {
+  readyUp(playerId: PlayerId): QueueSlot {
     if (this.state !== QueueState.ready) {
       throw new WrongQueueStateError(this.state);
     }

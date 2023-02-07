@@ -20,6 +20,8 @@ import { GameInWrongStateError } from '../errors/game-in-wrong-state.error';
 import { WrongGameSlotStatusError } from '../errors/wrong-game-slot-status.error';
 import { merge } from 'rxjs';
 import { Mutex } from 'async-mutex';
+import { GameId } from '../game-id';
+import { PlayerId } from '@/players/types/player-id';
 
 /**
  * A service that handles player substitution logic.
@@ -48,7 +50,11 @@ export class PlayerSubstitutionService implements OnModuleInit {
     ).subscribe(() => this.events.substituteRequestsChange.next());
   }
 
-  async substitutePlayer(gameId: string, playerId: string, adminId?: string) {
+  async substitutePlayer(
+    gameId: GameId,
+    playerId: PlayerId,
+    adminId?: PlayerId,
+  ) {
     return await this.mutex.runExclusive(async () => {
       const game = await this.gamesService.getById(gameId);
       const slot = game.findPlayerSlot(playerId);
@@ -100,9 +106,9 @@ export class PlayerSubstitutionService implements OnModuleInit {
   }
 
   async cancelSubstitutionRequest(
-    gameId: string,
-    playerId: string,
-    adminId?: string,
+    gameId: GameId,
+    playerId: PlayerId,
+    adminId?: PlayerId,
   ) {
     return await this.mutex.runExclusive(async () => {
       const game = await this.gamesService.getById(gameId);
@@ -155,9 +161,9 @@ export class PlayerSubstitutionService implements OnModuleInit {
   }
 
   async replacePlayer(
-    gameId: string,
-    replaceeId: string,
-    replacementId: string,
+    gameId: GameId,
+    replaceeId: PlayerId,
+    replacementId: PlayerId,
   ) {
     return await this.mutex.runExclusive(async () => {
       const replacement = await this.playersService.getById(replacementId);
@@ -180,7 +186,7 @@ export class PlayerSubstitutionService implements OnModuleInit {
         throw new PlayerNotInThisGameError(replaceeId, gameId);
       }
 
-      if (replaceeId === replacementId) {
+      if (replaceeId.equals(replacementId)) {
         const newGame = plainToInstance(
           Game,
           await this.gameModel
@@ -262,10 +268,10 @@ export class PlayerSubstitutionService implements OnModuleInit {
         `player ${replacement.name} is replacing ${replacee.name} on ${replacementSlot.gameClass} in game #${newGame.number}`,
       );
 
-      await this.playersService.updatePlayer(replacement.id.toString(), {
+      await this.playersService.updatePlayer(replacement._id, {
         activeGame: newGame.id,
       });
-      await this.playersService.updatePlayer(replacee.id.toString(), {
+      await this.playersService.updatePlayer(replacee._id, {
         $unset: { activeGame: 1 },
       });
       return newGame;

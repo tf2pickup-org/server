@@ -1,4 +1,5 @@
 import { app } from '@/app';
+import { PlayerId } from '@/players/types/player-id';
 import { PlayersService } from '@/players/services/players.service';
 import { TransformObjectId } from '@/shared/decorators/transform-object-id';
 import { Serializable } from '@/shared/serializable';
@@ -19,7 +20,7 @@ export class PlayerActionEntry extends Serializable<PlayerActionDto> {
 
   @TransformObjectId()
   @Prop({ required: true, type: Types.ObjectId, ref: 'Player', index: true })
-  player!: Types.ObjectId;
+  player!: PlayerId;
 
   @Prop()
   ipAddress?: string;

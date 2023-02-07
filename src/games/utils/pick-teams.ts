@@ -3,9 +3,10 @@ import { NotImplementedException } from '@nestjs/common';
 import { Tf2Team } from '../models/tf2-team';
 import { meanBy } from 'lodash';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
+import { PlayerId } from '@/players/types/player-id';
 
 export interface PlayerSlot {
-  playerId: string;
+  playerId: PlayerId;
   gameClass: Tf2ClassName;
   skill: number; // the skill for the given gameClass
 }
@@ -15,7 +16,7 @@ export interface PlayerSlotWithTeam extends PlayerSlot {
 }
 
 export interface TeamOverrides {
-  friends: string[][];
+  friends: PlayerId[][];
 }
 
 interface TeamLineup {
@@ -139,8 +140,8 @@ function respectsOverrides(
     return true;
   }
 
-  function findPlayersTeam(player: string): TeamId | null {
-    if (lineup[0].lineup.find((p) => p.playerId === player)) {
+  function findPlayersTeam(player: PlayerId): TeamId | null {
+    if (lineup[0].lineup.find((p) => p.playerId.equals(player))) {
       return 0;
     } else if (lineup[1].lineup.find((p) => p.playerId === player)) {
       return 1;

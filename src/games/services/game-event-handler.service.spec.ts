@@ -23,6 +23,7 @@ import { isUndefined } from 'lodash';
 import { GameEventType } from '../models/game-event';
 import { PlayerEventType } from '../models/player-event';
 import { PlayerConnectionStatus } from '../models/player-connection-status';
+import { GameId } from '../game-id';
 
 jest.mock('@/players/services/players.service');
 jest.mock('@nestjs/config');
@@ -207,7 +208,7 @@ describe('GameEventHandlerService', () => {
           game.slots
             .filter((slot) => slot.gameClass === Tf2ClassName.medic)
             .map((slot) => slot.player)
-            .map((playerId) => playersService.getById(playerId.toString())),
+            .map((playerId) => playersService.getById(playerId)),
         );
         expect(players.every((player) => isUndefined(player.activeGame))).toBe(
           true,
@@ -220,7 +221,7 @@ describe('GameEventHandlerService', () => {
         const players = await Promise.all(
           game.slots
             .map((slot) => slot.player)
-            .map((playerId) => playersService.getById(playerId.toString())),
+            .map((playerId) => playersService.getById(playerId)),
         );
         expect(players.every((player) => isUndefined(player.activeGame))).toBe(
           true,
@@ -266,7 +267,7 @@ describe('GameEventHandlerService', () => {
       it('should throw an error', async () => {
         await expect(
           service.onDemoUploaded(
-            new Types.ObjectId().toString(),
+            new Types.ObjectId() as GameId,
             'FAKE_DEMO_URL',
           ),
         ).rejects.toThrow(Error.DocumentNotFoundError);

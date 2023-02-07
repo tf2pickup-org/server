@@ -9,6 +9,8 @@ import { PlayerDto } from '../dto/player.dto';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { GamesService } from '@/games/services/games.service';
 import { app } from '@/app';
+import { GameId } from '@/games/game-id';
+import { PlayerId } from '../types/player-id';
 
 @Schema()
 export class Player extends Serializable<PlayerDto> {
@@ -17,7 +19,7 @@ export class Player extends Serializable<PlayerDto> {
 
   @Exclude({ toPlainOnly: true })
   @TransformObjectId()
-  _id!: Types.ObjectId;
+  _id!: PlayerId;
 
   @Expose()
   @Transform(({ value, obj }) => value ?? obj._id.toString())
@@ -46,10 +48,9 @@ export class Player extends Serializable<PlayerDto> {
   @Prop({ index: true })
   etf2lProfileId?: number;
 
-  @Exclude({ toPlainOnly: true })
   @TransformObjectId()
-  @Prop({ ref: 'Game' })
-  activeGame?: Types.ObjectId;
+  @Prop({ type: Types.ObjectId, ref: 'Game' })
+  activeGame?: GameId;
 
   @Type(() => Number)
   @Prop(
@@ -76,7 +77,7 @@ export class Player extends Serializable<PlayerDto> {
         : {},
       roles: this.roles,
       etf2lProfileId: this.etf2lProfileId,
-      gamesPlayed: await gamesService.getPlayerGameCount(this.id),
+      gamesPlayed: await gamesService.getPlayerGameCount(this._id),
       _links: [
         {
           href: `/players/${this.id}/linked-profiles`,

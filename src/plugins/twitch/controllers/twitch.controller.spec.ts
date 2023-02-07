@@ -8,6 +8,7 @@ import { JsonWebTokenError } from 'jsonwebtoken';
 import { BadRequestException } from '@nestjs/common';
 import { Player } from '@/players/models/player';
 import { Types } from 'mongoose';
+import { PlayerId } from '@/players/types/player-id';
 
 jest.mock('../services/twitch.service');
 jest.mock('../services/twitch-auth.service');
@@ -80,37 +81,43 @@ describe('Twitch Controller', () => {
   });
 
   describe('#authenticationCallback()', () => {
+    let playerId: PlayerId;
+
     beforeEach(() => {
-      authService.verifyToken.mockReturnValue({ id: 'FAKE_USER_ID' } as any);
+      playerId = new Types.ObjectId() as PlayerId;
+      authService.verifyToken.mockReturnValue({
+        id: playerId.toString(),
+      } as any);
     });
 
     it('should link the twitch.tv account', async () => {
       await controller.authenticationCallback('FAKE_CODE', 'FAKE_STATE');
       expect(twitchService.saveUserProfile).toHaveBeenCalledWith(
-        'FAKE_USER_ID',
+        playerId,
         'FAKE_CODE',
       );
     });
   });
 
   describe('#disconnect()', () => {
+    let playerId: PlayerId;
+
     beforeEach(() => {
+      playerId = new Types.ObjectId() as PlayerId;
       twitchService.deleteUserProfile.mockResolvedValue({
         userId: 'FAKE_USER_ID',
         login: 'FAKE_LOGIN',
-        player: new Types.ObjectId(),
+        player: playerId,
       });
     });
 
     it('should remove the twitch.tv profile', async () => {
-      const ret = await controller.disconnect({ id: 'FAKE_USER_ID' } as Player);
-      expect(twitchService.deleteUserProfile).toHaveBeenCalledWith(
-        'FAKE_USER_ID',
-      );
+      const ret = await controller.disconnect({ _id: playerId } as Player);
+      expect(twitchService.deleteUserProfile).toHaveBeenCalledWith(playerId);
       expect(ret).toEqual({
         userId: 'FAKE_USER_ID',
         login: 'FAKE_LOGIN',
-        player: expect.any(Types.ObjectId),
+        player: playerId,
       });
     });
   });

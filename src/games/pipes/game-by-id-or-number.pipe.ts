@@ -3,6 +3,7 @@ import { Injectable, NotFoundException, PipeTransform } from '@nestjs/common';
 import { Game } from '../models/game';
 import { GamesService } from '../services/games.service';
 import { Error } from 'mongoose';
+import { GameId } from '../game-id';
 
 @Injectable()
 export class GameByIdOrNumberPipe implements PipeTransform {
@@ -12,7 +13,7 @@ export class GameByIdOrNumberPipe implements PipeTransform {
 
   async transform(value: string): Promise<Game> {
     try {
-      const objectId = this.objectIdValidationPipe.transform(value);
+      const objectId = this.objectIdValidationPipe.transform(value) as GameId;
       return await this.gamesService.getById(objectId);
     } catch (error) {
       if (error instanceof Error.DocumentNotFoundError) {

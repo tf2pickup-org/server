@@ -19,6 +19,8 @@ import { Auth } from '@/auth/decorators/auth.decorator';
 import { User } from '@/auth/decorators/user.decorator';
 import { Player } from '@/players/models/player';
 import { TwitchTvProfile } from '../models/twitch-tv-profile';
+import { Types } from 'mongoose';
+import { PlayerId } from '@/players/types/player-id';
 
 @Controller('twitch')
 export class TwitchController {
@@ -58,14 +60,17 @@ export class TwitchController {
     @Query('state') state: string,
   ) {
     const { id } = this.authService.verifyToken(JwtTokenPurpose.context, state);
-    await this.twitchService.saveUserProfile(id, code);
+    await this.twitchService.saveUserProfile(
+      new Types.ObjectId(id) as PlayerId,
+      code,
+    );
   }
 
   @Put('disconnect')
   @Auth()
   @UseInterceptors(ClassSerializerInterceptor)
   async disconnect(@User() user: Player): Promise<TwitchTvProfile> {
-    return await this.twitchService.deleteUserProfile(user.id);
+    return await this.twitchService.deleteUserProfile(user._id);
   }
 
   @Get('streams')

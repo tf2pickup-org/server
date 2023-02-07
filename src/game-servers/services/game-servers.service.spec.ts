@@ -22,6 +22,8 @@ import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { SlotStatus } from '@/games/models/slot-status';
 import { PlayerConnectionStatus } from '@/games/models/player-connection-status';
 import { GameState } from '@/games/models/game-state';
+import { PlayerId } from '@/players/types/player-id';
+import { GameId } from '@/games/game-id';
 
 jest.mock('@/games/services/games.service');
 
@@ -41,6 +43,7 @@ describe('GameServersService', () => {
   let connection: Connection;
   let testGameServerProvider: TestGameServerProvider;
   let events: Events;
+  let gameId: GameId;
 
   beforeAll(async () => (mongod = await MongoMemoryServer.create()));
   afterAll(async () => await mongod.stop());
@@ -58,6 +61,7 @@ describe('GameServersService', () => {
     gameModel = module.get(getModelToken(Game.name));
     connection = module.get(getConnectionToken());
     events = module.get(Events);
+    gameId = new Types.ObjectId() as GameId;
   });
 
   beforeEach(() => {
@@ -77,9 +81,9 @@ describe('GameServersService', () => {
   describe('#takeFirstFreeGameServer()', () => {
     describe('when there are no registered providers', () => {
       it('should throw an error', async () => {
-        await expect(
-          service.takeFirstFreeGameServer('FAKE_GAME_ID'),
-        ).rejects.toThrow(NoFreeGameServerAvailableError);
+        await expect(service.takeFirstFreeGameServer(gameId)).rejects.toThrow(
+          NoFreeGameServerAvailableError,
+        );
       });
     });
 
@@ -94,9 +98,7 @@ describe('GameServersService', () => {
       });
 
       it('should return this gameserver', async () => {
-        const gameServer = await service.takeFirstFreeGameServer(
-          'FAKE_GAME_SERVER',
-        );
+        const gameServer = await service.takeFirstFreeGameServer(gameId);
         expect(gameServer.id).toEqual('FAKE_GAME_SERVER');
         expect(gameServer.provider).toEqual('test');
       });
@@ -116,11 +118,11 @@ describe('GameServersService', () => {
     it('should take the given gameserver', async () => {
       const server = await service.takeGameServer(
         { id: 'FAKE_GAME_SERVER', provider: 'test' },
-        'FAKE_GAME_ID',
+        gameId,
       );
       expect(testGameServerProvider.takeGameServer).toHaveBeenCalledWith({
         gameServerId: 'FAKE_GAME_SERVER',
-        gameId: 'FAKE_GAME_ID',
+        gameId,
       });
       expect(server.id).toEqual('FAKE_GAME_SERVER');
       expect(server.provider).toEqual('test');
@@ -170,12 +172,12 @@ describe('GameServersService', () => {
     });
 
     it('should assign the server', async () => {
-      const newGame = await service.assignGameServer(game.id);
+      const newGame = await service.assignGameServer(game._id);
       expect(newGame.gameServer?.id).toEqual('FAKE_GAME_SERVER');
       expect(
         testGameServerProvider.takeFirstFreeGameServer,
       ).toHaveBeenCalledWith({
-        gameId: game.id,
+        gameId: game._id,
       });
     });
 
@@ -187,7 +189,7 @@ describe('GameServersService', () => {
       });
 
       it('should throw', async () => {
-        await expect(service.assignGameServer(game.id)).rejects.toThrow();
+        await expect(service.assignGameServer(game._id)).rejects.toThrow();
       });
     });
 
@@ -202,14 +204,14 @@ describe('GameServersService', () => {
       });
 
       it('should assign the given gameserver', async () => {
-        const newGame = await service.assignGameServer(game.id, {
+        const newGame = await service.assignGameServer(game._id, {
           id: 'FAKE_GAME_SERVER',
           provider: 'test',
         });
         expect(newGame.gameServer?.id).toEqual('FAKE_GAME_SERVER');
         expect(testGameServerProvider.takeGameServer).toHaveBeenCalledWith({
           gameServerId: 'FAKE_GAME_SERVER',
-          gameId: game.id,
+          gameId: game._id,
         });
       });
 
@@ -222,11 +224,11 @@ describe('GameServersService', () => {
             port: 27025,
           });
 
-          await service.assignGameServer(game.id);
+          await service.assignGameServer(game._id);
         });
 
         it('should release the assigned gameserver', async () => {
-          await service.assignGameServer(game.id, {
+          await service.assignGameServer(game._id, {
             id: 'FAKE_GAME_SERVER',
             provider: 'test',
           });
@@ -234,7 +236,7 @@ describe('GameServersService', () => {
           expect(testGameServerProvider.releaseGameServer).toHaveBeenCalledWith(
             {
               gameServerId: 'FAKE_GAME_SERVER_2',
-              gameId: game.id,
+              gameId: game._id,
               reason: GameServerReleaseReason.Manual,
             },
           );
@@ -256,7 +258,7 @@ describe('GameServersService', () => {
           beforeEach(async () => {
             game.slots = [
               {
-                player: new Types.ObjectId(),
+                player: new Types.ObjectId() as PlayerId,
                 team: Tf2Team.blu,
                 gameClass: Tf2ClassName.soldier,
                 status: SlotStatus.active,
@@ -264,7 +266,7 @@ describe('GameServersService', () => {
                 events: [],
               },
               {
-                player: new Types.ObjectId(),
+                player: new Types.ObjectId() as PlayerId,
                 team: Tf2Team.red,
                 gameClass: Tf2ClassName.soldier,
                 status: SlotStatus.active,

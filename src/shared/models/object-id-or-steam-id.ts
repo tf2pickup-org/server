@@ -1,6 +1,8 @@
+import { Types } from 'mongoose';
+
 interface ObjectId {
   type: 'object-id';
-  objectId: string;
+  objectId: Types.ObjectId;
 }
 
 interface SteamId {

@@ -29,6 +29,8 @@ import { mapsScrambled } from '../notifications/maps-scrambled';
 import { isEqual } from 'lodash';
 import { PlayerChanges } from '../player-changes';
 import { extractPlayerChanges } from '../utils/extract-player-changes';
+import { GameId } from '@/games/game-id';
+import { PlayerId } from '@/players/types/player-id';
 
 type PlayerSkillType = Player['skill'];
 
@@ -75,7 +77,7 @@ export class AdminNotificationsService implements OnModuleInit {
       )
       .subscribe(({ oldPlayer, newPlayer, adminId }) =>
         this.onPlayerSkillChanged(
-          newPlayer.id,
+          newPlayer._id,
           oldPlayer.skill,
           newPlayer.skill,
           adminId,
@@ -139,7 +141,7 @@ export class AdminNotificationsService implements OnModuleInit {
   private async onPlayerUpdates(
     player: Player,
     changes: PlayerChanges,
-    adminId?: string,
+    adminId?: PlayerId,
   ) {
     if (!adminId) {
       return;
@@ -202,7 +204,7 @@ export class AdminNotificationsService implements OnModuleInit {
     });
   }
 
-  private async onPlayerBanRevoked(ban: PlayerBan, adminId?: string) {
+  private async onPlayerBanRevoked(ban: PlayerBan, adminId?: PlayerId) {
     if (!adminId) {
       return;
     }
@@ -234,10 +236,10 @@ export class AdminNotificationsService implements OnModuleInit {
   }
 
   private async onPlayerSkillChanged(
-    playerId: string,
+    playerId: PlayerId,
     oldSkill: PlayerSkillType,
     newSkill: PlayerSkillType,
-    adminId?: string,
+    adminId?: PlayerId,
   ) {
     if (!adminId) {
       return;
@@ -312,7 +314,7 @@ export class AdminNotificationsService implements OnModuleInit {
     });
   }
 
-  private async onGameForceEnded(game: Game, adminId?: string) {
+  private async onGameForceEnded(game: Game, adminId?: PlayerId) {
     if (!adminId) {
       return;
     }
@@ -340,9 +342,9 @@ export class AdminNotificationsService implements OnModuleInit {
   }
 
   private async onSubstituteRequested(
-    gameId: string,
-    playerId: string,
-    adminId?: string,
+    gameId: GameId,
+    playerId: PlayerId,
+    adminId?: PlayerId,
   ) {
     if (!adminId) {
       return;
@@ -377,7 +379,7 @@ export class AdminNotificationsService implements OnModuleInit {
     });
   }
 
-  private async onMapsScrambled(actorId?: string) {
+  private async onMapsScrambled(actorId?: PlayerId) {
     if (!actorId) {
       return;
     }

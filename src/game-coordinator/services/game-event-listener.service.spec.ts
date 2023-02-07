@@ -92,7 +92,7 @@ describe('GameEventListenerService', () => {
     it('match started', () =>
       new Promise<void>((resolve) => {
         events.matchStarted.pipe(take(1)).subscribe(({ gameId }) => {
-          expect(gameId).toEqual(game.id);
+          expect(gameId.equals(game._id)).toBe(true);
           resolve();
         });
         gameLogs.next({
@@ -104,7 +104,7 @@ describe('GameEventListenerService', () => {
     it('match ended', () =>
       new Promise<void>((resolve) => {
         events.matchEnded.pipe(take(1)).subscribe(({ gameId }) => {
-          expect(gameId).toEqual(game.id);
+          expect(gameId.equals(game._id)).toBe(true);
           resolve();
         });
         gameLogs.next({
@@ -117,7 +117,7 @@ describe('GameEventListenerService', () => {
     it('logs uploaded', () =>
       new Promise<void>((resolve) => {
         events.logsUploaded.pipe(take(1)).subscribe(({ gameId, logsUrl }) => {
-          expect(gameId).toEqual(game.id);
+          expect(gameId.equals(game._id)).toBe(true);
           expect(logsUrl).toEqual('http://logs.tf/2458457');
           resolve();
         });
@@ -131,7 +131,7 @@ describe('GameEventListenerService', () => {
     it('demo uploaded', () =>
       new Promise<void>((resolve) => {
         events.demoUploaded.pipe(take(1)).subscribe(({ gameId, demoUrl }) => {
-          expect(gameId).toEqual(game.id);
+          expect(gameId.equals(game._id)).toBe(true);
           expect(demoUrl).toEqual('https://demos.tf/427407');
           resolve();
         });
@@ -147,7 +147,7 @@ describe('GameEventListenerService', () => {
         events.playerJoinedGameServer
           .pipe(take(1))
           .subscribe(({ gameId, steamId, ipAddress }) => {
-            expect(gameId).toEqual(game.id);
+            expect(gameId.equals(game._id)).toBe(true);
             expect(steamId).toEqual('76561198074409147');
             expect(ipAddress).toEqual('83.29.150.132');
             resolve();
@@ -164,7 +164,7 @@ describe('GameEventListenerService', () => {
         events.playerJoinedTeam
           .pipe(take(1))
           .subscribe(({ gameId, steamId }) => {
-            expect(gameId).toEqual(game.id);
+            expect(gameId.equals(game._id)).toBe(true);
             expect(steamId).toEqual('76561198074409147');
             resolve();
           });
@@ -180,7 +180,7 @@ describe('GameEventListenerService', () => {
         events.playerDisconnectedFromGameServer
           .pipe(take(1))
           .subscribe(({ gameId, steamId }) => {
-            expect(gameId).toEqual(game.id);
+            expect(gameId.equals(game._id)).toBe(true);
             expect(steamId).toEqual('76561198074409147');
             resolve();
           });
@@ -196,7 +196,7 @@ describe('GameEventListenerService', () => {
         events.scoreReported
           .pipe(take(1))
           .subscribe(({ gameId, teamName, score }) => {
-            expect(gameId).toEqual(game.id);
+            expect(gameId.equals(game._id)).toBe(true);
             expect(teamName).toEqual(Tf2Team.red);
             expect(score).toEqual(1);
             resolve();
@@ -213,7 +213,7 @@ describe('GameEventListenerService', () => {
         events.scoreReported
           .pipe(take(1))
           .subscribe(({ gameId, teamName, score }) => {
-            expect(gameId).toEqual(game.id);
+            expect(gameId.equals(game._id)).toBe(true);
             expect(teamName).toEqual(Tf2Team.blu);
             expect(score).toEqual(2);
             resolve();
@@ -230,7 +230,7 @@ describe('GameEventListenerService', () => {
         events.playerSaidInGameChat
           .pipe(take(1))
           .subscribe(({ gameId, steamId, message }) => {
-            expect(gameId).toEqual(game.id);
+            expect(gameId.equals(game._id)).toBe(true);
             expect(steamId).toEqual('76561198438053224');
             expect(message).toEqual(
               'mezzo : u never touched a female why are you taunting me',

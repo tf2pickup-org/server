@@ -19,6 +19,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { HttpService } from '@nestjs/axios';
 import { ConfigurationService } from '@/configuration/services/configuration.service';
+import { PlayerId } from '@/players/types/player-id';
 
 interface TwitchGetUsersResponse {
   data: {
@@ -89,7 +90,7 @@ export class TwitchService implements OnModuleInit {
   }
 
   async getTwitchTvProfileByPlayerId(
-    playerId: string,
+    playerId: PlayerId,
   ): Promise<TwitchTvProfile> {
     return plainToInstance(
       TwitchTvProfile,
@@ -115,7 +116,7 @@ export class TwitchService implements OnModuleInit {
     return await firstValueFrom(token);
   }
 
-  async saveUserProfile(playerId: string, code: string) {
+  async saveUserProfile(playerId: PlayerId, code: string) {
     const token = await this.twitchAuthService.fetchUserAccessToken(code);
     const profile = await this.fetchUserProfile(token);
     await this.twitchTvProfileModel.create({
@@ -128,7 +129,7 @@ export class TwitchService implements OnModuleInit {
     this.events.linkedProfilesChanged.next({ playerId });
   }
 
-  async deleteUserProfile(playerId: string): Promise<TwitchTvProfile> {
+  async deleteUserProfile(playerId: PlayerId): Promise<TwitchTvProfile> {
     const ret = plainToInstance(
       TwitchTvProfile,
       await this.twitchTvProfileModel

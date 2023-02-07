@@ -6,13 +6,14 @@ import { SlotStatus } from '@/games/models/slot-status';
 import { GamesService } from '@/games/services/games.service';
 import { Player, playerSchema } from '@/players/models/player';
 import { PlayersService } from '@/players/services/players.service';
+import { PlayerId } from '@/players/types/player-id';
 import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
 import { CacheModule } from '@nestjs/common';
 import { MongooseModule, getConnectionToken } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Message } from 'discord.js';
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import { Connection } from 'mongoose';
+import { Connection, Types } from 'mongoose';
 import { DiscordService } from './discord.service';
 import { PlayerSubstitutionNotificationsService } from './player-substitution-notifications.service';
 // eslint-disable-next-line jest/no-mocks-import
@@ -114,8 +115,8 @@ describe('PlayerSubstitutionNotificationsService', () => {
         });
 
         events.substituteRequested.next({
-          gameId: game.id,
-          playerId: player.id,
+          gameId: game._id,
+          playerId: player._id,
         });
       }));
   });
@@ -148,8 +149,8 @@ describe('PlayerSubstitutionNotificationsService', () => {
           });
 
           events.substituteRequested.next({
-            gameId: game.id,
-            playerId: player.id,
+            gameId: game._id,
+            playerId: player._id,
           });
         }),
     );
@@ -170,8 +171,8 @@ describe('PlayerSubstitutionNotificationsService', () => {
     describe('when the substitute request is canceled', () => {
       beforeEach(() => {
         events.substituteRequestCanceled.next({
-          gameId: game.id,
-          playerId: player.id,
+          gameId: game._id,
+          playerId: player._id,
         });
       });
 
@@ -184,8 +185,8 @@ describe('PlayerSubstitutionNotificationsService', () => {
       beforeEach(() => {
         events.playerReplaced.next({
           gameId: game.id,
-          replaceeId: player.id,
-          replacementId: 'FAKE_PLAYER_ID',
+          replaceeId: player._id,
+          replacementId: new Types.ObjectId() as PlayerId,
         });
       });
 

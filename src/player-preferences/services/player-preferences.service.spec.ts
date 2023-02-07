@@ -7,13 +7,13 @@ import {
   playerPreferencesSchema,
 } from '../models/player-preferences';
 import { PlayerPreferencesService } from './player-preferences.service';
-import { ObjectId } from 'mongodb';
-import { Connection, Model } from 'mongoose';
+import { Connection, Model, Types } from 'mongoose';
 import {
   getConnectionToken,
   getModelToken,
   MongooseModule,
 } from '@nestjs/mongoose';
+import { PlayerId } from '@/players/types/player-id';
 
 describe('PlayerPreferencesService', () => {
   let service: PlayerPreferencesService;
@@ -55,7 +55,7 @@ describe('PlayerPreferencesService', () => {
   describe('#getPlayerPreferences()', () => {
     describe('when initializing preferences', () => {
       it('should return an empty map', async () => {
-        const playerId = new ObjectId().toString();
+        const playerId = new Types.ObjectId() as PlayerId;
         const ret = await service.getPlayerPreferences(playerId);
         expect(ret).toEqual(new Map());
       });
@@ -63,10 +63,10 @@ describe('PlayerPreferencesService', () => {
 
     describe('when player has saved preferences', () => {
       const preferences = new Map([['sound-volume', '0.7']]);
-      let playerId: string;
+      let playerId: PlayerId;
 
       beforeEach(async () => {
-        playerId = new ObjectId().toString();
+        playerId = new Types.ObjectId() as PlayerId;
         await playerPreferencesModel.create({ player: playerId, preferences });
       });
 
@@ -79,10 +79,10 @@ describe('PlayerPreferencesService', () => {
   });
 
   describe('#updatePlayerPreferences()', () => {
-    let playerId: string;
+    let playerId: PlayerId;
 
     beforeEach(() => {
-      playerId = new ObjectId().toString();
+      playerId = new Types.ObjectId() as PlayerId;
     });
 
     describe('when saving for the first time', () => {

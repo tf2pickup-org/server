@@ -100,7 +100,7 @@ describe('Websocket (e2e)', () => {
           });
 
           const playersService = app.get(PlayersService);
-          playersService.updatePlayer(player.id, { name: 'maly updated' });
+          playersService.updatePlayer(player._id, { name: 'maly updated' });
         }));
     });
 

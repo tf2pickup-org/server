@@ -26,6 +26,7 @@ import { GameState } from '@/games/models/game-state';
 import { Game, gameSchema } from '@/games/models/game';
 // eslint-disable-next-line jest/no-mocks-import
 import { GamesService as MockedGamesService } from '@/games/services/__mocks__/games.service';
+import { PlayerId } from '../types/player-id';
 
 jest.mock('./etf2l-profile.service');
 jest.mock('@/configuration/services/configuration.service');
@@ -170,7 +171,7 @@ describe('PlayersService', () => {
   });
 
   describe('#getManyById()', () => {
-    const players: string[] = [];
+    const players: PlayerId[] = [];
 
     beforeEach(async () => {
       players.push(
@@ -181,7 +182,7 @@ describe('PlayersService', () => {
             etf2lProfileId: 2,
             hasAcceptedRules: true,
           })
-        ).id,
+        )._id,
       );
       players.push(
         (
@@ -191,14 +192,14 @@ describe('PlayersService', () => {
             etf2lProfileId: 3,
             hasAcceptedRules: true,
           })
-        ).id,
+        )._id,
       );
     });
 
     it('should retrieve many players from the database', async () => {
       const ret = await service.getManyById(...players);
       expect(ret.length).toEqual(players.length);
-      expect(players.every((p) => ret.find((r) => r.id === p))).toBe(true);
+      expect(players.every((p) => ret.find((r) => r._id.equals(p)))).toBe(true);
     });
   });
 
@@ -445,7 +446,7 @@ describe('PlayersService', () => {
     describe('when the given player does not exist', () => {
       it('should reject', async () => {
         await expect(
-          service.updatePlayer(new Types.ObjectId().toString(), {}, admin.id),
+          service.updatePlayer(new Types.ObjectId() as PlayerId, {}, admin.id),
         ).rejects.toThrow();
       });
     });
@@ -459,7 +460,7 @@ describe('PlayersService', () => {
 
     it("should fail if the given user doesn't exist", async () => {
       await expect(
-        service.acceptTerms(new Types.ObjectId().toString()),
+        service.acceptTerms(new Types.ObjectId() as PlayerId),
       ).rejects.toThrow(MongooseError.DocumentNotFoundError);
     });
   });
@@ -476,9 +477,10 @@ describe('PlayersService', () => {
     });
 
     it('should return the stats', async () => {
-      const ret = await service.getPlayerStats('FAKE_ID');
+      const playerId = new Types.ObjectId() as PlayerId;
+      const ret = await service.getPlayerStats(playerId);
       expect(ret).toEqual({
-        player: 'FAKE_ID',
+        player: playerId,
         gamesPlayed: 220,
         classesPlayed: {
           [Tf2ClassName.scout]: 19,

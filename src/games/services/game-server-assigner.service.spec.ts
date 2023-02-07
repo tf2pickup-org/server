@@ -86,7 +86,7 @@ describe('GameServerAssignerService', () => {
     });
 
     it('should assign it a gameserver', async () => {
-      const newGame = await gamesService.getById(game.id);
+      const newGame = await gamesService.getById(game._id);
       expect(newGame.gameServer).toEqual({
         id: 'FAKE_GAMESERVER_ID',
         provider: 'test',
@@ -106,12 +106,12 @@ describe('GameServerAssignerService', () => {
     });
 
     it('should assign the given server', async () => {
-      await service.assignGameServer(game.id, {
+      await service.assignGameServer(game._id, {
         id: 'FAKE_GAMESERVER_ID',
         provider: 'test',
       });
       expect(gameServersService.assignGameServer).toHaveBeenCalledWith(
-        game.id,
+        game._id,
         {
           id: 'FAKE_GAMESERVER_ID',
           provider: 'test',
@@ -121,12 +121,12 @@ describe('GameServerAssignerService', () => {
 
     describe('when a game is not in progress', () => {
       beforeEach(async () => {
-        await gamesService.update(game.id, { state: GameState.ended });
+        await gamesService.update(game._id, { state: GameState.ended });
       });
 
       it('should throw', async () => {
         await expect(
-          service.assignGameServer(game.id, {
+          service.assignGameServer(game._id, {
             id: 'FAKE_GAMESERVER_ID',
             provider: 'test',
           }),
@@ -143,7 +143,7 @@ describe('GameServerAssignerService', () => {
 
       it('should throw', async () => {
         await expect(
-          service.assignGameServer(game.id, {
+          service.assignGameServer(game._id, {
             id: 'FAKE_GAMESERVER_ID',
             provider: 'test',
           }),
@@ -165,7 +165,7 @@ describe('GameServerAssignerService', () => {
 
     it('should assign gameserver to orphaned games', async () => {
       await service.handleOrphanedGames();
-      const newGame = await gamesService.getById(game.id);
+      const newGame = await gamesService.getById(game._id);
       expect(newGame.gameServer).toEqual({
         id: 'FAKE_GAMESERVER_ID',
         provider: 'test',

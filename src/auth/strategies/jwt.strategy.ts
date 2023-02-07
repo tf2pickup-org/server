@@ -3,7 +3,8 @@ import { ExtractJwt, Strategy } from 'passport-jwt';
 import { PassportStrategy } from '@nestjs/passport';
 import { PlayersService } from '@/players/services/players.service';
 import { KeyPair } from '../key-pair';
-import { Error } from 'mongoose';
+import { Error, Types } from 'mongoose';
+import { PlayerId } from '@/players/types/player-id';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
@@ -23,7 +24,9 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 
   async validate(payload: { id: string }) {
     try {
-      return await this.playersService.getById(payload.id); // retrieve this via the @User() decorator
+      return await this.playersService.getById(
+        new Types.ObjectId(payload.id) as PlayerId,
+      ); // retrieve this via the @User() decorator
     } catch (error) {
       if (error instanceof Error.DocumentNotFoundError) {
         return null;

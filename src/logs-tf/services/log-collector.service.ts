@@ -1,5 +1,6 @@
 import { ConfigurationService } from '@/configuration/services/configuration.service';
 import { Events } from '@/events/events';
+import { GameId } from '@/games/game-id';
 import { LogsTfUploadMethod } from '@/games/logs-tf-upload-method';
 import { GamesService } from '@/games/services/games.service';
 import { LogReceiverService } from '@/log-receiver/services/log-receiver.service';
@@ -16,7 +17,7 @@ import { Cache } from 'cache-manager';
 import { concatMap, from, map, merge } from 'rxjs';
 import { LogsTfApiService } from './logs-tf-api.service';
 
-const cacheKeyForGameId = (gameId: string) => `games/${gameId}/logs`;
+const cacheKeyForGameId = (gameId: GameId) => `games/${gameId}/logs`;
 
 @Injectable()
 export class LogCollectorService implements OnModuleInit {
@@ -53,7 +54,7 @@ export class LogCollectorService implements OnModuleInit {
   async processLogMessage(logMessage: LogMessage) {
     try {
       const game = await this.gamesService.getByLogSecret(logMessage.password);
-      const key = cacheKeyForGameId(game.id);
+      const key = cacheKeyForGameId(game._id);
 
       await this.mutex.runExclusive(async () => {
         let logFile = await this.cache.get<string>(key);
@@ -69,7 +70,7 @@ export class LogCollectorService implements OnModuleInit {
     }
   }
 
-  async uploadLogs(gameId: string) {
+  async uploadLogs(gameId: GameId) {
     if (
       (await this.configurationService.get<LogsTfUploadMethod>(
         'games.logs_tf_upload_method',

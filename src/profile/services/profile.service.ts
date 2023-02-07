@@ -7,13 +7,16 @@ import { OnlinePlayersService } from '@/players/services/online-players.service'
 import { PlayerBansService } from '@/players/services/player-bans.service';
 import { QueueConfig } from '@/queue-config/interfaces/queue-config';
 import { MapVoteService } from '@/queue/services/map-vote.service';
-import { serialize } from '@/shared/serialize';
 import { WebsocketEvent } from '@/websocket-event';
 import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
-import { isEqual } from 'lodash';
-import { map, filter, concatMap, from } from 'rxjs';
+import { map, filter } from 'rxjs';
 import { ProfileDto } from '../dto/profile.dto';
 import { Restriction, RestrictionReason } from '../interfaces/restriction';
+import { serialize } from '@/shared/serialize';
+
+const playersEqual = (a: Player, b: Player) => {
+  return a.name === b.name;
+};
 
 @Injectable()
 export class ProfileService implements OnModuleInit {
@@ -46,19 +49,21 @@ export class ProfileService implements OnModuleInit {
     // update player profile whenever his player record changes
     this.events.playerUpdates
       .pipe(
-        concatMap(({ oldPlayer, newPlayer }) =>
-          from(Promise.all([serialize(oldPlayer), serialize(newPlayer)])),
+        filter(
+          ({ oldPlayer, newPlayer }) => !playersEqual(oldPlayer, newPlayer),
         ),
-        filter(([a, b]) => !isEqual(a, b)),
-        map(([, newPlayer]) => newPlayer),
+        map(({ newPlayer }) => newPlayer),
       )
-      .subscribe((player) =>
-        this.onlinePlayersService
-          .getSocketsForPlayer(player.id)
-          .forEach((socket) =>
-            socket.emit(WebsocketEvent.profileUpdate, {
-              player,
-            }),
+      .subscribe(
+        async (player) =>
+          await Promise.all(
+            this.onlinePlayersService
+              .getSocketsForPlayer(player._id)
+              .map(async (socket) =>
+                socket.emit(WebsocketEvent.profileUpdate, {
+                  player: await serialize(player),
+                }),
+              ),
           ),
       );
 
@@ -67,12 +72,13 @@ export class ProfileService implements OnModuleInit {
       .pipe(
         filter(
           ({ oldPlayer, newPlayer }) =>
-            oldPlayer.activeGame !== newPlayer.activeGame,
+            oldPlayer.activeGame?.toString() !==
+            newPlayer.activeGame?.toString(),
         ),
       )
       .subscribe(({ newPlayer }) => {
         this.onlinePlayersService
-          .getSocketsForPlayer(newPlayer.id)
+          .getSocketsForPlayer(newPlayer._id)
           .forEach((socket) =>
             socket.emit(WebsocketEvent.profileUpdate, {
               activeGameId: newPlayer.activeGame?.toString() ?? null,
@@ -84,9 +90,9 @@ export class ProfileService implements OnModuleInit {
   async getProfile(player: Player): Promise<ProfileDto> {
     const [bans, preferences, linkedProfiles, restrictions] = await Promise.all(
       [
-        await this.playerBansService.getPlayerActiveBans(player.id),
-        await this.playerPreferencesService.getPlayerPreferences(player.id),
-        await this.linkedProfilesService.getLinkedProfiles(player.id),
+        await this.playerBansService.getPlayerActiveBans(player._id),
+        await this.playerPreferencesService.getPlayerPreferences(player._id),
+        await this.linkedProfilesService.getLinkedProfiles(player._id),
         await this.getPlayerRestrictions(player),
       ],
     );
@@ -98,7 +104,7 @@ export class ProfileService implements OnModuleInit {
         activeGameId: player.activeGame!.toString(),
       }),
       bans,
-      mapVote: this.mapVoteService.playerVote(player.id),
+      mapVote: this.mapVoteService.playerVote(player._id),
       preferences: Object.fromEntries(preferences),
       linkedProfiles,
       restrictions,

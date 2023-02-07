@@ -26,6 +26,7 @@ import { isUndefined } from 'lodash';
 import { GameState } from '@/games/models/game-state';
 import { PlayerConnectionStatus } from '@/games/models/player-connection-status';
 import { GameServer } from '@/games/models/game-server';
+import { GameId } from '@/games/game-id';
 
 @Injectable()
 export class GameServersService
@@ -69,7 +70,7 @@ export class GameServersService
         }[game.state as GameState.ended | GameState.interrupted];
         await provider.releaseGameServer({
           gameServerId: gameServer.id,
-          gameId: game.id,
+          gameId: game._id,
           reason,
         });
       });
@@ -95,7 +96,7 @@ export class GameServersService
   }
 
   async takeFirstFreeGameServer(
-    gameId: string,
+    gameId: GameId,
   ): Promise<GameServerDetailsWithProvider> {
     for (const provider of this.providers) {
       try {
@@ -115,7 +116,7 @@ export class GameServersService
 
   async takeGameServer(
     gameServerId: GameServerOptionIdentifier,
-    gameId: string,
+    gameId: GameId,
   ): Promise<GameServerDetailsWithProvider> {
     const provider = this.providerByName(gameServerId.provider);
     const gameServer = await provider.takeGameServer({
@@ -133,7 +134,7 @@ export class GameServersService
   }
 
   async assignGameServer(
-    gameId: string,
+    gameId: GameId,
     gameServerId?: GameServerOptionIdentifier,
   ): Promise<Game> {
     return await this.mutex.runExclusive(async () => {
@@ -143,7 +144,7 @@ export class GameServersService
         // unassign old gameserver
         const gameServer = game.gameServer;
         const provider = this.providerByName(game.gameServer.provider);
-        game = await this.gamesService.update(game.id, {
+        game = await this.gamesService.update(game._id, {
           $set: {
             'slots.$[].connectionStatus': PlayerConnectionStatus.offline,
             state: GameState.created,
@@ -159,7 +160,7 @@ export class GameServersService
         });
         await provider.releaseGameServer({
           gameServerId: gameServer.id,
-          gameId: game.id,
+          gameId: game._id,
           reason: GameServerReleaseReason.Manual,
         });
       }
@@ -171,7 +172,7 @@ export class GameServersService
         gameServer = await this.takeGameServer(gameServerId, gameId);
       }
 
-      game = await this.gamesService.update(game.id, {
+      game = await this.gamesService.update(game._id, {
         $set: {
           gameServer,
         },

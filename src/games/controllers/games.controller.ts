@@ -33,6 +33,8 @@ import { GameServerAssignerService } from '../services/game-server-assigner.serv
 import { ParseSortParamsPipe } from '../pipes/parse-sort-params.pipe';
 import { GameByIdOrNumberPipe } from '../pipes/game-by-id-or-number.pipe';
 import { PlayerByIdPipe } from '@/players/pipes/player-by-id.pipe';
+import { Types } from 'mongoose';
+import { PlayerId } from '@/players/types/player-id';
 
 @Controller('games')
 export class GamesController {
@@ -63,7 +65,7 @@ export class GamesController {
     } else {
       [results, itemCount] = await Promise.all([
         this.gamesService.getPlayerGames(player.id, sort, limit, offset),
-        this.gamesService.getPlayerGameCount(player.id),
+        this.gamesService.getPlayerGameCount(player._id),
       ]);
     }
 
@@ -91,7 +93,7 @@ export class GamesController {
         connectInfoVersion: game.connectInfoVersion,
         connectString: game.connectString,
         voiceChannelUrl:
-          (await this.gamesService.getVoiceChannelUrl(game.id, player.id)) ??
+          (await this.gamesService.getVoiceChannelUrl(game._id, player._id)) ??
           undefined,
       };
     } catch (error) {
@@ -130,28 +132,28 @@ export class GamesController {
   ) {
     if (reinitializeServer !== undefined) {
       this.events.gameReconfigureRequested.next({
-        gameId: game.id,
-        adminId: admin.id,
+        gameId: game._id,
+        adminId: admin._id,
       });
     }
 
     if (forceEnd !== undefined) {
-      await this.gamesService.forceEnd(game.id, admin.id);
+      await this.gamesService.forceEnd(game._id, admin._id);
     }
 
     if (substitutePlayerId !== undefined) {
       await this.playerSubstitutionService.substitutePlayer(
-        game.id,
-        substitutePlayerId,
-        admin.id,
+        game._id,
+        new Types.ObjectId(substitutePlayerId) as PlayerId,
+        admin._id,
       );
     }
 
     if (cancelSubstitutePlayerId !== undefined) {
       await this.playerSubstitutionService.cancelSubstitutionRequest(
-        game.id,
-        cancelSubstitutePlayerId,
-        admin.id,
+        game._id,
+        new Types.ObjectId(cancelSubstitutePlayerId) as PlayerId,
+        admin._id,
       );
     }
 
@@ -161,7 +163,7 @@ export class GamesController {
         throw new BadRequestException('invalid gameserver identifier');
       }
 
-      await this.gameServerAssignerService.assignGameServer(game.id, {
+      await this.gameServerAssignerService.assignGameServer(game._id, {
         id,
         provider,
       });

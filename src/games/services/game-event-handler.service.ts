@@ -20,6 +20,7 @@ import { Mutex } from 'async-mutex';
 import { Tf2Team } from '../models/tf2-team';
 import { GameEventType } from '../models/game-event';
 import { PlayerEventType } from '../models/player-event';
+import { GameId } from '../game-id';
 
 @Injectable()
 export class GameEventHandlerService implements OnModuleInit, OnModuleDestroy {
@@ -70,7 +71,7 @@ export class GameEventHandlerService implements OnModuleInit, OnModuleDestroy {
     this.timers = [];
   }
 
-  async onMatchStarted(gameId: string): Promise<Game | null> {
+  async onMatchStarted(gameId: GameId): Promise<Game | null> {
     return await this.mutex.runExclusive(async () => {
       try {
         const oldGame = await this.gamesService.getById(gameId);
@@ -107,7 +108,7 @@ export class GameEventHandlerService implements OnModuleInit, OnModuleDestroy {
     });
   }
 
-  async onMatchEnded(gameId: string): Promise<Game> {
+  async onMatchEnded(gameId: GameId): Promise<Game> {
     return await this.mutex.runExclusive(async () => {
       const oldGame = await this.gamesService.getById(gameId);
       const newGame = plainToInstance(
@@ -147,22 +148,24 @@ export class GameEventHandlerService implements OnModuleInit, OnModuleDestroy {
       this.events.gameChanges.next({ oldGame, newGame });
       this.events.substituteRequestsChange.next();
 
-      await this.freeAllMedics(newGame.id);
-      this.timers.push(setTimeout(() => this.freeAllPlayers(newGame.id), 5000));
+      await this.freeAllMedics(newGame._id);
+      this.timers.push(
+        setTimeout(() => this.freeAllPlayers(newGame._id), 5000),
+      );
       return newGame;
     });
   }
 
-  async onLogsUploaded(gameId: string, logsUrl: string): Promise<Game> {
+  async onLogsUploaded(gameId: GameId, logsUrl: string): Promise<Game> {
     return await this.gamesService.update(gameId, { logsUrl });
   }
 
-  async onDemoUploaded(gameId: string, demoUrl: string): Promise<Game> {
+  async onDemoUploaded(gameId: GameId, demoUrl: string): Promise<Game> {
     return await this.gamesService.update(gameId, { demoUrl });
   }
 
   async onPlayerJoinedGameServer(
-    gameId: string,
+    gameId: GameId,
     steamId: string,
   ): Promise<Game> {
     return await this.registerPlayerEvent(
@@ -172,7 +175,7 @@ export class GameEventHandlerService implements OnModuleInit, OnModuleDestroy {
     );
   }
 
-  async onPlayerJoinedTeam(gameId: string, steamId: string): Promise<Game> {
+  async onPlayerJoinedTeam(gameId: GameId, steamId: string): Promise<Game> {
     return await this.registerPlayerEvent(
       gameId,
       steamId,
@@ -180,7 +183,7 @@ export class GameEventHandlerService implements OnModuleInit, OnModuleDestroy {
     );
   }
 
-  async onPlayerDisconnected(gameId: string, steamId: string): Promise<Game> {
+  async onPlayerDisconnected(gameId: GameId, steamId: string): Promise<Game> {
     return await this.registerPlayerEvent(
       gameId,
       steamId,
@@ -189,7 +192,7 @@ export class GameEventHandlerService implements OnModuleInit, OnModuleDestroy {
   }
 
   async onScoreReported(
-    gameId: string,
+    gameId: GameId,
     team: Tf2Team,
     score: number,
   ): Promise<Game> {
@@ -197,7 +200,7 @@ export class GameEventHandlerService implements OnModuleInit, OnModuleDestroy {
   }
 
   private async registerPlayerEvent(
-    gameId: string,
+    gameId: GameId,
     steamId: string,
     eventType: PlayerEventType,
   ): Promise<Game> {
@@ -244,7 +247,7 @@ export class GameEventHandlerService implements OnModuleInit, OnModuleDestroy {
     });
   }
 
-  private async freeAllMedics(gameId: string) {
+  private async freeAllMedics(gameId: GameId) {
     const game = await this.gameModel.findById(gameId).orFail();
 
     await Promise.all(
@@ -252,21 +255,21 @@ export class GameEventHandlerService implements OnModuleInit, OnModuleDestroy {
         .filter((slot) => slot.gameClass === Tf2ClassName.medic)
         .map((slot) => slot.player)
         .map((playerId) =>
-          this.playersService.updatePlayer(playerId.toString(), {
+          this.playersService.updatePlayer(playerId, {
             $unset: { activeGame: 1 },
           }),
         ),
     );
   }
 
-  private async freeAllPlayers(gameId: string) {
+  private async freeAllPlayers(gameId: GameId) {
     const game = await this.gameModel.findById(gameId).orFail();
 
     await Promise.all(
       game.slots
         .map((slot) => slot.player)
         .map((playerId) =>
-          this.playersService.updatePlayer(playerId.toString(), {
+          this.playersService.updatePlayer(playerId, {
             $unset: { activeGame: 1 },
           }),
         ),

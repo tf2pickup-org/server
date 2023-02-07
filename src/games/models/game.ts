@@ -1,11 +1,13 @@
 import { app } from '@/app';
+import { PlayerId } from '@/players/types/player-id';
 import { PlayersService } from '@/players/services/players.service';
 import { TransformObjectId } from '@/shared/decorators/transform-object-id';
 import { Serializable } from '@/shared/serializable';
 import { Prop, raw, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Exclude, Expose, Transform, Type } from 'class-transformer';
-import { Document, Types } from 'mongoose';
+import { Document } from 'mongoose';
 import { GameDto } from '../dto/game.dto';
+import { GameId } from '../game-id';
 import { GameEvent, gameEventSchema, GameEventType } from './game-event';
 import { GameServer, gameServerSchema } from './game-server';
 import { GameSlot, gameSlotSchema } from './game-slot';
@@ -19,7 +21,7 @@ export class Game extends Serializable<GameDto> {
 
   @Exclude({ toPlainOnly: true })
   @TransformObjectId()
-  _id!: Types.ObjectId;
+  _id!: GameId;
 
   @Expose()
   @Transform(({ value, obj }) => value ?? obj._id.toString())
@@ -154,8 +156,8 @@ export class Game extends Serializable<GameDto> {
     };
   }
 
-  findPlayerSlot(playerId: string): GameSlot | undefined {
-    return this.slots.find((s) => s.player.toString() === playerId);
+  findPlayerSlot(playerId: PlayerId): GameSlot | undefined {
+    return this.slots.find((s) => s.player.equals(playerId));
   }
 
   activeSlots(): GameSlot[] {

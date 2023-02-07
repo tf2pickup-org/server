@@ -20,6 +20,7 @@ import {
 } from '../models/serveme-tf-reservation';
 import { waitABit } from '@/utils/wait-a-bit';
 import { GameServerReleaseReason } from '@/game-servers/game-server-provider';
+import { GameId } from '@/games/game-id';
 
 jest.mock('@/game-servers/services/game-servers.service');
 jest.mock('./serveme-tf-api.service');
@@ -216,7 +217,7 @@ describe('ServemeTfService', () => {
     it('should make the reservation', async () => {
       const gameServer = await service.takeGameServer({
         gameServerId: '42',
-        gameId: 'FAKE_GAME_ID',
+        gameId: new Types.ObjectId() as GameId,
       });
       expect(servemeTfApiService.reserveServer).toHaveBeenCalledWith(42);
       expect(gameServer).toEqual({
@@ -252,7 +253,7 @@ describe('ServemeTfService', () => {
       jest.useFakeTimers();
       service.releaseGameServer({
         gameServerId: reservation.id,
-        gameId: 'FAKE_GAME_ID',
+        gameId: new Types.ObjectId() as GameId,
         reason: GameServerReleaseReason.GameEnded,
       });
       jest.runAllTimers();
