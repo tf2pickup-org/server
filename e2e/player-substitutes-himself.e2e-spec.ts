@@ -173,12 +173,12 @@ describe('Player substitutes himself (e2e)', () => {
 
     // admin requests substitute
     await request(app.getHttpServer())
-      .post(`/games/${gameId}?substitute_player=${player.id}`)
+      .post(`/games/${gameId.toString()}?substitute_player=${player.id}`)
       .auth(adminToken, { type: 'bearer' })
       .expect(200);
 
     await request(app.getHttpServer())
-      .get(`/games/${gameId}`)
+      .get(`/games/${gameId.toString()}`)
       .expect(200)
       .then((response) => {
         const body = response.body;
@@ -192,7 +192,7 @@ describe('Player substitutes himself (e2e)', () => {
     await new Promise<void>((resolve) => {
       playerSocket.emit(
         'replace player',
-        { gameId, replaceeId: player.id },
+        { gameId: gameId.toString(), replaceeId: player.id },
         () => {
           resolve();
         },
@@ -200,7 +200,7 @@ describe('Player substitutes himself (e2e)', () => {
     });
 
     await request(app.getHttpServer())
-      .get(`/games/${gameId}`)
+      .get(`/games/${gameId.toString()}`)
       .expect(200)
       .then((response) => {
         const body = response.body;

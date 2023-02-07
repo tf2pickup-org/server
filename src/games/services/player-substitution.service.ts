@@ -186,7 +186,7 @@ export class PlayerSubstitutionService implements OnModuleInit {
         throw new PlayerNotInThisGameError(replaceeId, gameId);
       }
 
-      if (replaceeId === replacementId) {
+      if (replaceeId.equals(replacementId)) {
         const newGame = plainToInstance(
           Game,
           await this.gameModel
