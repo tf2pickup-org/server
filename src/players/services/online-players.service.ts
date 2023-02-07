@@ -6,6 +6,7 @@ import {
   OnModuleDestroy,
   OnModuleInit,
 } from '@nestjs/common';
+import { Types } from 'mongoose';
 import { Socket } from 'socket.io';
 import { PlayersGateway } from '../gateways/players.gateway';
 import { PlayerId } from '../types/player-id';
@@ -16,12 +17,14 @@ type SocketList = Socket[];
 export class OnlinePlayersService implements OnModuleInit, OnModuleDestroy {
   private readonly verifyPlayerTimeout = 10 * 1000; // 10 seconds
   private logger = new Logger(OnlinePlayersService.name);
-  private sockets = new Map<PlayerId, SocketList>();
+  private sockets = new Map<string, SocketList>();
   private timers: NodeJS.Timeout[] = [];
-  private _onlinePlayers = new Set<PlayerId>();
+  private _onlinePlayers = new Set<string>();
 
   get onlinePlayers(): PlayerId[] {
-    return Array.from(this._onlinePlayers);
+    return Array.from(this._onlinePlayers).map(
+      (id) => new Types.ObjectId(id) as PlayerId,
+    );
   }
 
   constructor(private playersGateway: PlayersGateway, private events: Events) {}
@@ -75,10 +78,10 @@ export class OnlinePlayersService implements OnModuleInit, OnModuleDestroy {
     });
 
     this.events.playerConnects.subscribe(({ playerId }) =>
-      this._onlinePlayers.add(playerId),
+      this._onlinePlayers.add(playerId.toString()),
     );
     this.events.playerDisconnects.subscribe(({ playerId }) =>
-      this._onlinePlayers.delete(playerId),
+      this._onlinePlayers.delete(playerId.toString()),
     );
   }
 
@@ -87,14 +90,15 @@ export class OnlinePlayersService implements OnModuleInit, OnModuleDestroy {
   }
 
   getSocketsForPlayer(playerId: PlayerId): SocketList {
-    if (!this.sockets.has(playerId)) {
-      this.sockets.set(playerId, []);
+    const playerIdStr = playerId.toString();
+    if (!this.sockets.has(playerIdStr)) {
+      this.sockets.set(playerIdStr, []);
     }
-    return this.sockets.get(playerId)!;
+    return this.sockets.get(playerIdStr)!;
   }
 
   private verifyPlayer(playerId: PlayerId) {
-    const sockets = this.sockets.get(playerId);
+    const sockets = this.sockets.get(playerId.toString());
     if (sockets?.length === 0) {
       this.events.playerDisconnects.next({ playerId });
     }

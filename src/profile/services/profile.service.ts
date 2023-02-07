@@ -2,20 +2,21 @@ import { ConfigurationService } from '@/configuration/services/configuration.ser
 import { Events } from '@/events/events';
 import { PlayerPreferencesService } from '@/player-preferences/services/player-preferences.service';
 import { Player } from '@/players/models/player';
-import { PlayerId } from '@/players/types/player-id';
 import { LinkedProfilesService } from '@/players/services/linked-profiles.service';
 import { OnlinePlayersService } from '@/players/services/online-players.service';
 import { PlayerBansService } from '@/players/services/player-bans.service';
 import { QueueConfig } from '@/queue-config/interfaces/queue-config';
 import { MapVoteService } from '@/queue/services/map-vote.service';
-import { serialize } from '@/shared/serialize';
 import { WebsocketEvent } from '@/websocket-event';
 import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
-import { isEqual } from 'lodash';
-import { Types } from 'mongoose';
-import { map, filter, concatMap, from } from 'rxjs';
+import { map, filter } from 'rxjs';
 import { ProfileDto } from '../dto/profile.dto';
 import { Restriction, RestrictionReason } from '../interfaces/restriction';
+import { serialize } from '@/shared/serialize';
+
+const playersEqual = (a: Player, b: Player) => {
+  return a.name === b.name;
+};
 
 @Injectable()
 export class ProfileService implements OnModuleInit {
@@ -48,19 +49,21 @@ export class ProfileService implements OnModuleInit {
     // update player profile whenever his player record changes
     this.events.playerUpdates
       .pipe(
-        concatMap(({ oldPlayer, newPlayer }) =>
-          from(Promise.all([serialize(oldPlayer), serialize(newPlayer)])),
+        filter(
+          ({ oldPlayer, newPlayer }) => !playersEqual(oldPlayer, newPlayer),
         ),
-        filter(([a, b]) => !isEqual(a, b)),
-        map(([, newPlayer]) => newPlayer),
+        map(({ newPlayer }) => newPlayer),
       )
-      .subscribe((player) =>
-        this.onlinePlayersService
-          .getSocketsForPlayer(new Types.ObjectId(player.id) as PlayerId)
-          .forEach((socket) =>
-            socket.emit(WebsocketEvent.profileUpdate, {
-              player,
-            }),
+      .subscribe(
+        async (player) =>
+          await Promise.all(
+            this.onlinePlayersService
+              .getSocketsForPlayer(player._id)
+              .map(async (socket) =>
+                socket.emit(WebsocketEvent.profileUpdate, {
+                  player: await serialize(player),
+                }),
+              ),
           ),
       );
 
