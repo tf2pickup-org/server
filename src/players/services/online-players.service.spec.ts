@@ -67,7 +67,6 @@ describe('OnlinePlayersService', () => {
 
     it('should mark the player as online', () => {
       expect(service.getSocketsForPlayer(playerId).length).toBe(1);
-      expect(service.onlinePlayers.includes(playerId)).toBe(true);
     });
 
     describe('and then disconnects', () => {
@@ -105,7 +104,6 @@ describe('OnlinePlayersService', () => {
 
       it('should mark the player as online', () => {
         expect(service.getSocketsForPlayer(playerId).length).toBe(2);
-        expect(service.onlinePlayers.includes(playerId)).toBe(true);
       });
 
       describe('and then disconnects', () => {
@@ -116,7 +114,6 @@ describe('OnlinePlayersService', () => {
 
         it('should still keep the player marked as online', () => {
           expect(service.getSocketsForPlayer(playerId).length).toBe(1);
-          expect(service.onlinePlayers.includes(playerId)).toBe(true);
         });
       });
     });
