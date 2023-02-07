@@ -69,7 +69,8 @@ export class ProfileService implements OnModuleInit {
       .pipe(
         filter(
           ({ oldPlayer, newPlayer }) =>
-            oldPlayer.activeGame !== newPlayer.activeGame,
+            oldPlayer.activeGame?.toString() !==
+            newPlayer.activeGame?.toString(),
         ),
       )
       .subscribe(({ newPlayer }) => {
