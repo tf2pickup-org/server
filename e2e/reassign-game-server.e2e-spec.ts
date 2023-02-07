@@ -163,7 +163,7 @@ describe('Reassign gameserver (e2e)', () => {
         expect(body.gameServer).toBeTruthy();
       });
 
-    await waitForTheGameToLaunch(app, gameId);
+    await waitForTheGameToLaunch(app, gameId.toString());
 
     let gameServerName: string;
 
@@ -219,7 +219,7 @@ describe('Reassign gameserver (e2e)', () => {
         expect(body.gameServer.name).toEqual(gameServerName);
       });
 
-    await waitForTheGameToLaunch(app, gameId);
+    await waitForTheGameToLaunch(app, gameId.toString());
 
     const gamesService = app.get(GamesService);
     await gamesService.forceEnd(gameId);

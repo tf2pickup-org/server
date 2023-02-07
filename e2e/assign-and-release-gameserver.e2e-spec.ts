@@ -137,7 +137,7 @@ describe('Assign and release gameserver (e2e)', () => {
     );
     gameId = game._id;
     await waitABit(1000);
-    await waitForTheGameToLaunch(app, gameId);
+    await waitForTheGameToLaunch(app, gameId.toString());
   });
 
   afterAll(async () => {

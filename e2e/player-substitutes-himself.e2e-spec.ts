@@ -153,7 +153,7 @@ describe('Player substitutes himself (e2e)', () => {
     );
     gameId = game._id;
     await waitABit(1000);
-    await waitForTheGameToLaunch(app, gameId);
+    await waitForTheGameToLaunch(app, gameId.toString());
   });
 
   afterAll(async () => {

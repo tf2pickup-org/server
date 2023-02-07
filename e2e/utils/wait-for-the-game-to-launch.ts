@@ -1,9 +1,8 @@
-import { GameId } from '@/games/game-id';
 import { INestApplication } from '@nestjs/common';
 // skipcq: JS-C1003
 import * as request from 'supertest';
 
-export const waitForTheGameToLaunch = (app: INestApplication, gameId: GameId) =>
+export const waitForTheGameToLaunch = (app: INestApplication, gameId: string) =>
   new Promise<void>((resolve) => {
     const i = setInterval(async () => {
       await request(app.getHttpServer())
