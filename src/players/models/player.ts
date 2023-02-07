@@ -48,7 +48,6 @@ export class Player extends Serializable<PlayerDto> {
   @Prop({ index: true })
   etf2lProfileId?: number;
 
-  @Exclude({ toPlainOnly: true })
   @TransformObjectId()
   @Prop({ type: Types.ObjectId, ref: 'Game' })
   activeGame?: GameId;
