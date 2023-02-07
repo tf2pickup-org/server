@@ -19,6 +19,21 @@ export class PlayerBehaviorHandlerService {
     private readonly configurationService: ConfigurationService,
   ) {}
 
+  @Cron(CronExpression.EVERY_10_SECONDS)
+  async autoSubstitutePlayers() {
+    const bot = await this.playersService.findBot();
+    const gamesLive = await this.gamesService.getRunningGames();
+    for (const game of gamesLive) {
+      for (const slot of game.slots) {
+        const timeout =
+          await this.gamesService.calculatePlayerJoinGameServerTimeout(
+            game.id,
+            slot.player,
+          );
+      }
+    }
+  }
+
   @Cron(CronExpression.EVERY_30_SECONDS)
   async verifyPlayersJoinedGameServer() {
     const bot = await this.playersService.findBot();

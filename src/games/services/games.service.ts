@@ -16,11 +16,12 @@ import { URL } from 'url';
 import { GameInWrongStateError } from '../errors/game-in-wrong-state.error';
 import { plainToInstance } from 'class-transformer';
 import { Mutex } from 'async-mutex';
-import { QueueConfig } from '@/queue-config/interfaces/queue-config';
 import { GameEventType } from '../models/game-event';
 import { VoiceServerType } from '../voice-server-type';
 import { GameId } from '../game-id';
 import { PlayerId } from '@/players/types/player-id';
+import { PlayerEventType } from '../models/player-event';
+import { PlayerConnectionStatus } from '../models/player-connection-status';
 
 interface GameSortOptions {
   [key: string]: 1 | -1;
@@ -38,8 +39,6 @@ export class GamesService {
     @InjectModel('Game') private gameModel: Model<GameDocument>,
     @Inject(forwardRef(() => PlayersService))
     private playersService: PlayersService,
-    @Inject('QUEUE_CONFIG')
-    private readonly queueConfig: QueueConfig,
     private events: Events,
     private configurationService: ConfigurationService,
     @Inject('GAME_MODEL_MUTEX') private mutex: Mutex,
@@ -436,6 +435,69 @@ export class GamesService {
       }
 
       // no default
+    }
+  }
+
+  async calculatePlayerJoinGameServerTimeout(
+    gameId: GameId,
+    playerId: PlayerId,
+  ): Promise<number | undefined> {
+    const joinGameServerTimeout = await this.configurationService.get<number>(
+      'games.join_gameserver_timeout',
+    );
+    const rejoinGameServerTimeout = await this.configurationService.get<number>(
+      'games.rejoin_gameserver_timeout',
+    );
+
+    const game = await this.getById(gameId);
+    const slot = game.findPlayerSlot(playerId);
+    if (!slot) {
+      throw new Error('no such slot');
+    }
+
+    if (slot.status === SlotStatus.replaced) {
+      return undefined;
+    }
+
+    switch (game.state) {
+      case GameState.created:
+      case GameState.configuring:
+        return undefined;
+
+      case GameState.launching: {
+        const replacedAt = slot.events
+          .filter((e) => e.event === PlayerEventType.replacesPlayer)
+          .sort((a, b) => b.at.getTime() - a.at.getTime())[0]?.at;
+
+        if (replacedAt) {
+          return replacedAt.getTime() + rejoinGameServerTimeout;
+        }
+
+        const configuredAt = game.lastConfiguredAt;
+        if (!configuredAt) {
+          return undefined;
+        }
+
+        return configuredAt.getTime() + joinGameServerTimeout;
+      }
+
+      case GameState.started: {
+        if (slot.connectionStatus !== PlayerConnectionStatus.offline) {
+          return undefined;
+        }
+
+        const disconnectedAt = slot.events
+          .filter((e) => e.event === PlayerEventType.leavesGameServer)
+          .sort((a, b) => b.at.getTime() - a.at.getTime())[0]?.at;
+        if (!disconnectedAt) {
+          return undefined;
+        }
+
+        return disconnectedAt.getTime() + rejoinGameServerTimeout;
+      }
+
+      default:
+        return undefined;
     }
   }
 
