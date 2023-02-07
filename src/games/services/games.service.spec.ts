@@ -739,7 +739,7 @@ describe('GamesService', () => {
 
     describe('when the player is replaced', () => {
       beforeEach(async () => {
-        testGame.slots[0].status === SlotStatus.replaced;
+        testGame.slots[0].status = SlotStatus.replaced;
         await testGame.save();
       });
 
