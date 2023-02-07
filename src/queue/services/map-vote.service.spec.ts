@@ -18,6 +18,7 @@ import {
 } from '@nestjs/mongoose';
 import { ConfigurationService } from '@/configuration/services/configuration.service';
 import { PlayerId } from '@/players/types/player-id';
+import { waitABit } from '@/utils/wait-a-bit';
 
 jest.mock('./queue.service');
 jest.mock('@/configuration/services/configuration.service', () => ({
@@ -176,6 +177,7 @@ describe('MapVoteService', () => {
       beforeEach(async () => {
         service.voteForMap(new Types.ObjectId() as PlayerId, 'cp_badlands');
         await service.getWinner();
+        await waitABit(100);
       });
 
       it('should set the cooldown', async () => {
@@ -189,7 +191,8 @@ describe('MapVoteService', () => {
             new Types.ObjectId() as PlayerId,
             'cp_process_final',
           );
-          await service.getWinner();
+          const winner = await service.getWinner();
+          await waitABit(100);
         });
 
         it('should decrease the cooldown by 1', async () => {
