@@ -30,8 +30,8 @@ export class FriendsService implements OnModuleInit {
     if (targetPlayerId === null) {
       // only removing friendship
       this.friendships = [
-        ...this.friendships.filter((f) =>
-          f.sourcePlayerId.equals(sourcePlayerId),
+        ...this.friendships.filter(
+          (f) => !f.sourcePlayerId.equals(sourcePlayerId),
         ),
       ];
     } else {
