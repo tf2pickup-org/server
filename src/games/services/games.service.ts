@@ -442,13 +442,6 @@ export class GamesService {
     gameId: GameId,
     playerId: PlayerId,
   ): Promise<number | undefined> {
-    const joinGameServerTimeout = await this.configurationService.get<number>(
-      'games.join_gameserver_timeout',
-    );
-    const rejoinGameServerTimeout = await this.configurationService.get<number>(
-      'games.rejoin_gameserver_timeout',
-    );
-
     const game = await this.getById(gameId);
     const slot = game.findPlayerSlot(playerId);
     if (!slot) {
@@ -459,23 +452,29 @@ export class GamesService {
       return undefined;
     }
 
-    switch (game.state) {
-      case GameState.created:
-      case GameState.configuring:
-        return undefined;
+    const [joinGameServerTimeout, rejoinGameServerTimeout] = await Promise.all([
+      this.configurationService.get<number>('games.join_gameserver_timeout'),
+      await this.configurationService.get<number>(
+        'games.rejoin_gameserver_timeout',
+      ),
+    ]);
 
+    switch (game.state) {
       case GameState.launching: {
+        const configuredAt = game.lastConfiguredAt;
+        if (!configuredAt) {
+          return undefined;
+        }
+
         const replacedAt = slot.events
           .filter((e) => e.event === PlayerEventType.replacesPlayer)
           .sort((a, b) => b.at.getTime() - a.at.getTime())[0]?.at;
 
         if (replacedAt) {
-          return replacedAt.getTime() + rejoinGameServerTimeout;
-        }
-
-        const configuredAt = game.lastConfiguredAt;
-        if (!configuredAt) {
-          return undefined;
+          return Math.max(
+            replacedAt.getTime() + rejoinGameServerTimeout,
+            configuredAt.getTime() + joinGameServerTimeout,
+          );
         }
 
         return configuredAt.getTime() + joinGameServerTimeout;
@@ -486,9 +485,25 @@ export class GamesService {
           return undefined;
         }
 
+        const replacedAt = slot.events
+          .filter((e) => e.event === PlayerEventType.replacesPlayer)
+          .sort((a, b) => b.at.getTime() - a.at.getTime())[0]?.at;
+
         const disconnectedAt = slot.events
           .filter((e) => e.event === PlayerEventType.leavesGameServer)
           .sort((a, b) => b.at.getTime() - a.at.getTime())[0]?.at;
+
+        if (replacedAt) {
+          if (disconnectedAt) {
+            return Math.max(
+              replacedAt.getTime() + rejoinGameServerTimeout,
+              disconnectedAt.getTime() + rejoinGameServerTimeout,
+            );
+          } else {
+            return replacedAt.getTime() + rejoinGameServerTimeout;
+          }
+        }
+
         if (!disconnectedAt) {
           return undefined;
         }

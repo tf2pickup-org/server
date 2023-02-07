@@ -429,11 +429,11 @@ describe('PlayerSubstitutionService', () => {
 
     it('should register event', async () => {
       const game = await service.replacePlayer(
-        mockGame.id,
-        player1.id,
-        player3.id,
+        mockGame._id,
+        player1._id,
+        player3._id,
       );
-      const slot = game.findPlayerSlot(player3.id);
+      const slot = game.findPlayerSlot(player3._id);
       expect(
         slot?.events.find(
           (event) => event.event === PlayerEventType.replacesPlayer,
