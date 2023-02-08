@@ -5,6 +5,7 @@ export enum PlayerEventType {
   joinsGameServer = 'joins game server',
   joinsGameServerTeam = 'joins game server team',
   leavesGameServer = 'leaves game server',
+  requestsSubstitute = 'requests substitute',
 }
 
 @Schema()

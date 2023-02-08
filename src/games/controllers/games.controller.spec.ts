@@ -54,6 +54,7 @@ class GamesServiceStub {
     return Promise.resolve('');
   }
   forceEnd = jest.fn().mockResolvedValue(undefined);
+  calculatePlayerJoinGameServerTimeout = jest.fn().mockResolvedValue(undefined);
 }
 
 describe('Games Controller', () => {

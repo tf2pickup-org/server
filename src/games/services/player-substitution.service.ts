@@ -82,13 +82,19 @@ export class PlayerSubstitutionService implements OnModuleInit {
           .findByIdAndUpdate(
             gameId,
             {
-              'slots.$[element].status': SlotStatus.waitingForSubstitute,
+              $set: {
+                'slots.$[element].status': SlotStatus.waitingForSubstitute,
+              },
+              $push: {
+                'slots.$[element].events': {
+                  event: PlayerEventType.requestsSubstitute,
+                  at: new Date(),
+                },
+              },
             },
             {
               new: true,
-              arrayFilters: [
-                { 'element.player': { $eq: new Types.ObjectId(player.id) } },
-              ],
+              arrayFilters: [{ 'element.player': { $eq: player._id } }],
             },
           )
           .orFail()

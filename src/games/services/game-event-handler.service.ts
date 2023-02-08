@@ -22,6 +22,11 @@ import { GameEventType } from '../models/game-event';
 import { PlayerEventType } from '../models/player-event';
 import { GameId } from '../game-id';
 
+// https://github.com/microsoft/TypeScript/issues/33308
+type PickEnum<T, K extends T> = {
+  [P in keyof K]: P extends K ? P : never;
+};
+
 @Injectable()
 export class GameEventHandlerService implements OnModuleInit, OnModuleDestroy {
   private logger = new Logger(GameEventHandlerService.name);
@@ -202,10 +207,14 @@ export class GameEventHandlerService implements OnModuleInit, OnModuleDestroy {
   private async registerPlayerEvent(
     gameId: GameId,
     steamId: string,
-    eventType: PlayerEventType,
+    eventType: PickEnum<
+      PlayerEventType,
+      | PlayerEventType.joinsGameServer
+      | PlayerEventType.joinsGameServerTeam
+      | PlayerEventType.leavesGameServer
+    >,
   ): Promise<Game> {
     const connectionStatus: PlayerConnectionStatus = {
-      [PlayerEventType.replacesPlayer]: PlayerConnectionStatus.offline,
       [PlayerEventType.joinsGameServer]: PlayerConnectionStatus.joining,
       [PlayerEventType.joinsGameServerTeam]: PlayerConnectionStatus.connected,
       [PlayerEventType.leavesGameServer]: PlayerConnectionStatus.offline,

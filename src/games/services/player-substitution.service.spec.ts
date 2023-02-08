@@ -161,6 +161,16 @@ describe('PlayerSubstitutionService', () => {
       expect(event).toMatchObject({ id: mockGame._id });
     });
 
+    it('should register event', async () => {
+      const game = await service.substitutePlayer(mockGame._id, player1._id);
+      const slot = game.findPlayerSlot(player1._id);
+      expect(
+        slot?.events.find(
+          (event) => event.event === PlayerEventType.requestsSubstitute,
+        ),
+      ).toBeTruthy();
+    });
+
     describe('when the game has already ended', () => {
       beforeEach(async () => {
         await gameModel.findByIdAndUpdate(mockGame._id, {
