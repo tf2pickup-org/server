@@ -1,3 +1,4 @@
+import { SlotStatus } from '@/games/models/slot-status';
 import { GamesService } from '@/games/services/games.service';
 import { PlayerSubstitutionService } from '@/games/services/player-substitution.service';
 import { PlayersService } from '@/players/services/players.service';
@@ -20,7 +21,9 @@ export class PlayerBehaviorHandlerService {
     const bot = await this.playersService.findBot();
     const gamesLive = await this.gamesService.getRunningGames();
     for (const game of gamesLive) {
-      for (const slot of game.slots) {
+      for (const slot of game.slots.filter(
+        (slot) => slot.status === SlotStatus.active,
+      )) {
         const timeout =
           await this.gamesService.calculatePlayerJoinGameServerTimeout(
             game._id,
@@ -31,16 +34,21 @@ export class PlayerBehaviorHandlerService {
           continue;
         }
 
-        const player = await this.playersService.getById(slot.player);
-        this.logger.log(
-          `player ${player.name} is offline; requesting substitute`,
-        );
+        if (timeout < new Date().getTime()) {
+          const player = await this.playersService.getById(slot.player);
+          this.logger.debug(
+            `[${player.name}] now=${new Date().getTime()} timeout=${timeout}`,
+          );
+          this.logger.log(
+            `player ${player.name} is offline; requesting substitute`,
+          );
 
-        await this.playerSubstitutionService.substitutePlayer(
-          game._id,
-          player._id,
-          bot._id,
-        );
+          await this.playerSubstitutionService.substitutePlayer(
+            game._id,
+            player._id,
+            bot._id,
+          );
+        }
       }
     }
   }
