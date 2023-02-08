@@ -1854,9 +1854,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nestjs/common@npm:9.3.5":
-  version: 9.3.5
-  resolution: "@nestjs/common@npm:9.3.5"
+"@nestjs/common@npm:9.3.7":
+  version: 9.3.7
+  resolution: "@nestjs/common@npm:9.3.7"
   dependencies:
     iterare: 1.2.1
     tslib: 2.5.0
@@ -1874,7 +1874,7 @@ __metadata:
       optional: true
     class-validator:
       optional: true
-  checksum: a5c8ea53616caa891dc1329839e94a093095417dffe67e50c9c626af95ebc8fed34bbce667a38159489fa303ed44994601fde7c47d0aa21d8fa7775bfd2e57c2
+  checksum: 2f9b9798b4e241833db26fb94776f735d7a46b1b8ce34f5f4a1ca6bcbc8586f7763a5c6865748d565f16756fb7fe307de5b524cade124e6f997533ed0bae9b1c
   languageName: node
   linkType: hard
 
@@ -1894,11 +1894,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nestjs/core@npm:9.3.5":
-  version: 9.3.5
-  resolution: "@nestjs/core@npm:9.3.5"
+"@nestjs/core@npm:9.3.7":
+  version: 9.3.7
+  resolution: "@nestjs/core@npm:9.3.7"
   dependencies:
-    "@node-rs/xxhash": ^1.3.0
     "@nuxtjs/opencollective": 0.3.2
     fast-safe-stringify: 2.1.1
     iterare: 1.2.1
@@ -1919,7 +1918,7 @@ __metadata:
       optional: true
     "@nestjs/websockets":
       optional: true
-  checksum: ec6d5656bdfa737d926ff6ddb2d9105a5dffd238a55e99f53221ab19544f83127d13ac6481407b43561f210bc529c3e4b9e53ae2c4f61fb039e17177f25edf73
+  checksum: a922ec9a4bfb80c659de887da9baa298233ec15f8a361c85dbbb2c0360770d84b8a9e1956d295f40725467c79e44354251747571992d3a31e60f1bb320d7dd17
   languageName: node
   linkType: hard
 
@@ -1936,19 +1935,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nestjs/passport@npm:9.0.1":
-  version: 9.0.1
-  resolution: "@nestjs/passport@npm:9.0.1"
+"@nestjs/passport@npm:9.0.2":
+  version: 9.0.2
+  resolution: "@nestjs/passport@npm:9.0.2"
   peerDependencies:
     "@nestjs/common": ^8.0.0 || ^9.0.0
     passport: ^0.4.0 || ^0.5.0 || ^0.6.0
-  checksum: d21398247ee1491342e875dd8502ab3762c01daa3792cedbd8e91294991c7667322641701ea90e9f99d48bf27adcd947161ed73e9e800314135aed66df187885
+  checksum: d9ccf9a6693300eb6fd43edaa8e6fb6a2eaf42888e847605de5eac59393ca5129634b4cde4fbec122fa13d5ee563ab7b300d025648896603743e4ce9992c4274
   languageName: node
   linkType: hard
 
-"@nestjs/platform-express@npm:9.3.5":
-  version: 9.3.5
-  resolution: "@nestjs/platform-express@npm:9.3.5"
+"@nestjs/platform-express@npm:9.3.7":
+  version: 9.3.7
+  resolution: "@nestjs/platform-express@npm:9.3.7"
   dependencies:
     body-parser: 1.20.1
     cors: 2.8.5
@@ -1958,13 +1957,13 @@ __metadata:
   peerDependencies:
     "@nestjs/common": ^9.0.0
     "@nestjs/core": ^9.0.0
-  checksum: bcb03b5fb9baf3d97dc97e8f619e1e34fa066d374e1e2c4f3440474c41740c0e3e3602bb9fdeb3682e4585bc53ee425c9d3264e8e5c76c2a8340487e5d83b14f
+  checksum: 1be7df742f0e941433390a54d8c40e5ec287b53a4cc6e9c97811e491633085f6335f7d46620f614af54ff65e9f35ca626af09a356ab90aa82f1e97514ff52ef9
   languageName: node
   linkType: hard
 
-"@nestjs/platform-socket.io@npm:9.3.5":
-  version: 9.3.5
-  resolution: "@nestjs/platform-socket.io@npm:9.3.5"
+"@nestjs/platform-socket.io@npm:9.3.7":
+  version: 9.3.7
+  resolution: "@nestjs/platform-socket.io@npm:9.3.7"
   dependencies:
     socket.io: 4.6.0
     tslib: 2.5.0
@@ -1972,7 +1971,7 @@ __metadata:
     "@nestjs/common": ^9.0.0
     "@nestjs/websockets": ^9.0.0
     rxjs: ^7.1.0
-  checksum: 028008ea28f636bad01ac6e72c09e7472954988e3acc7198980bc3e2a1806c2c013662e715a989b986ba7096a196f72c5b15c9aa0767213015bf7e02e7402f4d
+  checksum: c0ebcd4c79d540b0abd1f78a52f781cfebd66c5195e2c0b149b975fb0dcdf592b0ce88a6e07d7ca7dbaf4f543d3822a28c17bdccd44ccf468f819bef81935e4b
   languageName: node
   linkType: hard
 
@@ -2032,9 +2031,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nestjs/testing@npm:9.3.5":
-  version: 9.3.5
-  resolution: "@nestjs/testing@npm:9.3.5"
+"@nestjs/testing@npm:9.3.7":
+  version: 9.3.7
+  resolution: "@nestjs/testing@npm:9.3.7"
   dependencies:
     tslib: 2.5.0
   peerDependencies:
@@ -2047,13 +2046,13 @@ __metadata:
       optional: true
     "@nestjs/platform-express":
       optional: true
-  checksum: b75133798d62247b0057c645f8aac2406c41cb3a511754bd4d7a8f1bb2126596cfe19dd158b393b5705a5728424ab3114491e40495a09b345489cef9bedd635e
+  checksum: fe66a8f3c8ded3872eeb02b031727a39a9815ba317b32cbccb310b4d0f339e5014b834c2aef3e45abcf3a5961012c86a43b2974c4ddff5427e299108957c455a
   languageName: node
   linkType: hard
 
-"@nestjs/websockets@npm:9.3.5":
-  version: 9.3.5
-  resolution: "@nestjs/websockets@npm:9.3.5"
+"@nestjs/websockets@npm:9.3.7":
+  version: 9.3.7
+  resolution: "@nestjs/websockets@npm:9.3.7"
   dependencies:
     iterare: 1.2.1
     object-hash: 3.0.0
@@ -2067,146 +2066,7 @@ __metadata:
   peerDependenciesMeta:
     "@nestjs/platform-socket.io":
       optional: true
-  checksum: 5e1385575e240a3c8088bab104117ddf1f35e17a4f98a96ea3f4fb778d7dcf6b1d2aa85666689181ef8084ecf0fd35e4cd725050135b398a75a7598d0b1777ce
-  languageName: node
-  linkType: hard
-
-"@node-rs/xxhash-android-arm-eabi@npm:1.3.0":
-  version: 1.3.0
-  resolution: "@node-rs/xxhash-android-arm-eabi@npm:1.3.0"
-  conditions: os=android & cpu=arm
-  languageName: node
-  linkType: hard
-
-"@node-rs/xxhash-android-arm64@npm:1.3.0":
-  version: 1.3.0
-  resolution: "@node-rs/xxhash-android-arm64@npm:1.3.0"
-  conditions: os=android & cpu=arm64
-  languageName: node
-  linkType: hard
-
-"@node-rs/xxhash-darwin-arm64@npm:1.3.0":
-  version: 1.3.0
-  resolution: "@node-rs/xxhash-darwin-arm64@npm:1.3.0"
-  conditions: os=darwin & cpu=arm64
-  languageName: node
-  linkType: hard
-
-"@node-rs/xxhash-darwin-x64@npm:1.3.0":
-  version: 1.3.0
-  resolution: "@node-rs/xxhash-darwin-x64@npm:1.3.0"
-  conditions: os=darwin & cpu=x64
-  languageName: node
-  linkType: hard
-
-"@node-rs/xxhash-freebsd-x64@npm:1.3.0":
-  version: 1.3.0
-  resolution: "@node-rs/xxhash-freebsd-x64@npm:1.3.0"
-  conditions: os=freebsd & cpu=x64
-  languageName: node
-  linkType: hard
-
-"@node-rs/xxhash-linux-arm-gnueabihf@npm:1.3.0":
-  version: 1.3.0
-  resolution: "@node-rs/xxhash-linux-arm-gnueabihf@npm:1.3.0"
-  conditions: os=linux & cpu=arm
-  languageName: node
-  linkType: hard
-
-"@node-rs/xxhash-linux-arm64-gnu@npm:1.3.0":
-  version: 1.3.0
-  resolution: "@node-rs/xxhash-linux-arm64-gnu@npm:1.3.0"
-  conditions: os=linux & cpu=arm64 & libc=glibc
-  languageName: node
-  linkType: hard
-
-"@node-rs/xxhash-linux-arm64-musl@npm:1.3.0":
-  version: 1.3.0
-  resolution: "@node-rs/xxhash-linux-arm64-musl@npm:1.3.0"
-  conditions: os=linux & cpu=arm64 & libc=musl
-  languageName: node
-  linkType: hard
-
-"@node-rs/xxhash-linux-x64-gnu@npm:1.3.0":
-  version: 1.3.0
-  resolution: "@node-rs/xxhash-linux-x64-gnu@npm:1.3.0"
-  conditions: os=linux & cpu=x64 & libc=glibc
-  languageName: node
-  linkType: hard
-
-"@node-rs/xxhash-linux-x64-musl@npm:1.3.0":
-  version: 1.3.0
-  resolution: "@node-rs/xxhash-linux-x64-musl@npm:1.3.0"
-  conditions: os=linux & cpu=x64 & libc=musl
-  languageName: node
-  linkType: hard
-
-"@node-rs/xxhash-win32-arm64-msvc@npm:1.3.0":
-  version: 1.3.0
-  resolution: "@node-rs/xxhash-win32-arm64-msvc@npm:1.3.0"
-  conditions: os=win32 & cpu=arm64
-  languageName: node
-  linkType: hard
-
-"@node-rs/xxhash-win32-ia32-msvc@npm:1.3.0":
-  version: 1.3.0
-  resolution: "@node-rs/xxhash-win32-ia32-msvc@npm:1.3.0"
-  conditions: os=win32 & cpu=ia32
-  languageName: node
-  linkType: hard
-
-"@node-rs/xxhash-win32-x64-msvc@npm:1.3.0":
-  version: 1.3.0
-  resolution: "@node-rs/xxhash-win32-x64-msvc@npm:1.3.0"
-  conditions: os=win32 & cpu=x64
-  languageName: node
-  linkType: hard
-
-"@node-rs/xxhash@npm:^1.3.0":
-  version: 1.3.0
-  resolution: "@node-rs/xxhash@npm:1.3.0"
-  dependencies:
-    "@node-rs/xxhash-android-arm-eabi": 1.3.0
-    "@node-rs/xxhash-android-arm64": 1.3.0
-    "@node-rs/xxhash-darwin-arm64": 1.3.0
-    "@node-rs/xxhash-darwin-x64": 1.3.0
-    "@node-rs/xxhash-freebsd-x64": 1.3.0
-    "@node-rs/xxhash-linux-arm-gnueabihf": 1.3.0
-    "@node-rs/xxhash-linux-arm64-gnu": 1.3.0
-    "@node-rs/xxhash-linux-arm64-musl": 1.3.0
-    "@node-rs/xxhash-linux-x64-gnu": 1.3.0
-    "@node-rs/xxhash-linux-x64-musl": 1.3.0
-    "@node-rs/xxhash-win32-arm64-msvc": 1.3.0
-    "@node-rs/xxhash-win32-ia32-msvc": 1.3.0
-    "@node-rs/xxhash-win32-x64-msvc": 1.3.0
-  dependenciesMeta:
-    "@node-rs/xxhash-android-arm-eabi":
-      optional: true
-    "@node-rs/xxhash-android-arm64":
-      optional: true
-    "@node-rs/xxhash-darwin-arm64":
-      optional: true
-    "@node-rs/xxhash-darwin-x64":
-      optional: true
-    "@node-rs/xxhash-freebsd-x64":
-      optional: true
-    "@node-rs/xxhash-linux-arm-gnueabihf":
-      optional: true
-    "@node-rs/xxhash-linux-arm64-gnu":
-      optional: true
-    "@node-rs/xxhash-linux-arm64-musl":
-      optional: true
-    "@node-rs/xxhash-linux-x64-gnu":
-      optional: true
-    "@node-rs/xxhash-linux-x64-musl":
-      optional: true
-    "@node-rs/xxhash-win32-arm64-msvc":
-      optional: true
-    "@node-rs/xxhash-win32-ia32-msvc":
-      optional: true
-    "@node-rs/xxhash-win32-x64-msvc":
-      optional: true
-  checksum: 1bc505ed48accb817fd5a67ec6efbc350d28ffb5709b0248dcd4b37ffa40f959b84d44eee4e42e722379478961d1aa11eee6e5965b1084c02b26534567118e68
+  checksum: dd01ceb99d7c0a90cd361265af827d2131a173a684e2a66e4a3c307e2a0091c0c4efbde906e03fe10454329adfe1b6868b1f68f97350e208be0117719d83d6e5
   languageName: node
   linkType: hard
 
@@ -11426,18 +11286,18 @@ __metadata:
     "@anatine/zod-openapi": ^1.12.0
     "@nestjs/axios": 2.0.0
     "@nestjs/cli": 9.2.0
-    "@nestjs/common": 9.3.5
+    "@nestjs/common": 9.3.7
     "@nestjs/config": 2.3.0
-    "@nestjs/core": 9.3.5
+    "@nestjs/core": 9.3.7
     "@nestjs/mongoose": 9.2.1
-    "@nestjs/passport": 9.0.1
-    "@nestjs/platform-express": 9.3.5
-    "@nestjs/platform-socket.io": 9.3.5
+    "@nestjs/passport": 9.0.2
+    "@nestjs/platform-express": 9.3.7
+    "@nestjs/platform-socket.io": 9.3.7
     "@nestjs/schedule": 2.2.0
     "@nestjs/schematics": 9.0.4
     "@nestjs/serve-static": 3.0.0
-    "@nestjs/testing": 9.3.5
-    "@nestjs/websockets": 9.3.5
+    "@nestjs/testing": 9.3.7
+    "@nestjs/websockets": 9.3.7
     "@redis/client": 1.5.5
     "@release-it/conventional-changelog": 5.1.1
     "@tf2pickup-org/mumble-client": 0.7.0
