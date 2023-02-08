@@ -10,6 +10,7 @@ on:
   pull_request:
     branches:
       - 'master'
+  merge_group:
 
 jobs:
   lint:
