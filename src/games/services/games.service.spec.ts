@@ -60,20 +60,6 @@ describe('GamesService', () => {
         },
         GamesService,
         PlayersService,
-        {
-          provide: 'QUEUE_CONFIG',
-          useValue: {
-            classes: [
-              { name: 'scout', count: 2 },
-              { name: 'soldier', count: 2 },
-              { name: 'demoman', count: 1 },
-              { name: 'medic', count: 1 },
-            ],
-            teamCount: 2,
-            readyUpTimeout: 1000,
-            queueReadyTimeout: 2000,
-          },
-        },
         Events,
         ConfigurationService,
       ],

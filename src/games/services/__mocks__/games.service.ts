@@ -17,7 +17,6 @@ export class GamesService {
   private _original = new OriginalGamesService(
     this.gameModel,
     null,
-    null,
     this.events,
     null,
     new Mutex(),
