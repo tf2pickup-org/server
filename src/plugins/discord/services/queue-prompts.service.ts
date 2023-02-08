@@ -11,7 +11,7 @@ import {
   OnModuleInit,
 } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
-import { Message } from 'discord.js';
+import { DiscordAPIError, Message } from 'discord.js';
 import { debounceTime, map } from 'rxjs/operators';
 import { queuePreview } from '../notifications';
 import { DiscordService } from './discord.service';
@@ -115,7 +115,15 @@ export class QueuePromptsService implements OnModuleInit {
   private async getPromptMessage(): Promise<Message | undefined> {
     const id = await this.cache.get<string>(this.queuePromptMessageIdCacheKey);
     if (id) {
-      return this.discordService.getPlayersChannel()?.messages.fetch(id);
+      try {
+        return this.discordService.getPlayersChannel()?.messages.fetch(id);
+      } catch (error) {
+        if (error instanceof DiscordAPIError && error.httpStatus === 404) {
+          return undefined;
+        }
+
+        throw error;
+      }
     } else {
       return undefined;
     }
