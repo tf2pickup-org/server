@@ -58,7 +58,7 @@ describe('GamesGateway', () => {
         {
           user: { _id: replacementId } as Player,
         } as Socket,
-        { gameId: gameId.toString(), replaceeId: replaceeId.toString() },
+        { gameId, replaceeId },
       );
       expect(playerSubstitutionService.replacePlayer).toHaveBeenCalledWith(
         gameId,

@@ -7,6 +7,8 @@ import {
   forwardRef,
   OnModuleInit,
   UseInterceptors,
+  UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
 import { Events } from '@/events/events';
 import { WebsocketEvent } from '@/websocket-event';
@@ -14,9 +16,7 @@ import { SerializerInterceptor } from '@/shared/interceptors/serializer.intercep
 import { Serializable } from '@/shared/serializable';
 import { GameDto } from '../dto/game.dto';
 import { WebsocketEventEmitter } from '@/shared/websocket-event-emitter';
-import { Types } from 'mongoose';
-import { GameId } from '../game-id';
-import { PlayerId } from '@/players/types/player-id';
+import { ReplacePlayerPayload } from '../dto/replace-player-payload';
 
 @WebSocketGateway()
 export class GamesGateway
@@ -32,15 +32,16 @@ export class GamesGateway
   }
 
   @WsAuthorized()
+  @UsePipes(new ValidationPipe({ transform: true }))
   @SubscribeMessage('replace player')
   @UseInterceptors(SerializerInterceptor)
   async replacePlayer(
     client: Socket,
-    payload: { gameId: string; replaceeId: string },
+    payload: ReplacePlayerPayload,
   ): Promise<Serializable<GameDto>> {
     return await this.playerSubstitutionService.replacePlayer(
-      new Types.ObjectId(payload.gameId) as GameId,
-      new Types.ObjectId(payload.replaceeId) as PlayerId,
+      payload.gameId,
+      payload.replaceeId,
       client.user._id,
     );
   }
