@@ -776,6 +776,21 @@ describe('GamesService', () => {
         ).toEqual(new Date(2023, 2, 7, 23, 26, 0).getTime());
       });
 
+      describe('but the join timeout is not specified', () => {
+        beforeEach(() => {
+          configuration['games.join_gameserver_timeout'] = 0;
+        });
+
+        it('should return undefined', async () => {
+          expect(
+            await service.calculatePlayerJoinGameServerTimeout(
+              testGame._id,
+              testPlayer._id,
+            ),
+          ).toBe(undefined);
+        });
+      });
+
       describe('and the player took sub more than 3 minutes before timeout', () => {
         beforeEach(async () => {
           testGame.slots[0].events.push({
@@ -811,6 +826,21 @@ describe('GamesService', () => {
               testPlayer._id,
             ),
           ).toEqual(new Date(2023, 2, 7, 23, 28, 0).getTime());
+        });
+
+        describe('but the rejoin timeout is not specified', () => {
+          beforeEach(() => {
+            configuration['games.rejoin_gameserver_timeout'] = 0;
+          });
+
+          it('should return undefined', async () => {
+            expect(
+              await service.calculatePlayerJoinGameServerTimeout(
+                testGame._id,
+                testPlayer._id,
+              ),
+            ).toBe(undefined);
+          });
         });
       });
     });
@@ -870,6 +900,21 @@ describe('GamesService', () => {
               testPlayer._id,
             ),
           ).toEqual(new Date(2023, 2, 7, 23, 38, 0).getTime());
+        });
+
+        describe('but the rejoin timeout is not specified', () => {
+          beforeEach(() => {
+            configuration['games.rejoin_gameserver_timeout'] = 0;
+          });
+
+          it('should return undefined', async () => {
+            expect(
+              await service.calculatePlayerJoinGameServerTimeout(
+                testGame._id,
+                testPlayer._id,
+              ),
+            ).toBe(undefined);
+          });
         });
       });
 

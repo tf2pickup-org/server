@@ -463,35 +463,46 @@ export class GamesService {
       case GameState.launching: {
         const configuredAt = game.lastConfiguredAt;
         if (!configuredAt) {
-          return undefined;
+          throw new Error('invalid game state');
         }
 
-        const replacedAt = slot.events
-          .filter((e) => e.event === PlayerEventType.replacesPlayer)
-          .sort((a, b) => b.at.getTime() - a.at.getTime())[0]?.at;
+        const replacedAt = slot.getMostRecentEvent(
+          PlayerEventType.replacesPlayer,
+        );
 
         if (replacedAt) {
-          return Math.max(
-            replacedAt.getTime() + rejoinGameServerTimeout,
-            configuredAt.getTime() + joinGameServerTimeout,
-          );
+          // the player joined the game as a sub
+          if (rejoinGameServerTimeout > 0) {
+            return Math.max(
+              replacedAt.getTime() + rejoinGameServerTimeout,
+              configuredAt.getTime() + joinGameServerTimeout,
+            );
+          } else {
+            return undefined;
+          }
         }
 
-        return configuredAt.getTime() + joinGameServerTimeout;
+        if (joinGameServerTimeout > 0) {
+          return configuredAt.getTime() + joinGameServerTimeout;
+        } else {
+          return undefined;
+        }
       }
 
       case GameState.started: {
-        if (slot.connectionStatus !== PlayerConnectionStatus.offline) {
+        if (
+          slot.connectionStatus !== PlayerConnectionStatus.offline ||
+          rejoinGameServerTimeout <= 0
+        ) {
           return undefined;
         }
 
-        const replacedAt = slot.events
-          .filter((e) => e.event === PlayerEventType.replacesPlayer)
-          .sort((a, b) => b.at.getTime() - a.at.getTime())[0]?.at;
-
-        const disconnectedAt = slot.events
-          .filter((e) => e.event === PlayerEventType.leavesGameServer)
-          .sort((a, b) => b.at.getTime() - a.at.getTime())[0]?.at;
+        const replacedAt = slot.getMostRecentEvent(
+          PlayerEventType.replacesPlayer,
+        );
+        const disconnectedAt = slot.getMostRecentEvent(
+          PlayerEventType.leavesGameServer,
+        );
 
         if (replacedAt) {
           if (disconnectedAt) {
@@ -505,7 +516,7 @@ export class GamesService {
         }
 
         if (!disconnectedAt) {
-          return undefined;
+          throw new Error('invalid game slot state');
         }
 
         return disconnectedAt.getTime() + rejoinGameServerTimeout;
