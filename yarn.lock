@@ -1935,13 +1935,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nestjs/passport@npm:9.0.2":
-  version: 9.0.2
-  resolution: "@nestjs/passport@npm:9.0.2"
+"@nestjs/passport@npm:9.0.3":
+  version: 9.0.3
+  resolution: "@nestjs/passport@npm:9.0.3"
   peerDependencies:
     "@nestjs/common": ^8.0.0 || ^9.0.0
     passport: ^0.4.0 || ^0.5.0 || ^0.6.0
-  checksum: d9ccf9a6693300eb6fd43edaa8e6fb6a2eaf42888e847605de5eac59393ca5129634b4cde4fbec122fa13d5ee563ab7b300d025648896603743e4ce9992c4274
+  checksum: 113148a68eef4c1036d6d3e7037376093706c9eeef005338c39d85161e3beab8c8188a61201bbec881c075641687325dd74f1b9200ab37b91983cf953f2b8774
   languageName: node
   linkType: hard
 
@@ -11290,7 +11290,7 @@ __metadata:
     "@nestjs/config": 2.3.1
     "@nestjs/core": 9.3.7
     "@nestjs/mongoose": 9.2.1
-    "@nestjs/passport": 9.0.2
+    "@nestjs/passport": 9.0.3
     "@nestjs/platform-express": 9.3.7
     "@nestjs/platform-socket.io": 9.3.7
     "@nestjs/schedule": 2.2.0
