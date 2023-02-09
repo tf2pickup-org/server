@@ -282,7 +282,7 @@ describe('ServerConfiguratorService', () => {
       });
 
       it('should not add this player to the game', async () => {
-        await service.configureServer(mockGame.id);
+        await service.configureServer(mockGame._id);
         expect(rcon.send).toHaveBeenCalledWith(
           addGamePlayer(
             mockPlayer1.steamId,
@@ -303,7 +303,7 @@ describe('ServerConfiguratorService', () => {
     });
 
     it('should close the rcon connection', async () => {
-      await service.configureServer(mockGame.id);
+      await service.configureServer(mockGame._id);
       expect(rcon.end).toHaveBeenCalled();
     });
 
@@ -316,7 +316,7 @@ describe('ServerConfiguratorService', () => {
       });
 
       it('should deburr player nicknames', async () => {
-        await service.configureServer(mockGame.id);
+        await service.configureServer(mockGame._id);
         expect(rcon.send).toHaveBeenCalledWith(
           addGamePlayer(mockPlayer1.steamId, 'maly', Tf2Team.blu, 'soldier'),
         );
@@ -329,7 +329,7 @@ describe('ServerConfiguratorService', () => {
       });
 
       it('should close the rcon connection even though an RCON command failed', async () => {
-        await expect(service.configureServer(mockGame.id)).rejects.toThrow(
+        await expect(service.configureServer(mockGame._id)).rejects.toThrow(
           CannotConfigureGameError,
         );
         expect(rcon.end).toHaveBeenCalled();
@@ -343,7 +343,7 @@ describe('ServerConfiguratorService', () => {
       });
 
       it('should reconnect', async () => {
-        await service.configureServer(mockGame.id);
+        await service.configureServer(mockGame._id);
         expect(rcon.connect).toHaveBeenCalledTimes(1);
       });
     });
@@ -354,7 +354,7 @@ describe('ServerConfiguratorService', () => {
       });
 
       it('should throw', async () => {
-        await expect(service.configureServer(mockGame.id)).rejects.toThrow(
+        await expect(service.configureServer(mockGame._id)).rejects.toThrow(
           GameServerNotAssignedError,
         );
       });
@@ -362,9 +362,9 @@ describe('ServerConfiguratorService', () => {
 
     it('should update game', async () => {
       const { connectString, stvConnectString } = await service.configureServer(
-        mockGame.id,
+        mockGame._id,
       );
-      const game = await gamesService.getById(mockGame.id);
+      const game = await gamesService.getById(mockGame._id);
       expect(game.connectString).toEqual(connectString);
       expect(game.stvConnectString).toEqual(stvConnectString);
       expect(game.events.at(game.events.length - 1)?.event).toBe(
@@ -380,7 +380,7 @@ describe('ServerConfiguratorService', () => {
       });
 
       it('should execute extra commands', async () => {
-        await service.configureServer(mockGame.id);
+        await service.configureServer(mockGame._id);
         expect(rcon.send).toHaveBeenCalledWith('sm_cvar spec_freeze_time 0');
       });
     });
@@ -392,7 +392,7 @@ describe('ServerConfiguratorService', () => {
       });
 
       it('should enable logs.tf upload', async () => {
-        await service.configureServer(mockGame.id);
+        await service.configureServer(mockGame._id);
         expect(rcon.send).toHaveBeenCalledWith('logstf_autoupload 2');
       });
     });

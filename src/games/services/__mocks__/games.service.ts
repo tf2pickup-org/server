@@ -17,7 +17,6 @@ export class GamesService {
   private _original = new OriginalGamesService(
     this.gameModel,
     null,
-    null,
     this.events,
     null,
     new Mutex(),
@@ -52,6 +51,7 @@ export class GamesService {
   getOrphanedGames = jest.fn();
   getPlayerGameCount = jest.fn();
   getPlayerPlayedClassCount = jest.fn();
+  calculatePlayerJoinGameServerTimeout = jest.fn();
 
   async _createOne(players?: Player[]) {
     let lastTeamId = 0;

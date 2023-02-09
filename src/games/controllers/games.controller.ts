@@ -88,6 +88,11 @@ export class GamesController {
     @User() player: Player,
   ): Promise<ConnectInfoDto> {
     try {
+      const joinGameServerTimeout =
+        await this.gamesService.calculatePlayerJoinGameServerTimeout(
+          game._id,
+          player._id,
+        );
       return {
         gameId: game.id,
         connectInfoVersion: game.connectInfoVersion,
@@ -95,6 +100,9 @@ export class GamesController {
         voiceChannelUrl:
           (await this.gamesService.getVoiceChannelUrl(game._id, player._id)) ??
           undefined,
+        ...(joinGameServerTimeout && {
+          joinGameServerTimeout: new Date(joinGameServerTimeout).toISOString(),
+        }),
       };
     } catch (error) {
       if (error instanceof PlayerNotInThisGameError) {
