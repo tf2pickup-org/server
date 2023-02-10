@@ -65,7 +65,29 @@ describe('Update player skill (e2e)', () => {
           demoman: 4,
           medic: 5,
         })
-        .expect(200);
+        .expect(200)
+        .then((response) => {
+          const body = response.body;
+          expect(body).toEqual({
+            scout: 2,
+            soldier: 3,
+            demoman: 4,
+            medic: 5,
+          });
+        });
+
+      await request(app.getHttpServer())
+        .delete(`/players/${playerId}/skill`)
+        .auth(adminAuthToken, { type: 'bearer' })
+        .expect(204);
+
+      await request(app.getHttpServer())
+        .get(`/players/${playerId}/skill`)
+        .auth(adminAuthToken, { type: 'bearer' })
+        .then((respose) => {
+          const body = respose.body;
+          expect(body).toEqual({});
+        });
     });
   });
 });

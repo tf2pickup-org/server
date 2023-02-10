@@ -18,6 +18,7 @@ import {
   UploadedFile,
   ParseFilePipe,
   FileTypeValidator,
+  Delete,
 } from '@nestjs/common';
 import { PlayersService } from '../services/players.service';
 import { ObjectIdValidationPipe } from '@/shared/pipes/object-id-validation.pipe';
@@ -143,6 +144,22 @@ export class PlayersController {
       admin._id,
     );
     return Object.fromEntries(newPlayer.skill ?? new Map());
+  }
+
+  @Delete(':id/skill')
+  @Auth(PlayerRole.admin)
+  @HttpCode(204)
+  async deletePlayerSkill(
+    @Param('id', PlayerByIdPipe) player: Player,
+    @User() admin: Player,
+  ): Promise<void> {
+    await this.playersService.updatePlayer(
+      player._id,
+      {
+        $unset: { skill: 1 },
+      },
+      admin._id,
+    );
   }
 
   @Get(':id/bans')
