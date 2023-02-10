@@ -364,6 +364,20 @@ describe('PlayerSubstitutionService', () => {
         expect(slot?.status).toBe(SlotStatus.active);
         expect(game.slots.length).toBe(2);
       });
+
+      it('should register event', async () => {
+        const game = await service.replacePlayer(
+          mockGame._id,
+          player1._id,
+          player1._id,
+        );
+        const slot = game.findPlayerSlot(player1._id);
+        expect(
+          slot?.events.find(
+            (event) => event.event === PlayerEventType.replacesPlayer,
+          ),
+        ).toBeTruthy();
+      });
     });
 
     describe('when the given player has already been replaced', () => {
