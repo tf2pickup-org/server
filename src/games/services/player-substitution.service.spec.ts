@@ -158,7 +158,7 @@ describe('PlayerSubstitutionService', () => {
       });
 
       await service.substitutePlayer(mockGame._id, player1._id);
-      expect(event).toMatchObject({ id: mockGame._id });
+      expect(event?._id.equals(mockGame._id)).toBe(true);
     });
 
     it('should register event', async () => {
@@ -261,7 +261,7 @@ describe('PlayerSubstitutionService', () => {
       });
 
       await service.cancelSubstitutionRequest(mockGame._id, player1._id);
-      expect(event).toMatchObject({ id: mockGame._id });
+      expect(event?._id.equals(mockGame._id)).toBe(true);
     });
 
     describe('when the game is no longer running', () => {
@@ -319,7 +319,7 @@ describe('PlayerSubstitutionService', () => {
       });
 
       await service.replacePlayer(mockGame._id, player1._id, player3._id);
-      expect(event).toMatchObject({ id: mockGame._id });
+      expect(event?._id.equals(mockGame._id)).toBe(true);
     });
 
     describe('when the replacement player is banned', () => {

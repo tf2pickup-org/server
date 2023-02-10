@@ -78,7 +78,9 @@ describe('MumbleBotService', () => {
       clientKey: 'FAKE_CLIENT_KEY',
       certificate: 'FAKE_CERTIFICATE',
     });
-    jest.spyOn(environment, 'botName', 'get').mockReturnValue('FAKE_BOT_NAME');
+    Object.defineProperty(environment, 'botName', {
+      get: jest.fn().mockReturnValue('FAKE_BOT_NAME'),
+    });
   });
 
   beforeEach(async () => {
