@@ -53,6 +53,7 @@ jobs:
         test-name:
           - 'e2e/app.e2e-spec.ts'
           - 'e2e/assign-and-release-gameserver.e2e-spec.ts'
+          - 'e2e/cancel-player-substitute.e2e-spec.ts'
           - 'e2e/configuration.e2e-spec.ts'
           - 'e2e/game-server-diagnostics.e2e-spec.ts'
           - 'e2e/game-server-heartbeat.e2e-spec.ts'

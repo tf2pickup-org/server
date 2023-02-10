@@ -4,7 +4,6 @@ import {
   Query,
   ParseIntPipe,
   Param,
-  Post,
   HttpCode,
   DefaultValuePipe,
   UnauthorizedException,
@@ -12,7 +11,8 @@ import {
   UseInterceptors,
   UseFilters,
   Body,
-  BadRequestException,
+  Put,
+  ValidationPipe,
 } from '@nestjs/common';
 import { GamesService } from '../services/games.service';
 import { Auth } from '@/auth/decorators/auth.decorator';
@@ -28,13 +28,11 @@ import { GameDto } from '../dto/game.dto';
 import { Serializable } from '@/shared/serializable';
 import { PaginatedGameListDto } from '../dto/paginated-game-list.dto';
 import { Events } from '@/events/events';
-import { GameServerOptionIdentifier } from '@/game-servers/interfaces/game-server-option';
 import { GameServerAssignerService } from '../services/game-server-assigner.service';
 import { ParseSortParamsPipe } from '../pipes/parse-sort-params.pipe';
 import { GameByIdOrNumberPipe } from '../pipes/game-by-id-or-number.pipe';
 import { PlayerByIdPipe } from '@/players/pipes/player-by-id.pipe';
-import { Types } from 'mongoose';
-import { PlayerId } from '@/players/types/player-id';
+import { GameServerOptionIdentifier } from '../dto/game-server-option-identifier';
 
 @Controller('games')
 export class GamesController {
@@ -123,58 +121,69 @@ export class GamesController {
     return game.assignedSkills;
   }
 
-  @Post(':id')
+  @Put(':id/reinitialize-gameserver')
   @Auth(PlayerRole.admin)
-  @UseFilters(DocumentNotFoundFilter)
-  @HttpCode(200)
-  async takeAdminAction(
+  @HttpCode(202)
+  reinitializeGameserver(
     @Param('id', GameByIdOrNumberPipe) game: Game,
-    @Query('reinitialize_server') reinitializeServer: any,
-    @Query('force_end') forceEnd: any,
-    @Query('substitute_player') substitutePlayerId: string | undefined,
-    @Query('substitute_player_cancel')
-    cancelSubstitutePlayerId: string | undefined,
-    @Query('assign_gameserver') assignGameserver: string | undefined,
     @User() admin: Player,
-    @Body() body: unknown,
   ) {
-    if (reinitializeServer !== undefined) {
-      this.events.gameReconfigureRequested.next({
-        gameId: game._id,
-        adminId: admin._id,
-      });
-    }
+    this.events.gameReconfigureRequested.next({
+      gameId: game._id,
+      adminId: admin._id,
+    });
+  }
 
-    if (forceEnd !== undefined) {
-      await this.gamesService.forceEnd(game._id, admin._id);
-    }
+  @Put(':id/force-end')
+  @Auth(PlayerRole.admin)
+  @HttpCode(200)
+  async forceEnd(
+    @Param('id', GameByIdOrNumberPipe) game: Game,
+    @User() admin: Player,
+  ): Promise<Serializable<GameDto>> {
+    return await this.gamesService.forceEnd(game._id, admin._id);
+  }
 
-    if (substitutePlayerId !== undefined) {
-      await this.playerSubstitutionService.substitutePlayer(
-        game._id,
-        new Types.ObjectId(substitutePlayerId) as PlayerId,
-        admin._id,
-      );
-    }
+  @Put(':id/substitute-player')
+  @Auth(PlayerRole.admin)
+  @HttpCode(200)
+  async substitutePlayer(
+    @Param('id', GameByIdOrNumberPipe) game: Game,
+    @Query('player', PlayerByIdPipe) player: Player,
+    @User() admin: Player,
+  ): Promise<Serializable<GameDto>> {
+    return await this.playerSubstitutionService.substitutePlayer(
+      game._id,
+      player._id,
+      admin._id,
+    );
+  }
 
-    if (cancelSubstitutePlayerId !== undefined) {
-      await this.playerSubstitutionService.cancelSubstitutionRequest(
-        game._id,
-        new Types.ObjectId(cancelSubstitutePlayerId) as PlayerId,
-        admin._id,
-      );
-    }
+  @Put(':id/cancel-player-substitute')
+  @Auth(PlayerRole.admin)
+  @HttpCode(200)
+  async cancelPlayerSubstitute(
+    @Param('id', GameByIdOrNumberPipe) game: Game,
+    @Query('player', PlayerByIdPipe) player: Player,
+    @User() admin: Player,
+  ): Promise<Serializable<GameDto>> {
+    return await this.playerSubstitutionService.cancelSubstitutionRequest(
+      game._id,
+      player._id,
+      admin._id,
+    );
+  }
 
-    if (assignGameserver !== undefined) {
-      const { id, provider } = body as GameServerOptionIdentifier;
-      if (!id || !provider) {
-        throw new BadRequestException('invalid gameserver identifier');
-      }
-
-      await this.gameServerAssignerService.assignGameServer(game._id, {
-        id,
-        provider,
-      });
-    }
+  @Put(':id/assign-gameserver')
+  @Auth(PlayerRole.admin)
+  @HttpCode(200)
+  async assignGameserver(
+    @Param('id', GameByIdOrNumberPipe) game: Game,
+    @Body(ValidationPipe) gameServerId: GameServerOptionIdentifier,
+  ): Promise<Serializable<GameDto>> {
+    return await this.gameServerAssignerService.assignGameServer(game._id, {
+      id: gameServerId.id,
+      provider: gameServerId.provider,
+    });
   }
 }

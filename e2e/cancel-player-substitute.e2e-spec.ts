@@ -1,37 +1,23 @@
 import { AppModule } from '@/app.module';
+import { JwtTokenPurpose } from '@/auth/jwt-token-purpose';
+import { AuthService } from '@/auth/services/auth.service';
+import { configureApplication } from '@/configure-application';
+import { GameId } from '@/games/game-id';
 import { GamesService } from '@/games/services/games.service';
 import { PlayersService } from '@/players/services/players.service';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
+import * as request from 'supertest';
 import { players } from './test-data';
 import { waitABit } from './utils/wait-a-bit';
-import * as request from 'supertest';
-import { StaticGameServersService } from '@/game-servers/providers/static-game-server/services/static-game-servers.service';
-import { configureApplication } from '@/configure-application';
-import { AuthService } from '@/auth/services/auth.service';
-import { JwtTokenPurpose } from '@/auth/jwt-token-purpose';
 import { waitForTheGameToLaunch } from './utils/wait-for-the-game-to-launch';
-import { GameId } from '@/games/game-id';
 
-jest.setTimeout(250 * 1000);
-
-describe('Reassign gameserver (e2e)', () => {
+describe('Cancel player substitution request (e2e)', () => {
   let app: INestApplication;
+  let playersService: PlayersService;
+  let adminToken: string;
   let gameId: GameId;
-  let staticGameServersService: StaticGameServersService;
-  let adminAuthToken: string;
-
-  const waitForAllGameServersToComeOnline = () =>
-    new Promise<void>((resolve) => {
-      const i = setInterval(async () => {
-        const gameServers = await staticGameServersService.getFreeGameServers();
-        if (gameServers.length >= 2) {
-          clearInterval(i);
-          resolve();
-        }
-      }, 1000);
-    });
 
   beforeAll(async () => {
     const moduleFixture = await Test.createTestingModule({
@@ -40,15 +26,21 @@ describe('Reassign gameserver (e2e)', () => {
 
     app = moduleFixture.createNestApplication();
     configureApplication(app);
+    app.enableShutdownHooks();
     await app.listen(3000);
 
-    staticGameServersService = app.get(StaticGameServersService);
-    await waitForAllGameServersToComeOnline();
+    playersService = app.get(PlayersService);
+    const authService = app.get(AuthService);
+    adminToken = await authService.generateJwtToken(
+      JwtTokenPurpose.auth,
+      (
+        await playersService.findBySteamId(players[0])
+      ).id,
+    );
   });
 
   beforeAll(async () => {
     const gamesService = app.get(GamesService);
-    const playersService = app.get(PlayersService);
     const game = await gamesService.create(
       [
         {
@@ -137,99 +129,69 @@ describe('Reassign gameserver (e2e)', () => {
       'cp_badlands',
     );
     gameId = game._id;
-
-    const player = await playersService.findBySteamId(players[0]);
-    const authService = app.get(AuthService);
-    adminAuthToken = await authService.generateJwtToken(
-      JwtTokenPurpose.auth,
-      player.id,
-    );
-
     await waitABit(1000);
+    await waitForTheGameToLaunch(app, gameId.toString());
   });
 
   afterAll(async () => {
     await waitABit(1000);
-    await app.close();
-  });
-
-  it('should reassign gameserver', async () => {
-    /* verify the gameserver is assigned */
-    await request(app.getHttpServer())
-      .get(`/games/${gameId}`)
-      .expect(200)
-      .then((response) => {
-        const body = response.body;
-        expect(body.gameServer).toBeTruthy();
-      });
-
-    await waitForTheGameToLaunch(app, gameId.toString());
-
-    let gameServerName: string;
-
-    /* verify /game-servers/options endpoint is protected */
-    await request(app.getHttpServer()).get('/game-servers/options').expect(401);
-
-    /* fetch gameserver options */
-    await request(app.getHttpServer())
-      .get(`/game-servers/options`)
-      .auth(adminAuthToken, { type: 'bearer' })
-      .expect(200)
-      .then(async (response) => {
-        const body = response.body;
-        expect(body.length > 0).toBe(true);
-        const gameServer = body[0];
-        gameServerName = gameServer.name;
-
-        await request(app.getHttpServer())
-          .put(`/games/${gameId}/assign-gameserver`)
-          .send({
-            id: gameServer.id,
-            provider: gameServer.provider,
-          })
-          .expect(401);
-
-        await request(app.getHttpServer())
-          .put(`/games/${gameId}/assign-gameserver`)
-          .auth(adminAuthToken, { type: 'bearer' })
-          .send({
-            id: gameServer.id,
-          })
-          .expect(400);
-
-        // reassign gameserver
-        await request(app.getHttpServer())
-          .put(`/games/${gameId}/assign-gameserver`)
-          .auth(adminAuthToken, { type: 'bearer' })
-          .send({
-            id: gameServer.id,
-            provider: gameServer.provider,
-          })
-          .expect(200);
-
-        await waitABit(100);
-
-        await request(app.getHttpServer())
-          .get(`/games/${gameId}`)
-          .then((response) => {
-            const body = response.body;
-            expect(body.stvConnectString).toBe(undefined);
-          });
-      });
-
-    /* verify the gameserver is assigned */
-    await request(app.getHttpServer())
-      .get(`/games/${gameId}`)
-      .expect(200)
-      .then((response) => {
-        const body = response.body;
-        expect(body.gameServer).toBeTruthy();
-        expect(body.gameServer.name).toEqual(gameServerName);
-      });
-
-    await waitForTheGameToLaunch(app, gameId.toString());
 
     const gamesService = app.get(GamesService);
     await gamesService.forceEnd(gameId);
+
+    await waitABit(1000);
+    await app.close();
+  });
+
+  it('should substitute a player and then cancel it', async () => {
+    const replacee = await playersService.findBySteamId(players[1]);
+
+    // admin requests substitute
+    await request(app.getHttpServer())
+      .put(`/games/${gameId}/substitute-player?player=${replacee.id}`)
+      .auth(adminToken, { type: 'bearer' })
+      .expect(200)
+      .then((response) => {
+        const body = response.body;
+        const slot = body.slots.find(
+          (s: { player: { id: string } }) => s.player.id === replacee.id,
+        );
+        expect(slot.status).toEqual('waiting for substitute');
+      });
+
+    await request(app.getHttpServer())
+      .get(`/games/${gameId}`)
+      .expect(200)
+      .then((response) => {
+        const body = response.body;
+        const slot = body.slots.find(
+          (s: { player: { id: string } }) => s.player.id === replacee.id,
+        );
+        expect(slot.status).toEqual('waiting for substitute');
+      });
+
+    // and then cancels the substitution request
+    await request(app.getHttpServer())
+      .put(`/games/${gameId}/cancel-player-substitute?player=${replacee.id}`)
+      .auth(adminToken, { type: 'bearer' })
+      .expect(200)
+      .then((response) => {
+        const body = response.body;
+        const slot = body.slots.find(
+          (s: { player: { id: string } }) => s.player.id === replacee.id,
+        );
+        expect(slot.status).toEqual('active');
+      });
+
+    await request(app.getHttpServer())
+      .get(`/games/${gameId}`)
+      .expect(200)
+      .then((response) => {
+        const body = response.body;
+        const slot = body.slots.find(
+          (s: { player: { id: string } }) => s.player.id === replacee.id,
+        );
+        expect(slot.status).toEqual('active');
+      });
   });
 });
