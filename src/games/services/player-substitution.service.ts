@@ -200,7 +200,15 @@ export class PlayerSubstitutionService implements OnModuleInit {
             .findByIdAndUpdate(
               gameId,
               {
-                'slots.$[element].status': SlotStatus.active,
+                $set: {
+                  'slots.$[element].status': SlotStatus.active,
+                },
+                $push: {
+                  'slots.$[element].events': {
+                    at: new Date(),
+                    event: PlayerEventType.replacesPlayer,
+                  },
+                },
               },
               {
                 new: true,
