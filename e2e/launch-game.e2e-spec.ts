@@ -220,7 +220,7 @@ describe('Launch game (e2e)', () => {
     // kill the game
     await waitABit(500);
     await request(app.getHttpServer())
-      .post(`/games/${newGameId}?force_end`)
+      .put(`/games/${newGameId}/force-end`)
       .auth(authToken, { type: 'bearer' })
       .expect(200);
 

@@ -3,7 +3,7 @@ import { GamesController } from './games.controller';
 import { GamesService } from '../services/games.service';
 import { Game } from '../models/game';
 import { PlayerSubstitutionService } from '../services/player-substitution.service';
-import { BadRequestException, UnauthorizedException } from '@nestjs/common';
+import { UnauthorizedException } from '@nestjs/common';
 import { Player } from '@/players/models/player';
 import { PlayerNotInThisGameError } from '../errors/player-not-in-this-game.error';
 import { Events } from '@/events/events';
@@ -192,135 +192,6 @@ describe('Games Controller', () => {
     it('should return given game assigned skills', () => {
       const ret = controller.getGameSkills(gamesService.games[0]);
       expect(ret).toEqual(gamesService.games[0].assignedSkills);
-    });
-  });
-
-  describe('#takeAdminAction()', () => {
-    it('should emit the gameReconfigureRequested event', async () => {
-      const adminId = new Types.ObjectId() as PlayerId;
-      let emittedGameId: GameId | undefined,
-        emittedAdminId: PlayerId | undefined;
-      events.gameReconfigureRequested.subscribe(({ gameId, adminId }) => {
-        emittedGameId = gameId;
-        emittedAdminId = adminId;
-      });
-
-      await controller.takeAdminAction(
-        gamesService.games[0],
-        '',
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        { _id: adminId } as Player,
-        {},
-      );
-      expect(emittedGameId).toEqual(gamesService.games[0]._id);
-      expect(emittedAdminId).toEqual(adminId);
-    });
-
-    it('should force end the game', async () => {
-      const adminId = new Types.ObjectId() as PlayerId;
-      await controller.takeAdminAction(
-        gamesService.games[0],
-        undefined,
-        '',
-        undefined,
-        undefined,
-        undefined,
-        { _id: adminId } as Player,
-        {},
-      );
-      expect(gamesService.forceEnd).toHaveBeenCalledWith(
-        gamesService.games[0]._id,
-        adminId,
-      );
-    });
-
-    it('should substitute player', async () => {
-      const adminId = new Types.ObjectId() as PlayerId;
-      const playerId = new Types.ObjectId() as PlayerId;
-      const spy = jest.spyOn(playerSubstitutionService, 'substitutePlayer');
-      await controller.takeAdminAction(
-        gamesService.games[0],
-        undefined,
-        undefined,
-        playerId.toString(),
-        undefined,
-        undefined,
-        { _id: adminId } as Player,
-        {},
-      );
-      expect(spy).toHaveBeenCalledWith(
-        gamesService.games[0]._id,
-        playerId,
-        adminId,
-      );
-    });
-
-    it('should cancel substitution request', async () => {
-      const playerId = new Types.ObjectId() as PlayerId;
-      const adminId = new Types.ObjectId() as PlayerId;
-      const spy = jest.spyOn(
-        playerSubstitutionService,
-        'cancelSubstitutionRequest',
-      );
-      await controller.takeAdminAction(
-        gamesService.games[0],
-        undefined,
-        undefined,
-        undefined,
-        playerId.toString(),
-        undefined,
-        { _id: adminId } as Player,
-        {},
-      );
-      expect(spy).toHaveBeenCalledWith(
-        gamesService.games[0]._id,
-        playerId,
-        adminId,
-      );
-    });
-
-    describe('reassign server', () => {
-      it('should reassign gameserver', async () => {
-        const adminId = new Types.ObjectId() as PlayerId;
-        await controller.takeAdminAction(
-          gamesService.games[0],
-          undefined,
-          undefined,
-          undefined,
-          undefined,
-          '',
-          { _id: adminId } as Player,
-          { id: 'FAKE_GAMESERVER_ID', provider: 'FAKE_PROVIDER' },
-        );
-        expect(gameServerAssignerService.assignGameServer).toHaveBeenCalledWith(
-          gamesService.games[0]._id,
-          {
-            id: 'FAKE_GAMESERVER_ID',
-            provider: 'FAKE_PROVIDER',
-          },
-        );
-      });
-
-      describe('when gameserver is invalid', () => {
-        it('should return 400', async () => {
-          const adminId = new Types.ObjectId() as PlayerId;
-          await expect(
-            controller.takeAdminAction(
-              gamesService.games[0],
-              undefined,
-              undefined,
-              undefined,
-              undefined,
-              '',
-              { _id: adminId } as Player,
-              { id: 'FAKE_GAMESERVER_ID' }, // missing provider
-            ),
-          ).rejects.toThrow(BadRequestException);
-        });
-      });
     });
   });
 });

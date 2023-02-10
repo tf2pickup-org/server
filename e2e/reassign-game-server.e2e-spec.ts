@@ -182,16 +182,24 @@ describe('Reassign gameserver (e2e)', () => {
         gameServerName = gameServer.name;
 
         await request(app.getHttpServer())
-          .post(`/games/${gameId}?assign_gameserver`)
+          .put(`/games/${gameId}/assign-gameserver`)
           .send({
             id: gameServer.id,
             provider: gameServer.provider,
           })
           .expect(401);
 
+        await request(app.getHttpServer())
+          .put(`/games/${gameId}/assign-gameserver`)
+          .auth(adminAuthToken, { type: 'bearer' })
+          .send({
+            id: gameServer.id,
+          })
+          .expect(400);
+
         // reassign gameserver
         await request(app.getHttpServer())
-          .post(`/games/${gameId}?assign_gameserver`)
+          .put(`/games/${gameId}/assign-gameserver`)
           .auth(adminAuthToken, { type: 'bearer' })
           .send({
             id: gameServer.id,
