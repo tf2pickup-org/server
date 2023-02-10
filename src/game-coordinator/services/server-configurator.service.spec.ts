@@ -268,6 +268,7 @@ describe('ServerConfiguratorService', () => {
             status: SlotStatus.active,
             connectionStatus: PlayerConnectionStatus.offline,
             events: [],
+            getMostRecentEvent: jest.fn(),
           },
           {
             player: mockPlayer2._id,
@@ -276,6 +277,7 @@ describe('ServerConfiguratorService', () => {
             status: SlotStatus.replaced,
             connectionStatus: PlayerConnectionStatus.offline,
             events: [],
+            getMostRecentEvent: jest.fn(),
           },
         ];
         await mockGame.save();

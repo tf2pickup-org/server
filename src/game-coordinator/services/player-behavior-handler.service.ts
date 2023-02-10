@@ -18,38 +18,42 @@ export class PlayerBehaviorHandlerService {
 
   @Cron(CronExpression.EVERY_10_SECONDS)
   async autoSubstitutePlayers() {
-    const bot = await this.playersService.findBot();
-    const gamesLive = await this.gamesService.getRunningGames();
-    for (const game of gamesLive) {
-      for (const slot of game.slots.filter(
-        (slot) => slot.status === SlotStatus.active,
-      )) {
-        const timeout =
-          await this.gamesService.calculatePlayerJoinGameServerTimeout(
-            game._id,
-            slot.player,
-          );
+    try {
+      const bot = await this.playersService.findBot();
+      const gamesLive = await this.gamesService.getRunningGames();
+      for (const game of gamesLive) {
+        for (const slot of game.slots.filter(
+          (slot) => slot.status === SlotStatus.active,
+        )) {
+          const timeout =
+            await this.gamesService.calculatePlayerJoinGameServerTimeout(
+              game._id,
+              slot.player,
+            );
 
-        if (isUndefined(timeout)) {
-          continue;
-        }
+          if (isUndefined(timeout)) {
+            continue;
+          }
 
-        if (timeout < new Date().getTime()) {
-          const player = await this.playersService.getById(slot.player);
-          this.logger.debug(
-            `[${player.name}] now=${new Date().getTime()} timeout=${timeout}`,
-          );
-          this.logger.log(
-            `player ${player.name} is offline; requesting substitute`,
-          );
+          if (timeout < new Date().getTime()) {
+            const player = await this.playersService.getById(slot.player);
+            this.logger.debug(
+              `[${player.name}] now=${new Date().getTime()} timeout=${timeout}`,
+            );
+            this.logger.log(
+              `player ${player.name} is offline; requesting substitute`,
+            );
 
-          await this.playerSubstitutionService.substitutePlayer(
-            game._id,
-            player._id,
-            bot._id,
-          );
+            await this.playerSubstitutionService.substitutePlayer(
+              game._id,
+              player._id,
+              bot._id,
+            );
+          }
         }
       }
+    } catch (error) {
+      this.logger.error(error);
     }
   }
 }
