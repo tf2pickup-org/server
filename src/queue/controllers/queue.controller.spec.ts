@@ -80,7 +80,9 @@ describe('Queue Controller', () => {
       },
     ];
 
-    jest.spyOn(mapVoteService, 'results', 'get').mockReturnValue([]);
+    Object.defineProperty(mapVoteService, 'results', {
+      get: jest.fn().mockReturnValue([]),
+    });
   });
 
   it('should be defined', () => {

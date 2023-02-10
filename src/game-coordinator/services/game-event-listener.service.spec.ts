@@ -66,7 +66,9 @@ describe('GameEventListenerService', () => {
     events = module.get(Events);
 
     gameLogs = new Subject<any>();
-    jest.spyOn(logReceiverService, 'data', 'get').mockReturnValue(gameLogs);
+    Object.defineProperty(logReceiverService, 'data', {
+      get: jest.fn().mockReturnValue(gameLogs),
+    });
 
     service.onModuleInit();
   });
