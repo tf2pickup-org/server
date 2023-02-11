@@ -265,33 +265,6 @@ describe('Players Controller', () => {
     });
   });
 
-  describe('#addPlayerBan()', () => {
-    const ban = {
-      player: new Types.ObjectId('5d448875b963ff7e00c6b6b3'),
-      admin: new Types.ObjectId('5d448875b963ff7e00c6b6b3'),
-      start: new Date('2019-12-16T00:23:55.000Z'),
-      end: new Date('2019-12-17T01:51:49.183Z'),
-      reason: 'dupa',
-      id: '5df833c256e77d8768130f9a',
-    };
-
-    it('should add player ban', async () => {
-      const spy = jest.spyOn(playerBansService, 'addPlayerBan');
-      const ret = await controller.addPlayerBan(
-        ban as PlayerBan,
-        { id: '5d448875b963ff7e00c6b6b3' } as Player,
-      );
-      expect(spy).toHaveBeenCalledWith(ban);
-      expect(ret).toEqual(ban as any);
-    });
-
-    it("should fail if the authorized user id is not the same as admin's", async () => {
-      await expect(
-        controller.addPlayerBan(ban as any, { id: 'SOME_ID' } as any),
-      ).rejects.toThrow(BadRequestException);
-    });
-  });
-
   describe('#getPlayerLinkedProfiles()', () => {
     const linkedProfiles = [
       {

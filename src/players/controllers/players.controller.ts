@@ -25,7 +25,6 @@ import { ObjectIdValidationPipe } from '@/shared/pipes/object-id-validation.pipe
 import { Player } from '../models/player';
 import { Auth } from '@/auth/decorators/auth.decorator';
 import { PlayerBansService } from '../services/player-bans.service';
-import { PlayerBan } from '../models/player-ban';
 import { User } from '@/auth/decorators/user.decorator';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { PlayerStatsDto } from '../dto/player-stats.dto';
@@ -50,6 +49,9 @@ import { PlayerSkillRecordMalformedError } from '../errors/player-skill-record-m
 import { ValidateSkillPipe } from '../pipes/validate-skill.pipe';
 import { isUndefined } from 'lodash';
 import { PlayerBanId } from '../types/player-ban-id';
+import { AddPlayerBanDto } from '../dto/add-player-ban.dto';
+import { Types } from 'mongoose';
+import { PlayerId } from '../types/player-id';
 
 @Controller('players')
 export class PlayersController {
@@ -174,15 +176,21 @@ export class PlayersController {
   @Auth(PlayerRole.admin)
   @UsePipes(ValidationPipe)
   async addPlayerBan(
-    @Body() playerBan: PlayerBan,
+    @Body() playerBan: AddPlayerBanDto,
     @User() user: Player,
   ): Promise<Serializable<PlayerBanDto>> {
-    if (playerBan.admin.toString() !== user.id) {
+    if (playerBan.admin !== user.id) {
       throw new BadRequestException(
         "the admin field must be the same as authorized user's id",
       );
     }
-    return await this.playerBansService.addPlayerBan(playerBan);
+    return await this.playerBansService.addPlayerBan({
+      player: new Types.ObjectId(playerBan.player) as PlayerId,
+      admin: new Types.ObjectId(playerBan.admin) as PlayerId,
+      start: new Date(playerBan.start),
+      end: new Date(playerBan.end),
+      reason: playerBan.reason,
+    });
   }
 
   @Post(':playerId/bans/:banId')
