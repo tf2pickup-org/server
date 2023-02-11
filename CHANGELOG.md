@@ -1,5 +1,12 @@
 
 
+# [11.0.0-alpha.4](https://github.com/tf2pickup-org/server/compare/11.0.0-alpha.3...11.0.0-alpha.4) (2023-02-11)
+
+
+### Bug Fixes
+
+* **players:** fix adding player bans ([#2245](https://github.com/tf2pickup-org/server/issues/2245)) ([ecd05ee](https://github.com/tf2pickup-org/server/commit/ecd05ee9975ea179d9a592d10e35fabdd7587551))
+
 # [11.0.0-alpha.3](https://github.com/tf2pickup-org/server/compare/11.0.0-alpha.2...11.0.0-alpha.3) (2023-02-11)
 
 
