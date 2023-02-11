@@ -1,4 +1,3 @@
-import { SlotStatus } from '@/games/models/slot-status';
 import { GamesService } from '@/games/services/games.service';
 import { PlayerSubstitutionService } from '@/games/services/player-substitution.service';
 import { PlayersService } from '@/players/services/players.service';
@@ -22,9 +21,7 @@ export class PlayerBehaviorHandlerService {
       const bot = await this.playersService.findBot();
       const gamesLive = await this.gamesService.getRunningGames();
       for (const game of gamesLive) {
-        for (const slot of game.slots.filter(
-          (slot) => slot.status === SlotStatus.active,
-        )) {
+        for (const slot of game.slots) {
           const timeout =
             await this.gamesService.calculatePlayerJoinGameServerTimeout(
               game._id,

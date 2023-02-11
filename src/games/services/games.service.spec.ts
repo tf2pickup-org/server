@@ -723,6 +723,22 @@ describe('GamesService', () => {
       configuration['games.rejoin_gameserver_timeout'] = 3 * 60 * 1000;
     });
 
+    describe('when the player is online', () => {
+      beforeEach(async () => {
+        testGame.slots[0].connectionStatus = PlayerConnectionStatus.connected;
+        await testGame.save();
+      });
+
+      it('should return undefined', async () => {
+        expect(
+          await service.calculatePlayerJoinGameServerTimeout(
+            testGame._id,
+            testPlayer._id,
+          ),
+        ).toBe(undefined);
+      });
+    });
+
     describe('when the player is replaced', () => {
       beforeEach(async () => {
         testGame.slots[0].status = SlotStatus.replaced;

@@ -448,7 +448,13 @@ export class GamesService {
       throw new Error('no such slot');
     }
 
-    if (slot.status === SlotStatus.replaced) {
+    if (
+      [
+        PlayerConnectionStatus.joining,
+        PlayerConnectionStatus.connected,
+      ].includes(slot.connectionStatus) ||
+      slot.status !== SlotStatus.active
+    ) {
       return undefined;
     }
 
