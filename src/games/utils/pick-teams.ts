@@ -143,7 +143,7 @@ function respectsOverrides(
   function findPlayersTeam(player: PlayerId): TeamId | null {
     if (lineup[0].lineup.find((p) => p.playerId.equals(player))) {
       return 0;
-    } else if (lineup[1].lineup.find((p) => p.playerId === player)) {
+    } else if (lineup[1].lineup.find((p) => p.playerId.equals(player))) {
       return 1;
     } else {
       return null;
