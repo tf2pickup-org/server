@@ -33,7 +33,7 @@ export class PlayerBan extends Serializable<PlayerBanDto> {
 
   @IsNotEmpty()
   @Type(() => Date)
-  @Prop({ required: true, default: () => Date.now() })
+  @Prop({ required: true, default: () => new Date() })
   start!: Date;
 
   @IsNotEmpty()

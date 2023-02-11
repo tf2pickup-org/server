@@ -139,21 +139,18 @@ describe('PlayerBansService', () => {
 
   describe('#addPlayerBan()', () => {
     describe('when adding a valid ban', () => {
-      let newBan: PlayerBan;
+      let newBan: Omit<PlayerBan, 'id' | '_id' | 'serialize'>;
 
       beforeEach(() => {
         const end = new Date();
         end.setHours(end.getHours() + 1);
 
         newBan = {
-          _id: new Types.ObjectId() as PlayerBanId,
-          id: 'FAKE_ID',
           player: player._id,
           admin: admin.id,
           start: new Date(),
           end,
           reason: 'just testing',
-          serialize: jest.fn(),
         };
       });
 

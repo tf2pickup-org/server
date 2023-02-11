@@ -75,7 +75,9 @@ export class PlayerBansService implements OnModuleInit {
     return plainToInstance(PlayerBan, plain);
   }
 
-  async addPlayerBan(props: PlayerBan): Promise<PlayerBan> {
+  async addPlayerBan(
+    props: Omit<PlayerBan, 'id' | '_id' | 'serialize'>,
+  ): Promise<PlayerBan> {
     const player = await this.playersService.getById(props.player);
     const { id } = await this.playerBanModel.create(props);
     const addedBan = await this.getById(id);
