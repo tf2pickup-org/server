@@ -60,6 +60,7 @@ jobs:
           - 'e2e/launch-game.e2e-spec.ts'
           - 'e2e/player-action-logs.e2e-spec.ts'
           - 'e2e/player-disconnects-and-gets-substituted.e2e-spec.ts'
+          - 'e2e/player-does-not-join-and-gets-substituted.e2e-spec.ts'
           - 'e2e/player-substitutes-another-player.e2e-spec.ts'
           - 'e2e/player-substitutes-himself.e2e-spec.ts'
           - 'e2e/reassign-game-server.e2e-spec.ts'

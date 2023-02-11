@@ -15,7 +15,7 @@ import { players } from './test-data';
 import { waitABit } from './utils/wait-a-bit';
 import { waitForTheGameToLaunch } from './utils/wait-for-the-game-to-launch';
 
-describe('Player disconnects and gets substituted (e2e)', () => {
+describe('Player does not join the gameserver and gets substituted (e2e)', () => {
   let app: INestApplication;
   let playersService: PlayersService;
   let gameId: GameId;
@@ -61,8 +61,8 @@ describe('Player disconnects and gets substituted (e2e)', () => {
   beforeAll(async () => {
     const configurationService = app.get(ConfigurationService);
     await configurationService.set(
-      'games.rejoin_gameserver_timeout',
-      90 * 1000,
+      'games.join_gameserver_timeout',
+      30 * 1000, // 30 seconds
     );
   });
 
@@ -159,7 +159,9 @@ describe('Player disconnects and gets substituted (e2e)', () => {
     await waitABit(1000);
     await waitForTheGameToLaunch(app, gameId.toString());
 
-    for (const slot of game.slots) {
+    const player = await playersService.findBySteamId(players[1]);
+
+    for (const slot of game.slots.filter((s) => !s.player.equals(player._id))) {
       const player = await playersService.getById(slot.player);
       events.playerJoinedGameServer.next({
         gameId,
@@ -187,20 +189,15 @@ describe('Player disconnects and gets substituted (e2e)', () => {
     await app.close();
   });
 
-  it('should substitute a player that disconnects from the game', async () => {
+  it("should substitute a player that doesn't join the gameserver on time", async () => {
     expect(substituteRequests.length).toEqual(0);
-    const player = await playersService.findBySteamId(players[1]);
-    await waitABit(30 * 1000);
-
-    events.playerDisconnectedFromGameServer.next({
-      gameId,
-      steamId: player.steamId,
-    });
-
-    await waitABit(60 * 1000);
-    expect(substituteRequests.length).toEqual(0);
-
-    await waitABit(60 * 1000);
+    await waitABit(40 * 1000);
     expect(substituteRequests.length).toEqual(1);
+    expect(substituteRequests[0]).toEqual({
+      gameId: gameId.toString(),
+      gameNumber: expect.any(Number),
+      gameClass: Tf2ClassName.scout,
+      team: expect.any(String),
+    });
   });
 });
