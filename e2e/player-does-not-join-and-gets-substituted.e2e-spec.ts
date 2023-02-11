@@ -62,7 +62,11 @@ describe('Player does not join the gameserver and gets substituted (e2e)', () =>
     const configurationService = app.get(ConfigurationService);
     await configurationService.set(
       'games.join_gameserver_timeout',
-      30 * 1000, // 30 seconds
+      60 * 1000, // 1 minute
+    );
+    await configurationService.set(
+      'games.rejoin_gameserver_timeout',
+      30 * 1000,
     );
   });
 
@@ -191,7 +195,7 @@ describe('Player does not join the gameserver and gets substituted (e2e)', () =>
 
   it("should substitute a player that doesn't join the gameserver on time", async () => {
     expect(substituteRequests.length).toEqual(0);
-    await waitABit(40 * 1000);
+    await waitABit(70 * 1000);
     expect(substituteRequests.length).toEqual(1);
     expect(substituteRequests[0]).toEqual({
       gameId: gameId.toString(),
