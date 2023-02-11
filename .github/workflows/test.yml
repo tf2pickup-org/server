@@ -58,6 +58,7 @@ jobs:
           - 'e2e/game-server-diagnostics.e2e-spec.ts'
           - 'e2e/game-server-heartbeat.e2e-spec.ts'
           - 'e2e/launch-game.e2e-spec.ts'
+          - 'e2e/manage-player-bans.e2e-spec.ts'
           - 'e2e/player-action-logs.e2e-spec.ts'
           - 'e2e/player-disconnects-and-gets-substituted.e2e-spec.ts'
           - 'e2e/player-does-not-join-and-gets-substituted.e2e-spec.ts'
