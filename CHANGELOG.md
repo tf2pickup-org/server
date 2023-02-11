@@ -1,5 +1,24 @@
 
 
+# [11.0.0-alpha.3](https://github.com/tf2pickup-org/server/compare/11.0.0-alpha.2...11.0.0-alpha.3) (2023-02-11)
+
+
+### Bug Fixes
+
+* **deps:** update nest monorepo to v9.3.8 ([#2241](https://github.com/tf2pickup-org/server/issues/2241)) ([1df4c36](https://github.com/tf2pickup-org/server/commit/1df4c369574706cf147348fb7e25ef2b6fbf2432))
+* **games:** don't auto substitute players that are online ([#2243](https://github.com/tf2pickup-org/server/issues/2243)) ([72ed894](https://github.com/tf2pickup-org/server/commit/72ed89420ae90d8e946f63430abdbec581f958fb))
+
+
+### Features
+
+* **games:** new game admin actions endpoints ([#2240](https://github.com/tf2pickup-org/server/issues/2240)) ([29dd0f2](https://github.com/tf2pickup-org/server/commit/29dd0f210abbb110e75063c72274cca3ef17f453))
+* **players:** delete player skill ([#2242](https://github.com/tf2pickup-org/server/issues/2242)) ([aa8213b](https://github.com/tf2pickup-org/server/commit/aa8213b7ccc6300e285ddb0e940792c923ac1f0d))
+
+
+### BREAKING CHANGES
+
+* **games:** The old `POST /games/:id` endpoint is gone
+
 # [11.0.0-alpha.2](https://github.com/tf2pickup-org/server/compare/11.0.0-alpha.1...11.0.0-alpha.2) (2023-02-10)
 
 
