@@ -179,8 +179,6 @@ describe('Player does not join the gameserver and gets substituted (e2e)', () =>
       });
       await waitABit(100);
     }
-
-    events.matchStarted.next({ gameId });
   });
 
   afterAll(async () => {
