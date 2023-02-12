@@ -49,7 +49,10 @@ describe('pickTeams', () => {
       describe('having all the friends valid', () => {
         const overrides: TeamOverrides = {
           friends: [
-            [a, c], // 'a' and 'c' will be in the same team
+            [
+              new Types.ObjectId(a.toString()) as PlayerId,
+              new Types.ObjectId(c.toString()) as PlayerId,
+            ], // 'a' and 'c' will be in the same team
           ],
         };
 
@@ -190,8 +193,14 @@ describe('pickTeams', () => {
     describe('with friends', () => {
       const overrides: TeamOverrides = {
         friends: [
-          [k, i],
-          [l, g],
+          [
+            new Types.ObjectId(k.toString()) as PlayerId,
+            new Types.ObjectId(i.toString()) as PlayerId,
+          ],
+          [
+            new Types.ObjectId(l.toString()) as PlayerId,
+            new Types.ObjectId(g.toString()) as PlayerId,
+          ],
         ],
       };
 
@@ -307,8 +316,14 @@ describe('pickTeams', () => {
 
       const overrides: TeamOverrides = {
         friends: [
-          [bobair, kwq],
-          [stan, zinner],
+          [
+            new Types.ObjectId(bobair.toString()) as PlayerId,
+            new Types.ObjectId(kwq.toString()) as PlayerId,
+          ],
+          [
+            new Types.ObjectId(stan.toString()) as PlayerId,
+            new Types.ObjectId(zinner.toString()) as PlayerId,
+          ],
         ],
       };
 
