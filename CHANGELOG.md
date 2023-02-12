@@ -1,5 +1,12 @@
 
 
+# [11.0.0-alpha.5](https://github.com/tf2pickup-org/server/compare/11.0.0-alpha.4...11.0.0-alpha.5) (2023-02-12)
+
+
+### Bug Fixes
+
+* **games:** respect friendships ([#2246](https://github.com/tf2pickup-org/server/issues/2246)) ([0c719b0](https://github.com/tf2pickup-org/server/commit/0c719b00e70fefbec98e98d9e39321681aaa3355))
+
 # [11.0.0-alpha.4](https://github.com/tf2pickup-org/server/compare/11.0.0-alpha.3...11.0.0-alpha.4) (2023-02-11)
 
 
