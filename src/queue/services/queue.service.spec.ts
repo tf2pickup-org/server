@@ -191,7 +191,7 @@ describe('QueueService', () => {
         state: QueueState.waiting,
       });
 
-      await service.onModuleInit();
+      service.onModuleInit();
       await service.onApplicationBootstrap();
     });
 
@@ -202,7 +202,7 @@ describe('QueueService', () => {
 
   describe('when the cache is empty', () => {
     beforeEach(async () => {
-      await service.onModuleInit();
+      service.onModuleInit();
       await service.onApplicationBootstrap();
     });
 
@@ -232,9 +232,9 @@ describe('QueueService', () => {
     describe('#join()', () => {
       describe('when the player tries to join an invalid slot', () => {
         it('should fail', () => {
-          expect(() => service.join(1234567, player._id)).toThrow(
-            NoSuchSlotError,
-          );
+          expect(() =>
+            service.join(1234567, new Types.ObjectId(player.id) as PlayerId),
+          ).toThrow(NoSuchSlotError);
         });
       });
 
@@ -244,12 +244,17 @@ describe('QueueService', () => {
         });
 
         it('should fail when trying to take a slot that was already occupied', () => {
-          expect(() => service.join(0, player._id)).toThrow(SlotOccupiedError);
+          expect(() =>
+            service.join(0, new Types.ObjectId(player.id) as PlayerId),
+          ).toThrow(SlotOccupiedError);
         });
       });
 
       it('should add the player to the given slot', () => {
-        const slots = service.join(0, player._id);
+        const slots = service.join(
+          0,
+          new Types.ObjectId(player.id) as PlayerId,
+        );
         const slot = slots.find((s) => s.playerId?.equals(player._id));
         expect(slot).toBeDefined();
         expect((slot as QueueSlot).id).toBe(0);
@@ -257,13 +262,19 @@ describe('QueueService', () => {
       });
 
       it('should return the player via isInQueue()', () => {
-        service.join(0, player._id);
+        service.join(0, new Types.ObjectId(player.id) as PlayerId);
         expect(service.isInQueue(player._id)).toBe(true);
       });
 
       it('should remove the player from already taken slot', () => {
-        const oldSlots = service.join(0, player._id);
-        const newSlots = service.join(1, player._id);
+        const oldSlots = service.join(
+          0,
+          new Types.ObjectId(player.id) as PlayerId,
+        );
+        const newSlots = service.join(
+          1,
+          new Types.ObjectId(player.id) as PlayerId,
+        );
         expect(newSlots.length).toEqual(2);
         expect(
           newSlots.find((s) => s.playerId?.equals(player._id)),
@@ -278,7 +289,7 @@ describe('QueueService', () => {
             resolve();
           });
 
-          service.join(0, player._id);
+          service.join(0, new Types.ObjectId(player.id) as PlayerId);
         }));
 
       it('should emit the queueSlotsChange event', () =>
@@ -290,7 +301,7 @@ describe('QueueService', () => {
             resolve();
           });
 
-          service.join(0, player._id);
+          service.join(0, new Types.ObjectId(player.id) as PlayerId);
         }));
 
       describe('when the player joins as the last one', () => {
@@ -301,7 +312,10 @@ describe('QueueService', () => {
         });
 
         it('should ready-up the slot immediately', () => {
-          const slots = service.join(11, player._id);
+          const slots = service.join(
+            11,
+            new Types.ObjectId(player.id) as PlayerId,
+          );
           expect(slots[0].ready).toBe(true);
         });
       });
@@ -321,13 +335,13 @@ describe('QueueService', () => {
             ).toBeTruthy();
             resolve();
           });
-          service.join(0, player._id);
+          service.join(0, new Types.ObjectId(player.id) as PlayerId);
         }));
     });
 
     describe('#leave()', () => {
       beforeEach(() => {
-        service.join(0, player._id);
+        service.join(0, new Types.ObjectId(player.id) as PlayerId);
       });
 
       it('should reset the slot', () => {
@@ -379,7 +393,7 @@ describe('QueueService', () => {
 
     describe('#kick()', () => {
       beforeEach(() => {
-        service.join(0, player._id);
+        service.join(0, new Types.ObjectId(player.id) as PlayerId);
       });
 
       it('should reset the slot', () => {
@@ -422,7 +436,7 @@ describe('QueueService', () => {
     describe('#readyUp()', () => {
       describe('when the queue is not in ready up state', () => {
         beforeEach(() => {
-          service.join(0, player._id);
+          service.join(0, new Types.ObjectId(player.id) as PlayerId);
         });
 
         it('should fail', () => {
@@ -442,7 +456,8 @@ describe('QueueService', () => {
         for (let i = 0; i < 12; ++i) {
           const player = new Player();
           player._id = new Types.ObjectId() as PlayerId;
-          service.join(i, player._id);
+          player.id = player._id.toString();
+          service.join(i, new Types.ObjectId(player.id) as PlayerId);
           players.push(player);
         }
 
@@ -478,8 +493,13 @@ describe('QueueService', () => {
       });
 
       it('should ready up joining players immediately', () => {
-        const slot = service.leave(players[0]._id);
-        const slots = service.join(slot.id, players[0]._id);
+        const slot = service.leave(
+          new Types.ObjectId(players[0].id) as PlayerId,
+        );
+        const slots = service.join(
+          slot.id,
+          new Types.ObjectId(players[0].id) as PlayerId,
+        );
         expect(slots[0].ready).toBe(true);
       });
 
@@ -495,7 +515,9 @@ describe('QueueService', () => {
 
       describe('when all players leave', () => {
         beforeEach(async () => {
-          service.kick(...players.map((p) => p._id));
+          service.kick(
+            ...players.map((p) => new Types.ObjectId(p.id) as PlayerId),
+          );
           await waitForImmediate();
         });
 
@@ -507,7 +529,7 @@ describe('QueueService', () => {
 
     describe('when a player is in the queue', () => {
       beforeEach(() => {
-        service.join(0, player._id);
+        service.join(0, new Types.ObjectId(player.id) as PlayerId);
       });
 
       describe('and after he disconnects', () => {
