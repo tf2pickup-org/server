@@ -140,7 +140,7 @@ export class QueueService
     }
 
     // remove player from any slot(s) he could be occupying
-    const oldSlots = this.slots.filter((s) => s.playerId === playerId);
+    const oldSlots = this.slots.filter((s) => s.playerId?.equals(playerId));
     oldSlots.forEach((s) => clearSlot(s));
 
     targetSlot.playerId = playerId;
