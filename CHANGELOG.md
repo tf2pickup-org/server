@@ -1,5 +1,12 @@
 
 
+# [11.0.0-alpha.6](https://github.com/tf2pickup-org/server/compare/11.0.0-alpha.5...11.0.0-alpha.6) (2023-02-13)
+
+
+### Bug Fixes
+
+* **queue:** fix players switching slots in the queue ([#2247](https://github.com/tf2pickup-org/server/issues/2247)) ([899ac6f](https://github.com/tf2pickup-org/server/commit/899ac6ff285ed8cf21e107225df64ddaa4245977))
+
 # [11.0.0-alpha.5](https://github.com/tf2pickup-org/server/compare/11.0.0-alpha.4...11.0.0-alpha.5) (2023-02-12)
 
 
