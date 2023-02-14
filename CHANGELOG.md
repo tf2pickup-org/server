@@ -1,5 +1,18 @@
 
 
+# [11.0.0-alpha.7](https://github.com/tf2pickup-org/server/compare/11.0.0-alpha.6...11.0.0-alpha.7) (2023-02-14)
+
+
+### Bug Fixes
+
+* **deps:** update dependency axios to v1.3.3 ([#2248](https://github.com/tf2pickup-org/server/issues/2248)) ([8bb772d](https://github.com/tf2pickup-org/server/commit/8bb772d1fe33b4acdbba87d54581493fd0cb4ef9))
+* **games:** fix getPlayerGames() param type ([#2251](https://github.com/tf2pickup-org/server/issues/2251)) ([9ffb171](https://github.com/tf2pickup-org/server/commit/9ffb171da0859c0af105fdac9b100d38b59cc860))
+
+
+### Features
+
+* **games:** apply player cooldown ([#2250](https://github.com/tf2pickup-org/server/issues/2250)) ([ac80f4e](https://github.com/tf2pickup-org/server/commit/ac80f4edc9a6ff686313bd9ee2c5d5ba1034cf14))
+
 # [11.0.0-alpha.6](https://github.com/tf2pickup-org/server/compare/11.0.0-alpha.5...11.0.0-alpha.6) (2023-02-13)
 
 
