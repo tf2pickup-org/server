@@ -62,7 +62,7 @@ export class GamesController {
       ]);
     } else {
       [results, itemCount] = await Promise.all([
-        this.gamesService.getPlayerGames(player.id, sort, limit, offset),
+        this.gamesService.getPlayerGames(player._id, sort, limit, offset),
         this.gamesService.getPlayerGameCount(player._id),
       ]);
     }
