@@ -101,12 +101,13 @@ describe('Games Controller', () => {
 
     describe('when the player is specified', () => {
       it('should return player games', async () => {
+        const playerId = new Types.ObjectId() as PlayerId;
         const spy = jest.spyOn(gamesService, 'getPlayerGames');
         const ret = await controller.getGames(10, 0, { 'events.0.at': -1 }, {
-          id: 'FAKE_PLAYER_ID',
+          _id: playerId,
         } as Player);
         expect(spy).toHaveBeenCalledWith(
-          'FAKE_PLAYER_ID',
+          playerId,
           { 'events.0.at': -1 },
           10,
           0,
