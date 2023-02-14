@@ -2,6 +2,7 @@ import { configurationEntry } from '@/configuration/configuration-entry';
 import { ConfigurationService } from '@/configuration/services/configuration.service';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { Injectable, OnModuleInit } from '@nestjs/common';
+import { milliseconds } from 'date-fns';
 import { z } from 'zod';
 import { LogsTfUploadMethod } from '../logs-tf-upload-method';
 import { VoiceServerType } from '../voice-server-type';
@@ -77,6 +78,45 @@ export class GamesConfigurationService implements OnModuleInit {
         z.nativeEnum(LogsTfUploadMethod),
         LogsTfUploadMethod.Backend,
         'Method of uploading logs to the logs.tf service',
+      ),
+      configurationEntry(
+        'games.cooldown_levels',
+        z.array(
+          z.object({
+            level: z.number().min(0),
+            banLengthMs: z.number().min(0),
+          }),
+        ),
+        [
+          {
+            level: 0,
+            banLengthMs: milliseconds({ minutes: 30 }),
+          },
+          {
+            level: 1,
+            banLengthMs: milliseconds({ hours: 6 }),
+          },
+          {
+            level: 2,
+            banLengthMs: milliseconds({ hours: 24 }),
+          },
+          {
+            level: 3,
+            banLengthMs: milliseconds({ days: 7 }),
+          },
+          {
+            level: 4,
+            banLengthMs: milliseconds({ days: 30 }),
+          },
+          {
+            level: 5,
+            banLengthMs: milliseconds({ months: 6 }),
+          },
+          {
+            level: 6,
+            banLengthMs: milliseconds({ years: 1 }),
+          },
+        ],
       ),
     );
   }

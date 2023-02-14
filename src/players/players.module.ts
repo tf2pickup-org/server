@@ -24,6 +24,7 @@ import { ImportExportSkillService } from './services/import-export-skill.service
 import { QueueConfigModule } from '@/queue-config/queue-config.module';
 import { HttpModule } from '@/http.module';
 import { PlayersConfigurationService } from './services/players-configuration.service';
+import { PlayerCooldownService } from './services/player-cooldown.service';
 
 @Module({
   imports: [
@@ -50,12 +51,14 @@ import { PlayersConfigurationService } from './services/players-configuration.se
     LinkedProfilesService,
     ImportExportSkillService,
     PlayersConfigurationService,
+    PlayerCooldownService,
   ],
   exports: [
     PlayersService,
     PlayerBansService,
     OnlinePlayersService,
     LinkedProfilesService,
+    PlayerCooldownService,
   ],
   controllers: [
     PlayersController,

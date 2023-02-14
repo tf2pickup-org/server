@@ -15,11 +15,13 @@ import { PlayersService as MockedPlayersService } from '@/players/services/__moc
 // eslint-disable-next-line jest/no-mocks-import
 import { GamesService as MockedGamesService } from '@/games/services/__mocks__/games.service';
 import { GameState } from '@/games/models/game-state';
+import { PlayerCooldownService } from '@/players/services/player-cooldown.service';
 
 jest.mock('@/games/services/games.service');
 jest.mock('@/players/services/players.service');
 jest.mock('@/games/services/player-substitution.service');
 jest.mock('@/configuration/services/configuration.service');
+jest.mock('@/players/services/player-cooldown.service');
 
 describe('PlayerBehaviorHandlerService', () => {
   let service: PlayerBehaviorHandlerService;
@@ -48,6 +50,7 @@ describe('PlayerBehaviorHandlerService', () => {
         PlayersService,
         PlayerSubstitutionService,
         Events,
+        PlayerCooldownService,
       ],
     }).compile();
 

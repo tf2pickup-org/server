@@ -61,6 +61,9 @@ export class Player extends Serializable<PlayerDto> {
   )
   skill?: Map<Tf2ClassName, number>;
 
+  @Prop({ default: 0 })
+  cooldownLevel!: number;
+
   async serialize(): Promise<PlayerDto> {
     const gamesService = app.get(GamesService);
     return {
