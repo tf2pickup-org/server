@@ -1,5 +1,6 @@
 import { GamesService } from '@/games/services/games.service';
 import { PlayerSubstitutionService } from '@/games/services/player-substitution.service';
+import { PlayerCooldownService } from '@/players/services/player-cooldown.service';
 import { PlayersService } from '@/players/services/players.service';
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
@@ -13,6 +14,7 @@ export class PlayerBehaviorHandlerService {
     private readonly gamesService: GamesService,
     private readonly playerSubstitutionService: PlayerSubstitutionService,
     private readonly playersService: PlayersService,
+    private readonly playerCooldownService: PlayerCooldownService,
   ) {}
 
   @Cron(CronExpression.EVERY_10_SECONDS)
@@ -46,6 +48,7 @@ export class PlayerBehaviorHandlerService {
               player._id,
               bot._id,
             );
+            await this.playerCooldownService.applyCooldown(player._id);
           }
         }
       }
