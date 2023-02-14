@@ -101,7 +101,7 @@ export class GamesService {
   }
 
   async getPlayerGames(
-    playerId: string,
+    playerId: PlayerId,
     sort: GameSortOptions = { 'events.0.at': -1 },
     limit = 10,
     skip = 0,
@@ -109,7 +109,7 @@ export class GamesService {
     return plainToInstance(
       Game,
       await this.gameModel
-        .find({ 'slots.player': new Types.ObjectId(playerId) })
+        .find({ 'slots.player': playerId })
         .sort(sort)
         .limit(limit)
         .skip(skip)
