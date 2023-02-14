@@ -2,9 +2,10 @@ import { ConfigurationService } from '@/configuration/services/configuration.ser
 import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
 import { getConnectionToken, MongooseModule } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
+import { milliseconds } from 'date-fns';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { Connection } from 'mongoose';
-import { Player, playerSchema } from '../models/player';
+import { Player, PlayerDocument, playerSchema } from '../models/player';
 import { PlayerBansService } from './player-bans.service';
 import { PlayerCooldownService } from './player-cooldown.service';
 import { PlayersService } from './players.service';
@@ -22,6 +23,8 @@ describe('PlayerCooldownService', () => {
   let playersService: MockPlayersService;
   let configurationService: jest.Mocked<ConfigurationService>;
   let playerBansService: jest.Mocked<PlayerBansService>;
+  let configuration: Record<string, unknown>;
+  let bot: Player;
 
   beforeAll(async () => (mongod = await MongoMemoryServer.create()));
   afterAll(async () => await mongod.stop());
@@ -52,6 +55,25 @@ describe('PlayerCooldownService', () => {
     playerBansService = module.get(PlayerBansService);
   });
 
+  beforeEach(async () => {
+    bot = await playersService._createOne();
+    playersService.findBot.mockResolvedValue(bot);
+  });
+
+  beforeEach(() => {
+    configuration = {
+      'games.cooldown_levels': [
+        {
+          level: 0,
+          banLengthMs: milliseconds({ hours: 1 }),
+        },
+      ],
+    };
+    configurationService.get.mockImplementation((key: string) =>
+      Promise.resolve(configuration[key]),
+    );
+  });
+
   afterEach(async () => {
     await playersService._reset();
     await connection.close();
@@ -59,5 +81,44 @@ describe('PlayerCooldownService', () => {
 
   it('should be defined', () => {
     expect(service).toBeDefined();
+  });
+
+  describe('#applyCooldown()', () => {
+    let player: PlayerDocument;
+
+    beforeEach(async () => {
+      player = await playersService._createOne();
+    });
+
+    it('should increase cooldown', async () => {
+      expect(player.cooldownLevel).toBe(0);
+      await service.applyCooldown(player._id);
+      const updatedPlayer = await playersService.getById(player._id);
+      expect(updatedPlayer.cooldownLevel).toBe(1);
+    });
+
+    it('should apply ban', async () => {
+      jest.useFakeTimers().setSystemTime(new Date('2023-02-14T02:00:00.000Z'));
+      await service.applyCooldown(player._id);
+      expect(playerBansService.addPlayerBan).toHaveBeenCalledWith({
+        player: player._id,
+        admin: bot._id,
+        start: new Date('2023-02-14T02:00:00.000Z'),
+        end: new Date('2023-02-14T03:00:00.000Z'),
+        reason: 'Cooldown level 0',
+      });
+      jest.useRealTimers();
+    });
+
+    describe('when the cooldown is not configured', () => {
+      beforeEach(() => {
+        configuration['games.cooldown_levels'] = [];
+      });
+
+      it('should not apply ban', async () => {
+        await service.applyCooldown(player._id);
+        expect(playerBansService.addPlayerBan).not.toHaveBeenCalled();
+      });
+    });
   });
 });
