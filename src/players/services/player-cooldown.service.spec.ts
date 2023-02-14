@@ -110,7 +110,7 @@ describe('PlayerCooldownService', () => {
       jest.useRealTimers();
     });
 
-    describe('when the cooldown is not configured', () => {
+    describe('when the cooldown is disabled', () => {
       beforeEach(() => {
         configuration['games.cooldown_levels'] = [];
       });
@@ -118,6 +118,29 @@ describe('PlayerCooldownService', () => {
       it('should not apply ban', async () => {
         await service.applyCooldown(player._id);
         expect(playerBansService.addPlayerBan).not.toHaveBeenCalled();
+      });
+    });
+
+    describe('when increasing cooldown beyond the configured limit', () => {
+      beforeEach(async () => {
+        await service.applyCooldown(player._id);
+      });
+
+      it('should apply ban', async () => {
+        jest
+          .useFakeTimers()
+          .setSystemTime(new Date('2023-02-14T11:00:00.000Z'));
+        await service.applyCooldown(player._id);
+        expect(playerBansService.addPlayerBan).toHaveBeenCalledWith({
+          player: player._id,
+          admin: bot._id,
+          start: new Date('2023-02-14T11:00:00.000Z'),
+          end: new Date('2023-02-14T12:00:00.000Z'),
+          reason: 'Cooldown level 1',
+        });
+        jest.useRealTimers();
+        const updatedPlayer = await playersService.getById(player._id);
+        expect(updatedPlayer.cooldownLevel).toBe(2);
       });
     });
   });
