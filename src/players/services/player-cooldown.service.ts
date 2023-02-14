@@ -19,17 +19,21 @@ export class PlayerCooldownService {
     const cooldownLevels = await this.configurationService.get<CooldownLevel[]>(
       'games.cooldown_levels',
     );
+    if (cooldownLevels.length === 0) {
+      // cooldowns disabled
+      return;
+    }
+
     const player = await this.playersService.getById(playerId);
     this.logger.debug(
       `attempt to apply cooldown to player ${player.name} (cooldown level=${player.cooldownLevel})`,
     );
 
-    const banLength = cooldownLevels.find(
+    let cooldown = cooldownLevels.find(
       (cl) => cl.level === player.cooldownLevel,
     );
-    if (!banLength) {
-      this.logger.debug(`no cooldown to apply`);
-      return;
+    if (!cooldown) {
+      cooldown = cooldownLevels.at(-1);
     }
 
     const bot = await this.playersService.findBot();
@@ -38,7 +42,7 @@ export class PlayerCooldownService {
       player: player._id,
       admin: bot._id,
       start: new Date(),
-      end: new Date(Date.now() + banLength.banLengthMs),
+      end: new Date(Date.now() + cooldown!.banLengthMs),
       reason: `Cooldown level ${player.cooldownLevel}`,
     });
 
