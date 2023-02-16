@@ -1,5 +1,13 @@
 
 
+# [11.0.0-alpha.8](https://github.com/tf2pickup-org/server/compare/11.0.0-alpha.7...11.0.0-alpha.8) (2023-02-16)
+
+
+### Bug Fixes
+
+* **deps:** update nest monorepo to v9.3.9 ([#2252](https://github.com/tf2pickup-org/server/issues/2252)) ([f7858a5](https://github.com/tf2pickup-org/server/commit/f7858a5311e029c167ed0e31bcd8c0829f59f4a5))
+* **games:** don't apply cooldown if the player takes back his spot ([#2254](https://github.com/tf2pickup-org/server/issues/2254)) ([8803789](https://github.com/tf2pickup-org/server/commit/880378937aef7c170705ed4860364f550ab9fd88))
+
 # [11.0.0-alpha.7](https://github.com/tf2pickup-org/server/compare/11.0.0-alpha.6...11.0.0-alpha.7) (2023-02-14)
 
 
