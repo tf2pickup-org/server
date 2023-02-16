@@ -1,3 +1,4 @@
+import { Events } from '@/events/events';
 import { GamesService } from '@/games/services/games.service';
 import { PlayerSubstitutionService } from '@/games/services/player-substitution.service';
 import { PlayerCooldownService } from '@/players/services/player-cooldown.service';
@@ -5,6 +6,7 @@ import { PlayersService } from '@/players/services/players.service';
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { isUndefined } from 'lodash';
+import { filter, take, takeUntil } from 'rxjs';
 
 @Injectable()
 export class PlayerBehaviorHandlerService {
@@ -15,6 +17,7 @@ export class PlayerBehaviorHandlerService {
     private readonly playerSubstitutionService: PlayerSubstitutionService,
     private readonly playersService: PlayersService,
     private readonly playerCooldownService: PlayerCooldownService,
+    private readonly events: Events,
   ) {}
 
   @Cron(CronExpression.EVERY_10_SECONDS)
@@ -48,7 +51,29 @@ export class PlayerBehaviorHandlerService {
               player._id,
               bot._id,
             );
-            await this.playerCooldownService.applyCooldown(player._id);
+
+            const gameEnds = this.events.gameChanges.pipe(
+              filter(({ newGame }) => newGame._id.equals(game._id)),
+              filter(
+                ({ oldGame, newGame }) =>
+                  oldGame.isInProgress() && !newGame.isInProgress(),
+              ),
+            );
+
+            // Apply cooldown to the player if they get replaced by someone else.
+            // They still can take their own spot and not receive a ban.
+            this.events.playerReplaced
+              .pipe(
+                takeUntil(gameEnds),
+                filter(({ gameId }) => gameId.equals(game._id)),
+                filter(({ replaceeId }) => replaceeId.equals(player._id)),
+                take(1),
+              )
+              .subscribe(async ({ replaceeId, replacementId }) => {
+                if (!replaceeId.equals(replacementId)) {
+                  await this.playerCooldownService.applyCooldown(player._id);
+                }
+              });
           }
         }
       }

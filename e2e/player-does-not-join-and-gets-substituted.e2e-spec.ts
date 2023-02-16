@@ -20,7 +20,9 @@ describe('Player does not join the gameserver and gets substituted (e2e)', () =>
   let playersService: PlayersService;
   let gameId: GameId;
   let events: Events;
-  let playerSocket: Socket;
+  let leaverPlayerSocket: Socket;
+  let leaverBans: any[];
+  let replacementPlayerSocket: Socket;
   let substituteRequests: any[];
 
   beforeAll(async () => {
@@ -37,24 +39,43 @@ describe('Player does not join the gameserver and gets substituted (e2e)', () =>
 
     const authService = app.get(AuthService);
 
-    const playerToken = await authService.generateJwtToken(
+    const leaverPlayerToken = await authService.generateJwtToken(
       JwtTokenPurpose.websocket,
       (
         await playersService.findBySteamId(players[1])
       ).id,
     );
 
-    playerSocket = io(
+    leaverPlayerSocket = io(
       `http://localhost:${app.getHttpServer().address().port}`,
       {
-        auth: { token: `Bearer ${playerToken}` },
+        auth: { token: `Bearer ${leaverPlayerToken}` },
+      },
+    );
+
+    const replacementPlayerToken = await authService.generateJwtToken(
+      JwtTokenPurpose.websocket,
+      (
+        await playersService.findBySteamId(players[12])
+      ).id,
+    );
+
+    replacementPlayerSocket = io(
+      `http://localhost:${app.getHttpServer().address().port}`,
+      {
+        auth: { token: `Bearer ${replacementPlayerToken}` },
       },
     );
 
     substituteRequests = [];
-    playerSocket.on(
+    leaverBans = [];
+    leaverPlayerSocket.on(
       'substitute requests update',
       (requests) => (substituteRequests = requests),
+    );
+    leaverPlayerSocket.on(
+      'profile update',
+      (profile) => (leaverBans = profile.bans ?? []),
     );
   });
 
@@ -192,6 +213,7 @@ describe('Player does not join the gameserver and gets substituted (e2e)', () =>
   });
 
   it("should substitute a player that doesn't join the gameserver on time", async () => {
+    const leaver = await playersService.findBySteamId(players[1]);
     expect(substituteRequests.length).toEqual(0);
     await waitABit(70 * 1000);
     expect(substituteRequests.length).toEqual(1);
@@ -201,5 +223,21 @@ describe('Player does not join the gameserver and gets substituted (e2e)', () =>
       gameClass: Tf2ClassName.scout,
       team: expect.any(String),
     });
+    // the player should not be given a cooldown for now
+    expect(leaverBans.length).toBe(0);
+
+    await waitABit(1000);
+
+    // a replacement player takes the substitute spot
+    replacementPlayerSocket.emit('replace player', {
+      gameId: gameId.toString(),
+      replaceeId: leaver.id,
+    });
+
+    await waitABit(1000);
+
+    // the leaver should be given a cooldown
+    expect(leaverBans.length).toBe(1);
+    expect(leaverBans[0].reason).toEqual('Cooldown level 0');
   });
 });
