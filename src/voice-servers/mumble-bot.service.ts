@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { ConfigurationService } from '@/configuration/services/configuration.service';
 import { Events } from '@/events/events';
-import { filter } from 'rxjs';
+import { debounceTime, filter } from 'rxjs';
 import { CertificatesService } from '@/certificates/services/certificates.service';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { GamesService } from '@/games/services/games.service';
@@ -56,6 +56,7 @@ export class MumbleBotService implements OnModuleInit, OnModuleDestroy {
             'games.voice_server.mumble.password',
           ].includes(key),
         ),
+        debounceTime(1000),
       )
       .subscribe(async () => await this.tryConnect());
 
