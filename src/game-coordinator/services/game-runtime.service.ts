@@ -82,7 +82,7 @@ export class GameRuntimeService implements OnModuleInit {
     replaceeId: PlayerId,
     replacementId: PlayerId,
   ) {
-    if (replaceeId === replacementId) {
+    if (replaceeId.equals(replacementId)) {
       return;
     }
 
