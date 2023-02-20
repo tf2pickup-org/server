@@ -1,5 +1,14 @@
 
 
+# [11.0.0-alpha.9](https://github.com/tf2pickup-org/server/compare/11.0.0-alpha.8...11.0.0-alpha.9) (2023-02-20)
+
+
+### Bug Fixes
+
+* **deps:** update dependency mongoose to v6.9.2 ([#2256](https://github.com/tf2pickup-org/server/issues/2256)) ([e608b19](https://github.com/tf2pickup-org/server/commit/e608b19c41d5bc8a8d63a5f01c844095c8a243bb))
+* **games, queue:** fix playerId comparison ([#2260](https://github.com/tf2pickup-org/server/issues/2260)) ([ffde556](https://github.com/tf2pickup-org/server/commit/ffde5566aa9c70655f68e5625a69700230a2341e))
+* **voice-servers:** add debounceTime() to configuration change ([#2257](https://github.com/tf2pickup-org/server/issues/2257)) ([45942cf](https://github.com/tf2pickup-org/server/commit/45942cf0ad69dd3c39c571040e3fe3a0b609ccae))
+
 # [11.0.0-alpha.8](https://github.com/tf2pickup-org/server/compare/11.0.0-alpha.7...11.0.0-alpha.8) (2023-02-16)
 
 
