@@ -11400,7 +11400,7 @@ __metadata:
     release-it: 15.6.0
     rimraf: 4.1.2
     rxjs: 7.8.0
-    socket.io-client: 4.6.0
+    socket.io-client: 4.6.1
     steamid: 2.0.0
     supertest: 6.3.3
     trace-unhandled: 2.0.1
@@ -11538,15 +11538,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"socket.io-client@npm:4.6.0":
-  version: 4.6.0
-  resolution: "socket.io-client@npm:4.6.0"
+"socket.io-client@npm:4.6.1":
+  version: 4.6.1
+  resolution: "socket.io-client@npm:4.6.1"
   dependencies:
     "@socket.io/component-emitter": ~3.1.0
     debug: ~4.3.2
     engine.io-client: ~6.4.0
     socket.io-parser: ~4.2.1
-  checksum: c0443a0e59e0d3f1953f8a3b1fdb7e4408edee8449f26e657d5e4df13c15a9c18df00c657e5641f5699f922a76b74a61f4b6f087b9ced0be72ae6e4dd34631e1
+  checksum: cc6abd3f9db41379d1aa115cee5743c97f450c47cf416885660a62d1250696c38c40d0b6d1e6a6b7c6f7ffa02c504e9c04ceffe1459ae0208c8697dc8f69aae8
   languageName: node
   linkType: hard
 
