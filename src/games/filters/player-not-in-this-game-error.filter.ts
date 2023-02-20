@@ -6,7 +6,7 @@ import { PlayerNotInThisGameError } from '../errors/player-not-in-this-game.erro
 export class PlayerNotInThisGameErrorFilter
   implements ExceptionFilter<PlayerNotInThisGameError>
 {
-  async catch(exception: PlayerNotInThisGameError, host: ArgumentsHost) {
+  catch(exception: PlayerNotInThisGameError, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
     const request = ctx.getRequest<Request>();
