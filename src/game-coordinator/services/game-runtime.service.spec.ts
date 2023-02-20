@@ -234,9 +234,9 @@ describe('GameRuntimeService', () => {
       it('should not throw an error', async () => {
         await expect(
           service.replacePlayer(
-            anotherGame.id,
-            mockPlayers[0].id,
-            mockPlayers[1].id,
+            anotherGame._id,
+            mockPlayers[0]._id,
+            mockPlayers[1]._id,
           ),
         ).resolves.not.toThrow();
       });
@@ -251,9 +251,9 @@ describe('GameRuntimeService', () => {
 
       it('should close the RCON connection', async () => {
         await service.replacePlayer(
-          mockGame.id,
-          mockPlayers[0].id,
-          mockPlayers[1].id,
+          mockGame._id,
+          mockPlayers[0]._id,
+          mockPlayers[1]._id,
         );
         expect(rcon.end).toHaveBeenCalled();
       });
@@ -262,9 +262,9 @@ describe('GameRuntimeService', () => {
     it('should close the RCON connection', async () => {
       const spy = jest.spyOn(rcon, 'end');
       await service.replacePlayer(
-        mockGame.id,
-        mockPlayers[0].id,
-        mockPlayers[1].id,
+        mockGame._id,
+        mockPlayers[0]._id,
+        mockPlayers[1]._id,
       );
       expect(spy).toHaveBeenCalled();
     });

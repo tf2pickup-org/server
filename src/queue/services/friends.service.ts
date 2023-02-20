@@ -67,7 +67,9 @@ export class FriendsService implements OnModuleInit {
       }
 
       this.friendships = [
-        ...this.friendships.filter((f) => f.sourcePlayerId !== sourcePlayerId),
+        ...this.friendships.filter(
+          (f) => !f.sourcePlayerId.equals(sourcePlayerId),
+        ),
         { sourcePlayerId, targetPlayerId },
       ];
     }
