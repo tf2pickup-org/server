@@ -1,10 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { PlayersService } from './players.service';
 import { Environment } from '@/environment/environment';
-import { Etf2lProfileService } from './etf2l-profile.service';
 import { SteamProfile } from '../steam-profile';
 import { GamesService } from '@/games/services/games.service';
-import { Etf2lProfile } from '../etf2l-profile';
 import { Player, PlayerDocument, playerSchema } from '../models/player';
 import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
 import { MongoMemoryServer } from 'mongodb-memory-server';
@@ -27,8 +25,11 @@ import { Game, gameSchema } from '@/games/models/game';
 // eslint-disable-next-line jest/no-mocks-import
 import { GamesService as MockedGamesService } from '@/games/services/__mocks__/games.service';
 import { PlayerId } from '../types/player-id';
+import { Etf2lProfile } from '@/etf2l/types/etf2l-profile';
+import { Etf2lApiService } from '@/etf2l/services/etf2l-api.service';
+import { NoEtf2lAccountError } from '@/etf2l/errors/no-etf2l-account.error';
 
-jest.mock('./etf2l-profile.service');
+jest.mock('@/etf2l/services/etf2l-api.service');
 jest.mock('@/configuration/services/configuration.service');
 jest.mock('@/games/services/games.service');
 
@@ -64,7 +65,7 @@ describe('PlayersService', () => {
   let playerModel: Model<PlayerDocument>;
   let mockPlayer: PlayerDocument;
   let environment: EnvironmentStub;
-  let etf2lProfileService: jest.Mocked<Etf2lProfileService>;
+  let etf2lApiService: jest.Mocked<Etf2lApiService>;
   let gamesService: MockedGamesService;
   let steamApiService: SteamApiServiceStub;
   let events: Events;
@@ -89,7 +90,7 @@ describe('PlayersService', () => {
       providers: [
         PlayersService,
         { provide: Environment, useClass: EnvironmentStub },
-        Etf2lProfileService,
+        Etf2lApiService,
         GamesService,
         { provide: SteamApiService, useClass: SteamApiServiceStub },
         Events,
@@ -100,7 +101,7 @@ describe('PlayersService', () => {
     service = module.get<PlayersService>(PlayersService);
     playerModel = module.get(getModelToken(Player.name));
     environment = module.get(Environment);
-    etf2lProfileService = module.get(Etf2lProfileService);
+    etf2lApiService = module.get(Etf2lApiService);
     gamesService = module.get(GamesService);
     steamApiService = module.get(SteamApiService);
     events = module.get(Events);
@@ -116,7 +117,7 @@ describe('PlayersService', () => {
       hasAcceptedRules: true,
     });
 
-    etf2lProfileService.fetchPlayerInfo.mockResolvedValue({
+    etf2lApiService.fetchPlayerProfile.mockResolvedValue({
       // http://api.etf2l.org/player/112758
       bans: null,
       classes: ['Soldier', 'Medic'],
@@ -251,21 +252,21 @@ describe('PlayersService', () => {
 
     describe("when an ETF2L profile doesn't exist", () => {
       beforeEach(() => {
-        etf2lProfileService.fetchPlayerInfo.mockRejectedValue(
-          new Error('no etf2l profile'),
+        etf2lApiService.fetchPlayerProfile.mockRejectedValue(
+          new NoEtf2lAccountError('FAKE_STEAM_ID_2'),
         );
       });
 
       it('should deny creating tf2pickup.pl profile', async () => {
         await expect(service.createPlayer(mockSteamProfile)).rejects.toThrow(
-          'no etf2l profile',
+          NoEtf2lAccountError,
         );
       });
     });
 
     describe('when the user has an ETF2L ban', () => {
       beforeEach(() => {
-        etf2lProfileService.fetchPlayerInfo.mockResolvedValue(
+        etf2lApiService.fetchPlayerProfile.mockResolvedValue(
           blacklistedProfile,
         );
       });
@@ -283,7 +284,7 @@ describe('PlayersService', () => {
 
         jest.spyOn(steamApiService, 'getTf2InGameHours').mockResolvedValue(400);
 
-        etf2lProfileService.fetchPlayerInfo.mockResolvedValue(
+        etf2lApiService.fetchPlayerProfile.mockResolvedValue(
           blacklistedProfile,
         );
       });

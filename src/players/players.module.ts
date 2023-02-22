@@ -1,6 +1,5 @@
 import { Module, forwardRef } from '@nestjs/common';
 import { PlayersService } from './services/players.service';
-import { Etf2lProfileService } from './services/etf2l-profile.service';
 import { Player, playerSchema } from './models/player';
 import { PlayerBansService } from './services/player-bans.service';
 import { PlayerBan, playerBanSchema } from './models/player-ban';
@@ -42,7 +41,6 @@ import { PlayerCooldownService } from './services/player-cooldown.service';
   ],
   providers: [
     PlayersService,
-    Etf2lProfileService,
     PlayerBansService,
     OnlinePlayersService,
     PlayersGateway,

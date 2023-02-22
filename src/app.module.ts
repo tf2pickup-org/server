@@ -32,6 +32,7 @@ import { PlayerActionsLoggerModule } from './player-actions-logger/player-action
 import { QueueConfigModule } from './queue-config/queue-config.module';
 import * as redisStore from 'cache-manager-redis-store';
 import { validateEnvironment } from './validate-environment';
+import { Etf2lModule } from './etf2l/etf2l.module';
 
 @Module({
   imports: [
@@ -89,6 +90,7 @@ import { validateEnvironment } from './validate-environment';
     LogsTfModule,
     PlayerActionsLoggerModule,
     QueueConfigModule,
+    Etf2lModule,
   ],
   controllers: [AppController],
 })
