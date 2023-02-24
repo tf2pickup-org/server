@@ -18,7 +18,7 @@ import { Player } from '@/players/models/player';
 import { JwtTokenPurpose } from '../jwt-token-purpose';
 import { Tf2InGameHoursVerificationError } from '@/players/errors/tf2-in-game-hours-verification.error';
 import { InsufficientTf2InGameHoursError } from '@/players/errors/insufficient-tf2-in-game-hours.error';
-import { NoEtf2lAccountError } from '@/players/errors/no-etf2l-account.error';
+import { NoEtf2lAccountError } from '@/etf2l/errors/no-etf2l-account.error';
 import { AccountBannedError } from '@/players/errors/account-banned.error';
 import { assertIsError } from '@/utils/assert-is-error';
 import { Request } from 'express';

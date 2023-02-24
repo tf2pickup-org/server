@@ -8,9 +8,7 @@ import {
 import { Environment } from '@/environment/environment';
 import { Player, PlayerDocument } from '../models/player';
 import { SteamProfile } from '../steam-profile';
-import { Etf2lProfileService } from './etf2l-profile.service';
 import { GamesService } from '@/games/services/games.service';
-import { Etf2lProfile } from '../etf2l-profile';
 import { SteamApiService } from './steam-api.service';
 import { PlayerAvatar } from '../models/player-avatar';
 import { Events } from '@/events/events';
@@ -23,6 +21,8 @@ import { ConfigurationService } from '@/configuration/services/configuration.ser
 import { InjectModel } from '@nestjs/mongoose';
 import { Mutex } from 'async-mutex';
 import { PlayerId } from '../types/player-id';
+import { Etf2lApiService } from '@/etf2l/services/etf2l-api.service';
+import { Etf2lProfile } from '@/etf2l/types/etf2l-profile';
 
 interface ForceCreatePlayerOptions {
   name: Player['name'];
@@ -36,13 +36,14 @@ export class PlayersService implements OnModuleInit {
   private readonly mutex = new Mutex();
 
   constructor(
-    private environment: Environment,
-    private etf2lProfileService: Etf2lProfileService,
-    @InjectModel('Player') private playerModel: Model<PlayerDocument>,
-    @Inject(forwardRef(() => GamesService)) private gamesService: GamesService,
-    private steamApiService: SteamApiService,
-    private events: Events,
-    private configurationService: ConfigurationService,
+    private readonly environment: Environment,
+    private readonly etf2lApiService: Etf2lApiService,
+    @InjectModel('Player') private readonly playerModel: Model<PlayerDocument>,
+    @Inject(forwardRef(() => GamesService))
+    private readonly gamesService: GamesService,
+    private readonly steamApiService: SteamApiService,
+    private readonly events: Events,
+    private readonly configurationService: ConfigurationService,
   ) {}
 
   async onModuleInit() {
@@ -146,7 +147,7 @@ export class PlayersService implements OnModuleInit {
     );
 
     if (isEtf2lAccountRequired) {
-      etf2lProfile = await this.etf2lProfileService.fetchPlayerInfo(
+      etf2lProfile = await this.etf2lApiService.fetchPlayerProfile(
         steamProfile.id,
       );
 
@@ -186,10 +187,9 @@ export class PlayersService implements OnModuleInit {
   async forceCreatePlayer(
     playerData: ForceCreatePlayerOptions,
   ): Promise<Player> {
-    const etf2lProfile: Etf2lProfile | undefined =
-      await this.etf2lProfileService
-        .fetchPlayerInfo(playerData.steamId)
-        .catch(() => undefined);
+    const etf2lProfile: Etf2lProfile | undefined = await this.etf2lApiService
+      .fetchPlayerProfile(playerData.steamId)
+      .catch(() => undefined);
 
     const { id } = await this.playerModel.create({
       etf2lProfileId: etf2lProfile?.id,
