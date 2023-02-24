@@ -24,6 +24,7 @@ import { QueueConfigModule } from '@/queue-config/queue-config.module';
 import { HttpModule } from '@/http.module';
 import { PlayersConfigurationService } from './services/players-configuration.service';
 import { PlayerCooldownService } from './services/player-cooldown.service';
+import { Etf2lModule } from '@/etf2l/etf2l.module';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { PlayerCooldownService } from './services/player-cooldown.service';
     forwardRef(() => QueueModule),
     ConfigurationModule,
     QueueConfigModule,
+    Etf2lModule,
   ],
   providers: [
     PlayersService,
