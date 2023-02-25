@@ -102,6 +102,12 @@ export class AuthController {
   // skipcq: JS-0105
   private mapToClientError(error: unknown): string {
     if (error instanceof SteamApiError) {
+      switch (error.code) {
+        case 403:
+          this.logger.warn(`player's profile must be public`);
+          break;
+      }
+
       return 'cannot verify in-game hours for TF2';
     } else if (error instanceof InsufficientTf2InGameHoursError) {
       return 'not enough tf2 hours';
