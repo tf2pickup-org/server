@@ -6,7 +6,6 @@ import { GamesService } from '@/games/services/games.service';
 import { Player, PlayerDocument, playerSchema } from '../models/player';
 import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import { SteamApiService } from './steam-api.service';
 import { Events } from '@/events/events';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { InsufficientTf2InGameHoursError } from '../errors/insufficient-tf2-in-game-hours.error';
@@ -28,20 +27,16 @@ import { PlayerId } from '../types/player-id';
 import { Etf2lProfile } from '@/etf2l/types/etf2l-profile';
 import { Etf2lApiService } from '@/etf2l/services/etf2l-api.service';
 import { NoEtf2lAccountError } from '@/etf2l/errors/no-etf2l-account.error';
+import { SteamApiService } from '@/steam/services/steam-api.service';
 
 jest.mock('@/etf2l/services/etf2l-api.service');
 jest.mock('@/configuration/services/configuration.service');
 jest.mock('@/games/services/games.service');
+jest.mock('@/steam/services/steam-api.service');
 
 class EnvironmentStub {
   superUser = 'SUPER_USER_ID';
   botName = 'FAKE_BOT_NAME';
-}
-
-class SteamApiServiceStub {
-  getTf2InGameHours(steamId64: string) {
-    return Promise.resolve(800);
-  }
 }
 
 // http://api.etf2l.org/player/129205
@@ -67,7 +62,7 @@ describe('PlayersService', () => {
   let environment: EnvironmentStub;
   let etf2lApiService: jest.Mocked<Etf2lApiService>;
   let gamesService: MockedGamesService;
-  let steamApiService: SteamApiServiceStub;
+  let steamApiService: jest.Mocked<SteamApiService>;
   let events: Events;
   let configurationService: jest.Mocked<ConfigurationService>;
   let connection: Connection;
@@ -92,7 +87,7 @@ describe('PlayersService', () => {
         { provide: Environment, useClass: EnvironmentStub },
         Etf2lApiService,
         GamesService,
-        { provide: SteamApiService, useClass: SteamApiServiceStub },
+        SteamApiService,
         Events,
         ConfigurationService,
       ],
@@ -281,9 +276,7 @@ describe('PlayersService', () => {
     describe('when a super-user tries signing up', () => {
       beforeEach(() => {
         environment.superUser = 'FAKE_STEAM_ID_2';
-
-        jest.spyOn(steamApiService, 'getTf2InGameHours').mockResolvedValue(400);
-
+        steamApiService.getTf2InGameHours.mockResolvedValue(400);
         etf2lApiService.fetchPlayerProfile.mockResolvedValue(
           blacklistedProfile,
         );
@@ -329,7 +322,7 @@ describe('PlayersService', () => {
 
     describe('when TF2 in-game hours requirements are not met', () => {
       beforeEach(() => {
-        jest.spyOn(steamApiService, 'getTf2InGameHours').mockResolvedValue(400);
+        steamApiService.getTf2InGameHours.mockResolvedValue(400);
       });
 
       it('should deny', async () => {
@@ -341,9 +334,9 @@ describe('PlayersService', () => {
 
     describe('when TF2 in-game hours could not be fetched', () => {
       beforeEach(() => {
-        jest
-          .spyOn(steamApiService, 'getTf2InGameHours')
-          .mockRejectedValue(new SteamApiError('', ''));
+        steamApiService.getTf2InGameHours.mockRejectedValue(
+          new SteamApiError('FAKE_STEAM_API_ERROR'),
+        );
       });
 
       it('should deny', async () => {
