@@ -9,7 +9,6 @@ import { Environment } from '@/environment/environment';
 import { Player, PlayerDocument } from '../models/player';
 import { SteamProfile } from '../steam-profile';
 import { GamesService } from '@/games/services/games.service';
-import { SteamApiService } from './steam-api.service';
 import { PlayerAvatar } from '../models/player-avatar';
 import { Events } from '@/events/events';
 import { plainToInstance } from 'class-transformer';
@@ -23,6 +22,7 @@ import { Mutex } from 'async-mutex';
 import { PlayerId } from '../types/player-id';
 import { Etf2lApiService } from '@/etf2l/services/etf2l-api.service';
 import { Etf2lProfile } from '@/etf2l/types/etf2l-profile';
+import { SteamApiService } from '@/steam/services/steam-api.service';
 
 interface ForceCreatePlayerOptions {
   name: Player['name'];

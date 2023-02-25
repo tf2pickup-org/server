@@ -10,7 +10,7 @@ import { SteamApiService } from './steam-api.service';
 import { Events } from '@/events/events';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { InsufficientTf2InGameHoursError } from '../errors/insufficient-tf2-in-game-hours.error';
-import { Tf2InGameHoursVerificationError } from '../errors/tf2-in-game-hours-verification.error';
+import { SteamApiError } from '../../steam/errors/steam-api.error';
 import { PlayerRole } from '../models/player-role';
 import { ConfigurationService } from '@/configuration/services/configuration.service';
 import { Connection, Error as MongooseError, Model, Types } from 'mongoose';
@@ -343,12 +343,12 @@ describe('PlayersService', () => {
       beforeEach(() => {
         jest
           .spyOn(steamApiService, 'getTf2InGameHours')
-          .mockRejectedValue(new Tf2InGameHoursVerificationError('', ''));
+          .mockRejectedValue(new SteamApiError('', ''));
       });
 
       it('should deny', async () => {
         await expect(service.createPlayer(mockSteamProfile)).rejects.toThrow(
-          Tf2InGameHoursVerificationError,
+          SteamApiError,
         );
       });
 

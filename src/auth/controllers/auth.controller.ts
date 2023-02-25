@@ -16,7 +16,7 @@ import { Auth } from '../decorators/auth.decorator';
 import { redirectUrlCookieName } from '../middleware/set-redirect-url-cookie';
 import { Player } from '@/players/models/player';
 import { JwtTokenPurpose } from '../jwt-token-purpose';
-import { Tf2InGameHoursVerificationError } from '@/players/errors/tf2-in-game-hours-verification.error';
+import { SteamApiError } from '@/steam/errors/steam-api.error';
 import { InsufficientTf2InGameHoursError } from '@/players/errors/insufficient-tf2-in-game-hours.error';
 import { NoEtf2lAccountError } from '@/etf2l/errors/no-etf2l-account.error';
 import { AccountBannedError } from '@/players/errors/account-banned.error';
@@ -101,7 +101,7 @@ export class AuthController {
 
   // skipcq: JS-0105
   private mapToClientError(error: unknown): string {
-    if (error instanceof Tf2InGameHoursVerificationError) {
+    if (error instanceof SteamApiError) {
       return 'cannot verify in-game hours for TF2';
     } else if (error instanceof InsufficientTf2InGameHoursError) {
       return 'not enough tf2 hours';
