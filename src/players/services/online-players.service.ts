@@ -1,4 +1,5 @@
 import { Events } from '@/events/events';
+import { QueueService } from '@/queue/services/queue.service';
 import { extractClientIp } from '@/shared/extract-client-ip';
 import {
   Injectable,
@@ -6,6 +7,7 @@ import {
   OnModuleDestroy,
   OnModuleInit,
 } from '@nestjs/common';
+import { isNull, isUndefined } from 'lodash';
 import { Types } from 'mongoose';
 import { Socket } from 'socket.io';
 import { PlayersGateway } from '../gateways/players.gateway';
@@ -27,7 +29,11 @@ export class OnlinePlayersService implements OnModuleInit, OnModuleDestroy {
     );
   }
 
-  constructor(private playersGateway: PlayersGateway, private events: Events) {}
+  constructor(
+    private readonly playersGateway: PlayersGateway,
+    private readonly events: Events,
+    private readonly queueService: QueueService,
+  ) {}
 
   onModuleInit() {
     this.playersGateway.playerConnected.subscribe((socket) => {
@@ -83,6 +89,13 @@ export class OnlinePlayersService implements OnModuleInit, OnModuleDestroy {
     this.events.playerDisconnects.subscribe(({ playerId }) =>
       this._onlinePlayers.delete(playerId.toString()),
     );
+
+    setTimeout(() => {
+      this.queueService.slots
+        .map((slot) => slot.playerId)
+        .filter((playerId) => !isNull(playerId))
+        .forEach((playerId) => this.verifyPlayer(playerId!));
+    }, this.verifyPlayerTimeout);
   }
 
   onModuleDestroy() {
@@ -98,8 +111,9 @@ export class OnlinePlayersService implements OnModuleInit, OnModuleDestroy {
   }
 
   private verifyPlayer(playerId: PlayerId) {
+    this.logger.debug(`verifying online status for ${playerId}`);
     const sockets = this.sockets.get(playerId.toString());
-    if (sockets?.length === 0) {
+    if (isUndefined(sockets) || sockets.length === 0) {
       this.events.playerDisconnects.next({ playerId });
     }
   }
