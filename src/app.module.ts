@@ -33,6 +33,7 @@ import { QueueConfigModule } from './queue-config/queue-config.module';
 import * as redisStore from 'cache-manager-redis-store';
 import { validateEnvironment } from './validate-environment';
 import { Etf2lModule } from './etf2l/etf2l.module';
+import { SteamModule } from './steam/steam.module';
 
 @Module({
   imports: [
@@ -91,6 +92,7 @@ import { Etf2lModule } from './etf2l/etf2l.module';
     PlayerActionsLoggerModule,
     QueueConfigModule,
     Etf2lModule,
+    SteamModule,
   ],
   controllers: [AppController],
 })

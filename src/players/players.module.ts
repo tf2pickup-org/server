@@ -8,7 +8,6 @@ import { GamesModule } from '@/games/games.module';
 import { OnlinePlayersService } from './services/online-players.service';
 import { PlayersGateway } from './gateways/players.gateway';
 import { HallOfFameController } from './controllers/hall-of-fame.controller';
-import { SteamApiService } from './services/steam-api.service';
 import { QueueModule } from '@/queue/queue.module';
 import { FuturePlayerSkillService } from './services/future-player-skill.service';
 import {
@@ -25,6 +24,7 @@ import { HttpModule } from '@/http.module';
 import { PlayersConfigurationService } from './services/players-configuration.service';
 import { PlayerCooldownService } from './services/player-cooldown.service';
 import { Etf2lModule } from '@/etf2l/etf2l.module';
+import { SteamModule } from '@/steam/steam.module';
 
 @Module({
   imports: [
@@ -40,13 +40,13 @@ import { Etf2lModule } from '@/etf2l/etf2l.module';
     ConfigurationModule,
     QueueConfigModule,
     Etf2lModule,
+    SteamModule,
   ],
   providers: [
     PlayersService,
     PlayerBansService,
     OnlinePlayersService,
     PlayersGateway,
-    SteamApiService,
     FuturePlayerSkillService,
     LinkedProfilesService,
     ImportExportSkillService,
