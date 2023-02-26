@@ -25,12 +25,11 @@ import { StatisticsModule } from './statistics/statistics.module';
 import { GameConfigsModule } from './game-configs/game-configs.module';
 import { VoiceServersModule } from './voice-servers/voice-servers.module';
 import { CertificatesModule } from './certificates/certificates.module';
-import type { RedisClientOptions } from '@redis/client';
 import { GameCoordinatorModule } from './game-coordinator/game-coordinator.module';
 import { LogsTfModule } from './logs-tf/logs-tf.module';
 import { PlayerActionsLoggerModule } from './player-actions-logger/player-actions-logger.module';
 import { QueueConfigModule } from './queue-config/queue-config.module';
-import * as redisStore from 'cache-manager-redis-store';
+import { redisStore } from 'cache-manager-redis-yet';
 import { validateEnvironment } from './validate-environment';
 import { Etf2lModule } from './etf2l/etf2l.module';
 import { SteamModule } from './steam/steam.module';
@@ -49,16 +48,12 @@ import { SteamModule } from './steam/steam.module';
         uri: formatMongoose(environment.mongoDbUri),
       }),
     }),
-    CacheModule.register({
+    CacheModule.registerAsync({
       imports: [EnvironmentModule],
       inject: [Environment],
-      useFactory: (environment: Environment) => {
-        const redisClientOptions: RedisClientOptions = {
-          url: environment.redisUrl,
-        };
+      useFactory: async (environment: Environment) => {
         return {
-          store: redisStore,
-          ...redisClientOptions,
+          store: await redisStore({ url: environment.redisUrl, ttl: 5000 }),
         };
       },
       isGlobal: true,

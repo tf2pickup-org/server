@@ -14,7 +14,6 @@ import {
   HttpCode,
   UseInterceptors,
   CacheInterceptor,
-  CacheTTL,
   UploadedFile,
   ParseFilePipe,
   FileTypeValidator,
@@ -99,7 +98,7 @@ export class PlayersController {
   }
 
   @UseInterceptors(CacheInterceptor)
-  @CacheTTL(30 * 60 * 1000) // 30 minutes
+  // @CacheTTL(30 * 60 * 1000) // 30 minutes
   @Get(':id/stats')
   async getPlayerStats(
     @Param('id', PlayerByIdPipe) player: Player,
