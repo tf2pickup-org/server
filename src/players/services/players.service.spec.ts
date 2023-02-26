@@ -335,7 +335,7 @@ describe('PlayersService', () => {
     describe('when TF2 in-game hours could not be fetched', () => {
       beforeEach(() => {
         steamApiService.getTf2InGameHours.mockRejectedValue(
-          new SteamApiError('FAKE_STEAM_API_ERROR'),
+          new SteamApiError(403, 'FAKE_STEAM_API_ERROR'),
         );
       });
 

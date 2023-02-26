@@ -1,7 +1,7 @@
 import { Environment } from '@/environment/environment';
 import { HttpService } from '@nestjs/axios';
 import { Test, TestingModule } from '@nestjs/testing';
-import { AxiosResponse } from 'axios';
+import { AxiosError, AxiosResponse } from 'axios';
 import { readFile } from 'fs/promises';
 import { resolve } from 'path';
 import { of, throwError } from 'rxjs';
@@ -69,7 +69,13 @@ describe('SteamApiService', () => {
 
     describe('with response code 500', () => {
       beforeEach(() => {
-        httpService.get.mockReturnValue(throwError(() => ({ status: 500 })));
+        const error = new AxiosError('Forbidden', '403');
+        error.response = {
+          data: {},
+          status: 403,
+          statusText: 'Forbidden',
+        } as AxiosResponse;
+        httpService.get.mockReturnValue(throwError(() => error));
       });
 
       it('should throw an error', async () => {
