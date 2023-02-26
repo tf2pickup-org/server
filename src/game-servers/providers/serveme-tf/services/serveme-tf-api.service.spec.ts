@@ -42,6 +42,8 @@ describe('ServemeTfApiService', () => {
     servemeTfConfigurationService.getPreferredRegion.mockResolvedValue(
       undefined,
     );
+
+    servemeTfConfigurationService.getBannedGameservers.mockResolvedValue([]);
   });
 
   it('should be defined', () => {
@@ -149,18 +151,26 @@ describe('ServemeTfApiService', () => {
           );
         });
       });
+    });
 
-      describe('and a server in the requested region is not available', () => {
-        beforeEach(() => {
-          servemeTfConfigurationService.getPreferredRegion.mockResolvedValue(
-            'fr',
-          );
-        });
+    describe('when banned gameservers are specified', () => {
+      beforeEach(() => {
+        servemeTfConfigurationService.getBannedGameservers.mockResolvedValue([
+          'BolusBrigade',
+        ]);
+      });
 
-        it('should pick the a server randomly', async () => {
-          const reservation = await service.reserveServer();
-          expect(reservation).toBeTruthy();
-        });
+      it('should pick the server that is not banned', async () => {
+        await service.reserveServer();
+        expect(httpService.post).toHaveBeenLastCalledWith(
+          'CREATE_RESERVATION_FAKE_URL',
+          {
+            reservation: expect.objectContaining({
+              server_id: 9118,
+            }),
+          },
+          expect.any(Object),
+        );
       });
     });
 

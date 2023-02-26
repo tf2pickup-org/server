@@ -14,12 +14,19 @@ export class ServemeTfConfigurationService implements OnModuleInit {
         z.string().optional(),
         undefined,
       ),
+      configurationEntry('serveme_tf.ban_gameservers', z.array(z.string()), []),
     );
   }
 
   async getPreferredRegion(): Promise<string | undefined> {
     return await this.configurationService.get<string | undefined>(
       'serveme_tf.preferred_region',
+    );
+  }
+
+  async getBannedGameservers(): Promise<string[]> {
+    return await this.configurationService.get<string[]>(
+      'serveme_tf.ban_gameservers',
     );
   }
 }

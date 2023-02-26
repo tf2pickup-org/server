@@ -244,17 +244,18 @@ export class ServemeTfApiService {
       return ret;
     }
 
-    // make sure we don't take a SDR server
-    // https://partner.steamgames.com/doc/features/multiplayer/steamdatagramrelay
-    const nonSdrOptions = options.filter((s) => s.sdr === false);
-    const preferredRegion =
-      await this.servemeTfConfigurationService.getPreferredRegion();
-    const matchingOptions = nonSdrOptions.filter(
-      (s) => s.flag === preferredRegion,
-    );
-    const option = sample(
-      matchingOptions.length > 0 ? matchingOptions : nonSdrOptions,
-    );
+    const [preferredRegion, banGameservers] = await Promise.all([
+      this.servemeTfConfigurationService.getPreferredRegion(),
+      this.servemeTfConfigurationService.getBannedGameservers(),
+    ]);
+
+    const matchingOptions = options
+      // make sure we don't take a SDR server
+      // https://partner.steamgames.com/doc/features/multiplayer/steamdatagramrelay
+      .filter((s) => s.sdr === false)
+      .filter((s) => (preferredRegion ? s.flag === preferredRegion : true))
+      .filter((s) => banGameservers.every((ban) => !s.name.includes(ban)));
+    const option = sample(matchingOptions);
     if (!option) {
       throw new Error(`could not find any gameservers meeting given criteria`);
     }
