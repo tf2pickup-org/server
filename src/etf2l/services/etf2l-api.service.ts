@@ -19,7 +19,7 @@ export class Etf2lApiService {
   constructor(private readonly httpService: HttpService) {}
 
   async fetchPlayerProfile(steamIdOrEtf2lId: string): Promise<Etf2lProfile> {
-    const url = `${etf2lApiEndpoint}/player/${steamIdOrEtf2lId}.json`;
+    const url = `${etf2lApiEndpoint}/player/${steamIdOrEtf2lId}`;
     return await firstValueFrom(
       this.httpService.get<Etf2lPlayerResponse>(url).pipe(
         switchMap((response) => {

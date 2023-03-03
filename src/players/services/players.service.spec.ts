@@ -43,15 +43,35 @@ class EnvironmentStub {
 const blacklistedProfile: Etf2lProfile = {
   bans: [
     {
-      end: 4294967295,
-      reason: 'Blacklisted',
-      start: 0,
+      start: 1658123245,
+      end: 1659304800,
+      reason: 'Failure to provide 2 demo requests',
+    },
+    {
+      start: 1677339076,
+      end: 1740438000,
+      reason: 'Cheating',
     },
   ],
-  classes: ['Scout', 'Soldier', 'Sniper'],
+  classes: ['Sniper'],
   country: 'Russia',
-  id: 129205,
-  name: 'Tixx',
+  id: 143516,
+  name: 'FERRARI.PEEK',
+  registered: 1648490374,
+  steam: {
+    avatar:
+      'https://avatars.akamai.steamstatic.com/72b819d2fe2394370c2df57a92a1c8cd0be63f88_full.jpg',
+    id: 'STEAM_1:1:178555715',
+    id3: '[U:1:357111431]',
+    id64: '76561198317377159',
+  },
+  teams: [],
+  title: 'Player',
+  urls: {
+    results: 'https://api-v2.etf2l.org/player/143516/results',
+    self: 'https://api-v2.etf2l.org/player/143516',
+    transfers: 'https://api-v2.etf2l.org/player/143516/transfers',
+  },
 };
 
 describe('PlayersService', () => {
@@ -113,12 +133,26 @@ describe('PlayersService', () => {
     });
 
     etf2lApiService.fetchPlayerProfile.mockResolvedValue({
-      // http://api.etf2l.org/player/112758
       bans: null,
       classes: ['Soldier', 'Medic'],
       country: 'Poland',
       id: 112758,
       name: 'maly',
+      registered: 1429389632,
+      steam: {
+        avatar:
+          'https://avatars.akamai.steamstatic.com/596988aea5c85e40d229cd2e60c68bfd06b980cb_full.jpg',
+        id: 'STEAM_1:1:57071709',
+        id3: '[U:1:114143419]',
+        id64: '76561198074409147',
+      },
+      teams: [],
+      title: 'Player',
+      urls: {
+        results: 'https://api-v2.etf2l.org/player/112758/results',
+        self: 'https://api-v2.etf2l.org/player/112758',
+        transfers: 'https://api-v2.etf2l.org/player/112758/transfers',
+      },
     });
   });
 
