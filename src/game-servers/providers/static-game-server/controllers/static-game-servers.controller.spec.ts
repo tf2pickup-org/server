@@ -4,6 +4,7 @@ import { GameServerDiagnosticsService } from '../services/game-server-diagnostic
 import { Environment } from '@/environment/environment';
 import { StaticGameServersService } from '../services/static-game-servers.service';
 import { StaticGameServer } from '../models/static-game-server';
+import { Types } from 'mongoose';
 
 jest.mock('../services/game-server-diagnostics.service');
 jest.mock('../services/static-game-servers.service');
@@ -130,9 +131,10 @@ describe('GameServers Controller', () => {
     });
 
     it('should call the service', async () => {
-      const ret = await controller.runDiagnostics('FAKE_GAME_SERVER_ID');
+      const gameServerId = new Types.ObjectId();
+      const ret = await controller.runDiagnostics(gameServerId);
       expect(gameServerDiagnosticsService.runDiagnostics).toHaveBeenCalledWith(
-        'FAKE_GAME_SERVER_ID',
+        gameServerId,
       );
       expect(ret).toEqual({
         diagnosticRunId: 'FAKE_DIAGNOSTICS_ID',

@@ -22,6 +22,7 @@ import { GameServerHeartbeat } from '../dto/game-server-heartbeat';
 import { RealIp } from 'nestjs-real-ip';
 import { SecretPurpose } from '@/auth/secret-purpose';
 import { StaticGameServersService } from '../services/static-game-servers.service';
+import { Types } from 'mongoose';
 
 @Controller('static-game-servers')
 export class StaticGameServersController {
@@ -65,7 +66,7 @@ export class StaticGameServersController {
   @UseFilters(DocumentNotFoundFilter)
   @HttpCode(202)
   async runDiagnostics(
-    @Param('id', ObjectIdValidationPipe) gameServerId: string,
+    @Param('id', ObjectIdValidationPipe) gameServerId: Types.ObjectId,
   ) {
     const id = await this.gameServerDiagnosticsService.runDiagnostics(
       gameServerId,

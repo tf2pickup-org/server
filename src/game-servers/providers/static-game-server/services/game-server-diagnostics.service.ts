@@ -2,7 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
 import { InjectModel } from '@nestjs/mongoose';
 import { instanceToInstance, plainToInstance } from 'class-transformer';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { from, Observable } from 'rxjs';
 import { concatMap, tap } from 'rxjs/operators';
 import { LogForwarding } from '../diagnostic-checks/log-forwarding';
@@ -38,7 +38,7 @@ export class GameServerDiagnosticsService {
     );
   }
 
-  async runDiagnostics(gameServerId: string): Promise<string> {
+  async runDiagnostics(gameServerId: Types.ObjectId): Promise<string> {
     await this.staticGameServersService.getById(gameServerId);
     const runners = await this.collectAllRunners();
     const checks = runners.map((runner) => ({
@@ -89,7 +89,7 @@ export class GameServerDiagnosticsService {
 
       const fn = async () => {
         const gameServer = await this.staticGameServersService.getById(
-          diagnosticRun.gameServer.toString(),
+          diagnosticRun.gameServer,
         );
 
         this.logger.log(`Starting diagnostics of ${gameServer.name}...`);
