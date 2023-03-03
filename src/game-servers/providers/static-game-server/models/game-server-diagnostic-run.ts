@@ -4,6 +4,7 @@ import { MongooseDocument } from '@/utils/mongoose-document';
 import { Expose, Transform, Type } from 'class-transformer';
 import { DiagnosticCheck, diagnosticCheckSchema } from './diagnostic-check';
 import { DiagnosticRunStatus } from './diagnostic-run-status';
+import { TransformObjectId } from '@/shared/decorators/transform-object-id';
 
 @Schema()
 export class GameServerDiagnosticRun extends MongooseDocument {
@@ -15,8 +16,8 @@ export class GameServerDiagnosticRun extends MongooseDocument {
   @Prop({ default: () => new Date() })
   launchedAt?: Date;
 
-  @Transform(({ value }) => value.toString())
-  @Prop({ required: true, type: Types.ObjectId, ref: 'GameServer' })
+  @TransformObjectId()
+  @Prop({ required: true, type: Types.ObjectId, ref: 'StaticGameServer' })
   gameServer!: Types.ObjectId;
 
   @Type(() => DiagnosticCheck)
