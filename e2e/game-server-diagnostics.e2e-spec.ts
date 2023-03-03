@@ -11,6 +11,7 @@ import { DiagnosticRunStatus } from '@/game-servers/providers/static-game-server
 import { players } from './test-data';
 import { StaticGameServersService } from '@/game-servers/providers/static-game-server/services/static-game-servers.service';
 import { configureApplication } from '@/configure-application';
+import { Types } from 'mongoose';
 
 jest.setTimeout(70000);
 
@@ -84,7 +85,9 @@ describe('Game server diagnostics (e2e)', () => {
     let diagnosticRunId: string;
 
     beforeEach(async () => {
-      diagnosticRunId = await diagnosticsService.runDiagnostics(gameServer);
+      diagnosticRunId = await diagnosticsService.runDiagnostics(
+        new Types.ObjectId(gameServer),
+      );
     });
 
     afterEach(async () => {
