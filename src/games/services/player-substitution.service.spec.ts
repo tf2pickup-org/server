@@ -481,7 +481,7 @@ describe('PlayerSubstitutionService', () => {
           game.slots.filter(
             (s) => s.player.toString().localeCompare(player1._id) === 0,
           ).length,
-        ).toEqual(2);
+        ).toEqual(1);
       });
     });
   });

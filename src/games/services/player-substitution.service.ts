@@ -236,22 +236,42 @@ export class PlayerSubstitutionService implements OnModuleInit {
         throw new Error('player is involved in a currently running game');
       }
 
-      // create new slot of the replacement player
-      const replacementSlot = {
-        player: new Types.ObjectId(replacementId),
-        team: slot.team,
-        gameClass: slot.gameClass,
-        events: [
+      if (game.findPlayerSlot(replacementId)) {
+        await this.gameModel.findByIdAndUpdate(
+          gameId,
           {
-            at: new Date(),
-            event: PlayerEventType.replacesPlayer,
+            $set: {
+              'slots.$[element].status': SlotStatus.active,
+            },
+            $push: {
+              'slots.$[element].events': {
+                event: PlayerEventType.replacesPlayer,
+                at: new Date(),
+              },
+            },
           },
-        ],
-      };
-
-      await this.gameModel.findByIdAndUpdate(gameId, {
-        $push: { slots: replacementSlot },
-      });
+          {
+            arrayFilters: [{ 'element.player': { $eq: replacementId } }],
+          },
+        );
+      } else {
+        // create new slot of the replacement player
+        await this.gameModel.findByIdAndUpdate(gameId, {
+          $push: {
+            slots: {
+              player: replacementId,
+              team: slot.team,
+              gameClass: slot.gameClass,
+              events: [
+                {
+                  at: new Date(),
+                  event: PlayerEventType.replacesPlayer,
+                },
+              ],
+            },
+          },
+        });
+      }
 
       const newGame = plainToInstance(
         Game,
@@ -265,9 +285,7 @@ export class PlayerSubstitutionService implements OnModuleInit {
             },
             {
               new: true,
-              arrayFilters: [
-                { 'element.player': { $eq: new Types.ObjectId(replaceeId) } },
-              ],
+              arrayFilters: [{ 'element.player': { $eq: replaceeId } }],
             },
           )
           .orFail()
@@ -284,9 +302,12 @@ export class PlayerSubstitutionService implements OnModuleInit {
       this.queueService.kick(replacementId);
 
       const replacee = await this.playersService.getById(replaceeId);
+      const replacementSlot = newGame.findPlayerSlot(replacementId);
 
       this.logger.verbose(
-        `player ${replacement.name} is replacing ${replacee.name} on ${replacementSlot.gameClass} in game #${newGame.number}`,
+        `player ${replacement.name} is replacing ${replacee.name} on ${
+          replacementSlot!.gameClass
+        } in game #${newGame.number}`,
       );
 
       await this.playersService.updatePlayer(replacement._id, {
