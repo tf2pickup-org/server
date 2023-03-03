@@ -6,11 +6,18 @@ import { Subject } from 'rxjs';
 import { Socket } from 'socket.io';
 import { PlayerId } from '../types/player-id';
 import { Types } from 'mongoose';
+import { QueueService } from '@/queue/services/queue.service';
 
 jest.mock('../gateways/players.gateway', () => ({
   PlayersGateway: jest.fn().mockImplementation(() => ({
     playerConnected: new Subject<Socket>(),
     playerDisconnected: new Subject<Socket>(),
+  })),
+}));
+
+jest.mock('@/queue/services/queue.service', () => ({
+  QueueService: jest.fn().mockImplementation(() => ({
+    slots: [],
   })),
 }));
 
@@ -24,7 +31,7 @@ describe('OnlinePlayersService', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [OnlinePlayersService, PlayersGateway, Events],
+      providers: [OnlinePlayersService, PlayersGateway, Events, QueueService],
     }).compile();
 
     service = module.get<OnlinePlayersService>(OnlinePlayersService);

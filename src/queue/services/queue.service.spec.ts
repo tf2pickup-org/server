@@ -91,7 +91,7 @@ describe('QueueService', () => {
           {
             id: 0,
             gameClass: 'scout',
-            playerId: 'FAKE_PLAYER_ID',
+            playerId: player.id,
             ready: false,
             player: {
               name: 'bambi',
@@ -196,7 +196,7 @@ describe('QueueService', () => {
     });
 
     it('should restore the queue from cache', () => {
-      expect(service.slots[0].playerId).toEqual('FAKE_PLAYER_ID');
+      expect(service.slots[0].playerId?.equals(player._id)).toBe(true);
     });
   });
 
@@ -329,8 +329,8 @@ describe('QueueService', () => {
               state: QueueState.waiting,
             });
             expect(
-              value.slots.find((s: QueueSlot) =>
-                s.playerId?.equals(player._id),
+              value.slots.find(
+                (s: { playerId: string }) => s.playerId === player.id,
               ),
             ).toBeTruthy();
             resolve();

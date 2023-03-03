@@ -20,9 +20,17 @@ import { Cache } from 'cache-manager';
 import { QueueConfig } from '@/queue-config/interfaces/queue-config';
 import { ConfigurationService } from '@/configuration/services/configuration.service';
 import { PlayerId } from '@/players/types/player-id';
+import { Tf2ClassName } from '@/shared/models/tf2-class-name';
+import { Types } from 'mongoose';
 
 interface Queue {
-  slots: QueueSlot[];
+  slots: {
+    id: number;
+    gameClass: Tf2ClassName;
+    playerId: string | null;
+    ready: boolean;
+    canMakeFriendsWith?: Tf2ClassName[];
+  }[];
   state: QueueState;
 }
 
@@ -91,7 +99,12 @@ export class QueueService
 
     const queue: Queue | undefined = await this.cache.get('queue');
     if (queue) {
-      this.slots = queue.slots;
+      this.slots = queue.slots.map((slot) => ({
+        ...slot,
+        playerId: slot.playerId
+          ? (new Types.ObjectId(slot.playerId) as PlayerId)
+          : null,
+      }));
       this.state = queue.state;
     }
   }
@@ -320,11 +333,17 @@ export class QueueService
     this.events.queueStateChange.next({ state });
   }
 
+  private serialize(): Queue {
+    return {
+      slots: this.slots.map((slot) => ({
+        ...slot,
+        playerId: slot.playerId?.toString() ?? null,
+      })),
+      state: this.state,
+    };
+  }
+
   private async cacheQueue() {
-    await this.cache.set(
-      'queue',
-      { slots: this.slots, state: this.state },
-      180 * 1000, // 3 minutes
-    );
+    await this.cache.set('queue', this.serialize(), 0);
   }
 }
