@@ -32,6 +32,21 @@ describe('Etf2lApiService', () => {
       name: 'FAKE_ETF2L_NAME',
       country: 'SOME_COUNTRY',
       classes: ['FAKE_CLASS_1', 'FAKE_CLASS_2'],
+      bans: null,
+      registered: 0,
+      steam: {
+        avatar: '',
+        id: '',
+        id3: '',
+        id64: '',
+      },
+      teams: [],
+      title: 'Player',
+      urls: {
+        results: '',
+        self: '',
+        transfers: '',
+      },
     };
 
     beforeEach(() => {
@@ -46,7 +61,7 @@ describe('Etf2lApiService', () => {
     it('should query the etf2l.org endpoint', async () => {
       const profile = await service.fetchPlayerProfile('FAKE_STEAM_ID');
       expect(httpService.get).toHaveBeenCalledWith(
-        'http://api.etf2l.org/player/FAKE_STEAM_ID.json',
+        'http://api-v2.etf2l.org/player/FAKE_STEAM_ID',
       );
       expect(profile).toEqual(mockEtf2lProfile);
     });
