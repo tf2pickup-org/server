@@ -352,7 +352,7 @@ describe('ServerConfiguratorService', () => {
 
     describe('when the game does not have a server assigned', () => {
       beforeEach(async () => {
-        await mockGame.update({ $unset: { gameServer: 1 } });
+        await mockGame.updateOne({ $unset: { gameServer: 1 } });
       });
 
       it('should throw', async () => {
