@@ -69,7 +69,7 @@ export class ConfigurationService {
   async reset<T>(key: string): Promise<T> {
     const oldValue = await this.get(key);
     const entry = this.entries.get(key)!;
-    await this.configurationItemModel.remove({ key });
+    await this.configurationItemModel.deleteOne({ key });
     const newValue = entry.default;
     this.events.configurationChanged.next({ key, oldValue, newValue });
     return newValue as T;
