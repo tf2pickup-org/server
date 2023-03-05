@@ -102,7 +102,7 @@ module.exports.up = function (next) {
       configuration,
     ])
     .then(([, collection, configuration]) =>
-      configuration.map((entry) => collection.insert(entry)),
+      configuration.map((entry) => collection.insertOne(entry)),
     )
     .then(() => next());
 };

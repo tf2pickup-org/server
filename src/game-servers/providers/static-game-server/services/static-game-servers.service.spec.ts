@@ -189,7 +189,7 @@ describe('StaticGameServersService', () => {
       testGameServer = await staticGameServerModel
         .findById(gameServer.id)
         .orFail();
-      expect(testGameServer.game).toEqual(gameId);
+      expect(testGameServer.game?.equals(gameId)).toBe(true);
       expect(gameServer).toEqual({
         id: testGameServer.id,
         name: testGameServer.name,
@@ -531,7 +531,7 @@ describe('StaticGameServersService', () => {
         const gs = await staticGameServerModel
           .findById(testGameServer.id)
           .orFail();
-        expect(gs.game).toEqual(game._id);
+        expect(gs.game!.equals(game._id)).toBe(true);
       });
     });
   });
