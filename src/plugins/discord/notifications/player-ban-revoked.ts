@@ -1,4 +1,4 @@
-import { MessageEmbed } from 'discord.js';
+import { EmbedBuilder } from 'discord.js';
 import { Colors } from './colors';
 
 interface PlayerBanRevokedOptions {
@@ -20,7 +20,7 @@ interface PlayerBanRevokedOptions {
 }
 
 export const playerBanRevoked = (options: PlayerBanRevokedOptions) =>
-  new MessageEmbed()
+  new EmbedBuilder()
     .setColor(Colors.PlayerBanRevoked)
     .setAuthor({
       name: options.admin.name,
@@ -28,7 +28,7 @@ export const playerBanRevoked = (options: PlayerBanRevokedOptions) =>
       url: options.admin.profileUrl,
     })
     .setTitle('Player ban revoked')
-    .setThumbnail(options.player.avatarUrl ?? '')
+    .setThumbnail(options.player.avatarUrl ?? null)
     .setDescription(
       [
         `Player: **[${options.player.name}](${options.player.profileUrl})**`,

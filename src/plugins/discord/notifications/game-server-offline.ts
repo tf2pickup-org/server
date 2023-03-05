@@ -1,4 +1,4 @@
-import { MessageEmbed } from 'discord.js';
+import { EmbedBuilder } from 'discord.js';
 import { Colors } from './colors';
 
 interface GameServerOfflineOptions {
@@ -14,7 +14,7 @@ interface GameServerOfflineOptions {
 }
 
 export const gameServerOffline = (options: GameServerOfflineOptions) =>
-  new MessageEmbed()
+  new EmbedBuilder()
     .setColor(Colors.GameServerRemoved)
     .setTitle('Game server is offline')
     .setDescription(

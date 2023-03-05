@@ -140,7 +140,9 @@ describe('AdminNotificationsService', () => {
       new Promise<void>((resolve) => {
         sentMessages.subscribe((message) => {
           expect(message.embeds.length).toBeGreaterThan(0);
-          expect(message.embeds[0].title).toEqual('Player profile updated');
+          expect(message.embeds[0].toJSON().title).toEqual(
+            'Player profile updated',
+          );
           resolve();
         });
 
@@ -182,7 +184,7 @@ describe('AdminNotificationsService', () => {
       new Promise<void>((resolve) => {
         sentMessages.subscribe((message) => {
           expect(message.embeds.length).toBeGreaterThan(0);
-          expect(message.embeds[0].title).toEqual('Player ban added');
+          expect(message.embeds[0].toJSON().title).toEqual('Player ban added');
           resolve();
         });
 
@@ -216,7 +218,9 @@ describe('AdminNotificationsService', () => {
       new Promise<void>((resolve) => {
         sentMessages.subscribe((message) => {
           expect(message.embeds.length).toBe(1);
-          expect(message.embeds[0].title).toEqual('Player ban revoked');
+          expect(message.embeds[0].toJSON().title).toEqual(
+            'Player ban revoked',
+          );
           resolve();
         });
 
@@ -259,7 +263,9 @@ describe('AdminNotificationsService', () => {
     it('should send a message', () =>
       new Promise<void>((resolve) => {
         sentMessages.subscribe((message) => {
-          expect(message.embeds[0].title).toEqual('Player skill updated');
+          expect(message.embeds[0].toJSON().title).toEqual(
+            'Player skill updated',
+          );
           resolve();
         });
 
@@ -290,7 +296,7 @@ describe('AdminNotificationsService', () => {
     it('should send a message', () =>
       new Promise<void>((resolve) => {
         sentMessages.subscribe((message) => {
-          expect(message.embeds[0].title).toEqual('Game server added');
+          expect(message.embeds[0].toJSON().title).toEqual('Game server added');
           resolve();
         });
 
@@ -303,7 +309,9 @@ describe('AdminNotificationsService', () => {
   describe('when the gameServer goes offline', () => {
     it('should send a message', () => {
       sentMessages.subscribe((message) => {
-        expect(message.embeds[0].title).toEqual('Game server is offline');
+        expect(message.embeds[0].toJSON().title).toEqual(
+          'Game server is offline',
+        );
       });
 
       staticGameServersService.gameServerUpdated.next({
@@ -322,7 +330,9 @@ describe('AdminNotificationsService', () => {
   describe('when the gameServer comes back online', () => {
     it('should send a message', () => {
       sentMessages.subscribe((message) => {
-        expect(message.embeds[0].title).toEqual('Game server is back online');
+        expect(message.embeds[0].toJSON().title).toEqual(
+          'Game server is back online',
+        );
       });
 
       staticGameServersService.gameServerUpdated.next({
@@ -349,7 +359,7 @@ describe('AdminNotificationsService', () => {
     it('should send a message', () =>
       new Promise<void>((resolve) => {
         sentMessages.subscribe((message) => {
-          expect(message.embeds[0].title).toEqual('Game force-ended');
+          expect(message.embeds[0].toJSON().title).toEqual('Game force-ended');
           resolve();
         });
 
@@ -388,7 +398,9 @@ describe('AdminNotificationsService', () => {
     it('should send a notification', () =>
       new Promise<void>((resolve) => {
         sentMessages.subscribe((message) => {
-          expect(message.embeds[0].title).toEqual('Substitute requested');
+          expect(message.embeds[0].toJSON().title).toEqual(
+            'Substitute requested',
+          );
           resolve();
         });
 
@@ -411,7 +423,7 @@ describe('AdminNotificationsService', () => {
     it('should send a notification', () =>
       new Promise<void>((resolve) => {
         sentMessages.subscribe((message) => {
-          expect(message.embeds[0].title).toEqual('Maps scrambled');
+          expect(message.embeds[0].toJSON().title).toEqual('Maps scrambled');
           resolve();
         });
 

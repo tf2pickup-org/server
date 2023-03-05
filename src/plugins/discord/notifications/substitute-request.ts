@@ -1,34 +1,30 @@
-import { MessageEmbedOptions } from 'discord.js';
+import { EmbedBuilder } from 'discord.js';
 import { Colors } from './colors';
 
-interface SubstituteRequestFields {
+interface SubstituteRequestOptions {
   gameNumber: number;
   gameClass: string;
   team: string;
   gameUrl: string;
 }
 
-export function substituteRequest(
-  fields: SubstituteRequestFields,
-): MessageEmbedOptions {
-  return {
-    color: Colors.SubstituteRequest,
-    title: 'A substitute is needed',
-    fields: [
+export const substituteRequest = (options: SubstituteRequestOptions) =>
+  new EmbedBuilder()
+    .setColor(Colors.SubstituteRequest)
+    .setTitle('A substitute is needed')
+    .addFields(
       {
         name: 'Game no.',
-        value: `#${fields.gameNumber}`,
+        value: `#${options.gameNumber}`,
       },
       {
         name: 'Class',
-        value: fields.gameClass,
+        value: options.gameClass,
       },
       {
         name: 'Team',
-        value: fields.team,
+        value: options.team,
       },
-    ],
-    url: fields.gameUrl,
-    timestamp: new Date(),
-  };
-}
+    )
+    .setURL(options.gameUrl ?? null)
+    .setTimestamp();

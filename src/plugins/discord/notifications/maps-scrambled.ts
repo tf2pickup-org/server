@@ -1,4 +1,4 @@
-import { MessageEmbed } from 'discord.js';
+import { EmbedBuilder } from 'discord.js';
 import { Colors } from './colors';
 
 interface MapsScrambledOptions {
@@ -14,7 +14,7 @@ interface MapsScrambledOptions {
 }
 
 export const mapsScrambled = (options: MapsScrambledOptions) =>
-  new MessageEmbed()
+  new EmbedBuilder()
     .setColor(Colors.MapsScrambled)
     .setAuthor({
       name: options.actor.name,
@@ -22,7 +22,7 @@ export const mapsScrambled = (options: MapsScrambledOptions) =>
       url: options.actor.profileUrl,
     })
     .setTitle('Maps scrambled')
-    .setThumbnail(options.actor.avatarUrl || '')
+    .setThumbnail(options.actor.avatarUrl ?? null)
     .setFooter({
       text: options.client.name,
       iconURL: options.client.iconUrl,

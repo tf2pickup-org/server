@@ -1,6 +1,7 @@
 import { EventEmitter } from 'events';
 
-const { Collection, MessageEmbed, Intents } = jest.requireActual('discord.js');
+const { Collection, EmbedBuilder, GatewayIntentBits } =
+  jest.requireActual('discord.js');
 
 export class Message {}
 
@@ -70,4 +71,4 @@ export class Client extends EventEmitter {
   }
 }
 
-export { MessageEmbed, Intents };
+export { EmbedBuilder, GatewayIntentBits };

@@ -1,4 +1,4 @@
-import { MessageEmbed } from 'discord.js';
+import { EmbedBuilder } from 'discord.js';
 import { Colors } from './colors';
 
 interface GameForceEndedOptions {
@@ -18,7 +18,7 @@ interface GameForceEndedOptions {
 }
 
 export const gameForceEnded = (options: GameForceEndedOptions) =>
-  new MessageEmbed()
+  new EmbedBuilder()
     .setColor(Colors.GameForceEnded)
     .setAuthor({
       name: options.admin.name,

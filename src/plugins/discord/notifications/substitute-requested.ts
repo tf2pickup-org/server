@@ -1,4 +1,4 @@
-import { MessageEmbed } from 'discord.js';
+import { EmbedBuilder } from 'discord.js';
 import { Colors } from './colors';
 
 interface SubstituteRequestedOptions {
@@ -22,7 +22,7 @@ interface SubstituteRequestedOptions {
 }
 
 export const substituteRequested = (options: SubstituteRequestedOptions) =>
-  new MessageEmbed()
+  new EmbedBuilder()
     .setColor(Colors.SubstituteRequested)
     .setAuthor({
       name: options.admin.name,
