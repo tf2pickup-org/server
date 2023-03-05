@@ -39,37 +39,40 @@ export class AuthController {
     this.adapterHost.httpAdapter?.get(
       '/auth/steam/return',
       (req: Request, res, next) => {
-        return passport.authenticate('steam', async (error, player: Player) => {
-          let url = this.environment.clientUrl;
-          if (req.headers.cookie) {
-            const cookies = parse(req.headers.cookie);
-            if (redirectUrlCookieName in cookies) {
-              url = cookies[redirectUrlCookieName];
+        return passport.authenticate(
+          'steam',
+          async (error: Error, player: Player) => {
+            let url = this.environment.clientUrl;
+            if (req.headers.cookie) {
+              const cookies = parse(req.headers.cookie);
+              if (redirectUrlCookieName in cookies) {
+                url = cookies[redirectUrlCookieName];
+              }
             }
-          }
 
-          if (error) {
-            this.logger.warn(`Login error: ${error}`);
-            const clientErrorCode = this.mapToClientError(error);
-            return res.redirect(`${url}/auth-error?error=${clientErrorCode}`);
-          }
+            if (error) {
+              this.logger.warn(`Login error: ${error}`);
+              const clientErrorCode = this.mapToClientError(error);
+              return res.redirect(`${url}/auth-error?error=${clientErrorCode}`);
+            }
 
-          if (!player) {
-            return res.sendStatus(401);
-          }
+            if (!player) {
+              return res.sendStatus(401);
+            }
 
-          const refreshToken = await this.authService.generateJwtToken(
-            JwtTokenPurpose.refresh,
-            player.id,
-          );
-          const authToken = await this.authService.generateJwtToken(
-            JwtTokenPurpose.auth,
-            player.id,
-          );
-          return res.redirect(
-            `${url}?refresh_token=${refreshToken}&auth_token=${authToken}`,
-          );
-        })(req, res, next);
+            const refreshToken = await this.authService.generateJwtToken(
+              JwtTokenPurpose.refresh,
+              player.id,
+            );
+            const authToken = await this.authService.generateJwtToken(
+              JwtTokenPurpose.auth,
+              player.id,
+            );
+            return res.redirect(
+              `${url}?refresh_token=${refreshToken}&auth_token=${authToken}`,
+            );
+          },
+        )(req, res, next);
       },
     );
   }
