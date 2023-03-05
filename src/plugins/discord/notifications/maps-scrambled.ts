@@ -22,7 +22,7 @@ export const mapsScrambled = (options: MapsScrambledOptions) =>
       url: options.actor.profileUrl,
     })
     .setTitle('Maps scrambled')
-    .setThumbnail(options.actor.avatarUrl || '')
+    .setThumbnail(options.actor.avatarUrl ?? null)
     .setFooter({
       text: options.client.name,
       iconURL: options.client.iconUrl,

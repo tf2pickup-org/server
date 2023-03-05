@@ -26,5 +26,5 @@ export const substituteRequest = (options: SubstituteRequestOptions) =>
         value: options.team,
       },
     )
-    .setURL(options.gameUrl)
+    .setURL(options.gameUrl ?? null)
     .setTimestamp();

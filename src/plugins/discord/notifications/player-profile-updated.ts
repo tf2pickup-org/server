@@ -46,7 +46,7 @@ export const playerProfileUpdated = (options: PlayerProfileUpdatedOptions) =>
       url: options.admin.profileUrl,
     })
     .setTitle('Player profile updated')
-    .setThumbnail(options.player.avatarUrl || '')
+    .setThumbnail(options.player.avatarUrl ?? null)
     .setDescription(
       `Player: **[${options.player.name}](${
         options.player.profileUrl

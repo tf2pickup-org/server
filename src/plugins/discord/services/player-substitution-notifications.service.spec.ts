@@ -102,6 +102,10 @@ describe('PlayerSubstitutionNotificationsService', () => {
           get: jest.fn().mockReturnValue('TF2 gamers'),
         },
       );
+
+      Object.defineProperty(environment, 'clientUrl', {
+        get: jest.fn().mockReturnValue('http://fake.client'),
+      });
     });
 
     it('should notify all players', () =>
@@ -143,6 +147,9 @@ describe('PlayerSubstitutionNotificationsService', () => {
           get: jest.fn().mockReturnValue('TF2 gamers'),
         },
       );
+      Object.defineProperty(environment, 'clientUrl', {
+        get: jest.fn().mockReturnValue('http://fake.client'),
+      });
     });
 
     beforeEach(
