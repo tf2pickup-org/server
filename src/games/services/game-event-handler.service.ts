@@ -48,16 +48,44 @@ export class GameEventHandlerService implements OnModuleInit, OnModuleDestroy {
       async ({ gameId }) => await this.onMatchEnded(gameId),
     );
     this.events.playerJoinedGameServer.subscribe(
-      async ({ gameId, steamId }) =>
-        await this.onPlayerJoinedGameServer(gameId, steamId),
+      async ({ gameId, steamId }) => {
+        try {
+          await this.onPlayerJoinedGameServer(gameId, steamId);
+        } catch (error) {
+          if (error instanceof Error.DocumentNotFoundError) {
+            // player was not found
+            this.logger.error(`player ${steamId} is not registered`);
+          } else {
+            throw error;
+          }
+        }
+      },
     );
-    this.events.playerJoinedTeam.subscribe(
-      async ({ gameId, steamId }) =>
-        await this.onPlayerJoinedTeam(gameId, steamId),
-    );
+    this.events.playerJoinedTeam.subscribe(async ({ gameId, steamId }) => {
+      try {
+        await this.onPlayerJoinedTeam(gameId, steamId);
+      } catch (error) {
+        if (error instanceof Error.DocumentNotFoundError) {
+          // player was not found
+          this.logger.error(`player ${steamId} is not registered`);
+        } else {
+          throw error;
+        }
+      }
+    });
     this.events.playerDisconnectedFromGameServer.subscribe(
-      async ({ gameId, steamId }) =>
-        await this.onPlayerDisconnected(gameId, steamId),
+      async ({ gameId, steamId }) => {
+        try {
+          await this.onPlayerDisconnected(gameId, steamId);
+        } catch (error) {
+          if (error instanceof Error.DocumentNotFoundError) {
+            // player was not found
+            this.logger.error(`player ${steamId} is not registered`);
+          } else {
+            throw error;
+          }
+        }
+      },
     );
     this.events.scoreReported.subscribe(
       async ({ gameId, teamName, score }) =>
@@ -222,10 +250,6 @@ export class GameEventHandlerService implements OnModuleInit, OnModuleDestroy {
 
     return await this.mutex.runExclusive(async () => {
       const player = await this.playersService.findBySteamId(steamId);
-      if (!player) {
-        throw new Error(`no such player: ${steamId}`);
-      }
-
       const oldGame = await this.gamesService.getById(gameId);
       const newGame = plainToInstance(
         Game,

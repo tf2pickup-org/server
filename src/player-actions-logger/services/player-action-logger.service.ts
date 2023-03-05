@@ -1,7 +1,8 @@
 import { Events } from '@/events/events';
 import { GamesService } from '@/games/services/games.service';
 import { PlayersService } from '@/players/services/players.service';
-import { Injectable, OnModuleInit } from '@nestjs/common';
+import { assertIsError } from '@/utils/assert-is-error';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import {
@@ -15,6 +16,8 @@ import { PlayerSaidInMatchChat } from '../player-actions/player-said-in-match-ch
 
 @Injectable()
 export class PlayerActionLoggerService implements OnModuleInit {
+  private readonly logger = new Logger(PlayerActionLoggerService.name);
+
   constructor(
     @InjectModel(PlayerActionEntry.name)
     private readonly playerActionEntryModel: Model<PlayerActionEntryDocument>,
@@ -26,22 +29,37 @@ export class PlayerActionLoggerService implements OnModuleInit {
   onModuleInit() {
     this.events.playerJoinedGameServer.subscribe(
       async ({ gameId, steamId, ipAddress }) => {
-        const [player, game] = await Promise.all([
-          this.playersService.findBySteamId(steamId),
-          this.gamesService.getById(gameId),
-        ]);
-        this.logAction(
-          new PlayerConnectedToGameserver(player, { ipAddress }, game),
-        );
+        try {
+          const [player, game] = await Promise.all([
+            this.playersService.findBySteamId(steamId),
+            this.gamesService.getById(gameId),
+          ]);
+          this.logAction(
+            new PlayerConnectedToGameserver(player, { ipAddress }, game),
+          );
+        } catch (error) {
+          assertIsError(error);
+          this.logger.error(error.message);
+        }
       },
     );
     this.events.playerConnects.subscribe(async ({ playerId, metadata }) => {
-      const player = await this.playersService.getById(playerId);
-      this.logAction(new PlayerOnlineStatusChanged(player, metadata, true));
+      try {
+        const player = await this.playersService.getById(playerId);
+        this.logAction(new PlayerOnlineStatusChanged(player, metadata, true));
+      } catch (error) {
+        assertIsError(error);
+        this.logger.error(error.message);
+      }
     });
     this.events.playerSaidInGameChat.subscribe(async ({ steamId, message }) => {
-      const player = await this.playersService.findBySteamId(steamId);
-      this.logAction(new PlayerSaidInMatchChat(player, {}, message));
+      try {
+        const player = await this.playersService.findBySteamId(steamId);
+        this.logAction(new PlayerSaidInMatchChat(player, {}, message));
+      } catch (error) {
+        assertIsError(error);
+        this.logger.error(error.message);
+      }
     });
   }
 
