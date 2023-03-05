@@ -1,4 +1,4 @@
-import { MessageEmbed } from 'discord.js';
+import { EmbedBuilder } from 'discord.js';
 import { Colors } from './colors';
 import { Player } from '@/players/models/player';
 
@@ -41,7 +41,7 @@ const generateChangesText = (
 };
 
 export const playerSkillChanged = (options: PlayerSkillChangedOptions) =>
-  new MessageEmbed()
+  new EmbedBuilder()
     .setColor(Colors.SkillChanged)
     .setAuthor({
       name: options.admin.name,

@@ -1,4 +1,4 @@
-import { MessageEmbed } from 'discord.js';
+import { EmbedBuilder } from 'discord.js';
 import { Colors } from './colors';
 
 interface GameServerAddedOptions {
@@ -14,7 +14,7 @@ interface GameServerAddedOptions {
 }
 
 export const gameServerAdded = (options: GameServerAddedOptions) =>
-  new MessageEmbed()
+  new EmbedBuilder()
     .setColor(Colors.GameServerAdded)
     .setTitle('Game server added')
     .setDescription(

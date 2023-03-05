@@ -1,4 +1,4 @@
-import { MessageEmbed } from 'discord.js';
+import { EmbedBuilder } from 'discord.js';
 import { Colors } from './colors';
 
 interface Change {
@@ -38,7 +38,7 @@ const generateChangesText = (changes: Record<string, Change>) => {
 };
 
 export const playerProfileUpdated = (options: PlayerProfileUpdatedOptions) =>
-  new MessageEmbed()
+  new EmbedBuilder()
     .setColor(Colors.PlayerProfileUpdated)
     .setAuthor({
       name: options.admin.name,

@@ -1,4 +1,4 @@
-import { MessageEmbed } from 'discord.js';
+import { EmbedBuilder } from 'discord.js';
 import { Colors } from './colors';
 import moment = require('moment');
 
@@ -22,7 +22,7 @@ interface PlayerBanAddedOptions {
 }
 
 export const playerBanAdded = (options: PlayerBanAddedOptions) =>
-  new MessageEmbed()
+  new EmbedBuilder()
     .setColor(Colors.PlayerBanAdded)
     .setAuthor({
       name: options.admin.name,

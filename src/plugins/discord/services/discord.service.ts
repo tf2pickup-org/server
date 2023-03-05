@@ -1,5 +1,12 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import { Client, Guild, TextChannel, Role, Emoji, Intents } from 'discord.js';
+import {
+  Client,
+  Guild,
+  TextChannel,
+  Role,
+  Emoji,
+  GatewayIntentBits,
+} from 'discord.js';
 import { Environment } from '@/environment/environment';
 import { version } from '../../../../package.json';
 import { emojisToInstall } from '../emojis-to-install';
@@ -8,9 +15,9 @@ import { emojisToInstall } from '../emojis-to-install';
 export class DiscordService implements OnModuleInit {
   private client = new Client({
     intents: [
-      Intents.FLAGS.GUILDS,
-      Intents.FLAGS.GUILD_EMOJIS_AND_STICKERS,
-      Intents.FLAGS.GUILD_MESSAGES,
+      GatewayIntentBits.Guilds,
+      GatewayIntentBits.GuildEmojisAndStickers,
+      GatewayIntentBits.GuildMessages,
     ],
   });
   private guild?: Guild;
@@ -75,11 +82,11 @@ export class DiscordService implements OnModuleInit {
       const found = this.guild?.emojis.cache.find((e) => e.name === emoji.name);
       if (!found) {
         try {
-          const newEmoji = await this.guild?.emojis.create(
-            emoji.sourceUrl,
-            emoji.name,
-            { reason: 'required by the tf2pickup.org server' },
-          );
+          const newEmoji = await this.guild?.emojis.create({
+            name: emoji.name,
+            attachment: emoji.sourceUrl,
+            reason: 'required by the tf2pickup.org server',
+          });
           if (newEmoji) {
             installedEmojis.push(newEmoji);
             this.logger.log(`Installed emoji ${emoji.name}`);
