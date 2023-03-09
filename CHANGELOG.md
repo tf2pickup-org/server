@@ -1,5 +1,33 @@
 
 
+# [11.0.0-alpha.10](https://github.com/tf2pickup-org/server/compare/11.0.0-alpha.9...11.0.0-alpha.10) (2023-03-09)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @redis/client to v1.5.6 ([#2270](https://github.com/tf2pickup-org/server/issues/2270)) ([601f2d5](https://github.com/tf2pickup-org/server/commit/601f2d5afb886d5cbd5da086812a207feded2467))
+* **deps:** update dependency axios to v1.3.4 ([#2267](https://github.com/tf2pickup-org/server/issues/2267)) ([0588438](https://github.com/tf2pickup-org/server/commit/058843866000b917343cbaf7a86fb7485ab825e1))
+* **deps:** update dependency cache-manager to v5.1.7 ([#2268](https://github.com/tf2pickup-org/server/issues/2268)) ([40d201e](https://github.com/tf2pickup-org/server/commit/40d201ed0a11342af60b4b31abda34b55ad25feb))
+* **deps:** update dependency discord.js to v13.13.1 ([#2264](https://github.com/tf2pickup-org/server/issues/2264)) ([45f94ca](https://github.com/tf2pickup-org/server/commit/45f94cad1bec125d59c693900d5cba9517754e40))
+* **deps:** update dependency discord.js to v14 ([#1808](https://github.com/tf2pickup-org/server/issues/1808)) ([7d07aeb](https://github.com/tf2pickup-org/server/commit/7d07aeb704a2fa6ab9f8246f8000f088f4dc4d9d))
+* **deps:** update dependency mongodb to v5 ([#2197](https://github.com/tf2pickup-org/server/issues/2197)) ([251f6b0](https://github.com/tf2pickup-org/server/commit/251f6b0534fab15ec8864976029a902d969803bd))
+* **deps:** update dependency mongoose to v6.10.0 ([#2266](https://github.com/tf2pickup-org/server/issues/2266)) ([6465eb1](https://github.com/tf2pickup-org/server/commit/6465eb15aec227c6098927c18fac6c2640fc33ce))
+* **deps:** update dependency mongoose to v7 ([#2277](https://github.com/tf2pickup-org/server/issues/2277)) ([a02c2e8](https://github.com/tf2pickup-org/server/commit/a02c2e8b9d9636c128b74b82109ddfcb3e7a131b))
+* **deps:** update dependency mongoose to v7.0.1 ([#2293](https://github.com/tf2pickup-org/server/issues/2293)) ([5a483b8](https://github.com/tf2pickup-org/server/commit/5a483b8b8b7828f06ecc10460a9c8166ee19c8b1))
+* **deps:** update dependency rimraf to v4.2.0 ([#2280](https://github.com/tf2pickup-org/server/issues/2280)) ([668b429](https://github.com/tf2pickup-org/server/commit/668b4299e99f1e8a54ad7b13106972394c078e22))
+* **deps:** update dependency rimraf to v4.3.0 ([#2288](https://github.com/tf2pickup-org/server/issues/2288)) ([40a0db7](https://github.com/tf2pickup-org/server/commit/40a0db78bbeaf45ec06c9b62e2caca9c5b4594f7))
+* **deps:** update dependency rimraf to v4.3.1 ([#2294](https://github.com/tf2pickup-org/server/issues/2294)) ([3269c84](https://github.com/tf2pickup-org/server/commit/3269c842657b034421d2da8a4345b59137ff2910))
+* **etf2l:** use v2 ETF2L endpoint ([#2284](https://github.com/tf2pickup-org/server/issues/2284)) ([e964787](https://github.com/tf2pickup-org/server/commit/e96478757f84cc8084c7dbe560d5c212802afb4d))
+* **games:** fix player subbing in a game he was previously subbed out of ([#2286](https://github.com/tf2pickup-org/server/issues/2286)) ([2cea866](https://github.com/tf2pickup-org/server/commit/2cea866190cf1e23b8966d06002dfaef667665b5))
+* **games:** handle player-by-steam errors gracefully ([#2289](https://github.com/tf2pickup-org/server/issues/2289)) ([11efefb](https://github.com/tf2pickup-org/server/commit/11efefb4004f93b5529777232cdfd05e638b7b6f))
+* **queue:** fix queue caching ([#2274](https://github.com/tf2pickup-org/server/issues/2274)) ([7003ff7](https://github.com/tf2pickup-org/server/commit/7003ff76150674e3a0deb50b92a354396163458a))
+* **static-game-server:** fix gameserver diagnostic ([#2283](https://github.com/tf2pickup-org/server/issues/2283)) ([79fa1dc](https://github.com/tf2pickup-org/server/commit/79fa1dcbf00f0f6057ab13942965a9400bd3e6f8))
+
+
+### Features
+
+* **serveme.tf:** ban gameservers ([#2272](https://github.com/tf2pickup-org/server/issues/2272)) ([259bd83](https://github.com/tf2pickup-org/server/commit/259bd83f25655dd1bfefd183494822b797387658))
+
 # [11.0.0-alpha.9](https://github.com/tf2pickup-org/server/compare/11.0.0-alpha.8...11.0.0-alpha.9) (2023-02-20)
 
 
