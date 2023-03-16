@@ -27,7 +27,7 @@ services:
       - redis:/data
 
   gameserver:
-    image: tf2pickuppl/tf2-gameserver:latest
+    image: ghcr.io/tf2pickup-org/tf2-gameserver:latest
     environment:
       - 'SERVER_HOSTNAME=test game server 1'
       - 'PORT=27015'
@@ -42,7 +42,7 @@ services:
     tty: true
 
   gameserver2:
-    image: tf2pickuppl/tf2-gameserver:latest
+    image: ghcr.io/tf2pickup-org/tf2-gameserver:latest
     environment:
       - 'SERVER_HOSTNAME=test game server 2'
       - 'PORT=27025'
