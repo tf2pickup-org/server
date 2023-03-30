@@ -62,7 +62,7 @@
     "pem": "1.14.6",
     "rcon-client": "4.2.3",
     "reflect-metadata": "0.1.13",
-    "rimraf": "4.4.0",
+    "rimraf": "4.4.1",
     "rxjs": "7.8.0",
     "steamid": "2.0.0",
     "zod": "^3.20.2"
