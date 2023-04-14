@@ -5,6 +5,7 @@ import { PlayersService } from '@/players/services/players.service';
 import { KeyPair } from '../key-pair';
 import { Error, Types } from 'mongoose';
 import { PlayerId } from '@/players/types/player-id';
+import { Request } from 'express';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
@@ -14,7 +15,15 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   ) {
     super({
       jsonWebTokenOptions: { algorithms: ['ES512'] },
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      jwtFromRequest: ExtractJwt.fromExtractors([
+        (req: Request) => {
+          let token = null;
+          if (req.cookies) {
+            token = req.cookies['auth_token'];
+          }
+          return token;
+        },
+      ]),
       secretOrKey: authTokenKey.publicKey.export({
         format: 'pem',
         type: 'spki',
