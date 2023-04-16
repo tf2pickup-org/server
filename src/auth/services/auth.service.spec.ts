@@ -2,20 +2,12 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { AuthService } from './auth.service';
 import { generateKeyPairSync } from 'crypto';
 import { decode } from 'jsonwebtoken';
-import { MongoMemoryServer } from 'mongodb-memory-server';
 import { JwtTokenPurpose } from '../jwt-token-purpose';
 import { KeyPair } from '../key-pair';
-import { Connection } from 'mongoose';
-import { getConnectionToken } from '@nestjs/mongoose';
 
 describe('AuthService', () => {
-  let mongod: MongoMemoryServer;
   let service: AuthService;
   let authKeys: KeyPair;
-  let connection: Connection;
-
-  beforeAll(async () => (mongod = await MongoMemoryServer.create()));
-  afterAll(async () => await mongod.stop());
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -37,11 +29,6 @@ describe('AuthService', () => {
 
     service = module.get<AuthService>(AuthService);
     authKeys = module.get('AUTH_TOKEN_KEY');
-    connection = module.get(getConnectionToken());
-  });
-
-  afterEach(async () => {
-    await connection.close();
   });
 
   it('should be defined', () => {
