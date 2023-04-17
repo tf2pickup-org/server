@@ -82,7 +82,7 @@ export class AuthController {
 
   @Get('sign-out')
   @Auth()
-  async signOut(@Req() req: Request, @Res() res: Response) {
+  signOut(@Req() req: Request, @Res() res: Response) {
     const referer = req.get('referer');
     res.clearCookie('auth_token');
     return res.redirect(referer ?? this.environment.clientUrl);
@@ -93,8 +93,10 @@ export class AuthController {
     if (error instanceof SteamApiError) {
       switch (error.code) {
         case 403:
-          this.logger.warn(`player's profile must be public`);
+          this.logger.warn("player's profile must be public");
           break;
+
+        // no default
       }
 
       return 'cannot verify in-game hours for TF2';

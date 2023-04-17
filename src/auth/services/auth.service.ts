@@ -11,10 +11,7 @@ export class AuthService {
     @Inject('CONTEXT_TOKEN_KEY') private contextTokenKey: KeyPair,
   ) {}
 
-  async generateJwtToken(
-    purpose: JwtTokenPurpose,
-    userId: string,
-  ): Promise<string> {
+  generateJwtToken(purpose: JwtTokenPurpose, userId: string): string {
     switch (purpose) {
       case JwtTokenPurpose.auth: {
         const key = this.authTokenKey.privateKey.export({
@@ -45,6 +42,8 @@ export class AuthService {
           expiresIn: '1m',
         });
       }
+
+      // no default
     }
   }
 
@@ -68,6 +67,8 @@ export class AuthService {
           type: 'spki',
         });
         break;
+
+      // no default
     }
 
     return verify(token, key, { algorithms: ['ES512'] }) as {

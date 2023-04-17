@@ -172,7 +172,7 @@ describe('Reassign gameserver (e2e)', () => {
 
     /* fetch gameserver options */
     await request(app.getHttpServer())
-      .get(`/game-servers/options`)
+      .get('/game-servers/options')
       .set('Cookie', [`auth_token=${adminAuthToken}`])
       .expect(200)
       .then(async (response) => {

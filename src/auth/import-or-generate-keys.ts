@@ -50,7 +50,7 @@ export const importOrGenerateKeys = async (
               .export({
                 format: 'pem',
                 type: 'pkcs8',
-                passphrase: passphrase,
+                passphrase,
                 cipher: 'aes-256-cbc',
               })
               .toString(),
