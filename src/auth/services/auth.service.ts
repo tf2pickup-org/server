@@ -43,7 +43,8 @@ export class AuthService {
         });
       }
 
-      // no default
+      default:
+        throw new Error('unknown key purpose');
     }
   }
 

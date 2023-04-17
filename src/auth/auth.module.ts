@@ -4,6 +4,7 @@ import { PlayersModule } from '@/players/players.module';
 import { PassportModule } from '@nestjs/passport';
 import { SteamStrategy } from './strategies/steam.strategy';
 import { AuthController } from './controllers/auth.controller';
+// skipcq: JS-C1003
 import * as passport from 'passport';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { AuthGateway } from './gateways/auth.gateway';

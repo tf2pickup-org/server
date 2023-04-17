@@ -34,7 +34,7 @@ export class AuthController {
       (req: Request, res: Response, next) => {
         return passport.authenticate(
           'steam',
-          async (error: Error, player: Player) => {
+          (error: Error, player: Player) => {
             let url = this.environment.clientUrl;
             if (req.headers.cookie) {
               const cookies = parse(req.headers.cookie);
@@ -53,7 +53,7 @@ export class AuthController {
               return res.sendStatus(401);
             }
 
-            const authToken = await this.authService.generateJwtToken(
+            const authToken = this.authService.generateJwtToken(
               JwtTokenPurpose.auth,
               player.id,
             );
@@ -71,8 +71,8 @@ export class AuthController {
 
   @Get('wstoken')
   @Auth()
-  async refreshWsToken(@User() user: Player) {
-    const wsToken = await this.authService.generateJwtToken(
+  refreshWsToken(@User() user: Player) {
+    const wsToken = this.authService.generateJwtToken(
       JwtTokenPurpose.websocket,
       user.id,
     );
