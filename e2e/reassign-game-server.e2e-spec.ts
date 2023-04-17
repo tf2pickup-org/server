@@ -173,7 +173,7 @@ describe('Reassign gameserver (e2e)', () => {
     /* fetch gameserver options */
     await request(app.getHttpServer())
       .get(`/game-servers/options`)
-      .auth(adminAuthToken, { type: 'bearer' })
+      .set('Cookie', [`auth_token=${adminAuthToken}`])
       .expect(200)
       .then(async (response) => {
         const body = response.body;
@@ -191,7 +191,7 @@ describe('Reassign gameserver (e2e)', () => {
 
         await request(app.getHttpServer())
           .put(`/games/${gameId}/assign-gameserver`)
-          .auth(adminAuthToken, { type: 'bearer' })
+          .set('Cookie', [`auth_token=${adminAuthToken}`])
           .send({
             id: gameServer.id,
           })
@@ -200,7 +200,7 @@ describe('Reassign gameserver (e2e)', () => {
         // reassign gameserver
         await request(app.getHttpServer())
           .put(`/games/${gameId}/assign-gameserver`)
-          .auth(adminAuthToken, { type: 'bearer' })
+          .set('Cookie', [`auth_token=${adminAuthToken}`])
           .send({
             id: gameServer.id,
             provider: gameServer.provider,

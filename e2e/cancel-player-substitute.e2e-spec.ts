@@ -149,7 +149,7 @@ describe('Cancel player substitution request (e2e)', () => {
     // admin requests substitute
     await request(app.getHttpServer())
       .put(`/games/${gameId}/substitute-player?player=${replacee.id}`)
-      .auth(adminToken, { type: 'bearer' })
+      .set('Cookie', [`auth_token=${adminToken}`])
       .expect(200)
       .then((response) => {
         const body = response.body;
@@ -173,7 +173,7 @@ describe('Cancel player substitution request (e2e)', () => {
     // and then cancels the substitution request
     await request(app.getHttpServer())
       .put(`/games/${gameId}/cancel-player-substitute?player=${replacee.id}`)
-      .auth(adminToken, { type: 'bearer' })
+      .set('Cookie', [`auth_token=${adminToken}`])
       .expect(200)
       .then((response) => {
         const body = response.body;

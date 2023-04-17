@@ -167,7 +167,7 @@ describe('Player substitutes another player (e2e)', () => {
     // admin requests substitute
     await request(app.getHttpServer())
       .put(`/games/${gameId}/substitute-player?player=${replacee.id}`)
-      .auth(adminToken, { type: 'bearer' })
+      .set('Cookie', [`auth_token=${adminToken}`])
       .expect(200);
 
     await request(app.getHttpServer())

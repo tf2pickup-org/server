@@ -99,7 +99,7 @@ describe('Game server diagnostics (e2e)', () => {
 
       return request(app.getHttpServer())
         .get(`/game-server-diagnostics/${diagnosticRunId}`)
-        .auth(authToken, { type: 'bearer' })
+        .set('Cookie', [`auth_token=${authToken}`])
         .expect(200)
         .then((response) => {
           const body = response.body;
