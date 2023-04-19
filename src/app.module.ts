@@ -52,8 +52,19 @@ import { SteamModule } from './steam/steam.module';
       imports: [EnvironmentModule],
       inject: [Environment],
       useFactory: async (environment: Environment) => {
+        let config: Parameters<typeof redisStore>[0];
+        if (environment.redisSocket) {
+          config = {
+            socket: { path: environment.redisSocket },
+          };
+        } else if (environment.redisUrl) {
+          config = {
+            url: environment.redisUrl,
+          };
+        }
+
         return {
-          store: await redisStore({ url: environment.redisUrl, ttl: 5000 }),
+          store: await redisStore({ ...config, ttl: 5000 }),
         };
       },
       isGlobal: true,
