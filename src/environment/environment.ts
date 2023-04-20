@@ -31,6 +31,10 @@ export class Environment {
     return this.configService.get<string>('REDIS_URL');
   }
 
+  get redisSocket() {
+    return this.configService.get<string>('REDIS_SOCKET');
+  }
+
   get steamApiKey() {
     return this.configService.get<string>('STEAM_API_KEY');
   }
