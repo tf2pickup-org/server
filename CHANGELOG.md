@@ -1,5 +1,27 @@
 
 
+# [11.0.0-alpha.12](https://github.com/tf2pickup-org/server/compare/11.0.0-alpha.11...11.0.0-alpha.12) (2023-04-20)
+
+
+### Bug Fixes
+
+* **config:** handle redis socket ([#2366](https://github.com/tf2pickup-org/server/issues/2366)) ([4820a65](https://github.com/tf2pickup-org/server/commit/4820a65df8f8ef9c5627ac3393bb3fefc9f117a7))
+* **deps:** update dependency axios to v1.3.6 ([#2368](https://github.com/tf2pickup-org/server/issues/2368)) ([f5729a4](https://github.com/tf2pickup-org/server/commit/f5729a478bb94e2b05beed127dd4c4f657118649))
+* **deps:** update dependency csv-parse to v5.3.8 ([#2362](https://github.com/tf2pickup-org/server/issues/2362)) ([608e65f](https://github.com/tf2pickup-org/server/commit/608e65f77062c65baa9da885a03d75692d9402d5))
+* **deps:** update dependency mongodb to v5.3.0 ([#2365](https://github.com/tf2pickup-org/server/issues/2365)) ([0f3bb7f](https://github.com/tf2pickup-org/server/commit/0f3bb7f7479d4ffb20a2fba7f092e0024486a8b1))
+* **deps:** update dependency mongoose to v7.0.4 ([#2363](https://github.com/tf2pickup-org/server/issues/2363)) ([3db6606](https://github.com/tf2pickup-org/server/commit/3db6606d0b0cc547506c3af6d3e506f5d3253b2a))
+* **deps:** update dependency rimraf to v5 ([#2355](https://github.com/tf2pickup-org/server/issues/2355)) ([95754d1](https://github.com/tf2pickup-org/server/commit/95754d192a01f81679c50ac5a65b61c391cecc3c))
+
+
+### Features
+
+* **auth:** use cookies for authentication ([#2361](https://github.com/tf2pickup-org/server/issues/2361)) ([1b9472e](https://github.com/tf2pickup-org/server/commit/1b9472ef2365d4d9d81f185eb02608811f8575ea))
+
+
+### BREAKING CHANGES
+
+* **auth:** the old token-based authentication is gone
+
 # [11.0.0-alpha.11](https://github.com/tf2pickup-org/server/compare/11.0.0-alpha.10...11.0.0-alpha.11) (2023-04-16)
 
 
