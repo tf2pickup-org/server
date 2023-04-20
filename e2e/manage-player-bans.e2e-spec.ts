@@ -66,7 +66,7 @@ describe('Manage player bans (e2e)', () => {
     // admin applies ban
     await request(app.getHttpServer())
       .post(`/players/${playerId}/bans`)
-      .auth(adminToken, { type: 'bearer' })
+      .set('Cookie', [`auth_token=${adminToken}`])
       .send({
         player: playerId,
         admin: adminId,
@@ -86,7 +86,7 @@ describe('Manage player bans (e2e)', () => {
     // admin lists bans
     await request(app.getHttpServer())
       .get(`/players/${playerId}/bans`)
-      .auth(adminToken, { type: 'bearer' })
+      .set('Cookie', [`auth_token=${adminToken}`])
       .expect(200)
       .then((response) => {
         expect(response.body.length).toBe(1);

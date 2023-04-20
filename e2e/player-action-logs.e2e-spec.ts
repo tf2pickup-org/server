@@ -48,7 +48,7 @@ describe('Player action logs (e2e)', () => {
     it('GET /player-action-logs returns 401', async () => {
       await request(app.getHttpServer())
         .get('/player-action-logs')
-        .auth(authToken, { type: 'bearer' })
+        .set('Cookie', [`auth_token=${authToken}`])
         .expect(401);
     });
   });
@@ -69,7 +69,7 @@ describe('Player action logs (e2e)', () => {
     it('GET /player-action-logs returns 200', async () => {
       await request(app.getHttpServer())
         .get('/player-action-logs')
-        .auth(authToken, { type: 'bearer' })
+        .set('Cookie', [`auth_token=${authToken}`])
         .expect(200);
     });
   });

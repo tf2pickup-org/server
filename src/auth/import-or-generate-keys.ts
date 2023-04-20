@@ -32,7 +32,7 @@ export const importOrGenerateKeys = async (
     const privateKey = createPrivateKey({
       key: privateKeyEncoded,
       format: 'pem',
-      passphrase: passphrase,
+      passphrase,
     });
     const publicKey = createPublicKey({ key: publicKeyEncoded, format: 'pem' });
     logger.debug(`${name} keys imported.`);
@@ -50,7 +50,7 @@ export const importOrGenerateKeys = async (
               .export({
                 format: 'pem',
                 type: 'pkcs8',
-                passphrase: passphrase,
+                passphrase,
                 cipher: 'aes-256-cbc',
               })
               .toString(),

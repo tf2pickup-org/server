@@ -58,7 +58,7 @@ describe('Update player skill (e2e)', () => {
     it('PUT /players/:playerId/skill', async () => {
       await request(app.getHttpServer())
         .put(`/players/${playerId}/skill`)
-        .auth(adminAuthToken, { type: 'bearer' })
+        .set('Cookie', [`auth_token=${adminAuthToken}`])
         .send({
           scout: 2,
           soldier: 3,
@@ -78,12 +78,12 @@ describe('Update player skill (e2e)', () => {
 
       await request(app.getHttpServer())
         .delete(`/players/${playerId}/skill`)
-        .auth(adminAuthToken, { type: 'bearer' })
+        .set('Cookie', [`auth_token=${adminAuthToken}`])
         .expect(204);
 
       await request(app.getHttpServer())
         .get(`/players/${playerId}/skill`)
-        .auth(adminAuthToken, { type: 'bearer' })
+        .set('Cookie', [`auth_token=${adminAuthToken}`])
         .then((respose) => {
           const body = respose.body;
           expect(body).toEqual({});

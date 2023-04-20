@@ -4,8 +4,8 @@ import { PlayersModule } from '@/players/players.module';
 import { PassportModule } from '@nestjs/passport';
 import { SteamStrategy } from './strategies/steam.strategy';
 import { AuthController } from './controllers/auth.controller';
+// skipcq: JS-C1003
 import * as passport from 'passport';
-import { RefreshToken, refreshTokenSchema } from './models/refresh-token';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { AuthGateway } from './gateways/auth.gateway';
 import { setRedirectUrlCookie } from './middleware/set-redirect-url-cookie';
@@ -26,10 +26,7 @@ const passportModule = PassportModule.register({
 @Module({
   imports: [
     passportModule,
-    MongooseModule.forFeature([
-      { name: Key.name, schema: keySchema },
-      { name: RefreshToken.name, schema: refreshTokenSchema },
-    ]),
+    MongooseModule.forFeature([{ name: Key.name, schema: keySchema }]),
     PlayersModule,
   ],
   providers: [
@@ -44,20 +41,6 @@ const passportModule = PassportModule.register({
         await importOrGenerateKeys(
           keyModel,
           KeyName.auth,
-          environment.keyStorePassphrase,
-        ),
-    },
-    {
-      // keys used to sign & validate refresh JWT
-      provide: 'REFRESH_TOKEN_KEY',
-      inject: [getModelToken(Key.name), Environment],
-      useFactory: async (
-        keyModel: Model<KeyDocument>,
-        environment: Environment,
-      ) =>
-        await importOrGenerateKeys(
-          keyModel,
-          KeyName.refresh,
           environment.keyStorePassphrase,
         ),
     },

@@ -52,7 +52,7 @@ describe('Twitch Controller', () => {
   describe('#authenticate()', () => {
     beforeEach(() => {
       authService.verifyToken.mockReturnValue({ id: 'FAKE_USER_ID' } as any);
-      authService.generateJwtToken.mockResolvedValue('FAKE_JWT');
+      authService.generateJwtToken.mockReturnValue('FAKE_JWT');
       twitchAuthService.getOauthRedirectUrl.mockImplementation(
         (state) => `FAKE_REDIRECT_URL?state=${state}`,
       );

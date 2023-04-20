@@ -195,7 +195,7 @@ describe('Launch game (e2e)', () => {
 
     await request(app.getHttpServer())
       .get(`/games/${newGameId}/skills`)
-      .auth(authToken, { type: 'bearer' })
+      .set('Cookie', [`auth_token=${authToken}`])
       .expect(200)
       .then((response) => {
         const body = response.body;
@@ -214,14 +214,14 @@ describe('Launch game (e2e)', () => {
 
     await request(app.getHttpServer())
       .get(`/games/${newGameId}/connect-info`)
-      .auth(authToken, { type: 'bearer' })
+      .set('Cookie', [`auth_token=${authToken}`])
       .expect(200);
 
     // kill the game
     await waitABit(500);
     await request(app.getHttpServer())
       .put(`/games/${newGameId}/force-end`)
-      .auth(authToken, { type: 'bearer' })
+      .set('Cookie', [`auth_token=${authToken}`])
       .expect(200);
 
     await request(app.getHttpServer())

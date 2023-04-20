@@ -37,7 +37,7 @@ describe('Configuration (e2e)', () => {
   it('whitelist id', async () => {
     let response = await request(app.getHttpServer())
       .get('/configuration?keys=games.whitelist_id')
-      .auth(adminAuthToken, { type: 'bearer' })
+      .set('Cookie', [`auth_token=${adminAuthToken}`])
       .expect(200);
     let body = response.body;
     expect(body).toEqual([
@@ -49,7 +49,7 @@ describe('Configuration (e2e)', () => {
 
     response = await request(app.getHttpServer())
       .put('/configuration')
-      .auth(adminAuthToken, { type: 'bearer' })
+      .set('Cookie', [`auth_token=${adminAuthToken}`])
       .send([
         {
           key: 'games.whitelist_id',
@@ -69,7 +69,7 @@ describe('Configuration (e2e)', () => {
   it('not found', async () => {
     await request(app.getHttpServer())
       .get('/configuration?keys=not.existent')
-      .auth(adminAuthToken, { type: 'bearer' })
+      .set('Cookie', [`auth_token=${adminAuthToken}`])
       .expect(404);
   });
 
@@ -77,7 +77,7 @@ describe('Configuration (e2e)', () => {
   it('malformed', async () => {
     await request(app.getHttpServer())
       .put('/configuration')
-      .auth(adminAuthToken, { type: 'bearer' })
+      .set('Cookie', [`auth_token=${adminAuthToken}`])
       .send([
         {
           key: 'games.whitelist_id',

@@ -97,10 +97,12 @@ export class QueueGateway implements OnGatewayInit, OnModuleInit {
   @UseFilters(AllExceptionsFilter)
   @WsAuthorized()
   @SubscribeMessage('mark friend')
-  markFriend(client: Socket, payload: { friendPlayerId: string }) {
+  markFriend(client: Socket, payload: { friendPlayerId: string | null }) {
     return this.friendsService.markFriend(
       client.user._id,
-      new Types.ObjectId(payload.friendPlayerId) as PlayerId,
+      payload.friendPlayerId
+        ? (new Types.ObjectId(payload.friendPlayerId) as PlayerId)
+        : null,
     );
   }
 

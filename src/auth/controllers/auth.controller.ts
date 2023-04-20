@@ -1,11 +1,4 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Query,
-  BadRequestException,
-  Logger,
-} from '@nestjs/common';
+import { Controller, Get, Logger, Res, Req } from '@nestjs/common';
 import { HttpAdapterHost } from '@nestjs/core';
 // skipcq: JS-C1003
 import * as passport from 'passport';
@@ -20,9 +13,9 @@ import { SteamApiError } from '@/steam/errors/steam-api.error';
 import { InsufficientTf2InGameHoursError } from '@/players/errors/insufficient-tf2-in-game-hours.error';
 import { NoEtf2lAccountError } from '@/etf2l/errors/no-etf2l-account.error';
 import { AccountBannedError } from '@/players/errors/account-banned.error';
-import { assertIsError } from '@/utils/assert-is-error';
-import { Request } from 'express';
+import { Request, Response } from 'express';
 import { parse } from 'cookie';
+import { add } from 'date-fns';
 
 @Controller('auth')
 export class AuthController {
@@ -38,10 +31,10 @@ export class AuthController {
     // https://github.com/liamcurry/passport-steam/issues/57
     this.adapterHost.httpAdapter?.get(
       '/auth/steam/return',
-      (req: Request, res, next) => {
+      (req: Request, res: Response, next) => {
         return passport.authenticate(
           'steam',
-          async (error: Error, player: Player) => {
+          (error: Error, player: Player) => {
             let url = this.environment.clientUrl;
             if (req.headers.cookie) {
               const cookies = parse(req.headers.cookie);
@@ -60,41 +53,26 @@ export class AuthController {
               return res.sendStatus(401);
             }
 
-            const refreshToken = await this.authService.generateJwtToken(
-              JwtTokenPurpose.refresh,
-              player.id,
-            );
-            const authToken = await this.authService.generateJwtToken(
+            const authToken = this.authService.generateJwtToken(
               JwtTokenPurpose.auth,
               player.id,
             );
-            return res.redirect(
-              `${url}?refresh_token=${refreshToken}&auth_token=${authToken}`,
-            );
+            res.cookie('auth_token', authToken, {
+              expires: add(new Date(), { days: 7 }),
+              httpOnly: true,
+              path: '/',
+            });
+            return res.redirect(`${url}`);
           },
         )(req, res, next);
       },
     );
   }
 
-  @Post()
-  async refreshToken(@Query('refresh_token') oldRefreshToken?: string) {
-    if (!oldRefreshToken) {
-      throw new BadRequestException('no valid operation specified');
-    }
-
-    try {
-      return await this.authService.refreshTokens(oldRefreshToken);
-    } catch (error) {
-      assertIsError(error);
-      throw new BadRequestException(error.message);
-    }
-  }
-
   @Get('wstoken')
   @Auth()
-  async refreshWsToken(@User() user: Player) {
-    const wsToken = await this.authService.generateJwtToken(
+  refreshWsToken(@User() user: Player) {
+    const wsToken = this.authService.generateJwtToken(
       JwtTokenPurpose.websocket,
       user.id,
     );
@@ -102,13 +80,23 @@ export class AuthController {
     return { wsToken };
   }
 
+  @Get('sign-out')
+  @Auth()
+  signOut(@Req() req: Request, @Res() res: Response) {
+    const referer = req.get('referer');
+    res.clearCookie('auth_token');
+    return res.redirect(referer ?? this.environment.clientUrl);
+  }
+
   // skipcq: JS-0105
   private mapToClientError(error: unknown): string {
     if (error instanceof SteamApiError) {
       switch (error.code) {
         case 403:
-          this.logger.warn(`player's profile must be public`);
+          this.logger.warn("player's profile must be public");
           break;
+
+        // no default
       }
 
       return 'cannot verify in-game hours for TF2';

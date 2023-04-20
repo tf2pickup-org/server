@@ -1,27 +1,17 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { sign, verify } from 'jsonwebtoken';
-import { RefreshToken, RefreshTokenDocument } from '../models/refresh-token';
-import { InvalidTokenError } from '../errors/invalid-token.error';
 import { JwtTokenPurpose } from '../jwt-token-purpose';
 import { KeyPair } from '../key-pair';
-import { InjectModel } from '@nestjs/mongoose';
-import { Error, Model } from 'mongoose';
 
 @Injectable()
 export class AuthService {
   constructor(
-    @InjectModel(RefreshToken.name)
-    private refreshTokenModel: Model<RefreshTokenDocument>,
     @Inject('AUTH_TOKEN_KEY') private authTokenKey: KeyPair,
-    @Inject('REFRESH_TOKEN_KEY') private refreshTokenKey: KeyPair,
     @Inject('WEBSOCKET_SECRET') private websocketSecret: string,
     @Inject('CONTEXT_TOKEN_KEY') private contextTokenKey: KeyPair,
   ) {}
 
-  async generateJwtToken(
-    purpose: JwtTokenPurpose,
-    userId: string,
-  ): Promise<string> {
+  generateJwtToken(purpose: JwtTokenPurpose, userId: string): string {
     switch (purpose) {
       case JwtTokenPurpose.auth: {
         const key = this.authTokenKey.privateKey.export({
@@ -30,21 +20,8 @@ export class AuthService {
         });
         return sign({ id: userId }, key, {
           algorithm: 'ES512',
-          expiresIn: '15m',
-        });
-      }
-
-      case JwtTokenPurpose.refresh: {
-        const key = this.refreshTokenKey.privateKey.export({
-          format: 'pem',
-          type: 'pkcs8',
-        });
-        const token = sign({ id: userId }, key, {
-          algorithm: 'ES512',
           expiresIn: '7d',
         });
-        await this.refreshTokenModel.create({ value: token });
-        return token;
       }
 
       case JwtTokenPurpose.websocket: {
@@ -65,42 +42,9 @@ export class AuthService {
           expiresIn: '1m',
         });
       }
-    }
-  }
 
-  async refreshTokens(
-    oldRefreshToken: string,
-  ): Promise<{ refreshToken: string; authToken: string }> {
-    try {
-      await this.refreshTokenModel
-        .deleteOne({ value: oldRefreshToken })
-        .orFail()
-        .lean()
-        .exec();
-      const key = this.refreshTokenKey.publicKey.export({
-        format: 'pem',
-        type: 'spki',
-      });
-      const decoded = verify(oldRefreshToken, key, {
-        algorithms: ['ES512'],
-      }) as { id: string; iat: number; exp: number };
-
-      const userId = decoded.id;
-      const refreshToken = await this.generateJwtToken(
-        JwtTokenPurpose.refresh,
-        userId,
-      );
-      const authToken = await this.generateJwtToken(
-        JwtTokenPurpose.auth,
-        userId,
-      );
-      return { refreshToken, authToken };
-    } catch (error) {
-      if (error instanceof Error.DocumentNotFoundError) {
-        throw new InvalidTokenError();
-      } else {
-        throw error;
-      }
+      default:
+        throw new Error('unknown key purpose');
     }
   }
 
@@ -124,6 +68,8 @@ export class AuthService {
           type: 'spki',
         });
         break;
+
+      // no default
     }
 
     return verify(token, key, { algorithms: ['ES512'] }) as {

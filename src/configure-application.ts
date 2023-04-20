@@ -4,6 +4,8 @@ import helmet from 'helmet';
 import { ServerOptions } from 'socket.io';
 import { setApp } from './app';
 import { SerializerInterceptor } from './shared/interceptors/serializer.interceptor';
+// skipcq: JS-C1003
+import * as cookieParser from 'cookie-parser';
 
 /**
  * https://stackoverflow.com/questions/65957386/cors-error-with-socket-io-connections-on-chrome-v88-and-nestjs-server
@@ -32,5 +34,6 @@ export const configureApplication = (app: INestApplication): void => {
       },
     }),
   );
+  app.use(cookieParser());
   setApp(app);
 };
