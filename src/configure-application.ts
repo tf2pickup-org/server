@@ -22,7 +22,7 @@ export class WorkaroundSocketAdapter extends IoAdapter {
 export const configureApplication = (app: INestApplication): void => {
   app.useWebSocketAdapter(new WorkaroundSocketAdapter(app));
   app.useGlobalInterceptors(new SerializerInterceptor());
-  app.enableCors();
+  app.enableCors({ origin: true, credentials: true });
   app.use(helmet());
   app.use(
     helmet.contentSecurityPolicy({
