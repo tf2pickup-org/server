@@ -1346,18 +1346,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@discordjs/builders@npm:^1.6.2":
-  version: 1.6.2
-  resolution: "@discordjs/builders@npm:1.6.2"
+"@discordjs/builders@npm:^1.6.3":
+  version: 1.6.3
+  resolution: "@discordjs/builders@npm:1.6.3"
   dependencies:
-    "@discordjs/formatters": ^0.3.0
-    "@discordjs/util": ^0.2.0
+    "@discordjs/formatters": ^0.3.1
+    "@discordjs/util": ^0.3.1
     "@sapphire/shapeshift": ^3.8.2
     discord-api-types: ^0.37.41
     fast-deep-equal: ^3.1.3
     ts-mixer: ^6.0.3
     tslib: ^2.5.0
-  checksum: 58040a951dada35d8e4c3249833dac114888828121228d4a4ce3da41c1d119a5434c802e597465b9f3d34559a3280da4f7e292f2e01538cba8c42c71ee5eed99
+  checksum: 6a0c07fb910d8a6701f58f51f9f85a486c1f608bb7b81656581591b57eb54680db0a7715ac25b4659c115231bfd8c4ff706cc4ccffb4da308ad24233dc6524b3
   languageName: node
   linkType: hard
 
@@ -1365,15 +1365,6 @@ __metadata:
   version: 1.5.1
   resolution: "@discordjs/collection@npm:1.5.1"
   checksum: 98cc9cff3c7e6f919097b7ffc96f0a13eba2a90265d187b4db5f8cc09b550efd3d9fc952a21d92a08baf7d9e06d0bfa0467e8d0dbccb2d2f8eb0ee124b8b38d4
-  languageName: node
-  linkType: hard
-
-"@discordjs/formatters@npm:^0.3.0":
-  version: 0.3.0
-  resolution: "@discordjs/formatters@npm:0.3.0"
-  dependencies:
-    discord-api-types: ^0.37.37
-  checksum: cdf0d842f268a1b8c072522f58b0c77853e825964acb1e3b189f53d740d0d4ee4ed3b4be177ce4ab30a665bc1e6953348ab0d29b5fd52a0651e74eb63ad4be6d
   languageName: node
   linkType: hard
 
@@ -1402,17 +1393,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@discordjs/util@npm:^0.2.0":
-  version: 0.2.0
-  resolution: "@discordjs/util@npm:0.2.0"
-  checksum: 1e6c02a2881c98ccee2ffd34f487b751e1f16bce007e0a3e9fa538170c1ddb3d68e2b1d88c84b3406191ba9dfec3a999a828603a142c359703fc53482269e7fa
-  languageName: node
-  linkType: hard
-
 "@discordjs/util@npm:^0.3.0":
   version: 0.3.0
   resolution: "@discordjs/util@npm:0.3.0"
   checksum: e83f28b1b1f22178937ff269901dd31fbfbb64d9298f72fab6ec009897f3d6d2a32e22c3424634ed377cfe47e9228e0fc5bd74297403f7132c6e497ad9dbc1c6
+  languageName: node
+  linkType: hard
+
+"@discordjs/util@npm:^0.3.1":
+  version: 0.3.1
+  resolution: "@discordjs/util@npm:0.3.1"
+  checksum: afd53427bc25c84e05cd34d6daf355cab14629a5f340d33528ea18d3a1177e777584bc5847cfcb7711c7387252c34917d749a0b1a91a99d2ce572878208212df
   languageName: node
   linkType: hard
 
@@ -5772,13 +5763,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"discord-api-types@npm:^0.37.37":
-  version: 0.37.37
-  resolution: "discord-api-types@npm:0.37.37"
-  checksum: 6b680f52c19aebf0dd1a714ef109a55bfe6786d10fd410f7bf1ee9244041f8b10ba81a988799a832382b34b2ae5ef3027ee31f6d1cf4555f1647252635c6eaaa
-  languageName: node
-  linkType: hard
-
 "discord-api-types@npm:^0.37.41":
   version: 0.37.41
   resolution: "discord-api-types@npm:0.37.41"
@@ -5786,15 +5770,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"discord.js@npm:14.10.0":
-  version: 14.10.0
-  resolution: "discord.js@npm:14.10.0"
+"discord.js@npm:14.10.2":
+  version: 14.10.2
+  resolution: "discord.js@npm:14.10.2"
   dependencies:
-    "@discordjs/builders": ^1.6.2
+    "@discordjs/builders": ^1.6.3
     "@discordjs/collection": ^1.5.1
     "@discordjs/formatters": ^0.3.1
     "@discordjs/rest": ^1.7.1
-    "@discordjs/util": ^0.3.0
+    "@discordjs/util": ^0.3.1
     "@discordjs/ws": ^0.8.2
     "@sapphire/snowflake": ^3.4.2
     "@types/ws": ^8.5.4
@@ -5804,7 +5788,7 @@ __metadata:
     tslib: ^2.5.0
     undici: ^5.22.0
     ws: ^8.13.0
-  checksum: 2620dc869ac6cda8e8c06d0f0e95764fc7c7e8653ff122e4c44871e0e1b88c803959355a89bab85339f627692b995136c59885c7ebfb5faf0e4f036eaf9fe7e0
+  checksum: 90bfd4769922b9d58a84dfb92708f85c543013c7af36bd7432a84765945fe3375fe783676f46438edbf5160f3aeddf71ed370c4ce0f8db3b641920cd45e24e28
   languageName: node
   linkType: hard
 
@@ -11951,7 +11935,7 @@ __metadata:
     cookie-parser: 1.4.6
     csv-parse: ^5.3.1
     date-fns: ^2.29.3
-    discord.js: 14.10.0
+    discord.js: 14.10.2
     eslint: 8.39.0
     eslint-config-prettier: 8.8.0
     eslint-plugin-jest: 27.2.1
