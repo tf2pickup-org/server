@@ -9967,6 +9967,32 @@ __metadata:
   languageName: node
   linkType: hard
 
+"mongodb@npm:5.4.0":
+  version: 5.4.0
+  resolution: "mongodb@npm:5.4.0"
+  dependencies:
+    bson: ^5.2.0
+    mongodb-connection-string-url: ^2.6.0
+    saslprep: ^1.0.3
+    socks: ^2.7.1
+  peerDependencies:
+    "@aws-sdk/credential-providers": ^3.201.0
+    mongodb-client-encryption: ">=2.3.0 <3"
+    snappy: ^7.2.2
+  dependenciesMeta:
+    saslprep:
+      optional: true
+  peerDependenciesMeta:
+    "@aws-sdk/credential-providers":
+      optional: true
+    mongodb-client-encryption:
+      optional: true
+    snappy:
+      optional: true
+  checksum: f0e0f5559186d041f93ddb94d2e7276240b03936da2d043cc76c3d541e1242ddb62b1f105d5033867819592be2dad27e178d875d1ed0c567f5785c275d996869
+  languageName: node
+  linkType: hard
+
 "mongodb@npm:^4.13.0":
   version: 4.13.0
   resolution: "mongodb@npm:4.13.0"
@@ -11950,7 +11976,7 @@ __metadata:
     lodash: 4.17.21
     migrate: 1.8.0
     moment: 2.29.4
-    mongodb: 5.3.0
+    mongodb: 5.4.0
     mongodb-memory-server: 8.12.2
     mongodb-uri: 0.9.7
     mongoose: 7.1.0
