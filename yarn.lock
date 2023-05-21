@@ -3153,10 +3153,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:18.16.10":
-  version: 18.16.10
-  resolution: "@types/node@npm:18.16.10"
-  checksum: 1db35543ae98d4a98731037a11a9478480d1260ff3778da70b9a137a3023666d20bab1573b584c401058f76c0d5f7dfbbc157b70a059452e086c8da5639cc653
+"@types/node@npm:18.16.14":
+  version: 18.16.14
+  resolution: "@types/node@npm:18.16.14"
+  checksum: c11cb3c787236414efe58240ae71854971592554d82ff9d201876ce7cafd51c37aaa001c63602d002e8238614d7331bd6d48ac4c1c0caa826799980b6846fb08
   languageName: node
   linkType: hard
 
@@ -11946,7 +11946,7 @@ __metadata:
     "@types/mongodb-uri": 0.9.1
     "@types/mongoose": 5.11.96
     "@types/multer": ^1.4.7
-    "@types/node": 18.16.10
+    "@types/node": 18.16.14
     "@types/passport": 1.0.12
     "@types/passport-jwt": 3.0.8
     "@types/passport-steam": 1.0.1
