@@ -28,7 +28,7 @@
     "@nestjs/schedule": "2.2.2",
     "@nestjs/serve-static": "3.0.1",
     "@nestjs/websockets": "9.4.2",
-    "@redis/client": "1.5.7",
+    "@redis/client": "1.5.8",
     "@tf2pickup-org/mumble-client": "0.7.0",
     "app-root-path": "3.1.0",
     "async-mutex": "0.4.0",
