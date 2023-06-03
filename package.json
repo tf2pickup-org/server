@@ -60,7 +60,7 @@
     "passport-headerapikey": "1.2.2",
     "passport-jwt": "4.0.1",
     "passport-steam": "1.0.17",
-    "pem": "1.14.7",
+    "pem": "1.14.8",
     "rcon-client": "4.2.3",
     "reflect-metadata": "0.1.13",
     "rimraf": "5.0.1",

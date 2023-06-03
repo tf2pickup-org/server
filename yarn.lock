@@ -10886,15 +10886,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"pem@npm:1.14.7":
-  version: 1.14.7
-  resolution: "pem@npm:1.14.7"
+"pem@npm:1.14.8":
+  version: 1.14.8
+  resolution: "pem@npm:1.14.8"
   dependencies:
     es6-promisify: ^7.0.0
     md5: ^2.3.0
     os-tmpdir: ^1.0.2
     which: ^2.0.2
-  checksum: e88fc17f24646a770621e718092095b9203969bd881c3e7333674d34b76a29f0c95deed633bfe75c855ddf6aa5c336ca0daf7b1efa5783b129c7a785263b5156
+  checksum: 2bba0201a1c95af5199ed989c8c40961ecef922b7f53269c98b8cd22e003ac5597eaf9e7a7305d10334c98ac59eae04087fe451eaeb3af1541419dca23d81ed1
   languageName: node
   linkType: hard
 
@@ -11931,7 +11931,7 @@ __metadata:
     passport-headerapikey: 1.2.2
     passport-jwt: 4.0.1
     passport-steam: 1.0.17
-    pem: 1.14.7
+    pem: 1.14.8
     prettier: 2.8.8
     rcon-client: 4.2.3
     reflect-metadata: 0.1.13
