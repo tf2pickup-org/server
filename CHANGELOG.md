@@ -1,5 +1,43 @@
 
 
+# [11.0.0-alpha.13](https://github.com/tf2pickup-org/server/compare/11.0.0-alpha.12...11.0.0-alpha.13) (2023-06-10)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @anatine/zod-openapi to v1.12.1 ([#2375](https://github.com/tf2pickup-org/server/issues/2375)) ([fc1d500](https://github.com/tf2pickup-org/server/commit/fc1d50089dd08eacc6acfab05b46747086a6df88))
+* **deps:** update dependency @anatine/zod-openapi to v1.13.0 ([#2409](https://github.com/tf2pickup-org/server/issues/2409)) ([4ecb95d](https://github.com/tf2pickup-org/server/commit/4ecb95de0f04e174803cd74c30610389bc9defc2))
+* **deps:** update dependency @anatine/zod-openapi to v1.14.0 ([#2424](https://github.com/tf2pickup-org/server/issues/2424)) ([0251ed2](https://github.com/tf2pickup-org/server/commit/0251ed2cef6d8da2fc9e427079bcd91c5a17fec7))
+* **deps:** update dependency @nestjs/config to v2.3.2 ([#2413](https://github.com/tf2pickup-org/server/issues/2413)) ([9e0ff5e](https://github.com/tf2pickup-org/server/commit/9e0ff5e4b4f01c1b219ade028cc239f119552fc9))
+* **deps:** update dependency @nestjs/schedule to v2.2.2 ([#2417](https://github.com/tf2pickup-org/server/issues/2417)) ([aaae534](https://github.com/tf2pickup-org/server/commit/aaae534c1f66a0ed5d49d7cf66e91ffd53453137))
+* **deps:** update dependency @nestjs/schedule to v2.2.3 ([#2443](https://github.com/tf2pickup-org/server/issues/2443)) ([0861500](https://github.com/tf2pickup-org/server/commit/086150019c22efc91ee6463719078b6ec648b426))
+* **deps:** update dependency @redis/client to v1.5.7 ([#2383](https://github.com/tf2pickup-org/server/issues/2383)) ([ec2b6eb](https://github.com/tf2pickup-org/server/commit/ec2b6ebfc6f9d2c85a39ecd41fad969762f8501e))
+* **deps:** update dependency @redis/client to v1.5.8 ([#2432](https://github.com/tf2pickup-org/server/issues/2432)) ([6722967](https://github.com/tf2pickup-org/server/commit/6722967a411f8bad52eb3351c4cff20ea06cb792))
+* **deps:** update dependency axios to v1.4.0 ([#2384](https://github.com/tf2pickup-org/server/issues/2384)) ([8051295](https://github.com/tf2pickup-org/server/commit/8051295535b0cb8f5c2a82262f8c12a07a5432a5))
+* **deps:** update dependency cache-manager to v5.2.1 ([#2376](https://github.com/tf2pickup-org/server/issues/2376)) ([1b59556](https://github.com/tf2pickup-org/server/commit/1b59556359b22ba845c1659597a81cc9e876a786))
+* **deps:** update dependency cache-manager to v5.2.2 ([#2440](https://github.com/tf2pickup-org/server/issues/2440)) ([7ebff2b](https://github.com/tf2pickup-org/server/commit/7ebff2b89bcbd39ee0210d462a02e4b47de50383))
+* **deps:** update dependency csv-parse to v5.3.10 ([#2396](https://github.com/tf2pickup-org/server/issues/2396)) ([0925087](https://github.com/tf2pickup-org/server/commit/09250879ac93cbfc605abd68af805ea3609411ed))
+* **deps:** update dependency csv-parse to v5.3.9 ([#2388](https://github.com/tf2pickup-org/server/issues/2388)) ([25ff0b1](https://github.com/tf2pickup-org/server/commit/25ff0b16e3811155289dd1325f149d2f6e6d0f5e))
+* **deps:** update dependency csv-parse to v5.4.0 ([#2427](https://github.com/tf2pickup-org/server/issues/2427)) ([5be2183](https://github.com/tf2pickup-org/server/commit/5be2183e692c2c4b3ff9c4988ed0a480df8c500b))
+* **deps:** update dependency date-fns to v2.30.0 ([#2386](https://github.com/tf2pickup-org/server/issues/2386)) ([ca71ab8](https://github.com/tf2pickup-org/server/commit/ca71ab8df9cd5d1ad23f6c651b0a991166e1e9eb))
+* **deps:** update dependency discord.js to v14.10.0 ([#2389](https://github.com/tf2pickup-org/server/issues/2389)) ([c801a36](https://github.com/tf2pickup-org/server/commit/c801a364ab53c84da2c5b8c66a55a9db35c36fb4))
+* **deps:** update dependency discord.js to v14.10.2 ([#2393](https://github.com/tf2pickup-org/server/issues/2393)) ([3fa735b](https://github.com/tf2pickup-org/server/commit/3fa735be1b448cb5b655fd813e078fb016041b37))
+* **deps:** update dependency discord.js to v14.11.0 ([#2400](https://github.com/tf2pickup-org/server/issues/2400)) ([65458d2](https://github.com/tf2pickup-org/server/commit/65458d25d4817f36bed3aadfc92fc87d565805aa))
+* **deps:** update dependency helmet to v6.2.0 ([#2401](https://github.com/tf2pickup-org/server/issues/2401)) ([1f997c6](https://github.com/tf2pickup-org/server/commit/1f997c63e45fbcdae1302453de84630d9dca3c44))
+* **deps:** update dependency mongodb to v5.4.0 ([#2397](https://github.com/tf2pickup-org/server/issues/2397)) ([2ca01c3](https://github.com/tf2pickup-org/server/commit/2ca01c34145dc38322b78b5338f5c75e976549bf))
+* **deps:** update dependency mongodb to v5.5.0 ([#2407](https://github.com/tf2pickup-org/server/issues/2407)) ([b6622b0](https://github.com/tf2pickup-org/server/commit/b6622b0c5002d4f83f2b7153878abd57e76c93a3))
+* **deps:** update dependency mongoose to v7.0.5 ([#2379](https://github.com/tf2pickup-org/server/issues/2379)) ([7623647](https://github.com/tf2pickup-org/server/commit/76236472988816f5ade7abf0d230d2f66efa104f))
+* **deps:** update dependency mongoose to v7.1.0 ([#2382](https://github.com/tf2pickup-org/server/issues/2382)) ([7956d4b](https://github.com/tf2pickup-org/server/commit/7956d4b58bcf3f84cf20451e3818d5cce2a73596))
+* **deps:** update dependency mongoose to v7.1.1 ([#2405](https://github.com/tf2pickup-org/server/issues/2405)) ([449fcb3](https://github.com/tf2pickup-org/server/commit/449fcb3372c0cd0ac8aca8a931bd369919004862))
+* **deps:** update dependency mongoose to v7.2.1 ([#2420](https://github.com/tf2pickup-org/server/issues/2420)) ([a152917](https://github.com/tf2pickup-org/server/commit/a1529178886180c660e91729f9d09252f5d772d5))
+* **deps:** update dependency mongoose to v7.2.2 ([#2430](https://github.com/tf2pickup-org/server/issues/2430)) ([1abb82f](https://github.com/tf2pickup-org/server/commit/1abb82f28950ee2b1f8fa439536aa0cade348e72))
+* **deps:** update dependency mongoose to v7.2.3 ([#2445](https://github.com/tf2pickup-org/server/issues/2445)) ([d29183f](https://github.com/tf2pickup-org/server/commit/d29183f4f7b58d65bc5c61cb0435403e7075b048))
+* **deps:** update dependency pem to v1.14.8 ([#2438](https://github.com/tf2pickup-org/server/issues/2438)) ([958f940](https://github.com/tf2pickup-org/server/commit/958f940711fdc2b5c013485f75f45ed62ed4f4a9))
+* **deps:** update dependency rimraf to v5.0.1 ([#2419](https://github.com/tf2pickup-org/server/issues/2419)) ([8b7b220](https://github.com/tf2pickup-org/server/commit/8b7b220fdca2b5bf1e4a804ace85a01b5516b3c1))
+* **deps:** update dependency rxjs to v7.8.1 ([#2380](https://github.com/tf2pickup-org/server/issues/2380)) ([bcf18f1](https://github.com/tf2pickup-org/server/commit/bcf18f1e01c6f586de0edcfe6dff9442ba78c64c))
+* **deps:** update nest monorepo ([#2414](https://github.com/tf2pickup-org/server/issues/2414)) ([1f8a91c](https://github.com/tf2pickup-org/server/commit/1f8a91cc3873bb309707af0b83844b5e2260e624))
+* fix CORS headers ([#2394](https://github.com/tf2pickup-org/server/issues/2394)) ([cb322f0](https://github.com/tf2pickup-org/server/commit/cb322f0bb5551a11886b2d0556e01366d30e0a5e))
+
 # [11.0.0-alpha.12](https://github.com/tf2pickup-org/server/compare/11.0.0-alpha.11...11.0.0-alpha.12) (2023-04-20)
 
 
