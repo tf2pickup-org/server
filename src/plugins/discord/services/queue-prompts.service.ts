@@ -118,7 +118,7 @@ export class QueuePromptsService implements OnModuleInit {
       try {
         return this.discordService.getPlayersChannel()?.messages.fetch(id);
       } catch (error) {
-        if (error instanceof DiscordAPIError && error.status === 404) {
+        if (error instanceof DiscordAPIError) {
           return undefined;
         }
 
