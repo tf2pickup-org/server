@@ -25,7 +25,7 @@
     "@nestjs/passport": "9.0.3",
     "@nestjs/platform-express": "9.4.2",
     "@nestjs/platform-socket.io": "9.4.2",
-    "@nestjs/schedule": "2.2.2",
+    "@nestjs/schedule": "2.2.3",
     "@nestjs/serve-static": "3.0.1",
     "@nestjs/websockets": "9.4.2",
     "@redis/client": "1.5.8",
