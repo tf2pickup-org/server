@@ -1,5 +1,12 @@
 
 
+# [11.0.0-alpha.14](https://github.com/tf2pickup-org/server/compare/11.0.0-alpha.13...11.0.0-alpha.14) (2023-06-10)
+
+
+### Bug Fixes
+
+* **discord:** fix Discord API error handling ([#2447](https://github.com/tf2pickup-org/server/issues/2447)) ([1c87238](https://github.com/tf2pickup-org/server/commit/1c87238c7c5e16183b31b76faee428fea0e0cbfb))
+
 # [11.0.0-alpha.13](https://github.com/tf2pickup-org/server/compare/11.0.0-alpha.12...11.0.0-alpha.13) (2023-06-10)
 
 
