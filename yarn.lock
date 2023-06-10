@@ -4462,12 +4462,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"bson@npm:^4.7.0":
-  version: 4.7.0
-  resolution: "bson@npm:4.7.0"
+"bson@npm:^4.7.2":
+  version: 4.7.2
+  resolution: "bson@npm:4.7.2"
   dependencies:
     buffer: ^5.6.0
-  checksum: 83e7b64afdad5a505073a7e6206e7b345f59e7888fbcb1948fba72b6101a1baf58b7499314f8e24b650567665f7973eda048aabbb1ddcfbadfba7d6c6b0f5e83
+  checksum: f357d12c5679c8eb029a62e410ad40fb862b7b91f0fc12a3399fb3668e14aecaa63205ffeeee48735a01d393171743607dcd527eb8c058b6f2bd294079ee4125
   languageName: node
   linkType: hard
 
@@ -9890,9 +9890,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mongodb-memory-server-core@npm:8.12.2":
-  version: 8.12.2
-  resolution: "mongodb-memory-server-core@npm:8.12.2"
+"mongodb-memory-server-core@npm:8.13.0":
+  version: 8.13.0
+  resolution: "mongodb-memory-server-core@npm:8.13.0"
   dependencies:
     async-mutex: ^0.3.2
     camelcase: ^6.3.0
@@ -9901,24 +9901,24 @@ __metadata:
     get-port: ^5.1.1
     https-proxy-agent: ^5.0.1
     md5-file: ^5.0.0
-    mongodb: ^4.13.0
+    mongodb: ^4.16.0
     new-find-package-json: ^2.0.0
-    semver: ^7.3.8
+    semver: ^7.5.1
     tar-stream: ^2.1.4
-    tslib: ^2.5.0
+    tslib: ^2.5.3
     uuid: ^9.0.0
     yauzl: ^2.10.0
-  checksum: 5224ab18da6b09f784331f5397552e83de343bac716e54f221e963d3a6113aa108b60964f2b4814c32cbd6e3ab907dbfebb08b13f44e8c3bb6ea41ab04640342
+  checksum: 05ee432d70acf4779b8d3aee63d76216d3e0fc92ab81f1588ad323d58d6372603b1a6d15dc57c066a3ca7d78c993019f4c337a995d3222ffad25534278119c45
   languageName: node
   linkType: hard
 
-"mongodb-memory-server@npm:8.12.2":
-  version: 8.12.2
-  resolution: "mongodb-memory-server@npm:8.12.2"
+"mongodb-memory-server@npm:8.13.0":
+  version: 8.13.0
+  resolution: "mongodb-memory-server@npm:8.13.0"
   dependencies:
-    mongodb-memory-server-core: 8.12.2
-    tslib: ^2.5.0
-  checksum: 4ece74c4cd2991aaedf0c184cf0d785388585303ce80fe3a044edf2bb2a1245cf84f0660f3d68fcc833a5e15104bfdcef87f00edcf04e17cf48c231d182cd61f
+    mongodb-memory-server-core: 8.13.0
+    tslib: ^2.5.3
+  checksum: 93bc1f40dbf7330a009fb9a6ffab84b151a1f5ced3614f22028139447249cb821c638b61d085eb7c4a68d00f4de836bb444e52fcd32e426a890cfe685d3d8211
   languageName: node
   linkType: hard
 
@@ -9971,12 +9971,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mongodb@npm:^4.13.0":
-  version: 4.13.0
-  resolution: "mongodb@npm:4.13.0"
+"mongodb@npm:^4.16.0":
+  version: 4.16.0
+  resolution: "mongodb@npm:4.16.0"
   dependencies:
     "@aws-sdk/credential-providers": ^3.186.0
-    bson: ^4.7.0
+    bson: ^4.7.2
     mongodb-connection-string-url: ^2.5.4
     saslprep: ^1.0.3
     socks: ^2.7.1
@@ -9985,7 +9985,7 @@ __metadata:
       optional: true
     saslprep:
       optional: true
-  checksum: 4c30eed40f639ac64069623cf7a4954e98eab81b91d61df90e7813dd2a745259cdc698f3b60bd7f37c123242b7eb0aaae6ee4e29ff2e48f5d13f187931d51f36
+  checksum: f0b1347739cc362b82b3aabc7e7d4d74bc7a344ed1bbafd6f92681bcab440f6cc618ffa0438d41d2789cb34818f3b09d4c78f517b42160ebae55bf2c96f13953
   languageName: node
   linkType: hard
 
@@ -11775,7 +11775,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"semver@npm:7.5.1":
+"semver@npm:7.5.1, semver@npm:^7.5.1":
   version: 7.5.1
   resolution: "semver@npm:7.5.1"
   dependencies:
@@ -11922,7 +11922,7 @@ __metadata:
     migrate: 1.8.0
     moment: 2.29.4
     mongodb: 5.5.0
-    mongodb-memory-server: 8.12.2
+    mongodb-memory-server: 8.13.0
     mongodb-uri: 0.9.7
     mongoose: 7.2.2
     multer: ^1.4.5-lts.1
@@ -13003,6 +13003,13 @@ __metadata:
   version: 2.5.0
   resolution: "tslib@npm:2.5.0"
   checksum: ae3ed5f9ce29932d049908ebfdf21b3a003a85653a9a140d614da6b767a93ef94f460e52c3d787f0e4f383546981713f165037dc2274df212ea9f8a4541004e1
+  languageName: node
+  linkType: hard
+
+"tslib@npm:^2.5.3":
+  version: 2.5.3
+  resolution: "tslib@npm:2.5.3"
+  checksum: 88902b309afaf83259131c1e13da1dceb0ad1682a213143a1346a649143924d78cf3760c448b84d796938fd76127183894f8d85cbb3bf9c4fddbfcc140c0003c
   languageName: node
   linkType: hard
 
