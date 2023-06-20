@@ -1954,6 +1954,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@nestjs/cache-manager@npm:2.0.0":
+  version: 2.0.0
+  resolution: "@nestjs/cache-manager@npm:2.0.0"
+  peerDependencies:
+    "@nestjs/common": ^9.0.0 || ^10.0.0
+    cache-manager: <=5
+    reflect-metadata: ^0.1.12
+    rxjs: ^7.0.0
+  checksum: 0abc205c27c81ed68e61ee8df15c79abfb263ed5a04b83c44e4295946aaef5d0f0605d06379f4dd9a67608dd7e14645f6dc3a6d5728d42149636cecb00dbb539
+  languageName: node
+  linkType: hard
+
 "@nestjs/cli@npm:9.5.0":
   version: 9.5.0
   resolution: "@nestjs/cli@npm:9.5.0"
@@ -11933,6 +11945,7 @@ __metadata:
   dependencies:
     "@anatine/zod-openapi": ^1.12.0
     "@nestjs/axios": 2.0.0
+    "@nestjs/cache-manager": 2.0.0
     "@nestjs/cli": 9.5.0
     "@nestjs/common": 10.0.2
     "@nestjs/config": 2.3.4

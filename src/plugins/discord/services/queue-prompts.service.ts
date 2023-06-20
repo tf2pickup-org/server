@@ -4,12 +4,7 @@ import { PlayersService } from '@/players/services/players.service';
 import { QueueSlot } from '@/queue/queue-slot';
 import { QueueService } from '@/queue/services/queue.service';
 import { iconUrlPath, promptPlayerThresholdRatio } from '@configs/discord';
-import {
-  CACHE_MANAGER,
-  Inject,
-  Injectable,
-  OnModuleInit,
-} from '@nestjs/common';
+import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { DiscordAPIError, Message } from 'discord.js';
 import { debounceTime, map } from 'rxjs/operators';
@@ -19,6 +14,7 @@ import { URL } from 'url';
 import { Cache } from 'cache-manager';
 import { Mutex } from 'async-mutex';
 import { QueueConfig } from '@/queue-config/interfaces/queue-config';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
 
 @Injectable()
 export class QueuePromptsService implements OnModuleInit {

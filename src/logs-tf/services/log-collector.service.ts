@@ -5,17 +5,12 @@ import { LogsTfUploadMethod } from '@/games/logs-tf-upload-method';
 import { GamesService } from '@/games/services/games.service';
 import { LogReceiverService } from '@/log-receiver/services/log-receiver.service';
 import { LogMessage } from '@/log-receiver/types/log-message';
-import {
-  CACHE_MANAGER,
-  Inject,
-  Injectable,
-  Logger,
-  OnModuleInit,
-} from '@nestjs/common';
+import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { Mutex } from 'async-mutex';
 import { Cache } from 'cache-manager';
 import { concatMap, from, map, merge } from 'rxjs';
 import { LogsTfApiService } from './logs-tf-api.service';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
 
 const cacheKeyForGameId = (gameId: GameId) => `games/${gameId}/logs`;
 

@@ -13,7 +13,6 @@ import {
   ValidationPipe,
   HttpCode,
   UseInterceptors,
-  CacheInterceptor,
   UploadedFile,
   ParseFilePipe,
   FileTypeValidator,
@@ -51,6 +50,7 @@ import { PlayerBanId } from '../types/player-ban-id';
 import { AddPlayerBanDto } from '../dto/add-player-ban.dto';
 import { Types } from 'mongoose';
 import { PlayerId } from '../types/player-id';
+import { CacheInterceptor } from '@nestjs/cache-manager';
 
 @Controller('players')
 export class PlayersController {
