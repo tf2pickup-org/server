@@ -1,4 +1,4 @@
-import { CacheModule, Module } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { Environment } from './environment/environment';
 import { AuthModule } from './auth/auth.module';
@@ -33,6 +33,7 @@ import { redisStore } from 'cache-manager-redis-yet';
 import { validateEnvironment } from './validate-environment';
 import { Etf2lModule } from './etf2l/etf2l.module';
 import { SteamModule } from './steam/steam.module';
+import { CacheModule } from '@nestjs/cache-manager';
 
 @Module({
   imports: [

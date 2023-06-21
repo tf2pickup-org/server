@@ -4,16 +4,12 @@ import { GameId } from '@/games/game-id';
 import { SlotStatus } from '@/games/models/slot-status';
 import { GamesService } from '@/games/services/games.service';
 import { PlayerId } from '@/players/types/player-id';
-import {
-  CACHE_MANAGER,
-  Inject,
-  Injectable,
-  OnModuleInit,
-} from '@nestjs/common';
+import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
 import { Cache } from 'cache-manager';
 import { filter, map } from 'rxjs';
 import { substituteRequest } from '../notifications';
 import { DiscordService } from './discord.service';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
 
 const cacheKeyForPlayer = (playerId: PlayerId) =>
   `player-substitute-notifications/${playerId}`;

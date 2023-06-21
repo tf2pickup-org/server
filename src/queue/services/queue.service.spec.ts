@@ -7,7 +7,7 @@ import { SlotOccupiedError } from '../errors/slot-occupied.error';
 import { PlayerNotInTheQueueError } from '../errors/player-not-in-the-queue.error';
 import { WrongQueueStateError } from '../errors/wrong-queue-state.error';
 import { Types } from 'mongoose';
-import { CACHE_MANAGER } from '@nestjs/common';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { QueueState } from '../queue-state';
 import { QueueSlot } from '../queue-slot';
 import { ConfigurationService } from '@/configuration/services/configuration.service';

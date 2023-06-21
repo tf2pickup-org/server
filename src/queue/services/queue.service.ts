@@ -4,7 +4,6 @@ import {
   Inject,
   OnModuleInit,
   OnModuleDestroy,
-  CACHE_MANAGER,
   OnApplicationBootstrap,
 } from '@nestjs/common';
 import { QueueSlot } from '@/queue/queue-slot';
@@ -22,6 +21,7 @@ import { ConfigurationService } from '@/configuration/services/configuration.ser
 import { PlayerId } from '@/players/types/player-id';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { Types } from 'mongoose';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
 
 interface Queue {
   slots: {
