@@ -1942,15 +1942,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nestjs/axios@npm:2.0.0":
-  version: 2.0.0
-  resolution: "@nestjs/axios@npm:2.0.0"
+"@nestjs/axios@npm:3.0.0":
+  version: 3.0.0
+  resolution: "@nestjs/axios@npm:3.0.0"
   peerDependencies:
-    "@nestjs/common": ^7.0.0 || ^8.0.0 || ^9.0.0
+    "@nestjs/common": ^7.0.0 || ^8.0.0 || ^9.0.0 || ^10.0.0
     axios: ^1.3.1
     reflect-metadata: ^0.1.12
     rxjs: ^6.0.0 || ^7.0.0
-  checksum: bfadc38c3eed5aa78a39fa62b3026a99ea019a759f1da299c3efb667b07b1129b9c2eaa74a4a5bd2793983c94e9a77ce6cc3802e2399a8861dad8c14d9705be1
+  checksum: 0483ef5a10ed920eb84756472de59b5bd83d09f152de9b769f68a57bd9c2c922961545c50001ac3ea45584cf991aee355b8fef4fe249b849fded4f1df92244f6
   languageName: node
   linkType: hard
 
@@ -11944,7 +11944,7 @@ __metadata:
   resolution: "server@workspace:."
   dependencies:
     "@anatine/zod-openapi": ^1.12.0
-    "@nestjs/axios": 2.0.0
+    "@nestjs/axios": 3.0.0
     "@nestjs/cache-manager": 2.0.0
     "@nestjs/cli": 9.5.0
     "@nestjs/common": 10.0.2
