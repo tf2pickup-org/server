@@ -2426,10 +2426,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@protobuf-ts/runtime@npm:2.6.0":
-  version: 2.6.0
-  resolution: "@protobuf-ts/runtime@npm:2.6.0"
-  checksum: 01e06a658554a588bf09614bc7f9805b1ac1c311de8314fe075e3eb7882c966455cdc0a3cd3e8feb5138b7b8a3d4bde0185ac6284d1bac142c7d07d20a34add4
+"@protobuf-ts/runtime@npm:2.9.0":
+  version: 2.9.0
+  resolution: "@protobuf-ts/runtime@npm:2.9.0"
+  checksum: 62b2eafd0c8941734336f552f89898d224745550ad5eb8166e4bf28db75a1acc2b2e6f9c0b4d0db66bd6efab22fa987fa49c9435d0502cf8aa49f1dce5b35bd9
   languageName: node
   linkType: hard
 
@@ -2654,22 +2654,22 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tf2pickup-org/mumble-client@npm:0.7.0":
-  version: 0.7.0
-  resolution: "@tf2pickup-org/mumble-client@npm:0.7.0"
+"@tf2pickup-org/mumble-client@npm:0.7.3":
+  version: 0.7.3
+  resolution: "@tf2pickup-org/mumble-client@npm:0.7.3"
   dependencies:
-    "@tf2pickup-org/mumble-protocol": 1.0.0
-    rxjs: 7.5.6
-  checksum: e8f8ca00ce6425db1e87a4c8eba7121071d974d372f116654cc5f7a7d06b3d6fe946e6a88412ec1ebd5f29cc9976885939324982752cd477d1413c7cda73cb57
+    "@tf2pickup-org/mumble-protocol": 1.0.2
+    rxjs: 7.8.1
+  checksum: 195654844d54c938bd2c541309628edb452a8f81be452783dc02540308a8bdc93f54540872c50218a884474c59a5229e2f9e971d8a00b1a397c5dcadf5fe5b4a
   languageName: node
   linkType: hard
 
-"@tf2pickup-org/mumble-protocol@npm:1.0.0":
-  version: 1.0.0
-  resolution: "@tf2pickup-org/mumble-protocol@npm:1.0.0"
+"@tf2pickup-org/mumble-protocol@npm:1.0.2":
+  version: 1.0.2
+  resolution: "@tf2pickup-org/mumble-protocol@npm:1.0.2"
   dependencies:
-    "@protobuf-ts/runtime": 2.6.0
-  checksum: dfe780d6421c101c28a46dbe3d7ec6007ecf88b28873019776f9de5e94042546a9469749afaeb59e006c286c960c09c1be38a50ac1d29862578470899584827e
+    "@protobuf-ts/runtime": 2.9.0
+  checksum: 2da3ed0ac5d85bb0101d7c48cfc7d7ead5a51371dc74a7544f59e60fd87bef17e87863731d74596529da2d7cce75bdc088e7985aa7f7eb03ca753d901323cfb4
   languageName: node
   linkType: hard
 
@@ -11658,21 +11658,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rxjs@npm:7.5.6, rxjs@npm:^7.5.5":
-  version: 7.5.6
-  resolution: "rxjs@npm:7.5.6"
-  dependencies:
-    tslib: ^2.1.0
-  checksum: fc05f01364a74dac57490fb3e07ea63b422af04017fae1db641a009073f902ef69f285c5daac31359620dc8d9aee7d81e42b370ca2a8573d1feae0b04329383b
-  languageName: node
-  linkType: hard
-
 "rxjs@npm:7.8.1, rxjs@npm:^7.8.1":
   version: 7.8.1
   resolution: "rxjs@npm:7.8.1"
   dependencies:
     tslib: ^2.1.0
   checksum: de4b53db1063e618ec2eca0f7965d9137cabe98cf6be9272efe6c86b47c17b987383df8574861bcced18ebd590764125a901d5506082be84a8b8e364bf05f119
+  languageName: node
+  linkType: hard
+
+"rxjs@npm:^7.5.5":
+  version: 7.5.6
+  resolution: "rxjs@npm:7.5.6"
+  dependencies:
+    tslib: ^2.1.0
+  checksum: fc05f01364a74dac57490fb3e07ea63b422af04017fae1db641a009073f902ef69f285c5daac31359620dc8d9aee7d81e42b370ca2a8573d1feae0b04329383b
   languageName: node
   linkType: hard
 
@@ -11863,7 +11863,7 @@ __metadata:
     "@nestjs/websockets": 10.0.2
     "@redis/client": 1.5.8
     "@release-it/conventional-changelog": 5.1.1
-    "@tf2pickup-org/mumble-client": 0.7.0
+    "@tf2pickup-org/mumble-client": 0.7.3
     "@types/cache-manager": 4.0.2
     "@types/cache-manager-redis-store": 2.0.1
     "@types/cookie": 0.5.1
