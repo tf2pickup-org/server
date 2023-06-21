@@ -7,7 +7,7 @@ import { LogReceiverService } from '@/log-receiver/services/log-receiver.service
 import { LogMessage } from '@/log-receiver/types/log-message';
 import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
 import { waitABit } from '@/utils/wait-a-bit';
-import { CacheModule, CACHE_MANAGER } from '@nestjs/common';
+import { CacheModule, CACHE_MANAGER } from '@nestjs/cache-manager';
 import { MongooseModule, getConnectionToken } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Cache } from 'cache-manager';

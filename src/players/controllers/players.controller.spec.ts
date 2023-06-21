@@ -4,11 +4,7 @@ import { PlayersService } from '../services/players.service';
 import { Player } from '../models/player';
 import { PlayerStatsDto } from '../dto/player-stats.dto';
 import { PlayerBansService } from '../services/player-bans.service';
-import {
-  NotFoundException,
-  BadRequestException,
-  CacheModule,
-} from '@nestjs/common';
+import { BadRequestException } from '@nestjs/common';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { plainToInstance } from 'class-transformer';
 import { PlayerBan } from '../models/player-ban';
@@ -19,6 +15,7 @@ import { ImportExportSkillService } from '../services/import-export-skill.servic
 import { PlayerSkillRecordMalformedError } from '../errors/player-skill-record-malformed.error';
 import { QueueConfig } from '@/queue-config/interfaces/queue-config';
 import { PlayerId } from '../types/player-id';
+import { CacheModule } from '@nestjs/cache-manager';
 
 jest.mock('../services/linked-profiles.service');
 jest.mock('../services/import-export-skill.service');

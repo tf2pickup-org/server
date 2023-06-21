@@ -8,7 +8,7 @@ import { Player, playerSchema } from '@/players/models/player';
 import { PlayersService } from '@/players/services/players.service';
 import { PlayerId } from '@/players/types/player-id';
 import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
-import { CacheModule } from '@nestjs/common';
+import { CacheModule } from '@nestjs/cache-manager';
 import { MongooseModule, getConnectionToken } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Message } from 'discord.js';

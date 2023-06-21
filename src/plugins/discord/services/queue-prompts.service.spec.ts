@@ -18,7 +18,7 @@ import { DiscordService } from './discord.service';
 import { QueuePromptsService } from './queue-prompts.service';
 import { getConnectionToken, MongooseModule } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
-import { CacheModule } from '@nestjs/common';
+import { CacheModule } from '@nestjs/cache-manager';
 
 jest.mock('./discord.service');
 jest.mock('@/queue/services/queue.service');
