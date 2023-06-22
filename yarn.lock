@@ -10050,14 +10050,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"nestjs-real-ip@npm:2.2.0":
-  version: 2.2.0
-  resolution: "nestjs-real-ip@npm:2.2.0"
+"nestjs-real-ip@npm:3.0.1":
+  version: 3.0.1
+  resolution: "nestjs-real-ip@npm:3.0.1"
   dependencies:
     "@supercharge/request-ip": ^1.2.0
   peerDependencies:
-    "@nestjs/common": 8 - 9
-  checksum: a9744c32cdd507bf273b4cc66f14e312987c4abfa80f7bf8b28f23aee2c9d785cfad7e3f9c98b792cc687d33462f093590d0738888f7bcaa8f9ea3fb6994efeb
+    "@nestjs/common": ">=8"
+  checksum: f60d7b05c905fe40908db55cbccad22eeb191a09d4f5a486818014cce0c0afaa88c22ae20970c8bbbd6d4b8d620bf8c22701b004d61edf5c3c7f9a2dd0032466
   languageName: node
   linkType: hard
 
@@ -11838,7 +11838,7 @@ __metadata:
     mongodb-uri: 0.9.7
     mongoose: 7.3.1
     multer: ^1.4.5-lts.1
-    nestjs-real-ip: 2.2.0
+    nestjs-real-ip: 3.0.1
     passport: 0.6.0
     passport-headerapikey: 1.2.2
     passport-jwt: 4.0.1
