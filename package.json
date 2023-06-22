@@ -27,7 +27,7 @@
     "@nestjs/platform-express": "10.0.3",
     "@nestjs/platform-socket.io": "10.0.3",
     "@nestjs/schedule": "3.0.1",
-    "@nestjs/serve-static": "3.0.1",
+    "@nestjs/serve-static": "4.0.0",
     "@nestjs/websockets": "10.0.3",
     "@redis/client": "1.5.8",
     "@tf2pickup-org/mumble-client": "0.7.3",
