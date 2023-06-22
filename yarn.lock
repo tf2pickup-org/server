@@ -2090,15 +2090,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nestjs/serve-static@npm:3.0.1":
-  version: 3.0.1
-  resolution: "@nestjs/serve-static@npm:3.0.1"
+"@nestjs/serve-static@npm:4.0.0":
+  version: 4.0.0
+  resolution: "@nestjs/serve-static@npm:4.0.0"
   dependencies:
     path-to-regexp: 0.2.5
   peerDependencies:
     "@fastify/static": ^6.5.0
-    "@nestjs/common": ^9.0.0
-    "@nestjs/core": ^9.0.0
+    "@nestjs/common": ^9.0.0 || ^10.0.0
+    "@nestjs/core": ^9.0.0 || ^10.0.0
     express: ^4.18.1
     fastify: ^4.7.0
   peerDependenciesMeta:
@@ -2108,7 +2108,7 @@ __metadata:
       optional: true
     fastify:
       optional: true
-  checksum: d7343094655b4f622f5385c06cddac7919eed317ae89df4aa4a43965eae413f583f859bd9ee48477dc581e9c7d9a7ae6cc9654b2bb4d331ca7ce155a9e4dff3a
+  checksum: e3ee40453aa77bdc7d18dd41dda369b2e49e750101d77372bc44d3fedec7740094bb2102429bd589afa7b34d4f81b07bddb4f0481be5abc6f268fe5a7ae945f3
   languageName: node
   linkType: hard
 
@@ -11776,7 +11776,7 @@ __metadata:
     "@nestjs/platform-socket.io": 10.0.3
     "@nestjs/schedule": 3.0.1
     "@nestjs/schematics": 10.0.1
-    "@nestjs/serve-static": 3.0.1
+    "@nestjs/serve-static": 4.0.0
     "@nestjs/testing": 10.0.3
     "@nestjs/websockets": 10.0.3
     "@redis/client": 1.5.8
