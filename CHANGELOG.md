@@ -1,5 +1,28 @@
 
 
+# [11.0.0-alpha.15](https://github.com/tf2pickup-org/server/compare/11.0.0-alpha.14...11.0.0-alpha.15) (2023-06-22)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @anatine/zod-openapi to v1.14.2 ([#2462](https://github.com/tf2pickup-org/server/issues/2462)) ([cec0ecf](https://github.com/tf2pickup-org/server/commit/cec0ecf7e1f9c0889a98a73ec5bbd08e39d2a647))
+* **deps:** update dependency @nestjs/axios to v3 ([#2457](https://github.com/tf2pickup-org/server/issues/2457)) ([5918c4f](https://github.com/tf2pickup-org/server/commit/5918c4fd6b60c4f6f52227988611c4826add256c))
+* **deps:** update dependency @nestjs/config to v2.3.4 ([#2448](https://github.com/tf2pickup-org/server/issues/2448)) ([a2941e7](https://github.com/tf2pickup-org/server/commit/a2941e73590a3d16a8f29707ef571c74d9210c7e))
+* **deps:** update dependency @nestjs/config to v3 ([#2458](https://github.com/tf2pickup-org/server/issues/2458)) ([b43a5de](https://github.com/tf2pickup-org/server/commit/b43a5de1d1f799aa7f9d0415dc728758d8843d2f))
+* **deps:** update dependency @nestjs/mongoose to v10 ([#2459](https://github.com/tf2pickup-org/server/issues/2459)) ([a26b3f9](https://github.com/tf2pickup-org/server/commit/a26b3f9a99e1dbf2caffe75d3afa0e78c0601722))
+* **deps:** update dependency @nestjs/schedule to v3 ([#2460](https://github.com/tf2pickup-org/server/issues/2460)) ([d5bd5a5](https://github.com/tf2pickup-org/server/commit/d5bd5a53999a3e9460e63060b967dbec5fc9fb7b))
+* **deps:** update dependency @tf2pickup-org/mumble-client to v0.7.3 ([#2463](https://github.com/tf2pickup-org/server/issues/2463)) ([488fa73](https://github.com/tf2pickup-org/server/commit/488fa731531ebfc400def8f0044a67dd2e15e192))
+* **deps:** update dependency cache-manager to v5.2.3 ([#2453](https://github.com/tf2pickup-org/server/issues/2453)) ([761bdeb](https://github.com/tf2pickup-org/server/commit/761bdeb7eb5735eb17cc2b646d3d7e5142088551))
+* **deps:** update dependency cache-manager-redis-yet to v4.1.2 ([#2454](https://github.com/tf2pickup-org/server/issues/2454)) ([8b78b33](https://github.com/tf2pickup-org/server/commit/8b78b33f8645f4e13aa8a523afa5da91c995c931))
+* **deps:** update dependency helmet to v7 ([#2402](https://github.com/tf2pickup-org/server/issues/2402)) ([80bf8e5](https://github.com/tf2pickup-org/server/commit/80bf8e5014abfefdcae7317fc05c32739141bd65))
+* **deps:** update dependency migrate to v2 ([#2428](https://github.com/tf2pickup-org/server/issues/2428)) ([7b82fde](https://github.com/tf2pickup-org/server/commit/7b82fde8c2ba1c5d9e5b88bf1ade85b75836fef3))
+* **deps:** update dependency mongodb to v5.6.0 ([#2435](https://github.com/tf2pickup-org/server/issues/2435)) ([8eb8634](https://github.com/tf2pickup-org/server/commit/8eb8634a9c92d9284818f0c575d5e83019caff07))
+* **deps:** update dependency mongoose to v7.3.0 ([#2450](https://github.com/tf2pickup-org/server/issues/2450)) ([a2de56c](https://github.com/tf2pickup-org/server/commit/a2de56c147fb6e2619395840bc4b5c49ac53f00c))
+* **deps:** update dependency mongoose to v7.3.1 ([#2464](https://github.com/tf2pickup-org/server/issues/2464)) ([4fa9cbc](https://github.com/tf2pickup-org/server/commit/4fa9cbcbc8cea47d70ef8f5b2b6b6fbff2b8c810))
+* **deps:** update dependency passport-steam to v1.0.18 ([#2465](https://github.com/tf2pickup-org/server/issues/2465)) ([1c7d2d7](https://github.com/tf2pickup-org/server/commit/1c7d2d74d066d3e843f984a406bfbf3d7bdc2589))
+* **deps:** update nest monorepo to v10 (major) ([#2455](https://github.com/tf2pickup-org/server/issues/2455)) ([a8425fa](https://github.com/tf2pickup-org/server/commit/a8425fa2c2c1195b0e3a8646d87989d299a51a9c))
+* **deps:** update nest monorepo to v9.4.3 ([#2449](https://github.com/tf2pickup-org/server/issues/2449)) ([fa4b889](https://github.com/tf2pickup-org/server/commit/fa4b88972a7500a1548353ae0fe21ed8f77a351e))
+
 # [11.0.0-alpha.14](https://github.com/tf2pickup-org/server/compare/11.0.0-alpha.13...11.0.0-alpha.14) (2023-06-10)
 
 
