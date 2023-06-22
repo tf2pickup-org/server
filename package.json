@@ -56,7 +56,7 @@
     "mongodb-uri": "0.9.7",
     "mongoose": "7.3.1",
     "multer": "^1.4.5-lts.1",
-    "nestjs-real-ip": "2.2.0",
+    "nestjs-real-ip": "3.0.1",
     "passport": "0.6.0",
     "passport-headerapikey": "1.2.2",
     "passport-jwt": "4.0.1",
