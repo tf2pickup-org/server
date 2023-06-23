@@ -26,12 +26,14 @@ import { GameEventType } from '../models/game-event-type';
 import { SubstituteRequested } from '../models/events/substitute-requested';
 import { PlayerReplaced } from '../models/events/player-replaced';
 import { PlayerDeniedError } from '@/shared/errors/player-denied.error';
+import { ConfigurationService } from '@/configuration/services/configuration.service';
 
 jest.mock('@/players/services/players.service');
 jest.mock('./games.service');
 jest.mock('@/players/services/player-bans.service');
 jest.mock('../gateways/games.gateway');
 jest.mock('@/queue/services/queue.service');
+jest.mock('@/configuration/services/configuration.service');
 
 describe('PlayerSubstitutionService', () => {
   let service: PlayerSubstitutionService;
@@ -67,6 +69,7 @@ describe('PlayerSubstitutionService', () => {
         PlayerBansService,
         QueueService,
         Events,
+        ConfigurationService,
       ],
     }).compile();
 

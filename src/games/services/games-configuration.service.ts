@@ -134,6 +134,12 @@ export class GamesConfigurationService implements OnModuleInit {
           },
         ],
       ),
+      configurationEntry(
+        'games.auto_force_end_threshold',
+        z.number(),
+        4,
+        'Number of active substitute requests that make the game be automatically force-ended',
+      ),
     );
   }
 }
