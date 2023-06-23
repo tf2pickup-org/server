@@ -1892,15 +1892,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nestjs/cache-manager@npm:2.0.0":
-  version: 2.0.0
-  resolution: "@nestjs/cache-manager@npm:2.0.0"
+"@nestjs/cache-manager@npm:2.0.1":
+  version: 2.0.1
+  resolution: "@nestjs/cache-manager@npm:2.0.1"
   peerDependencies:
     "@nestjs/common": ^9.0.0 || ^10.0.0
+    "@nestjs/core": ^9.0.0 || ^10.0.0
     cache-manager: <=5
     reflect-metadata: ^0.1.12
     rxjs: ^7.0.0
-  checksum: 0abc205c27c81ed68e61ee8df15c79abfb263ed5a04b83c44e4295946aaef5d0f0605d06379f4dd9a67608dd7e14645f6dc3a6d5728d42149636cecb00dbb539
+  checksum: 47aa6a9b818a4819669752d0fa8708e205b8c439fb4e30661a1a24f66b457d3b681fbc298630d8a99a2fc665052785dc78be7fca6c1f979e8b668fe98e2a020e
   languageName: node
   linkType: hard
 
@@ -11765,7 +11766,7 @@ __metadata:
   dependencies:
     "@anatine/zod-openapi": ^1.12.0
     "@nestjs/axios": 3.0.0
-    "@nestjs/cache-manager": 2.0.0
+    "@nestjs/cache-manager": 2.0.1
     "@nestjs/cli": 10.0.3
     "@nestjs/common": 10.0.3
     "@nestjs/config": 3.0.0
