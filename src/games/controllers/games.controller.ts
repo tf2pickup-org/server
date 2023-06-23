@@ -32,7 +32,7 @@ import { GameByIdOrNumberPipe } from '../pipes/game-by-id-or-number.pipe';
 import { PlayerByIdPipe } from '@/players/pipes/player-by-id.pipe';
 import { GameServerOptionIdentifier } from '../dto/game-server-option-identifier';
 import { PlayerNotInThisGameErrorFilter } from '../filters/player-not-in-this-game-error.filter';
-import { GameInWrongStateError } from '../errors/game-in-wrong-state.error';
+import { GameInWrongStateErrorFilter } from '../filters/game-in-wrong-state-error.filter';
 
 @Controller('games')
 export class GamesController {
@@ -82,7 +82,7 @@ export class GamesController {
   @Auth()
   @UseFilters(
     DocumentNotFoundFilter,
-    GameInWrongStateError,
+    GameInWrongStateErrorFilter,
     PlayerNotInThisGameErrorFilter,
   )
   async getConnectInfo(
