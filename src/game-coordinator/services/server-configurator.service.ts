@@ -171,7 +171,7 @@ export class ServerConfiguratorService implements OnModuleInit {
         this.logger.debug(`[${game.gameServer.name}] ${line}`);
         await rcon.send(line);
         if (/^changelevel|exec/.test(line)) {
-          await waitABit(1000);
+          await waitABit(1000 * 10);
         }
 
         // changelevel might sometimes kick us
