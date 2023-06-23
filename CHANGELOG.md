@@ -1,5 +1,17 @@
 
 
+# [11.0.0-beta.0](https://github.com/tf2pickup-org/server/compare/11.0.0-alpha.15...11.0.0-beta.0) (2023-06-23)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @nestjs/cache-manager to v2.0.1 ([#2472](https://github.com/tf2pickup-org/server/issues/2472)) ([bee66cf](https://github.com/tf2pickup-org/server/commit/bee66cf0a3089e11c8b512508fb5e6b97113212d))
+* **deps:** update dependency @nestjs/serve-static to v4 ([#2469](https://github.com/tf2pickup-org/server/issues/2469)) ([0764ec7](https://github.com/tf2pickup-org/server/commit/0764ec7047b092c8f9af79ee996c62a23605d4e7))
+* **deps:** update dependency nestjs-real-ip to v3 ([#2470](https://github.com/tf2pickup-org/server/issues/2470)) ([b8b6461](https://github.com/tf2pickup-org/server/commit/b8b64619f5354c2b2a1271c49958e47b2992ca82))
+* **deps:** update nest monorepo to v10.0.3 ([#2466](https://github.com/tf2pickup-org/server/issues/2466)) ([b28afd0](https://github.com/tf2pickup-org/server/commit/b28afd0d9adeb695941453c9867111d7811141d6))
+* **games:** fix changelevel wait timeout ([#2474](https://github.com/tf2pickup-org/server/issues/2474)) ([4571c47](https://github.com/tf2pickup-org/server/commit/4571c471f32abcd30a8ce23e6c916493ca9c0980))
+* **games:** handle getConnectInfo() errors gracefully ([#2258](https://github.com/tf2pickup-org/server/issues/2258)) ([f6914c9](https://github.com/tf2pickup-org/server/commit/f6914c9b1588f2c15a7a3618198490640a5cfe41))
+
 # [11.0.0-alpha.15](https://github.com/tf2pickup-org/server/compare/11.0.0-alpha.14...11.0.0-alpha.15) (2023-06-22)
 
 
