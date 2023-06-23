@@ -6,7 +6,6 @@ import {
   Param,
   HttpCode,
   DefaultValuePipe,
-  UnauthorizedException,
   ClassSerializerInterceptor,
   UseInterceptors,
   UseFilters,
@@ -21,7 +20,6 @@ import { Game } from '../models/game';
 import { User } from '@/auth/decorators/user.decorator';
 import { Player } from '@/players/models/player';
 import { PlayerRole } from '@/players/models/player-role';
-import { PlayerNotInThisGameError } from '../errors/player-not-in-this-game.error';
 import { ConnectInfoDto } from '../dto/connect-info.dto';
 import { DocumentNotFoundFilter } from '@/shared/filters/document-not-found.filter';
 import { GameDto } from '../dto/game.dto';
@@ -33,6 +31,8 @@ import { ParseSortParamsPipe } from '../pipes/parse-sort-params.pipe';
 import { GameByIdOrNumberPipe } from '../pipes/game-by-id-or-number.pipe';
 import { PlayerByIdPipe } from '@/players/pipes/player-by-id.pipe';
 import { GameServerOptionIdentifier } from '../dto/game-server-option-identifier';
+import { PlayerNotInThisGameErrorFilter } from '../filters/player-not-in-this-game-error.filter';
+import { GameInWrongStateErrorFilter } from '../filters/game-in-wrong-state-error.filter';
 
 @Controller('games')
 export class GamesController {
@@ -80,37 +80,31 @@ export class GamesController {
 
   @Get(':id/connect-info')
   @Auth()
-  @UseFilters(DocumentNotFoundFilter)
+  @UseFilters(
+    DocumentNotFoundFilter,
+    GameInWrongStateErrorFilter,
+    PlayerNotInThisGameErrorFilter,
+  )
   async getConnectInfo(
     @Param('id', GameByIdOrNumberPipe) game: Game,
     @User() player: Player,
   ): Promise<ConnectInfoDto> {
-    try {
-      const joinGameServerTimeout =
-        await this.gamesService.calculatePlayerJoinGameServerTimeout(
-          game._id,
-          player._id,
-        );
-      return {
-        gameId: game.id,
-        connectInfoVersion: game.connectInfoVersion,
-        connectString: game.connectString,
-        voiceChannelUrl:
-          (await this.gamesService.getVoiceChannelUrl(game._id, player._id)) ??
-          undefined,
-        ...(joinGameServerTimeout && {
-          joinGameServerTimeout: new Date(joinGameServerTimeout).toISOString(),
-        }),
-      };
-    } catch (error) {
-      if (error instanceof PlayerNotInThisGameError) {
-        throw new UnauthorizedException(
-          'player does not take part in this game',
-        );
-      } else {
-        throw error;
-      }
-    }
+    const joinGameServerTimeout =
+      await this.gamesService.calculatePlayerJoinGameServerTimeout(
+        game._id,
+        player._id,
+      );
+    return {
+      gameId: game.id,
+      connectInfoVersion: game.connectInfoVersion,
+      connectString: game.connectString,
+      voiceChannelUrl:
+        (await this.gamesService.getVoiceChannelUrl(game._id, player._id)) ??
+        undefined,
+      ...(joinGameServerTimeout && {
+        joinGameServerTimeout: new Date(joinGameServerTimeout).toISOString(),
+      }),
+    };
   }
 
   // skipcq: JS-0105

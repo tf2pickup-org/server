@@ -151,27 +151,6 @@ describe('Games Controller', () => {
       expect(ret.voiceChannelUrl).toEqual('FAKE_VOICE_CHANNEL_URL');
     });
 
-    describe('when the player does not take part in the game', () => {
-      beforeEach(() => {
-        jest
-          .spyOn(gamesService, 'getVoiceChannelUrl')
-          .mockRejectedValue(
-            new PlayerNotInThisGameError(
-              new Types.ObjectId() as PlayerId,
-              new Types.ObjectId() as GameId,
-            ),
-          );
-      });
-
-      it('should reject with 401', async () => {
-        await expect(
-          controller.getConnectInfo(gamesService.games[0], {
-            id: 'FAKE_PLAYER_ID',
-          } as Player),
-        ).rejects.toThrow(UnauthorizedException);
-      });
-    });
-
     describe('when the connect info is undefined', () => {
       beforeEach(() => {
         jest.spyOn(gamesService, 'getById').mockResolvedValue({
