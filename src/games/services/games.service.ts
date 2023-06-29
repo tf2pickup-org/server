@@ -555,7 +555,7 @@ export class GamesService {
       throw new Error(`no such player (${playerId})`);
     }
 
-    if (player.skill && player.skill.has(gameClass)) {
+    if (player.skill?.has(gameClass)) {
       return { playerId, gameClass, skill: player.skill.get(gameClass)! };
     }
 
