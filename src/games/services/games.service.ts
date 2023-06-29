@@ -77,7 +77,16 @@ export class GamesService {
     return plainToInstance(
       Game,
       await this.gameModel
-        .find({ state: { $in: [GameState.launching, GameState.started] } })
+        .find({
+          state: {
+            $in: [
+              GameState.created,
+              GameState.configuring,
+              GameState.launching,
+              GameState.started,
+            ],
+          },
+        })
         .lean()
         .exec(),
     );
