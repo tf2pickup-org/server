@@ -162,11 +162,18 @@ describe('GamesService', () => {
   });
 
   describe('#getRunningGames()', () => {
+    let createdGame: GameDocument;
     let launchingGame: GameDocument;
     let runningGame: GameDocument;
     let endedGame: GameDocument;
 
     beforeEach(async () => {
+      createdGame = await gameModel.create({
+        number: 4,
+        map: 'cp_badlands',
+        state: GameState.created,
+        slots: [],
+      });
       launchingGame = await gameModel.create({
         number: 1,
         map: 'cp_badlands',
@@ -189,9 +196,9 @@ describe('GamesService', () => {
 
     it('should get only running games', async () => {
       const ret = await service.getRunningGames();
-      expect(ret.length).toEqual(2);
+      expect(ret.length).toEqual(3);
       expect(
-        [launchingGame.id, runningGame.id].every((id) =>
+        [createdGame.id, launchingGame.id, runningGame.id].every((id) =>
           ret.find((g) => g.id === id),
         ),
       ).toBe(true);
