@@ -1,5 +1,14 @@
 
 
+# [11.0.0-beta.1](https://github.com/tf2pickup-org/server/compare/11.0.0-beta.0...11.0.0-beta.1) (2023-07-01)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @anatine/zod-openapi to v2 ([#2485](https://github.com/tf2pickup-org/server/issues/2485)) ([09ef074](https://github.com/tf2pickup-org/server/commit/09ef07484f33745e1085ef3f5e6297909f61b3ee))
+* **deps:** update nest monorepo to v10.0.4 ([#2482](https://github.com/tf2pickup-org/server/issues/2482)) ([fadfa34](https://github.com/tf2pickup-org/server/commit/fadfa3412653b14ee27e09278990cfe2e3bf66f0))
+* **games:** fix running games query ([#2481](https://github.com/tf2pickup-org/server/issues/2481)) ([9b54361](https://github.com/tf2pickup-org/server/commit/9b543614543d33114dff28a5ce2b5352bbf7839d))
+
 # [11.0.0-beta.0](https://github.com/tf2pickup-org/server/compare/11.0.0-alpha.15...11.0.0-beta.0) (2023-06-23)
 
 
