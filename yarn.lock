@@ -22,15 +22,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anatine/zod-openapi@npm:^1.12.0":
-  version: 1.14.2
-  resolution: "@anatine/zod-openapi@npm:1.14.2"
+"@anatine/zod-openapi@npm:^2.0.0":
+  version: 2.0.1
+  resolution: "@anatine/zod-openapi@npm:2.0.1"
   dependencies:
     ts-deepmerge: ^6.0.3
   peerDependencies:
-    openapi3-ts: ^2.0.0 || ^3.0.0
+    openapi3-ts: ^4.1.2
     zod: ^3.20.0
-  checksum: 57d71c05929cb49f1bc149af4d2e2f40600d259419141a5699d74fca01162619047d933fd938acb20b7dd9c22b66d882d66286305ccc6f57961f3171eb701b94
+  checksum: 46f974bfb6efcc69f63beae9b268240b2a7052d4956ea0bfcfbaaca6bb3c46f26fd4e1a4f1a6ed0c62a0fb817680366ed5e6c872eb79463132c16c03fd26c0ab
   languageName: node
   linkType: hard
 
@@ -11822,7 +11822,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "server@workspace:."
   dependencies:
-    "@anatine/zod-openapi": ^1.12.0
+    "@anatine/zod-openapi": ^2.0.0
     "@nestjs/axios": 3.0.0
     "@nestjs/cache-manager": 2.0.1
     "@nestjs/cli": 10.1.0
