@@ -8,6 +8,11 @@ import { ServemeTfApiService } from '../services/serveme-tf-api.service';
 export class ServemeTfController {
   constructor(private servemeTfApiService: ServemeTfApiService) {}
 
+  @Get('/')
+  isEnabled() {
+    return { isEnabled: true };
+  }
+
   @Get('/servers')
   async listAllServers() {
     return await this.servemeTfApiService.listServers();
