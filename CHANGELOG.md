@@ -1,5 +1,17 @@
 
 
+# [11.0.0-beta.2](https://github.com/tf2pickup-org/server/compare/11.0.0-beta.1...11.0.0-beta.2) (2023-07-03)
+
+
+### Bug Fixes
+
+* **deps:** update nest monorepo to v10.0.5 ([#2490](https://github.com/tf2pickup-org/server/issues/2490)) ([4598b28](https://github.com/tf2pickup-org/server/commit/4598b28857ae3162e2a7eff263a5b81c0b040c47))
+
+
+### Features
+
+* **serveme.tf:** add GET isEnabled route ([#2492](https://github.com/tf2pickup-org/server/issues/2492)) ([3156541](https://github.com/tf2pickup-org/server/commit/31565413667b73262a1058da93173069b483505d))
+
 # [11.0.0-beta.1](https://github.com/tf2pickup-org/server/compare/11.0.0-beta.0...11.0.0-beta.1) (2023-07-01)
 
 
