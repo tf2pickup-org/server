@@ -22,6 +22,12 @@ describe('ServemeTfController', () => {
     expect(controller).toBeDefined();
   });
 
+  describe('#isEnabled()', () => {
+    it('should return true', () => {
+      expect(controller.isEnabled()).toEqual({ isEnabled: true });
+    });
+  });
+
   describe('#listAllServers()', () => {
     beforeEach(() => {
       servemeTfApiService.listServers.mockResolvedValue([
