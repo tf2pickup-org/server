@@ -14,7 +14,7 @@ import { GameState } from '../models/game-state';
 import { ConfigurationService } from '@/configuration/services/configuration.service';
 import { PlayerNotInThisGameError } from '../errors/player-not-in-this-game.error';
 import { GameInWrongStateError } from '../errors/game-in-wrong-state.error';
-import { Connection, Model } from 'mongoose';
+import { Connection, Model, Types } from 'mongoose';
 import {
   getConnectionToken,
   getModelToken,
@@ -23,9 +23,10 @@ import {
 import { Mutex } from 'async-mutex';
 import { GameServer } from '../models/game-server';
 import { VoiceServerType } from '../voice-server-type';
-import { GameEventType } from '../models/game-event';
 import { PlayerEventType } from '../models/player-event';
 import { PlayerConnectionStatus } from '../models/player-connection-status';
+import { GameEventType } from '../models/game-event-type';
+import { PlayerId } from '@/players/types/player-id';
 
 jest.mock('@/players/services/players.service');
 jest.mock('@/configuration/services/configuration.service');
@@ -783,7 +784,7 @@ describe('GamesService', () => {
 
       beforeEach(async () => {
         testGame.events.push({
-          event: GameEventType.GameServerInitialized,
+          event: GameEventType.gameServerInitialized,
           at: initializedAt,
         });
         testGame.state = GameState.launching;
@@ -816,9 +817,11 @@ describe('GamesService', () => {
 
       describe('and the player took sub more than 3 minutes before timeout', () => {
         beforeEach(async () => {
-          testGame.slots[0].events.push({
-            event: PlayerEventType.replacesPlayer,
+          testGame.events.push({
+            event: GameEventType.playerReplaced,
             at: new Date(2023, 2, 7, 23, 22, 0), // 1 minute after the gameserver was initialized
+            replacee: new Types.ObjectId() as PlayerId,
+            replacement: testPlayer._id,
           });
           await testGame.save();
         });
@@ -835,9 +838,11 @@ describe('GamesService', () => {
 
       describe('and the player took sub less than 3 minutes before timeout', () => {
         beforeEach(async () => {
-          testGame.slots[0].events.push({
-            event: PlayerEventType.replacesPlayer,
+          testGame.events.push({
+            event: GameEventType.playerReplaced,
             at: new Date(2023, 2, 7, 23, 25, 0), // 4 minutes after the gameserver was initialized
+            replacee: new Types.ObjectId() as PlayerId,
+            replacement: testPlayer._id,
           });
           await testGame.save();
         });
@@ -944,9 +949,11 @@ describe('GamesService', () => {
       describe('and the player joined as a sub', () => {
         beforeEach(async () => {
           testGame.slots[0].connectionStatus = PlayerConnectionStatus.offline;
-          testGame.slots[0].events.push({
-            event: PlayerEventType.replacesPlayer,
+          testGame.events.push({
+            event: GameEventType.playerReplaced,
             at: new Date(2023, 2, 7, 23, 40, 0),
+            replacee: new Types.ObjectId() as PlayerId,
+            replacement: testPlayer._id,
           });
           await testGame.save();
         });

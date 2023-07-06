@@ -18,9 +18,9 @@ import { plainToInstance } from 'class-transformer';
 import { GamesService } from './games.service';
 import { Mutex } from 'async-mutex';
 import { Tf2Team } from '../models/tf2-team';
-import { GameEventType } from '../models/game-event';
 import { PlayerEventType } from '../models/player-event';
 import { GameId } from '../game-id';
+import { GameEventType } from '../models/game-event-type';
 
 // https://github.com/microsoft/TypeScript/issues/33308
 type PickEnum<T, K extends T> = {
@@ -157,7 +157,7 @@ export class GameEventHandlerService implements OnModuleInit, OnModuleDestroy {
               $push: {
                 events: {
                   at: new Date(),
-                  event: GameEventType.Ended,
+                  event: GameEventType.gameEnded,
                 },
               },
             },

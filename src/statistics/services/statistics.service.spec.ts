@@ -1,5 +1,4 @@
 import { Game, GameDocument, gameSchema } from '@/games/models/game';
-import { GameEventType } from '@/games/models/game-event';
 import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
 import {
   getConnectionToken,
@@ -10,6 +9,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { Connection, Model } from 'mongoose';
 import { StatisticsService } from './statistics.service';
+import { GameEventType } from '@/games/models/game-event-type';
 
 describe('StatisticsService', () => {
   let service: StatisticsService;
@@ -83,7 +83,7 @@ describe('StatisticsService', () => {
           events: [
             {
               at: new Date(2021, 10, 11, 13, 0),
-              event: GameEventType.Created,
+              event: GameEventType.gameCreated,
             },
           ],
           map: 'cp_process_f7',
@@ -93,7 +93,7 @@ describe('StatisticsService', () => {
           events: [
             {
               at: new Date(2021, 10, 11, 19, 0),
-              event: GameEventType.Created,
+              event: GameEventType.gameCreated,
             },
           ],
           map: 'cp_process_f7',
@@ -103,7 +103,7 @@ describe('StatisticsService', () => {
           events: [
             {
               at: new Date(2021, 10, 11, 22, 0),
-              event: GameEventType.Created,
+              event: GameEventType.gameCreated,
             },
           ],
           map: 'cp_process_f7',
@@ -134,7 +134,7 @@ describe('StatisticsService', () => {
           events: [
             {
               at: new Date(2021, 10, 11, 13, 0),
-              event: GameEventType.Created,
+              event: GameEventType.gameCreated,
             },
           ],
           map: 'cp_process_f7',
@@ -144,7 +144,7 @@ describe('StatisticsService', () => {
           events: [
             {
               at: new Date(2021, 10, 11, 19, 0),
-              event: GameEventType.Created,
+              event: GameEventType.gameCreated,
             },
           ],
           map: 'cp_process_f7',
@@ -154,7 +154,7 @@ describe('StatisticsService', () => {
           events: [
             {
               at: new Date(2021, 10, 12, 22, 0),
-              event: GameEventType.Created,
+              event: GameEventType.gameCreated,
             },
           ],
           map: 'cp_process_f7',

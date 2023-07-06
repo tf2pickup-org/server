@@ -22,7 +22,7 @@ import { merge } from 'rxjs';
 import { Mutex } from 'async-mutex';
 import { GameId } from '../game-id';
 import { PlayerId } from '@/players/types/player-id';
-import { PlayerEventType } from '../models/player-event';
+import { GameEventType } from '../models/game-event-type';
 
 /**
  * A service that handles player substitution logic.
@@ -86,9 +86,10 @@ export class PlayerSubstitutionService implements OnModuleInit {
                 'slots.$[element].status': SlotStatus.waitingForSubstitute,
               },
               $push: {
-                'slots.$[element].events': {
-                  event: PlayerEventType.requestsSubstitute,
+                events: {
+                  event: GameEventType.substituteRequested,
                   at: new Date(),
+                  player: player._id,
                 },
               },
             },
@@ -204,9 +205,11 @@ export class PlayerSubstitutionService implements OnModuleInit {
                   'slots.$[element].status': SlotStatus.active,
                 },
                 $push: {
-                  'slots.$[element].events': {
+                  events: {
                     at: new Date(),
-                    event: PlayerEventType.replacesPlayer,
+                    event: GameEventType.playerReplaced,
+                    replacee: replaceeId,
+                    replacement: replacementId,
                   },
                 },
               },
@@ -244,9 +247,11 @@ export class PlayerSubstitutionService implements OnModuleInit {
               'slots.$[element].status': SlotStatus.active,
             },
             $push: {
-              'slots.$[element].events': {
-                event: PlayerEventType.replacesPlayer,
+              events: {
+                event: GameEventType.playerReplaced,
                 at: new Date(),
+                replacee: replaceeId,
+                replacement: replacementId,
               },
             },
           },
@@ -262,12 +267,12 @@ export class PlayerSubstitutionService implements OnModuleInit {
               player: replacementId,
               team: slot.team,
               gameClass: slot.gameClass,
-              events: [
-                {
-                  at: new Date(),
-                  event: PlayerEventType.replacesPlayer,
-                },
-              ],
+            },
+            events: {
+              event: GameEventType.playerReplaced,
+              at: new Date(),
+              replacee: replaceeId,
+              replacement: replacementId,
             },
           },
         });

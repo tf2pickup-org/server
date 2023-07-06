@@ -20,10 +20,10 @@ import { Error, Types } from 'mongoose';
 import { Mutex } from 'async-mutex';
 import { Tf2Team } from '../models/tf2-team';
 import { isUndefined } from 'lodash';
-import { GameEventType } from '../models/game-event';
 import { PlayerEventType } from '../models/player-event';
 import { PlayerConnectionStatus } from '../models/player-connection-status';
 import { GameId } from '../game-id';
+import { GameEventType } from '../models/game-event-type';
 
 jest.mock('@/players/services/players.service');
 jest.mock('@nestjs/config');
@@ -157,7 +157,7 @@ describe('GameEventHandlerService', () => {
     it('should push event', async () => {
       const game = await service.onMatchEnded(mockGame.id);
       expect(
-        game.events.find((e) => e.event === GameEventType.Ended),
+        game.events.find((e) => e.event === GameEventType.gameEnded),
       ).toBeTruthy();
     });
 

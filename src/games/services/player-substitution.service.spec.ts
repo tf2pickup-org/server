@@ -23,6 +23,9 @@ import { GameInWrongStateError } from '../errors/game-in-wrong-state.error';
 import { PlayerId } from '@/players/types/player-id';
 import { GameId } from '../game-id';
 import { PlayerEventType } from '../models/player-event';
+import { GameEventType } from '../models/game-event-type';
+import { SubstituteRequested } from '../models/events/substitute-requested';
+import { PlayerReplaced } from '../models/events/player-replaced';
 
 jest.mock('@/players/services/players.service');
 jest.mock('./games.service');
@@ -163,10 +166,11 @@ describe('PlayerSubstitutionService', () => {
 
     it('should register event', async () => {
       const game = await service.substitutePlayer(mockGame._id, player1._id);
-      const slot = game.findPlayerSlot(player1._id);
       expect(
-        slot?.events.find(
-          (event) => event.event === PlayerEventType.requestsSubstitute,
+        game.events.find(
+          (event) =>
+            event.event === GameEventType.substituteRequested &&
+            (event as SubstituteRequested).player.equals(player1._id),
         ),
       ).toBeTruthy();
     });
@@ -371,10 +375,12 @@ describe('PlayerSubstitutionService', () => {
           player1._id,
           player1._id,
         );
-        const slot = game.findPlayerSlot(player1._id);
         expect(
-          slot?.events.find(
-            (event) => event.event === PlayerEventType.replacesPlayer,
+          game.events.find(
+            (e) =>
+              e.event === GameEventType.playerReplaced &&
+              (e as PlayerReplaced).replacee.equals(player1._id) &&
+              (e as PlayerReplaced).replacement.equals(player1._id),
           ),
         ).toBeTruthy();
       });
@@ -457,10 +463,12 @@ describe('PlayerSubstitutionService', () => {
         player1._id,
         player3._id,
       );
-      const slot = game.findPlayerSlot(player3._id);
       expect(
-        slot?.events.find(
-          (event) => event.event === PlayerEventType.replacesPlayer,
+        game.events.find(
+          (e) =>
+            e.event === GameEventType.playerReplaced &&
+            (e as PlayerReplaced).replacee.equals(player1._id) &&
+            (e as PlayerReplaced).replacement.equals(player3._id),
         ),
       ).toBeTruthy();
     });

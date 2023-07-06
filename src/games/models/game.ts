@@ -5,14 +5,27 @@ import { TransformObjectId } from '@/shared/decorators/transform-object-id';
 import { Serializable } from '@/shared/serializable';
 import { Prop, raw, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Exclude, Expose, Transform, Type } from 'class-transformer';
-import { Document } from 'mongoose';
+import { Document, Schema as MongooseSchema } from 'mongoose';
 import { GameDto } from '../dto/game.dto';
 import { GameId } from '../game-id';
-import { GameEvent, gameEventSchema, GameEventType } from './game-event';
+import { GameEvent, gameEventSchema } from './game-event';
 import { GameServer, gameServerSchema } from './game-server';
 import { GameSlot, gameSlotSchema } from './game-slot';
 import { GameState } from './game-state';
 import { SlotStatus } from './slot-status';
+import { GameEventType } from './game-event-type';
+import { GameCreated, gameCreatedSchema } from './events/game-created';
+import { GameStarted, gameStartedSchema } from './events/game-started';
+import { GameEnded, gameEndedSchema } from './events/game-ended';
+import {
+  GameServerInitialized,
+  gameServerInitializedSchema,
+} from './events/game-server-initialized';
+import {
+  SubstituteRequested,
+  substituteRequestedSchema,
+} from './events/substitute-requested';
+import { PlayerReplaced, playerReplacedSchema } from './events/player-replaced';
 
 @Schema()
 export class Game extends Serializable<GameDto> {
@@ -27,22 +40,60 @@ export class Game extends Serializable<GameDto> {
   @Transform(({ value, obj }) => value ?? obj._id.toString())
   id!: string;
 
+  @Type(() => GameEvent, {
+    discriminator: {
+      property: 'event',
+      subTypes: [
+        {
+          value: GameCreated,
+          name: GameEventType.gameCreated,
+        },
+        {
+          value: GameStarted,
+          name: GameEventType.gameStarted,
+        },
+        {
+          value: GameEnded,
+          name: GameEventType.gameEnded,
+        },
+        {
+          value: GameServerInitialized,
+          name: GameEventType.gameServerInitialized,
+        },
+        {
+          value: SubstituteRequested,
+          name: GameEventType.substituteRequested,
+        },
+        {
+          value: PlayerReplaced,
+          name: GameEventType.playerReplaced,
+        },
+      ],
+    },
+  })
   @Prop({
     type: [gameEventSchema],
     required: true,
     default: () => [
       {
         at: new Date(),
-        event: GameEventType.Created,
+        event: GameEventType.gameCreated,
       },
     ],
     _id: false,
   })
-  events!: GameEvent[];
+  events!: (
+    | GameCreated
+    | GameStarted
+    | GameEnded
+    | GameServerInitialized
+    | SubstituteRequested
+    | PlayerReplaced
+  )[];
 
   get launchedAt() {
     const firstEvent = this.events.find(
-      (e) => e.event === GameEventType.Created,
+      (e) => e.event === GameEventType.gameCreated,
     );
 
     if (!firstEvent) {
@@ -53,14 +104,21 @@ export class Game extends Serializable<GameDto> {
   }
 
   get endedAt(): Date | undefined {
-    const events = this.events.find((e) => e.event === GameEventType.Ended);
+    const events = this.events.find((e) => e.event === GameEventType.gameEnded);
     return events?.at ?? undefined;
   }
 
   get lastConfiguredAt(): Date | undefined {
     return this.events
-      .filter((e) => e.event === GameEventType.GameServerInitialized)
+      .filter((e) => e.event === GameEventType.gameServerInitialized)
       .sort((a, b) => b.at.getTime() - a.at.getTime())[0]?.at;
+  }
+
+  getMostRecentEvent(type: GameEventType): GameEvent | undefined {
+    return this.events
+      .filter((e) => e.event === type)
+      .sort((a, b) => b.at.getTime() - a.at.getTime())
+      .at(0);
   }
 
   @Prop({ required: true, unique: true })
@@ -181,3 +239,17 @@ export class Game extends Serializable<GameDto> {
 
 export type GameDocument = Game & Document;
 export const gameSchema = SchemaFactory.createForClass(Game);
+
+const events = gameSchema.path<MongooseSchema.Types.Subdocument>('events');
+events.discriminator(GameEventType.gameCreated, gameCreatedSchema);
+events.discriminator(GameEventType.gameStarted, gameStartedSchema);
+events.discriminator(GameEventType.gameEnded, gameEndedSchema);
+events.discriminator(
+  GameEventType.gameServerInitialized,
+  gameServerInitializedSchema,
+);
+events.discriminator(
+  GameEventType.substituteRequested,
+  substituteRequestedSchema,
+);
+events.discriminator(GameEventType.playerReplaced, playerReplacedSchema);
