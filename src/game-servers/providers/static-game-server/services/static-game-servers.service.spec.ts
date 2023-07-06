@@ -4,7 +4,6 @@ import { GameServerReleaseReason } from '@/game-servers/game-server-provider';
 import { GameServersService } from '@/game-servers/services/game-servers.service';
 import { GameId } from '@/games/game-id';
 import { Game, GameDocument, gameSchema } from '@/games/models/game';
-import { GameEventType } from '@/games/models/game-event';
 import { GameState } from '@/games/models/game-state';
 import { GamesService } from '@/games/services/games.service';
 import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
@@ -26,6 +25,7 @@ import {
 } from '../models/static-game-server';
 import { StaticGameServerControls } from '../static-game-server-controls';
 import { StaticGameServersService } from './static-game-servers.service';
+import { GameEventType } from '@/games/models/game-event-type';
 
 jest.mock('rcon-client', () => {
   return {
@@ -504,7 +504,7 @@ describe('StaticGameServersService', () => {
 
       game.events.push({
         at: sub(new Date(), { minutes: 2 }),
-        event: GameEventType.Ended,
+        event: GameEventType.gameEnded,
       });
       await game.save();
 

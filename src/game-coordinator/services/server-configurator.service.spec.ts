@@ -41,10 +41,10 @@ import { MapPoolEntry } from '@/queue/models/map-pool-entry';
 import { GamesService } from '@/games/services/games.service';
 import { GameServerControls } from '@/game-servers/interfaces/game-server-controls';
 import { GameServerNotAssignedError } from '../errors/game-server-not-assigned.error';
-import { GameEventType } from '@/games/models/game-event';
 import { PlayerConnectionStatus } from '@/games/models/player-connection-status';
 import { CannotConfigureGameError } from '../errors/cannot-configure-game.error';
 import { LogsTfUploadMethod } from '@/games/logs-tf-upload-method';
+import { GameEventType } from '@/games/models/game-event-type';
 
 jest.mock('@/queue/services/map-pool.service');
 jest.mock('@/players/services/players.service');
@@ -267,8 +267,6 @@ describe('ServerConfiguratorService', () => {
             gameClass: Tf2ClassName.soldier,
             status: SlotStatus.active,
             connectionStatus: PlayerConnectionStatus.offline,
-            events: [],
-            getMostRecentEvent: jest.fn(),
           },
           {
             player: mockPlayer2._id,
@@ -276,8 +274,6 @@ describe('ServerConfiguratorService', () => {
             gameClass: Tf2ClassName.soldier,
             status: SlotStatus.replaced,
             connectionStatus: PlayerConnectionStatus.offline,
-            events: [],
-            getMostRecentEvent: jest.fn(),
           },
         ];
         await mockGame.save();
@@ -370,7 +366,7 @@ describe('ServerConfiguratorService', () => {
       expect(game.connectString).toEqual(connectString);
       expect(game.stvConnectString).toEqual(stvConnectString);
       expect(game.events.at(game.events.length - 1)?.event).toBe(
-        GameEventType.GameServerInitialized,
+        GameEventType.gameServerInitialized,
       );
     });
 

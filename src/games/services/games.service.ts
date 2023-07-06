@@ -16,12 +16,13 @@ import { URL } from 'url';
 import { GameInWrongStateError } from '../errors/game-in-wrong-state.error';
 import { plainToInstance } from 'class-transformer';
 import { Mutex } from 'async-mutex';
-import { GameEventType } from '../models/game-event';
+import { GameEventType } from '../models/game-event-type';
 import { VoiceServerType } from '../voice-server-type';
 import { GameId } from '../game-id';
 import { PlayerId } from '@/players/types/player-id';
-import { PlayerEventType } from '../models/player-event';
 import { PlayerConnectionStatus } from '../models/player-connection-status';
+import { PlayerReplaced } from '../models/events/player-replaced';
+import { PlayerLeftGameServer } from '../models/events/player-left-game-server';
 
 interface GameSortOptions {
   [key: string]: 1 | -1;
@@ -266,7 +267,7 @@ export class GamesService {
             $push: {
               events: {
                 at: new Date(),
-                event: GameEventType.Ended,
+                event: GameEventType.gameEnded,
               },
             },
           },
@@ -481,9 +482,11 @@ export class GamesService {
           throw new Error('invalid game state');
         }
 
-        const replacedAt = slot.getMostRecentEvent(
-          PlayerEventType.replacesPlayer,
-        );
+        const replacedAt = game.events
+          .filter((e) => e.event === GameEventType.playerReplaced)
+          .filter((e) => (e as PlayerReplaced).replacement.equals(playerId))
+          .sort((a, b) => b.at.getTime() - a.at.getTime())
+          .at(0)?.at;
 
         if (replacedAt) {
           // the player joined the game as a sub
@@ -512,12 +515,17 @@ export class GamesService {
           return undefined;
         }
 
-        const replacedAt = slot.getMostRecentEvent(
-          PlayerEventType.replacesPlayer,
-        );
-        const disconnectedAt = slot.getMostRecentEvent(
-          PlayerEventType.leavesGameServer,
-        );
+        const replacedAt = game.events
+          .filter((e) => e.event === GameEventType.playerReplaced)
+          .filter((e) => (e as PlayerReplaced).replacement.equals(playerId))
+          .sort((a, b) => b.at.getTime() - a.at.getTime())
+          .at(0)?.at;
+
+        const disconnectedAt = game.events
+          .filter((e) => e.event === GameEventType.playerLeftGameServer)
+          .filter((e) => (e as PlayerLeftGameServer).player.equals(playerId))
+          .sort((a, b) => b.at.getTime() - a.at.getTime())
+          .at(0)?.at;
 
         if (replacedAt) {
           if (disconnectedAt) {

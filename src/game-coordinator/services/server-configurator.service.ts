@@ -30,11 +30,11 @@ import { makeConnectString } from '../utils/make-connect-string';
 import { Events } from '@/events/events';
 import { filter, map } from 'rxjs';
 import { CannotConfigureGameError } from '../errors/cannot-configure-game.error';
-import { GameEventType } from '@/games/models/game-event';
 import { assertIsError } from '@/utils/assert-is-error';
 import { LogsTfUploadMethod } from '@/games/logs-tf-upload-method';
 import { GameState } from '@/games/models/game-state';
 import { GameId } from '@/games/game-id';
+import { GameEventType } from '@/games/models/game-event-type';
 
 @Injectable()
 export class ServerConfiguratorService implements OnModuleInit {
@@ -207,7 +207,7 @@ export class ServerConfiguratorService implements OnModuleInit {
         },
         $push: {
           events: {
-            event: GameEventType.GameServerInitialized,
+            event: GameEventType.gameServerInitialized,
           },
         },
       });
