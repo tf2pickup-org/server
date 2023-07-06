@@ -6,4 +6,8 @@ export enum GameEventType {
 
   substituteRequested = 'substitute requested',
   playerReplaced = 'player replaced',
+
+  playerJoinedGameServer = 'player joined game server',
+  playerJoinedGameServerTeam = 'player joined game server team',
+  playerLeftGameServer = 'player left game server',
 }

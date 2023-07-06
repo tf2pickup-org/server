@@ -263,8 +263,6 @@ describe('GameServersService', () => {
                 gameClass: Tf2ClassName.soldier,
                 status: SlotStatus.active,
                 connectionStatus: PlayerConnectionStatus.connected,
-                events: [],
-                getMostRecentEvent: jest.fn(),
               },
               {
                 player: new Types.ObjectId() as PlayerId,
@@ -272,8 +270,6 @@ describe('GameServersService', () => {
                 gameClass: Tf2ClassName.soldier,
                 status: SlotStatus.active,
                 connectionStatus: PlayerConnectionStatus.joining,
-                events: [],
-                getMostRecentEvent: jest.fn(),
               },
             ];
             await game.save();

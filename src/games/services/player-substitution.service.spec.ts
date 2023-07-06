@@ -22,7 +22,6 @@ import { WrongGameSlotStatusError } from '../errors/wrong-game-slot-status.error
 import { GameInWrongStateError } from '../errors/game-in-wrong-state.error';
 import { PlayerId } from '@/players/types/player-id';
 import { GameId } from '../game-id';
-import { PlayerEventType } from '../models/player-event';
 import { GameEventType } from '../models/game-event-type';
 import { SubstituteRequested } from '../models/events/substitute-requested';
 import { PlayerReplaced } from '../models/events/player-replaced';

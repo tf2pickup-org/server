@@ -19,10 +19,12 @@ import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { Mutex } from 'async-mutex';
 import { Tf2Team } from '../models/tf2-team';
 import { isUndefined } from 'lodash';
-import { PlayerEventType } from '../models/player-event';
 import { PlayerConnectionStatus } from '../models/player-connection-status';
 import { GameId } from '../game-id';
 import { GameEventType } from '../models/game-event-type';
+import { PlayerJoinedGameServer } from '../models/events/player-joined-game-server';
+import { PlayerJoinedGameServerTeam } from '../models/events/player-joined-game-server-team';
+import { PlayerLeftGameServer } from '../models/events/player-left-game-server';
 
 jest.mock('@/players/services/players.service');
 jest.mock('@nestjs/config');
@@ -283,9 +285,11 @@ describe('GameEventHandlerService', () => {
       expect(game.findPlayerSlot(player1.id)?.connectionStatus).toEqual(
         PlayerConnectionStatus.joining,
       );
-      const event = game
-        .findPlayerSlot(player1.id)
-        ?.events.find((e) => e.event === PlayerEventType.joinsGameServer);
+      const event = game.events.find(
+        (e) =>
+          e.event === GameEventType.playerJoinedGameServer &&
+          (e as PlayerJoinedGameServer).player.equals(player1.id),
+      );
       expect(event).toBeTruthy();
       expect(event?.at).toBeTruthy();
     });
@@ -307,9 +311,11 @@ describe('GameEventHandlerService', () => {
       expect(game.findPlayerSlot(player1.id)?.connectionStatus).toEqual(
         PlayerConnectionStatus.connected,
       );
-      const event = game
-        .findPlayerSlot(player1.id)
-        ?.events.find((e) => e.event === PlayerEventType.joinsGameServerTeam);
+      const event = game.events.find(
+        (e) =>
+          e.event === GameEventType.playerJoinedGameServerTeam &&
+          (e as PlayerJoinedGameServerTeam).player.equals(player1.id),
+      );
       expect(event).toBeTruthy();
       expect(event?.at).toBeTruthy();
     });
@@ -331,9 +337,11 @@ describe('GameEventHandlerService', () => {
       expect(game.findPlayerSlot(player1.id)?.connectionStatus).toEqual(
         PlayerConnectionStatus.offline,
       );
-      const event = game
-        .findPlayerSlot(player1.id)
-        ?.events.find((e) => e.event === PlayerEventType.leavesGameServer);
+      const event = game.events.find(
+        (e) =>
+          e.event === GameEventType.playerLeftGameServer &&
+          (e as PlayerLeftGameServer).player.equals(player1.id),
+      );
       expect(event).toBeTruthy();
       expect(event?.at).toBeTruthy();
     });

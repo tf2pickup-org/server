@@ -6,11 +6,6 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Types } from 'mongoose';
 import { Exclude } from 'class-transformer';
 import { TransformObjectId } from '@/shared/decorators/transform-object-id';
-import {
-  PlayerEvent,
-  playerEventSchema,
-  PlayerEventType,
-} from './player-event';
 import { PlayerId } from '@/players/types/player-id';
 
 @Schema()
@@ -36,19 +31,6 @@ export class GameSlot {
     default: PlayerConnectionStatus.offline,
   })
   connectionStatus!: PlayerConnectionStatus;
-
-  @Prop({
-    type: [playerEventSchema],
-    required: true,
-    default: [],
-  })
-  events!: PlayerEvent[];
-
-  getMostRecentEvent(type: PlayerEventType): Date | undefined {
-    return this.events
-      .filter((e) => e.event === type)
-      .sort((a, b) => b.at.getTime() - a.at.getTime())[0]?.at;
-  }
 }
 
 export const gameSlotSchema = SchemaFactory.createForClass(GameSlot);

@@ -20,9 +20,9 @@ import { GameEventType } from '../models/game-event-type';
 import { VoiceServerType } from '../voice-server-type';
 import { GameId } from '../game-id';
 import { PlayerId } from '@/players/types/player-id';
-import { PlayerEventType } from '../models/player-event';
 import { PlayerConnectionStatus } from '../models/player-connection-status';
 import { PlayerReplaced } from '../models/events/player-replaced';
+import { PlayerLeftGameServer } from '../models/events/player-left-game-server';
 
 interface GameSortOptions {
   [key: string]: 1 | -1;
@@ -521,9 +521,11 @@ export class GamesService {
           .sort((a, b) => b.at.getTime() - a.at.getTime())
           .at(0)?.at;
 
-        const disconnectedAt = slot.getMostRecentEvent(
-          PlayerEventType.leavesGameServer,
-        );
+        const disconnectedAt = game.events
+          .filter((e) => e.event === GameEventType.playerLeftGameServer)
+          .filter((e) => (e as PlayerLeftGameServer).player.equals(playerId))
+          .sort((a, b) => b.at.getTime() - a.at.getTime())
+          .at(0)?.at;
 
         if (replacedAt) {
           if (disconnectedAt) {

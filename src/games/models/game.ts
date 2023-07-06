@@ -26,6 +26,15 @@ import {
   substituteRequestedSchema,
 } from './events/substitute-requested';
 import { PlayerReplaced, playerReplacedSchema } from './events/player-replaced';
+import {
+  PlayerJoinedGameServer,
+  playerJoinedGameServerSchema,
+} from './events/player-joined-game-server';
+import { PlayerJoinedGameServerTeam } from './events/player-joined-game-server-team';
+import {
+  PlayerLeftGameServer,
+  playerLeftGameServerSchema,
+} from './events/player-left-game-server';
 
 @Schema()
 export class Game extends Serializable<GameDto> {
@@ -68,6 +77,18 @@ export class Game extends Serializable<GameDto> {
           value: PlayerReplaced,
           name: GameEventType.playerReplaced,
         },
+        {
+          value: PlayerJoinedGameServer,
+          name: GameEventType.playerJoinedGameServer,
+        },
+        {
+          value: PlayerJoinedGameServerTeam,
+          name: GameEventType.playerJoinedGameServerTeam,
+        },
+        {
+          value: PlayerLeftGameServer,
+          name: GameEventType.playerLeftGameServer,
+        },
       ],
     },
   })
@@ -89,6 +110,9 @@ export class Game extends Serializable<GameDto> {
     | GameServerInitialized
     | SubstituteRequested
     | PlayerReplaced
+    | PlayerJoinedGameServer
+    | PlayerJoinedGameServerTeam
+    | PlayerLeftGameServer
   )[];
 
   get launchedAt() {
@@ -253,3 +277,15 @@ events.discriminator(
   substituteRequestedSchema,
 );
 events.discriminator(GameEventType.playerReplaced, playerReplacedSchema);
+events.discriminator(
+  GameEventType.playerJoinedGameServer,
+  playerJoinedGameServerSchema,
+);
+events.discriminator(
+  GameEventType.playerJoinedGameServerTeam,
+  playerJoinedGameServerSchema,
+);
+events.discriminator(
+  GameEventType.playerLeftGameServer,
+  playerLeftGameServerSchema,
+);

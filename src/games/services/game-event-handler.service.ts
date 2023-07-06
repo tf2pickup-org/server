@@ -18,7 +18,6 @@ import { plainToInstance } from 'class-transformer';
 import { GamesService } from './games.service';
 import { Mutex } from 'async-mutex';
 import { Tf2Team } from '../models/tf2-team';
-import { PlayerEventType } from '../models/player-event';
 import { GameId } from '../game-id';
 import { GameEventType } from '../models/game-event-type';
 
@@ -204,7 +203,7 @@ export class GameEventHandlerService implements OnModuleInit, OnModuleDestroy {
     return await this.registerPlayerEvent(
       gameId,
       steamId,
-      PlayerEventType.joinsGameServer,
+      GameEventType.playerJoinedGameServer,
     );
   }
 
@@ -212,7 +211,7 @@ export class GameEventHandlerService implements OnModuleInit, OnModuleDestroy {
     return await this.registerPlayerEvent(
       gameId,
       steamId,
-      PlayerEventType.joinsGameServerTeam,
+      GameEventType.playerJoinedGameServerTeam,
     );
   }
 
@@ -220,7 +219,7 @@ export class GameEventHandlerService implements OnModuleInit, OnModuleDestroy {
     return await this.registerPlayerEvent(
       gameId,
       steamId,
-      PlayerEventType.leavesGameServer,
+      GameEventType.playerLeftGameServer,
     );
   }
 
@@ -236,16 +235,17 @@ export class GameEventHandlerService implements OnModuleInit, OnModuleDestroy {
     gameId: GameId,
     steamId: string,
     eventType: PickEnum<
-      PlayerEventType,
-      | PlayerEventType.joinsGameServer
-      | PlayerEventType.joinsGameServerTeam
-      | PlayerEventType.leavesGameServer
+      GameEventType,
+      | GameEventType.playerJoinedGameServer
+      | GameEventType.playerJoinedGameServerTeam
+      | GameEventType.playerLeftGameServer
     >,
   ): Promise<Game> {
     const connectionStatus: PlayerConnectionStatus = {
-      [PlayerEventType.joinsGameServer]: PlayerConnectionStatus.joining,
-      [PlayerEventType.joinsGameServerTeam]: PlayerConnectionStatus.connected,
-      [PlayerEventType.leavesGameServer]: PlayerConnectionStatus.offline,
+      [GameEventType.playerJoinedGameServer]: PlayerConnectionStatus.joining,
+      [GameEventType.playerJoinedGameServerTeam]:
+        PlayerConnectionStatus.connected,
+      [GameEventType.playerLeftGameServer]: PlayerConnectionStatus.offline,
     }[eventType];
 
     return await this.mutex.runExclusive(async () => {
@@ -261,7 +261,7 @@ export class GameEventHandlerService implements OnModuleInit, OnModuleDestroy {
                 'slots.$[element].connectionStatus': connectionStatus,
               },
               $push: {
-                'slots.$[element].events': { event: eventType },
+                events: { event: eventType, player: player._id },
               },
             },
             {

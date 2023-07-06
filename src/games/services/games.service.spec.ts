@@ -23,7 +23,6 @@ import {
 import { Mutex } from 'async-mutex';
 import { GameServer } from '../models/game-server';
 import { VoiceServerType } from '../voice-server-type';
-import { PlayerEventType } from '../models/player-event';
 import { PlayerConnectionStatus } from '../models/player-connection-status';
 import { GameEventType } from '../models/game-event-type';
 import { PlayerId } from '@/players/types/player-id';
@@ -914,9 +913,10 @@ describe('GamesService', () => {
       describe('and the player is offline', () => {
         beforeEach(async () => {
           testGame.slots[0].connectionStatus = PlayerConnectionStatus.offline;
-          testGame.slots[0].events.push({
-            event: PlayerEventType.leavesGameServer,
+          testGame.events.push({
+            event: GameEventType.playerLeftGameServer,
             at: new Date(2023, 2, 7, 23, 35, 0),
+            player: testPlayer._id,
           });
           await testGame.save();
         });
@@ -969,9 +969,10 @@ describe('GamesService', () => {
 
         describe('but then disconnected', () => {
           beforeEach(async () => {
-            testGame.slots[0].events.push({
-              event: PlayerEventType.leavesGameServer,
+            testGame.events.push({
+              event: GameEventType.playerLeftGameServer,
               at: new Date(2023, 2, 7, 23, 45, 0),
+              player: testPlayer._id,
             });
             await testGame.save();
           });
