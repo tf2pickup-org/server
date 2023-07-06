@@ -1,5 +1,13 @@
 
 
+# [11.0.0-beta.3](https://github.com/tf2pickup-org/server/compare/11.0.0-beta.2...11.0.0-beta.3) (2023-07-06)
+
+
+### Bug Fixes
+
+* **deps:** update dependency jsonwebtoken to v9.0.1 ([#2499](https://github.com/tf2pickup-org/server/issues/2499)) ([9f63e96](https://github.com/tf2pickup-org/server/commit/9f63e96c33c781f46099a639bf2301d7dd93a87a))
+* **games:** add gameStarted event ([#2503](https://github.com/tf2pickup-org/server/issues/2503)) ([b872c89](https://github.com/tf2pickup-org/server/commit/b872c89b727d9e27d423a9e56f8b4697b161b271))
+
 # [11.0.0-beta.2](https://github.com/tf2pickup-org/server/compare/11.0.0-beta.1...11.0.0-beta.2) (2023-07-03)
 
 
