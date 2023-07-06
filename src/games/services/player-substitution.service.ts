@@ -231,7 +231,7 @@ export class PlayerSubstitutionService implements OnModuleInit {
           replaceeId,
           replacementId,
         });
-        this.logger.verbose(`player has taken his own slot`);
+        this.logger.verbose('player has taken his own slot');
         return newGame;
       }
 

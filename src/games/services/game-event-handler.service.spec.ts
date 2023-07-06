@@ -9,14 +9,13 @@ import { GamesService } from './games.service';
 import { Events } from '@/events/events';
 import { SlotStatus } from '../models/slot-status';
 import { GameState } from '../models/game-state';
-import { Connection, Model } from 'mongoose';
+import { Connection, Model, Error, Types } from 'mongoose';
 import {
   getConnectionToken,
   getModelToken,
   MongooseModule,
 } from '@nestjs/mongoose';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
-import { Error, Types } from 'mongoose';
 import { Mutex } from 'async-mutex';
 import { Tf2Team } from '../models/tf2-team';
 import { isUndefined } from 'lodash';
