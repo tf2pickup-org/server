@@ -120,6 +120,12 @@ export class GameEventHandlerService implements OnModuleInit, OnModuleDestroy {
                     [Tf2Team.red]: 0,
                   },
                 },
+                $push: {
+                  events: {
+                    at: new Date(),
+                    event: GameEventType.gameStarted,
+                  },
+                },
               },
               { new: true },
             )

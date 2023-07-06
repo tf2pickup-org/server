@@ -108,6 +108,13 @@ describe('GameEventHandlerService', () => {
       expect(game?.state).toEqual(GameState.started);
     });
 
+    it('should push event', async () => {
+      const game = await service.onMatchStarted(mockGame.id);
+      expect(
+        game?.events.find((e) => e.event === GameEventType.gameStarted),
+      ).toBeTruthy();
+    });
+
     it('should reset game score', async () => {
       const game = await service.onMatchStarted(mockGame.id);
       expect(game?.score).toBeTruthy();
