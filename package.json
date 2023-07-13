@@ -90,7 +90,7 @@
     "@types/multer": "^1.4.7",
     "@types/node": "18.16.19",
     "@types/passport": "1.0.12",
-    "@types/passport-jwt": "3.0.8",
+    "@types/passport-jwt": "3.0.9",
     "@types/passport-steam": "1.0.1",
     "@types/pem": "1.14.0",
     "@types/socket.io": "3.0.1",
