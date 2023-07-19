@@ -1,5 +1,14 @@
 
 
+# [11.0.0-beta.4](https://github.com/tf2pickup-org/server/compare/11.0.0-beta.3...11.0.0-beta.4) (2023-07-19)
+
+
+### Bug Fixes
+
+* **deps:** update dependency mongodb to v5.7.0 ([#2505](https://github.com/tf2pickup-org/server/issues/2505)) ([bd992c3](https://github.com/tf2pickup-org/server/commit/bd992c3c4f910ee4d22828cd6f333a9c96ad2c30))
+* **deps:** update dependency mongoose to v7.3.2 ([#2504](https://github.com/tf2pickup-org/server/issues/2504)) ([512ab2b](https://github.com/tf2pickup-org/server/commit/512ab2ba9a04b8d451965b046a8fdc06e0df6d47))
+* **games:** fix mumble URL validation ([#2523](https://github.com/tf2pickup-org/server/issues/2523)) ([424116b](https://github.com/tf2pickup-org/server/commit/424116b754095d8b940f68f1e0557df0095424d7))
+
 # [11.0.0-beta.3](https://github.com/tf2pickup-org/server/compare/11.0.0-beta.2...11.0.0-beta.3) (2023-07-06)
 
 
