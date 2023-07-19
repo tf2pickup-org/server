@@ -37,7 +37,7 @@ export class GamesConfigurationService implements OnModuleInit {
       ),
       configurationEntry(
         'games.voice_server.mumble.url',
-        z.string().url().optional(),
+        z.string().optional(),
         undefined,
       ),
       configurationEntry(
