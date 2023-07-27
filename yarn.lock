@@ -2517,17 +2517,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@release-it/conventional-changelog@npm:6.0.0":
-  version: 6.0.0
-  resolution: "@release-it/conventional-changelog@npm:6.0.0"
+"@release-it/conventional-changelog@npm:7.0.0":
+  version: 7.0.0
+  resolution: "@release-it/conventional-changelog@npm:7.0.0"
   dependencies:
     concat-stream: ^2.0.0
     conventional-changelog: ^4.0.0
     conventional-recommended-bump: ^7.0.1
     semver: 7.5.1
   peerDependencies:
-    release-it: ^15.4.1
-  checksum: 16fda9ce67a18bc586288bc7999858d8be04c38ee74e033202acb76446df890e3ee809f4334deef86b542e1da52625ffba78ffb6494de2e4261418451650172d
+    release-it: ^16.0.0
+  checksum: 028311fba065df6597b2752f0f7f8ecfe92087d35ffbf78b7a4654a4f1db97ec11b825faffdb0c4f1ed1e499c0daffee51efefa7284dfcf2d63ef8fec82c9f46
   languageName: node
   linkType: hard
 
@@ -11830,7 +11830,7 @@ __metadata:
     "@nestjs/testing": 10.0.5
     "@nestjs/websockets": 10.0.5
     "@redis/client": 1.5.8
-    "@release-it/conventional-changelog": 6.0.0
+    "@release-it/conventional-changelog": 7.0.0
     "@tf2pickup-org/mumble-client": 0.7.3
     "@types/cache-manager": 4.0.2
     "@types/cache-manager-redis-store": 2.0.1
