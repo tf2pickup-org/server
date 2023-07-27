@@ -1,5 +1,13 @@
 
 
+# [11.0.0-beta.5](https://github.com/tf2pickup-org/server/compare/11.0.0-beta.4...11.0.0-beta.5) (2023-07-27)
+
+
+### Bug Fixes
+
+* **deps:** update dependency mongoose to v7.3.3 [security] ([#2520](https://github.com/tf2pickup-org/server/issues/2520)) ([aa68362](https://github.com/tf2pickup-org/server/commit/aa68362b69e1dca49d241bf3653d85a9c03f7d6e))
+* **twitch.tv:** authentication fix ([#2526](https://github.com/tf2pickup-org/server/issues/2526)) ([41f6a18](https://github.com/tf2pickup-org/server/commit/41f6a182866a0e7ca0d7574e1e170b5a79582e2d))
+
 # [11.0.0-beta.4](https://github.com/tf2pickup-org/server/compare/11.0.0-beta.3...11.0.0-beta.4) (2023-07-19)
 
 
