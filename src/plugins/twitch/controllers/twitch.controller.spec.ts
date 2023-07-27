@@ -2,7 +2,6 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { TwitchController } from './twitch.controller';
 import { TwitchService } from '../services/twitch.service';
 import { TwitchAuthService } from '../services/twitch-auth.service';
-import { PlayersService } from '@/players/services/players.service';
 import { AuthService } from '@/auth/services/auth.service';
 import { JsonWebTokenError } from 'jsonwebtoken';
 import { BadRequestException } from '@nestjs/common';
@@ -14,33 +13,20 @@ jest.mock('../services/twitch.service');
 jest.mock('../services/twitch-auth.service');
 jest.mock('@/auth/services/auth.service');
 
-class PlayersServiceStub {
-  registerTwitchAccount(playerId: string, twitchUserId: string) {
-    return Promise.resolve();
-  }
-}
-
 describe('Twitch Controller', () => {
   let controller: TwitchController;
   let authService: jest.Mocked<AuthService>;
-  let playersService: PlayersServiceStub;
   let twitchService: jest.Mocked<TwitchService>;
   let twitchAuthService: jest.Mocked<TwitchAuthService>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [TwitchController],
-      providers: [
-        TwitchService,
-        TwitchAuthService,
-        { provide: PlayersService, useClass: PlayersServiceStub },
-        AuthService,
-      ],
+      providers: [TwitchService, TwitchAuthService, AuthService],
     }).compile();
 
     controller = module.get<TwitchController>(TwitchController);
     authService = module.get(AuthService);
-    playersService = module.get(PlayersService);
     twitchService = module.get(TwitchService);
     twitchAuthService = module.get(TwitchAuthService);
   });
@@ -58,24 +44,10 @@ describe('Twitch Controller', () => {
       );
     });
 
-    it('should return redirect url', async () => {
-      const ret = await controller.authenticate('FAKE_TOKEN');
+    it('should return redirect url', () => {
+      const ret = controller.authenticate({ id: 'FAKE_USER_ID' } as Player);
       expect(ret).toEqual({
         url: 'FAKE_REDIRECT_URL?state=FAKE_JWT',
-      });
-    });
-
-    describe('if the jwt is incorrect', () => {
-      beforeEach(() => {
-        authService.verifyToken.mockImplementation(() => {
-          throw new JsonWebTokenError('FAKE_ERROR');
-        });
-      });
-
-      it('should return 400', async () => {
-        await expect(controller.authenticate('FAKE_TOKEN')).rejects.toThrow(
-          BadRequestException,
-        );
       });
     });
   });
