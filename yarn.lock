@@ -2037,16 +2037,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nestjs/mongoose@npm:10.0.0":
-  version: 10.0.0
-  resolution: "@nestjs/mongoose@npm:10.0.0"
+"@nestjs/mongoose@npm:10.0.1":
+  version: 10.0.1
+  resolution: "@nestjs/mongoose@npm:10.0.1"
   peerDependencies:
     "@nestjs/common": ^8.0.0 || ^9.0.0 || ^10.0.0
     "@nestjs/core": ^8.0.0 || ^9.0.0 || ^10.0.0
     mongoose: ^6.0.2 || ^7.0.0
     reflect-metadata: ^0.1.12
     rxjs: ^7.0.0
-  checksum: faf75fdc240554302a44e34f9f23c853c744da54ce55df461aeb81174afc770d4f33f72b14a607041399d2d668e0c8e22fa8fd8f4b2ef9b600096a23b74f6630
+  checksum: f5fac41b31eddd14fff12dd8a551ce00d1ff118d8e44c9f6b5a1c246b601158b380d5bbdfe6eda871e2e0f43ca0c7f1b64cb5a54feaeffd4e88ca43424d7824b
   languageName: node
   linkType: hard
 
@@ -11817,7 +11817,7 @@ __metadata:
     "@nestjs/common": 10.0.5
     "@nestjs/config": 3.0.0
     "@nestjs/core": 10.0.5
-    "@nestjs/mongoose": 10.0.0
+    "@nestjs/mongoose": 10.0.1
     "@nestjs/passport": 10.0.0
     "@nestjs/platform-express": 10.0.5
     "@nestjs/platform-socket.io": 10.0.5
