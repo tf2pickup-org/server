@@ -9995,9 +9995,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mongodb-memory-server-core@npm:8.15.0":
-  version: 8.15.0
-  resolution: "mongodb-memory-server-core@npm:8.15.0"
+"mongodb-memory-server-core@npm:8.15.1":
+  version: 8.15.1
+  resolution: "mongodb-memory-server-core@npm:8.15.1"
   dependencies:
     async-mutex: ^0.3.2
     camelcase: ^6.3.0
@@ -10014,17 +10014,17 @@ __metadata:
     tslib: ^2.6.1
     uuid: ^9.0.0
     yauzl: ^2.10.0
-  checksum: c3f9c42178a73933f2c2a5c287bbb81d5a414446fa93c975cd9e240f0eda9af784d0d2118978792bd0c313b433920fff81010f17804f0d0f460f0d91fda97608
+  checksum: 2e47663a65575f4d067f8acf47a00aa7f2cfd8040854034f72e2ca35ab3d708fbe45feff556eff9d9d8fce5a9618a57c4d01c8a9c267b810470962fd5e126823
   languageName: node
   linkType: hard
 
-"mongodb-memory-server@npm:8.15.0":
-  version: 8.15.0
-  resolution: "mongodb-memory-server@npm:8.15.0"
+"mongodb-memory-server@npm:8.15.1":
+  version: 8.15.1
+  resolution: "mongodb-memory-server@npm:8.15.1"
   dependencies:
-    mongodb-memory-server-core: 8.15.0
+    mongodb-memory-server-core: 8.15.1
     tslib: ^2.6.1
-  checksum: ad47d7d9b0ac458eca3824403251268e874dbfc7a2ab5e244766404abea0d63d9238d2edd921dcd56bf778f6308f83b1328262cac04863225e47ed6c4df18c0a
+  checksum: ad1f1cba52925556274786414c9267056dac6a7463789a13ebb3722a840fdbe45131a50d964ec5ee215460518dc0966050c8f118b70ea97d8de5d4276da44c6b
   languageName: node
   linkType: hard
 
@@ -11983,7 +11983,7 @@ __metadata:
     migrate: 2.0.0
     moment: 2.29.4
     mongodb: 5.7.0
-    mongodb-memory-server: 8.15.0
+    mongodb-memory-server: 8.15.1
     mongodb-uri: 0.9.7
     mongoose: 7.4.3
     multer: ^1.4.5-lts.1
