@@ -1958,6 +1958,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@mongodb-js/saslprep@npm:^1.1.0":
+  version: 1.1.0
+  resolution: "@mongodb-js/saslprep@npm:1.1.0"
+  dependencies:
+    sparse-bitfield: ^3.0.3
+  checksum: 1479a43e216734672f8eb1a2a55165b6896841bd00fb5bd645390a24374ef6c29f0f6d19a43618a19b8f1912fcbd2b2cc2210a62361103d1f28dce6852cf31d4
+  languageName: node
+  linkType: hard
+
 "@nestjs/axios@npm:3.0.0":
   version: 3.0.0
   resolution: "@nestjs/axios@npm:3.0.0"
@@ -10082,6 +10091,38 @@ __metadata:
   languageName: node
   linkType: hard
 
+"mongodb@npm:5.8.0":
+  version: 5.8.0
+  resolution: "mongodb@npm:5.8.0"
+  dependencies:
+    "@mongodb-js/saslprep": ^1.1.0
+    bson: ^5.4.0
+    mongodb-connection-string-url: ^2.6.0
+    socks: ^2.7.1
+  peerDependencies:
+    "@aws-sdk/credential-providers": ^3.188.0
+    "@mongodb-js/zstd": ^1.0.0
+    kerberos: ^1.0.0 || ^2.0.0
+    mongodb-client-encryption: ">=2.3.0 <3"
+    snappy: ^7.2.2
+  dependenciesMeta:
+    "@mongodb-js/saslprep":
+      optional: true
+  peerDependenciesMeta:
+    "@aws-sdk/credential-providers":
+      optional: true
+    "@mongodb-js/zstd":
+      optional: true
+    kerberos:
+      optional: true
+    mongodb-client-encryption:
+      optional: true
+    snappy:
+      optional: true
+  checksum: 48e552a210f2666a13766a1029bde36e961573317f5972d48b5b99f0035bcdc36d7a4154be4ae68a1aefe0aac2b682395196d5a20a0da14dbd2ebbce39b4f2f8
+  languageName: node
+  linkType: hard
+
 "mongodb@npm:^4.16.0":
   version: 4.16.0
   resolution: "mongodb@npm:4.16.0"
@@ -11981,7 +12022,7 @@ __metadata:
     lodash: 4.17.21
     migrate: 2.0.0
     moment: 2.29.4
-    mongodb: 5.7.0
+    mongodb: 5.8.0
     mongodb-memory-server: 8.15.1
     mongodb-uri: 0.9.7
     mongoose: 7.4.4
