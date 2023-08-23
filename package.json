@@ -70,7 +70,7 @@
     "zod": "^3.20.2"
   },
   "devDependencies": {
-    "@nestjs/cli": "10.1.13",
+    "@nestjs/cli": "10.1.14",
     "@nestjs/schematics": "10.0.2",
     "@nestjs/testing": "10.2.1",
     "@release-it/conventional-changelog": "7.0.0",
