@@ -1992,9 +1992,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nestjs/cli@npm:10.1.16":
-  version: 10.1.16
-  resolution: "@nestjs/cli@npm:10.1.16"
+"@nestjs/cli@npm:10.1.17":
+  version: 10.1.17
+  resolution: "@nestjs/cli@npm:10.1.17"
   dependencies:
     "@angular-devkit/core": 16.2.0
     "@angular-devkit/schematics": 16.2.0
@@ -2028,7 +2028,7 @@ __metadata:
       optional: true
   bin:
     nest: bin/nest.js
-  checksum: 8ab28108e3a10a0f922621a0596deae4f796989d48e7f7c1caf0982ec9be1fa88120b25e2188149033250dd86ecfbb6de2ba5e0323790d901fa65c87e32e7d5f
+  checksum: c253f5958d8d167fd3298e090912ad025fa9ad80687713e89a7b1b229162ab91e6a923781e2f4c8b4aeeec0ca8ab55dbeccc263b02075be67ea40e830fe268a7
   languageName: node
   linkType: hard
 
@@ -11966,7 +11966,7 @@ __metadata:
     "@anatine/zod-openapi": ^2.0.0
     "@nestjs/axios": 3.0.0
     "@nestjs/cache-manager": 2.1.0
-    "@nestjs/cli": 10.1.16
+    "@nestjs/cli": 10.1.17
     "@nestjs/common": 10.2.2
     "@nestjs/config": 3.0.0
     "@nestjs/core": 10.2.2
