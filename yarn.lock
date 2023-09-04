@@ -2838,10 +2838,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/cache-manager@npm:4.0.2":
-  version: 4.0.2
-  resolution: "@types/cache-manager@npm:4.0.2"
-  checksum: 272828c49635849313a6355f525a047dca70346d2dfeb7a085734532a9b410df0a2091699d033ef002d61160c7f344d0403aeeb908528e1ece031bd2cbdd4982
+"@types/cache-manager@npm:4.0.3":
+  version: 4.0.3
+  resolution: "@types/cache-manager@npm:4.0.3"
+  checksum: b17db6995dc748c9454d7426dbb99644a76ca89ad0b0745fc5d105ce1de52285682e05eaf8509c691c418c9838a155272c15187d201ce45c8470d01cc21f76c0
   languageName: node
   linkType: hard
 
@@ -11991,7 +11991,7 @@ __metadata:
     "@redis/client": 1.5.9
     "@release-it/conventional-changelog": 7.0.0
     "@tf2pickup-org/mumble-client": 0.7.3
-    "@types/cache-manager": 4.0.2
+    "@types/cache-manager": 4.0.3
     "@types/cache-manager-redis-store": 2.0.1
     "@types/cookie": 0.5.1
     "@types/cookie-parser": 1.4.3
