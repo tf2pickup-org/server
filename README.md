@@ -50,7 +50,7 @@ tf2pickup.org was created with a simple objective in mind. Make it as easy and a
     ```
 
 * Copy and rename `sample.env` to `.env` and adjust your environment values, mainly:
-  * `STEAM_API_KEY` - your [Steam API key](https://steamcommunity.com/dev/apikey), the "Domain Name" can be set to anything you like, it shouldn't matter.
+  * `STEAM_API_KEY` - your [Steam API key](https://steamcommunity.com/dev/apikey), the "Domain Name" can be set to anything you like.
   * `SUPER_USER` - your SteamID64,
   * `LOG_RELAY_ADDRESS` - your IP address in the local network.
 
