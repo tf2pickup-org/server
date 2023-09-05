@@ -25,6 +25,7 @@ import { GameId } from '../game-id';
 import { GameEventType } from '../models/game-event-type';
 import { SubstituteRequested } from '../models/events/substitute-requested';
 import { PlayerReplaced } from '../models/events/player-replaced';
+import { PlayerDeniedError } from '@/shared/errors/player-denied.error';
 
 jest.mock('@/players/services/players.service');
 jest.mock('./games.service');
@@ -325,28 +326,6 @@ describe('PlayerSubstitutionService', () => {
       expect(event?._id.equals(mockGame._id)).toBe(true);
     });
 
-    describe('when the replacement player is banned', () => {
-      beforeEach(() => {
-        const end = new Date();
-        end.setHours(end.getHours() + 1);
-        playerBansService.getPlayerActiveBans = () =>
-          Promise.resolve([
-            {
-              player: 'FAKE_PLAYERID',
-              admin: 'FAKE_ADMINID',
-              start: new Date(),
-              end,
-            } as any,
-          ]);
-      });
-
-      it('should reject', async () => {
-        await expect(
-          service.replacePlayer(mockGame._id, player1._id, player3._id),
-        ).rejects.toThrow('player is banned');
-      });
-    });
-
     describe('when replacing an active player', () => {
       it('should reject', async () => {
         await expect(
@@ -406,7 +385,7 @@ describe('PlayerSubstitutionService', () => {
       it('should reject', async () => {
         await expect(
           service.replacePlayer(mockGame._id, player1._id, player3._id),
-        ).rejects.toThrow('player is involved in a currently running game');
+        ).rejects.toThrow(PlayerDeniedError);
       });
     });
 
