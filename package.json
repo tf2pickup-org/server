@@ -84,7 +84,7 @@
     "@types/jest": "29.5.4",
     "@types/jsonschema": "1.1.1",
     "@types/jsonwebtoken": "9.0.2",
-    "@types/lodash": "4.14.197",
+    "@types/lodash": "4.14.198",
     "@types/mongodb-uri": "0.9.1",
     "@types/mongoose": "5.11.96",
     "@types/multer": "^1.4.7",
