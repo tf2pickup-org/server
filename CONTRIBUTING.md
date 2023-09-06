@@ -8,6 +8,8 @@ If you haven't already, add [mały](https://discord.com/users/130809187465691136
 
 This project uses [conventional commits](https://www.conventionalcommits.org) to describe changes. Please make sure you describe each pull request using this standard.
 
+Also, when contributing, make sure to [sign your commits](https://docs.github.com/en/authentication/managing-commit-signature-verification) to increase security!
+
 ## Coding conventions
 
 Install eslint and prettier VSCode extensions and try to get rid of all of the warnings.

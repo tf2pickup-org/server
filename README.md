@@ -39,31 +39,35 @@ tf2pickup.org was created with a simple objective in mind. Make it as easy and a
 
 ## Local deployment
 
-* clone the repository or download a zipped release of your choice
-* install dependencies
+### Setup
+
+* Clone the repository or download a zipped release of your choice
+* Open the terminal inside the repository folder
+* Install the dependencies
 
     ```bash
     $ yarn install
     ```
 
-* start required services
+* Copy and rename `sample.env` to `.env` and adjust your environment values, mainly:
+  * `STEAM_API_KEY` - your [Steam API key](https://steamcommunity.com/dev/apikey), the "Domain Name" can be set to anything you like.
+  * `SUPER_USER` - your SteamID64,
+  * `LOG_RELAY_ADDRESS` - your IP address in the local network.
+
+### Deployment
+
+* Start the required services
 
     ```bash
     $ docker-compose up -d
     ```
-
-* copy `sample.env` to `.env` and adjust your environment values, mainly:
-  * `STEAM_API_KEY`,
-  * `SUPER_USER` - your SteamID64,
-  * `LOG_RELAY_ADDRESS` - your IP address in the local network.
-
-* run the server in development mode
+* Finally, run the server in development mode
 
     ```bash
     $ yarn dev
     ```
 
-  The server is now listening on port 3000 by default.
+  By default, the server is listening on port 3000 .
 
 
 ## Using Docker
@@ -73,5 +77,5 @@ There is a [Docker image](https://hub.docker.com/r/tf2pickuppl/server) available
 
 ## Contact
 
-* mały#0226
-* <http://steamcommunity.com/id/nieduzy/>
+* Discord: @niewielki
+* Steam: <http://steamcommunity.com/id/nieduzy/>
