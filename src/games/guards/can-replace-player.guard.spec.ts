@@ -1,40 +1,26 @@
-import { ConfigurationService } from '@/configuration/services/configuration.service';
-import { GameId } from '@/games/game-id';
-import { Player } from '@/players/models/player';
-import { PlayerBan } from '@/players/models/player-ban';
-import { PlayerBansService } from '@/players/services/player-bans.service';
 import { PlayersService } from '@/players/services/players.service';
+import { CanReplacePlayerGuard } from './can-replace-player.guard';
+import { PlayerBansService } from '@/players/services/player-bans.service';
+import { ConfigurationService } from '@/configuration/services/configuration.service';
+import { Player } from '@/players/models/player';
 import { ExecutionContext } from '@nestjs/common';
 import { WsException } from '@nestjs/websockets';
-import { Types } from 'mongoose';
-import { PlayerDeniedError } from '../../shared/errors/player-denied.error';
-import { CanJoinQueueGuard } from './can-join-queue.guard';
+import { PlayerDeniedError } from '@/shared/errors/player-denied.error';
+import { PlayerBan } from '@/players/models/player-ban';
 
 jest.mock('@/configuration/services/configuration.service');
 jest.mock('@/players/services/player-bans.service');
 jest.mock('@/players/services/players.service');
 
-describe('CanJoinQueueGuard', () => {
-  let guard: CanJoinQueueGuard;
-  let configurationService: jest.Mocked<ConfigurationService>;
-  let playerBansService: jest.Mocked<PlayerBansService>;
+describe('CanReplacePlayerGuard', () => {
+  let guard: CanReplacePlayerGuard;
   let playersService: jest.Mocked<PlayersService>;
+  let playerBansService: jest.Mocked<PlayerBansService>;
+  let configurationService: jest.Mocked<ConfigurationService>;
 
   beforeEach(() => {
-    configurationService = new ConfigurationService(
-      // @ts-ignore
-      null,
-      null,
-    ) as jest.Mocked<ConfigurationService>;
-    playerBansService = new PlayerBansService(
-      // @ts-ignore
-      null,
-      null,
-      null,
-      null,
-    ) as jest.Mocked<PlayerBansService>;
     playersService = new PlayersService(
-      // @ts-ignore
+      // @ts-expect-error
       null,
       null,
       null,
@@ -43,10 +29,22 @@ describe('CanJoinQueueGuard', () => {
       null,
       null,
     ) as jest.Mocked<PlayersService>;
-    guard = new CanJoinQueueGuard(
+    playerBansService = new PlayerBansService(
+      // @ts-ignore
+      null,
+      null,
+      null,
+      null,
+    ) as jest.Mocked<PlayerBansService>;
+    configurationService = new ConfigurationService(
+      // @ts-ignore
+      null,
+      null,
+    ) as jest.Mocked<ConfigurationService>;
+    guard = new CanReplacePlayerGuard(
+      playersService,
       configurationService,
       playerBansService,
-      playersService,
     );
   });
 
@@ -148,24 +146,6 @@ describe('CanJoinQueueGuard', () => {
 
         const ban = new PlayerBan();
         playerBansService.getPlayerActiveBans.mockResolvedValue([ban]);
-      });
-
-      it('should deny', async () => {
-        await expect(guard.canActivate(context)).rejects.toThrow(
-          PlayerDeniedError,
-        );
-      });
-    });
-
-    describe('when the player is involved in a game', () => {
-      let player: Player;
-
-      beforeEach(() => {
-        player = new Player();
-        player.hasAcceptedRules = true;
-        player.activeGame = new Types.ObjectId() as GameId;
-        client.user = player;
-        playersService.getById.mockResolvedValue(player);
       });
 
       it('should deny', async () => {

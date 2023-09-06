@@ -1,20 +1,20 @@
 import { ConfigurationService } from '@/configuration/services/configuration.service';
 import { PlayerBansService } from '@/players/services/player-bans.service';
 import { PlayersService } from '@/players/services/players.service';
-import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
-import { WsException } from '@nestjs/websockets';
-import { Socket } from 'socket.io';
 import {
   DenyReason,
   PlayerDeniedError,
-} from '../../shared/errors/player-denied.error';
+} from '@/shared/errors/player-denied.error';
+import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
+import { WsException } from '@nestjs/websockets';
+import { Socket } from 'socket.io';
 
 @Injectable()
-export class CanJoinQueueGuard implements CanActivate {
+export class CanReplacePlayerGuard implements CanActivate {
   constructor(
+    private readonly playersService: PlayersService,
     private readonly configurationService: ConfigurationService,
     private readonly playerBansService: PlayerBansService,
-    private readonly playersService: PlayersService,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -40,10 +40,6 @@ export class CanJoinQueueGuard implements CanActivate {
     const bans = await this.playerBansService.getPlayerActiveBans(player._id);
     if (bans.length > 0) {
       throw new PlayerDeniedError(player, DenyReason.playerIsBanned);
-    }
-
-    if (player.activeGame) {
-      throw new PlayerDeniedError(player, DenyReason.playerIsInvolvedInGame);
     }
 
     return true;

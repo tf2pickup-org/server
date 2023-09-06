@@ -8,9 +8,17 @@ import { Player } from '@/players/models/player';
 import { Types } from 'mongoose';
 import { PlayerId } from '@/players/types/player-id';
 import { GameId } from '../game-id';
+import { PlayersService } from '@/players/services/players.service';
+import { ConfigurationService } from '@/configuration/services/configuration.service';
+import { PlayerBansService } from '@/players/services/player-bans.service';
 
 jest.mock('../services/player-substitution.service');
 jest.mock('socket.io');
+jest.mock('@/players/services/players.service', () => ({
+  PlayersService: jest.fn().mockImplementation(() => ({})),
+}));
+jest.mock('@/configuration/services/configuration.service');
+jest.mock('@/players/services/player-bans.service');
 
 const mockGame = {
   id: 'FAKE_GAME_ID',
@@ -25,7 +33,14 @@ describe('GamesGateway', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [GamesGateway, PlayerSubstitutionService, Events],
+      providers: [
+        GamesGateway,
+        PlayerSubstitutionService,
+        Events,
+        PlayersService,
+        ConfigurationService,
+        PlayerBansService,
+      ],
     }).compile();
 
     gateway = module.get<GamesGateway>(GamesGateway);

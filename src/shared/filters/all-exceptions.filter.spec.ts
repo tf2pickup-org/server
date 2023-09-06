@@ -2,7 +2,7 @@ import { Player } from '@/players/models/player';
 import {
   DenyReason,
   PlayerDeniedError,
-} from '@/queue/errors/player-denied.error';
+} from '@/shared/errors/player-denied.error';
 import { AllExceptionsFilter } from './all-exceptions.filter';
 
 describe('AllExceptionsFilter', () => {

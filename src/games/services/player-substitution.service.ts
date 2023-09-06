@@ -23,6 +23,10 @@ import { Mutex } from 'async-mutex';
 import { GameId } from '../game-id';
 import { PlayerId } from '@/players/types/player-id';
 import { GameEventType } from '../models/game-event-type';
+import {
+  DenyReason,
+  PlayerDeniedError,
+} from '@/shared/errors/player-denied.error';
 
 /**
  * A service that handles player substitution logic.
@@ -175,14 +179,6 @@ export class PlayerSubstitutionService implements OnModuleInit {
   ) {
     return await this.mutex.runExclusive(async () => {
       const replacement = await this.playersService.getById(replacementId);
-
-      if (
-        (await this.playerBansService.getPlayerActiveBans(replacementId))
-          .length > 0
-      ) {
-        throw new Error('player is banned');
-      }
-
       const game = await this.gamesService.getById(gameId);
       const slot = game.slots.find(
         (slot) =>
@@ -236,7 +232,10 @@ export class PlayerSubstitutionService implements OnModuleInit {
       }
 
       if (replacement.activeGame) {
-        throw new Error('player is involved in a currently running game');
+        throw new PlayerDeniedError(
+          replacement,
+          DenyReason.playerIsInvolvedInGame,
+        );
       }
 
       if (game.findPlayerSlot(replacementId)) {

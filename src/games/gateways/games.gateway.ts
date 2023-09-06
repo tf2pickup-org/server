@@ -7,6 +7,7 @@ import {
   forwardRef,
   OnModuleInit,
   UseInterceptors,
+  UseGuards,
 } from '@nestjs/common';
 import { Events } from '@/events/events';
 import { WebsocketEvent } from '@/websocket-event';
@@ -17,6 +18,7 @@ import { WebsocketEventEmitter } from '@/shared/websocket-event-emitter';
 import { Types } from 'mongoose';
 import { GameId } from '../game-id';
 import { PlayerId } from '@/players/types/player-id';
+import { CanReplacePlayerGuard } from '../guards/can-replace-player.guard';
 
 @WebSocketGateway()
 export class GamesGateway
@@ -32,6 +34,7 @@ export class GamesGateway
   }
 
   @WsAuthorized()
+  @UseGuards(CanReplacePlayerGuard)
   @SubscribeMessage('replace player')
   @UseInterceptors(SerializerInterceptor)
   async replacePlayer(
