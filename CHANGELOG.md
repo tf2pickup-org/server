@@ -1,3 +1,19 @@
+
+
+# [11.0.0-rc.1](https://github.com/tf2pickup-org/server/compare/11.0.0-rc.0...11.0.0-rc.1) (2023-09-06)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @nestjs/config to v3.0.1 ([#2597](https://github.com/tf2pickup-org/server/issues/2597)) ([fc2183d](https://github.com/tf2pickup-org/server/commit/fc2183daea2b7635ffae481bc24782c732f279cf))
+* **deps:** update dependency axios to v1.5.0 ([#2588](https://github.com/tf2pickup-org/server/issues/2588)) ([4461be4](https://github.com/tf2pickup-org/server/commit/4461be4d798b5800d2ff08faee19800827438e98))
+* **deps:** update dependency csv-parse to v5.5.0 ([#2586](https://github.com/tf2pickup-org/server/issues/2586)) ([e075050](https://github.com/tf2pickup-org/server/commit/e0750507e6eae43d7b6c3b377283fdf08d9bc244))
+* **deps:** update dependency jsonwebtoken to v9.0.2 ([#2594](https://github.com/tf2pickup-org/server/issues/2594)) ([b0e8094](https://github.com/tf2pickup-org/server/commit/b0e8094173e153ca3814acb8be31d8bcd0191422))
+* **deps:** update dependency mongoose to v7.5.0 ([#2593](https://github.com/tf2pickup-org/server/issues/2593)) ([1565413](https://github.com/tf2pickup-org/server/commit/1565413afb8f7006ccf260c55c806543f3887978))
+* **deps:** update nest monorepo to v10.2.2 ([#2590](https://github.com/tf2pickup-org/server/issues/2590)) ([b720f2f](https://github.com/tf2pickup-org/server/commit/b720f2fc3b01d6e705d88c729ef3c291d3e86c8a))
+* **deps:** update nest monorepo to v10.2.4 ([#2595](https://github.com/tf2pickup-org/server/issues/2595)) ([ed642d9](https://github.com/tf2pickup-org/server/commit/ed642d92f21d3354a6f2945f927946df6c846147))
+* **games:** don't let unverified players join games as a substitute ([#2609](https://github.com/tf2pickup-org/server/issues/2609)) ([0237149](https://github.com/tf2pickup-org/server/commit/0237149b1df8dfb8b9cbed2cf91d51006da24cc0))
+
 # [11.0.0-rc.0](https://github.com/tf2pickup-org/server/compare/11.0.0-beta.5...11.0.0-rc.0) (2023-08-26)
 
 
