@@ -2,8 +2,8 @@ import { HttpService } from '@nestjs/axios';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Etf2lApiService } from './etf2l-api.service';
 import { Etf2lProfile } from '../types/etf2l-profile';
-import { of } from 'rxjs';
-import { AxiosResponse } from 'axios';
+import { of, throwError } from 'rxjs';
+import { AxiosError, AxiosResponse } from 'axios';
 import { Etf2lApiError } from '../errors/etf2l-api.error';
 import { NoEtf2lAccountError } from '../errors/no-etf2l-account.error';
 
@@ -69,9 +69,9 @@ describe('Etf2lApiService', () => {
     describe('when the profile does not exist', () => {
       beforeEach(() => {
         httpService.get.mockReturnValue(
-          of({
-            status: 404,
-          } as AxiosResponse),
+          throwError(
+            () => new AxiosError('Request failed with status code 404'),
+          ),
         );
       });
 
