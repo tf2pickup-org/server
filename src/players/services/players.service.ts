@@ -23,6 +23,7 @@ import { PlayerId } from '../types/player-id';
 import { Etf2lApiService } from '@/etf2l/services/etf2l-api.service';
 import { Etf2lProfile } from '@/etf2l/types/etf2l-profile';
 import { SteamApiService } from '@/steam/services/steam-api.service';
+import { PlayerNameTakenError } from '../errors/player-name-taken.error';
 
 interface ForceCreatePlayerOptions {
   name: Player['name'];
@@ -166,6 +167,16 @@ export class PlayersService implements OnModuleInit {
       medium: steamProfile.photos[1].value,
       large: steamProfile.photos[2].value,
     };
+
+    const playersWithSameNameCount = await this.playerModel.countDocuments({
+      name,
+    });
+    if (playersWithSameNameCount > 0) {
+      throw new PlayerNameTakenError(
+        name,
+        isEtf2lAccountRequired ? 'ETF2L' : 'Steam',
+      );
+    }
 
     const { _id: id } = await this.playerModel.create({
       name,
