@@ -66,7 +66,23 @@ describe('Etf2lApiService', () => {
       expect(profile).toEqual(mockEtf2lProfile);
     });
 
-    describe('when the profile does not exist', () => {
+    describe('when the profile does not exist - response with code 404', () => {
+      beforeEach(() => {
+        httpService.get.mockReturnValue(
+          of({
+            status: 404,
+          } as AxiosResponse),
+        );
+      });
+
+      it('should throw NoEtf2lAccountError', async () => {
+        await expect(
+          service.fetchPlayerProfile('FAKE_OTHER_STEAM_ID'),
+        ).rejects.toThrow(NoEtf2lAccountError);
+      });
+    });
+
+    describe('when the profile does not exist - AxiosError', () => {
       beforeEach(() => {
         const headers = {} as AxiosRequestHeaders;
         httpService.get.mockReturnValue(
@@ -96,12 +112,42 @@ describe('Etf2lApiService', () => {
       });
     });
 
-    describe('when the API fails', () => {
+    describe('when the API fails - response with code 500', () => {
       beforeEach(() => {
         httpService.get.mockReturnValue(
           of({
             status: 500,
           } as AxiosResponse),
+        );
+      });
+
+      it('should throw Etf2lApiError', async () => {
+        await expect(
+          service.fetchPlayerProfile('FAKE_OTHER_STEAM_ID'),
+        ).rejects.toThrow(Etf2lApiError);
+      });
+    });
+
+    describe('when the API fails - AxiosError', () => {
+      beforeEach(() => {
+        const headers = {} as AxiosRequestHeaders;
+        httpService.get.mockReturnValue(
+          throwError(
+            () =>
+              new AxiosError(
+                'Request failed with status code 500',
+                '500',
+                undefined,
+                undefined,
+                {
+                  status: 500,
+                  statusText: 'INTERNAL SERVER ERROR',
+                  data: null,
+                  config: { headers },
+                  headers,
+                },
+              ),
+          ),
         );
       });
 
