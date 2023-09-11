@@ -24,13 +24,10 @@ export class Etf2lApiService {
     return await firstValueFrom(
       this.httpService.get<Etf2lPlayerResponse>(url).pipe(
         catchError((err: AxiosError) => {
-          if (err.message === 'Request failed with status code 404') {
+          if (err.response?.status === 404) {
             throw new NoEtf2lAccountError(steamIdOrEtf2lId);
           }
-          throw new Etf2lApiError(
-            url,
-            `${err.code} ${err.message}`,
-          );
+          throw new Etf2lApiError(url, `${err.code} ${err.message}`);
         }),
         switchMap((response) => {
           switch (response.status) {
