@@ -331,7 +331,7 @@ describe('PlayersService', () => {
     });
 
     describe('when the user name is already taken', () => {
-      beforeEach(async () => {
+      beforeEach(() => {
         etf2lApiService.fetchPlayerProfile.mockResolvedValue(
           Object.assign(blacklistedProfile, {
             name: mockPlayer.name,
