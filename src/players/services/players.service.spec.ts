@@ -28,6 +28,7 @@ import { Etf2lProfile } from '@/etf2l/types/etf2l-profile';
 import { Etf2lApiService } from '@/etf2l/services/etf2l-api.service';
 import { NoEtf2lAccountError } from '@/etf2l/errors/no-etf2l-account.error';
 import { SteamApiService } from '@/steam/services/steam-api.service';
+import { PlayerNameTakenError } from '../errors/player-name-taken.error';
 
 jest.mock('@/etf2l/services/etf2l-api.service');
 jest.mock('@/configuration/services/configuration.service');
@@ -326,6 +327,23 @@ describe('PlayersService', () => {
       it('should assign the super-user role', async () => {
         const ret = await service.createPlayer(mockSteamProfile);
         expect(ret.roles.includes(PlayerRole.superUser)).toBe(true);
+      });
+    });
+
+    describe('when the user name is already taken', () => {
+      beforeEach(() => {
+        etf2lApiService.fetchPlayerProfile.mockResolvedValue(
+          Object.assign(blacklistedProfile, {
+            name: mockPlayer.name,
+            bans: [],
+          }),
+        );
+      });
+
+      it('should deny creating tf2pickup.pl profile', async () => {
+        await expect(service.createPlayer(mockSteamProfile)).rejects.toThrow(
+          PlayerNameTakenError,
+        );
       });
     });
 

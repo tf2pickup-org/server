@@ -16,6 +16,7 @@ import { AccountBannedError } from '@/players/errors/account-banned.error';
 import { Request, Response } from 'express';
 import { parse } from 'cookie';
 import { add } from 'date-fns';
+import { PlayerNameTakenError } from '@/players/errors/player-name-taken.error';
 
 @Controller('auth')
 export class AuthController {
@@ -38,7 +39,10 @@ export class AuthController {
             let url = this.environment.clientUrl;
             if (req.headers.cookie) {
               const cookies = parse(req.headers.cookie);
-              if (redirectUrlCookieName in cookies) {
+              if (
+                redirectUrlCookieName in cookies &&
+                !cookies[redirectUrlCookieName].includes('auth-error')
+              ) {
                 url = cookies[redirectUrlCookieName];
               }
             }
@@ -106,6 +110,8 @@ export class AuthController {
       return 'no etf2l profile';
     } else if (error instanceof AccountBannedError) {
       return 'etf2l banned';
+    } else if (error instanceof PlayerNameTakenError) {
+      return `${error.service.toLowerCase()} name taken`;
     }
     return 'unknown';
   }

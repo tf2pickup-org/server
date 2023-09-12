@@ -2,8 +2,8 @@ import { HttpService } from '@nestjs/axios';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Etf2lApiService } from './etf2l-api.service';
 import { Etf2lProfile } from '../types/etf2l-profile';
-import { of } from 'rxjs';
-import { AxiosResponse } from 'axios';
+import { of, throwError } from 'rxjs';
+import { AxiosError, AxiosResponse, AxiosRequestHeaders } from 'axios';
 import { Etf2lApiError } from '../errors/etf2l-api.error';
 import { NoEtf2lAccountError } from '../errors/no-etf2l-account.error';
 
@@ -66,7 +66,7 @@ describe('Etf2lApiService', () => {
       expect(profile).toEqual(mockEtf2lProfile);
     });
 
-    describe('when the profile does not exist', () => {
+    describe('when the profile does not exist - response with code 404', () => {
       beforeEach(() => {
         httpService.get.mockReturnValue(
           of({
@@ -82,12 +82,72 @@ describe('Etf2lApiService', () => {
       });
     });
 
-    describe('when the API fails', () => {
+    describe('when the profile does not exist - AxiosError', () => {
+      beforeEach(() => {
+        const headers = {} as AxiosRequestHeaders;
+        httpService.get.mockReturnValue(
+          throwError(
+            () =>
+              new AxiosError(
+                'Request failed with status code 404',
+                '404',
+                undefined,
+                undefined,
+                {
+                  status: 404,
+                  statusText: 'NOT FOUND',
+                  data: null,
+                  config: { headers },
+                  headers,
+                },
+              ),
+          ),
+        );
+      });
+
+      it('should throw NoEtf2lAccountError', async () => {
+        await expect(
+          service.fetchPlayerProfile('FAKE_OTHER_STEAM_ID'),
+        ).rejects.toThrow(NoEtf2lAccountError);
+      });
+    });
+
+    describe('when the API fails - response with code 500', () => {
       beforeEach(() => {
         httpService.get.mockReturnValue(
           of({
             status: 500,
           } as AxiosResponse),
+        );
+      });
+
+      it('should throw Etf2lApiError', async () => {
+        await expect(
+          service.fetchPlayerProfile('FAKE_OTHER_STEAM_ID'),
+        ).rejects.toThrow(Etf2lApiError);
+      });
+    });
+
+    describe('when the API fails - AxiosError', () => {
+      beforeEach(() => {
+        const headers = {} as AxiosRequestHeaders;
+        httpService.get.mockReturnValue(
+          throwError(
+            () =>
+              new AxiosError(
+                'Request failed with status code 500',
+                '500',
+                undefined,
+                undefined,
+                {
+                  status: 500,
+                  statusText: 'INTERNAL SERVER ERROR',
+                  data: null,
+                  config: { headers },
+                  headers,
+                },
+              ),
+          ),
         );
       });
 

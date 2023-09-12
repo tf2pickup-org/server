@@ -1,10 +1,11 @@
 import { etf2lApiEndpoint } from '@configs/urls';
 import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
-import { firstValueFrom, of, switchMap, throwError } from 'rxjs';
+import { catchError, firstValueFrom, of, switchMap, throwError } from 'rxjs';
 import { Etf2lApiError } from '../errors/etf2l-api.error';
 import { NoEtf2lAccountError } from '../errors/no-etf2l-account.error';
 import { Etf2lProfile } from '../types/etf2l-profile';
+import { AxiosError } from 'axios';
 
 interface Etf2lPlayerResponse {
   player: Etf2lProfile;
@@ -22,6 +23,12 @@ export class Etf2lApiService {
     const url = `${etf2lApiEndpoint}/player/${steamIdOrEtf2lId}`;
     return await firstValueFrom(
       this.httpService.get<Etf2lPlayerResponse>(url).pipe(
+        catchError((err: AxiosError) => {
+          if (err.response?.status === 404) {
+            throw new NoEtf2lAccountError(steamIdOrEtf2lId);
+          }
+          throw new Etf2lApiError(url, `${err.code} ${err.message}`);
+        }),
         switchMap((response) => {
           switch (response.status) {
             case 200:
