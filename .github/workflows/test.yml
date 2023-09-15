@@ -38,7 +38,7 @@ jobs:
       run: yarn test:ci
 
     - name: Upload test coverage info
-      uses: codecov/codecov-action@v3
+      uses: codecov/codecov-action@v4
 
   e2e-tests:
     name: end-to-end
@@ -148,7 +148,7 @@ jobs:
       run: yarn test:e2e ${{ matrix.test-name }}
 
     - name: Upload test coverage info
-      uses: codecov/codecov-action@v3
+      uses: codecov/codecov-action@v4
 
     - name: Show gameserver logs
       if: failure()
