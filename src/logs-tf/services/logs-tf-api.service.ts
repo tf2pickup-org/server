@@ -1,6 +1,6 @@
 import { Environment } from '@/environment/environment';
 import { logsTfUploadEndpoint } from '@configs/urls';
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { LogsTfUploadError } from '../errors/logs-tf-upload.error';
 import * as FormData from 'form-data';
 import { version } from '../../../package.json';
@@ -21,6 +21,8 @@ interface UploadLogsParams {
 
 @Injectable()
 export class LogsTfApiService {
+  private readonly logger = new Logger(LogsTfApiService.name);
+
   constructor(private readonly environment: Environment) {}
 
   public uploadLogs(params: UploadLogsParams): Promise<string> {
@@ -50,16 +52,21 @@ export class LogsTfApiService {
         let reply = '';
         response.on('data', (chunk) => (reply += chunk));
         response.on('end', () => {
-          const d = JSON.parse(reply) as UploadLogsResponse;
-          if (!d.success) {
-            reject(new LogsTfUploadError(d.error ?? 'unknown error'));
-          } else {
-            resolve(`https://logs.tf${d.url}`);
+          try {
+            const d = JSON.parse(reply) as UploadLogsResponse;
+            if (!d.success) {
+              reject(new LogsTfUploadError(d.error ?? 'unknown error'));
+            } else {
+              resolve(`https://logs.tf${d.url}`);
+            }
+          } catch (error) {
+            if (error instanceof SyntaxError) {
+              this.logger.verbose(reply);
+            }
+            reject(error);
           }
         });
-        response.on('error', (error) =>
-          reject(new LogsTfUploadError(error.message)),
-        );
+        response.on('error', (error) => reject(error));
 
         response.resume();
       });
