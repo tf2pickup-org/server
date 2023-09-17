@@ -799,6 +799,38 @@ describe('GamesService', () => {
         ).toEqual(new Date(2023, 2, 7, 23, 26, 0).getTime());
       });
 
+      describe('and the player joined the game but then disconnected', () => {
+        beforeEach(async () => {
+          testGame.events.push(
+            {
+              event: GameEventType.playerJoinedGameServer,
+              at: new Date(2023, 2, 7, 23, 23, 0), // 2 minutes after the gameserver was initialized
+              player: testPlayer._id,
+            },
+            {
+              event: GameEventType.playerJoinedGameServerTeam,
+              at: new Date(2023, 2, 7, 23, 24, 0),
+              player: testPlayer._id, // 3 minutes after the gameserver was initialized
+            },
+            {
+              event: GameEventType.playerLeftGameServer,
+              at: new Date(2023, 2, 7, 23, 25, 0),
+              player: testPlayer._id,
+            },
+          );
+          await testGame.save();
+        });
+
+        it('should give the player 3 minutes to come back', async () => {
+          expect(
+            await service.calculatePlayerJoinGameServerTimeout(
+              testGame._id,
+              testPlayer._id,
+            ),
+          ).toEqual(new Date(2023, 2, 7, 23, 28, 0).getTime());
+        });
+      });
+
       describe('but the join timeout is not specified', () => {
         beforeEach(() => {
           configuration['games.join_gameserver_timeout'] = 0;
