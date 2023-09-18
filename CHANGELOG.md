@@ -1,5 +1,19 @@
 
 
+# [11.0.0-rc.2](https://github.com/tf2pickup-org/server/compare/11.0.0-rc.1...11.0.0-rc.2) (2023-09-18)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @nestjs/config to v3.1.1 ([#2617](https://github.com/tf2pickup-org/server/issues/2617)) ([b5ebb16](https://github.com/tf2pickup-org/server/commit/b5ebb1684e02223801f6f4ea19cadbc5aa65a33d))
+* **deps:** update dependency mongodb to v5.9.0 ([#2623](https://github.com/tf2pickup-org/server/issues/2623)) ([bf2e431](https://github.com/tf2pickup-org/server/commit/bf2e4312ed35bee577b05adc8927c293a9572b4b))
+* **deps:** update dependency mongoose to v7.5.1 ([#2614](https://github.com/tf2pickup-org/server/issues/2614)) ([1d96e65](https://github.com/tf2pickup-org/server/commit/1d96e65ecbe15525489a18eb1f35706140c0fe67))
+* **deps:** update nest monorepo ([#2613](https://github.com/tf2pickup-org/server/issues/2613)) ([892b8c7](https://github.com/tf2pickup-org/server/commit/892b8c7e516bbdb6ecc15c1e7e3ee4ed22ed9a34))
+* **etf2l:** fix Axios error handling ([#2610](https://github.com/tf2pickup-org/server/issues/2610)) ([72abb0f](https://github.com/tf2pickup-org/server/commit/72abb0f882c2769f16283faca2ecb5f03914335c))
+* **games:** fix player substitutes ([#2630](https://github.com/tf2pickup-org/server/issues/2630)) ([829ee59](https://github.com/tf2pickup-org/server/commit/829ee59771b126c232ef217e50eb3695693ff219))
+* **logs.tf:** handle parse error gracefully ([#2631](https://github.com/tf2pickup-org/server/issues/2631)) ([c03862b](https://github.com/tf2pickup-org/server/commit/c03862b7114375725988c1b6f81e450edd55a649))
+* **migration:** fix voice server type configuration migration ([#2633](https://github.com/tf2pickup-org/server/issues/2633)) ([4f2fc64](https://github.com/tf2pickup-org/server/commit/4f2fc646caab83461b5f8b42bf9c2e424c3eb346))
+
 # [11.0.0-rc.1](https://github.com/tf2pickup-org/server/compare/11.0.0-rc.0...11.0.0-rc.1) (2023-09-06)
 
 
