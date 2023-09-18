@@ -1,6 +1,6 @@
 codecov:
   notify:
-    after_n_builds: 34
+    after_n_builds: 17
 
 coverage:
   status:
