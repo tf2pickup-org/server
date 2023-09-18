@@ -51,7 +51,7 @@ module.exports.up = function (next) {
           case 'voice server':
             return [
               {
-                key: 'games.voice_server.type',
+                key: 'games.voice_server_type',
                 value: entry.type,
               },
               {
