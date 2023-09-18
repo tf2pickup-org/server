@@ -3135,12 +3135,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/jsonwebtoken@npm:9.0.2":
-  version: 9.0.2
-  resolution: "@types/jsonwebtoken@npm:9.0.2"
+"@types/jsonwebtoken@npm:9.0.3":
+  version: 9.0.3
+  resolution: "@types/jsonwebtoken@npm:9.0.3"
   dependencies:
     "@types/node": "*"
-  checksum: 3bb8d40e78d7eb53e427db6e9f0f22e0890cfee80965dcf741d08341814913afb211306de6e9847c6d241cc8e36f8a59090cbfdcc510ab7c81af9d650c5afe0e
+  checksum: 2debf3adb19b827a023205234ec439b7258aee6ca9273472abe360738a84f08db78c6e853172e842ec303169ec0bb2df39701ab9a13b9e7868fe284ef9136567
   languageName: node
   linkType: hard
 
@@ -11842,7 +11842,7 @@ __metadata:
     "@types/helmet": 0.0.48
     "@types/jest": 29.5.5
     "@types/jsonschema": 1.1.1
-    "@types/jsonwebtoken": 9.0.2
+    "@types/jsonwebtoken": 9.0.3
     "@types/lodash": 4.14.198
     "@types/mongodb-uri": 0.9.1
     "@types/mongoose": 5.11.96
