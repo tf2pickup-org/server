@@ -17,17 +17,17 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    - name: Setup Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: '16.x'
-        cache: yarn
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18.x'
+          cache: yarn
 
-    - name: Install dependencies
-      run: yarn install --immutable
+      - name: Install dependencies
+        run: yarn install --immutable
 
-    - name: Lint
-      run: yarn lint
+      - name: Lint
+        run: yarn lint

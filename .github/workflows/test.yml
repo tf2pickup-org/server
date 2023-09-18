@@ -19,26 +19,27 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [16.x, 18.x]
+        node-version:
+          - 18.x
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v3
-      with:
-        node-version: ${{ matrix.node-version }}
-        cache: yarn
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: yarn
 
-    - name: Install dependencies
-      run: yarn install --immutable
+      - name: Install dependencies
+        run: yarn install --immutable
 
-    - name: Run unit test
-      run: yarn test:ci
+      - name: Run unit test
+        run: yarn test:ci
 
-    - name: Upload test coverage info
-      uses: codecov/codecov-action@v3
+      - name: Upload test coverage info
+        uses: codecov/codecov-action@v3
 
   e2e-tests:
     name: end-to-end
@@ -48,7 +49,6 @@ jobs:
       fail-fast: false
       matrix:
         node-version:
-          - 16.x
           - 18.x
         test-name:
           - 'e2e/app.e2e-spec.ts'
@@ -114,47 +114,47 @@ jobs:
         options: --tty --add-host host.docker.internal:host-gateway
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v3
-      with:
-        node-version: ${{ matrix.node-version }}
-        cache: yarn
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: yarn
 
-    - name: Install dependencies
-      run: yarn install --immutable
+      - name: Install dependencies
+        run: yarn install --immutable
 
-    - name: Restore database dump for e2e tests
-      run: mongorestore mongodb://localhost:27017 --quiet e2e/dump/
+      - name: Restore database dump for e2e tests
+        run: mongorestore mongodb://localhost:27017 --quiet e2e/dump/
 
-    - name: Run e2e tests
-      env:
-        WEBSITE_NAME: 'tf2pickup.pl e2e testing'
-        API_URL: 'http://localhost:3000'
-        CLIENT_URL: 'http://localhost:4200'
-        BOT_NAME: 'tf2pickup.pl'
-        MONGODB_URI: 'mongodb://localhost:27017/tf2pickuppl_e2e_tests'
-        REDIS_URL: 'redis://localhost:6379'
-        STEAM_API_KEY: 'FAKE_API_KEY'
-        KEY_STORE_PASSPHRASE: 'a_password'
-        SUPER_USER: '76561199195756652'
-        QUEUE_CONFIG: '6v6'
-        LOG_RELAY_ADDRESS: 'host.docker.internal'
-        LOG_RELAY_PORT: '9871'
-        GAME_SERVER_SECRET: 'xxxxxx'
-        LOGS_TF_API_KEY: 'FAKE_LOGS_TF_API_KEY'
-      run: yarn test:e2e ${{ matrix.test-name }}
+      - name: Run e2e tests
+        env:
+          WEBSITE_NAME: 'tf2pickup.pl e2e testing'
+          API_URL: 'http://localhost:3000'
+          CLIENT_URL: 'http://localhost:4200'
+          BOT_NAME: 'tf2pickup.pl'
+          MONGODB_URI: 'mongodb://localhost:27017/tf2pickuppl_e2e_tests'
+          REDIS_URL: 'redis://localhost:6379'
+          STEAM_API_KEY: 'FAKE_API_KEY'
+          KEY_STORE_PASSPHRASE: 'a_password'
+          SUPER_USER: '76561199195756652'
+          QUEUE_CONFIG: '6v6'
+          LOG_RELAY_ADDRESS: 'host.docker.internal'
+          LOG_RELAY_PORT: '9871'
+          GAME_SERVER_SECRET: 'xxxxxx'
+          LOGS_TF_API_KEY: 'FAKE_LOGS_TF_API_KEY'
+        run: yarn test:e2e ${{ matrix.test-name }}
 
-    - name: Upload test coverage info
-      uses: codecov/codecov-action@v3
+      - name: Upload test coverage info
+        uses: codecov/codecov-action@v3
 
-    - name: Show gameserver logs
-      if: failure()
-      run: |
-        docker logs "${{ job.services.gameserver1.id }}"
-        docker logs "${{ job.services.gameserver2.id }}"
+      - name: Show gameserver logs
+        if: failure()
+        run: |
+          docker logs "${{ job.services.gameserver1.id }}"
+          docker logs "${{ job.services.gameserver2.id }}"
 
   # Start the app with a clean database and verify it doesn't crash
   fresh-start:
@@ -163,7 +163,8 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [16.x, 18.x]
+        node-version:
+          - 18.x
 
     services:
       mongo:
@@ -177,35 +178,35 @@ jobs:
           - 6379:6379
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v3
-      with:
-        node-version: ${{ matrix.node-version }}
-        cache: yarn
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: yarn
 
-    - name: Install dependencies
-      run: yarn install --immutable
+      - name: Install dependencies
+        run: yarn install --immutable
 
-    - name: Run fresh instance
-      env:
-        WEBSITE_NAME: 'tf2pickup.org fresh'
-        API_URL: 'http://localhost:3000'
-        CLIENT_URL: 'http://localhost:4200'
-        BOT_NAME: 'tf2pickup.pl'
-        MONGODB_URI: 'mongodb://localhost:27017/tf2pickuporg_fresh'
-        REDIS_URL: 'redis://localhost:6379'
-        STEAM_API_KEY: 'FAKE_API_KEY'
-        KEY_STORE_PASSPHRASE: 'a_password'
-        SUPER_USER: '76561199195756652'
-        QUEUE_CONFIG: '6v6'
-        LOG_RELAY_ADDRESS: 'host.docker.internal'
-        LOG_RELAY_PORT: '9871'
-        GAME_SERVER_SECRET: 'xxxxxx'
-        LOGS_TF_API_KEY: 'FAKE_LOGS_TF_API_KEY'
-      run: timeout 3m yarn dev || code=$?; if [[ $code -ne 124 && $code -ne 0 ]]; then exit $code; fi
+      - name: Run fresh instance
+        env:
+          WEBSITE_NAME: 'tf2pickup.org fresh'
+          API_URL: 'http://localhost:3000'
+          CLIENT_URL: 'http://localhost:4200'
+          BOT_NAME: 'tf2pickup.pl'
+          MONGODB_URI: 'mongodb://localhost:27017/tf2pickuporg_fresh'
+          REDIS_URL: 'redis://localhost:6379'
+          STEAM_API_KEY: 'FAKE_API_KEY'
+          KEY_STORE_PASSPHRASE: 'a_password'
+          SUPER_USER: '76561199195756652'
+          QUEUE_CONFIG: '6v6'
+          LOG_RELAY_ADDRESS: 'host.docker.internal'
+          LOG_RELAY_PORT: '9871'
+          GAME_SERVER_SECRET: 'xxxxxx'
+          LOGS_TF_API_KEY: 'FAKE_LOGS_TF_API_KEY'
+        run: timeout 3m yarn dev || code=$?; if [[ $code -ne 124 && $code -ne 0 ]]; then exit $code; fi
 
   build:
     name: build
@@ -213,20 +214,21 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [16.x, 18.x]
+        node-version:
+          - 18.x
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v3
-      with:
-        node-version: ${{ matrix.node-version }}
-        cache: yarn
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: yarn
 
-    - name: Install dependencies
-      run: yarn install --immutable
+      - name: Install dependencies
+        run: yarn install --immutable
 
-    - name: Build
-      run: yarn build
+      - name: Build
+        run: yarn build
