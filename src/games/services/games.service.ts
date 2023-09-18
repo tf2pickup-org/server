@@ -470,10 +470,24 @@ export class GamesService {
 
     const [joinGameServerTimeout, rejoinGameServerTimeout] = await Promise.all([
       this.configurationService.get<number>('games.join_gameserver_timeout'),
-      await this.configurationService.get<number>(
-        'games.rejoin_gameserver_timeout',
-      ),
+      this.configurationService.get<number>('games.rejoin_gameserver_timeout'),
     ]);
+
+    if (joinGameServerTimeout <= 0 || rejoinGameServerTimeout <= 0) {
+      return undefined;
+    }
+
+    const disconnectedAt = game.events
+      .filter((e) => e.event === GameEventType.playerLeftGameServer)
+      .filter((e) => (e as PlayerLeftGameServer).player.equals(playerId))
+      .sort((a, b) => b.at.getTime() - a.at.getTime())
+      .at(0)?.at;
+
+    const replacedAt = game.events
+      .filter((e) => e.event === GameEventType.playerReplaced)
+      .filter((e) => (e as PlayerReplaced).replacement.equals(playerId))
+      .sort((a, b) => b.at.getTime() - a.at.getTime())
+      .at(0)?.at;
 
     switch (game.state) {
       case GameState.launching: {
@@ -482,67 +496,26 @@ export class GamesService {
           throw new Error('invalid game state');
         }
 
-        const replacedAt = game.events
-          .filter((e) => e.event === GameEventType.playerReplaced)
-          .filter((e) => (e as PlayerReplaced).replacement.equals(playerId))
-          .sort((a, b) => b.at.getTime() - a.at.getTime())
-          .at(0)?.at;
-
-        if (replacedAt) {
-          // the player joined the game as a sub
-          if (rejoinGameServerTimeout > 0) {
-            return Math.max(
-              replacedAt.getTime() + rejoinGameServerTimeout,
-              configuredAt.getTime() + joinGameServerTimeout,
-            );
-          } else {
-            return undefined;
-          }
-        }
-
-        if (joinGameServerTimeout > 0) {
-          return configuredAt.getTime() + joinGameServerTimeout;
-        } else {
-          return undefined;
-        }
+        return Math.max(
+          configuredAt.getTime() + joinGameServerTimeout,
+          replacedAt ? replacedAt.getTime() + rejoinGameServerTimeout : 0,
+          disconnectedAt
+            ? disconnectedAt.getTime() + rejoinGameServerTimeout
+            : 0,
+        );
       }
 
       case GameState.started: {
-        if (
-          slot.connectionStatus !== PlayerConnectionStatus.offline ||
-          rejoinGameServerTimeout <= 0
-        ) {
+        if (slot.connectionStatus !== PlayerConnectionStatus.offline) {
           return undefined;
         }
 
-        const replacedAt = game.events
-          .filter((e) => e.event === GameEventType.playerReplaced)
-          .filter((e) => (e as PlayerReplaced).replacement.equals(playerId))
-          .sort((a, b) => b.at.getTime() - a.at.getTime())
-          .at(0)?.at;
-
-        const disconnectedAt = game.events
-          .filter((e) => e.event === GameEventType.playerLeftGameServer)
-          .filter((e) => (e as PlayerLeftGameServer).player.equals(playerId))
-          .sort((a, b) => b.at.getTime() - a.at.getTime())
-          .at(0)?.at;
-
-        if (replacedAt) {
-          if (disconnectedAt) {
-            return Math.max(
-              replacedAt.getTime() + rejoinGameServerTimeout,
-              disconnectedAt.getTime() + rejoinGameServerTimeout,
-            );
-          } else {
-            return replacedAt.getTime() + rejoinGameServerTimeout;
-          }
-        }
-
-        if (!disconnectedAt) {
-          throw new Error('invalid game slot state');
-        }
-
-        return disconnectedAt.getTime() + rejoinGameServerTimeout;
+        return Math.max(
+          replacedAt ? replacedAt.getTime() + rejoinGameServerTimeout : 0,
+          disconnectedAt
+            ? disconnectedAt.getTime() + rejoinGameServerTimeout
+            : 0,
+        );
       }
 
       default:
