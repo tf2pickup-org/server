@@ -8,6 +8,9 @@ import {
   DenyReason,
   PlayerDeniedError,
 } from '../../shared/errors/player-denied.error';
+import { QueueService } from '../services/queue.service';
+import { NoSuchSlotError } from '../errors/no-such-slot.error';
+import { isUndefined } from 'lodash';
 
 @Injectable()
 export class CanJoinQueueGuard implements CanActivate {
@@ -15,6 +18,7 @@ export class CanJoinQueueGuard implements CanActivate {
     private readonly configurationService: ConfigurationService,
     private readonly playerBansService: PlayerBansService,
     private readonly playersService: PlayersService,
+    private readonly queueService: QueueService,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -28,6 +32,15 @@ export class CanJoinQueueGuard implements CanActivate {
       throw new PlayerDeniedError(player, DenyReason.playerHasNotAcceptedRules);
     }
 
+    const bans = await this.playerBansService.getPlayerActiveBans(player._id);
+    if (bans.length > 0) {
+      throw new PlayerDeniedError(player, DenyReason.playerIsBanned);
+    }
+
+    if (player.activeGame) {
+      throw new PlayerDeniedError(player, DenyReason.playerIsInvolvedInGame);
+    }
+
     if (
       !player.skill &&
       (await this.configurationService.get<boolean>(
@@ -37,13 +50,25 @@ export class CanJoinQueueGuard implements CanActivate {
       throw new PlayerDeniedError(player, DenyReason.noSkillAssigned);
     }
 
-    const bans = await this.playerBansService.getPlayerActiveBans(player._id);
-    if (bans.length > 0) {
-      throw new PlayerDeniedError(player, DenyReason.playerIsBanned);
+    const payload = context.getArgByIndex(1) as { slotId: number };
+    const slot = this.queueService.getSlotById(payload.slotId);
+
+    if (!slot) {
+      throw new NoSuchSlotError(payload.slotId);
     }
 
-    if (player.activeGame) {
-      throw new PlayerDeniedError(player, DenyReason.playerIsInvolvedInGame);
+    if (player.skill) {
+      const threshold = await this.configurationService.get<number>(
+        'queue.player_skill_threshold',
+      );
+
+      const skill = player.skill.get(slot.gameClass);
+      if (!isUndefined(skill) && skill < threshold) {
+        throw new PlayerDeniedError(
+          player,
+          DenyReason.playerSkillBelowThreshold,
+        );
+      }
     }
 
     return true;

@@ -30,8 +30,9 @@ export class QueueConfigurationService implements OnModuleInit {
         'queue.map_cooldown',
         z.number().positive(),
         2,
-        'How many times the last played map cannot be an option to vote for.',
+        'How many times the last played map cannot be an option to vote for',
       ),
+      configurationEntry('queue.player_skill_threshold', z.number(), 0),
     );
   }
 }

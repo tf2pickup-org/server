@@ -13,6 +13,7 @@ import { map, filter } from 'rxjs';
 import { ProfileDto } from '../dto/profile.dto';
 import { Restriction, RestrictionReason } from '../interfaces/restriction';
 import { serialize } from '@/shared/serialize';
+import { isUndefined } from 'lodash';
 
 const playersEqual = (a: Player, b: Player) => {
   return a.name === b.name;
@@ -126,6 +127,22 @@ export class ProfileService implements OnModuleInit {
           (gameClass) => gameClass.name,
         ),
       });
+    }
+
+    if (!isUndefined(player.skill)) {
+      const threshold = await this.configurationService.get<number>(
+        'queue.player_skill_threshold',
+      );
+      const restrictedClasses = this.queueConfig.classes
+        .filter((gameClass) => player.skill!.has(gameClass.name))
+        .filter((gameClass) => player.skill!.get(gameClass.name)! < threshold)
+        .map((gameClass) => gameClass.name);
+      if (restrictedClasses.length > 0) {
+        restrictions.push({
+          reason: RestrictionReason.playerSkillBelowThreshold,
+          gameClasses: restrictedClasses,
+        });
+      }
     }
 
     return restrictions;

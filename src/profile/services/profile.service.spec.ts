@@ -200,12 +200,13 @@ describe('ProfileService', () => {
       expect(profile.restrictions).toEqual([]);
     });
 
-    describe('if restricted', () => {
+    describe('when restricted by no skill assigned', () => {
       beforeEach(() => {
         configurationService.get.mockImplementation((key: string) =>
           Promise.resolve(
             {
               'queue.deny_players_with_no_skill_assigned': true,
+              'queue.player_skill_threshold': 1,
             }[key],
           ),
         );
@@ -222,6 +223,30 @@ describe('ProfileService', () => {
               Tf2ClassName.demoman,
               Tf2ClassName.medic,
             ],
+          },
+        ]);
+      });
+    });
+
+    describe('when restricted by too low skill', () => {
+      beforeEach(() => {
+        player.skill = new Map([[Tf2ClassName.soldier, 0]]);
+        configurationService.get.mockImplementation((key: string) =>
+          Promise.resolve(
+            {
+              'queue.deny_players_with_no_skill_assigned': true,
+              'queue.player_skill_threshold': 1,
+            }[key],
+          ),
+        );
+      });
+
+      it('should return restriction', async () => {
+        const profile = await service.getProfile(player);
+        expect(profile.restrictions).toEqual([
+          {
+            reason: RestrictionReason.playerSkillBelowThreshold,
+            gameClasses: [Tf2ClassName.soldier],
           },
         ]);
       });
