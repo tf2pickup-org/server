@@ -83,9 +83,8 @@ export class MumbleBot {
     assertClientIsConnected(this.client);
     await this.moveToTargetChannel();
     const channelName = `${game.number}`;
-    const channel = await this.client.user.channel.createSubChannel(
-      channelName,
-    );
+    const channel =
+      await this.client.user.channel.createSubChannel(channelName);
     await Promise.all(
       subChannelNames.map(
         async (subChannelName) =>

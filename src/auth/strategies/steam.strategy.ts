@@ -8,7 +8,10 @@ import { Error } from 'mongoose';
 
 @Injectable()
 export class SteamStrategy extends PassportStrategy(steam.Strategy) {
-  constructor(environment: Environment, private playerService: PlayersService) {
+  constructor(
+    environment: Environment,
+    private playerService: PlayersService,
+  ) {
     super({
       returnURL: `${environment.apiUrl}/auth/steam/return`,
       realm: environment.apiUrl,

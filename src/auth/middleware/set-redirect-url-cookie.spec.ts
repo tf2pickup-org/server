@@ -16,7 +16,7 @@ describe('setRedirectUrlCookie', () => {
         (key: string) =>
           ({
             referer: 'FAKE_URL',
-          }[key]),
+          })[key],
       ),
     };
   });

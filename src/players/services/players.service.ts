@@ -247,9 +247,8 @@ export class PlayersService implements OnModuleInit {
       gamesPlayed: await this.gamesService.getPlayerGameCount(playerId, {
         endedOnly: true,
       }),
-      classesPlayed: await this.gamesService.getPlayerPlayedClassCount(
-        playerId,
-      ),
+      classesPlayed:
+        await this.gamesService.getPlayerPlayedClassCount(playerId),
     };
   }
 

@@ -28,7 +28,10 @@ export class PlayersGateway
     return this._playerDisconnected.asObservable();
   }
 
-  constructor(private events: Events, private playersService: PlayersService) {
+  constructor(
+    private events: Events,
+    private playersService: PlayersService,
+  ) {
     super();
   }
 
