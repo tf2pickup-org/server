@@ -68,9 +68,8 @@ export class StaticGameServersController {
   async runDiagnostics(
     @Param('id', ObjectIdValidationPipe) gameServerId: Types.ObjectId,
   ) {
-    const id = await this.gameServerDiagnosticsService.runDiagnostics(
-      gameServerId,
-    );
+    const id =
+      await this.gameServerDiagnosticsService.runDiagnostics(gameServerId);
 
     return {
       diagnosticRunId: id,

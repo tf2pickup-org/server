@@ -37,7 +37,7 @@ describe('AutoGameLauncherService', () => {
       () =>
         ({
           getWinner: () => Promise.resolve('cp_badlands'),
-        } as MapVoteService),
+        }) as MapVoteService,
     );
 
     // @ts-expect-error
@@ -133,7 +133,7 @@ describe('AutoGameLauncherService', () => {
             friendships: [
               { sourcePlayerId: medicId1, targetPlayerId: medicId2 },
             ],
-          } as FriendsService),
+          }) as FriendsService,
       );
 
       (

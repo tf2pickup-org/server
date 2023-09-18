@@ -16,7 +16,10 @@ export interface Friendship {
 export class FriendsService implements OnModuleInit {
   friendships: Friendship[] = [];
 
-  constructor(private queueService: QueueService, private events: Events) {}
+  constructor(
+    private queueService: QueueService,
+    private events: Events,
+  ) {}
 
   onModuleInit() {
     this.events.queueSlotsChange.subscribe(() => this.cleanupFriendships());

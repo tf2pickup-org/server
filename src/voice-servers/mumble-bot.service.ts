@@ -95,9 +95,8 @@ export class MumbleBotService implements OnModuleInit, OnModuleDestroy {
           throw Error('mumble configuration malformed');
         }
 
-        const certificate = await this.certificatesService.getCertificate(
-          'mumble',
-        );
+        const certificate =
+          await this.certificatesService.getCertificate('mumble');
 
         this.bot = new MumbleBot({
           host: url,

@@ -47,7 +47,7 @@ describe('QueuePromptsService', () => {
         ({
           slots: [],
           requiredPlayerCount: 12,
-        } as any),
+        }) as any,
     );
   });
 

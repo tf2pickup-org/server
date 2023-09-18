@@ -89,9 +89,8 @@ export class MapVoteService implements OnModuleInit {
       { cooldown: { $gt: 0 } },
       { $inc: { cooldown: -1 } },
     );
-    const cooldown = await this.configurationService.get<number>(
-      'queue.map_cooldown',
-    );
+    const cooldown =
+      await this.configurationService.get<number>('queue.map_cooldown');
     await this.mapPoolEntryModel.updateOne({ name: map }, { cooldown });
     setImmediate(() => this.scramble());
     return map;
