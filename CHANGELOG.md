@@ -1,5 +1,13 @@
 
 
+# [11.0.0](https://github.com/tf2pickup-org/server/compare/11.0.0-rc.2...11.0.0) (2023-09-19)
+
+
+### Bug Fixes
+
+* **deps:** update dependency mongoose to v7.5.2 ([#2627](https://github.com/tf2pickup-org/server/issues/2627)) ([2fb95e1](https://github.com/tf2pickup-org/server/commit/2fb95e1b702fcc473ee51e75510003ee5fa543f5))
+* **games:** fine-tune cooldown levels ([#2638](https://github.com/tf2pickup-org/server/issues/2638)) ([ff5754e](https://github.com/tf2pickup-org/server/commit/ff5754e2626e839c5df1e76d6116305dd4614486))
+
 # [11.0.0-rc.2](https://github.com/tf2pickup-org/server/compare/11.0.0-rc.1...11.0.0-rc.2) (2023-09-18)
 
 
