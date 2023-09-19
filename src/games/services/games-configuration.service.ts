@@ -102,18 +102,34 @@ export class GamesConfigurationService implements OnModuleInit {
           },
           {
             level: 3,
-            banLengthMs: milliseconds({ days: 7 }),
+            banLengthMs: milliseconds({ days: 2 }),
           },
           {
             level: 4,
-            banLengthMs: milliseconds({ days: 30 }),
+            banLengthMs: milliseconds({ days: 7 }),
           },
           {
             level: 5,
-            banLengthMs: milliseconds({ months: 6 }),
+            banLengthMs: milliseconds({ days: 14 }),
           },
           {
             level: 6,
+            banLengthMs: milliseconds({ months: 1 }),
+          },
+          {
+            level: 7,
+            banLengthMs: milliseconds({ months: 2 }),
+          },
+          {
+            level: 8,
+            banLengthMs: milliseconds({ months: 3 }),
+          },
+          {
+            level: 9,
+            banLengthMs: milliseconds({ months: 6 }),
+          },
+          {
+            level: 10,
             banLengthMs: milliseconds({ years: 1 }),
           },
         ],
