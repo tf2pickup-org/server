@@ -52,6 +52,7 @@ export class GamesService {
   getPlayerGameCount = jest.fn();
   getPlayerPlayedClassCount = jest.fn();
   calculatePlayerJoinGameServerTimeout = jest.fn();
+  forceEnd = jest.fn();
 
   async _createOne(players?: Player[]) {
     let lastTeamId = 0;

@@ -7,7 +7,6 @@ import {
 } from '@nestjs/common';
 import { GamesService } from './games.service';
 import { PlayersService } from '@/players/services/players.service';
-import { PlayerBansService } from '@/players/services/player-bans.service';
 import { QueueService } from '@/queue/services/queue.service';
 import { Events } from '@/events/events';
 import { SlotStatus } from '../models/slot-status';
@@ -27,7 +26,6 @@ import {
   DenyReason,
   PlayerDeniedError,
 } from '@/shared/errors/player-denied.error';
-import { ConfigurationService } from '@/configuration/services/configuration.service';
 
 /**
  * A service that handles player substitution logic.
@@ -41,11 +39,9 @@ export class PlayerSubstitutionService implements OnModuleInit {
     @Inject(forwardRef(() => GamesService)) private gamesService: GamesService,
     @Inject(forwardRef(() => PlayersService))
     private playersService: PlayersService,
-    private playerBansService: PlayerBansService,
     private queueService: QueueService,
     private events: Events,
     @InjectModel(Game.name) private gameModel: Model<GameDocument>,
-    private readonly configurationService: ConfigurationService,
   ) {}
 
   onModuleInit() {
@@ -55,19 +51,6 @@ export class PlayerSubstitutionService implements OnModuleInit {
       this.events.substituteRequestCanceled,
       this.events.playerReplaced,
     ).subscribe(() => this.events.substituteRequestsChange.next());
-
-    this.events.substituteRequested.subscribe(async ({ gameId }) => {
-      const game = await this.gamesService.getById(gameId);
-      const threshold = await this.configurationService.get<number>(
-        'games.auto_force_end_threshold',
-      );
-      const subRequests = game.slots.filter(
-        (slot) => slot.status === SlotStatus.waitingForSubstitute,
-      ).length;
-      if (subRequests >= threshold) {
-        await this.gamesService.forceEnd(gameId);
-      }
-    });
   }
 
   async substitutePlayer(
