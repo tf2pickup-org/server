@@ -174,10 +174,15 @@ export class GamesController {
   async assignGameserver(
     @Param('id', GameByIdOrNumberPipe) game: Game,
     @Body(ValidationPipe) gameServerId: GameServerOptionIdentifier,
+    @User() admin: Player,
   ): Promise<Serializable<GameDto>> {
-    return await this.gameServerAssignerService.assignGameServer(game._id, {
-      id: gameServerId.id,
-      provider: gameServerId.provider,
-    });
+    return await this.gameServerAssignerService.assignGameServer(
+      game._id,
+      {
+        id: gameServerId.id,
+        provider: gameServerId.provider,
+      },
+      admin._id,
+    );
   }
 }

@@ -35,6 +35,10 @@ import {
   PlayerLeftGameServer,
   playerLeftGameServerSchema,
 } from './events/player-left-game-server';
+import {
+  GameServerAssigned,
+  gameServerAssignedSchema,
+} from './events/game-server-assigned';
 
 @Schema()
 export class Game extends Serializable<GameDto> {
@@ -64,6 +68,10 @@ export class Game extends Serializable<GameDto> {
         {
           value: GameEnded,
           name: GameEventType.gameEnded,
+        },
+        {
+          value: GameServerAssigned,
+          name: GameEventType.gameServerAssigned,
         },
         {
           value: GameServerInitialized,
@@ -107,6 +115,7 @@ export class Game extends Serializable<GameDto> {
     | GameCreated
     | GameStarted
     | GameEnded
+    | GameServerAssigned
     | GameServerInitialized
     | SubstituteRequested
     | PlayerReplaced
@@ -268,6 +277,10 @@ const events = gameSchema.path<MongooseSchema.Types.Subdocument>('events');
 events.discriminator(GameEventType.gameCreated, gameCreatedSchema);
 events.discriminator(GameEventType.gameStarted, gameStartedSchema);
 events.discriminator(GameEventType.gameEnded, gameEndedSchema);
+events.discriminator(
+  GameEventType.gameServerAssigned,
+  gameServerAssignedSchema,
+);
 events.discriminator(
   GameEventType.gameServerInitialized,
   gameServerInitializedSchema,

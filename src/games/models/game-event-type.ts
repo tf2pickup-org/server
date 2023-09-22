@@ -2,6 +2,8 @@ export enum GameEventType {
   gameCreated = 'created',
   gameStarted = 'started',
   gameEnded = 'ended',
+
+  gameServerAssigned = 'game server assigned',
   gameServerInitialized = 'game server initialized',
 
   substituteRequested = 'substitute requested',
