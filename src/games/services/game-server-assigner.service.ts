@@ -11,6 +11,8 @@ import { GameId } from '../game-id';
 import { Game } from '../models/game';
 import { GameServer } from '../models/game-server';
 import { GamesService } from './games.service';
+import { PlayerId } from '@/players/types/player-id';
+import { PlayersService } from '@/players/services/players.service';
 
 @Injectable()
 export class GameServerAssignerService implements OnModuleInit {
@@ -21,13 +23,15 @@ export class GameServerAssignerService implements OnModuleInit {
     private readonly gamesService: GamesService,
     private readonly gameServersService: GameServersService,
     private readonly events: Events,
+    private readonly playersService: PlayersService,
   ) {}
 
   onModuleInit() {
     // when a game is created, give it a gameserver
     this.events.gameCreated.subscribe(async ({ game }) => {
+      const bot = await this.playersService.findBot();
       try {
-        await this.assignGameServer(game._id);
+        await this.assignGameServer(game._id, undefined, bot._id);
       } catch (error) {
         this.logger.error(error);
       }
@@ -44,9 +48,10 @@ export class GameServerAssignerService implements OnModuleInit {
   async assignGameServer(
     gameId: GameId,
     gameServerId?: GameServerOptionIdentifier,
+    actorId?: PlayerId,
   ): Promise<Game> {
     return await this.mutex.runExclusive(
-      async () => await this.doAssignGameServer(gameId, gameServerId),
+      async () => await this.doAssignGameServer(gameId, gameServerId, actorId),
     );
   }
 
@@ -65,6 +70,7 @@ export class GameServerAssignerService implements OnModuleInit {
   private async doAssignGameServer(
     gameId: GameId,
     gameServerId?: GameServerOptionIdentifier,
+    actorId?: PlayerId,
   ): Promise<Game> {
     let game = await this.gamesService.getById(gameId);
     if (!game.isInProgress()) {
@@ -75,6 +81,7 @@ export class GameServerAssignerService implements OnModuleInit {
       game = await this.gameServersService.assignGameServer(
         game._id,
         gameServerId,
+        actorId,
       );
       this.logger.verbose(
         `using server ${(game.gameServer as GameServer).name} for game #${

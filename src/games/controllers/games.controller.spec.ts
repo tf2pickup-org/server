@@ -3,14 +3,11 @@ import { GamesController } from './games.controller';
 import { GamesService } from '../services/games.service';
 import { Game } from '../models/game';
 import { PlayerSubstitutionService } from '../services/player-substitution.service';
-import { UnauthorizedException } from '@nestjs/common';
 import { Player } from '@/players/models/player';
-import { PlayerNotInThisGameError } from '../errors/player-not-in-this-game.error';
 import { Events } from '@/events/events';
 import { GameServerAssignerService } from '../services/game-server-assigner.service';
 import { Types } from 'mongoose';
 import { PlayerId } from '@/players/types/player-id';
-import { GameId } from '../game-id';
 
 jest.mock('../services/player-substitution.service');
 jest.mock('../services/game-server-assigner.service');

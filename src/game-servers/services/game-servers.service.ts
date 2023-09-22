@@ -27,6 +27,8 @@ import { GameState } from '@/games/models/game-state';
 import { PlayerConnectionStatus } from '@/games/models/player-connection-status';
 import { GameServer } from '@/games/models/game-server';
 import { GameId } from '@/games/game-id';
+import { GameEventType } from '@/games/models/game-event-type';
+import { PlayerId } from '@/players/types/player-id';
 
 @Injectable()
 export class GameServersService
@@ -136,6 +138,7 @@ export class GameServersService
   async assignGameServer(
     gameId: GameId,
     gameServerId?: GameServerOptionIdentifier,
+    actorId?: PlayerId,
   ): Promise<Game> {
     return await this.mutex.runExclusive(async () => {
       let game = await this.gamesService.getById(gameId);
@@ -175,6 +178,14 @@ export class GameServersService
       game = await this.gamesService.update(game._id, {
         $set: {
           gameServer,
+        },
+        $push: {
+          events: {
+            event: GameEventType.gameServerAssigned,
+            at: new Date(),
+            actor: actorId,
+            gameServerName: gameServer.name,
+          },
         },
       });
       this.logger.log(

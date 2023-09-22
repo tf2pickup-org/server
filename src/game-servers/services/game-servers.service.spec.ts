@@ -24,6 +24,8 @@ import { PlayerConnectionStatus } from '@/games/models/player-connection-status'
 import { GameState } from '@/games/models/game-state';
 import { PlayerId } from '@/players/types/player-id';
 import { GameId } from '@/games/game-id';
+import { GameEventType } from '@/games/models/game-event-type';
+import { GameServerAssigned } from '@/games/models/events/game-server-assigned';
 
 jest.mock('@/games/services/games.service');
 
@@ -179,6 +181,20 @@ describe('GameServersService', () => {
       ).toHaveBeenCalledWith({
         gameId: game._id,
       });
+    });
+
+    it('should push the event', async () => {
+      const actorId = new Types.ObjectId() as PlayerId;
+      const newGame = await service.assignGameServer(
+        game._id,
+        undefined,
+        actorId,
+      );
+      const event = newGame.events.find(
+        (e) => e.event === GameEventType.gameServerAssigned,
+      ) as GameServerAssigned;
+      expect(event).toBeTruthy();
+      expect(event.actor!.equals(actorId)).toBe(true);
     });
 
     describe('when there are no free game servers', () => {

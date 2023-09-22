@@ -11,9 +11,14 @@ import { Game, gameSchema } from '../models/game';
 import { GameState } from '../models/game-state';
 import { GameServerAssignerService } from './game-server-assigner.service';
 import { GamesService } from './games.service';
+import { PlayersService } from '@/players/services/players.service';
+// eslint-disable-next-line jest/no-mocks-import
+import { PlayersService as MockedPlayersService } from '@/players/services/__mocks__/players.service';
+import { Player, PlayerDocument, playerSchema } from '@/players/models/player';
 
 jest.mock('./games.service');
 jest.mock('@/game-servers/services/game-servers.service');
+jest.mock('@/players/services/players.service');
 
 describe('GameServerAssignerService', () => {
   let service: GameServerAssignerService;
@@ -21,6 +26,8 @@ describe('GameServerAssignerService', () => {
   let gamesService: GamesService;
   let events: Events;
   let gameServersService: jest.Mocked<GameServersService>;
+  let playersService: MockedPlayersService;
+  let bot: PlayerDocument;
 
   beforeAll(async () => (mongod = await MongoMemoryServer.create()));
   afterAll(async () => await mongod.stop());
@@ -29,13 +36,17 @@ describe('GameServerAssignerService', () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [
         mongooseTestingModule(mongod),
-        MongooseModule.forFeature([{ name: Game.name, schema: gameSchema }]),
+        MongooseModule.forFeature([
+          { name: Game.name, schema: gameSchema },
+          { name: Player.name, schema: playerSchema },
+        ]),
       ],
       providers: [
         GameServerAssignerService,
         GamesService,
         GameServersService,
         Events,
+        PlayersService,
       ],
     }).compile();
 
@@ -43,9 +54,13 @@ describe('GameServerAssignerService', () => {
     gamesService = module.get(GamesService);
     events = module.get(Events);
     gameServersService = module.get(GameServersService);
+    playersService = module.get(PlayersService);
   });
 
-  beforeEach(() => {
+  beforeEach(async () => {
+    bot = await playersService._createOne();
+    playersService.findBot.mockResolvedValue(bot);
+
     gameServersService.assignGameServer.mockImplementation(
       async (gameId, gameServerId) => {
         return await gamesService.update(gameId, {
@@ -68,6 +83,7 @@ describe('GameServerAssignerService', () => {
   afterEach(async () => {
     // @ts-expect-error
     await gamesService._reset();
+    await playersService._reset();
   });
 
   it('should be defined', () => {
@@ -94,6 +110,11 @@ describe('GameServerAssignerService', () => {
         address: '127.0.0.1',
         port: 27015,
       });
+      expect(gameServersService.assignGameServer).toHaveBeenCalledWith(
+        game._id,
+        undefined,
+        bot._id,
+      );
     });
   });
 
@@ -116,6 +137,7 @@ describe('GameServerAssignerService', () => {
           id: 'FAKE_GAMESERVER_ID',
           provider: 'test',
         },
+        undefined,
       );
     });
 
