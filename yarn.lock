@@ -2587,14 +2587,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@redis/client@npm:1.5.10":
-  version: 1.5.10
-  resolution: "@redis/client@npm:1.5.10"
+"@redis/client@npm:1.5.11":
+  version: 1.5.11
+  resolution: "@redis/client@npm:1.5.11"
   dependencies:
     cluster-key-slot: 1.1.2
     generic-pool: 3.9.0
     yallist: 4.0.0
-  checksum: 114379a3731eaf59485a42db4890924619c09df3c3d3b77cff1300a1a76d63a9ce39330609eb194526cf3316c56f405499807eb9f45cc8dfac9449e2b6d9a342
+  checksum: 10f25a74f18b4e87299c11c014840895f387d217f1309a5208939e8bab8c95abecf2ca824f1cd0fe935b8972a18e0c4d6dd25640e742f4b30d38208515cf3a42
   languageName: node
   linkType: hard
 
@@ -11843,7 +11843,7 @@ __metadata:
     "@nestjs/serve-static": 4.0.0
     "@nestjs/testing": 10.2.5
     "@nestjs/websockets": 10.2.5
-    "@redis/client": 1.5.10
+    "@redis/client": 1.5.11
     "@release-it/conventional-changelog": 7.0.2
     "@tf2pickup-org/mumble-client": 0.7.3
     "@types/cache-manager": 4.0.3
