@@ -12,6 +12,7 @@
       "automerge": true
     }
   ],
+  "automergeType": "branch",
   "labels": ["renovate"],
   "ignoreDeps": ["mongo"]
 }
