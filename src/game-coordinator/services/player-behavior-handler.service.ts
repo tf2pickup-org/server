@@ -50,6 +50,7 @@ export class PlayerBehaviorHandlerService {
               game._id,
               player._id,
               bot._id,
+              'Player is offline',
             );
 
             const gameEnds = this.events.gameChanges.pipe(

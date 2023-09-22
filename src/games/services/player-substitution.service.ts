@@ -58,7 +58,8 @@ export class PlayerSubstitutionService implements OnModuleInit {
   async substitutePlayer(
     gameId: GameId,
     playerId: PlayerId,
-    adminId?: PlayerId,
+    actorId: PlayerId,
+    reason?: string,
   ) {
     return await this.mutex.runExclusive(async () => {
       const game = await this.gamesService.getById(gameId);
@@ -80,6 +81,8 @@ export class PlayerSubstitutionService implements OnModuleInit {
       }
 
       const player = await this.playersService.getById(playerId);
+      const actor = await this.playersService.getById(actorId);
+
       const newGame = plainToInstance(
         Game,
         await this.gameModel
@@ -94,6 +97,8 @@ export class PlayerSubstitutionService implements OnModuleInit {
                   event: GameEventType.substituteRequested,
                   at: new Date(),
                   player: player._id,
+                  actor: actor._id,
+                  reason,
                 },
               },
             },
@@ -107,12 +112,18 @@ export class PlayerSubstitutionService implements OnModuleInit {
           .exec(),
       );
 
-      this.logger.debug(
-        `player ${player.name} taking part in game #${game.number} is marked as 'waiting for substitute'`,
+      this.logger.log(
+        `player ${player.name} taking part in game #${
+          game.number
+        } is subbed by ${actor.name}${reason ? ` (reason: ${reason})` : ''}`,
       );
 
       this.events.gameChanges.next({ oldGame: game, newGame });
-      this.events.substituteRequested.next({ gameId, playerId, adminId });
+      this.events.substituteRequested.next({
+        gameId,
+        playerId,
+        adminId: actorId,
+      });
       return newGame;
     });
   }

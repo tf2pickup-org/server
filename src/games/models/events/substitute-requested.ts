@@ -12,6 +12,13 @@ export class SubstituteRequested extends GameEvent {
   @TransformObjectId()
   @Prop({ required: true, type: Types.ObjectId, ref: 'Player', index: true })
   player!: PlayerId;
+
+  @TransformObjectId()
+  @Prop({ type: Types.ObjectId, ref: 'Player' })
+  actor?: PlayerId;
+
+  @Prop()
+  reason?: string;
 }
 
 export const substituteRequestedSchema =
