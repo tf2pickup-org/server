@@ -40,6 +40,7 @@ describe('PlayerSubstitutionService', () => {
   let player1: PlayerDocument;
   let player2: PlayerDocument;
   let player3: PlayerDocument;
+  let actor: PlayerDocument;
   let mockGame: GameDocument;
   let events: Events;
   let connection: Connection;
@@ -83,6 +84,8 @@ describe('PlayerSubstitutionService', () => {
     // @ts-expect-error
     player3 = await playersService._createOne();
     // @ts-expect-error
+    actor = await playersService._createOne();
+    // @ts-expect-error
     mockGame = await gamesService._createOne([player1, player2]);
 
     mockGame.gameServer = {
@@ -111,7 +114,11 @@ describe('PlayerSubstitutionService', () => {
     describe('when the given game does not exist', () => {
       it('should throw an error', async () => {
         await expect(
-          service.substitutePlayer(new Types.ObjectId() as GameId, player1._id),
+          service.substitutePlayer(
+            new Types.ObjectId() as GameId,
+            player1._id,
+            actor._id,
+          ),
         ).rejects.toThrow(Error.DocumentNotFoundError);
       });
     });
@@ -122,6 +129,7 @@ describe('PlayerSubstitutionService', () => {
           service.substitutePlayer(
             mockGame._id,
             new Types.ObjectId() as PlayerId,
+            actor._id,
           ),
         ).rejects.toThrow(PlayerNotInThisGameError);
       });
@@ -129,19 +137,23 @@ describe('PlayerSubstitutionService', () => {
 
     describe('when the target player has already been replaced', () => {
       beforeEach(async () => {
-        await service.substitutePlayer(mockGame._id, player1._id);
+        await service.substitutePlayer(mockGame._id, player1._id, actor._id);
         await service.replacePlayer(mockGame._id, player1._id, player3._id);
       });
 
       it('should throw an error', async () => {
         await expect(
-          service.substitutePlayer(mockGame._id, player1._id),
+          service.substitutePlayer(mockGame._id, player1._id, actor._id),
         ).rejects.toThrow(WrongGameSlotStatusError);
       });
     });
 
     it('should update the player status', async () => {
-      const game = await service.substitutePlayer(mockGame._id, player1._id);
+      const game = await service.substitutePlayer(
+        mockGame._id,
+        player1._id,
+        actor._id,
+      );
       expect(game._id).toEqual(mockGame._id);
       const slot = game.findPlayerSlot(player1._id);
       expect(slot?.status).toEqual(SlotStatus.waitingForSubstitute);
@@ -153,17 +165,22 @@ describe('PlayerSubstitutionService', () => {
         event = game;
       });
 
-      await service.substitutePlayer(mockGame._id, player1._id);
+      await service.substitutePlayer(mockGame._id, player1._id, actor._id);
       expect(event?._id.equals(mockGame._id)).toBe(true);
     });
 
     it('should register event', async () => {
-      const game = await service.substitutePlayer(mockGame._id, player1._id);
+      const game = await service.substitutePlayer(
+        mockGame._id,
+        player1._id,
+        actor._id,
+      );
       expect(
         game.events.find(
           (event) =>
             event.event === GameEventType.substituteRequested &&
-            (event as SubstituteRequested).player.equals(player1._id),
+            (event as SubstituteRequested).player.equals(player1._id) &&
+            (event as SubstituteRequested).actor?.equals(actor._id),
         ),
       ).toBeTruthy();
     });
@@ -177,7 +194,7 @@ describe('PlayerSubstitutionService', () => {
 
       it('should reject', async () => {
         await expect(
-          service.substitutePlayer(mockGame._id, player1._id),
+          service.substitutePlayer(mockGame._id, player1._id, actor._id),
         ).rejects.toThrow(GameInWrongStateError);
       });
     });
@@ -190,21 +207,29 @@ describe('PlayerSubstitutionService', () => {
         emittedPlayerId = playerId;
       });
 
-      await service.substitutePlayer(mockGame._id, player1._id);
+      await service.substitutePlayer(mockGame._id, player1._id, actor._id);
       expect(emittedGameId).toEqual(mockGame._id);
       expect(emittedPlayerId).toEqual(player1._id);
     });
 
     it('should do nothing if the player is already marked', async () => {
-      const game1 = await service.substitutePlayer(mockGame._id, player1._id);
-      const game2 = await service.substitutePlayer(mockGame._id, player1._id);
+      const game1 = await service.substitutePlayer(
+        mockGame._id,
+        player1._id,
+        actor._id,
+      );
+      const game2 = await service.substitutePlayer(
+        mockGame._id,
+        player1._id,
+        actor._id,
+      );
       expect(game1._id).toEqual(game2._id);
     });
   });
 
   describe('#cancelSubstitutionRequest()', () => {
     beforeEach(async () => {
-      await service.substitutePlayer(mockGame._id, player1._id);
+      await service.substitutePlayer(mockGame._id, player1._id, actor._id);
     });
 
     describe('when the given game does not exist', () => {
@@ -291,7 +316,7 @@ describe('PlayerSubstitutionService', () => {
 
   describe('#replacePlayer()', () => {
     beforeEach(async () => {
-      await service.substitutePlayer(mockGame._id, player1._id);
+      await service.substitutePlayer(mockGame._id, player1._id, actor._id);
     });
 
     it('should replace the player', async () => {
@@ -447,7 +472,7 @@ describe('PlayerSubstitutionService', () => {
     describe('when a player1 gets replaced, but then player2 leaves', () => {
       beforeEach(async () => {
         await service.replacePlayer(mockGame._id, player1._id, player3._id);
-        await service.substitutePlayer(mockGame._id, player2._id);
+        await service.substitutePlayer(mockGame._id, player2._id, actor._id);
       });
 
       it("player1 should be able to take player2's slot", async () => {
