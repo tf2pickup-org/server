@@ -7,7 +7,6 @@ import {
 } from '@nestjs/common';
 import { GamesService } from './games.service';
 import { PlayersService } from '@/players/services/players.service';
-import { PlayerBansService } from '@/players/services/player-bans.service';
 import { QueueService } from '@/queue/services/queue.service';
 import { Events } from '@/events/events';
 import { SlotStatus } from '../models/slot-status';
@@ -40,7 +39,6 @@ export class PlayerSubstitutionService implements OnModuleInit {
     @Inject(forwardRef(() => GamesService)) private gamesService: GamesService,
     @Inject(forwardRef(() => PlayersService))
     private playersService: PlayersService,
-    private playerBansService: PlayerBansService,
     private queueService: QueueService,
     private events: Events,
     @InjectModel(Game.name) private gameModel: Model<GameDocument>,

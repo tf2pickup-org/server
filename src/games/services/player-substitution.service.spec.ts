@@ -2,7 +2,6 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { PlayerSubstitutionService } from './player-substitution.service';
 import { GamesService } from './games.service';
 import { PlayersService } from '@/players/services/players.service';
-import { PlayerBansService } from '@/players/services/player-bans.service';
 import { QueueService } from '@/queue/services/queue.service';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { Player, PlayerDocument, playerSchema } from '@/players/models/player';
@@ -29,7 +28,6 @@ import { PlayerDeniedError } from '@/shared/errors/player-denied.error';
 
 jest.mock('@/players/services/players.service');
 jest.mock('./games.service');
-jest.mock('@/players/services/player-bans.service');
 jest.mock('../gateways/games.gateway');
 jest.mock('@/queue/services/queue.service');
 
@@ -38,7 +36,6 @@ describe('PlayerSubstitutionService', () => {
   let mongod: MongoMemoryServer;
   let gamesService: GamesService;
   let playersService: PlayersService;
-  let playerBansService: PlayerBansService;
   let queueService: jest.Mocked<QueueService>;
   let player1: PlayerDocument;
   let player2: PlayerDocument;
@@ -64,7 +61,6 @@ describe('PlayerSubstitutionService', () => {
         PlayerSubstitutionService,
         GamesService,
         PlayersService,
-        PlayerBansService,
         QueueService,
         Events,
       ],
@@ -73,7 +69,6 @@ describe('PlayerSubstitutionService', () => {
     service = module.get<PlayerSubstitutionService>(PlayerSubstitutionService);
     gamesService = module.get(GamesService);
     playersService = module.get(PlayersService);
-    playerBansService = module.get(PlayerBansService);
     queueService = module.get(QueueService);
     events = module.get(Events);
     connection = module.get(getConnectionToken());
@@ -98,8 +93,6 @@ describe('PlayerSubstitutionService', () => {
       port: 27015,
     };
     await mockGame.save();
-
-    playerBansService.getPlayerActiveBans = () => Promise.resolve([]);
   });
 
   afterEach(async () => {
