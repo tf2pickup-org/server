@@ -1,5 +1,23 @@
 
 
+# [11.1.0](https://github.com/tf2pickup-org/server/compare/11.0.0...11.1.0) (2023-09-23)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @redis/client to v1.5.10 ([#2639](https://github.com/tf2pickup-org/server/issues/2639)) ([d6cd690](https://github.com/tf2pickup-org/server/commit/d6cd690e1baa5775c462e2b5d881276e71434731))
+* **deps:** update dependency @redis/client to v1.5.11 ([b3e34b6](https://github.com/tf2pickup-org/server/commit/b3e34b6a2df80270402623d4cce8ee68b215bfe9))
+* **deps:** update dependency mongodb to v6 ([#2592](https://github.com/tf2pickup-org/server/issues/2592)) ([f8b7f82](https://github.com/tf2pickup-org/server/commit/f8b7f82f4ddca388760450e04ff39f678752d971))
+* **deps:** update nest monorepo to v10.2.6 ([#2644](https://github.com/tf2pickup-org/server/issues/2644)) ([8ea3dab](https://github.com/tf2pickup-org/server/commit/8ea3dab4b6f6745d104450b20152de89117d6ac4))
+
+
+### Features
+
+* **games:** add GameServerAssigned event ([#2646](https://github.com/tf2pickup-org/server/issues/2646)) ([fdc5351](https://github.com/tf2pickup-org/server/commit/fdc5351dca5d3fb4568e720efb8091154b1473f1))
+* **games:** add substitute request actor ([#2645](https://github.com/tf2pickup-org/server/issues/2645)) ([22efbe5](https://github.com/tf2pickup-org/server/commit/22efbe58a5e58c37f2836c546b1b1a0682b8a0fd))
+* **games:** force-end games automatically ([#2473](https://github.com/tf2pickup-org/server/issues/2473)) ([174baa2](https://github.com/tf2pickup-org/server/commit/174baa2c7cd1ab5f6ba6bb1a170c029e4b4b6e84))
+* **queue:** add player skill threshold ([#2635](https://github.com/tf2pickup-org/server/issues/2635)) ([ccc3208](https://github.com/tf2pickup-org/server/commit/ccc320852dc9680cca7480056a921e1ecf15b14b))
+
 # [11.0.0](https://github.com/tf2pickup-org/server/compare/11.0.0-rc.2...11.0.0) (2023-09-19)
 
 
