@@ -2178,17 +2178,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nestjs/schedule@npm:3.0.3":
-  version: 3.0.3
-  resolution: "@nestjs/schedule@npm:3.0.3"
+"@nestjs/schedule@npm:3.0.4":
+  version: 3.0.4
+  resolution: "@nestjs/schedule@npm:3.0.4"
   dependencies:
-    cron: 2.4.1
-    uuid: 9.0.0
+    cron: 2.4.3
+    uuid: 9.0.1
   peerDependencies:
     "@nestjs/common": ^8.0.0 || ^9.0.0 || ^10.0.0
     "@nestjs/core": ^8.0.0 || ^9.0.0 || ^10.0.0
     reflect-metadata: ^0.1.12
-  checksum: 21d4a853d893a514dbbc76b278e10908f6376fef1d37beb8213ed6a15bc3f66d0f0f3150cd98634ded39c1d7103223c346915f776349b40d1adc57bab6d6bbbf
+  checksum: 5dfb877fcb27e672df3e8ee5eff8ffb45edb91828814fb288caf0ba6268a525315deb41b01de34731e434acf9494e80d056c0b753bc3a07123f50ee9990681a4
   languageName: node
   linkType: hard
 
@@ -3172,6 +3172,13 @@ __metadata:
   version: 4.14.199
   resolution: "@types/lodash@npm:4.14.199"
   checksum: e68d1fcbbfce953ed87b296a628573f62939227bcda0c934954e862b421e8a34c5e71cad6fea27b9980567909e6a4698f09025692958e36d64ea9ed99ec6fb2e
+  languageName: node
+  linkType: hard
+
+"@types/luxon@npm:~3.3.0":
+  version: 3.3.2
+  resolution: "@types/luxon@npm:3.3.2"
+  checksum: b9111132720eae0269538872a5a496b29587ecfc8edc3b0ff7d269aa93a5ff00a131b23d1e9d1f12ec39f2c779ad21bd8d9f90b122c85a182771aabde7f676b8
   languageName: node
   linkType: hard
 
@@ -5510,12 +5517,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cron@npm:2.4.1":
-  version: 2.4.1
-  resolution: "cron@npm:2.4.1"
+"cron@npm:2.4.3":
+  version: 2.4.3
+  resolution: "cron@npm:2.4.3"
   dependencies:
-    luxon: ^3.2.1
-  checksum: a421a837f99cf18da2f51e3608610f71817c38e6f756b4c85a26f64521dac327ac79861ae3dcf991076f72f3be0daadfffd413b4be0c3b4b029509b89e86b6d4
+    "@types/luxon": ~3.3.0
+    luxon: ~3.3.0
+  checksum: cb0ad49653b37ba125f8670ca92150ce515493512b1b8a5e08086d22bec9c54dc6d8926fcdb49ea5783f6699862ca5fdc532a440ce33c3228f9b3d565010db2f
   languageName: node
   linkType: hard
 
@@ -9498,10 +9506,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"luxon@npm:^3.2.1":
-  version: 3.2.1
-  resolution: "luxon@npm:3.2.1"
-  checksum: 3fa3def2c5f5d3032b4c46220c4da8aeb467ac979888fc9d2557adcd22195f93516b4ad5909a75862bec8dc6ddc0953b0f38e6d2f4a8ab8450ddc531a83cf20d
+"luxon@npm:~3.3.0":
+  version: 3.3.0
+  resolution: "luxon@npm:3.3.0"
+  checksum: 50cf17a0dc155c3dcacbeae8c0b7e80db425e0ba97b9cbdf12a7fc142d841ff1ab1560919f033af46240ed44e2f70c49f76e3422524c7fc8bb8d81ca47c66187
   languageName: node
   linkType: hard
 
@@ -11838,7 +11846,7 @@ __metadata:
     "@nestjs/passport": 10.0.2
     "@nestjs/platform-express": 10.2.6
     "@nestjs/platform-socket.io": 10.2.6
-    "@nestjs/schedule": 3.0.3
+    "@nestjs/schedule": 3.0.4
     "@nestjs/schematics": 10.0.2
     "@nestjs/serve-static": 4.0.0
     "@nestjs/testing": 10.2.6
@@ -13229,6 +13237,15 @@ __metadata:
   bin:
     uuid: dist/bin/uuid
   checksum: 8dd2c83c43ddc7e1c71e36b60aea40030a6505139af6bee0f382ebcd1a56f6cd3028f7f06ffb07f8cf6ced320b76aea275284b224b002b289f89fe89c389b028
+  languageName: node
+  linkType: hard
+
+"uuid@npm:9.0.1":
+  version: 9.0.1
+  resolution: "uuid@npm:9.0.1"
+  bin:
+    uuid: dist/bin/uuid
+  checksum: 39931f6da74e307f51c0fb463dc2462807531dc80760a9bff1e35af4316131b4fc3203d16da60ae33f07fdca5b56f3f1dd662da0c99fea9aaeab2004780cc5f4
   languageName: node
   linkType: hard
 
