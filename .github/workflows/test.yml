@@ -16,7 +16,7 @@ on:
 jobs:
   unit-tests:
     name: unit
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
 
     strategy:
       matrix:
@@ -44,7 +44,7 @@ jobs:
 
   e2e-tests:
     name: end-to-end
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
 
     strategy:
       fail-fast: false
@@ -127,6 +127,12 @@ jobs:
       - name: Install dependencies
         run: yarn install --immutable
 
+      - name: Setup mongodb-tools
+        run: |
+          wget https://fastdl.mongodb.org/tools/db/mongodb-database-tools-ubuntu2204-x86_64-100.6.1.deb
+          sudo apt install ./mongodb-database-tools-*-100.6.1.deb
+          mongorestore --version
+
       - name: Restore database dump for e2e tests
         run: mongorestore mongodb://localhost:27017 --quiet e2e/dump/
 
@@ -160,7 +166,7 @@ jobs:
   # Start the app with a clean database and verify it doesn't crash
   fresh-start:
     name: fresh-start
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
 
     strategy:
       matrix:
@@ -211,7 +217,7 @@ jobs:
 
   build:
     name: build
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
 
     strategy:
       matrix:
