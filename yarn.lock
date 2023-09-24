@@ -3279,12 +3279,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/passport@npm:1.0.12":
-  version: 1.0.12
-  resolution: "@types/passport@npm:1.0.12"
+"@types/passport@npm:1.0.13":
+  version: 1.0.13
+  resolution: "@types/passport@npm:1.0.13"
   dependencies:
     "@types/express": "*"
-  checksum: 2bce41b248566d8c2aeafcb38f105e3521d42a572e92da9edc5eb669f1b3cb02e5911c9d124191f67d432b677562a885b6ad7f56320c712df1e87ba7619eb8a4
+  checksum: 84330bedb330302ffd92b009b9b88eb20d3c66b659b383badb9aa3035612b40b47052153858b2498a95d9979d668443bdee3182345819cb18635dfb7f24c109c
   languageName: node
   linkType: hard
 
@@ -12096,7 +12096,7 @@ __metadata:
     "@types/mongoose": 5.11.96
     "@types/multer": ^1.4.7
     "@types/node": 18.17.19
-    "@types/passport": 1.0.12
+    "@types/passport": 1.0.13
     "@types/passport-jwt": 3.0.9
     "@types/passport-steam": 1.0.1
     "@types/pem": 1.14.1
