@@ -3375,12 +3375,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/socketio-jwt-auth@npm:0.0.2":
-  version: 0.0.2
-  resolution: "@types/socketio-jwt-auth@npm:0.0.2"
+"@types/socketio-jwt-auth@npm:0.0.3":
+  version: 0.0.3
+  resolution: "@types/socketio-jwt-auth@npm:0.0.3"
   dependencies:
     "@types/socket.io": 2.1.13
-  checksum: 434059a10c6df202955d63191545d20c61b012baa3b10cd4b87bbdc6b0832893a594df1e0f18052951bdd8b9db703c0276524e54341a239915d187bc857d94bb
+  checksum: bdda187b0c0a6fed2caf0632a7d9d891e253d0bc790c5c822d7bbc90fd62d856fc736e74e104a1e61448c8622aabdd298725b7b67893336ebe43844ec42faf63
   languageName: node
   linkType: hard
 
@@ -12101,7 +12101,7 @@ __metadata:
     "@types/passport-steam": 1.0.2
     "@types/pem": 1.14.2
     "@types/socket.io": 3.0.1
-    "@types/socketio-jwt-auth": 0.0.2
+    "@types/socketio-jwt-auth": 0.0.3
     "@types/steamid": 2.0.1
     "@types/supertest": 2.0.13
     "@typescript-eslint/eslint-plugin": 6.7.2

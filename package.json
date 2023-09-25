@@ -94,7 +94,7 @@
     "@types/passport-steam": "1.0.2",
     "@types/pem": "1.14.2",
     "@types/socket.io": "3.0.1",
-    "@types/socketio-jwt-auth": "0.0.2",
+    "@types/socketio-jwt-auth": "0.0.3",
     "@types/steamid": "2.0.1",
     "@types/supertest": "2.0.13",
     "@typescript-eslint/eslint-plugin": "6.7.2",
