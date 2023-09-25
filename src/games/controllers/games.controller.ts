@@ -33,6 +33,7 @@ import { PlayerByIdPipe } from '@/players/pipes/player-by-id.pipe';
 import { GameServerOptionIdentifier } from '../dto/game-server-option-identifier';
 import { PlayerNotInThisGameErrorFilter } from '../filters/player-not-in-this-game-error.filter';
 import { GameInWrongStateErrorFilter } from '../filters/game-in-wrong-state-error.filter';
+import { GameEventDto } from '../dto/game-event.dto';
 
 @Controller('games')
 export class GamesController {
@@ -105,6 +106,14 @@ export class GamesController {
         joinGameServerTimeout: new Date(joinGameServerTimeout).toISOString(),
       }),
     };
+  }
+
+  @Get(':id/events')
+  async getEvents(
+    @Param('id', GameByIdOrNumberPipe) game: Game,
+  ): Promise<Serializable<GameEventDto>[]> {
+    // return await gameEventsToDto(game.events);
+    return game.events;
   }
 
   // skipcq: JS-0105
