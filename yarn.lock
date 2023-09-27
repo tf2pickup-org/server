@@ -11624,9 +11624,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"release-it@npm:16.2.0":
-  version: 16.2.0
-  resolution: "release-it@npm:16.2.0"
+"release-it@npm:16.2.1":
+  version: 16.2.1
+  resolution: "release-it@npm:16.2.1"
   dependencies:
     "@iarna/toml": 2.2.5
     "@octokit/rest": 19.0.13
@@ -11657,7 +11657,7 @@ __metadata:
     yargs-parser: 21.1.1
   bin:
     release-it: bin/release-it.js
-  checksum: e358ded62af12c0d8eb5d455c49cbddf2deba111c77ca766bffdf58cd50fb5131908a29f2ff78ca9b8b2eafa9403b3a2bde3f57a1db730bcc2fef5a9023a4bef
+  checksum: f2a3a8c8957372032cd2a523f698e7876c78e9e338345728bb3f303b1b19508991c764481dcd35cfb88d0d3620cbf3ed4dd5004271e94be6de90144526510bad
   languageName: node
   linkType: hard
 
@@ -12132,7 +12132,7 @@ __metadata:
     prettier: 3.0.3
     rcon-client: 4.2.3
     reflect-metadata: 0.1.13
-    release-it: 16.2.0
+    release-it: 16.2.1
     rimraf: 5.0.4
     rxjs: 7.8.1
     socket.io-client: 4.7.2
