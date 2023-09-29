@@ -53,7 +53,9 @@ export class GameEventHandlerService implements OnModuleInit, OnModuleDestroy {
         } catch (error) {
           if (error instanceof Error.DocumentNotFoundError) {
             // player was not found
-            this.logger.error(`player ${steamId} is not registered`);
+            this.logger.log(
+              `player ${steamId} joined the gameserver, but they are not registered`,
+            );
           } else {
             throw error;
           }
@@ -66,7 +68,9 @@ export class GameEventHandlerService implements OnModuleInit, OnModuleDestroy {
       } catch (error) {
         if (error instanceof Error.DocumentNotFoundError) {
           // player was not found
-          this.logger.error(`player ${steamId} is not registered`);
+          this.logger.log(
+            `player ${steamId} joined a team, but they are not registered`,
+          );
         } else {
           throw error;
         }
@@ -79,7 +83,9 @@ export class GameEventHandlerService implements OnModuleInit, OnModuleDestroy {
         } catch (error) {
           if (error instanceof Error.DocumentNotFoundError) {
             // player was not found
-            this.logger.error(`player ${steamId} is not registered`);
+            this.logger.log(
+              `player ${steamId} disconnected, but they are not registered`,
+            );
           } else {
             throw error;
           }
