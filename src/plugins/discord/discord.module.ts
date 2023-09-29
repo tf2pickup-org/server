@@ -9,6 +9,7 @@ import { AdminNotificationsService } from './services/admin-notifications.servic
 import { PlayersModule } from '@/players/players.module';
 import { GameServersModule } from '@/game-servers/game-servers.module';
 import { GamesModule } from '@/games/games.module';
+import { QueuePromptsService } from './services/queue-prompts.service';
 
 const discordClientProvider: Provider = {
   provide: 'DISCORD_CLIENT',
@@ -42,6 +43,7 @@ const discordClientProvider: Provider = {
     DiscordService,
     DiscordConfigurationService,
     AdminNotificationsService,
+    QueuePromptsService,
   ],
   exports: [DiscordService],
   controllers: [DiscordController],
