@@ -1,5 +1,17 @@
 
 
+## [11.1.1](https://github.com/tf2pickup-org/server/compare/11.1.0...11.1.1) (2023-09-29)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @nestjs/schedule to v3.0.4 ([#2643](https://github.com/tf2pickup-org/server/issues/2643)) ([aa98710](https://github.com/tf2pickup-org/server/commit/aa987100ae8e981645c7ad9fc154d7398e392231))
+* **deps:** update dependency axios to v1.5.1 ([#2653](https://github.com/tf2pickup-org/server/issues/2653)) ([d9f68f2](https://github.com/tf2pickup-org/server/commit/d9f68f25877b5fd5b7700845182cbc1112637091))
+* **deps:** update dependency mongoose to v7.5.3 ([#2650](https://github.com/tf2pickup-org/server/issues/2650)) ([a5b8fbc](https://github.com/tf2pickup-org/server/commit/a5b8fbc085de01521f3b7b369825cdc8d8de4ae2))
+* **deps:** update dependency rimraf to v5.0.4 ([#2651](https://github.com/tf2pickup-org/server/issues/2651)) ([1857b9b](https://github.com/tf2pickup-org/server/commit/1857b9ba2151ebdc37a3b52d3cf26814e0105627))
+* **deps:** update dependency rimraf to v5.0.5 ([56e457c](https://github.com/tf2pickup-org/server/commit/56e457ca6ff6587c4e3114b16a464652e7f70aee))
+* **games:** less verbose log lines on player join ([#2654](https://github.com/tf2pickup-org/server/issues/2654)) ([aac9413](https://github.com/tf2pickup-org/server/commit/aac9413360eb2564dadf2d6a18d85a5872d7f6f4))
+
 # [11.1.0](https://github.com/tf2pickup-org/server/compare/11.0.0...11.1.0) (2023-09-23)
 
 
