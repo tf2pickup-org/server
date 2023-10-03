@@ -26,9 +26,11 @@ interface QueueSlotData {
   playerId: PlayerId | null;
 }
 
+const queuePromptMessageIdCacheKey = (guildId: string) =>
+  `queue_prompt_message_id/${guildId}`;
+
 @Injectable()
 export class QueuePromptsService implements OnModuleInit {
-  private readonly queuePromptMessageIdCacheKey = 'queue_prompt_message_id';
   private readonly logger = new Logger(QueuePromptsService.name);
 
   constructor(
@@ -156,7 +158,7 @@ export class QueuePromptsService implements OnModuleInit {
     }
 
     const messageId = await this.cache.get<string>(
-      this.queuePromptMessageIdCacheKey,
+      queuePromptMessageIdCacheKey(guild.id),
     );
 
     const message = await this.getMessage(channel, messageId);
@@ -168,7 +170,7 @@ export class QueuePromptsService implements OnModuleInit {
     if (thresholdMet()) {
       const sentMessage = await channel.send(content);
       await this.cache.set(
-        this.queuePromptMessageIdCacheKey,
+        queuePromptMessageIdCacheKey(guild.id),
         sentMessage.id,
         0,
       );
