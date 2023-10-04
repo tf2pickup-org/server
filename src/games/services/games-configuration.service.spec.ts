@@ -9,7 +9,22 @@ describe('GamesConfigurationService', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [GamesConfigurationService, ConfigurationService],
+      providers: [
+        GamesConfigurationService,
+        ConfigurationService,
+        {
+          provide: 'QUEUE_CONFIG',
+          useValue: {
+            classes: [
+              { name: 'scout', count: 2 },
+              { name: 'soldier', count: 2 },
+              { name: 'demoman', count: 1 },
+              { name: 'medic', count: 1 },
+            ],
+            teamCount: 2,
+          },
+        },
+      ],
     }).compile();
 
     service = module.get<GamesConfigurationService>(GamesConfigurationService);
