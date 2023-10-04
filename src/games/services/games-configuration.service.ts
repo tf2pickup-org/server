@@ -1,23 +1,42 @@
 import { configurationEntry } from '@/configuration/configuration-entry';
 import { ConfigurationService } from '@/configuration/services/configuration.service';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
-import { Injectable, OnModuleInit } from '@nestjs/common';
+import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
 import { milliseconds } from 'date-fns';
 import { z } from 'zod';
 import { LogsTfUploadMethod } from '../logs-tf-upload-method';
 import { VoiceServerType } from '../voice-server-type';
+import { QueueConfig } from '@/queue-config/interfaces/queue-config';
 
 @Injectable()
 export class GamesConfigurationService implements OnModuleInit {
-  constructor(private readonly configurationService: ConfigurationService) {}
+  private readonly validClasses = this.queueConfig.classes.map(
+    (gameClass) => gameClass.name,
+  );
+
+  constructor(
+    private readonly configurationService: ConfigurationService,
+    @Inject('QUEUE_CONFIG')
+    private readonly queueConfig: QueueConfig,
+  ) {}
 
   onModuleInit() {
     this.configurationService.register(
       configurationEntry(
         'games.default_player_skill',
-        z.record(z.nativeEnum(Tf2ClassName), z.number()),
+        z
+          .record(z.nativeEnum(Tf2ClassName), z.number())
+          .refine(
+            (arg) =>
+              Object.keys(arg).every((value) =>
+                this.validClasses.includes(value as Tf2ClassName),
+              ),
+            {
+              message: 'invalid gameClass name',
+            },
+          ),
         Object.fromEntries(
-          Object.values(Tf2ClassName).map((className) => [className, 1]),
+          this.validClasses.map((className) => [className, 1]),
         ),
       ),
       configurationEntry(
