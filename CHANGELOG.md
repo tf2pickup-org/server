@@ -1,5 +1,13 @@
 
 
+## [11.1.2](https://github.com/tf2pickup-org/server/compare/11.1.1...11.1.2) (2023-10-04)
+
+
+### Bug Fixes
+
+* **deps:** update dependency zod to v3.22.3 [security] ([#2656](https://github.com/tf2pickup-org/server/issues/2656)) ([9245d79](https://github.com/tf2pickup-org/server/commit/9245d79c94c821d48ee049f73c2ee1160068a7d9))
+* **games:** respect queue config in default player skill ([#2658](https://github.com/tf2pickup-org/server/issues/2658)) ([655d5b8](https://github.com/tf2pickup-org/server/commit/655d5b8961a3853d612883bbaf03f50d5b68b447))
+
 ## [11.1.1](https://github.com/tf2pickup-org/server/compare/11.1.0...11.1.1) (2023-09-29)
 
 
