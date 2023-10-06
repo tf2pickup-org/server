@@ -4705,7 +4705,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cache-manager@npm:5.2.3, cache-manager@npm:^5.2.2":
+"cache-manager@npm:5.2.4":
+  version: 5.2.4
+  resolution: "cache-manager@npm:5.2.4"
+  dependencies:
+    lodash.clonedeep: ^4.5.0
+    lru-cache: ^10.0.1
+  checksum: 8676f06d98b1c6cdcd5f6517e55a4f0ddb8108f2fbab0689dabe95a9a94bad00fa795e4cbcad73e686ba1943e6fcd595802550a9fe17d083ea6fdb0e08cb7688
+  languageName: node
+  linkType: hard
+
+"cache-manager@npm:^5.2.2":
   version: 5.2.3
   resolution: "cache-manager@npm:5.2.3"
   dependencies:
@@ -12095,7 +12105,7 @@ __metadata:
     app-root-path: 3.1.0
     async-mutex: 0.4.0
     axios: 1.5.1
-    cache-manager: 5.2.3
+    cache-manager: 5.2.4
     cache-manager-redis-yet: 4.1.2
     class-transformer: 0.5.1
     class-validator: 0.14.0
