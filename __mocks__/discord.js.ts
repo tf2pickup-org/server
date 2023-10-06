@@ -1,6 +1,6 @@
 import { EventEmitter } from 'events';
 
-const { Collection, EmbedBuilder, GatewayIntentBits } =
+const { Collection, EmbedBuilder, GatewayIntentBits, ChannelType } =
   jest.requireActual('discord.js');
 
 export class ChannelManager {
@@ -17,6 +17,7 @@ export class TextChannel {
   constructor(public name: string) {}
 
   isTextBased = jest.fn().mockReturnValue(true);
+  type = ChannelType.GuildText;
   send = jest.fn().mockImplementation(() => Promise.resolve(new Message()));
 }
 
@@ -37,9 +38,7 @@ export class Guild {
 
   available = true;
 
-  channels = {
-    cache: new Collection(),
-  };
+  channels = new ChannelManager();
 
   roles = {
     cache: new Collection(),
@@ -75,4 +74,4 @@ export class Client extends EventEmitter {
   }
 }
 
-export { EmbedBuilder, GatewayIntentBits };
+export { ChannelType, EmbedBuilder, GatewayIntentBits };
