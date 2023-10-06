@@ -3,17 +3,22 @@ import { EventEmitter } from 'events';
 const { Collection, EmbedBuilder, GatewayIntentBits } =
   jest.requireActual('discord.js');
 
+export class ChannelManager {
+  cache = new Collection();
+
+  resolve = jest
+    .fn()
+    .mockImplementation((resolvable) => this.cache.get(resolvable));
+}
+
 export class Message {}
 
 export class TextChannel {
   constructor(public name: string) {}
-  send(message: string) {
-    return Promise.resolve(new Message());
-  }
-}
 
-export const playersChannel = new TextChannel('players');
-export const adminChannel = new TextChannel('admins');
+  isTextBased = jest.fn().mockReturnValue(true);
+  send = jest.fn().mockImplementation(() => Promise.resolve(new Message()));
+}
 
 export class Role {
   constructor(public name: string) {}
@@ -33,14 +38,11 @@ export class Guild {
   available = true;
 
   channels = {
-    cache: new Collection([
-      ['queue', playersChannel],
-      ['players', adminChannel],
-    ]),
+    cache: new Collection(),
   };
 
   roles = {
-    cache: new Collection([['pickups', pickupsRole]]),
+    cache: new Collection(),
   };
 
   emojis = {
@@ -60,6 +62,8 @@ export class Client extends EventEmitter {
   guilds = {
     cache: new Collection([['guild1', new Guild('FAKE_GUILD')]]),
   };
+
+  channels = new ChannelManager();
 
   constructor(public readonly options: any) {
     super();

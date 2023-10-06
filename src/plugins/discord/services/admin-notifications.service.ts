@@ -1,7 +1,7 @@
 import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigurationService } from '@/configuration/services/configuration.service';
 import { GuildConfiguration } from '../types/guild-configuration';
-import { APIEmbed, Client, JSONEncodable, TextChannel } from 'discord.js';
+import { APIEmbed, Client, JSONEncodable } from 'discord.js';
 import { Events } from '@/events/events';
 import { Subject, concatMap, filter, from, map } from 'rxjs';
 import { PlayerId } from '@/players/types/player-id';
@@ -26,7 +26,7 @@ import { StaticGameServersService } from '@/game-servers/providers/static-game-s
 import { GameState } from '@/games/models/game-state';
 import { GamesService } from '@/games/services/games.service';
 import { substituteRequested } from '../notifications/substitute-requested';
-// import { version } from '../../../../package.json';
+import { version } from '../../../../package.json';
 
 @Injectable()
 export class AdminNotificationsService implements OnModuleInit {
@@ -57,13 +57,16 @@ export class AdminNotificationsService implements OnModuleInit {
           .map((config) => config.adminNotifications?.channel)
           .filter((channelId) => Boolean(channelId))
           .map(async (channelId) => {
-            const channel = this.client.channels.resolve(channelId!);
-            if (!channel?.isTextBased()) {
-              return;
-            }
-
             try {
-              await channel.send(`mały psuje`);
+              const channel = this.client.channels.resolve(channelId!);
+              if (!channel) {
+                throw new Error(`channel ${channelId} could not be resolved`);
+              }
+
+              if (!channel.isTextBased()) {
+                throw new Error(`channel ${channel.name} is not text-based`);
+              }
+              await channel.send(`Server version ${version} started`);
             } catch (error) {
               this.logger.error(error);
             }
@@ -383,7 +386,6 @@ export class AdminNotificationsService implements OnModuleInit {
       .map((config) => config.adminNotifications?.channel)
       .filter((channelId) => Boolean(channelId))
       .map((channelId) => this.client.channels.resolve(channelId!))
-      .flatMap((channel) => (channel ? [channel] : []))
-      .flatMap((channel) => (channel instanceof TextChannel ? [channel] : []));
+      .flatMap((channel) => (channel?.isTextBased() ? [channel] : []));
   }
 }
