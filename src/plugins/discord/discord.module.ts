@@ -50,4 +50,5 @@ const discordClientProvider: Provider = {
   exports: [DiscordService],
   controllers: [DiscordController],
 })
+// skipca: JS-0327
 export class DiscordModule {}

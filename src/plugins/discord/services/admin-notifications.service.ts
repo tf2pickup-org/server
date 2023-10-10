@@ -45,7 +45,7 @@ export class AdminNotificationsService implements OnModuleInit {
     private readonly gamesService: GamesService,
   ) {}
 
-  async onModuleInit() {
+  onModuleInit() {
     this.client.once('ready', async () => {
       const config =
         await this.configurationService.get<GuildConfiguration[]>(

@@ -31,6 +31,22 @@ interface QueueSlotData {
 const queuePromptMessageIdCacheKey = (guildId: string) =>
   `queue-prompt-message-id/${guildId}`;
 
+const getMessage = async (channel: TextBasedChannel, messageId?: string) => {
+  if (messageId) {
+    try {
+      return await channel.messages.fetch(messageId);
+    } catch (error) {
+      if (error instanceof DiscordAPIError) {
+        return undefined;
+      }
+
+      throw error;
+    }
+  } else {
+    return undefined;
+  }
+};
+
 @Injectable()
 export class QueuePromptsService implements OnModuleInit {
   private readonly logger = new Logger(QueuePromptsService.name);
@@ -85,7 +101,7 @@ export class QueuePromptsService implements OnModuleInit {
         queuePromptMessageIdCacheKey(channel.guildId),
       );
 
-      const message = await this.getMessage(channel, messageId);
+      const message = await getMessage(channel, messageId);
       if (message) {
         message.edit({ embeds: [embed] });
         return;
@@ -136,22 +152,6 @@ export class QueuePromptsService implements OnModuleInit {
     });
   }
 
-  private async getMessage(channel: TextBasedChannel, messageId?: string) {
-    if (messageId) {
-      try {
-        return await channel.messages.fetch(messageId);
-      } catch (error) {
-        if (error instanceof DiscordAPIError) {
-          return undefined;
-        }
-
-        throw error;
-      }
-    } else {
-      return undefined;
-    }
-  }
-
   private async forEachEnabledChannel(
     callbackFn: (channel: TextChannel) => Promise<void>,
   ) {
@@ -193,7 +193,7 @@ export class QueuePromptsService implements OnModuleInit {
       const messageId = await this.cache.get<string>(
         queuePromptMessageIdCacheKey(channel.guildId),
       );
-      const message = await this.getMessage(channel, messageId);
+      const message = await getMessage(channel, messageId);
       if (message?.id !== messages.first()?.id) {
         await Promise.all([
           message?.delete(),
