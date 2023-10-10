@@ -6,7 +6,13 @@ import { catchError, concatMap, debounceTime, from, map, of } from 'rxjs';
 import { queuePreview } from '../notifications';
 import { iconUrlPath, promptPlayerThresholdRatio } from '@configs/discord';
 import { PlayersService } from '@/players/services/players.service';
-import { Client, DiscordAPIError, TextBasedChannel } from 'discord.js';
+import {
+  ChannelType,
+  Client,
+  DiscordAPIError,
+  TextBasedChannel,
+  TextChannel,
+} from 'discord.js';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 import { ConfigurationService } from '@/configuration/services/configuration.service';
@@ -23,7 +29,7 @@ interface QueueSlotData {
 }
 
 const queuePromptMessageIdCacheKey = (guildId: string) =>
-  `queue_prompt_message_id/${guildId}`;
+  `queue-prompt-message-id/${guildId}`;
 
 @Injectable()
 export class QueuePromptsService implements OnModuleInit {
@@ -65,18 +71,18 @@ export class QueuePromptsService implements OnModuleInit {
     const playerCount = slots.filter((slot) => Boolean(slot.playerId)).length;
     const requiredPlayerCount = slots.length;
 
-    await this.forEachEnabledChannel(async ({ guildId, channel }) => {
+    await this.forEachEnabledChannel(async (channel) => {
       const embed = queuePreview({
         iconUrl: `${this.environment.clientUrl}/${iconUrlPath}`,
         clientName,
         clientUrl: this.environment.clientUrl,
         playerCount,
         requiredPlayerCount,
-        gameClassData: await this.slotsToGameClassData(guildId, slots),
+        gameClassData: await this.slotsToGameClassData(channel.guildId, slots),
       });
 
       const messageId = await this.cache.get<string>(
-        queuePromptMessageIdCacheKey(guildId),
+        queuePromptMessageIdCacheKey(channel.guildId),
       );
 
       const message = await this.getMessage(channel, messageId);
@@ -88,7 +94,7 @@ export class QueuePromptsService implements OnModuleInit {
       if (playerCount >= requiredPlayerCount * promptPlayerThresholdRatio) {
         const sentMessage = await channel.send({ embeds: [embed] });
         await this.cache.set(
-          queuePromptMessageIdCacheKey(guildId),
+          queuePromptMessageIdCacheKey(channel.guildId),
           sentMessage.id,
           0,
         );
@@ -147,54 +153,51 @@ export class QueuePromptsService implements OnModuleInit {
   }
 
   private async forEachEnabledChannel(
-    callbackFn: (params: {
-      guildId: string;
-      channel: TextBasedChannel;
-    }) => Promise<void>,
+    callbackFn: (channel: TextChannel) => Promise<void>,
   ) {
     const config =
       await this.configurationService.get<GuildConfiguration[]>(
         'discord.guilds',
       );
 
-    const enabledChannels = config.filter((guildConfiguration) =>
-      Boolean(guildConfiguration?.queuePrompts?.channel),
-    );
+    const enabledChannels = config
+      .filter((guildConfiguration) =>
+        Boolean(guildConfiguration?.queuePrompts?.channel),
+      )
+      .map((guildConfig) => guildConfig.queuePrompts!.channel!);
 
     await Promise.all(
-      enabledChannels.map(async (guildConfig) => {
-        const guildId = guildConfig.id;
-        const channelId = guildConfig.queuePrompts!.channel!;
+      enabledChannels.map(async (channelId) => {
         const channel = this.client.channels.resolve(channelId);
 
         if (!channel) {
           throw new Error(`no such channel: ${channelId}`);
         }
 
-        if (!channel.isTextBased()) {
+        if (channel.type !== ChannelType.GuildText) {
           throw new Error(
-            `invalid channel type (channelId=${channel.id}, channelName=${channel.name}, channelType=${channel.type})`,
+            `invalid channel type (channelId=${channel.id}, channelType=${channel.type})`,
           );
         }
 
-        await callbackFn({ guildId, channel });
+        await callbackFn(channel);
       }),
     );
   }
 
   @Cron(CronExpression.EVERY_5_MINUTES)
   async ensurePromptIsVisible() {
-    await this.forEachEnabledChannel(async ({ guildId, channel }) => {
+    await this.forEachEnabledChannel(async (channel) => {
       const messages = await channel.messages.fetch({ limit: 1 });
 
       const messageId = await this.cache.get<string>(
-        queuePromptMessageIdCacheKey(guildId),
+        queuePromptMessageIdCacheKey(channel.guildId),
       );
       const message = await this.getMessage(channel, messageId);
       if (message?.id !== messages.first()?.id) {
         await Promise.all([
           message?.delete(),
-          this.cache.del(queuePromptMessageIdCacheKey(guildId)),
+          this.cache.del(queuePromptMessageIdCacheKey(channel.guildId)),
         ]);
 
         await this.refreshPrompt(this.queueService.slots);

@@ -26,6 +26,8 @@ export class GuildMessageManager {
 export class TextChannel {
   constructor(public name: string) {}
 
+  guildId?: string;
+
   isTextBased = jest.fn().mockReturnValue(true);
   type = ChannelType.GuildText;
   messages = new GuildMessageManager();
