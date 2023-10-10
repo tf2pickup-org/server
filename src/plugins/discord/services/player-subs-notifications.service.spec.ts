@@ -23,7 +23,6 @@ import { GamesService as GamesServiceMock } from '@/games/services/__mocks__/gam
 import { PlayersService } from '@/players/services/players.service';
 // eslint-disable-next-line jest/no-mocks-import
 import { PlayersService as PlayersServiceMock } from '@/players/services/__mocks__/players.service';
-import { Subject } from 'rxjs';
 import { PlayerId } from '@/players/types/player-id';
 import { GameState } from '@/games/models/game-state';
 import { SlotStatus } from '@/games/models/slot-status';

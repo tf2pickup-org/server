@@ -16,7 +16,7 @@ import { Player, playerSchema } from '@/players/models/player';
 import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
 import { MongooseModule, getConnectionToken } from '@nestjs/mongoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import { Connection, Types } from 'mongoose';
+import { Connection } from 'mongoose';
 // eslint-disable-next-line jest/no-mocks-import
 import { PlayersService as PlayersServiceMock } from '@/players/services/__mocks__/players.service';
 import { QueueService } from '@/queue/services/queue.service';
