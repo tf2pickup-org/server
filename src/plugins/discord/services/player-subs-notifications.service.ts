@@ -121,8 +121,10 @@ export class PlayerSubsNotificationsService implements OnModuleInit {
 
     await this.forEachEnabledChannel(
       async ({ guildConfiguration, guild, channel }) => {
-        const role = guildConfiguration.queueNotifications?.role
-          ? guild.roles.cache.get(guildConfiguration.queueNotifications.role)
+        const role = guildConfiguration.substituteNotifications?.role
+          ? guild.roles.cache.get(
+              guildConfiguration.substituteNotifications.role,
+            )
           : undefined;
 
         const message = await channel.send({
@@ -179,7 +181,7 @@ export class PlayerSubsNotificationsService implements OnModuleInit {
       );
 
     const enabledChannels = config.filter((guildConfiguration) =>
-      Boolean(guildConfiguration?.queueNotifications?.channel),
+      Boolean(guildConfiguration?.substituteNotifications?.channel),
     );
 
     await Promise.all(
@@ -190,13 +192,13 @@ export class PlayerSubsNotificationsService implements OnModuleInit {
         }
 
         const channel = guild.channels.cache.get(
-          guildConfiguration.queueNotifications!.channel!,
+          guildConfiguration.substituteNotifications!.channel!,
         );
 
         if (!channel) {
           throw new Error(
             `no such channel: ${
-              guildConfiguration.queueNotifications!.channel
+              guildConfiguration.substituteNotifications!.channel
             }`,
           );
         }

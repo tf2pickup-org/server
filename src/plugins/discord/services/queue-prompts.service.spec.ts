@@ -14,9 +14,11 @@ import { MongoMemoryServer } from 'mongodb-memory-server';
 import { Connection } from 'mongoose';
 // eslint-disable-next-line jest/no-mocks-import
 import { PlayersService as PlayersServiceMock } from '@/players/services/__mocks__/players.service';
+import { QueueService } from '@/queue/services/queue.service';
 
 jest.mock('@/configuration/services/configuration.service');
 jest.mock('@/players/services/players.service');
+jest.mock('@/queue/services/queue.service');
 
 const environment = {
   clientUrl: 'http://localhost',
@@ -67,6 +69,7 @@ describe('QueuePromptsService', () => {
           provide: 'DISCORD_CLIENT',
           useValue: client,
         },
+        QueueService,
       ],
     }).compile();
 

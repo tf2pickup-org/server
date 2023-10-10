@@ -104,7 +104,7 @@ describe('PlayerSubsNotificationsService', () => {
           'discord.guilds': [
             {
               id: 'guild1',
-              queueNotifications: {
+              substituteNotifications: {
                 channel: 'FAKE_PLAYERS_CHANNEL_ID',
                 role: 'FAKE_PLAYERS_ROLE',
               },
