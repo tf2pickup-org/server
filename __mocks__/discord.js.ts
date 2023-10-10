@@ -3,22 +3,51 @@ import { EventEmitter } from 'events';
 const { Collection, EmbedBuilder, GatewayIntentBits, ChannelType } =
   jest.requireActual('discord.js');
 
-export class ChannelManager {
+export class Message {
+  static _lastMessageId = 1;
+
+  id = `${++Message._lastMessageId}`;
+  edit = jest.fn();
+}
+
+export class GuildMessageManager {
   cache = new Collection();
 
   resolve = jest
     .fn()
     .mockImplementation((resolvable) => this.cache.get(resolvable));
+  fetch = jest
+    .fn()
+    .mockImplementation((resolvable) =>
+      Promise.resolve(this.cache.get(resolvable)),
+    );
 }
-
-export class Message {}
 
 export class TextChannel {
   constructor(public name: string) {}
 
   isTextBased = jest.fn().mockReturnValue(true);
   type = ChannelType.GuildText;
-  send = jest.fn().mockImplementation(() => Promise.resolve(new Message()));
+  messages = new GuildMessageManager();
+
+  send = jest.fn().mockImplementation(() => {
+    const message = new Message();
+    this.messages.cache.set(message.id, message);
+    return Promise.resolve(message);
+  });
+}
+
+export class ChannelManager {
+  cache = new Collection();
+
+  resolve = jest
+    .fn()
+    .mockImplementation((resolvable) => this.cache.get(resolvable));
+  fetch = jest
+    .fn()
+    .mockImplementation((resolvable) =>
+      Promise.resolve(this.cache.get(resolvable)),
+    );
 }
 
 export class Role {
@@ -34,7 +63,10 @@ export class Role {
 export const pickupsRole = new Role('pickups');
 
 export class Guild {
-  constructor(public name: string) {}
+  constructor(
+    public readonly id: string,
+    public name: string,
+  ) {}
 
   available = true;
 
@@ -59,7 +91,7 @@ export class Client extends EventEmitter {
 
   user = { tag: 'bot#1337' };
   guilds = {
-    cache: new Collection([['guild1', new Guild('FAKE_GUILD')]]),
+    cache: new Collection([['guild1', new Guild('guild1', 'FAKE_GUILD')]]),
   };
 
   channels = new ChannelManager();

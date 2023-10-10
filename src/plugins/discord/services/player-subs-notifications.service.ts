@@ -9,9 +9,10 @@ import { Environment } from '@/environment/environment';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 import { PlayerId } from '@/players/types/player-id';
-import { catchError, concatMap, from, of } from 'rxjs';
+import { catchError, concatMap, filter, from, map, of } from 'rxjs';
 import { GamesService } from '@/games/services/games.service';
 import { substituteWasNeeded } from '../notifications/substitute-was-needed';
+import { SlotStatus } from '@/games/models/slot-status';
 
 const cacheKeyForPlayer = (guildId: string, playerId: PlayerId) =>
   `player-substitute-notifications/${guildId}/${playerId}`;
@@ -67,6 +68,35 @@ export class PlayerSubsNotificationsService implements OnModuleInit {
         ),
         concatMap(([game, playerId]) =>
           from(this.markSubstituteRequestInvalid(game, playerId)),
+        ),
+        catchError((error) => {
+          this.logger.error(error);
+          return of(null);
+        }),
+      )
+      .subscribe();
+
+    this.events.gameChanges
+      .pipe(
+        filter(
+          ({ oldGame, newGame }) =>
+            oldGame.isInProgress() && !newGame.isInProgress(),
+        ),
+        map(({ oldGame }) => oldGame),
+        map((game: Game) => ({
+          game,
+          slots: game.slots.filter(
+            (s) => s.status === SlotStatus.waitingForSubstitute,
+          ),
+        })),
+        concatMap(({ game, slots }) =>
+          from(
+            Promise.all(
+              slots.map((slot) =>
+                this.markSubstituteRequestInvalid(game, slot.player._id),
+              ),
+            ),
+          ),
         ),
         catchError((error) => {
           this.logger.error(error);
