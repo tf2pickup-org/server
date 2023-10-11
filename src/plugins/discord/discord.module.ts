@@ -12,6 +12,8 @@ import { GamesModule } from '@/games/games.module';
 import { QueuePromptsService } from './services/queue-prompts.service';
 import { PlayerSubsNotificationsService } from './services/player-subs-notifications.service';
 import { EmojiInstallerService } from './services/emoji-installer.service';
+import { QueueConfigModule } from '@/queue-config/queue-config.module';
+import { QueueModule } from '@/queue/queue.module';
 
 const discordClientProvider: Provider = {
   provide: 'DISCORD_CLIENT',
@@ -39,7 +41,14 @@ const discordClientProvider: Provider = {
 
 @Global()
 @Module({
-  imports: [ConfigurationModule, PlayersModule, GameServersModule, GamesModule],
+  imports: [
+    ConfigurationModule,
+    PlayersModule,
+    GameServersModule,
+    GamesModule,
+    QueueConfigModule,
+    QueueModule,
+  ],
   providers: [
     discordClientProvider,
     DiscordService,
