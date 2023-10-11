@@ -11,6 +11,7 @@ import { GameServersModule } from '@/game-servers/game-servers.module';
 import { GamesModule } from '@/games/games.module';
 import { QueuePromptsService } from './services/queue-prompts.service';
 import { PlayerSubsNotificationsService } from './services/player-subs-notifications.service';
+import { EmojiInstallerService } from './services/emoji-installer.service';
 
 const discordClientProvider: Provider = {
   provide: 'DISCORD_CLIENT',
@@ -46,6 +47,7 @@ const discordClientProvider: Provider = {
     AdminNotificationsService,
     QueuePromptsService,
     PlayerSubsNotificationsService,
+    EmojiInstallerService,
   ],
   exports: [DiscordService],
   controllers: [DiscordController],

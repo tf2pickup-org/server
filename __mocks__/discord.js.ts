@@ -80,7 +80,7 @@ export class Guild {
 
   emojis = {
     cache: new Collection([]),
-    create: jest.fn().mockImplementation((attachment, name) => {
+    create: jest.fn().mockImplementation(({ attachment, name }) => {
       const emoji = { name, toString: () => `<emoji:${name}>` };
       this.emojis.cache.set(name, emoji);
       return Promise.resolve(emoji);
