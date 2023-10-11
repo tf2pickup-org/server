@@ -1,5 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { DiscordController } from './discord.controller';
+import { DiscordService } from '../services/discord.service';
+
+jest.mock('../services/discord.service');
 
 describe('DiscordController', () => {
   let controller: DiscordController;
@@ -7,6 +10,7 @@ describe('DiscordController', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [DiscordController],
+      providers: [DiscordService],
     }).compile();
 
     controller = module.get<DiscordController>(DiscordController);
