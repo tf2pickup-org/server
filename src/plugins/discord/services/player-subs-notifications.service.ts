@@ -93,7 +93,7 @@ export class PlayerSubsNotificationsService implements OnModuleInit {
           from(
             Promise.all(
               slots.map((slot) =>
-                this.markSubstituteRequestInvalid(game, slot.player._id),
+                this.markSubstituteRequestInvalid(game, slot.player),
               ),
             ),
           ),
