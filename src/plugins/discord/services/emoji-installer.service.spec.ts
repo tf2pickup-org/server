@@ -3,7 +3,7 @@ import { EmojiInstallerService } from './emoji-installer.service';
 import { ConfigurationService } from '@/configuration/services/configuration.service';
 import { Events } from '@/events/events';
 import { Client, GatewayIntentBits } from '@mocks/discord.js';
-import { Emoji, GuildEmoji } from 'discord.js';
+import { GuildEmoji } from 'discord.js';
 
 jest.mock('@/configuration/services/configuration.service');
 
