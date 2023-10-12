@@ -1,83 +1,54 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { DiscordService } from './discord.service';
-import {
-  Client,
-  playersChannel,
-  pickupsRole,
-  adminChannel,
-} from '@mocks/discord.js';
-import { Environment } from '@/environment/environment';
-
-class EnvironmentStub {
-  discordBotToken = 'FAKE_DISCORD_BOT_TOKEN';
-  discordGuild = 'FAKE_GUILD';
-  discordQueueNotificationsMentionRole = pickupsRole.name;
-  discordQueueNotificationsChannel = playersChannel.name;
-  discordAdminNotificationsChannel = adminChannel.name;
-}
+import { Client, GatewayIntentBits, TextChannel } from '@mocks/discord.js';
 
 describe('DiscordService', () => {
   let service: DiscordService;
   let client: Client;
 
+  beforeEach(() => {
+    client = new Client({
+      intents: [
+        GatewayIntentBits.Guilds,
+        GatewayIntentBits.GuildEmojisAndStickers,
+        GatewayIntentBits.GuildMessages,
+      ],
+    });
+  });
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         DiscordService,
-        { provide: Environment, useClass: EnvironmentStub },
+        {
+          provide: 'DISCORD_CLIENT',
+          useValue: client,
+        },
       ],
     }).compile();
 
     service = module.get<DiscordService>(DiscordService);
-    client = Client._instance;
   });
 
   it('should be defined', () => {
     expect(service).toBeDefined();
   });
 
-  describe('#onModuleInit()', () => {
-    it('should login', () => {
-      const spy = jest.spyOn(client, 'login');
-      service.onModuleInit();
-      client.emit('ready');
-      expect(spy).toHaveBeenCalledWith('FAKE_DISCORD_BOT_TOKEN');
+  describe('#getGuild()', () => {
+    it('should return client guilds', () => {
+      expect(service.getGuilds().size).toEqual(1);
     });
-
-    it('should send notification', async () =>
-      new Promise<void>((resolve) => {
-        const spy = jest.spyOn(adminChannel, 'send');
-        service.onModuleInit();
-        client.emit('ready');
-        setTimeout(() => {
-          expect(spy).toHaveBeenCalled();
-          resolve();
-        }, 0);
-      }));
   });
 
-  describe('when logged in', () => {
+  describe('#getTextChannels()', () => {
     beforeEach(() => {
-      service.onModuleInit();
-      client.emit('ready');
+      client.guilds.cache
+        .get('guild1')
+        .channels.cache.set('text channel', new TextChannel('text channel'));
     });
 
-    describe('#getQueueChannel()', () => {
-      it('should return players channel', () => {
-        expect(service.getPlayersChannel()).toBe(playersChannel);
-      });
-    });
-
-    describe('#getAdminsChannel()', () => {
-      it('should return admins channel', () => {
-        expect(service.getAdminsChannel()).toBe(adminChannel);
-      });
-    });
-
-    describe('#findRole()', () => {
-      it('should return the role', () => {
-        expect(service.findRole(pickupsRole.name)).toBe(pickupsRole);
-      });
+    it('should return all text channels', () => {
+      expect(service.getTextChannels('guild1').length).toEqual(1);
     });
   });
 });

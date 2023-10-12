@@ -1,54 +1,58 @@
-jest.mock('@configs/discord', () => ({
-  iconUrlPath: '',
-  promptPlayerThresholdRatio: 0.1,
-}));
-import { promptPlayerThresholdRatio } from '@configs/discord';
-
-import { Environment } from '@/environment/environment';
+import { Test, TestingModule } from '@nestjs/testing';
+import { QueuePromptsService } from './queue-prompts.service';
 import { Events } from '@/events/events';
-import { Player, playerSchema } from '@/players/models/player';
+import { Environment } from '@/environment/environment';
+import { ConfigurationService } from '@/configuration/services/configuration.service';
 import { PlayersService } from '@/players/services/players.service';
+import {
+  Client,
+  GatewayIntentBits,
+  Message,
+  TextChannel,
+} from '@mocks/discord.js';
+import { CACHE_MANAGER, CacheModule } from '@nestjs/cache-manager';
+import { Game, gameSchema } from '@/games/models/game';
+import { Player, playerSchema } from '@/players/models/player';
+import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
+import { MongooseModule, getConnectionToken } from '@nestjs/mongoose';
+import { MongoMemoryServer } from 'mongodb-memory-server';
+import { Connection } from 'mongoose';
+// eslint-disable-next-line jest/no-mocks-import
+import { PlayersService as PlayersServiceMock } from '@/players/services/__mocks__/players.service';
 import { QueueService } from '@/queue/services/queue.service';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
-import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
-import { Test, TestingModule } from '@nestjs/testing';
-import { Message } from 'discord.js';
-import { MongoMemoryServer } from 'mongodb-memory-server';
-import { DiscordService } from './discord.service';
-import { QueuePromptsService } from './queue-prompts.service';
-import { getConnectionToken, MongooseModule } from '@nestjs/mongoose';
-import { Connection } from 'mongoose';
-import { CacheModule } from '@nestjs/cache-manager';
+import { Cache } from 'cache-manager';
 
-jest.mock('./discord.service');
-jest.mock('@/queue/services/queue.service');
+jest.mock('@/configuration/services/configuration.service');
 jest.mock('@/players/services/players.service');
+jest.mock('@/queue/services/queue.service');
 
 const environment = {
-  clientUrl: 'https://tf2pickup.pl',
+  clientUrl: 'http://localhost',
 };
 
 describe('QueuePromptsService', () => {
   let service: QueuePromptsService;
+  let client: Client;
   let mongod: MongoMemoryServer;
-  let events: Events;
-  let queueService: jest.Mocked<QueueService>;
-  let playersService: PlayersService;
-  let discordService: jest.Mocked<DiscordService>;
-  let players: Player[];
   let connection: Connection;
+  let playersService: PlayersServiceMock;
+  let configurationService: jest.Mocked<ConfigurationService>;
+  let channel: TextChannel;
+  let players: Player[];
+  let cache: Cache;
 
   beforeAll(async () => (mongod = await MongoMemoryServer.create()));
   afterAll(async () => await mongod.stop());
 
   beforeEach(() => {
-    (QueueService as jest.MockedClass<typeof QueueService>).mockImplementation(
-      () =>
-        ({
-          slots: [],
-          requiredPlayerCount: 12,
-        }) as any,
-    );
+    client = new Client({
+      intents: [
+        GatewayIntentBits.Guilds,
+        GatewayIntentBits.GuildEmojisAndStickers,
+        GatewayIntentBits.GuildMessages,
+      ],
+    });
   });
 
   beforeEach(async () => {
@@ -56,6 +60,7 @@ describe('QueuePromptsService', () => {
       imports: [
         mongooseTestingModule(mongod),
         MongooseModule.forFeature([
+          { name: Game.name, schema: gameSchema },
           {
             name: Player.name,
             schema: playerSchema,
@@ -66,128 +71,61 @@ describe('QueuePromptsService', () => {
       providers: [
         QueuePromptsService,
         Events,
-        DiscordService,
-        QueueService,
-        PlayersService,
+        { provide: Environment, useValue: environment },
+        ConfigurationService,
         {
           provide: 'QUEUE_CONFIG',
           useValue: {
+            classes: [{ name: 'soldier', count: 2 }],
             teamCount: 2,
-            classes: [
-              { name: Tf2ClassName.scout, count: 2 },
-              { name: Tf2ClassName.soldier, count: 2 },
-              { name: Tf2ClassName.demoman, count: 1 },
-              { name: Tf2ClassName.medic, count: 1 },
-            ],
           },
         },
-        { provide: Environment, useValue: environment },
+        PlayersService,
+        {
+          provide: 'DISCORD_CLIENT',
+          useValue: client,
+        },
+        QueueService,
       ],
     }).compile();
 
     service = module.get<QueuePromptsService>(QueuePromptsService);
-    events = module.get(Events);
-    queueService = module.get(QueueService);
-    playersService = module.get(PlayersService);
-    discordService = module.get(DiscordService);
     connection = module.get(getConnectionToken());
+    playersService = module.get(PlayersService);
+    configurationService = module.get(ConfigurationService);
+    cache = module.get(CACHE_MANAGER);
   });
 
   beforeEach(async () => {
-    // @ts-ignore
-    queueService.playerCount = 3;
+    players = await Promise.all([
+      playersService._createOne(),
+      playersService._createOne(),
+      playersService._createOne(),
+      playersService._createOne(),
+    ]);
+    configurationService.get.mockImplementation((key) =>
+      Promise.resolve(
+        {
+          'discord.guilds': [
+            {
+              id: 'guild1',
+              queuePrompts: {
+                channel: 'FAKE_PLAYERS_CHANNEL_ID',
+              },
+            },
+          ],
+        }[key],
+      ),
+    );
 
-    players = [
-      // @ts-expect-error
-      await playersService._createOne(),
-      // @ts-expect-error
-      await playersService._createOne(),
-      // @ts-expect-error
-      await playersService._createOne(),
-    ];
+    channel = new TextChannel('players');
+    channel.guildId = 'guild1';
+    client.channels.cache.set('FAKE_PLAYERS_CHANNEL_ID', channel);
 
-    queueService.slots = [
-      {
-        id: 0,
-        gameClass: Tf2ClassName.scout,
-        playerId: players[0]._id,
-        ready: false,
-      },
-      {
-        id: 1,
-        gameClass: Tf2ClassName.scout,
-        playerId: null,
-        ready: false,
-      },
-      {
-        id: 2,
-        gameClass: Tf2ClassName.scout,
-        playerId: null,
-        ready: false,
-      },
-      {
-        id: 3,
-        gameClass: Tf2ClassName.scout,
-        playerId: null,
-        ready: false,
-      },
-      {
-        id: 4,
-        gameClass: Tf2ClassName.soldier,
-        playerId: null,
-        ready: false,
-      },
-      {
-        id: 5,
-        gameClass: Tf2ClassName.soldier,
-        playerId: players[1]._id,
-        ready: false,
-      },
-      {
-        id: 6,
-        gameClass: Tf2ClassName.soldier,
-        playerId: null,
-        ready: false,
-      },
-      {
-        id: 7,
-        gameClass: Tf2ClassName.soldier,
-        playerId: null,
-        ready: false,
-      },
-      {
-        id: 8,
-        gameClass: Tf2ClassName.demoman,
-        playerId: null,
-        ready: false,
-      },
-      {
-        id: 9,
-        gameClass: Tf2ClassName.demoman,
-        playerId: null,
-        ready: false,
-      },
-      {
-        id: 10,
-        gameClass: Tf2ClassName.medic,
-        playerId: players[2]._id,
-        ready: false,
-      },
-      {
-        id: 11,
-        gameClass: Tf2ClassName.medic,
-        playerId: null,
-        ready: false,
-      },
-    ];
-  });
-
-  beforeEach(() => {
     service.onModuleInit();
   });
 
   afterEach(async () => {
-    // @ts-expect-error
     await playersService._reset();
     await connection.close();
   });
@@ -196,122 +134,106 @@ describe('QueuePromptsService', () => {
     expect(service).toBeDefined();
   });
 
-  describe('when slots change', () => {
-    beforeEach(
-      () =>
-        new Promise<void>((resolve) => {
-          events.queueSlotsChange.next({ slots: queueService.slots });
-          setTimeout(resolve, 3500);
-        }),
-    );
+  describe('#refreshPrompt()', () => {
+    describe('when a prompt was not sent before', () => {
+      describe('but the threshold is met', () => {
+        it('should send the prompt', async () => {
+          await service.refreshPrompt([
+            {
+              id: 1,
+              gameClass: Tf2ClassName.soldier,
+              playerId: players[0]._id,
+            },
+            {
+              id: 2,
+              gameClass: Tf2ClassName.soldier,
+              playerId: players[1]._id,
+            },
+            {
+              id: 3,
+              gameClass: Tf2ClassName.soldier,
+              playerId: null,
+            },
+            {
+              id: 4,
+              gameClass: Tf2ClassName.soldier,
+              playerId: null,
+            },
+          ]);
+          expect(channel.send).toHaveBeenCalled();
+          const args = channel.send.mock.calls[0][0];
+          expect(args.embeds[0].toJSON().title).toMatch(
+            /2\/4 players in the queue!/,
+          );
+        });
+      });
 
-    it('should send a new prompt', () => {
-      const channel = discordService.getPlayersChannel();
-      expect(channel?.send).toHaveBeenCalledTimes(1);
-    });
-
-    describe('when slots change again', () => {
-      beforeEach(
-        () =>
-          new Promise<void>((resolve) => {
-            queueService.slots = [
-              {
-                id: 0,
-                gameClass: Tf2ClassName.scout,
-                playerId: players[0]._id,
-                ready: false,
-              },
-              {
-                id: 1,
-                gameClass: Tf2ClassName.scout,
-                playerId: null,
-                ready: false,
-              },
-              {
-                id: 2,
-                gameClass: Tf2ClassName.scout,
-                playerId: null,
-                ready: false,
-              },
-              {
-                id: 3,
-                gameClass: Tf2ClassName.scout,
-                playerId: null,
-                ready: false,
-              },
-              {
-                id: 4,
-                gameClass: Tf2ClassName.soldier,
-                playerId: null,
-                ready: false,
-              },
-              {
-                id: 5,
-                gameClass: Tf2ClassName.soldier,
-                playerId: players[1]._id,
-                ready: false,
-              },
-              {
-                id: 6,
-                gameClass: Tf2ClassName.soldier,
-                playerId: players[2]._id,
-                ready: false,
-              },
-              {
-                id: 7,
-                gameClass: Tf2ClassName.soldier,
-                playerId: null,
-                ready: false,
-              },
-              {
-                id: 8,
-                gameClass: Tf2ClassName.demoman,
-                playerId: null,
-                ready: false,
-              },
-              {
-                id: 9,
-                gameClass: Tf2ClassName.demoman,
-                playerId: null,
-                ready: false,
-              },
-              {
-                id: 10,
-                gameClass: Tf2ClassName.medic,
-                playerId: null,
-                ready: false,
-              },
-              {
-                id: 11,
-                gameClass: Tf2ClassName.medic,
-                playerId: null,
-                ready: false,
-              },
-            ];
-            events.queueSlotsChange.next({ slots: queueService.slots });
-            setTimeout(resolve, 3500);
-          }),
-      );
-
-      it('should edit the previous embed', () => {
-        expect((discordService as any)._lastMessage.edit).toHaveBeenCalledTimes(
-          1,
-        );
+      describe('and the threshold is not met', () => {
+        it('should not send the prompt', async () => {
+          await service.refreshPrompt([
+            {
+              id: 1,
+              gameClass: Tf2ClassName.soldier,
+              playerId: players[0]._id,
+            },
+            {
+              id: 2,
+              gameClass: Tf2ClassName.soldier,
+              playerId: null,
+            },
+            {
+              id: 3,
+              gameClass: Tf2ClassName.soldier,
+              playerId: null,
+            },
+            {
+              id: 4,
+              gameClass: Tf2ClassName.soldier,
+              playerId: null,
+            },
+          ]);
+          expect(channel.send).not.toHaveBeenCalled();
+        });
       });
     });
 
-    describe('#ensurePromptIsVisible()', () => {
+    describe('when a prompt was sent before', () => {
       let message: Message;
 
-      beforeEach(() => {
-        message = (discordService as any)._lastMessage;
-        discordService.getPlayersChannel()?.send('foo');
+      beforeEach(async () => {
+        message = new Message();
+        channel.messages.cache.set(message.id, message);
+        await cache.set('queue-prompt-message-id/guild1', message.id);
       });
 
-      it('should delete the message', async () => {
-        service.ensurePromptIsVisible();
-        await new Promise((resolve) => setTimeout(resolve, 100));
-        expect(message.delete).toHaveBeenCalled();
+      it('should edit the message', async () => {
+        await service.refreshPrompt([
+          {
+            id: 1,
+            gameClass: Tf2ClassName.soldier,
+            playerId: players[0]._id,
+          },
+          {
+            id: 2,
+            gameClass: Tf2ClassName.soldier,
+            playerId: players[1]._id,
+          },
+          {
+            id: 3,
+            gameClass: Tf2ClassName.soldier,
+            playerId: null,
+          },
+          {
+            id: 4,
+            gameClass: Tf2ClassName.soldier,
+            playerId: null,
+          },
+        ]);
+        expect(message.edit).toHaveBeenCalled();
+        const args = message.edit.mock.calls[0][0];
+        expect(args.embeds[0].toJSON().title).toMatch(
+          /2\/4 players in the queue!/,
+        );
       });
     });
   });

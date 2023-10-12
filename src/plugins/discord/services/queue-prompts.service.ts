@@ -1,35 +1,65 @@
 import { Environment } from '@/environment/environment';
 import { Events } from '@/events/events';
-import { PlayersService } from '@/players/services/players.service';
-import { QueueSlot } from '@/queue/queue-slot';
-import { QueueService } from '@/queue/services/queue.service';
-import { iconUrlPath, promptPlayerThresholdRatio } from '@configs/discord';
-import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
-import { Cron, CronExpression } from '@nestjs/schedule';
-import { DiscordAPIError, Message } from 'discord.js';
-import { debounceTime, map } from 'rxjs/operators';
-import { queuePreview } from '../notifications';
-import { DiscordService } from './discord.service';
-import { URL } from 'url';
-import { Cache } from 'cache-manager';
-import { Mutex } from 'async-mutex';
 import { QueueConfig } from '@/queue-config/interfaces/queue-config';
+import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { catchError, concatMap, debounceTime, from, map, of } from 'rxjs';
+import { queuePreview } from '../notifications';
+import { iconUrlPath, promptPlayerThresholdRatio } from '@configs/discord';
+import { PlayersService } from '@/players/services/players.service';
+import {
+  ChannelType,
+  Client,
+  DiscordAPIError,
+  TextBasedChannel,
+  TextChannel,
+} from 'discord.js';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Cache } from 'cache-manager';
+import { ConfigurationService } from '@/configuration/services/configuration.service';
+import { GuildConfiguration } from '../types/guild-configuration';
+import { Tf2ClassName } from '@/shared/models/tf2-class-name';
+import { PlayerId } from '@/players/types/player-id';
+import { Cron, CronExpression } from '@nestjs/schedule';
+import { QueueService } from '@/queue/services/queue.service';
+
+interface QueueSlotData {
+  id: number;
+  gameClass: Tf2ClassName;
+  playerId: PlayerId | null;
+}
+
+const queuePromptMessageIdCacheKey = (guildId: string) =>
+  `queue-prompt-message-id/${guildId}`;
+
+const getMessage = async (channel: TextBasedChannel, messageId?: string) => {
+  if (messageId) {
+    try {
+      return await channel.messages.fetch(messageId);
+    } catch (error) {
+      if (error instanceof DiscordAPIError) {
+        return undefined;
+      }
+
+      throw error;
+    }
+  } else {
+    return undefined;
+  }
+};
 
 @Injectable()
 export class QueuePromptsService implements OnModuleInit {
-  private readonly queuePromptMessageIdCacheKey = 'queue_prompt_message_id';
-  private requiredPlayerCount = 0;
-  private readonly mutex = new Mutex();
+  private readonly logger = new Logger(QueuePromptsService.name);
 
   constructor(
-    private events: Events,
-    private discordService: DiscordService,
-    private environment: Environment,
-    private queueService: QueueService,
-    private playersService: PlayersService,
-    @Inject('QUEUE_CONFIG') private queueConfig: QueueConfig,
+    private readonly events: Events,
+    private readonly environment: Environment,
+    private readonly configurationService: ConfigurationService,
+    @Inject('QUEUE_CONFIG') private readonly queueConfig: QueueConfig,
+    private readonly playersService: PlayersService,
+    @Inject('DISCORD_CLIENT') private readonly client: Client,
     @Inject(CACHE_MANAGER) private readonly cache: Cache,
+    private readonly queueService: QueueService,
   ) {}
 
   onModuleInit() {
@@ -43,45 +73,52 @@ export class QueuePromptsService implements OnModuleInit {
           })),
         ),
         debounceTime(3000),
+        concatMap((slots) => from(this.refreshPrompt(slots))),
+        catchError((error) => {
+          this.logger.error(error);
+          return of(null);
+        }),
       )
-      .subscribe(() => this.refreshPrompt(this.queueService.slots));
+      .subscribe();
   }
 
-  private async refreshPrompt(slots: QueueSlot[]) {
-    await this.mutex.runExclusive(async () => {
-      this.requiredPlayerCount = slots.length;
-      const clientName = new URL(this.environment.clientUrl).hostname;
+  async refreshPrompt(slots: QueueSlotData[]) {
+    const clientName = new URL(this.environment.clientUrl).hostname;
+    const playerCount = slots.filter((slot) => Boolean(slot.playerId)).length;
+    const requiredPlayerCount = slots.length;
 
+    await this.forEachEnabledChannel(async (channel) => {
       const embed = queuePreview({
         iconUrl: `${this.environment.clientUrl}/${iconUrlPath}`,
         clientName,
         clientUrl: this.environment.clientUrl,
-        playerCount: this.queueService.playerCount,
-        requiredPlayerCount: this.queueService.requiredPlayerCount,
-        gameClassData: await this.slotsToGameClassData(slots),
+        playerCount,
+        requiredPlayerCount,
+        gameClassData: await this.slotsToGameClassData(channel.guildId, slots),
       });
 
-      const message = await this.getPromptMessage();
+      const messageId = await this.cache.get<string>(
+        queuePromptMessageIdCacheKey(channel.guildId),
+      );
+
+      const message = await getMessage(channel, messageId);
       if (message) {
         message.edit({ embeds: [embed] });
-      } else {
-        if (this.playerThresholdMet()) {
-          const sentMessage = await this.discordService
-            .getPlayersChannel()
-            ?.send({ embeds: [embed] });
-          if (sentMessage) {
-            await this.cache.set(
-              this.queuePromptMessageIdCacheKey,
-              sentMessage.id,
-              0,
-            );
-          }
-        }
+        return;
+      }
+
+      if (playerCount >= requiredPlayerCount * promptPlayerThresholdRatio) {
+        const sentMessage = await channel.send({ embeds: [embed] });
+        await this.cache.set(
+          queuePromptMessageIdCacheKey(channel.guildId),
+          sentMessage.id,
+          0,
+        );
       }
     });
   }
 
-  private async slotsToGameClassData(slots: QueueSlot[]) {
+  private async slotsToGameClassData(guildId: string, slots: QueueSlotData[]) {
     const playerData = await Promise.all(
       slots
         .filter((slot) => Boolean(slot.playerId))
@@ -93,53 +130,78 @@ export class QueuePromptsService implements OnModuleInit {
         ),
     );
 
-    return this.queueConfig.classes.map((gameClass) => ({
-      gameClass: gameClass.name,
-      emoji: this.discordService.findEmoji(`tf2${gameClass.name}`),
-      playersRequired: gameClass.count * this.queueConfig.teamCount,
-      players: playerData.filter((p) => p.gameClass === gameClass.name),
-    }));
+    return this.queueConfig.classes.map((gameClass) => {
+      const emojiName = `tf2${gameClass.name}`;
+      const guild = this.client.guilds.cache.get(guildId);
+      const emoji = guild?.emojis.cache.find(
+        (emoji) => emoji.name === emojiName,
+      );
+
+      if (!emoji) {
+        this.logger.warn(
+          `cannot find emoji ${emojiName} on guild ${guild?.name}`,
+        );
+      }
+
+      return {
+        gameClass: gameClass.name,
+        emoji,
+        playersRequired: gameClass.count * this.queueConfig.teamCount,
+        players: playerData.filter((p) => p.gameClass === gameClass.name),
+      };
+    });
   }
 
-  private playerThresholdMet() {
-    return (
-      this.queueService.playerCount >=
-      this.requiredPlayerCount * promptPlayerThresholdRatio
-    );
-  }
+  private async forEachEnabledChannel(
+    callbackFn: (channel: TextChannel) => Promise<void>,
+  ) {
+    const config =
+      await this.configurationService.get<GuildConfiguration[]>(
+        'discord.guilds',
+      );
 
-  private async getPromptMessage(): Promise<Message | undefined> {
-    const id = await this.cache.get<string>(this.queuePromptMessageIdCacheKey);
-    if (id) {
-      try {
-        return this.discordService.getPlayersChannel()?.messages.fetch(id);
-      } catch (error) {
-        if (error instanceof DiscordAPIError) {
-          return undefined;
+    const enabledChannels = config
+      .filter((guildConfiguration) =>
+        Boolean(guildConfiguration?.queuePrompts?.channel),
+      )
+      .map((guildConfig) => guildConfig.queuePrompts!.channel!);
+
+    await Promise.all(
+      enabledChannels.map(async (channelId) => {
+        const channel = this.client.channels.resolve(channelId);
+
+        if (!channel) {
+          throw new Error(`no such channel: ${channelId}`);
         }
 
-        throw error;
-      }
-    } else {
-      return undefined;
-    }
+        if (channel.type !== ChannelType.GuildText) {
+          throw new Error(
+            `invalid channel type (channelId=${channel.id}, channelType=${channel.type})`,
+          );
+        }
+
+        await callbackFn(channel);
+      }),
+    );
   }
 
   @Cron(CronExpression.EVERY_5_MINUTES)
   async ensurePromptIsVisible() {
-    const messages = await this.discordService
-      .getPlayersChannel()
-      ?.messages.fetch({ limit: 1 });
-    const promptMessage = await this.getPromptMessage();
-    if (
-      messages?.first()?.id !== promptMessage?.id &&
-      this.playerThresholdMet()
-    ) {
-      await Promise.all([
-        promptMessage?.delete(),
-        this.cache.del(this.queuePromptMessageIdCacheKey),
-      ]);
-      await this.refreshPrompt(this.queueService.slots);
-    }
+    await this.forEachEnabledChannel(async (channel) => {
+      const messages = await channel.messages.fetch({ limit: 1 });
+
+      const messageId = await this.cache.get<string>(
+        queuePromptMessageIdCacheKey(channel.guildId),
+      );
+      const message = await getMessage(channel, messageId);
+      if (message?.id !== messages.first()?.id) {
+        await Promise.all([
+          message?.delete(),
+          this.cache.del(queuePromptMessageIdCacheKey(channel.guildId)),
+        ]);
+
+        await this.refreshPrompt(this.queueService.slots);
+      }
+    });
   }
 }

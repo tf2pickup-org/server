@@ -1,29 +1,65 @@
-import { PlayersModule } from '@/players/players.module';
-import { QueueModule } from '@/queue/queue.module';
-import { forwardRef, Global, Module } from '@nestjs/common';
+import { Global, Logger, Module, Provider } from '@nestjs/common';
+import { DiscordConfigurationService } from './services/discord-configuration.service';
 import { DiscordService } from './services/discord.service';
-import { QueuePromptsService } from './services/queue-prompts.service';
+import { ConfigurationModule } from '@/configuration/configuration.module';
+import { Environment } from '@/environment/environment';
+import { Client, GatewayIntentBits } from 'discord.js';
+import { DiscordController } from './controllers/discord.controller';
 import { AdminNotificationsService } from './services/admin-notifications.service';
-import { GamesModule } from '@/games/games.module';
-import { PlayerSubstitutionNotificationsService } from './services/player-substitution-notifications.service';
+import { PlayersModule } from '@/players/players.module';
 import { GameServersModule } from '@/game-servers/game-servers.module';
+import { GamesModule } from '@/games/games.module';
+import { QueuePromptsService } from './services/queue-prompts.service';
+import { PlayerSubsNotificationsService } from './services/player-subs-notifications.service';
+import { EmojiInstallerService } from './services/emoji-installer.service';
 import { QueueConfigModule } from '@/queue-config/queue-config.module';
+import { QueueModule } from '@/queue/queue.module';
+
+const discordClientProvider: Provider = {
+  provide: 'DISCORD_CLIENT',
+  inject: [Environment],
+  useFactory: async (environment: Environment) => {
+    const logger = new Logger();
+    const client = new Client({
+      intents: [
+        GatewayIntentBits.Guilds,
+        GatewayIntentBits.GuildEmojisAndStickers,
+        GatewayIntentBits.GuildMessages,
+      ],
+    });
+
+    client.on('ready', () => {
+      if (client.user) {
+        logger.log(`logged in as ${client.user.tag}`);
+      }
+    });
+
+    await client.login(environment.discordBotToken);
+    return client;
+  },
+};
 
 @Global()
 @Module({
   imports: [
-    forwardRef(() => QueueModule),
-    forwardRef(() => PlayersModule),
-    GamesModule,
+    ConfigurationModule,
+    PlayersModule,
     GameServersModule,
+    GamesModule,
     QueueConfigModule,
+    QueueModule,
   ],
   providers: [
+    discordClientProvider,
     DiscordService,
-    QueuePromptsService,
+    DiscordConfigurationService,
     AdminNotificationsService,
-    PlayerSubstitutionNotificationsService,
+    QueuePromptsService,
+    PlayerSubsNotificationsService,
+    EmojiInstallerService,
   ],
   exports: [DiscordService],
+  controllers: [DiscordController],
 })
+// skipca: JS-0327
 export class DiscordModule {}

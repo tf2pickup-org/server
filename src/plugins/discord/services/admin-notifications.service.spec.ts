@@ -1,30 +1,35 @@
-import { Environment } from '@/environment/environment';
-import { Events } from '@/events/events';
-import { StaticGameServer } from '@/game-servers/providers/static-game-server/models/static-game-server';
-import { StaticGameServersService } from '@/game-servers/providers/static-game-server/services/static-game-servers.service';
-import { Game, gameSchema } from '@/games/models/game';
-import { GameState } from '@/games/models/game-state';
-import { GamesService } from '@/games/services/games.service';
-import { Player, playerSchema } from '@/players/models/player';
-import { PlayersService } from '@/players/services/players.service';
-import { PlayerBanId } from '@/players/types/player-ban-id';
-import { Tf2ClassName } from '@/shared/models/tf2-class-name';
-import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
-import { getConnectionToken, MongooseModule } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
-import { TextChannel } from 'discord.js';
+import { AdminNotificationsService } from './admin-notifications.service';
+import { Client, GatewayIntentBits, TextChannel } from '@mocks/discord.js';
+import { ConfigurationService } from '@/configuration/services/configuration.service';
+import { Events } from '@/events/events';
+import { PlayersService } from '@/players/services/players.service';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { Connection, Types } from 'mongoose';
+import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
+import { MongooseModule, getConnectionToken } from '@nestjs/mongoose';
+import { Player, playerSchema } from '@/players/models/player';
+import { Game, gameSchema } from '@/games/models/game';
+// eslint-disable-next-line jest/no-mocks-import
+import { PlayersService as PlayersServiceMock } from '@/players/services/__mocks__/players.service';
+import { Environment } from '@/environment/environment';
+import { StaticGameServersService } from '@/game-servers/providers/static-game-server/services/static-game-servers.service';
+import { GamesService } from '@/games/services/games.service';
+// eslint-disable-next-line jest/no-mocks-import
+import { GamesService as GamesServiceMock } from '@/games/services/__mocks__/games.service';
 import { Subject } from 'rxjs';
-import { AdminNotificationsService } from './admin-notifications.service';
-import { DiscordService } from './discord.service';
+import { PlayerBanId } from '@/players/types/player-ban-id';
+import { Tf2ClassName } from '@/shared/models/tf2-class-name';
+import { StaticGameServer } from '@/game-servers/providers/static-game-server/models/static-game-server';
+import { GameState } from '@/games/models/game-state';
 
-jest.mock('./discord.service');
+jest.mock('discord.js');
+jest.mock('@/configuration/services/configuration.service');
 jest.mock('@/players/services/players.service');
-jest.mock('@/games/services/games.service');
 jest.mock(
   '@/game-servers/providers/static-game-server/services/static-game-servers.service',
 );
+jest.mock('@/games/services/games.service');
 
 const environment = {
   clientUrl: 'http://localhost',
@@ -33,13 +38,13 @@ const environment = {
 describe('AdminNotificationsService', () => {
   let service: AdminNotificationsService;
   let mongod: MongoMemoryServer;
-  let events: Events;
-  let playersService: PlayersService;
-  let discordService: DiscordService;
-  let sendSpy: jest.SpyInstance;
-  let sentMessages: Subject<any>;
   let connection: Connection;
-  let gamesService: GamesService;
+  let playersService: PlayersServiceMock;
+  let gamesService: GamesServiceMock;
+  let configurationService: jest.Mocked<ConfigurationService>;
+  let sentMessages: Subject<any>;
+  let client: Client;
+  let events: Events;
   let staticGameServersService: StaticGameServersService;
 
   beforeAll(async () => (mongod = await MongoMemoryServer.create()));
@@ -47,6 +52,13 @@ describe('AdminNotificationsService', () => {
 
   beforeEach(() => {
     sentMessages = new Subject();
+    client = new Client({
+      intents: [
+        GatewayIntentBits.Guilds,
+        GatewayIntentBits.GuildEmojisAndStickers,
+        GatewayIntentBits.GuildMessages,
+      ],
+    });
   });
 
   beforeEach(async () => {
@@ -66,77 +78,114 @@ describe('AdminNotificationsService', () => {
       ],
       providers: [
         AdminNotificationsService,
-        DiscordService,
+        {
+          provide: 'DISCORD_CLIENT',
+          useValue: client,
+        },
+        ConfigurationService,
         Events,
-        { provide: Environment, useValue: environment },
         PlayersService,
-        GamesService,
+        { provide: Environment, useValue: environment },
         StaticGameServersService,
+        GamesService,
       ],
     }).compile();
 
     service = module.get<AdminNotificationsService>(AdminNotificationsService);
-    events = module.get(Events);
-    playersService = module.get(PlayersService);
-    discordService = module.get(DiscordService);
     connection = module.get(getConnectionToken());
+    playersService = module.get(PlayersService);
     gamesService = module.get(GamesService);
+    configurationService = module.get(ConfigurationService);
+    events = module.get(Events);
     staticGameServersService = module.get(StaticGameServersService);
-    (staticGameServersService.gameServerAdded as Subject<any>) = new Subject();
-    (staticGameServersService.gameServerUpdated as Subject<any>) =
-      new Subject();
-    sendSpy = jest
-      .spyOn(discordService.getAdminsChannel() as TextChannel, 'send')
-      .mockImplementation((message: any) => {
-        sentMessages.next(message);
-        return Promise.resolve(message);
-      });
   });
 
   beforeEach(() => {
+    configurationService.get.mockImplementation((key) =>
+      Promise.resolve(
+        {
+          'discord.guilds': [
+            {
+              id: 'FAKE_GUILD_ID',
+              adminNotifications: {
+                channel: 'FAKE_ADMIN_CHANNEL_ID',
+              },
+            },
+          ],
+        }[key],
+      ),
+    );
+
+    (staticGameServersService.gameServerAdded as Subject<any>) = new Subject();
+    (staticGameServersService.gameServerUpdated as Subject<any>) =
+      new Subject();
+
+    const channel = new TextChannel('admin notifications');
+    channel.send.mockImplementation((message) => {
+      sentMessages.next(message);
+      return Promise.resolve(message);
+    });
+    client.channels.cache.set('FAKE_ADMIN_CHANNEL_ID', channel);
+
     service.onModuleInit();
   });
 
   afterEach(async () => {
-    // @ts-expect-error
     await playersService._reset();
+    await gamesService._reset();
     await connection.close();
-  });
-
-  afterEach(() => {
-    sentMessages.complete();
   });
 
   it('should be defined', () => {
     expect(service).toBeDefined();
   });
 
-  it('should handle playerRegisters event', async () => {
-    // @ts-expect-error
-    const player = await playersService._createOne();
+  describe('when the client is ready', () => {
+    it('should send a message to admins channel', () =>
+      new Promise<void>((resolve) => {
+        sentMessages.subscribe((message) => {
+          expect(message).toMatch(/Server version (.+) started/);
+          resolve();
+        });
 
-    events.playerRegisters.next({ player });
-    expect(sendSpy).toHaveBeenCalledTimes(1);
+        client.emit('ready');
+      }));
   });
 
-  describe('when the playerUpdates event emits', () => {
+  describe('when a player registers', () => {
+    let player: Player;
+
+    beforeEach(async () => {
+      player = await playersService._createOne();
+    });
+
+    it('should send a notification to admins channel', () =>
+      new Promise<void>((resolve) => {
+        sentMessages.subscribe((message) => {
+          expect(message.embeds.length).toBeGreaterThan(0);
+          expect(message.embeds[0].toJSON().title).toEqual('New player');
+          resolve();
+        });
+        events.playerRegisters.next({ player });
+      }));
+  });
+
+  describe('when a player gets updated', () => {
     let admin: Player;
     let oldPlayer: Player;
     let newPlayer: Player;
 
     beforeEach(async () => {
-      // @ts-expect-error
-      const playerId = (await playersService._createOne()).id;
-      // @ts-expect-error
+      const playerId = (await playersService._createOne())._id;
       admin = await playersService._createOne();
 
       oldPlayer = await playersService.getById(playerId);
       newPlayer = await playersService.updatePlayer(playerId, {
-        name: 'NEW_PLAYER_NAME',
+        name: 'new player name',
       });
     });
 
-    it('should send a message', () =>
+    it('should send a notification to admins channel', () =>
       new Promise<void>((resolve) => {
         sentMessages.subscribe((message) => {
           expect(message.embeds.length).toBeGreaterThan(0);
@@ -152,35 +201,18 @@ describe('AdminNotificationsService', () => {
           adminId: admin._id,
         });
       }));
-
-    describe("when the update doesn't change anything", () => {
-      it('should not send any messages', () =>
-        new Promise<void>((resolve) => {
-          events.playerUpdates.next({
-            oldPlayer,
-            newPlayer: oldPlayer,
-            adminId: admin._id,
-          });
-          setTimeout(() => {
-            expect(sendSpy).not.toHaveBeenCalled();
-            resolve();
-          }, 1000);
-        }));
-    });
   });
 
-  describe('when the playerBanAdded event emits', () => {
+  describe('when player ban gets added', () => {
     let admin: Player;
     let player: Player;
 
     beforeEach(async () => {
-      // @ts-expect-error
-      player = await playersService._createOne();
-      // @ts-expect-error
       admin = await playersService._createOne();
+      player = await playersService._createOne();
     });
 
-    it('should send a message', () =>
+    it('should send a notification to admins channel', () =>
       new Promise<void>((resolve) => {
         sentMessages.subscribe((message) => {
           expect(message.embeds.length).toBeGreaterThan(0);
@@ -203,18 +235,16 @@ describe('AdminNotificationsService', () => {
       }));
   });
 
-  describe('when the playerBanRevoked event emits', () => {
+  describe('when player ban gets revoked', () => {
     let admin: Player;
     let player: Player;
 
     beforeEach(async () => {
-      // @ts-expect-error
-      player = await playersService._createOne();
-      // @ts-expect-error
       admin = await playersService._createOne();
+      player = await playersService._createOne();
     });
 
-    it('should send a message', () =>
+    it('should send a notification to admins channel', () =>
       new Promise<void>((resolve) => {
         sentMessages.subscribe((message) => {
           expect(message.embeds.length).toBe(1);
@@ -240,13 +270,12 @@ describe('AdminNotificationsService', () => {
       }));
   });
 
-  describe('when the skill changes', () => {
+  describe('when player skill changes', () => {
     let admin: Player;
     let oldPlayer: Player;
     let newPlayer: Player;
 
     beforeEach(async () => {
-      // @ts-expect-error
       const playerId = (await playersService._createOne()).id;
 
       oldPlayer = await playersService.updatePlayer(playerId, {
@@ -256,11 +285,10 @@ describe('AdminNotificationsService', () => {
         skill: new Map([[Tf2ClassName.soldier, 4]]),
       });
 
-      // @ts-expect-error
       admin = await playersService._createOne();
     });
 
-    it('should send a message', () =>
+    it('should send a notification to admins channel', () =>
       new Promise<void>((resolve) => {
         sentMessages.subscribe((message) => {
           expect(message.embeds[0].toJSON().title).toEqual(
@@ -275,25 +303,10 @@ describe('AdminNotificationsService', () => {
           adminId: admin._id,
         });
       }));
-
-    describe("when the skill doesn't really change", () => {
-      it('should not send any message', () =>
-        new Promise<void>((resolve) => {
-          events.playerUpdates.next({
-            oldPlayer,
-            newPlayer: oldPlayer,
-            adminId: admin._id,
-          });
-          setTimeout(() => {
-            expect(sendSpy).not.toHaveBeenCalled();
-            resolve();
-          }, 1000);
-        }));
-    });
   });
 
   describe('when the gameServerAdded event emits', () => {
-    it('should send a message', () =>
+    it('should send a notification to admins channel', () =>
       new Promise<void>((resolve) => {
         sentMessages.subscribe((message) => {
           expect(message.embeds[0].toJSON().title).toEqual('Game server added');
@@ -306,8 +319,8 @@ describe('AdminNotificationsService', () => {
       }));
   });
 
-  describe('when the gameServer goes offline', () => {
-    it('should send a message', () => {
+  describe('when the game server goes offline', () => {
+    it('should send a notification to admins channel', () => {
       sentMessages.subscribe((message) => {
         expect(message.embeds[0].toJSON().title).toEqual(
           'Game server is offline',
@@ -327,8 +340,8 @@ describe('AdminNotificationsService', () => {
     });
   });
 
-  describe('when the gameServer comes back online', () => {
-    it('should send a message', () => {
+  describe('when the game server comes back online', () => {
+    it('should send a notification to admins channel', () => {
       sentMessages.subscribe((message) => {
         expect(message.embeds[0].toJSON().title).toEqual(
           'Game server is back online',
@@ -352,11 +365,10 @@ describe('AdminNotificationsService', () => {
     let admin: Player;
 
     beforeEach(async () => {
-      // @ts-expect-error
       admin = await playersService._createOne();
     });
 
-    it('should send a message', () =>
+    it('should send a notification to admins channel', () =>
       new Promise<void>((resolve) => {
         sentMessages.subscribe((message) => {
           expect(message.embeds[0].toJSON().title).toEqual('Game force-ended');
@@ -385,17 +397,12 @@ describe('AdminNotificationsService', () => {
     let game: Game;
 
     beforeEach(async () => {
-      // @ts-expect-error
       admin = await playersService._createOne();
-
-      // @ts-expect-error
       player = await playersService._createOne();
-
-      // @ts-expect-error
       game = await gamesService._createOne();
     });
 
-    it('should send a notification', () =>
+    it('should send a notification to admins channel', () =>
       new Promise<void>((resolve) => {
         sentMessages.subscribe((message) => {
           expect(message.embeds[0].toJSON().title).toEqual(
@@ -416,11 +423,10 @@ describe('AdminNotificationsService', () => {
     let actor: Player;
 
     beforeEach(async () => {
-      // @ts-expect-error
       actor = await playersService._createOne();
     });
 
-    it('should send a notification', () =>
+    it('should send a notification to admins channel', () =>
       new Promise<void>((resolve) => {
         sentMessages.subscribe((message) => {
           expect(message.embeds[0].toJSON().title).toEqual('Maps scrambled');
