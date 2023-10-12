@@ -1,5 +1,24 @@
 
 
+# [11.2.0-alpha.0](https://github.com/tf2pickup-org/server/compare/11.1.2...11.2.0-alpha.0) (2023-10-12)
+
+
+### Bug Fixes
+
+* **deps:** update dependency cache-manager to v5.2.4 ([3bbf71c](https://github.com/tf2pickup-org/server/commit/3bbf71c0ea7a854f7fa6f1c7566df7c731b4f7fa))
+* **deps:** update dependency csv-parse to v5.5.1 ([f1e5b86](https://github.com/tf2pickup-org/server/commit/f1e5b86275860d96f79243275a1467a41364b5ef))
+* **deps:** update dependency csv-parse to v5.5.2 ([44dc753](https://github.com/tf2pickup-org/server/commit/44dc753a6526c76336870781fee45952059156a7))
+* **deps:** update dependency mongoose to v7.5.4 ([#2659](https://github.com/tf2pickup-org/server/issues/2659)) ([318d15c](https://github.com/tf2pickup-org/server/commit/318d15cd00f2022f0d4688286a18cfab72abe3f2))
+* **deps:** update dependency mongoose to v7.6.0 ([#2661](https://github.com/tf2pickup-org/server/issues/2661)) ([93501fd](https://github.com/tf2pickup-org/server/commit/93501fd993412229e07d65d4d4dc9f4e30172897))
+* **deps:** update dependency mongoose to v7.6.1 ([#2662](https://github.com/tf2pickup-org/server/issues/2662)) ([5a4e1f5](https://github.com/tf2pickup-org/server/commit/5a4e1f5d394a0f7abab37970a99acc2c9cbeea7c))
+* **deps:** update dependency zod to v3.22.4 ([f9e2887](https://github.com/tf2pickup-org/server/commit/f9e2887134456fd743edc8de47d93dbb613d7894))
+* **deps:** update nest monorepo to v10.2.7 ([#2660](https://github.com/tf2pickup-org/server/issues/2660)) ([a691751](https://github.com/tf2pickup-org/server/commit/a691751808958fa19461d1ec1185c25c121e3b0f))
+
+
+### Features
+
+* **discord:** revamp discord bot ([#2655](https://github.com/tf2pickup-org/server/issues/2655)) ([7ff2897](https://github.com/tf2pickup-org/server/commit/7ff2897aa6cffceec1c8948c0c347a3757bf7394))
+
 ## [11.1.2](https://github.com/tf2pickup-org/server/compare/11.1.1...11.1.2) (2023-10-04)
 
 
