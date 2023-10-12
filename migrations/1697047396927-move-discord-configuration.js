@@ -65,7 +65,7 @@ module.exports.up = async function (next) {
       await mongo
         .db()
         .collection('configuration')
-        .insertOne({ key: 'discord.guilds', value: config });
+        .insertOne({ key: 'discord.guilds', value: [config] });
     }
   } else {
     console.log('not migrating discord configuration');
