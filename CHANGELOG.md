@@ -1,5 +1,12 @@
 
 
+# [11.2.0-alpha.2](https://github.com/tf2pickup-org/server/compare/11.2.0-alpha.1...11.2.0-alpha.2) (2023-10-13)
+
+
+### Bug Fixes
+
+* **discord:** use all queue slots for the prompt ([#2667](https://github.com/tf2pickup-org/server/issues/2667)) ([5a6906d](https://github.com/tf2pickup-org/server/commit/5a6906d58c71b287d0a63c877f8f5ee36a207af7))
+
 # [11.2.0-alpha.1](https://github.com/tf2pickup-org/server/compare/11.2.0-alpha.0...11.2.0-alpha.1) (2023-10-13)
 
 
