@@ -1,5 +1,13 @@
 
 
+# [11.2.0-alpha.1](https://github.com/tf2pickup-org/server/compare/11.2.0-alpha.0...11.2.0-alpha.1) (2023-10-13)
+
+
+### Bug Fixes
+
+* **discord:** fix client initialization ([#2666](https://github.com/tf2pickup-org/server/issues/2666)) ([f7aac8d](https://github.com/tf2pickup-org/server/commit/f7aac8d8a4bda304ec97105adfd8340c20e776fd))
+* **migration:** fix discord bot migration ([#2665](https://github.com/tf2pickup-org/server/issues/2665)) ([88b6c81](https://github.com/tf2pickup-org/server/commit/88b6c812f42fcd0aea6acca76259fe5742f92723))
+
 # [11.2.0-alpha.0](https://github.com/tf2pickup-org/server/compare/11.1.2...11.2.0-alpha.0) (2023-10-12)
 
 
