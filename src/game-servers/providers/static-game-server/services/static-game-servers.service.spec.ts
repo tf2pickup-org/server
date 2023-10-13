@@ -505,6 +505,7 @@ describe('StaticGameServersService', () => {
       game.events.push({
         at: sub(new Date(), { minutes: 2 }),
         event: GameEventType.gameEnded,
+        serialize: jest.fn(),
       });
       await game.save();
 
