@@ -47,7 +47,7 @@ export class QueueService
   state: QueueState = QueueState.waiting;
 
   private logger = new Logger(QueueService.name);
-  private timer?: NodeJS.Timer;
+  private timer?: ReturnType<typeof setTimeout>;
   private immediates: NodeJS.Immediate[] = [];
   private readyUpTimeout = 40 * 1000;
   private readyStateTimeout = 60 * 1000;
