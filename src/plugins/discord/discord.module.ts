@@ -28,13 +28,17 @@ const discordClientProvider: Provider = {
       ],
     });
 
-    client.on('ready', () => {
-      if (client.user) {
-        logger.log(`logged in as ${client.user.tag}`);
-      }
+    const ready = new Promise<void>((resolve) => {
+      client.on('ready', () => {
+        if (client.user) {
+          logger.log(`logged in as ${client.user.tag}`);
+        }
+        resolve();
+      });
     });
 
     await client.login(environment.discordBotToken);
+    await ready;
     return client;
   },
 };
