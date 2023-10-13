@@ -109,10 +109,9 @@ export class GamesController {
   }
 
   @Get(':id/events')
-  async getEvents(
+  getEvents(
     @Param('id', GameByIdOrNumberPipe) game: Game,
-  ): Promise<Serializable<GameEventDto>[]> {
-    // return await gameEventsToDto(game.events);
+  ): Serializable<GameEventDto>[] {
     return game.events;
   }
 
