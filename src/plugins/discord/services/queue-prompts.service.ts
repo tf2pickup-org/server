@@ -17,16 +17,9 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 import { ConfigurationService } from '@/configuration/services/configuration.service';
 import { GuildConfiguration } from '../types/guild-configuration';
-import { Tf2ClassName } from '@/shared/models/tf2-class-name';
-import { PlayerId } from '@/players/types/player-id';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { QueueService } from '@/queue/services/queue.service';
-
-interface QueueSlotData {
-  id: number;
-  gameClass: Tf2ClassName;
-  playerId: PlayerId | null;
-}
+import { QueueSlot } from '@/queue/queue-slot';
 
 const queuePromptMessageIdCacheKey = (guildId: string) =>
   `queue-prompt-message-id/${guildId}`;
@@ -73,7 +66,7 @@ export class QueuePromptsService implements OnModuleInit {
           })),
         ),
         debounceTime(3000),
-        concatMap((slots) => from(this.refreshPrompt(slots))),
+        concatMap(() => from(this.refreshPrompt())),
         catchError((error) => {
           this.logger.error(error);
           return of(null);
@@ -82,7 +75,8 @@ export class QueuePromptsService implements OnModuleInit {
       .subscribe();
   }
 
-  async refreshPrompt(slots: QueueSlotData[]) {
+  async refreshPrompt() {
+    const slots = this.queueService.slots;
     const clientName = new URL(this.environment.clientUrl).hostname;
     const playerCount = slots.filter((slot) => Boolean(slot.playerId)).length;
     const requiredPlayerCount = slots.length;
@@ -118,7 +112,7 @@ export class QueuePromptsService implements OnModuleInit {
     });
   }
 
-  private async slotsToGameClassData(guildId: string, slots: QueueSlotData[]) {
+  private async slotsToGameClassData(guildId: string, slots: QueueSlot[]) {
     const playerData = await Promise.all(
       slots
         .filter((slot) => Boolean(slot.playerId))
@@ -200,7 +194,7 @@ export class QueuePromptsService implements OnModuleInit {
           this.cache.del(queuePromptMessageIdCacheKey(channel.guildId)),
         ]);
 
-        await this.refreshPrompt(this.queueService.slots);
+        await this.refreshPrompt();
       }
     });
   }

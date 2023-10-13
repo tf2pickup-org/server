@@ -41,6 +41,7 @@ describe('QueuePromptsService', () => {
   let channel: TextChannel;
   let players: Player[];
   let cache: Cache;
+  let queueService: jest.Mocked<QueueService>;
 
   beforeAll(async () => (mongod = await MongoMemoryServer.create()));
   afterAll(async () => await mongod.stop());
@@ -94,6 +95,7 @@ describe('QueuePromptsService', () => {
     playersService = module.get(PlayersService);
     configurationService = module.get(ConfigurationService);
     cache = module.get(CACHE_MANAGER);
+    queueService = module.get(QueueService);
   });
 
   beforeEach(async () => {
@@ -122,6 +124,33 @@ describe('QueuePromptsService', () => {
     channel.guildId = 'guild1';
     client.channels.cache.set('FAKE_PLAYERS_CHANNEL_ID', channel);
 
+    queueService.slots = [
+      {
+        id: 1,
+        gameClass: Tf2ClassName.soldier,
+        playerId: null,
+        ready: false,
+      },
+      {
+        id: 2,
+        gameClass: Tf2ClassName.soldier,
+        playerId: null,
+        ready: false,
+      },
+      {
+        id: 3,
+        gameClass: Tf2ClassName.soldier,
+        playerId: null,
+        ready: false,
+      },
+      {
+        id: 4,
+        gameClass: Tf2ClassName.soldier,
+        playerId: null,
+        ready: false,
+      },
+    ];
+
     service.onModuleInit();
   });
 
@@ -137,29 +166,37 @@ describe('QueuePromptsService', () => {
   describe('#refreshPrompt()', () => {
     describe('when a prompt was not sent before', () => {
       describe('but the threshold is met', () => {
-        it('should send the prompt', async () => {
-          await service.refreshPrompt([
+        beforeEach(() => {
+          queueService.slots = [
             {
               id: 1,
               gameClass: Tf2ClassName.soldier,
               playerId: players[0]._id,
+              ready: false,
             },
             {
               id: 2,
               gameClass: Tf2ClassName.soldier,
               playerId: players[1]._id,
+              ready: false,
             },
             {
               id: 3,
               gameClass: Tf2ClassName.soldier,
               playerId: null,
+              ready: false,
             },
             {
               id: 4,
               gameClass: Tf2ClassName.soldier,
               playerId: null,
+              ready: false,
             },
-          ]);
+          ];
+        });
+
+        it('should send the prompt', async () => {
+          await service.refreshPrompt();
           expect(channel.send).toHaveBeenCalled();
           const args = channel.send.mock.calls[0][0];
           expect(args.embeds[0].toJSON().title).toMatch(
@@ -169,29 +206,37 @@ describe('QueuePromptsService', () => {
       });
 
       describe('and the threshold is not met', () => {
-        it('should not send the prompt', async () => {
-          await service.refreshPrompt([
+        beforeEach(() => {
+          queueService.slots = [
             {
               id: 1,
               gameClass: Tf2ClassName.soldier,
               playerId: players[0]._id,
+              ready: false,
             },
             {
               id: 2,
               gameClass: Tf2ClassName.soldier,
               playerId: null,
+              ready: false,
             },
             {
               id: 3,
               gameClass: Tf2ClassName.soldier,
               playerId: null,
+              ready: false,
             },
             {
               id: 4,
               gameClass: Tf2ClassName.soldier,
               playerId: null,
+              ready: false,
             },
-          ]);
+          ];
+        });
+
+        it('should not send the prompt', async () => {
+          await service.refreshPrompt();
           expect(channel.send).not.toHaveBeenCalled();
         });
       });
@@ -204,31 +249,37 @@ describe('QueuePromptsService', () => {
         message = new Message();
         channel.messages.cache.set(message.id, message);
         await cache.set('queue-prompt-message-id/guild1', message.id);
-      });
 
-      it('should edit the message', async () => {
-        await service.refreshPrompt([
+        queueService.slots = [
           {
             id: 1,
             gameClass: Tf2ClassName.soldier,
             playerId: players[0]._id,
+            ready: false,
           },
           {
             id: 2,
             gameClass: Tf2ClassName.soldier,
             playerId: players[1]._id,
+            ready: false,
           },
           {
             id: 3,
             gameClass: Tf2ClassName.soldier,
             playerId: null,
+            ready: false,
           },
           {
             id: 4,
             gameClass: Tf2ClassName.soldier,
             playerId: null,
+            ready: false,
           },
-        ]);
+        ];
+      });
+
+      it('should edit the message', async () => {
+        await service.refreshPrompt();
         expect(message.edit).toHaveBeenCalled();
         const args = message.edit.mock.calls[0][0];
         expect(args.embeds[0].toJSON().title).toMatch(
