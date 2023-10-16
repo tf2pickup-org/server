@@ -29,7 +29,7 @@ type PickEnum<T, K extends T> = {
 @Injectable()
 export class GameEventHandlerService implements OnModuleInit, OnModuleDestroy {
   private logger = new Logger(GameEventHandlerService.name);
-  private timers: NodeJS.Timer[] = [];
+  private timers: ReturnType<typeof setTimeout>[] = [];
 
   constructor(
     @InjectModel(Game.name) private gameModel: Model<GameDocument>,
