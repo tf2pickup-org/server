@@ -9472,9 +9472,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mongoose@npm:7.6.2":
-  version: 7.6.2
-  resolution: "mongoose@npm:7.6.2"
+"mongoose@npm:7.6.3":
+  version: 7.6.3
+  resolution: "mongoose@npm:7.6.3"
   dependencies:
     bson: ^5.5.0
     kareem: 2.5.1
@@ -9483,7 +9483,7 @@ __metadata:
     mquery: 5.0.0
     ms: 2.1.3
     sift: 16.0.1
-  checksum: 685f436c3f249c67614d360a2df3f3c1394c0e69da7bb3e06e62cd658a4e4d18a507809f94ea891c57b4cacdba3b38a0210c5628d9788079abe27ded8fde00e2
+  checksum: 16d097d6a40ad788a8b49867a5d256e1ffefb6aab0bb75481d9a95908551b53152e7f1870655befef5433b86a574f07679733f789a2723fca08f1eb66a9a715a
   languageName: node
   linkType: hard
 
@@ -11281,7 +11281,7 @@ __metadata:
     mongodb: 6.1.0
     mongodb-memory-server: 9.0.1
     mongodb-uri: 0.9.7
-    mongoose: 7.6.2
+    mongoose: 7.6.3
     multer: ^1.4.5-lts.1
     nestjs-real-ip: 3.0.1
     passport: 0.6.0
