@@ -250,6 +250,7 @@ export class PlayerSubstitutionService implements OnModuleInit {
             player: replacementId,
             team: slot.team,
             gameClass: slot.gameClass,
+            status: SlotStatus.active,
           },
           events: {
             event: GameEventType.playerReplaced,
@@ -273,8 +274,14 @@ export class PlayerSubstitutionService implements OnModuleInit {
               new: true,
               arrayFilters: [
                 {
-                  'element.player': { $eq: replaceeId },
-                  'element.status': { $eq: SlotStatus.waitingForSubstitute },
+                  $and: [
+                    { 'element.player': { $eq: replaceeId } },
+                    {
+                      'element.status': {
+                        $eq: SlotStatus.waitingForSubstitute,
+                      },
+                    },
+                  ],
                 },
               ],
             },
