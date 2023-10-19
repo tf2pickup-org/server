@@ -58,7 +58,7 @@ export class GameServersService
       .pipe(
         filter(
           ({ oldGame, newGame }) =>
-            oldGame.isInProgress && !newGame.isInProgress(),
+            oldGame.isInProgress() && !newGame.isInProgress(),
         ),
         map(({ newGame }) => newGame),
         filter((game) => Boolean(game.gameServer)),
