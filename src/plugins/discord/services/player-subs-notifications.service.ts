@@ -82,17 +82,18 @@ export class PlayerSubsNotificationsService implements OnModuleInit {
           ({ oldGame, newGame }) =>
             oldGame.isInProgress() && !newGame.isInProgress(),
         ),
-        map(({ oldGame }) => ({
-          game: oldGame,
+        map(({ oldGame, newGame }) => ({
+          oldGame,
+          newGame,
           slots: oldGame.slots.filter(
             (s) => s.status === SlotStatus.waitingForSubstitute,
           ),
         })),
-        concatMap(({ game, slots }) =>
+        concatMap(({ newGame, slots }) =>
           from(
             Promise.all(
               slots.map((slot) =>
-                this.markSubstituteRequestInvalid(game, slot.player),
+                this.markSubstituteRequestInvalid(newGame, slot.player),
               ),
             ),
           ),
