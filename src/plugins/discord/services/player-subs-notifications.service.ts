@@ -82,10 +82,9 @@ export class PlayerSubsNotificationsService implements OnModuleInit {
           ({ oldGame, newGame }) =>
             oldGame.isInProgress() && !newGame.isInProgress(),
         ),
-        map(({ oldGame }) => oldGame),
-        map((game: Game) => ({
-          game,
-          slots: game.slots.filter(
+        map(({ oldGame }) => ({
+          game: oldGame,
+          slots: oldGame.slots.filter(
             (s) => s.status === SlotStatus.waitingForSubstitute,
           ),
         })),
@@ -141,7 +140,10 @@ export class PlayerSubsNotificationsService implements OnModuleInit {
   }
 
   async markSubstituteRequestInvalid(game: Game, playerId: PlayerId) {
-    const slot = game.findPlayerSlot(playerId);
+    const slot = game.findPlayerSlot(playerId, [
+      SlotStatus.active,
+      SlotStatus.replaced,
+    ]);
     if (!slot) {
       throw new Error(`no such slot: ${playerId} (gameId=${game.id})`);
     }

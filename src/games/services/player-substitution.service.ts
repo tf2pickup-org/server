@@ -142,10 +142,6 @@ export class PlayerSubstitutionService implements OnModuleInit {
         throw new GameInWrongStateError(gameId, game.state);
       }
 
-      if (slot.status === SlotStatus.replaced) {
-        throw new WrongGameSlotStatusError(gameId, playerId, slot.status);
-      }
-
       if (slot.status === SlotStatus.active) {
         return game;
       }
@@ -247,45 +243,22 @@ export class PlayerSubstitutionService implements OnModuleInit {
         );
       }
 
-      if (game.findPlayerSlot(replacementId)) {
-        await this.gameModel.findByIdAndUpdate(
-          gameId,
-          {
-            $set: {
-              'slots.$[element].status': SlotStatus.active,
-            },
-            $push: {
-              events: {
-                event: GameEventType.playerReplaced,
-                at: new Date(),
-                replacee: replaceeId,
-                replacement: replacementId,
-              },
-            },
+      // create new slot of the replacement player and update the old slot
+      await this.gameModel.findByIdAndUpdate(gameId, {
+        $push: {
+          slots: {
+            player: replacementId,
+            team: slot.team,
+            gameClass: slot.gameClass,
           },
-          {
-            arrayFilters: [{ 'element.player': { $eq: replacementId } }],
+          events: {
+            event: GameEventType.playerReplaced,
+            at: new Date(),
+            replacee: replaceeId,
+            replacement: replacementId,
           },
-        );
-      } else {
-        // create new slot of the replacement player
-        await this.gameModel.findByIdAndUpdate(gameId, {
-          $push: {
-            slots: {
-              player: replacementId,
-              team: slot.team,
-              gameClass: slot.gameClass,
-            },
-            events: {
-              event: GameEventType.playerReplaced,
-              at: new Date(),
-              replacee: replaceeId,
-              replacement: replacementId,
-            },
-          },
-        });
-      }
-
+        },
+      });
       const newGame = plainToInstance(
         Game,
         await this.gameModel
@@ -298,7 +271,12 @@ export class PlayerSubstitutionService implements OnModuleInit {
             },
             {
               new: true,
-              arrayFilters: [{ 'element.player': { $eq: replaceeId } }],
+              arrayFilters: [
+                {
+                  'element.player': { $eq: replaceeId },
+                  'element.status': { $eq: SlotStatus.waitingForSubstitute },
+                },
+              ],
             },
           )
           .orFail()

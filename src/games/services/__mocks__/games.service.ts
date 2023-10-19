@@ -4,7 +4,7 @@ import { Game, GameDocument } from '@/games/models/game';
 import { Player } from '@/players/models/player';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, UpdateQuery } from 'mongoose';
 import { Events } from '@/events/events';
 import { Mutex } from 'async-mutex';
 import { Tf2Team } from '@/games/models/tf2-team';
@@ -40,7 +40,7 @@ export class GamesService {
     return this._original.getByLogSecret(logSecret);
   }
 
-  async update(gameId: string, update: Partial<Game>, adminId?: string) {
+  async update(gameId: string, update: UpdateQuery<Game>, adminId?: string) {
     return this._original.update(gameId, update, adminId);
   }
 
