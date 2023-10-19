@@ -1,5 +1,12 @@
 
 
+## [11.1.3](https://github.com/tf2pickup-org/server/compare/11.1.2...11.1.3) (2023-10-19)
+
+
+### Bug Fixes
+
+* **game-servers:** fix release gameserver logic ([#2672](https://github.com/tf2pickup-org/server/issues/2672)) ([aa2acca](https://github.com/tf2pickup-org/server/commit/aa2acca1959aa5a89fe08e99d2934d9859602ed3))
+
 # [11.2.0-alpha.2](https://github.com/tf2pickup-org/server/compare/11.2.0-alpha.1...11.2.0-alpha.2) (2023-10-13)
 
 
