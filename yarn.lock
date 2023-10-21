@@ -2581,12 +2581,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/pem@npm:1.14.2":
-  version: 1.14.2
-  resolution: "@types/pem@npm:1.14.2"
+"@types/pem@npm:1.14.3":
+  version: 1.14.3
+  resolution: "@types/pem@npm:1.14.3"
   dependencies:
     "@types/node": "*"
-  checksum: e6c392db38b7197c4cb38cf5b0f727abbc7189557cf08ed24216282d78bf0bc9a7240764a3dabe47ddac165d0edc55e7ba906c26bf0c180a840df0f2d97c8f7f
+  checksum: 67330dbf26870ef399a66141323d2212a303bd64bbf5d4e4340cbdc61ce51b1f551105e773f37c87d2acbae9dd86e595c3bdedf7c16fa3f3e8182264656e7a26
   languageName: node
   linkType: hard
 
@@ -11329,7 +11329,7 @@ __metadata:
     "@types/passport": 1.0.14
     "@types/passport-jwt": 3.0.10
     "@types/passport-steam": 1.0.2
-    "@types/pem": 1.14.2
+    "@types/pem": 1.14.3
     "@types/socket.io": 3.0.1
     "@types/socketio-jwt-auth": 0.0.3
     "@types/steamid": 2.0.1
