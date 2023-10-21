@@ -95,7 +95,7 @@
     "@types/pem": "1.14.3",
     "@types/socket.io": "3.0.1",
     "@types/socketio-jwt-auth": "0.0.4",
-    "@types/steamid": "2.0.1",
+    "@types/steamid": "2.0.2",
     "@types/supertest": "2.0.15",
     "@typescript-eslint/eslint-plugin": "6.8.0",
     "@typescript-eslint/parser": "6.8.0",

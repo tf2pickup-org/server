@@ -2684,10 +2684,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/steamid@npm:2.0.1":
-  version: 2.0.1
-  resolution: "@types/steamid@npm:2.0.1"
-  checksum: eda57855c8cb62afe727a82079dc31b8afb7557859d62d91001ede2de979b70a29cfe10123adc43693d5b3dd0b9bae1b2a75f88fa2ee041806227ee454edf52f
+"@types/steamid@npm:2.0.2":
+  version: 2.0.2
+  resolution: "@types/steamid@npm:2.0.2"
+  checksum: bcbeb1f7667169ed76d30675fe65b427392bb22df093f4d0db0cd81c63141a64c730cfcc361b6b79c19963111dbc9ab29b79dacf046ef5b44c586580bd10a91d
   languageName: node
   linkType: hard
 
@@ -11332,7 +11332,7 @@ __metadata:
     "@types/pem": 1.14.3
     "@types/socket.io": 3.0.1
     "@types/socketio-jwt-auth": 0.0.4
-    "@types/steamid": 2.0.1
+    "@types/steamid": 2.0.2
     "@types/supertest": 2.0.15
     "@typescript-eslint/eslint-plugin": 6.8.0
     "@typescript-eslint/parser": 6.8.0
