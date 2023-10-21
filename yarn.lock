@@ -2546,10 +2546,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/passport-steam@npm:1.0.2":
-  version: 1.0.2
-  resolution: "@types/passport-steam@npm:1.0.2"
-  checksum: 96b1f07fe9c7671f57a0cee59858ac9a7f42f4a46b348955b3f4d05547f79afcccf2261d4f61e7cfc937645180de1ee2455a3e3ebdd6b1bcadbfffa9e7c98662
+"@types/passport-steam@npm:1.0.3":
+  version: 1.0.3
+  resolution: "@types/passport-steam@npm:1.0.3"
+  checksum: ef6a98bf2851c7bfe953cb3796b507e0e815507579a58acbe51e8f4eb8b78c46b8f614d6af5bf5825792e73b1405e9892bac7e1aed8bc1882fedfb1655c8aa74
   languageName: node
   linkType: hard
 
@@ -11328,7 +11328,7 @@ __metadata:
     "@types/node": 18.18.6
     "@types/passport": 1.0.14
     "@types/passport-jwt": 3.0.10
-    "@types/passport-steam": 1.0.2
+    "@types/passport-steam": 1.0.3
     "@types/pem": 1.14.3
     "@types/socket.io": 3.0.1
     "@types/socketio-jwt-auth": 0.0.3
