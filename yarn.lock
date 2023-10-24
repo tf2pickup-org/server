@@ -1472,17 +1472,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nestjs/schedule@npm:3.0.4":
-  version: 3.0.4
-  resolution: "@nestjs/schedule@npm:3.0.4"
+"@nestjs/schedule@npm:4.0.0":
+  version: 4.0.0
+  resolution: "@nestjs/schedule@npm:4.0.0"
   dependencies:
-    cron: 2.4.3
+    cron: 3.1.3
     uuid: 9.0.1
   peerDependencies:
     "@nestjs/common": ^8.0.0 || ^9.0.0 || ^10.0.0
     "@nestjs/core": ^8.0.0 || ^9.0.0 || ^10.0.0
     reflect-metadata: ^0.1.12
-  checksum: 5dfb877fcb27e672df3e8ee5eff8ffb45edb91828814fb288caf0ba6268a525315deb41b01de34731e434acf9494e80d056c0b753bc3a07123f50ee9990681a4
+  checksum: c6810ca3afbbfa90788e013fd3de1ad460576e1742a72af90578dc0dd1949ab7fbaa9a7186552c4609c257ebe12e091de30d3942fb247042426f2de5db93c231
   languageName: node
   linkType: hard
 
@@ -4849,13 +4849,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cron@npm:2.4.3":
-  version: 2.4.3
-  resolution: "cron@npm:2.4.3"
+"cron@npm:3.1.3":
+  version: 3.1.3
+  resolution: "cron@npm:3.1.3"
   dependencies:
     "@types/luxon": ~3.3.0
-    luxon: ~3.3.0
-  checksum: cb0ad49653b37ba125f8670ca92150ce515493512b1b8a5e08086d22bec9c54dc6d8926fcdb49ea5783f6699862ca5fdc532a440ce33c3228f9b3d565010db2f
+    luxon: ~3.4.0
+  checksum: 92c8a04c477e36bf3b555d1e60528fa9b5efe35bfd484c8c891fea41cadeeed9ef3120a58dcf05944f7bc0e5fd0ef6070bc8968837bf7e33765a4d296f2b0146
   languageName: node
   linkType: hard
 
@@ -9012,10 +9012,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"luxon@npm:~3.3.0":
-  version: 3.3.0
-  resolution: "luxon@npm:3.3.0"
-  checksum: 50cf17a0dc155c3dcacbeae8c0b7e80db425e0ba97b9cbdf12a7fc142d841ff1ab1560919f033af46240ed44e2f70c49f76e3422524c7fc8bb8d81ca47c66187
+"luxon@npm:~3.4.0":
+  version: 3.4.3
+  resolution: "luxon@npm:3.4.3"
+  checksum: 3eade81506224d038ed24035a0cd0dd4887848d7eba9361dce9ad8ef81380596a68153240be3988721f9690c624fb449fcf8fd8c3fc0681a6a8496faf48e92a3
   languageName: node
   linkType: hard
 
@@ -11342,7 +11342,7 @@ __metadata:
     "@nestjs/passport": 10.0.2
     "@nestjs/platform-express": 10.2.7
     "@nestjs/platform-socket.io": 10.2.7
-    "@nestjs/schedule": 3.0.4
+    "@nestjs/schedule": 4.0.0
     "@nestjs/schematics": 10.0.2
     "@nestjs/serve-static": 4.0.0
     "@nestjs/testing": 10.2.7
