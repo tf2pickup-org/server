@@ -52,6 +52,14 @@ export class ChannelManager {
     );
 }
 
+export class RoleManager {
+  cache = new Collection();
+
+  resolve = jest
+    .fn()
+    .mockImplementation((resolvable) => this.cache.get(resolvable));
+}
+
 export class Role {
   constructor(public name: string) {}
 
@@ -73,10 +81,7 @@ export class Guild {
   available = true;
 
   channels = new ChannelManager();
-
-  roles = {
-    cache: new Collection(),
-  };
+  roles = new RoleManager();
 
   emojis = {
     cache: new Collection([]),
