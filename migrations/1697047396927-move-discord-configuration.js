@@ -57,6 +57,7 @@ module.exports.up = async function (next) {
         },
         queuePrompts: {
           channel: queueNotificationsChannel.id,
+          bumpPlayerThresholdRatio: 0.5,
         },
         adminNotifications: {
           channel: adminNotificationsChannel.id,
