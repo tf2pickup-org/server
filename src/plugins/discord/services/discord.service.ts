@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { ChannelType, Client, TextChannel } from 'discord.js';
+import { ChannelType, Client, Role, TextChannel } from 'discord.js';
 
 @Injectable()
 export class DiscordService {
@@ -18,6 +18,12 @@ export class DiscordService {
             (channel) => channel.type === ChannelType.GuildText,
           ) as Map<string, TextChannel>
       ).values() ?? [],
+    );
+  }
+
+  getRoles(guildId: string): Role[] {
+    return Array.from(
+      this.client.guilds.resolve(guildId)?.roles.cache.values() ?? [],
     );
   }
 }

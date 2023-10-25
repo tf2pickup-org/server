@@ -1,6 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { DiscordService } from './discord.service';
-import { Client, GatewayIntentBits, TextChannel } from '@mocks/discord.js';
+import {
+  Client,
+  GatewayIntentBits,
+  Role,
+  TextChannel,
+} from '@mocks/discord.js';
 
 describe('DiscordService', () => {
   let service: DiscordService;
@@ -49,6 +54,18 @@ describe('DiscordService', () => {
 
     it('should return all text channels', () => {
       expect(service.getTextChannels('guild1').length).toEqual(1);
+    });
+  });
+
+  describe('#getRoles()', () => {
+    beforeEach(() => {
+      client.guilds.cache
+        .get('guild1')
+        .roles.cache.set('test role', new Role('test role'));
+    });
+
+    it('should return all roles', () => {
+      expect(service.getRoles('guild1').length).toEqual(1);
     });
   });
 });

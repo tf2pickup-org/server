@@ -21,4 +21,13 @@ export class DiscordController {
       parent: channel.parent?.name,
     }));
   }
+
+  @Get('guilds/:id/roles')
+  getRoles(@Param('id') guildId: string) {
+    return this.discordService.getRoles(guildId).map((role) => ({
+      id: role.id,
+      name: role.name,
+      position: role.position,
+    }));
+  }
 }
