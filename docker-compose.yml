@@ -7,17 +7,6 @@ services:
     volumes:
       - mongodb:/data/db
 
-  mongoku:
-    image: huggingface/mongoku:latest
-    depends_on:
-      - mongo
-    ports:
-      - '3100:3100'
-    environment:
-      - 'MONGOKU_DEFAULT_HOST=mongodb://mongo:27017'
-    links:
-      - mongo
-
   redis:
     image: redis:7-alpine
     command: redis-server --save 60 1 --loglevel warning
