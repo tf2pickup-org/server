@@ -4,7 +4,7 @@ import { QueueConfig } from '@/queue-config/interfaces/queue-config';
 import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { catchError, concatMap, debounceTime, from, map, of } from 'rxjs';
 import { queuePreview } from '../notifications';
-import { iconUrlPath, promptPlayerThresholdRatio } from '@configs/discord';
+import { iconUrlPath } from '@configs/discord';
 import { PlayersService } from '@/players/services/players.service';
 import {
   ChannelType,
@@ -101,7 +101,14 @@ export class QueuePromptsService implements OnModuleInit {
         return;
       }
 
-      if (playerCount >= requiredPlayerCount * promptPlayerThresholdRatio) {
+      const config =
+        await this.configurationService.get<GuildConfiguration[]>(
+          'discord.guilds',
+        );
+      const thresholdRatio = config.find((gc) => gc.id === channel.guildId)!
+        .queuePrompts!.bumpPlayerThresholdRatio;
+
+      if (playerCount >= requiredPlayerCount * thresholdRatio) {
         const sentMessage = await channel.send({ embeds: [embed] });
         await this.cache.set(
           queuePromptMessageIdCacheKey(channel.guildId),

@@ -113,6 +113,7 @@ describe('QueuePromptsService', () => {
               id: 'guild1',
               queuePrompts: {
                 channel: 'FAKE_PLAYERS_CHANNEL_ID',
+                bumpPlayerThresholdRatio: 0.5,
               },
             },
           ],
