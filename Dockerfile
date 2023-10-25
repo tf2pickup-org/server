@@ -3,7 +3,6 @@ WORKDIR /tf2pickup.pl
 
 COPY package.json yarn.lock .yarnrc.yml ./
 COPY .yarn/releases .yarn/releases
-COPY .yarn/plugins .yarn/plugins
 RUN yarn install --immutable
 
 COPY . .
@@ -15,7 +14,6 @@ WORKDIR /tf2pickup.pl
 
 COPY package.json yarn.lock .yarnrc.yml ./
 COPY .yarn/releases .yarn/releases
-COPY .yarn/plugins .yarn/plugins
 
 RUN yarn workspaces focus --production
 
