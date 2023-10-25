@@ -93,19 +93,26 @@ export class Guild {
   };
 }
 
+export class GuildManager {
+  cache = new Collection();
+
+  resolve = jest
+    .fn()
+    .mockImplementation((resolvable) => this.cache.get(resolvable));
+}
+
 export class Client extends EventEmitter {
   static _instance: Client;
 
   user = { tag: 'bot#1337' };
-  guilds = {
-    cache: new Collection([['guild1', new Guild('guild1', 'FAKE_GUILD')]]),
-  };
+  guilds = new GuildManager();
 
   channels = new ChannelManager();
 
   constructor(public readonly options: any) {
     super();
     Client._instance = this;
+    this.guilds.cache.set('guild1', new Guild('guild1', 'FAKE_GUILD'));
   }
 
   login(token: string) {
