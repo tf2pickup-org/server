@@ -2146,14 +2146,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/passport-jwt@npm:3.0.11":
-  version: 3.0.11
-  resolution: "@types/passport-jwt@npm:3.0.11"
+"@types/passport-jwt@npm:3.0.12":
+  version: 3.0.12
+  resolution: "@types/passport-jwt@npm:3.0.12"
   dependencies:
     "@types/express": "npm:*"
     "@types/jsonwebtoken": "npm:*"
     "@types/passport-strategy": "npm:*"
-  checksum: c31cb7728515621b60ecf620c9f3314e2e2efe30a35b569c4a74c954f402a82601e33aa7d82b53f14854a26333f8e5edb36c70470fbe72c5f37f099e69db2ec1
+  checksum: 3bfc9ab8edfa5b58264d410b9176d4516333e133f834462d89df33893854633c84795ae10fd66de28afd43a1e744fa10b4b30c3e3a914546d790dded773da825
   languageName: node
   linkType: hard
 
@@ -10213,7 +10213,7 @@ __metadata:
     "@types/multer": "npm:^1.4.7"
     "@types/node": "npm:20.8.9"
     "@types/passport": "npm:1.0.14"
-    "@types/passport-jwt": "npm:3.0.11"
+    "@types/passport-jwt": "npm:3.0.12"
     "@types/passport-steam": "npm:1.0.3"
     "@types/pem": "npm:1.14.3"
     "@types/socket.io": "npm:3.0.1"
