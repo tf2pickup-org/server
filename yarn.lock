@@ -52,9 +52,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@angular-devkit/core@npm:16.2.7":
-  version: 16.2.7
-  resolution: "@angular-devkit/core@npm:16.2.7"
+"@angular-devkit/core@npm:16.2.8":
+  version: 16.2.8
+  resolution: "@angular-devkit/core@npm:16.2.8"
   dependencies:
     ajv: "npm:8.12.0"
     ajv-formats: "npm:2.1.1"
@@ -67,23 +67,23 @@ __metadata:
   peerDependenciesMeta:
     chokidar:
       optional: true
-  checksum: 5e5d2cbc6e1800f2942d78be9b5f21cdb12b82ce4dca787aa683bb43e6b71da33ed155ad99566b4d36782919972005d0b85a17c96564a150634f359f3db0c959
+  checksum: 1f68787d4837249c3c7f99405d55f21d9584d31035a6020466879d803f17dbc18de59dd71caaa08665a22caedb52d02d0ebcacd1809dcf905f9a4b7340bfe324
   languageName: node
   linkType: hard
 
-"@angular-devkit/schematics-cli@npm:16.2.7":
-  version: 16.2.7
-  resolution: "@angular-devkit/schematics-cli@npm:16.2.7"
+"@angular-devkit/schematics-cli@npm:16.2.8":
+  version: 16.2.8
+  resolution: "@angular-devkit/schematics-cli@npm:16.2.8"
   dependencies:
-    "@angular-devkit/core": "npm:16.2.7"
-    "@angular-devkit/schematics": "npm:16.2.7"
+    "@angular-devkit/core": "npm:16.2.8"
+    "@angular-devkit/schematics": "npm:16.2.8"
     ansi-colors: "npm:4.1.3"
     inquirer: "npm:8.2.4"
     symbol-observable: "npm:4.0.0"
     yargs-parser: "npm:21.1.1"
   bin:
     schematics: bin/schematics.js
-  checksum: 4fa081f728c57a84a91d9494959045f14f8d2437d718ddcb9fbffc1874d293ef596a9562eb53843cc57f2e4c614ece9baaed61173a40b61e9dec6cc7562ec69f
+  checksum: 9208b3dfbe3d534923cc4f3a193f0dd1d8ad73bbbfb3f869686e07fbe7663a4464c5fb28e0d0d176286482b85a8afaa2c9f6f058d7929d0b4bbb8595aa7f26d0
   languageName: node
   linkType: hard
 
@@ -100,16 +100,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@angular-devkit/schematics@npm:16.2.7":
-  version: 16.2.7
-  resolution: "@angular-devkit/schematics@npm:16.2.7"
+"@angular-devkit/schematics@npm:16.2.8":
+  version: 16.2.8
+  resolution: "@angular-devkit/schematics@npm:16.2.8"
   dependencies:
-    "@angular-devkit/core": "npm:16.2.7"
+    "@angular-devkit/core": "npm:16.2.8"
     jsonc-parser: "npm:3.2.0"
     magic-string: "npm:0.30.1"
     ora: "npm:5.4.1"
     rxjs: "npm:7.8.1"
-  checksum: c3791b7125420ea0b27f05916d406e5395ed3d2b45849be0f97be7818bab5fbaf90317078660abd00d191d8f6be3c35c11e5b9d9b93a553b87988f5da26fb979
+  checksum: 8657b5324c7a13d9a95ede9c9eda4240fe986a1923d24de86e7dc57e71247c8e3138618ae603dd68505b46a0916cb45b5ea817d51e57b56ba15abaec70a58b77
   languageName: node
   linkType: hard
 
@@ -1060,20 +1060,20 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nestjs/cli@npm:10.2.0":
-  version: 10.2.0
-  resolution: "@nestjs/cli@npm:10.2.0"
+"@nestjs/cli@npm:10.2.1":
+  version: 10.2.1
+  resolution: "@nestjs/cli@npm:10.2.1"
   dependencies:
-    "@angular-devkit/core": "npm:16.2.7"
-    "@angular-devkit/schematics": "npm:16.2.7"
-    "@angular-devkit/schematics-cli": "npm:16.2.7"
+    "@angular-devkit/core": "npm:16.2.8"
+    "@angular-devkit/schematics": "npm:16.2.8"
+    "@angular-devkit/schematics-cli": "npm:16.2.8"
     "@nestjs/schematics": "npm:^10.0.1"
     chalk: "npm:4.1.2"
     chokidar: "npm:3.5.3"
     cli-table3: "npm:0.6.3"
     commander: "npm:4.1.1"
-    fork-ts-checker-webpack-plugin: "npm:9.0.0"
-    glob: "npm:10.3.4"
+    fork-ts-checker-webpack-plugin: "npm:9.0.2"
+    glob: "npm:10.3.10"
     inquirer: "npm:8.2.6"
     node-emoji: "npm:1.11.0"
     ora: "npm:5.4.1"
@@ -1097,7 +1097,7 @@ __metadata:
       optional: true
   bin:
     nest: bin/nest.js
-  checksum: f9c86950c0c82103a5ec89742b8c2842a506056598db6501b3ad05fa08d74d7b03c0f918fd8f35fa73d1c7e4cfd2ee0810756ad558a4ca4320d51d1f5b3997d0
+  checksum: 478f18597be3062a31f4e9783ca06cca7f35863db286ef2b32d0edef5fafbeeb426576be35d89e7be3d0ccfdb5b900fdb0683dffc108296f0d23f609c73de9f3
   languageName: node
   linkType: hard
 
@@ -2136,13 +2136,6 @@ __metadata:
   version: 2.4.3
   resolution: "@types/normalize-package-data@npm:2.4.3"
   checksum: 9ad94568b53f65d0c7fffed61c74e4a7b8625b1ebbc549f1de25287c2d20e6bca9d9cdc5826e508c9d95e02a48ac69d0282121c300667071661f37090224416b
-  languageName: node
-  linkType: hard
-
-"@types/parse-json@npm:^4.0.0":
-  version: 4.0.1
-  resolution: "@types/parse-json@npm:4.0.1"
-  checksum: 6851183c2ffe4aff607f034f6b5325ebc81ff90409132e2d59fe6cae030d7064593e521d75cda017d9f6b696a7e19d26d1703f366b3e7cbfec8c825331c79c31
   languageName: node
   linkType: hard
 
@@ -4263,7 +4256,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cosmiconfig@npm:8.3.6":
+"cosmiconfig@npm:8.3.6, cosmiconfig@npm:^8.2.0":
   version: 8.3.6
   resolution: "cosmiconfig@npm:8.3.6"
   dependencies:
@@ -4277,19 +4270,6 @@ __metadata:
     typescript:
       optional: true
   checksum: 0382a9ed13208f8bfc22ca2f62b364855207dffdb73dc26e150ade78c3093f1cf56172df2dd460c8caf2afa91c0ed4ec8a88c62f8f9cd1cf423d26506aa8797a
-  languageName: node
-  linkType: hard
-
-"cosmiconfig@npm:^7.0.1":
-  version: 7.1.0
-  resolution: "cosmiconfig@npm:7.1.0"
-  dependencies:
-    "@types/parse-json": "npm:^4.0.0"
-    import-fresh: "npm:^3.2.1"
-    parse-json: "npm:^5.0.0"
-    path-type: "npm:^4.0.0"
-    yaml: "npm:^1.10.0"
-  checksum: b923ff6af581638128e5f074a5450ba12c0300b71302398ea38dbeabd33bbcaa0245ca9adbedfcf284a07da50f99ede5658c80bb3e39e2ce770a99d28a21ef03
   languageName: node
   linkType: hard
 
@@ -5579,14 +5559,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"fork-ts-checker-webpack-plugin@npm:9.0.0":
-  version: 9.0.0
-  resolution: "fork-ts-checker-webpack-plugin@npm:9.0.0"
+"fork-ts-checker-webpack-plugin@npm:9.0.2":
+  version: 9.0.2
+  resolution: "fork-ts-checker-webpack-plugin@npm:9.0.2"
   dependencies:
     "@babel/code-frame": "npm:^7.16.7"
     chalk: "npm:^4.1.2"
     chokidar: "npm:^3.5.3"
-    cosmiconfig: "npm:^7.0.1"
+    cosmiconfig: "npm:^8.2.0"
     deepmerge: "npm:^4.2.2"
     fs-extra: "npm:^10.0.0"
     memfs: "npm:^3.4.1"
@@ -5598,7 +5578,7 @@ __metadata:
   peerDependencies:
     typescript: ">3.6.0"
     webpack: ^5.11.0
-  checksum: f2fdb34912748c4596de63ae9a8b464ed58f3d8a60b074de689f6d4eef1bf08d338651fd4cb5b8d69d7df5d552f2707eecbe4e9a243ba4e79b4ea1b3bc03d65a
+  checksum: 37e11dadcc65d297f07882f1661795289f2bf16fa9dea0b90bcc438855d48787378bce4dfcd8e842782f220503438995efbb28cbe560126f6a744ff740e8cc38
   languageName: node
   linkType: hard
 
@@ -5936,22 +5916,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"glob@npm:10.3.4":
-  version: 10.3.4
-  resolution: "glob@npm:10.3.4"
-  dependencies:
-    foreground-child: "npm:^3.1.0"
-    jackspeak: "npm:^2.0.3"
-    minimatch: "npm:^9.0.1"
-    minipass: "npm:^5.0.0 || ^6.0.2 || ^7.0.0"
-    path-scurry: "npm:^1.10.1"
-  bin:
-    glob: dist/cjs/src/bin.js
-  checksum: fe075f8109749cb0c264fd6eee8bf0cc8bb23a02305619b7a88bf1f79766218cc3ef66a3e8f3cd2e826006f047a3a8833c1694f167e978a6e37c34a8c053e48e
-  languageName: node
-  linkType: hard
-
-"glob@npm:^10.2.2, glob@npm:^10.3.7":
+"glob@npm:10.3.10, glob@npm:^10.2.2, glob@npm:^10.3.7":
   version: 10.3.10
   resolution: "glob@npm:10.3.10"
   dependencies:
@@ -7085,7 +7050,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jackspeak@npm:^2.0.3, jackspeak@npm:^2.3.5":
+"jackspeak@npm:^2.3.5":
   version: 2.3.6
   resolution: "jackspeak@npm:2.3.6"
   dependencies:
@@ -9172,7 +9137,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"parse-json@npm:^5.0.0, parse-json@npm:^5.2.0":
+"parse-json@npm:^5.2.0":
   version: 5.2.0
   resolution: "parse-json@npm:5.2.0"
   dependencies:
@@ -10181,7 +10146,7 @@ __metadata:
     "@anatine/zod-openapi": "npm:^2.0.0"
     "@nestjs/axios": "npm:3.0.0"
     "@nestjs/cache-manager": "npm:2.1.0"
-    "@nestjs/cli": "npm:10.2.0"
+    "@nestjs/cli": "npm:10.2.1"
     "@nestjs/common": "npm:10.2.7"
     "@nestjs/config": "npm:3.1.1"
     "@nestjs/core": "npm:10.2.7"
@@ -11980,13 +11945,6 @@ __metadata:
   version: 3.1.1
   resolution: "yallist@npm:3.1.1"
   checksum: c66a5c46bc89af1625476f7f0f2ec3653c1a1791d2f9407cfb4c2ba812a1e1c9941416d71ba9719876530e3340a99925f697142989371b72d93b9ee628afd8c1
-  languageName: node
-  linkType: hard
-
-"yaml@npm:^1.10.0":
-  version: 1.10.2
-  resolution: "yaml@npm:1.10.2"
-  checksum: 5c28b9eb7adc46544f28d9a8d20c5b3cb1215a886609a2fd41f51628d8aaa5878ccd628b755dbcd29f6bb4921bd04ffbc6dcc370689bb96e594e2f9813d2605f
   languageName: node
   linkType: hard
 
