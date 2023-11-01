@@ -54,7 +54,7 @@
     "moment": "2.29.4",
     "mongodb": "6.2.0",
     "mongodb-uri": "0.9.7",
-    "mongoose": "7.6.3",
+    "mongoose": "7.6.4",
     "multer": "^1.4.5-lts.1",
     "nestjs-real-ip": "3.0.1",
     "passport": "0.6.0",
