@@ -1883,12 +1883,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/cookie-parser@npm:1.4.5":
-  version: 1.4.5
-  resolution: "@types/cookie-parser@npm:1.4.5"
+"@types/cookie-parser@npm:1.4.6":
+  version: 1.4.6
+  resolution: "@types/cookie-parser@npm:1.4.6"
   dependencies:
     "@types/express": "npm:*"
-  checksum: 6828de5179fbe69dab7d5ff16890dc728102941ecdcb7a295bfb0645cdd6abcc8cc17854d57f4001ed778b08d4c51961d1c5c2ea1a4643ae90d3ff22588567c4
+  checksum: 56421a00d96072ec19b569bd1bb0ce0f99a2dc96e0039ea2c8e18692910fa089b457f5b61d6e72673223b29fcf02c351275bd4ac8961361c99e6def8512890e9
   languageName: node
   linkType: hard
 
@@ -10214,7 +10214,7 @@ __metadata:
     "@types/cache-manager": "npm:4.0.5"
     "@types/cache-manager-redis-store": "npm:2.0.4"
     "@types/cookie": "npm:0.5.3"
-    "@types/cookie-parser": "npm:1.4.5"
+    "@types/cookie-parser": "npm:1.4.6"
     "@types/csv-parse": "npm:^1.2.2"
     "@types/express": "npm:4.17.21"
     "@types/helmet": "npm:0.0.48"
