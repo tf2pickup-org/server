@@ -2132,10 +2132,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/mongodb-uri@npm:0.9.3":
-  version: 0.9.3
-  resolution: "@types/mongodb-uri@npm:0.9.3"
-  checksum: 7b6a1c7de87251dfca18427fa4bedc50853fedcd2423fbd4b4919959ecc6e452af96193c18b0fb987989552dea83d748d496f0d95db26d7d479997463a1cd9ef
+"@types/mongodb-uri@npm:0.9.4":
+  version: 0.9.4
+  resolution: "@types/mongodb-uri@npm:0.9.4"
+  checksum: 8eabd99fb242741f9b9dd788db85ff9671beacb3c5e8f99beab00306cc6c12f73b83ac7533156420bdcd99b6666a89ffc8a8a31ae0bb2443db9c9ada348818c5
   languageName: node
   linkType: hard
 
@@ -10231,7 +10231,7 @@ __metadata:
     "@types/jsonschema": "npm:1.1.1"
     "@types/jsonwebtoken": "npm:9.0.5"
     "@types/lodash": "npm:4.14.200"
-    "@types/mongodb-uri": "npm:0.9.3"
+    "@types/mongodb-uri": "npm:0.9.4"
     "@types/mongoose": "npm:5.11.96"
     "@types/multer": "npm:^1.4.7"
     "@types/node": "npm:20.8.10"
