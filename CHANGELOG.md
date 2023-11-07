@@ -1,3 +1,30 @@
+# [11.2.0](https://github.com/tf2pickup-org/server/compare/11.2.0-alpha.2...11.2.0) (2023-11-07)
+
+
+### Bug Fixes
+
+* **build:** remove mongoku ([#2691](https://github.com/tf2pickup-org/server/issues/2691)) ([6e7bd37](https://github.com/tf2pickup-org/server/commit/6e7bd3717a7f205c24be730e8b8e926232940cd2))
+* **deps:** update dependency @anatine/zod-openapi to v2.2.1 ([#2701](https://github.com/tf2pickup-org/server/issues/2701)) ([0cdcebc](https://github.com/tf2pickup-org/server/commit/0cdcebcadc24795c33a1f52ba68137c5d1941ea6))
+* **deps:** update dependency @nestjs/axios to v3.0.1 ([#2695](https://github.com/tf2pickup-org/server/issues/2695)) ([c51bf29](https://github.com/tf2pickup-org/server/commit/c51bf29e1ed5602dff1e6f0e03eaf3a8ccffcccb))
+* **deps:** update dependency @nestjs/cache-manager to v2.1.1 ([#2702](https://github.com/tf2pickup-org/server/issues/2702)) ([4fe2a82](https://github.com/tf2pickup-org/server/commit/4fe2a821da82a0cd993f97c014851a9e5b1ae3bc))
+* **deps:** update dependency @nestjs/schedule to v4 ([#2686](https://github.com/tf2pickup-org/server/issues/2686)) ([744efbb](https://github.com/tf2pickup-org/server/commit/744efbb65ac1e0ae7d59f144ede9c9c2492640be))
+* **deps:** update dependency axios to v1.6.0 ([64417f3](https://github.com/tf2pickup-org/server/commit/64417f3ed48fcd39376fe3a790af47be35142fd8))
+* **deps:** update dependency generate-password to v1.7.1 ([#2681](https://github.com/tf2pickup-org/server/issues/2681)) ([b9118d2](https://github.com/tf2pickup-org/server/commit/b9118d24653b8cfdaf77043394c92319e8669470))
+* **deps:** update dependency mongodb to v6.2.0 ([#2682](https://github.com/tf2pickup-org/server/issues/2682)) ([5859660](https://github.com/tf2pickup-org/server/commit/585966034b83b7c30b085b8f860072f5917f8353))
+* **deps:** update dependency mongoose to v7.6.2 ([a5cbc7c](https://github.com/tf2pickup-org/server/commit/a5cbc7cd18e0c9900034747df49d24c783abb784))
+* **deps:** update dependency mongoose to v7.6.3 ([#2670](https://github.com/tf2pickup-org/server/issues/2670)) ([650d77b](https://github.com/tf2pickup-org/server/commit/650d77b85df864debcdb0baa45852ae21e6591cb))
+* **deps:** update dependency mongoose to v7.6.4 ([#2698](https://github.com/tf2pickup-org/server/issues/2698)) ([a44b7ca](https://github.com/tf2pickup-org/server/commit/a44b7ca05443cfd4cee42ab21d9924a17c6b0e0d))
+* **deps:** update nest monorepo to v10.2.8 ([a3f31a9](https://github.com/tf2pickup-org/server/commit/a3f31a9f8c74337df88307f4dc6fdb37996058db))
+* **game-servers:** fix release gameserver logic ([#2672](https://github.com/tf2pickup-org/server/issues/2672)) ([1f80f49](https://github.com/tf2pickup-org/server/commit/1f80f4997847558169f16a96bb37b07a929df3cc))
+* **games:** fix handling multiple substitutes ([#2673](https://github.com/tf2pickup-org/server/issues/2673)) ([35b02f7](https://github.com/tf2pickup-org/server/commit/35b02f706a6ab70e4899c45a7778e2096c0fea2d))
+
+
+### Features
+
+* **discord:** bump player threshold ratio config ([#2690](https://github.com/tf2pickup-org/server/issues/2690)) ([44a7f7e](https://github.com/tf2pickup-org/server/commit/44a7f7e59d4fef92433a803fefef76763ec2d2de))
+* **discord:** fetch guild roles ([#2689](https://github.com/tf2pickup-org/server/issues/2689)) ([cccef4a](https://github.com/tf2pickup-org/server/commit/cccef4ad744c5bf4d574531eb38a50061f8ae2f5))
+* **games:** add /games/:gameId/events endpoint ([#2648](https://github.com/tf2pickup-org/server/issues/2648)) ([6211589](https://github.com/tf2pickup-org/server/commit/6211589c63803e830ec7c3418a50d1a65c9d4167))
+
 
 
 ## [11.1.3](https://github.com/tf2pickup-org/server/compare/11.1.2...11.1.3) (2023-10-19)
