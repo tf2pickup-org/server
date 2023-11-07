@@ -1979,7 +1979,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/express@npm:*, @types/express@npm:4.17.20":
+"@types/express@npm:*":
   version: 4.17.20
   resolution: "@types/express@npm:4.17.20"
   dependencies:
@@ -1988,6 +1988,18 @@ __metadata:
     "@types/qs": "npm:*"
     "@types/serve-static": "npm:*"
   checksum: f73f5f92bd0a0fa4697598be3122c89522caa9e3bcb14c28b5e6d58a8e47f0301027478997153ae9ee4cf3d432576fb3fb0918ea0db521cc1204f8b759828a32
+  languageName: node
+  linkType: hard
+
+"@types/express@npm:4.17.21":
+  version: 4.17.21
+  resolution: "@types/express@npm:4.17.21"
+  dependencies:
+    "@types/body-parser": "npm:*"
+    "@types/express-serve-static-core": "npm:^4.17.33"
+    "@types/qs": "npm:*"
+    "@types/serve-static": "npm:*"
+  checksum: 12e562c4571da50c7d239e117e688dc434db1bac8be55613294762f84fd77fbd0658ccd553c7d3ab02408f385bc93980992369dd30e2ecd2c68c358e6af8fabf
   languageName: node
   linkType: hard
 
@@ -10204,7 +10216,7 @@ __metadata:
     "@types/cookie": "npm:0.5.3"
     "@types/cookie-parser": "npm:1.4.5"
     "@types/csv-parse": "npm:^1.2.2"
-    "@types/express": "npm:4.17.20"
+    "@types/express": "npm:4.17.21"
     "@types/helmet": "npm:0.0.48"
     "@types/jest": "npm:29.5.7"
     "@types/jsonschema": "npm:1.1.1"
