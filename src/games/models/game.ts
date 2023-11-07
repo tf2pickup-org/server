@@ -247,8 +247,16 @@ export class Game extends Serializable<GameDto> {
     };
   }
 
-  findPlayerSlot(playerId: PlayerId): GameSlot | undefined {
-    return this.slots.find((s) => s.player.equals(playerId));
+  findPlayerSlot(
+    playerId: PlayerId,
+    acceptedSlotStatus: SlotStatus[] = [
+      SlotStatus.active,
+      SlotStatus.waitingForSubstitute,
+    ],
+  ): GameSlot | undefined {
+    return this.slots
+      .filter((s) => acceptedSlotStatus.includes(s.status))
+      .find((s) => s.player.equals(playerId));
   }
 
   activeSlots(): GameSlot[] {

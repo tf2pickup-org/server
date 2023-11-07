@@ -17,7 +17,6 @@ import {
 } from '@nestjs/mongoose';
 import { Connection, Error, Model, Types } from 'mongoose';
 import { PlayerNotInThisGameError } from '../errors/player-not-in-this-game.error';
-import { WrongGameSlotStatusError } from '../errors/wrong-game-slot-status.error';
 import { GameInWrongStateError } from '../errors/game-in-wrong-state.error';
 import { PlayerId } from '@/players/types/player-id';
 import { GameId } from '../game-id';
@@ -144,7 +143,7 @@ describe('PlayerSubstitutionService', () => {
       it('should throw an error', async () => {
         await expect(
           service.substitutePlayer(mockGame._id, player1._id, actor._id),
-        ).rejects.toThrow(WrongGameSlotStatusError);
+        ).rejects.toThrow(PlayerNotInThisGameError);
       });
     });
 
@@ -262,7 +261,7 @@ describe('PlayerSubstitutionService', () => {
       it('should throw an error', async () => {
         await expect(
           service.cancelSubstitutionRequest(mockGame._id, player1._id),
-        ).rejects.toThrow(WrongGameSlotStatusError);
+        ).rejects.toThrow(PlayerNotInThisGameError);
       });
     });
 
@@ -327,7 +326,9 @@ describe('PlayerSubstitutionService', () => {
         player3._id,
       );
       expect(game._id).toEqual(mockGame._id);
-      const replaceeSlot = game.findPlayerSlot(player1._id);
+      const replaceeSlot = game.findPlayerSlot(player1._id, [
+        SlotStatus.replaced,
+      ]);
       expect(replaceeSlot?.status).toEqual(SlotStatus.replaced);
       const replacementSlot = game.findPlayerSlot(player3._id);
       expect(replacementSlot).toBeTruthy();
@@ -485,7 +486,7 @@ describe('PlayerSubstitutionService', () => {
           game.slots.filter(
             (s) => s.player.toString().localeCompare(player1._id) === 0,
           ).length,
-        ).toEqual(1);
+        ).toEqual(2);
       });
     });
   });

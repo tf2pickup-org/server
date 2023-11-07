@@ -135,12 +135,15 @@ describe('PlayerSubsNotificationsService', () => {
   });
 
   describe('when a sub is requested', () => {
-    let game: Game;
+    let game: GameDocument;
     let player: Player;
 
     beforeEach(async () => {
       player = await playersService._createOne();
       game = await gamesService._createOne([player]);
+
+      game.slots[0].status = SlotStatus.waitingForSubstitute;
+      await game.save();
     });
 
     it('should notify all players', () =>
@@ -193,6 +196,11 @@ describe('PlayerSubsNotificationsService', () => {
     );
 
     describe('and when the sub request is canceled', () => {
+      beforeEach(async () => {
+        game.slots[0].status = SlotStatus.active;
+        await game.save();
+      });
+
       it('should edit the message', () =>
         new Promise<void>((resolve) => {
           message.edit.mockImplementation((message) => {
@@ -210,6 +218,11 @@ describe('PlayerSubsNotificationsService', () => {
     });
 
     describe('and when sub gets taken', () => {
+      beforeEach(async () => {
+        game.slots[0].status = SlotStatus.replaced;
+        await game.save();
+      });
+
       it('should edit the message', () =>
         new Promise<void>((resolve) => {
           message.edit.mockImplementation((message) => {
@@ -238,7 +251,10 @@ describe('PlayerSubsNotificationsService', () => {
           });
 
           gamesService.update(game.id, {
-            state: GameState.ended,
+            $set: {
+              state: GameState.ended,
+              'slots.$[].status': SlotStatus.active,
+            },
           });
         }));
     });

@@ -752,13 +752,13 @@ describe('GamesService', () => {
         await testGame.save();
       });
 
-      it('should return undefined', async () => {
-        expect(
-          await service.calculatePlayerJoinGameServerTimeout(
+      it('should throw', async () => {
+        await expect(
+          service.calculatePlayerJoinGameServerTimeout(
             testGame._id,
             testPlayer._id,
           ),
-        ).toBe(undefined);
+        ).rejects.toThrow('no such slot');
       });
     });
 
