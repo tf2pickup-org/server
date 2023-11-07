@@ -75,7 +75,7 @@
     "@nestjs/testing": "10.2.8",
     "@release-it/conventional-changelog": "7.0.2",
     "@types/cache-manager": "4.0.5",
-    "@types/cache-manager-redis-store": "2.0.3",
+    "@types/cache-manager-redis-store": "2.0.4",
     "@types/cookie": "0.5.3",
     "@types/cookie-parser": "1.4.5",
     "@types/csv-parse": "^1.2.2",
