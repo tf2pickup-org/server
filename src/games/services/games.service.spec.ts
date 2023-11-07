@@ -785,6 +785,7 @@ describe('GamesService', () => {
         testGame.events.push({
           event: GameEventType.gameServerInitialized,
           at: initializedAt,
+          serialize: jest.fn(),
         });
         testGame.state = GameState.launching;
         await testGame.save();
@@ -806,16 +807,19 @@ describe('GamesService', () => {
               event: GameEventType.playerJoinedGameServer,
               at: new Date(2023, 2, 7, 23, 23, 0), // 2 minutes after the gameserver was initialized
               player: testPlayer._id,
+              serialize: jest.fn(),
             },
             {
               event: GameEventType.playerJoinedGameServerTeam,
               at: new Date(2023, 2, 7, 23, 24, 0),
               player: testPlayer._id, // 3 minutes after the gameserver was initialized
+              serialize: jest.fn(),
             },
             {
               event: GameEventType.playerLeftGameServer,
               at: new Date(2023, 2, 7, 23, 25, 0),
               player: testPlayer._id,
+              serialize: jest.fn(),
             },
           );
           await testGame.save();
@@ -853,6 +857,7 @@ describe('GamesService', () => {
             at: new Date(2023, 2, 7, 23, 22, 0), // 1 minute after the gameserver was initialized
             replacee: new Types.ObjectId() as PlayerId,
             replacement: testPlayer._id,
+            serialize: jest.fn(),
           });
           await testGame.save();
         });
@@ -874,6 +879,7 @@ describe('GamesService', () => {
             at: new Date(2023, 2, 7, 23, 25, 0), // 4 minutes after the gameserver was initialized
             replacee: new Types.ObjectId() as PlayerId,
             replacement: testPlayer._id,
+            serialize: jest.fn(),
           });
           await testGame.save();
         });
@@ -949,6 +955,7 @@ describe('GamesService', () => {
             event: GameEventType.playerLeftGameServer,
             at: new Date(2023, 2, 7, 23, 35, 0),
             player: testPlayer._id,
+            serialize: jest.fn(),
           });
           await testGame.save();
         });
@@ -986,6 +993,7 @@ describe('GamesService', () => {
             at: new Date(2023, 2, 7, 23, 40, 0),
             replacee: new Types.ObjectId() as PlayerId,
             replacement: testPlayer._id,
+            serialize: jest.fn(),
           });
           await testGame.save();
         });
@@ -1005,6 +1013,7 @@ describe('GamesService', () => {
               event: GameEventType.playerLeftGameServer,
               at: new Date(2023, 2, 7, 23, 45, 0),
               player: testPlayer._id,
+              serialize: jest.fn(),
             });
             await testGame.save();
           });
