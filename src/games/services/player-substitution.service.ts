@@ -16,7 +16,6 @@ import { Game, GameDocument } from '../models/game';
 import { plainToInstance } from 'class-transformer';
 import { PlayerNotInThisGameError } from '../errors/player-not-in-this-game.error';
 import { GameInWrongStateError } from '../errors/game-in-wrong-state.error';
-import { WrongGameSlotStatusError } from '../errors/wrong-game-slot-status.error';
 import { merge } from 'rxjs';
 import { Mutex } from 'async-mutex';
 import { GameId } from '../game-id';
@@ -68,10 +67,6 @@ export class PlayerSubstitutionService implements OnModuleInit {
 
       if (!game.isInProgress()) {
         throw new GameInWrongStateError(gameId, game.state);
-      }
-
-      if (slot.status === SlotStatus.replaced) {
-        throw new WrongGameSlotStatusError(gameId, playerId, slot.status);
       }
 
       if (slot.status === SlotStatus.waitingForSubstitute) {

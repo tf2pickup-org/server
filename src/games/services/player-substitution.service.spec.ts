@@ -17,7 +17,6 @@ import {
 } from '@nestjs/mongoose';
 import { Connection, Error, Model, Types } from 'mongoose';
 import { PlayerNotInThisGameError } from '../errors/player-not-in-this-game.error';
-import { WrongGameSlotStatusError } from '../errors/wrong-game-slot-status.error';
 import { GameInWrongStateError } from '../errors/game-in-wrong-state.error';
 import { PlayerId } from '@/players/types/player-id';
 import { GameId } from '../game-id';
