@@ -2312,12 +2312,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/supertest@npm:2.0.15":
-  version: 2.0.15
-  resolution: "@types/supertest@npm:2.0.15"
+"@types/supertest@npm:2.0.16":
+  version: 2.0.16
+  resolution: "@types/supertest@npm:2.0.16"
   dependencies:
     "@types/superagent": "npm:*"
-  checksum: bcb0df08b5278282ae02e0b5ce115cb672409918530b40f99f20f1b7d15208c7898d23559bc103a043be950d6e630588123f3c1e2ed10beb4e733993f7e917f1
+  checksum: e1b4a4d788c19cd92a3f2e6d0979fb0f679c49aefae2011895a4d9c35aa960d43463aca8783a0b3382bbf0b4eb7ceaf8752d7dc80b8f5a9644fa14e1b1bdbc90
   languageName: node
   linkType: hard
 
@@ -10212,7 +10212,7 @@ __metadata:
     "@types/pem": "npm:1.14.4"
     "@types/socket.io": "npm:3.0.1"
     "@types/steamid": "npm:2.0.3"
-    "@types/supertest": "npm:2.0.15"
+    "@types/supertest": "npm:2.0.16"
     "@typescript-eslint/eslint-plugin": "npm:6.10.0"
     "@typescript-eslint/parser": "npm:6.10.0"
     app-root-path: "npm:3.1.0"
