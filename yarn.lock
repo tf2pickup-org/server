@@ -1931,15 +1931,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/engine.io@npm:*":
-  version: 3.1.9
-  resolution: "@types/engine.io@npm:3.1.9"
-  dependencies:
-    "@types/node": "npm:*"
-  checksum: 873e9ba87c01b06eb768e2ae4c406eb7e6ecc3830214ac83ce649d9c34af17a3638b8644440a53797e8ba3e97318348284028b524c105dbd05088a87c828857c
-  languageName: node
-  linkType: hard
-
 "@types/eslint-scope@npm:^3.7.3":
   version: 3.7.6
   resolution: "@types/eslint-scope@npm:3.7.6"
@@ -2288,41 +2279,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/socket.io-parser@npm:*":
-  version: 2.2.1
-  resolution: "@types/socket.io-parser@npm:2.2.1"
-  dependencies:
-    "@types/node": "npm:*"
-  checksum: eafc204617c06728a8a3f348ef8fcfbffc3935b445ad082dd7ce76765262e934226f011f84a28c798abaf54ccc070e98c6826603bfee82a3610502a388d9cfba
-  languageName: node
-  linkType: hard
-
-"@types/socket.io@npm:2.1.13":
-  version: 2.1.13
-  resolution: "@types/socket.io@npm:2.1.13"
-  dependencies:
-    "@types/engine.io": "npm:*"
-    "@types/node": "npm:*"
-    "@types/socket.io-parser": "npm:*"
-  checksum: 19f25e7247eaaee748ce4a41a1295c491329d9224665dc73ce842ff5c7b0cc71461bfbd8c117517fc10521f7725f5fcf75e3eef35108311471c8377aa9478101
-  languageName: node
-  linkType: hard
-
 "@types/socket.io@npm:3.0.1":
   version: 3.0.1
   resolution: "@types/socket.io@npm:3.0.1"
   dependencies:
     socket.io: "npm:*"
   checksum: ed674dfbd1aee41e64fc6d95ad8e7bbe670cd7168ad6aff9d01f8c7964fd79141e608ebc2e8ab808443de4dc90b975ca3e3c752510601b9bc9dfec19a37c4ee3
-  languageName: node
-  linkType: hard
-
-"@types/socketio-jwt-auth@npm:0.0.4":
-  version: 0.0.4
-  resolution: "@types/socketio-jwt-auth@npm:0.0.4"
-  dependencies:
-    "@types/socket.io": "npm:2.1.13"
-  checksum: 33be9714e687d2622967b8b819a10f5e85d2724c57bd04510345382940a89ef743eb12b716ae8a0c3d884000fb78568ea1aa2e3ab203e7b304b20e229963ec1c
   languageName: node
   linkType: hard
 
@@ -10249,7 +10211,6 @@ __metadata:
     "@types/passport-steam": "npm:1.0.3"
     "@types/pem": "npm:1.14.3"
     "@types/socket.io": "npm:3.0.1"
-    "@types/socketio-jwt-auth": "npm:0.0.4"
     "@types/steamid": "npm:2.0.2"
     "@types/supertest": "npm:2.0.15"
     "@typescript-eslint/eslint-plugin": "npm:6.10.0"
