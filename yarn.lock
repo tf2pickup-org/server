@@ -2295,10 +2295,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/steamid@npm:2.0.2":
-  version: 2.0.2
-  resolution: "@types/steamid@npm:2.0.2"
-  checksum: 7a6d24fa8956d31a27ed454786ba9af80a35a8ea3088b1557aecec8da20cc32bd41be94e71b680ec3eccaaf761c492bb42f76327c55a7e81eba3e9801741f472
+"@types/steamid@npm:2.0.3":
+  version: 2.0.3
+  resolution: "@types/steamid@npm:2.0.3"
+  checksum: 41fb64884fd9d29716e09e841d99b6744f21d2eb0a7ffc1519cf12b8bb196305e285ee2c9e72117dc177e61a9fa4385788276bf2e5acfebad3ed43a521f96892
   languageName: node
   linkType: hard
 
@@ -10211,7 +10211,7 @@ __metadata:
     "@types/passport-steam": "npm:1.0.4"
     "@types/pem": "npm:1.14.4"
     "@types/socket.io": "npm:3.0.1"
-    "@types/steamid": "npm:2.0.2"
+    "@types/steamid": "npm:2.0.3"
     "@types/supertest": "npm:2.0.15"
     "@typescript-eslint/eslint-plugin": "npm:6.10.0"
     "@typescript-eslint/parser": "npm:6.10.0"
