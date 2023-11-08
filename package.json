@@ -92,7 +92,7 @@
     "@types/passport": "1.0.15",
     "@types/passport-jwt": "3.0.13",
     "@types/passport-steam": "1.0.4",
-    "@types/pem": "1.14.3",
+    "@types/pem": "1.14.4",
     "@types/socket.io": "3.0.1",
     "@types/steamid": "2.0.2",
     "@types/supertest": "2.0.15",
