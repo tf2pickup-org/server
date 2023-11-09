@@ -1165,16 +1165,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nestjs/mongoose@npm:10.0.1":
-  version: 10.0.1
-  resolution: "@nestjs/mongoose@npm:10.0.1"
+"@nestjs/mongoose@npm:10.0.2":
+  version: 10.0.2
+  resolution: "@nestjs/mongoose@npm:10.0.2"
   peerDependencies:
     "@nestjs/common": ^8.0.0 || ^9.0.0 || ^10.0.0
     "@nestjs/core": ^8.0.0 || ^9.0.0 || ^10.0.0
-    mongoose: ^6.0.2 || ^7.0.0
+    mongoose: ^6.0.2 || ^7.0.0 || ^8.0.0
     reflect-metadata: ^0.1.12
     rxjs: ^7.0.0
-  checksum: 86c0546c4009696a9646d63c6960adcb2496e66fbdedc8a700e9050ef3792d8fc74f1a298dfee3f11099f3c3bf33307586b96afd54156aa24998484b80360df8
+  checksum: 1359081e34d2977d6c7627164e3bb50c1eb2cb6feed57df52fce14e424ac8ff8858ebca001b3bc28f6f79a82092dbf34a56916faaa8f37c28e3c2460d5374753
   languageName: node
   linkType: hard
 
@@ -10179,7 +10179,7 @@ __metadata:
     "@nestjs/common": "npm:10.2.8"
     "@nestjs/config": "npm:3.1.1"
     "@nestjs/core": "npm:10.2.8"
-    "@nestjs/mongoose": "npm:10.0.1"
+    "@nestjs/mongoose": "npm:10.0.2"
     "@nestjs/passport": "npm:10.0.2"
     "@nestjs/platform-express": "npm:10.2.8"
     "@nestjs/platform-socket.io": "npm:10.2.8"
