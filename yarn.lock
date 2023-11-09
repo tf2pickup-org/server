@@ -1892,10 +1892,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/cookie@npm:0.5.3":
-  version: 0.5.3
-  resolution: "@types/cookie@npm:0.5.3"
-  checksum: 882555139871dcf87c49a1fe893ced58c79e2181985a13e1399d34944dbe6f199895ee6c4bb1f75574b18a9dc4cf19efcafc8bd5213d5b5c366f5d77679a307a
+"@types/cookie@npm:0.5.4":
+  version: 0.5.4
+  resolution: "@types/cookie@npm:0.5.4"
+  checksum: c5111f8c71fedabf0ccdfdf183676fc3aa89e146653e9ed87e5ea3780f33a46dde1ace06bf04374dcc363a0ef8db91e41060e9861199226c9a4deaa27fde03ba
   languageName: node
   linkType: hard
 
@@ -4236,6 +4236,13 @@ __metadata:
   version: 0.5.0
   resolution: "cookie@npm:0.5.0"
   checksum: c01ca3ef8d7b8187bae434434582288681273b5a9ed27521d4d7f9f7928fe0c920df0decd9f9d3bbd2d14ac432b8c8cf42b98b3bdd5bfe0e6edddeebebe8b61d
+  languageName: node
+  linkType: hard
+
+"cookie@npm:0.6.0":
+  version: 0.6.0
+  resolution: "cookie@npm:0.6.0"
+  checksum: f2318b31af7a31b4ddb4a678d024514df5e705f9be5909a192d7f116cfb6d45cbacf96a473fa733faa95050e7cff26e7832bb3ef94751592f1387b71c8956686
   languageName: node
   linkType: hard
 
@@ -10193,7 +10200,7 @@ __metadata:
     "@tf2pickup-org/mumble-client": "npm:0.7.3"
     "@types/cache-manager": "npm:4.0.5"
     "@types/cache-manager-redis-store": "npm:2.0.4"
-    "@types/cookie": "npm:0.5.3"
+    "@types/cookie": "npm:0.5.4"
     "@types/cookie-parser": "npm:1.4.6"
     "@types/csv-parse": "npm:^1.2.2"
     "@types/express": "npm:4.17.21"
@@ -10222,7 +10229,7 @@ __metadata:
     cache-manager-redis-yet: "npm:4.1.2"
     class-transformer: "npm:0.5.1"
     class-validator: "npm:0.14.0"
-    cookie: "npm:0.5.0"
+    cookie: "npm:0.6.0"
     cookie-parser: "npm:1.4.6"
     csv-parse: "npm:^5.3.1"
     date-fns: "npm:^2.29.3"
