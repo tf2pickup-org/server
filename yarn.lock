@@ -6211,10 +6211,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"helmet@npm:7.0.0":
-  version: 7.0.0
-  resolution: "helmet@npm:7.0.0"
-  checksum: ec5b4923f9d3e77cb67438c4b49c14151c3fe19e45e17eaf6e2a37290d552dc8124fdd2ee14b2abdb6ba837c1eab1212a3e93f5f1dc037454c3684871b0025e3
+"helmet@npm:7.1.0":
+  version: 7.1.0
+  resolution: "helmet@npm:7.1.0"
+  checksum: 8c3370d07487be11ac918577c68952e05d779a1a2c037023c1ba763034c381a025899bc52f8acfab5209304a1dc618a3764dbfd26386a0d1173befe4fb932e84
   languageName: node
   linkType: hard
 
@@ -10234,7 +10234,7 @@ __metadata:
     form-data: "npm:4.0.0"
     generate-password: "npm:1.7.1"
     handlebars: "npm:4.7.8"
-    helmet: "npm:7.0.0"
+    helmet: "npm:7.1.0"
     jest: "npm:29.7.0"
     jsonschema: "npm:1.4.1"
     jsonwebtoken: "npm:9.0.2"
