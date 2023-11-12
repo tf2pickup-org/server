@@ -1645,17 +1645,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@release-it/conventional-changelog@npm:7.0.2":
-  version: 7.0.2
-  resolution: "@release-it/conventional-changelog@npm:7.0.2"
+"@release-it/conventional-changelog@npm:8.0.1":
+  version: 8.0.1
+  resolution: "@release-it/conventional-changelog@npm:8.0.1"
   dependencies:
     concat-stream: "npm:^2.0.0"
     conventional-changelog: "npm:^5.1.0"
-    conventional-recommended-bump: "npm:^8.0.0"
+    conventional-recommended-bump: "npm:^9.0.0"
     semver: "npm:^7.5.4"
   peerDependencies:
-    release-it: ^16.0.0
-  checksum: 2723ef2f10b143ba9e56be72bf5f5c074ecb101dec986258929f107b0786fa2dede1ff78498ab9f03328eaf777c855d61aba949199c2df874f679906b1f703a9
+    release-it: ^17.0.0
+  checksum: b6057038b91c665129e37af1d297dad68abbe2095cc10e9d507be6dcc1432bc6b7545c1bbdf6eab4c35eeafca223c5a43a567ba1cdfdd774aa62bb6220c5ebe6
   languageName: node
   linkType: hard
 
@@ -4121,7 +4121,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"conventional-changelog-preset-loader@npm:^4.0.0, conventional-changelog-preset-loader@npm:^4.1.0":
+"conventional-changelog-preset-loader@npm:^4.1.0":
   version: 4.1.0
   resolution: "conventional-changelog-preset-loader@npm:4.1.0"
   checksum: 7854ddeca740d2e478f0e8aa6591dd224c7e094863cbefada2f219459d8e267580ab73d0a0f566a7f37382896ec0f502e9908123af866fd6d7fbc560edd1ee68
@@ -4184,20 +4184,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"conventional-recommended-bump@npm:^8.0.0":
-  version: 8.0.0
-  resolution: "conventional-recommended-bump@npm:8.0.0"
+"conventional-recommended-bump@npm:^9.0.0":
+  version: 9.0.0
+  resolution: "conventional-recommended-bump@npm:9.0.0"
   dependencies:
-    concat-stream: "npm:^2.0.0"
-    conventional-changelog-preset-loader: "npm:^4.0.0"
+    conventional-changelog-preset-loader: "npm:^4.1.0"
     conventional-commits-filter: "npm:^4.0.0"
     conventional-commits-parser: "npm:^5.0.0"
     git-raw-commits: "npm:^4.0.0"
-    git-semver-tags: "npm:^6.0.0"
+    git-semver-tags: "npm:^7.0.0"
     meow: "npm:^12.0.1"
   bin:
     conventional-recommended-bump: cli.mjs
-  checksum: d93968bafc04c32f99ca5094f1fbfb3a442ee23b6aa71df7a62d64f52f3e8c3c23a83a9248972661f4a8d723ee337ce0a3548a97e322d2e6f6460542985f78f9
+  checksum: ceec7dcfddfc6508d0ba3debef471b47d4db3a2112e269d5d736202b226651b31fcbd4790c9403b5b14e6501365527b8c2c4ce8836c6a09faf07cb7d03c1fe07
   languageName: node
   linkType: hard
 
@@ -5866,18 +5865,6 @@ __metadata:
   bin:
     git-raw-commits: cli.mjs
   checksum: ab51335d9e55692fce8e42788013dba7a7e7bf9f5bf0622c8cd7ddc9206489e66bb939563fca4edb3aa87477e2118f052702aad1933b13c6fa738af7f29884f0
-  languageName: node
-  linkType: hard
-
-"git-semver-tags@npm:^6.0.0":
-  version: 6.0.0
-  resolution: "git-semver-tags@npm:6.0.0"
-  dependencies:
-    meow: "npm:^12.0.1"
-    semver: "npm:^7.5.2"
-  bin:
-    git-semver-tags: cli.mjs
-  checksum: 7800fc9f43f1ab910ad291a8ba5f2c60250dbbe53380f353392ddd6ef966f74ccbd5c299472d4d2ee1d316e8f2f791dcb517934f8d26401d6562be3868eac52e
   languageName: node
   linkType: hard
 
@@ -10196,7 +10183,7 @@ __metadata:
     "@nestjs/testing": "npm:10.2.8"
     "@nestjs/websockets": "npm:10.2.8"
     "@redis/client": "npm:1.5.11"
-    "@release-it/conventional-changelog": "npm:7.0.2"
+    "@release-it/conventional-changelog": "npm:8.0.1"
     "@tf2pickup-org/mumble-client": "npm:0.7.3"
     "@types/cache-manager": "npm:4.0.5"
     "@types/cache-manager-redis-store": "npm:2.0.4"

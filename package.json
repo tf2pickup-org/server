@@ -73,7 +73,7 @@
     "@nestjs/cli": "10.2.1",
     "@nestjs/schematics": "10.0.3",
     "@nestjs/testing": "10.2.8",
-    "@release-it/conventional-changelog": "7.0.2",
+    "@release-it/conventional-changelog": "8.0.1",
     "@types/cache-manager": "4.0.5",
     "@types/cache-manager-redis-store": "2.0.4",
     "@types/cookie": "0.5.4",
