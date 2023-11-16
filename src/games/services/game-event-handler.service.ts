@@ -194,7 +194,7 @@ export class GameEventHandlerService implements OnModuleInit, OnModuleDestroy {
 
       await this.freeAllMedics(newGame._id);
       this.timers.push(
-        setTimeout(() => this.freeAllPlayers(newGame._id), 5000),
+        setTimeout(async () => await this.freeAllPlayers(newGame._id), 5000),
       );
       return newGame;
     });
@@ -309,7 +309,7 @@ export class GameEventHandlerService implements OnModuleInit, OnModuleDestroy {
   }
 
   private async freeAllPlayers(gameId: GameId) {
-    const game = await this.gameModel.findById(gameId).orFail();
+    const game = await this.gamesService.getById(gameId);
 
     await Promise.all(
       game.slots
