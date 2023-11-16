@@ -9727,12 +9727,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rcon-client@npm:4.2.3":
-  version: 4.2.3
-  resolution: "rcon-client@npm:4.2.3"
+"rcon-client@npm:4.2.4":
+  version: 4.2.4
+  resolution: "rcon-client@npm:4.2.4"
   dependencies:
     typed-emitter: "npm:^0.1.0"
-  checksum: b92d5d6e0987fef8a052c7ef2d8b5f3023a1693bba1222ed953b7326e59c7296a900c999485e1fb89316363e4b1acdff5460dc141ecefd8d654ba4beeade202b
+  checksum: 8d707ed8e6061eba1aa412637034bdf9f9062e4a4cf436afda55eafceea472e5fba90fad44f34e8df0d70554106662b85cfd7f81dd37c6536bad226ddab1b021
   languageName: node
   linkType: hard
 
@@ -10323,7 +10323,7 @@ __metadata:
     passport-steam: "npm:1.0.18"
     pem: "npm:1.14.8"
     prettier: "npm:3.1.0"
-    rcon-client: "npm:4.2.3"
+    rcon-client: "npm:4.2.4"
     reflect-metadata: "npm:0.1.13"
     release-it: "npm:17.0.0"
     rimraf: "npm:5.0.5"
