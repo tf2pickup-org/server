@@ -25,6 +25,7 @@ import { GameEventType } from '../models/game-event-type';
 import { PlayerJoinedGameServer } from '../models/events/player-joined-game-server';
 import { PlayerJoinedGameServerTeam } from '../models/events/player-joined-game-server-team';
 import { PlayerLeftGameServer } from '../models/events/player-left-game-server';
+import { waitABit } from '@/utils/wait-a-bit';
 
 jest.mock('@/players/services/players.service');
 jest.mock('@nestjs/config');
@@ -86,6 +87,7 @@ describe('GameEventHandlerService', () => {
 
   afterEach(async () => {
     service.onModuleDestroy();
+    await waitABit(100);
     // @ts-expect-error
     await gamesService._reset();
     // @ts-expect-error
