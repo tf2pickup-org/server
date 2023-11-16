@@ -279,6 +279,7 @@ describe('GameServersService', () => {
                 gameClass: Tf2ClassName.soldier,
                 status: SlotStatus.active,
                 connectionStatus: PlayerConnectionStatus.connected,
+                serialize: jest.fn(),
               },
               {
                 player: new Types.ObjectId() as PlayerId,
@@ -286,6 +287,7 @@ describe('GameServersService', () => {
                 gameClass: Tf2ClassName.soldier,
                 status: SlotStatus.active,
                 connectionStatus: PlayerConnectionStatus.joining,
+                serialize: jest.fn(),
               },
             ];
             await game.save();

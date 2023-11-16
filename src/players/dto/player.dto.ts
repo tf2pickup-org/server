@@ -10,9 +10,11 @@ export interface PlayerDto {
   };
   roles: ('super user' | 'admin' | 'bot')[];
   etf2lProfileId?: number;
-  gamesPlayed: number;
   _links: {
     href: string;
     title?: string;
   }[];
+
+  // TODO v12: remove
+  gamesPlayed: number;
 }

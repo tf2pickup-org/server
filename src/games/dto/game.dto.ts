@@ -1,27 +1,14 @@
-import { PlayerDto } from '@/players/dto/player.dto';
-import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { Serializable } from '@/shared/serializable';
+import { GameSlotDto } from './game-slot-dto';
+import { GameState } from '../models/game-state';
 
 export interface GameDto {
   id: string;
   launchedAt: string;
   endedAt?: string;
   number: number;
-  slots: {
-    player: Serializable<PlayerDto>;
-    team: 'red' | 'blu';
-    gameClass: Tf2ClassName;
-    status: 'active' | 'waiting for substitute' | 'replaced';
-    connectionStatus: 'offline' | 'joining' | 'connected';
-  }[];
   map: string;
-  state:
-    | 'created'
-    | 'configuring'
-    | 'launching'
-    | 'started'
-    | 'ended'
-    | 'interrupted';
+  state: GameState;
   connectInfoVersion: number;
   stvConnectString?: string;
   logsUrl?: string;
@@ -34,4 +21,7 @@ export interface GameDto {
     blu?: number;
     red?: number;
   };
+
+  // TODO v12: remove
+  slots: Serializable<GameSlotDto>[];
 }

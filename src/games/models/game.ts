@@ -1,6 +1,4 @@
-import { app } from '@/app';
 import { PlayerId } from '@/players/types/player-id';
-import { PlayersService } from '@/players/services/players.service';
 import { TransformObjectId } from '@/shared/decorators/transform-object-id';
 import { Serializable } from '@/shared/serializable';
 import { Prop, raw, Schema, SchemaFactory } from '@nestjs/mongoose';
@@ -213,23 +211,13 @@ export class Game extends Serializable<GameDto> {
   @Prop({ unique: true, sparse: true })
   logSecret?: string;
 
-  async serialize(): Promise<GameDto> {
-    const playersService = app.get(PlayersService);
-
+  serialize(): GameDto {
     return {
       id: this.id,
       launchedAt: this.launchedAt.toISOString(),
       ...(this.endedAt && { endedAt: this.endedAt.toISOString() }),
       number: this.number,
-      slots: await Promise.all(
-        this.slots.map(async (slot) => ({
-          player: await playersService.getById(slot.player),
-          team: slot.team,
-          gameClass: slot.gameClass,
-          status: slot.status,
-          connectionStatus: slot.connectionStatus,
-        })),
-      ),
+      slots: this.slots,
       map: this.map,
       state: this.state,
       connectInfoVersion: this.connectInfoVersion,

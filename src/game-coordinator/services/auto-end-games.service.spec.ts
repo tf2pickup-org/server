@@ -90,6 +90,7 @@ describe('AutoEndGamesService', () => {
           gameClass: Tf2ClassName.soldier,
           status: SlotStatus.waitingForSubstitute,
           connectionStatus: PlayerConnectionStatus.connected,
+          serialize: jest.fn(),
         },
         {
           player: new Types.ObjectId() as PlayerId,
@@ -97,6 +98,7 @@ describe('AutoEndGamesService', () => {
           gameClass: Tf2ClassName.soldier,
           status: SlotStatus.waitingForSubstitute,
           connectionStatus: PlayerConnectionStatus.connected,
+          serialize: jest.fn(),
         },
         {
           player: new Types.ObjectId() as PlayerId,
@@ -104,6 +106,7 @@ describe('AutoEndGamesService', () => {
           gameClass: Tf2ClassName.soldier,
           status: SlotStatus.waitingForSubstitute,
           connectionStatus: PlayerConnectionStatus.connected,
+          serialize: jest.fn(),
         },
         {
           player: new Types.ObjectId() as PlayerId,
@@ -111,6 +114,7 @@ describe('AutoEndGamesService', () => {
           gameClass: Tf2ClassName.soldier,
           status: SlotStatus.active,
           connectionStatus: PlayerConnectionStatus.connected,
+          serialize: jest.fn(),
         },
         {
           player: new Types.ObjectId() as PlayerId,
@@ -118,6 +122,7 @@ describe('AutoEndGamesService', () => {
           gameClass: Tf2ClassName.soldier,
           status: SlotStatus.active,
           connectionStatus: PlayerConnectionStatus.connected,
+          serialize: jest.fn(),
         },
         {
           player: new Types.ObjectId() as PlayerId,
@@ -125,6 +130,7 @@ describe('AutoEndGamesService', () => {
           gameClass: Tf2ClassName.soldier,
           status: SlotStatus.active,
           connectionStatus: PlayerConnectionStatus.connected,
+          serialize: jest.fn(),
         },
       ];
 

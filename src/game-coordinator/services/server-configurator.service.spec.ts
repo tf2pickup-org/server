@@ -267,6 +267,7 @@ describe('ServerConfiguratorService', () => {
             gameClass: Tf2ClassName.soldier,
             status: SlotStatus.active,
             connectionStatus: PlayerConnectionStatus.offline,
+            serialize: jest.fn(),
           },
           {
             player: mockPlayer2._id,
@@ -274,6 +275,7 @@ describe('ServerConfiguratorService', () => {
             gameClass: Tf2ClassName.soldier,
             status: SlotStatus.replaced,
             connectionStatus: PlayerConnectionStatus.offline,
+            serialize: jest.fn(),
           },
         ];
         await mockGame.save();

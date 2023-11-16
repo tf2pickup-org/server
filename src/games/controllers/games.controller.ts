@@ -34,6 +34,7 @@ import { GameServerOptionIdentifier } from '../dto/game-server-option-identifier
 import { PlayerNotInThisGameErrorFilter } from '../filters/player-not-in-this-game-error.filter';
 import { GameInWrongStateErrorFilter } from '../filters/game-in-wrong-state-error.filter';
 import { GameEventDto } from '../dto/game-event.dto';
+import { GameSlotDto } from '../dto/game-slot-dto';
 
 @Controller('games')
 export class GamesController {
@@ -106,6 +107,13 @@ export class GamesController {
         joinGameServerTimeout: new Date(joinGameServerTimeout).toISOString(),
       }),
     };
+  }
+
+  @Get(':id/slots')
+  getSlots(
+    @Param('id', GameByIdOrNumberPipe) game: Game,
+  ): Serializable<GameSlotDto>[] {
+    return game.slots;
   }
 
   @Get(':id/events')

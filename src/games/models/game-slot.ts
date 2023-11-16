@@ -7,9 +7,13 @@ import { Types } from 'mongoose';
 import { Exclude } from 'class-transformer';
 import { TransformObjectId } from '@/shared/decorators/transform-object-id';
 import { PlayerId } from '@/players/types/player-id';
+import { Serializable } from '@/shared/serializable';
+import { GameSlotDto } from '../dto/game-slot-dto';
+import { app } from '@/app';
+import { PlayersService } from '@/players/services/players.service';
 
 @Schema()
-export class GameSlot {
+export class GameSlot extends Serializable<GameSlotDto> {
   @Exclude({ toPlainOnly: true })
   _id?: Types.ObjectId;
 
@@ -31,6 +35,18 @@ export class GameSlot {
     default: PlayerConnectionStatus.offline,
   })
   connectionStatus!: PlayerConnectionStatus;
+
+  async serialize(): Promise<GameSlotDto> {
+    const playersService = app.get(PlayersService);
+
+    return {
+      player: await playersService.getById(this.player),
+      team: this.team,
+      gameClass: this.gameClass,
+      status: this.status,
+      connectionStatus: this.connectionStatus,
+    };
+  }
 }
 
 export const gameSlotSchema = SchemaFactory.createForClass(GameSlot);
