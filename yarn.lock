@@ -3564,7 +3564,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cache-manager@npm:5.2.4, cache-manager@npm:^5.2.2":
+"cache-manager@npm:5.3.1":
+  version: 5.3.1
+  resolution: "cache-manager@npm:5.3.1"
+  dependencies:
+    lodash.clonedeep: "npm:^4.5.0"
+    lru-cache: "npm:^10.0.2"
+    promise-coalesce: "npm:^1.1.1"
+  checksum: deb591aa0a5556c1d85e4c1bb806f62089c1cdfe6c5e71d2e19864bbe19e468f13aae5f0c474239c6ff725965a703e62b9b0e9d908045dd90d39817238a6ccc1
+  languageName: node
+  linkType: hard
+
+"cache-manager@npm:^5.2.2":
   version: 5.2.4
   resolution: "cache-manager@npm:5.2.4"
   dependencies:
@@ -7998,6 +8009,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"lru-cache@npm:^10.0.2":
+  version: 10.0.2
+  resolution: "lru-cache@npm:10.0.2"
+  dependencies:
+    semver: "npm:^7.3.5"
+  checksum: 5c83a7a2a320a445129cb67a1794437db5483942df63536026fba1cb7ba2e1f7456037876cc9d31076132010f92cb943bee358d336dd94105e50ea971e6d737d
+  languageName: node
+  linkType: hard
+
 "lru-cache@npm:^5.1.1":
   version: 5.1.1
   resolution: "lru-cache@npm:5.1.1"
@@ -9513,6 +9533,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"promise-coalesce@npm:^1.1.1":
+  version: 1.1.1
+  resolution: "promise-coalesce@npm:1.1.1"
+  checksum: 74978dd884c508ca8ec88cb1e92e2d3baec08c8796eb83e35376c1bcbf22598e33411ce530b25b3e5667baab3caf6a0b94514dd646353f3c462e76fa3f8ce88e
+  languageName: node
+  linkType: hard
+
 "promise-retry@npm:^2.0.1":
   version: 2.0.1
   resolution: "promise-retry@npm:2.0.1"
@@ -10288,7 +10315,7 @@ __metadata:
     app-root-path: "npm:3.1.0"
     async-mutex: "npm:0.4.0"
     axios: "npm:1.6.2"
-    cache-manager: "npm:5.2.4"
+    cache-manager: "npm:5.3.1"
     cache-manager-redis-yet: "npm:4.1.2"
     class-transformer: "npm:0.5.1"
     class-validator: "npm:0.14.0"
