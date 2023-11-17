@@ -8471,9 +8471,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mongodb-memory-server-core@npm:9.0.1":
-  version: 9.0.1
-  resolution: "mongodb-memory-server-core@npm:9.0.1"
+"mongodb-memory-server-core@npm:9.1.1":
+  version: 9.1.1
+  resolution: "mongodb-memory-server-core@npm:9.1.1"
   dependencies:
     async-mutex: "npm:^0.4.0"
     camelcase: "npm:^6.3.0"
@@ -8481,23 +8481,23 @@ __metadata:
     find-cache-dir: "npm:^3.3.2"
     follow-redirects: "npm:^1.15.3"
     https-proxy-agent: "npm:^7.0.2"
-    mongodb: "npm:^5.9.0"
+    mongodb: "npm:^5.9.1"
     new-find-package-json: "npm:^2.0.0"
     semver: "npm:^7.5.4"
     tar-stream: "npm:^3.0.0"
     tslib: "npm:^2.6.2"
     yauzl: "npm:^2.10.0"
-  checksum: 394ecedb2743b0f8fc06a46b6d0be061fc5534fd429fcd3acbbf61b417d6ecaeb2cc671f5f79c2c1afb8363c554fd707d0de62b05c365179c45b952c5b660423
+  checksum: d33b0fa214cc7471cc3ad172b60dace3e160c943d7885fbee2ca63a1a35e52714b192f32efee4cb2714f4358d49d389abe63486bbab12bd965efa6810c850978
   languageName: node
   linkType: hard
 
-"mongodb-memory-server@npm:9.0.1":
-  version: 9.0.1
-  resolution: "mongodb-memory-server@npm:9.0.1"
+"mongodb-memory-server@npm:9.1.1":
+  version: 9.1.1
+  resolution: "mongodb-memory-server@npm:9.1.1"
   dependencies:
-    mongodb-memory-server-core: "npm:9.0.1"
+    mongodb-memory-server-core: "npm:9.1.1"
     tslib: "npm:^2.6.2"
-  checksum: 1f585dfba7338cd329746dad50bfe5c7ea958beb7ed34ab56c3e1e559474b0a7236c843350f6577f8a92286cfa94c6efbbdbfdc1531460e984e1ceaf2cb877aa
+  checksum: 9981ad6f5fa206d17f0f67a565e5136fe4be09d2f7fd8b0b4fe793565d90aaeca352a43c8d8df6b3e1a8bd8d39ff259851a977b66cd9c4eeded0fd10940c3945
   languageName: node
   linkType: hard
 
@@ -8574,7 +8574,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mongodb@npm:^5.9.0":
+"mongodb@npm:^5.9.1":
   version: 5.9.1
   resolution: "mongodb@npm:5.9.1"
   dependencies:
@@ -10312,7 +10312,7 @@ __metadata:
     migrate: "npm:2.0.0"
     moment: "npm:2.29.4"
     mongodb: "npm:6.3.0"
-    mongodb-memory-server: "npm:9.0.1"
+    mongodb-memory-server: "npm:9.1.1"
     mongodb-uri: "npm:0.9.7"
     mongoose: "npm:7.6.5"
     multer: "npm:^1.4.5-lts.1"
