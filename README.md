@@ -70,10 +70,17 @@ tf2pickup.org was created with a simple objective in mind. Make it as easy and a
   By default, the server is listening on port 3000 .
 
 
-## Using Docker
+## Docker images
 
-There is a [Docker image](https://hub.docker.com/r/tf2pickuppl/server) available for you to run the production version of the application.
+```bash
+$ docker pull ghcr.io/tf2pickup-org/server:stable
+```
 
+### Supported tags
+
+* [`stable`](https://github.com/tf2pickup-org/server/pkgs/container/server/145285422?tag=stable)
+* [`latest`](https://github.com/tf2pickup-org/server/pkgs/container/server/145285422?tag=latest)
+* [`nightly`](https://github.com/tf2pickup-org/server/pkgs/container/server/148223409?tag=nightly)
 
 ## Contact
 
