@@ -2160,12 +2160,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:20.9.1":
-  version: 20.9.1
-  resolution: "@types/node@npm:20.9.1"
+"@types/node@npm:20.9.2":
+  version: 20.9.2
+  resolution: "@types/node@npm:20.9.2"
   dependencies:
     undici-types: "npm:~5.26.4"
-  checksum: 0cb52c0840fe9a2e8f988564da6823bb3141e34fef8cb7264762c851c0dac5d9ef4859db422dfa41cd1a864ad126a9bd3b588d0285bc9af6de814de3280da9b3
+  checksum: 891a035a5b7796001f5daaec03b2d84ebb67d731b67abb34c352af1b5b1f53beb4a92f0f6a66f6e0ed97191c3022cc8c830e048f8a5c53806e8ab248873a7c7b
   languageName: node
   linkType: hard
 
@@ -10302,7 +10302,7 @@ __metadata:
     "@types/mongodb-uri": "npm:0.9.4"
     "@types/mongoose": "npm:5.11.96"
     "@types/multer": "npm:^1.4.7"
-    "@types/node": "npm:20.9.1"
+    "@types/node": "npm:20.9.2"
     "@types/passport": "npm:1.0.15"
     "@types/passport-jwt": "npm:3.0.13"
     "@types/passport-steam": "npm:1.0.4"
