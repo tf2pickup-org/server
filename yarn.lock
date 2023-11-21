@@ -2154,11 +2154,11 @@ __metadata:
   linkType: hard
 
 "@types/multer@npm:^1.4.7":
-  version: 1.4.10
-  resolution: "@types/multer@npm:1.4.10"
+  version: 1.4.11
+  resolution: "@types/multer@npm:1.4.11"
   dependencies:
     "@types/express": "npm:*"
-  checksum: 79a82d5b8f8c07e6fd4a8e5ee285cf6bbd1ace7b936c6e422403a647a42ac6023a22ab93fb922beec2b59bb9ed48f4caf003bb09e2a5a9eeabf0c13ccec5a365
+  checksum: ace8e9f5ac7d2d7f6e0c35b790504f582a2f82a84cc06a7b90315527599b95256595bc0bb5bba60220c20a558554f0c21b96b94848b885987ab69512a3a9865e
   languageName: node
   linkType: hard
 
