@@ -35,6 +35,9 @@ import { PlayerNotInThisGameErrorFilter } from '../filters/player-not-in-this-ga
 import { GameInWrongStateErrorFilter } from '../filters/game-in-wrong-state-error.filter';
 import { GameEventDto } from '../dto/game-event.dto';
 import { GameSlotDto } from '../dto/game-slot-dto';
+import { GameState } from '../models/game-state';
+import { FilterQuery } from 'mongoose';
+import { ParseEnumArrayPipe } from '@/shared/pipes/parse-enum-array.pipe';
 
 @Controller('games')
 export class GamesController {
@@ -51,23 +54,24 @@ export class GamesController {
     @Query('offset', new DefaultValuePipe(0), ParseIntPipe) offset: number,
     @Query('sort', new DefaultValuePipe('-launched_at'), ParseSortParamsPipe)
     sort: Record<string, 1 | -1>,
+    @Query(
+      'state',
+      new DefaultValuePipe(Object.values(GameState).join(',')),
+      new ParseEnumArrayPipe(GameState),
+    )
+    state: GameState[],
     @Query('player', PlayerByIdPipe)
     player?: Player,
   ): Promise<PaginatedGameListDto> {
-    let results: Game[];
-    let itemCount: number;
-
-    if (!player) {
-      [results, itemCount] = await Promise.all([
-        this.gamesService.getGames(sort, limit, offset),
-        this.gamesService.getGameCount(),
-      ]);
-    } else {
-      [results, itemCount] = await Promise.all([
-        this.gamesService.getPlayerGames(player._id, sort, limit, offset),
-        this.gamesService.getPlayerGameCount(player._id),
-      ]);
+    const filter: FilterQuery<Game> = { state };
+    if (player) {
+      filter['slots.player'] = player._id;
     }
+
+    const [results, itemCount] = await Promise.all([
+      this.gamesService.getGames(sort, limit, offset, filter),
+      this.gamesService.getGameCount(filter),
+    ]);
 
     return { results, itemCount };
   }

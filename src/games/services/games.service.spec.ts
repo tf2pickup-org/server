@@ -102,9 +102,16 @@ describe('GamesService', () => {
 
   describe('#getGameCount()', () => {
     it('should return document count', async () => {
-      const spy = jest.spyOn(gameModel, 'estimatedDocumentCount');
+      const spy = jest.spyOn(gameModel, 'countDocuments');
       const ret = await service.getGameCount();
-      expect(spy).toHaveBeenCalled();
+      expect(spy).toHaveBeenCalledWith({});
+      expect(ret).toEqual(0);
+    });
+
+    it('should respect filters', async () => {
+      const spy = jest.spyOn(gameModel, 'countDocuments');
+      const ret = await service.getGameCount({ state: [GameState.ended] });
+      expect(spy).toHaveBeenCalledWith({ state: [GameState.ended] });
       expect(ret).toEqual(0);
     });
   });

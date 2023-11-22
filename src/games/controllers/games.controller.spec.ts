@@ -8,6 +8,7 @@ import { Events } from '@/events/events';
 import { GameServerAssignerService } from '../services/game-server-assigner.service';
 import { Types } from 'mongoose';
 import { PlayerId } from '@/players/types/player-id';
+import { GameState } from '../models/game-state';
 
 jest.mock('../services/player-substitution.service');
 jest.mock('../services/game-server-assigner.service');
@@ -87,8 +88,13 @@ describe('Games Controller', () => {
     describe('when playerId is undefined', () => {
       it('should return games', async () => {
         const spy = jest.spyOn(gamesService, 'getGames');
-        const ret = await controller.getGames(10, 0, { 'events.0.at': -1 });
-        expect(spy).toHaveBeenCalledWith({ 'events.0.at': -1 }, 10, 0);
+        const ret = await controller.getGames(10, 0, { 'events.0.at': -1 }, [
+          GameState.ended,
+          GameState.interrupted,
+        ]);
+        expect(spy).toHaveBeenCalledWith({ 'events.0.at': -1 }, 10, 0, {
+          state: [GameState.ended, GameState.interrupted],
+        });
         expect(ret).toEqual({
           results: gamesService.games,
           itemCount: 2,
@@ -99,19 +105,23 @@ describe('Games Controller', () => {
     describe('when the player is specified', () => {
       it('should return player games', async () => {
         const playerId = new Types.ObjectId() as PlayerId;
-        const spy = jest.spyOn(gamesService, 'getPlayerGames');
-        const ret = await controller.getGames(10, 0, { 'events.0.at': -1 }, {
-          _id: playerId,
-        } as Player);
-        expect(spy).toHaveBeenCalledWith(
-          playerId,
-          { 'events.0.at': -1 },
+        const spy = jest.spyOn(gamesService, 'getGames');
+        const ret = await controller.getGames(
           10,
           0,
+          { 'events.0.at': -1 },
+          [GameState.ended, GameState.interrupted],
+          {
+            _id: playerId,
+          } as Player,
         );
+        expect(spy).toHaveBeenCalledWith({ 'events.0.at': -1 }, 10, 0, {
+          state: [GameState.ended, GameState.interrupted],
+          'slots.player': playerId,
+        });
         expect(ret).toEqual({
           results: gamesService.games,
-          itemCount: 1,
+          itemCount: expect.any(Number),
         });
       });
     });
