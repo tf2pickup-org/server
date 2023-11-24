@@ -51,7 +51,8 @@ export class GamesController {
   @Get()
   async getGames(
     @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
-    @Query('offset', new DefaultValuePipe(0), ParseIntPipe) offset: number,
+    // TODO v12: rename offset to skip
+    @Query('offset', new DefaultValuePipe(0), ParseIntPipe) skip: number,
     @Query('sort', new DefaultValuePipe('-launched_at'), ParseSortParamsPipe)
     sort: Record<string, 1 | -1>,
     @Query(
@@ -69,7 +70,7 @@ export class GamesController {
     }
 
     const [results, itemCount] = await Promise.all([
-      this.gamesService.getGames(sort, limit, offset, filter),
+      this.gamesService.getGames(filter, { sort, limit, skip }),
       this.gamesService.getGameCount(filter),
     ]);
 

@@ -92,9 +92,12 @@ describe('Games Controller', () => {
           GameState.ended,
           GameState.interrupted,
         ]);
-        expect(spy).toHaveBeenCalledWith({ 'events.0.at': -1 }, 10, 0, {
-          state: [GameState.ended, GameState.interrupted],
-        });
+        expect(spy).toHaveBeenCalledWith(
+          {
+            state: [GameState.ended, GameState.interrupted],
+          },
+          { sort: { 'events.0.at': -1 }, limit: 10, skip: 0 },
+        );
         expect(ret).toEqual({
           results: gamesService.games,
           itemCount: 2,
@@ -115,10 +118,13 @@ describe('Games Controller', () => {
             _id: playerId,
           } as Player,
         );
-        expect(spy).toHaveBeenCalledWith({ 'events.0.at': -1 }, 10, 0, {
-          state: [GameState.ended, GameState.interrupted],
-          'slots.player': playerId,
-        });
+        expect(spy).toHaveBeenCalledWith(
+          {
+            state: [GameState.ended, GameState.interrupted],
+            'slots.player': playerId,
+          },
+          { sort: { 'events.0.at': -1 }, limit: 10, skip: 0 },
+        );
         expect(ret).toEqual({
           results: gamesService.games,
           itemCount: expect.any(Number),
