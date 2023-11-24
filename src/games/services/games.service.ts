@@ -24,10 +24,6 @@ import { PlayerConnectionStatus } from '../models/player-connection-status';
 import { PlayerReplaced } from '../models/events/player-replaced';
 import { PlayerLeftGameServer } from '../models/events/player-left-game-server';
 
-interface GetPlayerGameCountOptions {
-  endedOnly?: boolean;
-}
-
 @Injectable()
 export class GamesService {
   private logger = new Logger(GamesService.name);
@@ -97,24 +93,6 @@ export class GamesService {
         GameState.started,
       ],
     });
-  }
-
-  /**
-   * @deprecated
-   */
-  async getPlayerGameCount(
-    playerId: PlayerId,
-    options: GetPlayerGameCountOptions = {},
-  ): Promise<number> {
-    const defaultOptions: GetPlayerGameCountOptions = { endedOnly: false };
-    const _options = { ...defaultOptions, ...options };
-
-    let criteria: any = { 'slots.player': new Types.ObjectId(playerId) };
-    if (_options.endedOnly) {
-      criteria = { ...criteria, state: GameState.ended };
-    }
-
-    return await this.gameModel.countDocuments(criteria);
   }
 
   // TODO Move to a separate service
