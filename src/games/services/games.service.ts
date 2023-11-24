@@ -10,7 +10,7 @@ import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { GameState } from '../models/game-state';
 import { ConfigurationService } from '@/configuration/services/configuration.service';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, UpdateQuery, Types } from 'mongoose';
+import { Model, UpdateQuery, Types, FilterQuery } from 'mongoose';
 import { PlayerNotInThisGameError } from '../errors/player-not-in-this-game.error';
 import { URL } from 'url';
 import { GameInWrongStateError } from '../errors/game-in-wrong-state.error';
@@ -45,8 +45,8 @@ export class GamesService {
     @Inject('GAME_MODEL_MUTEX') private mutex: Mutex,
   ) {}
 
-  async getGameCount(): Promise<number> {
-    return await this.gameModel.estimatedDocumentCount();
+  async getGameCount(filter: FilterQuery<Game> = {}): Promise<number> {
+    return await this.gameModel.countDocuments(filter);
   }
 
   async getById(gameId: GameId): Promise<Game> {
@@ -74,6 +74,9 @@ export class GamesService {
     );
   }
 
+  /**
+   * @deprecated
+   */
   async getRunningGames(): Promise<Game[]> {
     return plainToInstance(
       Game,
@@ -97,11 +100,12 @@ export class GamesService {
     sort: GameSortOptions = { 'events.0.at': -1 },
     limit = 10,
     skip = 0,
+    filter: FilterQuery<Game> = {},
   ): Promise<Game[]> {
     return plainToInstance(
       Game,
       await this.gameModel
-        .find()
+        .find(filter)
         .sort(sort)
         .limit(limit)
         .skip(skip)
@@ -110,24 +114,9 @@ export class GamesService {
     );
   }
 
-  async getPlayerGames(
-    playerId: PlayerId,
-    sort: GameSortOptions = { 'events.0.at': -1 },
-    limit = 10,
-    skip = 0,
-  ): Promise<Game[]> {
-    return plainToInstance(
-      Game,
-      await this.gameModel
-        .find({ 'slots.player': playerId })
-        .sort(sort)
-        .limit(limit)
-        .skip(skip)
-        .lean()
-        .exec(),
-    );
-  }
-
+  /**
+   * @deprecated
+   */
   async getPlayerGameCount(
     playerId: PlayerId,
     options: GetPlayerGameCountOptions = {},
@@ -143,6 +132,7 @@ export class GamesService {
     return await this.gameModel.countDocuments(criteria);
   }
 
+  // TODO Move to a separate service
   async getPlayerPlayedClassCount(
     playerId: PlayerId,
   ): Promise<{ [gameClass in Tf2ClassName]?: number }> {
