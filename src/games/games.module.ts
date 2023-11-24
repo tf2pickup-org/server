@@ -15,6 +15,7 @@ import { Mutex } from 'async-mutex';
 import { GameServerAssignerService } from './services/game-server-assigner.service';
 import { QueueConfigModule } from '@/queue-config/queue-config.module';
 import { GamesConfigurationService } from './services/games-configuration.service';
+import { GameSlotsGateway } from './gateways/game-slots.gateway';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { GamesConfigurationService } from './services/games-configuration.servic
     PlayerSubstitutionService,
     GameServerAssignerService,
     GamesConfigurationService,
+    GameSlotsGateway,
   ],
   exports: [GamesService, PlayerSubstitutionService],
   controllers: [GamesController, GamesWithSubstitutionRequestsController],

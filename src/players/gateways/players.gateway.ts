@@ -45,16 +45,16 @@ export class PlayersGateway
 
   onModuleInit() {
     this.events.playerConnects.subscribe(async ({ playerId }) =>
-      this.emit(
-        WebsocketEvent.playerConnected,
-        await this.playersService.getById(playerId),
-      ),
+      this.emit({
+        event: WebsocketEvent.playerConnected,
+        payload: await this.playersService.getById(playerId),
+      }),
     );
     this.events.playerDisconnects.subscribe(async ({ playerId }) =>
-      this.emit(
-        WebsocketEvent.playerDisconnected,
-        await this.playersService.getById(playerId),
-      ),
+      this.emit({
+        event: WebsocketEvent.playerDisconnected,
+        payload: await this.playersService.getById(playerId),
+      }),
     );
   }
 }
