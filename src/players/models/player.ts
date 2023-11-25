@@ -11,6 +11,7 @@ import { GamesService } from '@/games/services/games.service';
 import { app } from '@/app';
 import { GameId } from '@/games/game-id';
 import { PlayerId } from '../types/player-id';
+import { GameState } from '@/games/models/game-state';
 
 @Schema()
 export class Player extends Serializable<PlayerDto> {
@@ -80,7 +81,10 @@ export class Player extends Serializable<PlayerDto> {
         : {},
       roles: this.roles,
       etf2lProfileId: this.etf2lProfileId,
-      gamesPlayed: await gamesService.getPlayerGameCount(this._id),
+      gamesPlayed: await gamesService.getGameCount({
+        'slots.player': this._id,
+        state: GameState.ended,
+      }),
       _links: [
         {
           href: `/players/${this.id}/linked-profiles`,

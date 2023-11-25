@@ -24,6 +24,7 @@ import { Etf2lApiService } from '@/etf2l/services/etf2l-api.service';
 import { Etf2lProfile } from '@/etf2l/types/etf2l-profile';
 import { SteamApiService } from '@/steam/services/steam-api.service';
 import { PlayerNameTakenError } from '../errors/player-name-taken.error';
+import { GameState } from '@/games/models/game-state';
 
 interface ForceCreatePlayerOptions {
   name: Player['name'];
@@ -244,8 +245,9 @@ export class PlayersService implements OnModuleInit {
   async getPlayerStats(playerId: PlayerId) {
     return {
       player: playerId,
-      gamesPlayed: await this.gamesService.getPlayerGameCount(playerId, {
-        endedOnly: true,
+      gamesPlayed: await this.gamesService.getGameCount({
+        'slots.player': playerId,
+        state: GameState.ended,
       }),
       classesPlayed:
         await this.gamesService.getPlayerPlayedClassCount(playerId),

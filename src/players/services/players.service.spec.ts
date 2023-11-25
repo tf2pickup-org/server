@@ -513,7 +513,7 @@ describe('PlayersService', () => {
 
   describe('#getPlayerStats()', () => {
     beforeEach(() => {
-      gamesService.getPlayerGameCount.mockResolvedValue(220);
+      gamesService.getGameCount.mockResolvedValue(220);
       gamesService.getPlayerPlayedClassCount.mockResolvedValue({
         scout: 19,
         soldier: 102,

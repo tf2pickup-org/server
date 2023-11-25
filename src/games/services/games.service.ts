@@ -10,7 +10,7 @@ import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { GameState } from '../models/game-state';
 import { ConfigurationService } from '@/configuration/services/configuration.service';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, UpdateQuery, Types, FilterQuery } from 'mongoose';
+import { Model, UpdateQuery, Types, FilterQuery, QueryOptions } from 'mongoose';
 import { PlayerNotInThisGameError } from '../errors/player-not-in-this-game.error';
 import { URL } from 'url';
 import { GameInWrongStateError } from '../errors/game-in-wrong-state.error';
@@ -23,14 +23,6 @@ import { PlayerId } from '@/players/types/player-id';
 import { PlayerConnectionStatus } from '../models/player-connection-status';
 import { PlayerReplaced } from '../models/events/player-replaced';
 import { PlayerLeftGameServer } from '../models/events/player-left-game-server';
-
-interface GameSortOptions {
-  [key: string]: 1 | -1;
-}
-
-interface GetPlayerGameCountOptions {
-  endedOnly?: boolean;
-}
 
 @Injectable()
 export class GamesService {
@@ -74,62 +66,33 @@ export class GamesService {
     );
   }
 
-  /**
-   * @deprecated
-   */
-  async getRunningGames(): Promise<Game[]> {
+  async getGames(
+    filter: FilterQuery<Game> = {},
+    options?: QueryOptions<Game>,
+  ): Promise<Game[]> {
+    const defaultOptions: QueryOptions<Game> = { sort: { 'events.0.at': -1 } };
+
     return plainToInstance(
       Game,
       await this.gameModel
-        .find({
-          state: {
-            $in: [
-              GameState.created,
-              GameState.configuring,
-              GameState.launching,
-              GameState.started,
-            ],
-          },
+        .find(filter, undefined, {
+          ...defaultOptions,
+          ...(options ?? {}),
         })
         .lean()
         .exec(),
     );
   }
 
-  async getGames(
-    sort: GameSortOptions = { 'events.0.at': -1 },
-    limit = 10,
-    skip = 0,
-    filter: FilterQuery<Game> = {},
-  ): Promise<Game[]> {
-    return plainToInstance(
-      Game,
-      await this.gameModel
-        .find(filter)
-        .sort(sort)
-        .limit(limit)
-        .skip(skip)
-        .lean()
-        .exec(),
-    );
-  }
-
-  /**
-   * @deprecated
-   */
-  async getPlayerGameCount(
-    playerId: PlayerId,
-    options: GetPlayerGameCountOptions = {},
-  ): Promise<number> {
-    const defaultOptions: GetPlayerGameCountOptions = { endedOnly: false };
-    const _options = { ...defaultOptions, ...options };
-
-    let criteria: any = { 'slots.player': new Types.ObjectId(playerId) };
-    if (_options.endedOnly) {
-      criteria = { ...criteria, state: GameState.ended };
-    }
-
-    return await this.gameModel.countDocuments(criteria);
+  async getRunningGames(): Promise<Game[]> {
+    return await this.getGames({
+      state: [
+        GameState.created,
+        GameState.configuring,
+        GameState.launching,
+        GameState.started,
+      ],
+    });
   }
 
   // TODO Move to a separate service

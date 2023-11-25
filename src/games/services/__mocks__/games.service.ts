@@ -48,8 +48,12 @@ export class GamesService {
     .fn()
     .mockImplementation(() => this._original.getRunningGames());
 
+  getGameCount = jest
+    .fn()
+    .mockImplementation(
+      async (filter) => await this._original.getGameCount(filter),
+    );
   getOrphanedGames = jest.fn();
-  getPlayerGameCount = jest.fn();
   getPlayerPlayedClassCount = jest.fn();
   calculatePlayerJoinGameServerTimeout = jest.fn();
   forceEnd = jest.fn();
