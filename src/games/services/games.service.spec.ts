@@ -765,7 +765,7 @@ describe('GamesService', () => {
             testGame._id,
             testPlayer._id,
           ),
-        ).rejects.toThrow('no such slot');
+        ).rejects.toThrow(PlayerNotInThisGameError);
       });
     });
 
