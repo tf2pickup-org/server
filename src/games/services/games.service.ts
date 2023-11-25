@@ -408,7 +408,7 @@ export class GamesService {
     const game = await this.getById(gameId);
     const slot = game.findPlayerSlot(playerId);
     if (!slot) {
-      throw new Error('no such slot');
+      throw new PlayerNotInThisGameError(playerId, gameId);
     }
 
     if (
