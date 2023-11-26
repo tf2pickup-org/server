@@ -38,6 +38,7 @@ import { GameSlotDto } from '../dto/game-slot-dto';
 import { GameState } from '../models/game-state';
 import { FilterQuery } from 'mongoose';
 import { ParseEnumArrayPipe } from '@/shared/pipes/parse-enum-array.pipe';
+import { VoiceChannelUrlsService } from '../services/voice-channel-urls.service';
 
 @Controller('games')
 export class GamesController {
@@ -46,6 +47,7 @@ export class GamesController {
     private playerSubstitutionService: PlayerSubstitutionService,
     private events: Events,
     private gameServerAssignerService: GameServerAssignerService,
+    private readonly voiceChannelUrlsService: VoiceChannelUrlsService,
   ) {}
 
   @Get()
@@ -106,8 +108,10 @@ export class GamesController {
       connectInfoVersion: game.connectInfoVersion,
       connectString: game.connectString,
       voiceChannelUrl:
-        (await this.gamesService.getVoiceChannelUrl(game._id, player._id)) ??
-        undefined,
+        (await this.voiceChannelUrlsService.getVoiceChannelUrl(
+          game._id,
+          player._id,
+        )) ?? undefined,
       ...(joinGameServerTimeout && {
         joinGameServerTimeout: new Date(joinGameServerTimeout).toISOString(),
       }),

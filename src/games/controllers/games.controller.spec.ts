@@ -9,10 +9,12 @@ import { GameServerAssignerService } from '../services/game-server-assigner.serv
 import { Types } from 'mongoose';
 import { PlayerId } from '@/players/types/player-id';
 import { GameState } from '../models/game-state';
+import { VoiceChannelUrlsService } from '../services/voice-channel-urls.service';
 
 jest.mock('../services/player-substitution.service');
 jest.mock('../services/game-server-assigner.service');
 jest.mock('@/players/pipes/player-by-id.pipe');
+jest.mock('../services/voice-channel-urls.service');
 
 class GamesServiceStub {
   games: Game[] = [
@@ -48,9 +50,6 @@ class GamesServiceStub {
   getPlayerGameCount(playerId: string) {
     return Promise.resolve(1);
   }
-  getVoiceChannelUrl(gameId: string, playerId: string) {
-    return Promise.resolve('');
-  }
   forceEnd = jest.fn().mockResolvedValue(undefined);
   calculatePlayerJoinGameServerTimeout = jest.fn().mockResolvedValue(undefined);
 }
@@ -61,6 +60,7 @@ describe('Games Controller', () => {
   let playerSubstitutionService: PlayerSubstitutionService;
   let events: Events;
   let gameServerAssignerService: GameServerAssignerService;
+  let voiceChannelUrlsService: jest.Mocked<VoiceChannelUrlsService>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -69,6 +69,7 @@ describe('Games Controller', () => {
         PlayerSubstitutionService,
         Events,
         GameServerAssignerService,
+        VoiceChannelUrlsService,
       ],
       controllers: [GamesController],
     }).compile();
@@ -78,6 +79,7 @@ describe('Games Controller', () => {
     playerSubstitutionService = module.get(PlayerSubstitutionService);
     events = module.get(Events);
     gameServerAssignerService = module.get(GameServerAssignerService);
+    voiceChannelUrlsService = module.get(VoiceChannelUrlsService);
   });
 
   it('should be defined', () => {
@@ -142,9 +144,9 @@ describe('Games Controller', () => {
 
   describe('#getConnectInfo()', () => {
     beforeEach(() => {
-      jest
-        .spyOn(gamesService, 'getVoiceChannelUrl')
-        .mockResolvedValue('FAKE_VOICE_CHANNEL_URL');
+      voiceChannelUrlsService.getVoiceChannelUrl.mockResolvedValue(
+        'FAKE_VOICE_CHANNEL_URL',
+      );
     });
 
     it('should return connect info', async () => {
