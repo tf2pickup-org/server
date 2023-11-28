@@ -12,4 +12,6 @@ export enum GameEventType {
   playerJoinedGameServer = 'player joined game server',
   playerJoinedGameServerTeam = 'player joined game server team',
   playerLeftGameServer = 'player left game server',
+
+  roundEnded = 'round ended',
 }

@@ -37,6 +37,7 @@ import {
   GameServerAssigned,
   gameServerAssignedSchema,
 } from './events/game-server-assigned';
+import { RoundEnded, roundEndedSchema } from './events/round-ended';
 
 @Schema()
 export class Game extends Serializable<GameDto> {
@@ -95,6 +96,10 @@ export class Game extends Serializable<GameDto> {
           value: PlayerLeftGameServer,
           name: GameEventType.playerLeftGameServer,
         },
+        {
+          value: RoundEnded,
+          name: GameEventType.roundEnded,
+        },
       ],
     },
   })
@@ -120,6 +125,7 @@ export class Game extends Serializable<GameDto> {
     | PlayerJoinedGameServer
     | PlayerJoinedGameServerTeam
     | PlayerLeftGameServer
+    | RoundEnded
   )[];
 
   get launchedAt() {
@@ -298,3 +304,4 @@ events.discriminator(
   GameEventType.playerLeftGameServer,
   playerLeftGameServerSchema,
 );
+events.discriminator(GameEventType.roundEnded, roundEndedSchema);
