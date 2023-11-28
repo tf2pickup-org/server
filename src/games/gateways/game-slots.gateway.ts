@@ -7,6 +7,8 @@ import { WebsocketEventEmitter } from '@/shared/websocket-event-emitter';
 import { filter, map } from 'rxjs/operators';
 import { isEqual } from 'lodash';
 
+const roomName = (gameNumber: number) => `/games/${gameNumber}/slots`;
+
 @WebSocketGateway()
 export class GameSlotsGateway
   extends WebsocketEventEmitter<GameSlotDto>
@@ -29,7 +31,7 @@ export class GameSlotsGateway
       )
       .subscribe(({ number, slots }) => {
         this.emit({
-          room: `game/${number}`,
+          room: roomName(number),
           event: WebsocketEvent.gameSlotsUpdated,
           payload: slots,
         });

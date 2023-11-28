@@ -3,7 +3,8 @@ export enum WebsocketEvent {
 
   gameCreated = 'game created',
   gameUpdated = 'game updated',
-  gameSlotsUpdated = 'game slots updated',
+  gameSlotsUpdated = 'slots updated',
+  gameEventsUpdated = 'events updated',
 
   queueSlotsUpdate = 'queue slots update',
   queueStateUpdate = 'queue state update',

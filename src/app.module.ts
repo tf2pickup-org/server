@@ -34,6 +34,7 @@ import { validateEnvironment } from './validate-environment';
 import { Etf2lModule } from './etf2l/etf2l.module';
 import { SteamModule } from './steam/steam.module';
 import { CacheModule } from '@nestjs/cache-manager';
+import { RoomsModule } from './rooms/rooms.module';
 
 @Module({
   imports: [
@@ -100,6 +101,7 @@ import { CacheModule } from '@nestjs/cache-manager';
     QueueConfigModule,
     Etf2lModule,
     SteamModule,
+    RoomsModule,
   ],
   controllers: [AppController],
 })
