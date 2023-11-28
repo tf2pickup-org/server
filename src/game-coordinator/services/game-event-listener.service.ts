@@ -24,11 +24,33 @@ export class GameEventListenerService implements OnModuleInit {
   // events
   readonly gameEvents: GameEvent[] = [
     {
+      // TODO rename to "round start"
       name: 'match started',
       regex: /^[\d/\s-:]+World triggered "Round_Start"$/,
       handle: (gameId) => this.events.matchStarted.next({ gameId }),
     },
     {
+      name: 'round win',
+      // https://regex101.com/r/41LfKS/1
+      regex:
+        /^\d{2}\/\d{2}\/\d{4}\s-\s\d{2}:\d{2}:\d{2}:\sWorld triggered "Round_Win" \(winner "(.+)"\)$/,
+      handle: (gameId, matches) => {
+        const winner = fixTeamName(matches[1]);
+        this.events.roundWin.next({ gameId, winner });
+      },
+    },
+    {
+      name: 'round length',
+      // https://regex101.com/r/mvOYMz/1
+      regex:
+        /^\d{2}\/\d{2}\/\d{4}\s-\s\d{2}:\d{2}:\d{2}:\sWorld triggered "Round_Length" \(seconds "([\d.]+)"\)$/,
+      handle: (gameId, matches) => {
+        const seconds = parseFloat(matches[1]);
+        this.events.roundLength.next({ gameId, lengthMs: seconds * 1000 });
+      },
+    },
+    {
+      // TODO rename to "game over"
       name: 'match ended',
       regex: /^[\d/\s-:]+World triggered "Game_Over" reason ".*"$/,
       handle: (gameId) => this.events.matchEnded.next({ gameId }),

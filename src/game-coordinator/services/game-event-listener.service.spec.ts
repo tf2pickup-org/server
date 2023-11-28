@@ -103,6 +103,34 @@ describe('GameEventListenerService', () => {
         });
       }));
 
+    it('round win', () =>
+      new Promise<void>((resolve) => {
+        events.roundWin.pipe(take(1)).subscribe(({ gameId, winner }) => {
+          expect(gameId.equals(game._id)).toBe(true);
+          expect(winner).toEqual(Tf2Team.blu);
+          resolve();
+        });
+        gameLogs.next({
+          payload:
+            '11/28/2023 - 08:47:40: World triggered "Round_Win" (winner "Blue")',
+          password: 'SOME_LOG_SECRET',
+        });
+      }));
+
+    it('round length', () =>
+      new Promise<void>((resolve) => {
+        events.roundLength.pipe(take(1)).subscribe(({ gameId, lengthMs }) => {
+          expect(gameId.equals(game._id)).toBe(true);
+          expect(lengthMs).toEqual(779340);
+          resolve();
+        });
+        gameLogs.next({
+          payload:
+            '11/28/2023 - 08:47:40: World triggered "Round_Length" (seconds "779.34")',
+          password: 'SOME_LOG_SECRET',
+        });
+      }));
+
     it('match ended', () =>
       new Promise<void>((resolve) => {
         events.matchEnded.pipe(take(1)).subscribe(({ gameId }) => {

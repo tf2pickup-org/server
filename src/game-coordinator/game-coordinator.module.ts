@@ -12,6 +12,7 @@ import { ServerConfiguratorService } from './services/server-configurator.servic
 import { ServerCleanupService } from './services/server-cleanup.service';
 import { PlayerBehaviorHandlerService } from './services/player-behavior-handler.service';
 import { AutoEndGamesService } from './services/auto-end-games.service';
+import { RoundTrackerService } from './services/round-tracker.service';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { AutoEndGamesService } from './services/auto-end-games.service';
     ServerCleanupService,
     PlayerBehaviorHandlerService,
     AutoEndGamesService,
+    RoundTrackerService,
   ],
   exports: [GameRuntimeService],
 })

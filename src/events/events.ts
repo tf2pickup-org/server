@@ -83,6 +83,11 @@ export class Events {
     steamId: string;
     message: string;
   }>();
+  readonly roundWin = new Subject<{
+    gameId: GameId;
+    winner: Tf2Team;
+  }>();
+  readonly roundLength = new Subject<{ gameId: GameId; lengthMs: number }>();
   readonly scoreReported = new Subject<{
     gameId: GameId;
     teamName: Tf2Team;
