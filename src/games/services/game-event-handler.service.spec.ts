@@ -26,6 +26,7 @@ import { PlayerJoinedGameServer } from '../models/events/player-joined-game-serv
 import { PlayerJoinedGameServerTeam } from '../models/events/player-joined-game-server-team';
 import { PlayerLeftGameServer } from '../models/events/player-left-game-server';
 import { waitABit } from '@/utils/wait-a-bit';
+import { GameEnded, GameEndedReason } from '../models/events/game-ended';
 
 jest.mock('@/players/services/players.service');
 jest.mock('@nestjs/config');
@@ -166,9 +167,11 @@ describe('GameEventHandlerService', () => {
 
     it('should push event', async () => {
       const game = await service.onMatchEnded(mockGame.id);
-      expect(
-        game.events.find((e) => e.event === GameEventType.gameEnded),
-      ).toBeTruthy();
+      const ended = game.events.find(
+        (e) => e.event === GameEventType.gameEnded,
+      ) as GameEnded;
+      expect(ended).toBeTruthy();
+      expect(ended.reason).toBe(GameEndedReason.matchEnded);
     });
 
     it('should emit the gameChanges events', async () => {

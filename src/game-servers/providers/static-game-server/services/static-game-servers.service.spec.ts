@@ -26,6 +26,7 @@ import {
 import { StaticGameServerControls } from '../static-game-server-controls';
 import { StaticGameServersService } from './static-game-servers.service';
 import { GameEventType } from '@/games/models/game-event-type';
+import { GameEndedReason } from '@/games/models/events/game-ended';
 
 jest.mock('rcon-client', () => {
   return {
@@ -505,6 +506,7 @@ describe('StaticGameServersService', () => {
       game.events.push({
         at: sub(new Date(), { minutes: 2 }),
         event: GameEventType.gameEnded,
+        reason: GameEndedReason.matchEnded,
         serialize: jest.fn(),
       });
       await game.save();
