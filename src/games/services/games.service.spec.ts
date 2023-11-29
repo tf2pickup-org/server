@@ -26,6 +26,7 @@ import { VoiceServerType } from '../voice-server-type';
 import { PlayerConnectionStatus } from '../models/player-connection-status';
 import { GameEventType } from '../models/game-event-type';
 import { PlayerId } from '@/players/types/player-id';
+import { GameEnded, GameEndedReason } from '../models/events/game-ended';
 
 jest.mock('@/players/services/players.service');
 jest.mock('@/configuration/services/configuration.service');
@@ -462,6 +463,11 @@ describe('GamesService', () => {
     it('should register the ended event', async () => {
       const game = await service.forceEnd(testGame.id);
       expect(game.endedAt).toBeTruthy();
+      const ended = game.events.find(
+        ({ event }) => event === GameEventType.gameEnded,
+      ) as GameEnded;
+      expect(ended).toBeTruthy();
+      expect(ended.reason).toBe(GameEndedReason.interrupted);
     });
 
     it('should emit an event', () =>

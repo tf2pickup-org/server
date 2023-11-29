@@ -20,6 +20,7 @@ import { Mutex } from 'async-mutex';
 import { Tf2Team } from '../models/tf2-team';
 import { GameId } from '../game-id';
 import { GameEventType } from '../models/game-event-type';
+import { GameEndedReason } from '../models/events/game-ended';
 
 // https://github.com/microsoft/TypeScript/issues/33308
 type PickEnum<T, K extends T> = {
@@ -169,6 +170,7 @@ export class GameEventHandlerService implements OnModuleInit, OnModuleDestroy {
                 events: {
                   at: new Date(),
                   event: GameEventType.gameEnded,
+                  reason: GameEndedReason.matchEnded,
                 },
               },
             },

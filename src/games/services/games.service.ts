@@ -23,6 +23,7 @@ import { PlayerId } from '@/players/types/player-id';
 import { PlayerConnectionStatus } from '../models/player-connection-status';
 import { PlayerReplaced } from '../models/events/player-replaced';
 import { PlayerLeftGameServer } from '../models/events/player-left-game-server';
+import { GameEndedReason } from '../models/events/game-ended';
 
 @Injectable()
 export class GamesService {
@@ -221,6 +222,8 @@ export class GamesService {
               events: {
                 at: new Date(),
                 event: GameEventType.gameEnded,
+                reason: GameEndedReason.interrupted,
+                actor: adminId,
               },
             },
           },
