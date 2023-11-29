@@ -90,6 +90,7 @@ export class PlayerSubstitutionService implements OnModuleInit {
                   event: GameEventType.substituteRequested,
                   at: new Date(),
                   player: player._id,
+                  gameClass: slot.gameClass,
                   actor: actor._id,
                   reason,
                 },
