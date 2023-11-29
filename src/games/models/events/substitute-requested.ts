@@ -7,6 +7,7 @@ import { PlayerId } from '@/players/types/player-id';
 import { app } from '@/app';
 import { GameEventDto } from '@/games/dto/game-event.dto';
 import { PlayersService } from '@/players/services/players.service';
+import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 
 @Schema()
 export class SubstituteRequested extends GameEvent {
@@ -15,6 +16,9 @@ export class SubstituteRequested extends GameEvent {
   @TransformObjectId()
   @Prop({ required: true, type: Types.ObjectId, ref: 'Player', index: true })
   player!: PlayerId;
+
+  @Prop({ required: true, enum: Tf2ClassName })
+  gameClass!: Tf2ClassName;
 
   @TransformObjectId()
   @Prop({ type: Types.ObjectId, ref: 'Player' })
