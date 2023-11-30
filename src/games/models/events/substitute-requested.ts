@@ -33,6 +33,7 @@ export class SubstituteRequested extends GameEvent {
       event: this.event,
       at: this.at.toISOString(),
       player: await playersService.getById(this.player),
+      gameClass: this.gameClass,
       actor: this.actor ? await playersService.getById(this.actor) : null,
       reason: this.reason,
     };
