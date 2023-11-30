@@ -31,7 +31,7 @@ export class GameEventListenerService implements OnModuleInit {
     },
     {
       name: 'round win',
-      // https://regex101.com/r/41LfKS/1
+      // https://regex101.com/r/41LfKS/2
       regex:
         /^\d{2}\/\d{2}\/\d{4}\s-\s\d{2}:\d{2}:\d{2}:\sWorld triggered "Round_Win" \(winner "(.+)"\)$/,
       handle: (gameId, matches) => {
@@ -41,7 +41,7 @@ export class GameEventListenerService implements OnModuleInit {
     },
     {
       name: 'round length',
-      // https://regex101.com/r/mvOYMz/1
+      // https://regex101.com/r/mvOYMz/3
       regex:
         /^\d{2}\/\d{2}\/\d{4}\s-\s\d{2}:\d{2}:\d{2}:\sWorld triggered "Round_Length" \(seconds "([\d.]+)"\)$/,
       handle: (gameId, matches) => {
