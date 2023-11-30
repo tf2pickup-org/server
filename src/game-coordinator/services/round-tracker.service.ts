@@ -32,6 +32,7 @@ export class RoundTrackerService implements OnModuleInit {
         this.data.set(gameId, {});
       }
 
+      this.logger.verbose(`${gameId} round winner: ${winner}`);
       this.data.get(gameId)!.winner = winner;
     });
 
@@ -40,6 +41,7 @@ export class RoundTrackerService implements OnModuleInit {
         this.data.set(gameId, {});
       }
 
+      this.logger.verbose(`${gameId} round length: ${lengthMs} ms`);
       this.data.get(gameId)!.lengthMs = lengthMs;
     });
 
@@ -48,6 +50,7 @@ export class RoundTrackerService implements OnModuleInit {
         this.data.set(gameId, {});
       }
 
+      this.logger.verbose(`${gameId} ${teamName} score: ${score}`);
       const data = this.data.get(gameId)!;
       const newScore = { ...data.score, [teamName]: score };
       data.score = newScore;
