@@ -28,32 +28,22 @@ export class RoundTrackerService implements OnModuleInit {
 
   onModuleInit() {
     this.events.roundWin.subscribe(({ gameId, winner }) => {
-      if (!this.data.has(gameId)) {
-        this.data.set(gameId, {});
-      }
-
       this.logger.verbose(`${gameId} round winner: ${winner}`);
-      this.data.get(gameId)!.winner = winner;
+      const round = this.data.get(gameId) ?? {};
+      this.data.set(gameId, { ...round, winner });
     });
 
     this.events.roundLength.subscribe(({ gameId, lengthMs }) => {
-      if (!this.data.has(gameId)) {
-        this.data.set(gameId, {});
-      }
-
       this.logger.verbose(`${gameId} round length: ${lengthMs} ms`);
-      this.data.get(gameId)!.lengthMs = lengthMs;
+      const round = this.data.get(gameId) ?? {};
+      this.data.set(gameId, { ...round, lengthMs });
     });
 
     this.events.scoreReported.subscribe(({ gameId, teamName, score }) => {
-      if (!this.data.has(gameId)) {
-        this.data.set(gameId, {});
-      }
-
       this.logger.verbose(`${gameId} ${teamName} score: ${score}`);
-      const data = this.data.get(gameId)!;
-      const newScore = { ...data.score, [teamName]: score };
-      data.score = newScore;
+      const round = this.data.get(gameId) ?? {};
+      round.score = { ...round.score, [teamName]: score };
+      this.data.set(gameId, round);
     });
 
     merge(
