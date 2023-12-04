@@ -2,6 +2,7 @@ import {
   WebSocketGateway,
   SubscribeMessage,
   MessageBody,
+  ConnectedSocket,
 } from '@nestjs/websockets';
 import { Socket } from 'socket.io';
 import { WsAuthorized } from '@/auth/decorators/ws-authorized.decorator';
@@ -59,6 +60,7 @@ export class GamesGateway
   @SubscribeMessage('replace player')
   @UseInterceptors(SerializerInterceptor)
   async replacePlayer(
+    @ConnectedSocket()
     client: Socket,
     @MessageBody(new ZodPipe(replacePlayerSchema))
     { gameId, replaceeId }: z.infer<typeof replacePlayerSchema>,
