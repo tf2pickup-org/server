@@ -6,6 +6,7 @@ import { setApp } from './app';
 import { SerializerInterceptor } from './shared/interceptors/serializer.interceptor';
 // skipcq: JS-C1003
 import * as cookieParser from 'cookie-parser';
+import { ZodFilter } from './shared/filters/zod.filter';
 
 /**
  * https://stackoverflow.com/questions/65957386/cors-error-with-socket-io-connections-on-chrome-v88-and-nestjs-server
@@ -22,6 +23,7 @@ export class WorkaroundSocketAdapter extends IoAdapter {
 export const configureApplication = (app: INestApplication): void => {
   app.useWebSocketAdapter(new WorkaroundSocketAdapter(app));
   app.useGlobalInterceptors(new SerializerInterceptor());
+  app.useGlobalFilters(new ZodFilter());
   app.enableCors({ origin: true, credentials: true });
   app.use(helmet());
   app.use(

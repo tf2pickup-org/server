@@ -1,4 +1,8 @@
-import { WebSocketGateway, SubscribeMessage } from '@nestjs/websockets';
+import {
+  WebSocketGateway,
+  SubscribeMessage,
+  MessageBody,
+} from '@nestjs/websockets';
 import { Socket } from 'socket.io';
 import { WsAuthorized } from '@/auth/decorators/ws-authorized.decorator';
 import { PlayerSubstitutionService } from '../services/player-substitution.service';
@@ -19,6 +23,23 @@ import { Types } from 'mongoose';
 import { GameId } from '../game-id';
 import { PlayerId } from '@/players/types/player-id';
 import { CanReplacePlayerGuard } from '../guards/can-replace-player.guard';
+import { z } from 'zod';
+import { ZodPipe } from '@/shared/pipes/zod.pipe';
+
+const replacePlayerSchema = z.object({
+  gameId: z
+    .string()
+    .refine((val) => Types.ObjectId.isValid(val), {
+      message: 'id has to be a valid game id',
+    })
+    .transform((val) => new Types.ObjectId(val) as GameId),
+  replaceeId: z
+    .string()
+    .refine((val) => Types.ObjectId.isValid(val), {
+      message: 'id has to be a valid player id',
+    })
+    .transform((val) => new Types.ObjectId(val) as PlayerId),
+});
 
 @WebSocketGateway()
 export class GamesGateway
@@ -39,11 +60,12 @@ export class GamesGateway
   @UseInterceptors(SerializerInterceptor)
   async replacePlayer(
     client: Socket,
-    payload: { gameId: string; replaceeId: string },
+    @MessageBody(new ZodPipe(replacePlayerSchema))
+    { gameId, replaceeId }: z.infer<typeof replacePlayerSchema>,
   ): Promise<Serializable<GameDto>> {
     return await this.playerSubstitutionService.replacePlayer(
-      new Types.ObjectId(payload.gameId) as GameId,
-      new Types.ObjectId(payload.replaceeId) as PlayerId,
+      gameId,
+      replaceeId,
       client.user._id,
     );
   }

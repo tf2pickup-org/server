@@ -2,6 +2,8 @@ import {
   SubscribeMessage,
   WebSocketGateway,
   OnGatewayInit,
+  MessageBody,
+  ConnectedSocket,
 } from '@nestjs/websockets';
 import { QueueService } from '../services/queue.service';
 import { WsAuthorized } from '@/auth/decorators/ws-authorized.decorator';
@@ -21,6 +23,27 @@ import { QueueSlotWrapper } from '../controllers/queue-slot-wrapper';
 import { CanJoinQueueGuard } from '../guards/can-join-queue.guard';
 import { Types } from 'mongoose';
 import { PlayerId } from '@/players/types/player-id';
+import { z } from 'zod';
+import { ZodPipe } from '@/shared/pipes/zod.pipe';
+
+const joinQueueSchema = z.object({
+  slotId: z.number(),
+});
+
+const markFriendSchema = z.object({
+  friendPlayerId: z.nullable(
+    z
+      .string()
+      .refine((val) => Types.ObjectId.isValid(val), {
+        message: 'id has to be a valid player id',
+      })
+      .transform((val) => new Types.ObjectId(val) as PlayerId),
+  ),
+});
+
+const voteForMapSchema = z.object({
+  map: z.string(),
+});
 
 @WebSocketGateway()
 export class QueueGateway implements OnGatewayInit, OnModuleInit {
@@ -72,46 +95,50 @@ export class QueueGateway implements OnGatewayInit, OnModuleInit {
   @UseGuards(CanJoinQueueGuard)
   @SubscribeMessage('join queue')
   joinQueue(
-    client: Socket,
-    payload: { slotId: number },
+    @ConnectedSocket() client: Socket,
+    @MessageBody(new ZodPipe(joinQueueSchema))
+    { slotId }: z.infer<typeof joinQueueSchema>,
   ): Serializable<QueueSlotDto>[] {
     return this.queueService
-      .join(payload.slotId, client.user._id)
+      .join(slotId, client.user._id)
       .map((s) => new QueueSlotWrapper(s));
   }
 
   @UseFilters(AllExceptionsFilter)
   @WsAuthorized()
   @SubscribeMessage('leave queue')
-  leaveQueue(client: Socket): Serializable<QueueSlotDto> {
+  leaveQueue(@ConnectedSocket() client: Socket): Serializable<QueueSlotDto> {
     return new QueueSlotWrapper(this.queueService.leave(client.user._id));
   }
 
   @UseFilters(AllExceptionsFilter)
   @WsAuthorized()
   @SubscribeMessage('player ready')
-  playerReady(client: Socket): Serializable<QueueSlotDto> {
+  playerReady(@ConnectedSocket() client: Socket): Serializable<QueueSlotDto> {
     return new QueueSlotWrapper(this.queueService.readyUp(client.user._id));
   }
 
   @UseFilters(AllExceptionsFilter)
   @WsAuthorized()
   @SubscribeMessage('mark friend')
-  markFriend(client: Socket, payload: { friendPlayerId: string | null }) {
-    return this.friendsService.markFriend(
-      client.user._id,
-      payload.friendPlayerId
-        ? (new Types.ObjectId(payload.friendPlayerId) as PlayerId)
-        : null,
-    );
+  markFriend(
+    @ConnectedSocket() client: Socket,
+    @MessageBody(new ZodPipe(markFriendSchema))
+    { friendPlayerId }: z.infer<typeof markFriendSchema>,
+  ) {
+    return this.friendsService.markFriend(client.user._id, friendPlayerId);
   }
 
   @UseFilters(AllExceptionsFilter)
   @WsAuthorized()
   @SubscribeMessage('vote for map')
-  voteForMap(client: Socket, payload: { map: string }) {
-    this.mapVoteService.voteForMap(client.user._id, payload.map);
-    return payload.map;
+  voteForMap(
+    @ConnectedSocket() client: Socket,
+    @MessageBody(new ZodPipe(voteForMapSchema))
+    { map }: z.infer<typeof voteForMapSchema>,
+  ) {
+    this.mapVoteService.voteForMap(client.user._id, map);
+    return map;
   }
 
   afterInit(socket: Socket) {
