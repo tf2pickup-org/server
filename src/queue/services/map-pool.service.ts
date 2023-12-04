@@ -54,7 +54,7 @@ export class MapPoolService implements OnModuleInit {
     const ret = plainToInstance(
       MapPoolEntry,
       await this.mapPoolEntryModel
-        .findOneAndRemove({ name: mapName })
+        .findOneAndDelete({ name: mapName })
         .lean()
         .exec(),
     );
