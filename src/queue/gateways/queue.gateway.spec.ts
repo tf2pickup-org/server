@@ -140,13 +140,13 @@ describe('QueueGateway', () => {
   describe('#markFriend()', () => {
     it('should mark friend', () => {
       const playerId = new Types.ObjectId() as PlayerId;
-      const friendId = new Types.ObjectId() as PlayerId;
+      const friendPlayerId = new Types.ObjectId() as PlayerId;
       gateway.markFriend({ user: { _id: playerId } } as Socket, {
-        friendPlayerId: friendId.toString(),
+        friendPlayerId,
       });
       expect(friendsService.markFriend).toHaveBeenCalledWith(
         playerId,
-        friendId,
+        friendPlayerId,
       );
     });
   });
