@@ -91,7 +91,7 @@
     "@types/node": "20.10.4",
     "@types/passport": "1.0.16",
     "@types/passport-jwt": "3.0.13",
-    "@types/passport-steam": "1.0.4",
+    "@types/passport-steam": "1.0.5",
     "@types/pem": "1.14.4",
     "@types/socket.io": "3.0.1",
     "@types/steamid": "2.0.3",
