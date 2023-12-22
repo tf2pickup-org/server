@@ -1,5 +1,36 @@
 
 
+# [11.4.0](https://github.com/tf2pickup-org/server/compare/11.3.0...11.4.0) (2023-12-22)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @anatine/zod-openapi to v2.2.2 ([#2744](https://github.com/tf2pickup-org/server/issues/2744)) ([eb8c18c](https://github.com/tf2pickup-org/server/commit/eb8c18cdacba8ac9bce8f1bc1c4dfb8baf4f5878))
+* **deps:** update dependency @nestjs/passport to v10.0.3 ([34b80c5](https://github.com/tf2pickup-org/server/commit/34b80c567cbc2bb5c0335fe1aba887b4630a80b0))
+* **deps:** update dependency @redis/client to v1.5.13 ([#2750](https://github.com/tf2pickup-org/server/issues/2750)) ([5bed99b](https://github.com/tf2pickup-org/server/commit/5bed99b2b5da4c87ee4504ad97c6bf6c8ec70986))
+* **deps:** update dependency cache-manager to v5.3.2 ([#2751](https://github.com/tf2pickup-org/server/issues/2751)) ([0d69b9c](https://github.com/tf2pickup-org/server/commit/0d69b9c802601b315462aa1ecf8c20b928f1e4f1))
+* **deps:** update dependency csv-parse to v5.5.3 ([#2740](https://github.com/tf2pickup-org/server/issues/2740)) ([708f3ee](https://github.com/tf2pickup-org/server/commit/708f3eebc8885205d6172a7ab5305a6911960ac4))
+* **deps:** update dependency mongoose to v7.6.6 ([58ef56f](https://github.com/tf2pickup-org/server/commit/58ef56fa5fe75eb80ba9692cca8807ed5cfa2156))
+* **deps:** update dependency mongoose to v8 ([#2700](https://github.com/tf2pickup-org/server/issues/2700)) ([9c17190](https://github.com/tf2pickup-org/server/commit/9c171900a0ded0b0168974e1fa06e2399294545c))
+* **deps:** update dependency mongoose to v8.0.3 ([10f9d61](https://github.com/tf2pickup-org/server/commit/10f9d61c90fa71a315047c9080d0c244b27bf2a8))
+* **deps:** update dependency passport to v0.7.0 ([3595649](https://github.com/tf2pickup-org/server/commit/3595649b2e8834233ec3c913f322f0e39ca8d044))
+* **deps:** update dependency reflect-metadata to v0.1.14 ([#2737](https://github.com/tf2pickup-org/server/issues/2737)) ([4343429](https://github.com/tf2pickup-org/server/commit/434342975802ce26062553ca7fb4c60f996e3d93))
+* **deps:** update dependency reflect-metadata to v0.2.1 ([#2743](https://github.com/tf2pickup-org/server/issues/2743)) ([6ec2c77](https://github.com/tf2pickup-org/server/commit/6ec2c772d2525e667e9ce16c1878516f507a4ecb))
+* **deps:** update nest monorepo to v10.3.0 ([#2747](https://github.com/tf2pickup-org/server/issues/2747)) ([e981d69](https://github.com/tf2pickup-org/server/commit/e981d69d929f732faa0fd6ae5eaa74d49a55058e))
+* **discord:** bring back "server started" notification ([#2755](https://github.com/tf2pickup-org/server/issues/2755)) ([e758ac3](https://github.com/tf2pickup-org/server/commit/e758ac327bb1c524e5db32ae2fa7f80d8aef17f2))
+* **game-coordinator:** properly detect ended rounds ([#2756](https://github.com/tf2pickup-org/server/issues/2756)) ([8cabfa0](https://github.com/tf2pickup-org/server/commit/8cabfa0cff6d82a98b97e5403943f19a37046c59))
+* **games:** add GameEnded.reason ([#2729](https://github.com/tf2pickup-org/server/issues/2729)) ([b736509](https://github.com/tf2pickup-org/server/commit/b73650925c627216e7403372145996b345f4bdc8))
+* **games:** add SubstituteRequested.gameClass ([#2730](https://github.com/tf2pickup-org/server/issues/2730)) ([fb2977d](https://github.com/tf2pickup-org/server/commit/fb2977de15d747e5e31638df4492b176e6afda7e))
+* **games:** fix GameEnded event serialization ([#2731](https://github.com/tf2pickup-org/server/issues/2731)) ([12f27c4](https://github.com/tf2pickup-org/server/commit/12f27c403d31731865e7c00033a6962fa6811818))
+* **games:** fix SubstituteRequested event serialization ([#2732](https://github.com/tf2pickup-org/server/issues/2732)) ([b3dd44e](https://github.com/tf2pickup-org/server/commit/b3dd44e892aeb690c1336b202b879d3b46fe5702))
+* **games:** more verbose RoundTracker logging ([#2733](https://github.com/tf2pickup-org/server/issues/2733)) ([8ae5a55](https://github.com/tf2pickup-org/server/commit/8ae5a5530a6c8e2bdc95b7f704b9f102abd79d44))
+
+
+### Features
+
+* add zod schema validation ([#2736](https://github.com/tf2pickup-org/server/issues/2736)) ([4c0d695](https://github.com/tf2pickup-org/server/commit/4c0d6956a13cc21f3082ec2124c7f57ef5bf6643))
+* **games:** add RoundEnded event ([#2727](https://github.com/tf2pickup-org/server/issues/2727)) ([580cf1b](https://github.com/tf2pickup-org/server/commit/580cf1bd63188619eace217019e1b86608f6ce03))
+
 # [11.3.0](https://github.com/tf2pickup-org/server/compare/11.2.0...11.3.0) (2023-11-26)
 
 
