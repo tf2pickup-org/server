@@ -3578,14 +3578,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cache-manager@npm:5.3.1":
-  version: 5.3.1
-  resolution: "cache-manager@npm:5.3.1"
+"cache-manager@npm:5.3.2":
+  version: 5.3.2
+  resolution: "cache-manager@npm:5.3.2"
   dependencies:
     lodash.clonedeep: "npm:^4.5.0"
-    lru-cache: "npm:^10.0.2"
-    promise-coalesce: "npm:^1.1.1"
-  checksum: deb591aa0a5556c1d85e4c1bb806f62089c1cdfe6c5e71d2e19864bbe19e468f13aae5f0c474239c6ff725965a703e62b9b0e9d908045dd90d39817238a6ccc1
+    lru-cache: "npm:^10.1.0"
+    promise-coalesce: "npm:^1.1.2"
+  checksum: c6ab2eb9447009c4b47aed09fdc8c5b675499c720482f24ae5a0c50e3caa1621c3abd1c17cc21c2c05026e477ef097e8f3a7cce0816a0fd968913cd71ff12443
   languageName: node
   linkType: hard
 
@@ -8023,12 +8023,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lru-cache@npm:^10.0.2":
-  version: 10.0.2
-  resolution: "lru-cache@npm:10.0.2"
-  dependencies:
-    semver: "npm:^7.3.5"
-  checksum: 5c83a7a2a320a445129cb67a1794437db5483942df63536026fba1cb7ba2e1f7456037876cc9d31076132010f92cb943bee358d336dd94105e50ea971e6d737d
+"lru-cache@npm:^10.1.0":
+  version: 10.1.0
+  resolution: "lru-cache@npm:10.1.0"
+  checksum: 778bc8b2626daccd75f24c4b4d10632496e21ba064b126f526c626fbdbc5b28c472013fccd45d7646b9e1ef052444824854aed617b59cd570d01a8b7d651fc1e
   languageName: node
   linkType: hard
 
@@ -9581,10 +9579,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"promise-coalesce@npm:^1.1.1":
-  version: 1.1.1
-  resolution: "promise-coalesce@npm:1.1.1"
-  checksum: 74978dd884c508ca8ec88cb1e92e2d3baec08c8796eb83e35376c1bcbf22598e33411ce530b25b3e5667baab3caf6a0b94514dd646353f3c462e76fa3f8ce88e
+"promise-coalesce@npm:^1.1.2":
+  version: 1.1.2
+  resolution: "promise-coalesce@npm:1.1.2"
+  checksum: 9bcdc954a645b30ccb094ae76e36212af2ee7ecc6b9fc67634d7d4f490d082c1efc39590737d957a32f6df93e7c5f51ca232549095e9e2d7291c0482d1bb1557
   languageName: node
   linkType: hard
 
@@ -10363,7 +10361,7 @@ __metadata:
     app-root-path: "npm:3.1.0"
     async-mutex: "npm:0.4.0"
     axios: "npm:1.6.2"
-    cache-manager: "npm:5.3.1"
+    cache-manager: "npm:5.3.2"
     cache-manager-redis-yet: "npm:4.1.2"
     class-transformer: "npm:0.5.1"
     class-validator: "npm:0.14.0"
