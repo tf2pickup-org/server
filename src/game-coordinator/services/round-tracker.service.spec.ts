@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { RoundTrackerService } from './round-tracker.service';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { Events } from '@/events/events';
-import { Connection } from 'mongoose';
+import { Connection, Types } from 'mongoose';
 import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
 import { MongooseModule, getConnectionToken } from '@nestjs/mongoose';
 import { Game, GameDocument, gameSchema } from '@/games/models/game';
@@ -13,6 +13,7 @@ import { Tf2Team } from '@/games/models/tf2-team';
 import { GameEventType } from '@/games/models/game-event-type';
 import { RoundEnded } from '@/games/models/events/round-ended';
 import { waitABit } from '@/utils/wait-a-bit';
+import { GameId } from '@/games/game-id';
 
 jest.mock('@/games/services/games.service');
 
@@ -57,15 +58,21 @@ describe('RoundTrackerService', () => {
 
   describe('when round ends', () => {
     beforeEach(async () => {
-      events.roundWin.next({ gameId: mockGame._id, winner: Tf2Team.blu });
-      events.roundLength.next({ gameId: mockGame._id, lengthMs: 779340 });
+      events.roundWin.next({
+        gameId: new Types.ObjectId(mockGame._id) as GameId,
+        winner: Tf2Team.blu,
+      });
+      events.roundLength.next({
+        gameId: new Types.ObjectId(mockGame._id) as GameId,
+        lengthMs: 779340,
+      });
       events.scoreReported.next({
-        gameId: mockGame._id,
+        gameId: new Types.ObjectId(mockGame._id) as GameId,
         teamName: Tf2Team.red,
         score: 0,
       });
       events.scoreReported.next({
-        gameId: mockGame._id,
+        gameId: new Types.ObjectId(mockGame._id) as GameId,
         teamName: Tf2Team.blu,
         score: 1,
       });
