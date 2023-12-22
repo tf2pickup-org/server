@@ -81,7 +81,7 @@ jobs:
           - 6379:6379
 
       gameserver1:
-        image: ghcr.io/tf2pickup-org/tf2-gameserver:nightly
+        image: ghcr.io/tf2pickup-org/tf2-gameserver:latest
         ports:
           - 27015:27015/tcp
           - 27015:27015/udp
@@ -98,7 +98,7 @@ jobs:
         options: --tty --add-host host.docker.internal:host-gateway
 
       gameserver2:
-        image: ghcr.io/tf2pickup-org/tf2-gameserver:nightly
+        image: ghcr.io/tf2pickup-org/tf2-gameserver:latest
         ports:
           - 27025:27025/tcp
           - 27025:27025/udp
