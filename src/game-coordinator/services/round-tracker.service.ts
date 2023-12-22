@@ -5,6 +5,7 @@ import { Tf2Team } from '@/games/models/tf2-team';
 import { GamesService } from '@/games/services/games.service';
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { isUndefined } from 'lodash';
+import { Types } from 'mongoose';
 import { debounceTime, merge } from 'rxjs';
 
 interface RoundData {
@@ -19,7 +20,7 @@ interface RoundData {
 @Injectable()
 export class RoundTrackerService implements OnModuleInit {
   private readonly logger = new Logger(RoundTrackerService.name);
-  private readonly data = new Map<GameId, RoundData>();
+  private readonly data = new Map<string, RoundData>();
 
   constructor(
     private readonly events: Events,
@@ -28,22 +29,19 @@ export class RoundTrackerService implements OnModuleInit {
 
   onModuleInit() {
     this.events.roundWin.subscribe(({ gameId, winner }) => {
-      this.logger.verbose(`${gameId} round winner: ${winner}`);
-      const round = this.data.get(gameId) ?? {};
-      this.data.set(gameId, { ...round, winner });
+      const round = this.data.get(gameId.toString()) ?? {};
+      this.data.set(gameId.toString(), { ...round, winner });
     });
 
     this.events.roundLength.subscribe(({ gameId, lengthMs }) => {
-      this.logger.verbose(`${gameId} round length: ${lengthMs} ms`);
-      const round = this.data.get(gameId) ?? {};
-      this.data.set(gameId, { ...round, lengthMs });
+      const round = this.data.get(gameId.toString()) ?? {};
+      this.data.set(gameId.toString(), { ...round, lengthMs });
     });
 
     this.events.scoreReported.subscribe(({ gameId, teamName, score }) => {
-      this.logger.verbose(`${gameId} ${teamName} score: ${score}`);
-      const round = this.data.get(gameId) ?? {};
+      const round = this.data.get(gameId.toString()) ?? {};
       round.score = { ...round.score, [teamName]: score };
-      this.data.set(gameId, round);
+      this.data.set(gameId.toString(), round);
     });
 
     merge(
@@ -74,7 +72,7 @@ export class RoundTrackerService implements OnModuleInit {
             value.lengthMs
           } ms, score: BLU=${value.score!.blu};RED=${value.score!.red})`,
         );
-        await this.gamesService.update(key, {
+        await this.gamesService.update(new Types.ObjectId(key) as GameId, {
           $push: {
             events: {
               at: new Date(),
