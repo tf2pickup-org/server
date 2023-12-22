@@ -45,8 +45,8 @@ export class AdminNotificationsService implements OnModuleInit {
     private readonly gamesService: GamesService,
   ) {}
 
-  onModuleInit() {
-    this.client.once('ready', async () => {
+  async onModuleInit() {
+    const initialize = async () => {
       const config =
         await this.configurationService.get<GuildConfiguration[]>(
           'discord.guilds',
@@ -72,7 +72,13 @@ export class AdminNotificationsService implements OnModuleInit {
             }
           }),
       );
-    });
+    };
+
+    if (this.client.isReady()) {
+      await initialize();
+    } else {
+      this.client.once('ready', async () => await initialize());
+    }
 
     this.notifications.subscribe(async (embed) => {
       const channels = await this.getAdminChannels();

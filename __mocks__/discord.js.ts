@@ -118,6 +118,8 @@ export class Client extends EventEmitter {
   login(token: string) {
     return Promise.resolve('FAKE_TOKEN');
   }
+
+  isReady = jest.fn().mockReturnValue(false);
 }
 
 export { ChannelType, EmbedBuilder, GatewayIntentBits };
