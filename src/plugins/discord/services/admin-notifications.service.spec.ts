@@ -140,7 +140,7 @@ describe('AdminNotificationsService', () => {
     expect(service).toBeDefined();
   });
 
-  describe('when the client is ready', () => {
+  describe('when the client becomes ready', () => {
     it('should send a message to admins channel', () =>
       new Promise<void>((resolve) => {
         sentMessages.subscribe((message) => {
