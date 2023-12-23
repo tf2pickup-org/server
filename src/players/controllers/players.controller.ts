@@ -26,7 +26,6 @@ import { PlayerBansService } from '../services/player-bans.service';
 import { User } from '@/auth/decorators/user.decorator';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { PlayerStatsDto } from '../dto/player-stats.dto';
-import { ForceCreatePlayer } from '../dto/force-create-player';
 import { PlayerRole } from '../models/player-role';
 import { LinkedProfilesService } from '../services/linked-profiles.service';
 import { LinkedProfilesDto } from '../dto/linked-profiles.dto';
@@ -47,10 +46,12 @@ import { PlayerSkillRecordMalformedError } from '../errors/player-skill-record-m
 import { ValidateSkillPipe } from '../pipes/validate-skill.pipe';
 import { isUndefined } from 'lodash';
 import { PlayerBanId } from '../types/player-ban-id';
-import { AddPlayerBanDto } from '../dto/add-player-ban.dto';
-import { Types } from 'mongoose';
-import { PlayerId } from '../types/player-id';
 import { CacheInterceptor } from '@nestjs/cache-manager';
+import { ZodPipe } from '@/shared/pipes/zod.pipe';
+import { forceCreatePlayerSchema } from '../dto/force-create-player.schema';
+import { z } from 'zod';
+import { updatePlayerSchema } from '../dto/update-player.schema';
+import { addPlayerBanSchema } from '../dto/add-player-ban.schema';
 
 @Controller('players')
 export class PlayersController {
@@ -78,16 +79,18 @@ export class PlayersController {
   @Auth(PlayerRole.admin)
   @UsePipes(ValidationPipe)
   async forceCreatePlayer(
-    @Body() player: ForceCreatePlayer,
+    @Body(new ZodPipe(forceCreatePlayerSchema))
+    playerData: z.infer<typeof forceCreatePlayerSchema>,
   ): Promise<Serializable<PlayerDto>> {
-    return await this.playersService.forceCreatePlayer(player);
+    return await this.playersService.forceCreatePlayer(playerData);
   }
 
   @Patch(':id')
   @Auth(PlayerRole.admin)
   async updatePlayer(
     @Param('id', PlayerByIdPipe) player: Player,
-    @Body() update: Partial<Player>,
+    @Body(new ZodPipe(updatePlayerSchema))
+    update: z.infer<typeof updatePlayerSchema>,
     @User() admin: Player,
   ): Promise<Serializable<PlayerDto>> {
     return await this.playersService.updatePlayer(
@@ -98,7 +101,6 @@ export class PlayersController {
   }
 
   @UseInterceptors(CacheInterceptor)
-  // @CacheTTL(30 * 60 * 1000) // 30 minutes
   @Get(':id/stats')
   async getPlayerStats(
     @Param('id', PlayerByIdPipe) player: Player,
@@ -111,6 +113,7 @@ export class PlayersController {
     };
   }
 
+  // TODO v12: move to a separate controller
   @Get('/all/skill')
   @Auth(PlayerRole.admin)
   async getAllPlayersWithSkills(): Promise<Serializable<PlayerSkillDto>[]> {
@@ -175,23 +178,20 @@ export class PlayersController {
   @Auth(PlayerRole.admin)
   @UsePipes(ValidationPipe)
   async addPlayerBan(
-    @Body() playerBan: AddPlayerBanDto,
+    @Body(new ZodPipe(addPlayerBanSchema))
+    playerBan: z.infer<typeof addPlayerBanSchema>,
     @User() user: Player,
   ): Promise<Serializable<PlayerBanDto>> {
-    if (playerBan.admin !== user.id) {
+    if (!playerBan.admin.equals(user._id)) {
       throw new BadRequestException(
         "the admin field must be the same as authorized user's id",
       );
     }
-    return await this.playerBansService.addPlayerBan({
-      player: new Types.ObjectId(playerBan.player) as PlayerId,
-      admin: new Types.ObjectId(playerBan.admin) as PlayerId,
-      start: new Date(playerBan.start),
-      end: new Date(playerBan.end),
-      reason: playerBan.reason,
-    });
+
+    return await this.playerBansService.addPlayerBan(playerBan);
   }
 
+  // TODO v12: make it PUT /players/:playerId/bans/:banId/revoke
   @Post(':playerId/bans/:banId')
   @Auth(PlayerRole.admin)
   @HttpCode(200)
