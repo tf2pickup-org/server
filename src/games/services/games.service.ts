@@ -21,6 +21,7 @@ import { PlayerReplaced } from '../models/events/player-replaced';
 import { PlayerLeftGameServer } from '../models/events/player-left-game-server';
 import { GameEndedReason } from '../models/events/game-ended';
 import { MostActivePlayers } from '../types/most-active-players';
+import { PlayerNotInThisGameError } from '../errors/player-not-in-this-game.error';
 
 @Injectable()
 export class GamesService {
