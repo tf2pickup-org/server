@@ -13,6 +13,9 @@ import { isUndefined } from 'lodash';
 import { Events } from '@/events/events';
 import { filter } from 'rxjs';
 
+const cacheKey = (gameId: GameId, playerId: PlayerId): string =>
+  `voice-channel-url/${gameId}/${playerId}`;
+
 @Injectable()
 export class VoiceChannelUrlsService implements OnModuleInit {
   constructor(
@@ -30,7 +33,7 @@ export class VoiceChannelUrlsService implements OnModuleInit {
         const keys = await this.cache.store.keys();
         await Promise.all(
           keys
-            .filter((key) => key.startsWith(`voice-channel-url`))
+            .filter((key) => key.startsWith('voice-channel-url'))
             .map(async (key) => await this.cache.del(key)),
         );
       });
@@ -40,7 +43,7 @@ export class VoiceChannelUrlsService implements OnModuleInit {
     gameId: GameId,
     playerId: PlayerId,
   ): Promise<string | null> {
-    const key = this.cacheKey(gameId, playerId);
+    const key = cacheKey(gameId, playerId);
     let value = await this.cache.get<string | null>(key);
     if (isUndefined(value)) {
       value = await this.calculateVoiceChannelUrl(gameId, playerId);
@@ -48,10 +51,6 @@ export class VoiceChannelUrlsService implements OnModuleInit {
     }
 
     return value;
-  }
-
-  private cacheKey(gameId: GameId, playerId: PlayerId): string {
-    return `voice-channel-url/${gameId}/${playerId}`;
   }
 
   private async calculateVoiceChannelUrl(
@@ -115,7 +114,8 @@ export class VoiceChannelUrlsService implements OnModuleInit {
         return mumbleDirectLink.toString();
       }
 
-      // no default
+      default:
+        throw new Error('unknown voice server type');
     }
   }
 }

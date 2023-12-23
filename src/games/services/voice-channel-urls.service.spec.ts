@@ -171,7 +171,7 @@ describe('VoiceChannelUrlsService', () => {
       describe('when a player is not part of the game', () => {
         let anotherPlayer: Player;
 
-        beforeEach(async () => {
+        beforeEach(() => {
           anotherPlayer = new Player();
           anotherPlayer._id = new Types.ObjectId() as PlayerId;
           playersService.getById.mockResolvedValue(anotherPlayer);
@@ -186,7 +186,7 @@ describe('VoiceChannelUrlsService', () => {
     });
 
     describe('when the game is not running', () => {
-      beforeEach(async () => {
+      beforeEach(() => {
         mockGame.state = GameState.ended;
       });
 
