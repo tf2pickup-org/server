@@ -1528,7 +1528,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@pkgr/utils@npm:^2.3.1":
+"@pkgr/utils@npm:^2.4.2":
   version: 2.4.2
   resolution: "@pkgr/utils@npm:2.4.2"
   dependencies:
@@ -5076,12 +5076,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-prettier@npm:5.1.1":
-  version: 5.1.1
-  resolution: "eslint-plugin-prettier@npm:5.1.1"
+"eslint-plugin-prettier@npm:5.1.2":
+  version: 5.1.2
+  resolution: "eslint-plugin-prettier@npm:5.1.2"
   dependencies:
     prettier-linter-helpers: "npm:^1.0.0"
-    synckit: "npm:^0.8.5"
+    synckit: "npm:^0.8.6"
   peerDependencies:
     "@types/eslint": ">=8.0.0"
     eslint: ">=8.0.0"
@@ -5092,7 +5092,7 @@ __metadata:
       optional: true
     eslint-config-prettier:
       optional: true
-  checksum: cb9fb797e3b872864d9bd4a6154cc0aeccdd9b3d7add510b2077f6d5149fb4b681abd180dacb5dafda603defb6089824a7c6f97faf1f099dba4f4e77f86c46c3
+  checksum: e16c9fbb0e9f8da45bdbb1cf6e4a190266235c3686deede3815196d2604bbe2bac531d1fc9adc3c0b9a03d88b55bd3bfaa4f9d85e34e73dc040d545a1931fab9
   languageName: node
   linkType: hard
 
@@ -10365,7 +10365,7 @@ __metadata:
     eslint: "npm:8.56.0"
     eslint-config-prettier: "npm:9.1.0"
     eslint-plugin-jest: "npm:27.6.0"
-    eslint-plugin-prettier: "npm:5.1.1"
+    eslint-plugin-prettier: "npm:5.1.2"
     form-data: "npm:4.0.0"
     generate-password: "npm:1.7.1"
     handlebars: "npm:4.7.8"
@@ -11022,13 +11022,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"synckit@npm:^0.8.5":
-  version: 0.8.5
-  resolution: "synckit@npm:0.8.5"
+"synckit@npm:^0.8.6":
+  version: 0.8.6
+  resolution: "synckit@npm:0.8.6"
   dependencies:
-    "@pkgr/utils": "npm:^2.3.1"
-    tslib: "npm:^2.5.0"
-  checksum: 9827f828cabc404b3a147c38f824c8d5b846eb6f65189d965aa0b71ea8ecda5048f8f50b4bdfd8813148844175233cff56c6bc8d87a7118cf10707df870519f4
+    "@pkgr/utils": "npm:^2.4.2"
+    tslib: "npm:^2.6.2"
+  checksum: 200528062e3915a0190a4c6b1e01436fcfdf812e2e8d977746746f3998bb4182d758af760e51b06a64f8323e705735aff7b4b3efc4a0ab5f75eaccc044a8cfcc
   languageName: node
   linkType: hard
 
@@ -11355,7 +11355,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tslib@npm:2.6.2, tslib@npm:^2.0.1, tslib@npm:^2.1.0, tslib@npm:^2.4.0, tslib@npm:^2.5.0, tslib@npm:^2.6.0, tslib@npm:^2.6.2":
+"tslib@npm:2.6.2, tslib@npm:^2.0.1, tslib@npm:^2.1.0, tslib@npm:^2.4.0, tslib@npm:^2.6.0, tslib@npm:^2.6.2":
   version: 2.6.2
   resolution: "tslib@npm:2.6.2"
   checksum: e03a8a4271152c8b26604ed45535954c0a45296e32445b4b87f8a5abdb2421f40b59b4ca437c4346af0f28179780d604094eb64546bee2019d903d01c6c19bdb
