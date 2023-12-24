@@ -47,10 +47,10 @@ export class VoiceChannelUrlsService implements OnModuleInit {
     let value = await this.cache.get<string | null>(key);
     if (isUndefined(value)) {
       value = await this.calculateVoiceChannelUrl(gameId, playerId);
-      await this.cache.set(key, value);
+      await this.cache.set(key, value ?? '');
     }
 
-    return value;
+    return value === '' ? null : value;
   }
 
   private async calculateVoiceChannelUrl(
