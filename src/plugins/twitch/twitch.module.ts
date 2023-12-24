@@ -10,7 +10,7 @@ import {
   twitchTvProfileSchema,
 } from './models/twitch-tv-profile';
 import { MongooseModule } from '@nestjs/mongoose';
-import { HttpModule } from '@/http.module';
+import { HttpModule } from '@nestjs/axios';
 import { ConfigurationModule } from '@/configuration/configuration.module';
 import { TwitchTvConfigurationService } from './services/twitch-tv-configuration.service';
 
