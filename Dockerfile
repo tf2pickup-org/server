@@ -1,21 +1,18 @@
 FROM node:lts-alpine AS build
 WORKDIR /tf2pickup.pl
 
-COPY package.json yarn.lock .yarnrc.yml ./
-COPY .yarn/releases .yarn/releases
-RUN yarn install --immutable
+COPY package.json pnpm-lock.yaml ./
+RUN pnpm install --frozen-lockfile
 
 COPY . .
-RUN yarn build
+RUN pnpm build
 
 
 FROM node:lts-alpine AS package-install
 WORKDIR /tf2pickup.pl
 
-COPY package.json yarn.lock .yarnrc.yml ./
-COPY .yarn/releases .yarn/releases
-
-RUN yarn workspaces focus --production
+COPY package.json pnpm-lock.yaml ./
+RUN pnpm install --prod
 
 
 FROM node:lts-alpine

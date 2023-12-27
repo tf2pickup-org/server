@@ -10,10 +10,11 @@ import {
 } from '../models/configuration-item';
 import { generateSchema } from '@anatine/zod-openapi';
 import { ZodType, ZodTypeAny } from 'zod';
+import { SchemaObject } from 'openapi3-ts/oas31';
 
 interface ConfigurationEntryDescription {
   key: string;
-  schema: string;
+  schema: SchemaObject;
   value: unknown;
   defaultValue: unknown;
   description?: string;

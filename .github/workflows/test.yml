@@ -27,17 +27,22 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-          cache: yarn
+          cache: pnpm
 
       - name: Install dependencies
-        run: yarn install --immutable
+        run: pnpm install
 
       - name: Run unit test
-        run: yarn test:ci
+        run: pnpm test:ci
 
       - name: Upload test coverage info
         uses: codecov/codecov-action@v3
@@ -118,14 +123,19 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-          cache: yarn
+          cache: pnpm
 
       - name: Install dependencies
-        run: yarn install --immutable
+        run: pnpm install
 
       - name: Setup mongodb-tools
         run: |
@@ -152,7 +162,7 @@ jobs:
           LOG_RELAY_PORT: '9871'
           GAME_SERVER_SECRET: 'xxxxxx'
           LOGS_TF_API_KEY: 'FAKE_LOGS_TF_API_KEY'
-        run: yarn test:e2e ${{ matrix.test-name }}
+        run: pnpm test:e2e ${{ matrix.test-name }}
 
       - name: Upload test coverage info
         uses: codecov/codecov-action@v3
@@ -188,14 +198,19 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-          cache: yarn
+          cache: pnpm
 
       - name: Install dependencies
-        run: yarn install --immutable
+        run: pnpm install
 
       - name: Run fresh instance
         env:
@@ -213,7 +228,7 @@ jobs:
           LOG_RELAY_PORT: '9871'
           GAME_SERVER_SECRET: 'xxxxxx'
           LOGS_TF_API_KEY: 'FAKE_LOGS_TF_API_KEY'
-        run: timeout 3m yarn dev || code=$?; if [[ $code -ne 124 && $code -ne 0 ]]; then exit $code; fi
+        run: timeout 3m pnpm dev || code=$?; if [[ $code -ne 124 && $code -ne 0 ]]; then exit $code; fi
 
   build:
     name: build
@@ -228,14 +243,19 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-          cache: yarn
+          cache: pnpm
 
       - name: Install dependencies
-        run: yarn install --immutable
+        run: pnpm install
 
       - name: Build
-        run: yarn build
+        run: pnpm build
