@@ -2,7 +2,7 @@ FROM node:lts-alpine AS build
 WORKDIR /tf2pickup.pl
 
 COPY package.json pnpm-lock.yaml ./
-RUN pnpm install --frozen-lockfile
+RUN apk add --no-cache pnpm && pnpm install --frozen-lockfile
 
 COPY . .
 RUN pnpm build
@@ -12,7 +12,7 @@ FROM node:lts-alpine AS package-install
 WORKDIR /tf2pickup.pl
 
 COPY package.json pnpm-lock.yaml ./
-RUN pnpm install --prod
+RUN apk add --no-cache pnpm && pnpm install --prod
 
 
 FROM node:lts-alpine
