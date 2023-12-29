@@ -8,6 +8,9 @@ on:
       - 'renovate/**'
     tags:
       - '*.*.*'
+  pull_request:
+    branches:
+      - 'master'
   schedule:
     - cron: '0 2 * * *'
 
@@ -47,7 +50,7 @@ jobs:
         id: docker_build
         uses: docker/build-push-action@v5
         with:
-          push: true
+          push: ${{ github.event_name == 'push' || github.event_name == 'schedule' }}
           tags: ${{ steps.docker_meta.outputs.tags }}
           labels: ${{ steps.docker_meta.outputs.labels }}
 

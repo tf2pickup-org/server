@@ -1,36 +1,27 @@
-FROM node:lts-alpine AS build
+FROM node:lts-slim AS base
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
+RUN corepack enable
+COPY . /tf2pickup.pl
 WORKDIR /tf2pickup.pl
 
-COPY package.json pnpm-lock.yaml ./
-RUN apk add --no-cache pnpm && pnpm install --frozen-lockfile
+FROM base AS prod-deps
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --prod --frozen-lockfile
 
-COPY . .
-RUN pnpm build
+FROM base AS build
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
+RUN pnpm run build
 
-
-FROM node:lts-alpine AS package-install
-WORKDIR /tf2pickup.pl
-
-COPY package.json pnpm-lock.yaml ./
-RUN apk add --no-cache pnpm && pnpm install --prod
-
-
-FROM node:lts-alpine
-WORKDIR /tf2pickup.pl
-
-RUN apk add --no-cache openssl
-
+FROM base
 ARG NODE_ENV=production
 ENV NODE_ENV=${NODE_ENV}
-
-COPY package.json ./
-COPY --from=build /tf2pickup.pl/dist ./dist
-COPY --from=build /tf2pickup.pl/configs/queue ./configs/queue
-COPY --from=package-install /tf2pickup.pl/node_modules ./node_modules
-COPY client ./client
-COPY migrations ./migrations
+RUN apt update && apt install -y --no-install-recommends openssl
+COPY --from=prod-deps /tf2pickup.pl/node_modules /tf2pickup.pl/node_modules
+COPY --from=build /tf2pickup.pl/dist /tf2pickup.pl/dist
+COPY --from=build /tf2pickup.pl/configs/queue /tf2pickup.pl/configs/queue
+COPY --from=build /tf2pickup.pl/client /tf2pickup.pl/client
+COPY --from=build /tf2pickup.pl/migrations /tf2pickup.pl/migrations
 
 USER node
 CMD [ "node", "dist/src/main" ]
-
 EXPOSE 3000
