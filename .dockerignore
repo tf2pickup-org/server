@@ -19,12 +19,3 @@ docker-compose.yml
 *jest.config.ts
 LICENSE
 renovate.json
-
-# Yarn
-.pnp.*
-.yarn/*
-!.yarn/patches
-!.yarn/plugins
-!.yarn/releases
-!.yarn/sdks
-!.yarn/versions
