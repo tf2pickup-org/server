@@ -272,8 +272,8 @@ devDependencies:
     specifier: 17.0.1
     version: 17.0.1(typescript@5.3.3)
   socket.io-client:
-    specifier: 4.7.2
-    version: 4.7.2
+    specifier: 4.7.3
+    version: 4.7.3
   supertest:
     specifier: 6.3.3
     version: 6.3.3
@@ -7850,8 +7850,8 @@ packages:
       - bufferutil
       - utf-8-validate
 
-  /socket.io-client@4.7.2:
-    resolution: {integrity: sha512-vtA0uD4ibrYD793SOIAwlo8cj6haOeMHrGvwPxJsxH7CeIksqJ+3Zc06RvWTIFgiSqx4A3sOnTXpfAEE2Zyz6w==}
+  /socket.io-client@4.7.3:
+    resolution: {integrity: sha512-nU+ywttCyBitXIl9Xe0RSEfek4LneYkJxCeNnKCuhwoH4jGXO1ipIUw/VA/+Vvv2G1MTym11fzFC0SxkrcfXDw==}
     engines: {node: '>=10.0.0'}
     dependencies:
       '@socket.io/component-emitter': 3.1.0
