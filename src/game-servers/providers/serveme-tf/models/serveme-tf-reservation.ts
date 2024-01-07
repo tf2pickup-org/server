@@ -1,6 +1,7 @@
 import { MongooseDocument } from '@/utils/mongoose-document';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ReservationStatus } from './reservation-status';
+import { ReservationId } from '@tf2pickup-org/serveme-tf-client';
 
 @Schema()
 class ServemeTfServer {
@@ -54,8 +55,8 @@ export class ServemeTfReservation extends MongooseDocument {
   @Prop({ enum: ReservationStatus, default: ReservationStatus.unknown })
   status!: ReservationStatus;
 
-  @Prop()
-  reservationId!: number;
+  @Prop({ type: Number })
+  reservationId!: ReservationId;
 
   @Prop()
   logsecret!: string;

@@ -1,16 +1,24 @@
 import { HttpModule } from '@nestjs/axios';
-import { forwardRef, Module } from '@nestjs/common';
+import { forwardRef, Module, Provider } from '@nestjs/common';
 import { ServemeTfService } from './services/serveme-tf.service';
-import { ServemeTfApiService } from './services/serveme-tf-api.service';
 import { GameServersModule } from '@/game-servers/game-servers.module';
 import { ConfigurationModule } from '@/configuration/configuration.module';
 import { ServemeTfConfigurationService } from './services/serveme-tf-configuration.service';
 import { ServemeTfController } from './controllers/serveme-tf.controller';
-import {
-  ServemeTfReservation,
-  servemeTfReservationSchema,
-} from './models/serveme-tf-reservation';
-import { workaroundModelProvider } from '@/utils/workaround-model-provider';
+import { Environment } from '@/environment/environment';
+import { Client } from '@tf2pickup-org/serveme-tf-client';
+import { SERVEME_TF_CLIENT } from './serveme-tf-client.token';
+
+const servemeTfClientProvider: Provider = {
+  provide: SERVEME_TF_CLIENT,
+  inject: [Environment],
+  useFactory: (environment: Environment) => {
+    return new Client({
+      apiKey: environment.servemeTfApiKey,
+      endpoint: environment.servemeTfApiEndpoint,
+    });
+  },
+};
 
 @Module({
   imports: [
@@ -19,13 +27,9 @@ import { workaroundModelProvider } from '@/utils/workaround-model-provider';
     ConfigurationModule,
   ],
   providers: [
-    workaroundModelProvider({
-      name: ServemeTfReservation.name,
-      schema: servemeTfReservationSchema,
-    }),
     ServemeTfService,
-    ServemeTfApiService,
     ServemeTfConfigurationService,
+    servemeTfClientProvider,
   ],
   controllers: [ServemeTfController],
 })

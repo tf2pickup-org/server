@@ -7,50 +7,23 @@ import {
 import { GameServerControls } from '@/game-servers/interfaces/game-server-controls';
 import { GameServerOption } from '@/game-servers/interfaces/game-server-option';
 import { GameServersService } from '@/game-servers/services/game-servers.service';
-import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { plainToInstance } from 'class-transformer';
 import { Model, Types } from 'mongoose';
 import { ServemeTfServerControls } from '../serveme-tf-server-controls';
-import { ServemeTfApiService } from './serveme-tf-api.service';
 import { endReservationDelay } from '../config';
 import { ServemeTfReservation } from '../models/serveme-tf-reservation';
-import { ReservationStatus } from '../models/reservation-status';
 import { GameServerDetails } from '@/game-servers/interfaces/game-server-details';
 import { assertIsError } from '@/utils/assert-is-error';
-
-type ValueType<T> = T extends Promise<infer U> ? U : T;
-
-const toReservationStatus = (
-  status: ValueType<
-    ReturnType<ServemeTfApiService['reserveServer']>
-  >['reservation']['status'],
-): ReservationStatus => {
-  switch (status) {
-    case 'Waiting to start':
-      return ReservationStatus.waitingToStart;
-
-    case 'Starting':
-      return ReservationStatus.starting;
-
-    case 'Server updating, please be patient':
-      return ReservationStatus.serverUpdating;
-
-    case 'Ready':
-    case 'SDR Ready':
-      return ReservationStatus.ready;
-
-    case 'Ending':
-      return ReservationStatus.ending;
-
-    case 'Ended':
-      return ReservationStatus.ended;
-
-    default:
-      return ReservationStatus.unknown;
-  }
-};
-
+import {
+  Client,
+  Reservation,
+  ServerId,
+} from '@tf2pickup-org/serveme-tf-client';
+import { ServemeTfConfigurationService } from './serveme-tf-configuration.service';
+import { sample } from 'lodash';
+import { SERVEME_TF_CLIENT } from '../serveme-tf-client.token';
 @Injectable()
 export class ServemeTfService implements GameServerProvider, OnModuleInit {
   readonly gameServerProviderName = 'serveme.tf';
@@ -58,9 +31,11 @@ export class ServemeTfService implements GameServerProvider, OnModuleInit {
 
   constructor(
     private gameServersService: GameServersService,
-    private servemeTfApiService: ServemeTfApiService,
     @InjectModel(ServemeTfReservation.name)
     private servemeTfReservationModel: Model<ServemeTfReservation>,
+    @Inject(SERVEME_TF_CLIENT)
+    private readonly servemeTfClient: Client,
+    private servemeTfConfigurationService: ServemeTfConfigurationService,
   ) {}
 
   onModuleInit() {
@@ -82,21 +57,25 @@ export class ServemeTfService implements GameServerProvider, OnModuleInit {
   }
 
   async findGameServerOptions(): Promise<GameServerOption[]> {
-    return (await this.servemeTfApiService.listServers()).map((option) => ({
-      id: `${option.id}`,
-      name: option.name,
-      address: option.ip,
-      port: parseInt(option.port, 10),
-      flag: option.flag,
+    const { servers } = await this.servemeTfClient.findOptions();
+    return servers.map((server) => ({
+      id: `${server.id}`,
+      name: server.name,
+      address: server.ip,
+      port: parseInt(server.port, 10),
+      flag: server.flag,
     }));
   }
 
   async takeGameServer({
     gameServerId,
   }: TakeGameServerParams): Promise<GameServerDetails> {
-    const { reservation } = await this.servemeTfApiService.reserveServer(
-      parseInt(gameServerId, 10),
-    );
+    const reservation = await this.servemeTfClient.create({
+      serverId: parseInt(gameServerId, 10) as ServerId,
+      enableDemosTf: true,
+      enablePlugins: true,
+    });
+
     const id = await this.storeReservation(reservation);
     return {
       id,
@@ -108,16 +87,44 @@ export class ServemeTfService implements GameServerProvider, OnModuleInit {
 
   releaseGameServer({ gameServerId }: ReleaseGameServerParams) {
     setTimeout(async () => {
-      const reservation = await this.getById(gameServerId);
-      await this.servemeTfApiService.endServerReservation(
-        reservation.reservationId,
-      );
+      const { reservationId } = await this.getById(gameServerId);
+      const reservation = await this.servemeTfClient.fetch(reservationId);
+      reservation.end().catch((error) => {
+        assertIsError(error);
+        this.logger.error(
+          `failed to end reservation ${reservationId}: ${error.toString()}`,
+        );
+      });
     }, endReservationDelay);
   }
 
   async takeFirstFreeGameServer(): Promise<GameServerDetails> {
     try {
-      const { reservation } = await this.servemeTfApiService.reserveServer();
+      const { servers } = await this.servemeTfClient.findOptions();
+      const [preferredRegion, banGameservers] = await Promise.all([
+        this.servemeTfConfigurationService.getPreferredRegion(),
+        this.servemeTfConfigurationService.getBannedGameservers(),
+      ]);
+
+      const matchingServers = servers
+        // make sure we don't take a SDR server
+        // https://partner.steamgames.com/doc/features/multiplayer/steamdatagramrelay
+        .filter((s) => s.sdr === false)
+        .filter((s) => (preferredRegion ? s.flag === preferredRegion : true))
+        .filter((s) => banGameservers.every((ban) => !s.name.includes(ban)));
+      const server = sample(matchingServers);
+      if (!server) {
+        throw new Error(
+          'could not find any gameservers meeting given criteria',
+        );
+      }
+
+      const reservation = await this.servemeTfClient.create({
+        serverId: server.id,
+        enableDemosTf: true,
+        enablePlugins: true,
+      });
+
       const id = await this.storeReservation(reservation);
       return {
         id,
@@ -135,28 +142,24 @@ export class ServemeTfService implements GameServerProvider, OnModuleInit {
   async getControls(id: string): Promise<GameServerControls> {
     return new ServemeTfServerControls(
       await this.getById(id),
-      this.servemeTfApiService,
+      this.servemeTfClient,
     );
   }
 
-  private async storeReservation(
-    reservation: Awaited<
-      ReturnType<ServemeTfApiService['reserveServer']>
-    >['reservation'],
-  ): Promise<string> {
+  private async storeReservation(reservation: Reservation): Promise<string> {
     const { _id } = await this.servemeTfReservationModel.create({
-      startsAt: new Date(reservation.starts_at),
-      endsAt: new Date(reservation.ends_at),
-      serverId: reservation.server_id,
+      startsAt: reservation.startsAt,
+      endsAt: reservation.endsAt,
+      serverId: reservation.serverId,
       password: reservation.password,
       rcon: reservation.rcon,
-      tvPassword: reservation.tv_password,
-      tvRelayPassword: reservation.tv_relaypassword,
-      status: toReservationStatus(reservation.status),
+      tvPassword: reservation.tvPassword,
+      tvRelayPassword: reservation.tvRelayPassword,
+      status: reservation.status,
       reservationId: reservation.id,
-      logsecret: reservation.logsecret,
+      logsecret: reservation.logSecret,
       ended: reservation.ended,
-      steamId: reservation.steam_uid,
+      steamId: reservation.reservedBy,
       server: {
         id: reservation.server.id,
         name: reservation.server.name,
