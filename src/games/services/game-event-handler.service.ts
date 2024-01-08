@@ -41,11 +41,11 @@ export class GameEventHandlerService implements OnModuleInit, OnModuleDestroy {
   ) {}
 
   onModuleInit() {
-    this.events.matchStarted.subscribe(
-      async ({ gameId }) => await this.onMatchStarted(gameId),
+    this.events.matchStarted.subscribe(({ gameId }) =>
+      this.onMatchStarted(gameId).catch((error) => this.logger.error(error)),
     );
-    this.events.matchEnded.subscribe(
-      async ({ gameId }) => await this.onMatchEnded(gameId),
+    this.events.matchEnded.subscribe(({ gameId }) =>
+      this.onMatchEnded(gameId).catch((error) => this.logger.error(error)),
     );
     this.events.playerJoinedGameServer.subscribe(
       async ({ gameId, steamId }) => {
