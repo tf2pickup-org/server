@@ -73,7 +73,7 @@
   },
   "devDependencies": {
     "@nestjs/cli": "10.2.1",
-    "@nestjs/schematics": "10.0.3",
+    "@nestjs/schematics": "10.1.0",
     "@nestjs/testing": "10.3.0",
     "@release-it/conventional-changelog": "8.0.1",
     "@types/cache-manager": "4.0.6",
