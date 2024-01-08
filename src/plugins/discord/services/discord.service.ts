@@ -1,9 +1,10 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { ChannelType, Client, Role, TextChannel } from 'discord.js';
+import { DISCORD_CLIENT } from '../discord-client.token';
 
 @Injectable()
 export class DiscordService {
-  constructor(@Inject('DISCORD_CLIENT') private readonly client: Client) {}
+  constructor(@Inject(DISCORD_CLIENT) private readonly client: Client) {}
 
   getGuilds() {
     return this.client.guilds.cache;

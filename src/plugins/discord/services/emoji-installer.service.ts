@@ -5,13 +5,14 @@ import { ConfigurationService } from '@/configuration/services/configuration.ser
 import { GuildConfiguration } from '../types/guild-configuration';
 import { Events } from '@/events/events';
 import { concatMap, filter, from, map } from 'rxjs';
+import { DISCORD_CLIENT } from '../discord-client.token';
 
 @Injectable()
 export class EmojiInstallerService implements OnModuleInit {
   private readonly logger = new Logger(EmojiInstallerService.name);
 
   constructor(
-    @Inject('DISCORD_CLIENT') private readonly client: Client,
+    @Inject(DISCORD_CLIENT) private readonly client: Client,
     private readonly configurationService: ConfigurationService,
     private readonly events: Events,
   ) {}

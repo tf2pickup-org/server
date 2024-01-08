@@ -1,0 +1,1 @@
+export const DISCORD_CLIENT = 'DISCORD_CLIENT';

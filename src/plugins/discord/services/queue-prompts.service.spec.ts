@@ -22,6 +22,7 @@ import { PlayersService as PlayersServiceMock } from '@/players/services/__mocks
 import { QueueService } from '@/queue/services/queue.service';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { Cache } from 'cache-manager';
+import { DISCORD_CLIENT } from '../discord-client.token';
 
 jest.mock('@/configuration/services/configuration.service');
 jest.mock('@/players/services/players.service');
@@ -83,7 +84,7 @@ describe('QueuePromptsService', () => {
         },
         PlayersService,
         {
-          provide: 'DISCORD_CLIENT',
+          provide: DISCORD_CLIENT,
           useValue: client,
         },
         QueueService,

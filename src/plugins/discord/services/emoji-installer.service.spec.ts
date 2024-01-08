@@ -4,6 +4,7 @@ import { ConfigurationService } from '@/configuration/services/configuration.ser
 import { Events } from '@/events/events';
 import { Client, GatewayIntentBits } from '@mocks/discord.js';
 import { GuildEmoji } from 'discord.js';
+import { DISCORD_CLIENT } from '../discord-client.token';
 
 jest.mock('@/configuration/services/configuration.service');
 
@@ -29,7 +30,7 @@ describe('EmojiInstallerService', () => {
         ConfigurationService,
         Events,
         {
-          provide: 'DISCORD_CLIENT',
+          provide: DISCORD_CLIENT,
           useValue: client,
         },
       ],

@@ -14,9 +14,10 @@ import { PlayerSubsNotificationsService } from './services/player-subs-notificat
 import { EmojiInstallerService } from './services/emoji-installer.service';
 import { QueueConfigModule } from '@/queue-config/queue-config.module';
 import { QueueModule } from '@/queue/queue.module';
+import { DISCORD_CLIENT } from './discord-client.token';
 
 const discordClientProvider: Provider = {
-  provide: 'DISCORD_CLIENT',
+  provide: DISCORD_CLIENT,
   inject: [Environment],
   useFactory: async (environment: Environment) => {
     const logger = new Logger();

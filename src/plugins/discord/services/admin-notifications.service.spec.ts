@@ -22,6 +22,7 @@ import { PlayerBanId } from '@/players/types/player-ban-id';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { StaticGameServer } from '@/game-servers/providers/static-game-server/models/static-game-server';
 import { GameState } from '@/games/models/game-state';
+import { DISCORD_CLIENT } from '../discord-client.token';
 
 jest.mock('discord.js');
 jest.mock('@/configuration/services/configuration.service');
@@ -79,7 +80,7 @@ describe('AdminNotificationsService', () => {
       providers: [
         AdminNotificationsService,
         {
-          provide: 'DISCORD_CLIENT',
+          provide: DISCORD_CLIENT,
           useValue: client,
         },
         ConfigurationService,
