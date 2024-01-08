@@ -8,17 +8,13 @@ import { GameServerControls } from '@/game-servers/interfaces/game-server-contro
 import { GameServerOption } from '@/game-servers/interfaces/game-server-option';
 import { GameServersService } from '@/game-servers/services/game-servers.service';
 import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { plainToInstance } from 'class-transformer';
-import { Model, Types } from 'mongoose';
 import { ServemeTfServerControls } from '../serveme-tf-server-controls';
 import { endReservationDelay } from '../config';
-import { ServemeTfReservation } from '../models/serveme-tf-reservation';
 import { GameServerDetails } from '@/game-servers/interfaces/game-server-details';
 import { assertIsError } from '@/utils/assert-is-error';
 import {
   Client,
-  Reservation,
+  ReservationId,
   ServerId,
 } from '@tf2pickup-org/serveme-tf-client';
 import { ServemeTfConfigurationService } from './serveme-tf-configuration.service';
@@ -31,8 +27,6 @@ export class ServemeTfService implements GameServerProvider, OnModuleInit {
 
   constructor(
     private gameServersService: GameServersService,
-    @InjectModel(ServemeTfReservation.name)
-    private servemeTfReservationModel: Model<ServemeTfReservation>,
     @Inject(SERVEME_TF_CLIENT)
     private readonly servemeTfClient: Client,
     private servemeTfConfigurationService: ServemeTfConfigurationService,
@@ -41,19 +35,6 @@ export class ServemeTfService implements GameServerProvider, OnModuleInit {
   onModuleInit() {
     this.gameServersService.registerProvider(this);
     this.logger.verbose('serveme.tf integration enabled');
-  }
-
-  async getById(
-    reservationId: string | Types.ObjectId,
-  ): Promise<ServemeTfReservation> {
-    return plainToInstance(
-      ServemeTfReservation,
-      await this.servemeTfReservationModel
-        .findById(reservationId)
-        .orFail()
-        .lean()
-        .exec(),
-    );
   }
 
   async findGameServerOptions(): Promise<GameServerOption[]> {
@@ -76,9 +57,8 @@ export class ServemeTfService implements GameServerProvider, OnModuleInit {
       enablePlugins: true,
     });
 
-    const id = await this.storeReservation(reservation);
     return {
-      id,
+      id: String(reservation.id),
       name: reservation.server.name,
       address: reservation.server.ip,
       port: parseInt(reservation.server.port, 10),
@@ -87,7 +67,7 @@ export class ServemeTfService implements GameServerProvider, OnModuleInit {
 
   releaseGameServer({ gameServerId }: ReleaseGameServerParams) {
     setTimeout(async () => {
-      const { reservationId } = await this.getById(gameServerId);
+      const reservationId = parseInt(gameServerId, 10) as ReservationId;
       const reservation = await this.servemeTfClient.fetch(reservationId);
       reservation.end().catch((error) => {
         assertIsError(error);
@@ -125,9 +105,8 @@ export class ServemeTfService implements GameServerProvider, OnModuleInit {
         enablePlugins: true,
       });
 
-      const id = await this.storeReservation(reservation);
       return {
-        id,
+        id: String(reservation.id),
         name: reservation.server.name,
         address: reservation.server.ip,
         port: parseInt(reservation.server.port, 10),
@@ -140,36 +119,8 @@ export class ServemeTfService implements GameServerProvider, OnModuleInit {
   }
 
   async getControls(id: string): Promise<GameServerControls> {
-    return new ServemeTfServerControls(
-      await this.getById(id),
-      this.servemeTfClient,
-    );
-  }
-
-  private async storeReservation(reservation: Reservation): Promise<string> {
-    const { _id } = await this.servemeTfReservationModel.create({
-      startsAt: reservation.startsAt,
-      endsAt: reservation.endsAt,
-      serverId: reservation.serverId,
-      password: reservation.password,
-      rcon: reservation.rcon,
-      tvPassword: reservation.tvPassword,
-      tvRelayPassword: reservation.tvRelayPassword,
-      status: reservation.status,
-      reservationId: reservation.id,
-      logsecret: reservation.logSecret,
-      ended: reservation.ended,
-      steamId: reservation.reservedBy,
-      server: {
-        id: reservation.server.id,
-        name: reservation.server.name,
-        flag: reservation.server.flag,
-        ip: reservation.server.ip,
-        port: reservation.server.port,
-        latitude: reservation.server.latitude,
-        longitude: reservation.server.longitude,
-      },
-    });
-    return _id.toString();
+    const reservationId = parseInt(id, 10) as ReservationId;
+    const reservation = await this.servemeTfClient.fetch(reservationId);
+    return new ServemeTfServerControls(reservation);
   }
 }
