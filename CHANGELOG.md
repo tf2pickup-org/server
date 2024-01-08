@@ -1,5 +1,26 @@
 
 
+## [11.4.1](https://github.com/tf2pickup-org/server/compare/11.4.0...11.4.1) (2024-01-08)
+
+
+### Bug Fixes
+
+* **build:** Dockerfile fixes ([#2762](https://github.com/tf2pickup-org/server/issues/2762)) ([1334802](https://github.com/tf2pickup-org/server/commit/133480227ee4a7af4ff86a591152e4a0ecc72705))
+* **build:** fix Dockerfile build ([#2761](https://github.com/tf2pickup-org/server/issues/2761)) ([7595135](https://github.com/tf2pickup-org/server/commit/7595135e9a56cdebbb3c2db01df9f3263153bc92))
+* **deps:** update dependency axios to v1.6.3 ([b499c80](https://github.com/tf2pickup-org/server/commit/b499c80fda5f74626f68af5ec83112abfd476771))
+* **deps:** update dependency axios to v1.6.4 ([d3460cd](https://github.com/tf2pickup-org/server/commit/d3460cdcdd4b41333a5f1d594d408ebe13521485))
+* **deps:** update dependency axios to v1.6.5 ([f036ffa](https://github.com/tf2pickup-org/server/commit/f036ffae3942155f0d1dde45e5c72b2c49ffc060))
+* **deps:** update dependency date-fns to v3 ([#2748](https://github.com/tf2pickup-org/server/issues/2748)) ([54eb58b](https://github.com/tf2pickup-org/server/commit/54eb58bf15d67c970f2a0236a8cfbd4c21d3cdd7))
+* **deps:** update dependency moment to v2.30.0 ([372a40a](https://github.com/tf2pickup-org/server/commit/372a40a71ac840382f63fc396c2d3341d2327c71))
+* **deps:** update dependency moment to v2.30.1 ([fef717b](https://github.com/tf2pickup-org/server/commit/fef717bdbdf508e46b56694c0475a20f9c6cbae3))
+* **deps:** update socket.io packages to v4.7.3 ([33833da](https://github.com/tf2pickup-org/server/commit/33833dae71b3b612d8e35b26bf9058516ec74de1))
+* **games:** handle onMatch{Started,Ended}() errors ([#2764](https://github.com/tf2pickup-org/server/issues/2764)) ([072be28](https://github.com/tf2pickup-org/server/commit/072be28f17e57fad41617cb441d210e15ce55cd8))
+
+
+### Reverts
+
+* get rid of the workaround for axios v1.2.1 http issue ([#2758](https://github.com/tf2pickup-org/server/issues/2758)) ([cdc6625](https://github.com/tf2pickup-org/server/commit/cdc6625558e614267b2fd35cb700a57b9fee8c83))
+
 # [11.4.0](https://github.com/tf2pickup-org/server/compare/11.3.0...11.4.0) (2023-12-22)
 
 
