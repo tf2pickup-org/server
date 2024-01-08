@@ -27,6 +27,7 @@ import { GameState } from '@/games/models/game-state';
 import { GamesService } from '@/games/services/games.service';
 import { substituteRequested } from '../notifications/substitute-requested';
 import { version } from '../../../../package.json';
+import { DISCORD_CLIENT } from '../discord-client.token';
 
 @Injectable()
 export class AdminNotificationsService implements OnModuleInit {
@@ -36,7 +37,7 @@ export class AdminNotificationsService implements OnModuleInit {
   >();
 
   constructor(
-    @Inject('DISCORD_CLIENT') private readonly client: Client,
+    @Inject(DISCORD_CLIENT) private readonly client: Client,
     private readonly configurationService: ConfigurationService,
     private readonly events: Events,
     private readonly playersService: PlayersService,

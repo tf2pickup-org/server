@@ -20,6 +20,7 @@ import { GuildConfiguration } from '../types/guild-configuration';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { QueueService } from '@/queue/services/queue.service';
 import { QueueSlot } from '@/queue/queue-slot';
+import { DISCORD_CLIENT } from '../discord-client.token';
 
 const queuePromptMessageIdCacheKey = (guildId: string) =>
   `queue-prompt-message-id/${guildId}`;
@@ -50,7 +51,7 @@ export class QueuePromptsService implements OnModuleInit {
     private readonly configurationService: ConfigurationService,
     @Inject('QUEUE_CONFIG') private readonly queueConfig: QueueConfig,
     private readonly playersService: PlayersService,
-    @Inject('DISCORD_CLIENT') private readonly client: Client,
+    @Inject(DISCORD_CLIENT) private readonly client: Client,
     @Inject(CACHE_MANAGER) private readonly cache: Cache,
     private readonly queueService: QueueService,
   ) {}

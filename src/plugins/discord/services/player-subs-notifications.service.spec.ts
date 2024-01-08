@@ -26,6 +26,7 @@ import { PlayersService as PlayersServiceMock } from '@/players/services/__mocks
 import { PlayerId } from '@/players/types/player-id';
 import { GameState } from '@/games/models/game-state';
 import { SlotStatus } from '@/games/models/slot-status';
+import { DISCORD_CLIENT } from '../discord-client.token';
 
 jest.mock('@/configuration/services/configuration.service');
 jest.mock('@/games/services/games.service');
@@ -76,7 +77,7 @@ describe('PlayerSubsNotificationsService', () => {
         PlayerSubsNotificationsService,
         Events,
         {
-          provide: 'DISCORD_CLIENT',
+          provide: DISCORD_CLIENT,
           useValue: client,
         },
         ConfigurationService,

@@ -13,6 +13,7 @@ import { catchError, concatMap, filter, from, map, of } from 'rxjs';
 import { GamesService } from '@/games/services/games.service';
 import { substituteWasNeeded } from '../notifications/substitute-was-needed';
 import { SlotStatus } from '@/games/models/slot-status';
+import { DISCORD_CLIENT } from '../discord-client.token';
 
 const cacheKeyForPlayer = (guildId: string, playerId: PlayerId) =>
   `player-substitute-notifications/${guildId}/${playerId}`;
@@ -23,7 +24,7 @@ export class PlayerSubsNotificationsService implements OnModuleInit {
 
   constructor(
     private readonly events: Events,
-    @Inject('DISCORD_CLIENT') private readonly client: Client,
+    @Inject(DISCORD_CLIENT) private readonly client: Client,
     private readonly configurationService: ConfigurationService,
     private readonly environment: Environment,
     @Inject(CACHE_MANAGER) private readonly cache: Cache,

@@ -6,6 +6,7 @@ import {
   Role,
   TextChannel,
 } from '@mocks/discord.js';
+import { DISCORD_CLIENT } from '../discord-client.token';
 
 describe('DiscordService', () => {
   let service: DiscordService;
@@ -26,7 +27,7 @@ describe('DiscordService', () => {
       providers: [
         DiscordService,
         {
-          provide: 'DISCORD_CLIENT',
+          provide: DISCORD_CLIENT,
           useValue: client,
         },
       ],
