@@ -16,6 +16,7 @@ import { PlayerSkillRecordMalformedError } from '../errors/player-skill-record-m
 import { QueueConfig } from '@/queue-config/interfaces/queue-config';
 import { PlayerId } from '../types/player-id';
 import { CacheModule } from '@nestjs/cache-manager';
+import { QUEUE_CONFIG } from '@/queue-config/queue-config.token';
 
 jest.mock('../services/linked-profiles.service');
 jest.mock('../services/import-export-skill.service');
@@ -143,7 +144,7 @@ describe('Players Controller', () => {
         LinkedProfilesService,
         ImportExportSkillService,
         {
-          provide: 'QUEUE_CONFIG',
+          provide: QUEUE_CONFIG,
           useValue: queueConfig,
         },
       ],

@@ -2,6 +2,7 @@ import { QueueConfig } from '@/queue-config/interfaces/queue-config';
 import { Inject, Injectable } from '@nestjs/common';
 import { PlayerSkillRecordMalformedError } from '../errors/player-skill-record-malformed.error';
 import { FuturePlayerSkillService } from './future-player-skill.service';
+import { QUEUE_CONFIG } from '@/queue-config/queue-config.token';
 
 @Injectable()
 export class ImportExportSkillService {
@@ -9,7 +10,7 @@ export class ImportExportSkillService {
 
   constructor(
     private readonly futurePlayerSkillService: FuturePlayerSkillService,
-    @Inject('QUEUE_CONFIG') private readonly queueConfig: QueueConfig,
+    @Inject(QUEUE_CONFIG) private readonly queueConfig: QueueConfig,
   ) {}
 
   async importRawSkillRecord(record: string[]) {

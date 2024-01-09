@@ -19,6 +19,7 @@ import { Types } from 'mongoose';
 import { Subject } from 'rxjs';
 import { RestrictionReason } from '../interfaces/restriction';
 import { ProfileService } from './profile.service';
+import { QUEUE_CONFIG } from '@/queue-config/queue-config.token';
 
 jest.mock('@/players/services/online-players.service');
 jest.mock('@/players/services/linked-profiles.service');
@@ -64,7 +65,7 @@ describe('ProfileService', () => {
         PlayerPreferencesService,
         ConfigurationService,
         {
-          provide: 'QUEUE_CONFIG',
+          provide: QUEUE_CONFIG,
           useValue: {
             teamCount: 2,
             classes: [

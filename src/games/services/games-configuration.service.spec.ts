@@ -1,6 +1,7 @@
 import { ConfigurationService } from '@/configuration/services/configuration.service';
 import { Test, TestingModule } from '@nestjs/testing';
 import { GamesConfigurationService } from './games-configuration.service';
+import { QUEUE_CONFIG } from '@/queue-config/queue-config.token';
 
 jest.mock('@/configuration/services/configuration.service');
 
@@ -13,7 +14,7 @@ describe('GamesConfigurationService', () => {
         GamesConfigurationService,
         ConfigurationService,
         {
-          provide: 'QUEUE_CONFIG',
+          provide: QUEUE_CONFIG,
           useValue: {
             classes: [
               { name: 'scout', count: 2 },

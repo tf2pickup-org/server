@@ -14,6 +14,7 @@ import { ProfileDto } from '../dto/profile.dto';
 import { Restriction, RestrictionReason } from '../interfaces/restriction';
 import { serialize } from '@/shared/serialize';
 import { isUndefined } from 'lodash';
+import { QUEUE_CONFIG } from '@/queue-config/queue-config.token';
 
 const playersEqual = (a: Player, b: Player) => {
   return a.name === b.name;
@@ -29,7 +30,7 @@ export class ProfileService implements OnModuleInit {
     private mapVoteService: MapVoteService,
     private playerPreferencesService: PlayerPreferencesService,
     private configurationService: ConfigurationService,
-    @Inject('QUEUE_CONFIG') private readonly queueConfig: QueueConfig,
+    @Inject(QUEUE_CONFIG) private readonly queueConfig: QueueConfig,
   ) {}
 
   onModuleInit() {

@@ -7,6 +7,7 @@ import { z } from 'zod';
 import { LogsTfUploadMethod } from '../logs-tf-upload-method';
 import { VoiceServerType } from '../voice-server-type';
 import { QueueConfig } from '@/queue-config/interfaces/queue-config';
+import { QUEUE_CONFIG } from '@/queue-config/queue-config.token';
 
 @Injectable()
 export class GamesConfigurationService implements OnModuleInit {
@@ -16,7 +17,7 @@ export class GamesConfigurationService implements OnModuleInit {
 
   constructor(
     private readonly configurationService: ConfigurationService,
-    @Inject('QUEUE_CONFIG')
+    @Inject(QUEUE_CONFIG)
     private readonly queueConfig: QueueConfig,
   ) {}
 
