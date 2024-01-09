@@ -81,7 +81,7 @@ describe('GameSlotsGateway', () => {
     });
 
     it('should emit', () => {
-      expect(socket.to).toHaveBeenCalledWith('game/1');
+      expect(socket.to).toHaveBeenCalledWith('/games/1/slots');
       expect(socket.emit).toHaveBeenCalledWith(
         WebsocketEvent.gameSlotsUpdated,
         expect.any(Object),
