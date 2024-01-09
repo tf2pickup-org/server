@@ -5,14 +5,13 @@ import { LogsTfUploadMethod } from '@/games/logs-tf-upload-method';
 import { GamesService } from '@/games/services/games.service';
 import { LogReceiverService } from '@/log-receiver/services/log-receiver.service';
 import { LogMessage } from '@/log-receiver/types/log-message';
-import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { Mutex } from 'async-mutex';
-import { Cache } from 'cache-manager';
 import { concatMap, from, map, merge } from 'rxjs';
 import { LogsTfApiService } from './logs-tf-api.service';
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
-
-const cacheKeyForGameId = (gameId: GameId) => `games/${gameId}/logs`;
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { GameLogs, GameLogsDocument } from '../models/game-logs';
 
 @Injectable()
 export class LogCollectorService implements OnModuleInit {
@@ -22,10 +21,11 @@ export class LogCollectorService implements OnModuleInit {
   constructor(
     private readonly logReceiverService: LogReceiverService,
     private readonly gamesService: GamesService,
-    @Inject(CACHE_MANAGER) private readonly cache: Cache,
     private readonly events: Events,
     private readonly logsTfApiService: LogsTfApiService,
     private readonly configurationService: ConfigurationService,
+    @InjectModel(GameLogs.name)
+    private readonly gameLogsModel: Model<GameLogsDocument>,
   ) {}
 
   onModuleInit() {
@@ -47,22 +47,11 @@ export class LogCollectorService implements OnModuleInit {
   }
 
   async processLogMessage(logMessage: LogMessage) {
-    try {
-      const game = await this.gamesService.getByLogSecret(logMessage.password);
-      const key = cacheKeyForGameId(game._id);
-
-      await this.mutex.runExclusive(async () => {
-        let logFile = await this.cache.get<string>(key);
-        if (logFile) {
-          logFile += `\nL ${logMessage.payload}`;
-        } else {
-          logFile = `L ${logMessage.payload}`;
-        }
-        await this.cache.set(key, logFile, 0);
-      });
-    } catch (error) {
-      // empty
-    }
+    await this.gameLogsModel.findOneAndUpdate(
+      { logSecret: logMessage.password },
+      { $push: { logs: logMessage.payload } },
+      { new: true, upsert: true },
+    );
   }
 
   async uploadLogs(gameId: GameId) {
@@ -78,14 +67,20 @@ export class LogCollectorService implements OnModuleInit {
     this.logger.log(`uploading logs for game #${game.number}...`);
 
     try {
-      const key = cacheKeyForGameId(gameId);
+      const gameLogs = await this.gameLogsModel
+        .findOne({
+          logSecret: game.logSecret,
+        })
+        .orFail()
+        .exec();
+
+      const logFile = gameLogs.logs.map((line) => `L ${line}`).join('\n');
       const logsUrl = await this.logsTfApiService.uploadLogs({
         mapName: game.map,
         gameNumber: game.number,
-        logFile: (await this.cache.get<string>(key)) ?? '',
+        logFile,
       });
       this.logger.log(`game #${game.number} logs URL: ${logsUrl}`);
-      await this.cache.del(key);
       this.events.logsUploaded.next({ gameId, logsUrl });
     } catch (error) {
       this.logger.error(
