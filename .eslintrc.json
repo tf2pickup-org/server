@@ -6,7 +6,7 @@
   },
   "extends": [
     "eslint:recommended",
-    "plugin:@typescript-eslint/recommended",
+    "plugin:@typescript-eslint/strict",
     "plugin:@typescript-eslint/stylistic",
     "plugin:jest/recommended",
     "plugin:prettier/recommended"
@@ -24,6 +24,7 @@
     "@typescript-eslint/no-explicit-any": "off",
     "@typescript-eslint/ban-ts-comment": "off",
     "@typescript-eslint/no-non-null-assertion": "off",
+    "@typescript-eslint/no-extraneous-class": "off",
     "prettier/prettier": [
       "error",
       {

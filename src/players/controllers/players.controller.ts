@@ -198,7 +198,7 @@ export class PlayersController {
   async updatePlayerBan(
     @Param('playerId', PlayerByIdPipe) player: Player,
     @Param('banId', ObjectIdValidationPipe) banId: PlayerBanId,
-    @Query('revoke') revoke: void,
+    @Query('revoke') revoke: unknown,
     @User() user: Player,
   ): Promise<Serializable<PlayerBanDto>> {
     const ban = await this.playerBansService.getById(banId);
