@@ -36,39 +36,39 @@
 
 tf2pickup.org was created with a simple objective in mind. Make it as easy and accessible for twelve players to play a 6v6 pick-up game in Team Fortress 2 as possible.
 
-
 ## Local deployment
 
 ### Setup
 
-* Clone the repository or download a zipped release of your choice
-* Open the terminal inside the repository folder
-* Install the dependencies
+- Clone the repository or download a zipped release of your choice
+- Open the terminal inside the repository folder
+- Install the dependencies
 
-    ```bash
-    $ yarn install
-    ```
+  ```bash
+  $ pnpm install
+  ```
 
-* Copy and rename `sample.env` to `.env` and adjust your environment values, mainly:
-  * `STEAM_API_KEY` - your [Steam API key](https://steamcommunity.com/dev/apikey), the "Domain Name" can be set to anything you like.
-  * `SUPER_USER` - your SteamID64,
-  * `LOG_RELAY_ADDRESS` - your IP address in the local network.
+- Copy and rename `sample.env` to `.env` and adjust your environment values, mainly:
+  - `STEAM_API_KEY` - your [Steam API key](https://steamcommunity.com/dev/apikey), the "Domain Name" can be set to anything you like,
+  - `LOGS_TF_API_KEY` - your [logs.tf API key](https://logs.tf/uploader),
+  - `SUPER_USER` - your SteamID64,
+  - `LOG_RELAY_ADDRESS` - your IP address in the local network.
 
 ### Deployment
 
-* Start the required services
+- Start the required services
 
-    ```bash
-    $ docker-compose up -d
-    ```
-* Finally, run the server in development mode
+  ```bash
+  $ docker-compose up -d
+  ```
 
-    ```bash
-    $ yarn dev
-    ```
+- Finally, run the server in development mode
+
+  ```bash
+  $ pnpm dev
+  ```
 
   By default, the server is listening on port 3000 .
-
 
 ## Docker images
 
@@ -78,11 +78,11 @@ $ docker pull ghcr.io/tf2pickup-org/server:stable
 
 ### Supported tags
 
-* [`stable`](https://github.com/tf2pickup-org/server/pkgs/container/server/145285422?tag=stable)
-* [`latest`](https://github.com/tf2pickup-org/server/pkgs/container/server/145285422?tag=latest)
-* [`nightly`](https://github.com/tf2pickup-org/server/pkgs/container/server/148223409?tag=nightly)
+- [`stable`](https://github.com/tf2pickup-org/server/pkgs/container/server/145285422?tag=stable)
+- [`latest`](https://github.com/tf2pickup-org/server/pkgs/container/server/145285422?tag=latest)
+- [`nightly`](https://github.com/tf2pickup-org/server/pkgs/container/server/148223409?tag=nightly)
 
 ## Contact
 
-* Discord: @niewielki
-* Steam: <http://steamcommunity.com/id/nieduzy/>
+- Discord: @niewielki
+- Steam: <http://steamcommunity.com/id/nieduzy/>
