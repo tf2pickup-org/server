@@ -22,6 +22,7 @@ import { PlayerId } from '@/players/types/player-id';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { Types } from 'mongoose';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { QUEUE_CONFIG } from '@/queue-config/queue-config.token';
 
 interface Queue {
   slots: {
@@ -65,7 +66,7 @@ export class QueueService
   }
 
   constructor(
-    @Inject('QUEUE_CONFIG')
+    @Inject(QUEUE_CONFIG)
     private readonly queueConfig: QueueConfig,
     private events: Events,
     @Inject(CACHE_MANAGER) private readonly cache: Cache,

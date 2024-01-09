@@ -1,0 +1,1 @@
+export const QUEUE_CONFIG_JSON = 'QUEUE_CONFIG_JSON';

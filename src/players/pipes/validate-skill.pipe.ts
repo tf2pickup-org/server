@@ -1,4 +1,5 @@
 import { QueueConfig } from '@/queue-config/interfaces/queue-config';
+import { QUEUE_CONFIG } from '@/queue-config/queue-config.token';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import {
   BadRequestException,
@@ -15,7 +16,7 @@ export class ValidateSkillPipe
   implements PipeTransform<unknown, PlayerSkillType>
 {
   constructor(
-    @Inject('QUEUE_CONFIG') private readonly queueConfig: QueueConfig,
+    @Inject(QUEUE_CONFIG) private readonly queueConfig: QueueConfig,
   ) {}
 
   transform(value: unknown): PlayerSkillType {

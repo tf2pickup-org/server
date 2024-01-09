@@ -3,9 +3,11 @@ import { Module, Provider } from '@nestjs/common';
 import { readFile } from 'fs/promises';
 import { join } from 'path';
 import { parseQueueConfig } from './parse-queue-config';
+import { QUEUE_CONFIG_JSON } from './queue-config-json.token';
+import { QUEUE_CONFIG } from './queue-config.token';
 
 const queueConfigJsonProvider: Provider = {
-  provide: 'QUEUE_CONFIG_JSON',
+  provide: QUEUE_CONFIG_JSON,
   useFactory: async (environment: Environment) => {
     const configFileName = join(
       'configs',
@@ -18,9 +20,9 @@ const queueConfigJsonProvider: Provider = {
 };
 
 const queueConfigProvider: Provider = {
-  provide: 'QUEUE_CONFIG',
+  provide: QUEUE_CONFIG,
   useFactory: (json: string) => parseQueueConfig(json),
-  inject: ['QUEUE_CONFIG_JSON'],
+  inject: [QUEUE_CONFIG_JSON],
 };
 
 @Module({

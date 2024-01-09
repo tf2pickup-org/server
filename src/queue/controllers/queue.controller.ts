@@ -29,11 +29,12 @@ import { User } from '@/auth/decorators/user.decorator';
 import { Player } from '@/players/models/player';
 import { QueueConfig } from '@/queue-config/interfaces/queue-config';
 import { MongoDbErrorFilter } from '@/shared/filters/mongo-db-error.filter';
+import { QUEUE_CONFIG } from '@/queue-config/queue-config.token';
 
 @Controller('queue')
 export class QueueController {
   constructor(
-    @Inject('QUEUE_CONFIG')
+    @Inject(QUEUE_CONFIG)
     private readonly queueConfig: QueueConfig,
     private queueService: QueueService,
     private mapVoteService: MapVoteService,

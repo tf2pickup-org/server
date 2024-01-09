@@ -11,6 +11,7 @@ import { MapPoolEntry } from '../models/map-pool-entry';
 import { Player } from '@/players/models/player';
 import { Types } from 'mongoose';
 import { PlayerId } from '@/players/types/player-id';
+import { QUEUE_CONFIG } from '@/queue-config/queue-config.token';
 
 jest.mock('../services/queue.service');
 jest.mock('../services/map-vote.service');
@@ -34,7 +35,7 @@ describe('Queue Controller', () => {
         QueueAnnouncementsService,
         FriendsService,
         MapPoolService,
-        { provide: 'QUEUE_CONFIG', useValue: {} },
+        { provide: QUEUE_CONFIG, useValue: {} },
       ],
       controllers: [QueueController],
     }).compile();
