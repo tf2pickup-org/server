@@ -6,7 +6,6 @@ import { GamesService } from '@/games/services/games.service';
 import { LogReceiverService } from '@/log-receiver/services/log-receiver.service';
 import { LogMessage } from '@/log-receiver/types/log-message';
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import { Mutex } from 'async-mutex';
 import { concatMap, from, map, merge } from 'rxjs';
 import { LogsTfApiService } from './logs-tf-api.service';
 import { InjectModel } from '@nestjs/mongoose';
@@ -15,7 +14,6 @@ import { GameLogs, GameLogsDocument } from '../models/game-logs';
 
 @Injectable()
 export class LogCollectorService implements OnModuleInit {
-  private readonly mutex = new Mutex();
   private readonly logger = new Logger(LogCollectorService.name);
 
   constructor(
