@@ -1,5 +1,12 @@
 
 
+## [11.4.4](https://github.com/tf2pickup-org/server/compare/11.4.3...11.4.4) (2024-01-09)
+
+
+### Bug Fixes
+
+* **logs.tf:** store logs in mongodb ([#2771](https://github.com/tf2pickup-org/server/issues/2771)) ([e1a4352](https://github.com/tf2pickup-org/server/commit/e1a43521247872fa336e223d94f8ad0d702bef96))
+
 ## [11.4.3](https://github.com/tf2pickup-org/server/compare/11.4.2...11.4.3) (2024-01-09)
 
 
