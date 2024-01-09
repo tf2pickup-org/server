@@ -1,5 +1,13 @@
 
 
+## [11.4.2](https://github.com/tf2pickup-org/server/compare/11.4.1...11.4.2) (2024-01-09)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @nestjs/cache-manager to v2.2.0 ([b1951b6](https://github.com/tf2pickup-org/server/commit/b1951b61d98f49c7295a9aa37370b154530bdbca))
+* install dotenv ([#2768](https://github.com/tf2pickup-org/server/issues/2768)) ([d2acfe9](https://github.com/tf2pickup-org/server/commit/d2acfe93ec51a977d06a7bade36deb85a5f3a0d6))
+
 ## [11.4.1](https://github.com/tf2pickup-org/server/compare/11.4.0...11.4.1) (2024-01-08)
 
 
