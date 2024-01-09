@@ -1,5 +1,12 @@
 
 
+## [11.4.3](https://github.com/tf2pickup-org/server/compare/11.4.2...11.4.3) (2024-01-09)
+
+
+### Bug Fixes
+
+* **players:** cleanup PlayersController ([#2757](https://github.com/tf2pickup-org/server/issues/2757)) ([7ccda21](https://github.com/tf2pickup-org/server/commit/7ccda21bf72e3306504f5e39bd5b5373d5331361))
+
 ## [11.4.2](https://github.com/tf2pickup-org/server/compare/11.4.1...11.4.2) (2024-01-09)
 
 
