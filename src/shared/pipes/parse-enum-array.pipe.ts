@@ -20,7 +20,7 @@ const defaultOptions: ParseEnumArrayPipeOptions = {
 };
 
 @Injectable()
-export class ParseEnumArrayPipe<T extends { [k: string]: unknown }>
+export class ParseEnumArrayPipe<T extends Record<string, unknown>>
   implements PipeTransform<string, T[]>
 {
   protected readonly options: ParseEnumArrayPipeOptions;

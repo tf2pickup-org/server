@@ -52,7 +52,7 @@ interface ActiveReservationOptions {
   ended: boolean;
   steam_uid: string;
   server: ServemeTfServerOption;
-  errors: { [key: string]: { error: string } };
+  errors: Record<string, { error: string }>;
 }
 
 interface ReservationBounds {
@@ -71,7 +71,7 @@ interface Reservation extends ReservationBounds {
   whitelist_id: string | null;
   custom_whitelist_id: string | null;
   auto_end: boolean;
-  errors: { [key: string]: { error: string } };
+  errors: Record<string, { error: string }>;
 }
 
 type ActiveReservation = Reservation & ActiveReservationOptions;

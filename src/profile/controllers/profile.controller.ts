@@ -45,7 +45,7 @@ export class ProfileController {
   @Put('/preferences')
   async savePreferences(
     @User() user: Player,
-    @Body() preferences: { [key: string]: string },
+    @Body() preferences: Record<string, string>,
   ) {
     return Object.fromEntries(
       await this.playerPreferencesService.updatePlayerPreferences(

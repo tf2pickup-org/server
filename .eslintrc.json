@@ -7,20 +7,16 @@
   "extends": [
     "eslint:recommended",
     "plugin:@typescript-eslint/recommended",
+    "plugin:@typescript-eslint/stylistic",
     "plugin:jest/recommended",
     "plugin:prettier/recommended"
   ],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
-    "project": [
-      "tsconfig.json"
-    ],
+    "project": ["tsconfig.json"],
     "createDefaultProgram": true
   },
-  "plugins": [
-    "@typescript-eslint/eslint-plugin",
-    "jest"
-  ],
+  "plugins": ["@typescript-eslint/eslint-plugin", "jest"],
   "rules": {
     "@typescript-eslint/interface-name-prefix": "off",
     "@typescript-eslint/explicit-function-return-type": "off",
