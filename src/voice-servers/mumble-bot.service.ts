@@ -16,6 +16,7 @@ import { GameRuntimeService } from '@/game-coordinator/services/game-runtime.ser
 import { version } from '../../package.json';
 import { MumbleBot } from './mumble-bot';
 import { VoiceServerType } from '@/games/voice-server-type';
+import { assertIsError } from '@/utils/assert-is-error';
 
 @Injectable()
 export class MumbleBotService implements OnModuleInit, OnModuleDestroy {
@@ -109,8 +110,9 @@ export class MumbleBotService implements OnModuleInit, OnModuleDestroy {
         });
         await this.bot.connect();
       } catch (error) {
+        assertIsError(error);
         this.logger.error(
-          `cannot connect to ${this.bot?.options.host}:${this.bot?.options.port}: ${error}`,
+          `cannot connect to ${this.bot?.options.host}:${this.bot?.options.port}: ${error.message}`,
         );
       }
     } else {
@@ -122,8 +124,9 @@ export class MumbleBotService implements OnModuleInit, OnModuleDestroy {
     try {
       await this.bot?.setupChannels(game);
     } catch (error) {
+      assertIsError(error);
       this.logger.error(
-        `cannot create channels for game #${game.number}: ${error}`,
+        `cannot create channels for game #${game.number}: ${error.message}`,
       );
     }
   }
@@ -138,8 +141,9 @@ export class MumbleBotService implements OnModuleInit, OnModuleDestroy {
         );
       }
     } catch (error) {
+      assertIsError(error);
       this.logger.error(
-        `cannot link channels for game #${game.number}: ${error}`,
+        `cannot link channels for game #${game.number}: ${error.message}`,
       );
     }
   }

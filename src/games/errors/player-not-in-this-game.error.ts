@@ -7,7 +7,7 @@ export class PlayerNotInThisGameError extends Error {
     public readonly gameId: GameId,
   ) {
     super(
-      `player (id=${playerId}) does not take part in the game (id=${gameId})`,
+      `player (id=${playerId.toString()}) does not take part in the game (id=${gameId.toString()})`,
     );
   }
 }

@@ -6,6 +6,7 @@ import { CannotMarkPlayerAsFriendError } from '../errors/cannot-mark-player-as-f
 import { PlayerAlreadyMarkedAsFriendError } from '../errors/player-already-marked-as-friend.error';
 import { QueueState } from '../queue-state';
 import { PlayerId } from '@/players/types/player-id';
+import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 
 export interface Friendship {
   sourcePlayerId: PlayerId;
@@ -85,7 +86,7 @@ export class FriendsService implements OnModuleInit {
     this.friendships = this.friendships.filter(
       (f) =>
         this.queueService.findSlotByPlayerId(f.sourcePlayerId)?.gameClass ===
-        'medic',
+        Tf2ClassName.medic,
     );
     this.events.queueFriendshipsChange.next({ friendships: this.friendships });
   }

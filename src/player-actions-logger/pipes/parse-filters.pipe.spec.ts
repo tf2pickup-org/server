@@ -12,7 +12,7 @@ describe('ParseFiltersPipe', () => {
   let pipe: ParseFiltersPipe;
 
   beforeEach(() => {
-    // @ts-ignore
+    // @ts-expect-error
     playersService = new PlayersService();
     pipe = new ParseFiltersPipe(playersService);
   });

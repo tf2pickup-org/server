@@ -9,7 +9,6 @@ import { CannotAssignGameServerError } from '../errors/cannot-assign-gameserver.
 import { GameInWrongStateError } from '../errors/game-in-wrong-state.error';
 import { GameId } from '../game-id';
 import { Game } from '../models/game';
-import { GameServer } from '../models/game-server';
 import { GamesService } from './games.service';
 import { PlayerId } from '@/players/types/player-id';
 import { PlayersService } from '@/players/services/players.service';
@@ -84,9 +83,7 @@ export class GameServerAssignerService implements OnModuleInit {
         actorId,
       );
       this.logger.verbose(
-        `using server ${(game.gameServer as GameServer).name} for game #${
-          game.number
-        }`,
+        `using server ${game.gameServer!.name} for game #${game.number}`,
       );
 
       return game;

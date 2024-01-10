@@ -16,6 +16,7 @@ export class WorkaroundSocketAdapter extends IoAdapter {
     port: number,
     options?: ServerOptions & { namespace?: string; server?: unknown },
   ) {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return super.createIOServer(port, { ...options, cors: true });
   }
 }

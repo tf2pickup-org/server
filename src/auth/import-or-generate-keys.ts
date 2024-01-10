@@ -5,10 +5,10 @@ import {
 } from 'crypto';
 import { promisify } from 'util';
 import { KeyName } from './key-name';
-import { KeyDocument } from './models/key';
 import { KeyPair } from './key-pair';
 import { Logger } from '@nestjs/common';
 import { Error, Model } from 'mongoose';
+import { Key } from './models/key';
 
 const generateKeyPair = promisify(generateKeyPairCb);
 
@@ -16,7 +16,7 @@ const generateKeyPair = promisify(generateKeyPairCb);
  * Try to fetch the key
  */
 export const importOrGenerateKeys = async (
-  keyModel: Model<KeyDocument>,
+  keyModel: Model<Key>,
   name: KeyName,
   passphrase: string,
 ): Promise<KeyPair> => {

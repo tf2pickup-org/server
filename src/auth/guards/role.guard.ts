@@ -7,6 +7,7 @@ import {
 import { Reflector } from '@nestjs/core';
 import { PlayerRole } from '@/players/models/player-role';
 import { Player } from '@/players/models/player';
+import { Request } from 'express';
 
 @Injectable()
 export class RoleGuard implements CanActivate {
@@ -18,7 +19,7 @@ export class RoleGuard implements CanActivate {
       context.getHandler(),
     );
     if (roles?.length) {
-      const request = context.switchToHttp().getRequest();
+      const request = context.switchToHttp().getRequest<Request>();
       const user = request.user as Player;
 
       if (!user || !roles.some((r) => user.roles.includes(r))) {

@@ -27,8 +27,8 @@ export class GameSlotsGateway
           slots: newGame.slots,
         })),
       )
-      .subscribe(({ number, slots }) => {
-        this.emit({
+      .subscribe(async ({ number, slots }) => {
+        await this.emit({
           room: `game/${number}`,
           event: WebsocketEvent.gameSlotsUpdated,
           payload: slots,

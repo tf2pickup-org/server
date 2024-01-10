@@ -50,7 +50,7 @@ export class CanJoinQueueGuard implements CanActivate {
       throw new PlayerDeniedError(player, DenyReason.noSkillAssigned);
     }
 
-    const payload = context.getArgByIndex(1) as { slotId: number };
+    const payload = context.getArgByIndex<{ slotId: number }>(1);
     const slot = this.queueService.getSlotById(payload.slotId);
 
     if (!slot) {

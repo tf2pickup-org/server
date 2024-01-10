@@ -4,7 +4,6 @@ import { GuildConfiguration } from '../types/guild-configuration';
 import { APIEmbed, Client, JSONEncodable } from 'discord.js';
 import { Events } from '@/events/events';
 import { Subject, concatMap, filter, from, map } from 'rxjs';
-import { PlayerId } from '@/players/types/player-id';
 import { PlayersService } from '@/players/services/players.service';
 import { mapsScrambled } from '../notifications/maps-scrambled';
 import { Environment } from '@/environment/environment';
@@ -364,7 +363,7 @@ export class AdminNotificationsService implements OnModuleInit {
     this.events.mapsScrambled
       .pipe(
         filter(({ actorId }) => Boolean(actorId)),
-        map(({ actorId }) => actorId as PlayerId),
+        map(({ actorId }) => actorId!),
         concatMap((actorId) => from(this.playersService.getById(actorId))),
         map((actor) =>
           mapsScrambled({

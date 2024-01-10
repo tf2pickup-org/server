@@ -8,6 +8,6 @@ export class ZodPipe<T extends ZodTypeAny>
   constructor(private readonly schema: T) {}
 
   transform(value: unknown): T {
-    return this.schema.parse(value);
+    return this.schema.parse(value) as T;
   }
 }

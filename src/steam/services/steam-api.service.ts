@@ -41,7 +41,7 @@ export class SteamApiService {
         map((data) => {
           if (data.playerstats.stats) {
             return data.playerstats.stats
-              .filter((s) => /\.accum\.iPlayTime$/.test(s.name))
+              .filter((s) => s.name.endsWith('.accum.iPlayTime'))
               .reduce((sum, curr) => sum + curr.value, 0);
           } else {
             return 0;
@@ -58,6 +58,7 @@ export class SteamApiService {
                 ),
             );
           } else {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-return
             return throwError(() => error);
           }
         }),

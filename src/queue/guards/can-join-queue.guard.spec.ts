@@ -27,19 +27,19 @@ describe('CanJoinQueueGuard', () => {
 
   beforeEach(() => {
     configurationService = new ConfigurationService(
-      // @ts-ignore
+      // @ts-expect-error
       null,
       null,
     ) as jest.Mocked<ConfigurationService>;
     playerBansService = new PlayerBansService(
-      // @ts-ignore
+      // @ts-expect-error
       null,
       null,
       null,
       null,
     ) as jest.Mocked<PlayerBansService>;
     playersService = new PlayersService(
-      // @ts-ignore
+      // @ts-expect-error
       null,
       null,
       null,
@@ -49,7 +49,7 @@ describe('CanJoinQueueGuard', () => {
       null,
     ) as jest.Mocked<PlayersService>;
     queueService = new QueueService(
-      // @ts-ignore
+      // @ts-expect-error
       null,
       null,
       null,

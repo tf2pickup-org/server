@@ -1,8 +1,5 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import {
-  FuturePlayerSkill,
-  FuturePlayerSkillDocument,
-} from '../models/future-player-skill';
+import { FuturePlayerSkill } from '../models/future-player-skill';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { InjectModel } from '@nestjs/mongoose';
 import { Error, Model } from 'mongoose';
@@ -17,7 +14,7 @@ export class FuturePlayerSkillService implements OnModuleInit {
 
   constructor(
     @InjectModel(FuturePlayerSkill.name)
-    private futurePlayerSkillModel: Model<FuturePlayerSkillDocument>,
+    private futurePlayerSkillModel: Model<FuturePlayerSkill>,
     private events: Events,
     private playersService: PlayersService,
   ) {}

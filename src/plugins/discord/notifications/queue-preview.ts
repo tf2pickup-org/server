@@ -30,7 +30,9 @@ export const queuePreview = (options: QueuePreviewOptions): EmbedBuilder =>
     .setThumbnail(options.iconUrl)
     .addFields(
       options.gameClassData.map((gameClassData) => ({
-        name: `${gameClassData.emoji} ${gameClassData.gameClass} (${gameClassData.players.length}/${gameClassData.playersRequired})`,
+        name: `${gameClassData.emoji?.toString()} ${gameClassData.gameClass} (${
+          gameClassData.players.length
+        }/${gameClassData.playersRequired})`,
         value:
           gameClassData.players.length > 0
             ? gameClassData.players

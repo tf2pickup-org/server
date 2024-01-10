@@ -5,10 +5,7 @@ import { assertIsError } from '@/utils/assert-is-error';
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import {
-  PlayerActionEntry,
-  PlayerActionEntryDocument,
-} from '../models/player-action-entry';
+import { PlayerActionEntry } from '../models/player-action-entry';
 import { PlayerAction } from '../player-actions/player-action';
 import { PlayerConnectedToGameserver } from '../player-actions/player-connected-to-gameserver';
 import { PlayerOnlineStatusChanged } from '../player-actions/player-online-status-changed';
@@ -20,7 +17,7 @@ export class PlayerActionLoggerService implements OnModuleInit {
 
   constructor(
     @InjectModel(PlayerActionEntry.name)
-    private readonly playerActionEntryModel: Model<PlayerActionEntryDocument>,
+    private readonly playerActionEntryModel: Model<PlayerActionEntry>,
     private events: Events,
     private playersService: PlayersService,
     private gamesService: GamesService,
@@ -34,7 +31,7 @@ export class PlayerActionLoggerService implements OnModuleInit {
             this.playersService.findBySteamId(steamId),
             this.gamesService.getById(gameId),
           ]);
-          this.logAction(
+          await this.logAction(
             new PlayerConnectedToGameserver(player, { ipAddress }, game),
           );
         } catch (error) {
@@ -46,7 +43,9 @@ export class PlayerActionLoggerService implements OnModuleInit {
     this.events.playerConnects.subscribe(async ({ playerId, metadata }) => {
       try {
         const player = await this.playersService.getById(playerId);
-        this.logAction(new PlayerOnlineStatusChanged(player, metadata, true));
+        await this.logAction(
+          new PlayerOnlineStatusChanged(player, metadata, true),
+        );
       } catch (error) {
         assertIsError(error);
         this.logger.error(error.message);
@@ -55,7 +54,7 @@ export class PlayerActionLoggerService implements OnModuleInit {
     this.events.playerSaidInGameChat.subscribe(async ({ steamId, message }) => {
       try {
         const player = await this.playersService.findBySteamId(steamId);
-        this.logAction(new PlayerSaidInMatchChat(player, {}, message));
+        await this.logAction(new PlayerSaidInMatchChat(player, {}, message));
       } catch (error) {
         assertIsError(error);
         this.logger.error(error.message);

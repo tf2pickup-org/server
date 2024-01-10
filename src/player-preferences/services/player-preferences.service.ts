@@ -2,10 +2,7 @@ import { PlayerId } from '@/players/types/player-id';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import {
-  PlayerPreferences,
-  PlayerPreferencesDocument,
-} from '../models/player-preferences';
+import { PlayerPreferences } from '../models/player-preferences';
 
 export type PreferencesType = Map<string, string>;
 
@@ -13,7 +10,7 @@ export type PreferencesType = Map<string, string>;
 export class PlayerPreferencesService {
   constructor(
     @InjectModel(PlayerPreferences.name)
-    private playerPreferences: Model<PlayerPreferencesDocument>,
+    private playerPreferences: Model<PlayerPreferences>,
   ) {}
 
   async getPlayerPreferences(playerId: PlayerId): Promise<PreferencesType> {

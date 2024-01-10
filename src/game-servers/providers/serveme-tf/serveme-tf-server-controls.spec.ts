@@ -39,7 +39,7 @@ describe('ServemeTfServerControls', () => {
     };
 
     servemeTfApiService = new ServemeTfApiService(
-      // @ts-ignore
+      // @ts-expect-error
       null,
       null,
       null,

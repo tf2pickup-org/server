@@ -147,6 +147,7 @@ export class PlayersController {
       },
       admin._id,
     );
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return Object.fromEntries(newPlayer.skill ?? new Map());
   }
 
@@ -198,7 +199,7 @@ export class PlayersController {
   async updatePlayerBan(
     @Param('playerId', PlayerByIdPipe) player: Player,
     @Param('banId', ObjectIdValidationPipe) banId: PlayerBanId,
-    @Query('revoke') revoke: void,
+    @Query('revoke') revoke: unknown,
     @User() user: Player,
   ): Promise<Serializable<PlayerBanDto>> {
     const ban = await this.playerBansService.getById(banId);
@@ -243,7 +244,9 @@ export class PlayersController {
 
       const parser = Readable.from(file.buffer).pipe(parse());
       for await (const record of parser) {
-        await this.importExportSkillService.importRawSkillRecord(record);
+        await this.importExportSkillService.importRawSkillRecord(
+          record as string[],
+        );
         noImported += 1;
       }
 
@@ -252,7 +255,7 @@ export class PlayersController {
       };
     } catch (error) {
       if (error instanceof PlayerSkillRecordMalformedError) {
-        throw new BadRequestException(error.toString());
+        throw new BadRequestException(error.message);
       } else {
         throw error;
       }

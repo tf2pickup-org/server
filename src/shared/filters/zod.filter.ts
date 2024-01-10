@@ -1,6 +1,8 @@
 import { ArgumentsHost, Catch, ExceptionFilter } from '@nestjs/common';
 import { HttpStatusCode } from 'axios';
 import { ZodError } from 'zod';
+import { Response } from 'express';
+import { Socket } from 'socket.io';
 
 @Catch(ZodError)
 export class ZodFilter<T extends ZodError = ZodError>
@@ -10,7 +12,7 @@ export class ZodFilter<T extends ZodError = ZodError>
     switch (host.getType()) {
       case 'http': {
         const ctx = host.switchToHttp();
-        const response = ctx.getResponse();
+        const response = ctx.getResponse<Response>();
 
         return response.status(HttpStatusCode.BadRequest).json({
           errors: exception.errors,
@@ -21,7 +23,7 @@ export class ZodFilter<T extends ZodError = ZodError>
 
       case 'ws': {
         const ctx = host.switchToWs();
-        const client = ctx.getClient();
+        const client = ctx.getClient<Socket>();
         return client.emit('exception', {
           errors: exception.errors,
           message: exception.message,

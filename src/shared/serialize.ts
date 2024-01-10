@@ -1,9 +1,11 @@
+// TODO remove eslint-disable comments
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-return */
 import { Serializable } from './serializable';
 
-interface StringIndex {
-  // skipcq: JS-0323
-  [key: string]: any;
-}
+type StringIndex = Record<string, any>;
 
 type SerializeResult<T> = T extends Serializable<infer R>
   ? R

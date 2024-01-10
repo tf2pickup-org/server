@@ -73,16 +73,16 @@ export class GamesGateway
   }
 
   onModuleInit() {
-    this.events.gameCreated.subscribe(({ game }) => {
-      this.emit({
+    this.events.gameCreated.subscribe(async ({ game }) => {
+      await this.emit({
         event: WebsocketEvent.gameCreated,
         payload: game,
       });
     });
 
     // TODO v12: filter public game data changes only
-    this.events.gameChanges.subscribe(({ newGame }) => {
-      this.emit({
+    this.events.gameChanges.subscribe(async ({ newGame }) => {
+      await this.emit({
         event: WebsocketEvent.gameUpdated,
         payload: newGame,
       });

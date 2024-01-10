@@ -3,9 +3,9 @@ import { GameState } from '../models/game-state';
 
 export class GameInWrongStateError extends Error {
   constructor(
-    public gameId: GameId,
-    public gameState: GameState,
+    public readonly gameId: GameId,
+    public readonly gameState: GameState,
   ) {
-    super(`game ${gameId} is in wrong state (${gameState})`);
+    super(`game ${gameId.toString()} is in wrong state (${gameState})`);
   }
 }

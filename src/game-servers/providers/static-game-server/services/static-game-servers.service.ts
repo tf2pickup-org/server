@@ -28,6 +28,7 @@ import { Events } from '@/events/events';
 import { GamesService } from '@/games/services/games.service';
 import { Rcon } from 'rcon-client/lib';
 import { GameServerDetails } from '@/game-servers/interfaces/game-server-details';
+import { assertIsError } from '@/utils/assert-is-error';
 
 interface HeartbeatParams {
   name: string;
@@ -291,10 +292,7 @@ export class StaticGameServersService
           return;
         }
 
-        if (
-          (game.endedAt as Date).getTime() + serverCleanupDelay <
-          Date.now()
-        ) {
+        if (game.endedAt!.getTime() + serverCleanupDelay < Date.now()) {
           await this.freeGameServer(gameServer.id);
         }
       }),
@@ -306,13 +304,14 @@ export class StaticGameServersService
     let rcon: Rcon | undefined;
     try {
       rcon = await controls.rcon();
-      rcon.send(`tv_delaymapchange_protect 0`);
+      await rcon.send(`tv_delaymapchange_protect 0`);
     } catch (error) {
+      assertIsError(error);
       this.logger.error(
-        `failed to execute tv_delaymapchange_protect 0: ${error}`,
+        `failed to execute tv_delaymapchange_protect 0: ${error.message}`,
       );
     } finally {
-      rcon?.end();
+      await rcon?.end();
     }
     await this.updateGameServer(gameServerId, { $unset: { game: 1 } });
   }

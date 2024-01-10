@@ -23,7 +23,7 @@ export class PlayerBansService implements OnModuleInit {
 
   constructor(
     @InjectModel(PlayerBan.name)
-    private playerBanModel: Model<PlayerBanDocument>,
+    private playerBanModel: Model<PlayerBan>,
     private onlinePlayersService: OnlinePlayersService,
     @Inject(forwardRef(() => PlayersService))
     private playersService: PlayersService,
@@ -79,8 +79,8 @@ export class PlayerBansService implements OnModuleInit {
     props: Omit<PlayerBan, 'id' | '_id' | 'serialize'>,
   ): Promise<PlayerBan> {
     const player = await this.playersService.getById(props.player);
-    const { id } = await this.playerBanModel.create(props);
-    const addedBan = await this.getById(id);
+    const { _id } = await this.playerBanModel.create(props);
+    const addedBan = await this.getById(_id);
     this.logger.verbose(
       `ban added for player ${player.id} (reason: ${addedBan.reason})`,
     );

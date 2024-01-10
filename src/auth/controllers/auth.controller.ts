@@ -33,6 +33,7 @@ export class AuthController {
     this.adapterHost.httpAdapter?.get(
       '/auth/steam/return',
       (req: Request, res: Response, next) => {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call
         return passport.authenticate(
           'steam',
           (error: Error, player: Player) => {
@@ -48,7 +49,7 @@ export class AuthController {
             }
 
             if (error) {
-              this.logger.warn(`Login error: ${error}`);
+              this.logger.warn(`Login error: ${error.message}`);
               const clientErrorCode = this.mapToClientError(error);
               return res.redirect(`${url}/auth-error?error=${clientErrorCode}`);
             }

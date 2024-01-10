@@ -393,9 +393,7 @@ describe('GamesService', () => {
     describe('when skill for a player is defined', () => {
       it('should record the given skill', async () => {
         const game = await service.create(slots, 'cp_fake');
-        expect(
-          game.assignedSkills?.get(`${(slots[0] as QueueSlot).playerId}`),
-        ).toEqual(9);
+        expect(game.assignedSkills?.get(`${slots[0].playerId}`)).toEqual(9);
       });
     });
 

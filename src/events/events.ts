@@ -129,7 +129,7 @@ export class Events {
 
   constructor() {
     for (const eventName in this) {
-      const prop = this[eventName] as any;
+      const prop = this[eventName];
       if (prop instanceof Subject) {
         prop.subscribe((...args) =>
           this.logger.debug(`${eventName}: ${JSON.stringify(args)}`),

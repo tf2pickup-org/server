@@ -8,10 +8,7 @@ import { TwitchGateway } from '../gateways/twitch.gateway';
 import { TwitchAuthService } from './twitch-auth.service';
 import { PlayerBansService } from '@/players/services/player-bans.service';
 import { twitchTvApiEndpoint } from '@configs/urls';
-import {
-  TwitchTvProfile,
-  TwitchTvProfileDocument,
-} from '../models/twitch-tv-profile';
+import { TwitchTvProfile } from '../models/twitch-tv-profile';
 import { plainToInstance } from 'class-transformer';
 import { LinkedProfilesService } from '@/players/services/linked-profiles.service';
 import { Events } from '@/events/events';
@@ -69,7 +66,7 @@ export class TwitchService implements OnModuleInit {
     private twitchAuthService: TwitchAuthService,
     private playerBansService: PlayerBansService,
     @InjectModel(TwitchTvProfile.name)
-    private twitchTvProfileModel: Model<TwitchTvProfileDocument>,
+    private twitchTvProfileModel: Model<TwitchTvProfile>,
     private linkedProfilesService: LinkedProfilesService,
     private events: Events,
     private readonly configurationService: ConfigurationService,

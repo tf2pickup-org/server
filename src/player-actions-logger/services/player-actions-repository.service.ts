@@ -2,10 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { plainToInstance } from 'class-transformer';
 import { FilterQuery, Model } from 'mongoose';
-import {
-  PlayerActionEntry,
-  PlayerActionEntryDocument,
-} from '../models/player-action-entry';
+import { PlayerActionEntry } from '../models/player-action-entry';
 
 export interface PlayerActionsQuery {
   limit: number;
@@ -16,7 +13,7 @@ export interface PlayerActionsQuery {
 export class PlayerActionsRepositoryService {
   constructor(
     @InjectModel(PlayerActionEntry.name)
-    private readonly playerActionEntryModel: Model<PlayerActionEntryDocument>,
+    private readonly playerActionEntryModel: Model<PlayerActionEntry>,
   ) {}
 
   async find(

@@ -29,7 +29,7 @@ export class ValidateSkillPipe
         throw new BadRequestException(`no skill for ${gameClass}`);
       }
 
-      if (!isNumber((value as { [key: string]: number })[gameClass])) {
+      if (!isNumber((value as Record<string, number>)[gameClass])) {
         throw new BadRequestException(`skill value must be a number`);
       }
     }

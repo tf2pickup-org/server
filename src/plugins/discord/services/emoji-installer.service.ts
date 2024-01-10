@@ -6,6 +6,7 @@ import { GuildConfiguration } from '../types/guild-configuration';
 import { Events } from '@/events/events';
 import { concatMap, filter, from, map } from 'rxjs';
 import { DISCORD_CLIENT } from '../discord-client.token';
+import { assertIsError } from '@/utils/assert-is-error';
 
 @Injectable()
 export class EmojiInstallerService implements OnModuleInit {
@@ -47,8 +48,9 @@ export class EmojiInstallerService implements OnModuleInit {
           });
           this.logger.log(`installed emoji ${emoji.name}`);
         } catch (error) {
+          assertIsError(error);
           this.logger.error(
-            `failed installing emoji '${emoji.name}' (${error}).`,
+            `failed installing emoji '${emoji.name}' (${error.message}).`,
           );
         }
       }

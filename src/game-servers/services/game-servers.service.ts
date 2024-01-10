@@ -25,7 +25,6 @@ import { GameServerDetailsWithProvider } from '../interfaces/game-server-details
 import { isUndefined } from 'lodash';
 import { GameState } from '@/games/models/game-state';
 import { PlayerConnectionStatus } from '@/games/models/player-connection-status';
-import { GameServer } from '@/games/models/game-server';
 import { GameId } from '@/games/game-id';
 import { GameEventType } from '@/games/models/game-event-type';
 import { PlayerId } from '@/players/types/player-id';
@@ -189,9 +188,7 @@ export class GameServersService
         },
       });
       this.logger.log(
-        `using gameserver ${(game.gameServer as GameServer).name} for game #${
-          game.number
-        }`,
+        `using gameserver ${game.gameServer!.name} for game #${game.number}`,
       );
 
       return game;

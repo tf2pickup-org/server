@@ -17,9 +17,10 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       jsonWebTokenOptions: { algorithms: ['ES512'] },
       jwtFromRequest: ExtractJwt.fromExtractors([
         (req: Request) => {
-          let token = null;
+          let token: string | null = null;
           if (req.cookies) {
-            token = req.cookies['auth_token'];
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+            token = req.cookies.auth_token;
           }
           return token;
         },

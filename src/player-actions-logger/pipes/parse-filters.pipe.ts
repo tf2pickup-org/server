@@ -9,9 +9,9 @@ import { PlayerActionEntry } from '../models/player-action-entry';
 export class ParseFiltersPipe implements PipeTransform {
   constructor(private readonly playersService: PlayersService) {}
 
-  async transform(input: {
-    [key: string]: string;
-  }): Promise<FilterQuery<PlayerActionEntry>> {
+  async transform(
+    input: Record<string, string>,
+  ): Promise<FilterQuery<PlayerActionEntry>> {
     if (isEmpty(input)) {
       return {};
     }

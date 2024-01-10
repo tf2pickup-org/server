@@ -30,14 +30,14 @@ describe('CanReplacePlayerGuard', () => {
       null,
     ) as jest.Mocked<PlayersService>;
     playerBansService = new PlayerBansService(
-      // @ts-ignore
+      // @ts-expect-error
       null,
       null,
       null,
       null,
     ) as jest.Mocked<PlayerBansService>;
     configurationService = new ConfigurationService(
-      // @ts-ignore
+      // @ts-expect-error
       null,
       null,
     ) as jest.Mocked<ConfigurationService>;

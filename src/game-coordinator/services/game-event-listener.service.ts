@@ -5,6 +5,7 @@ import { LogReceiverService } from '@/log-receiver/services/log-receiver.service
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import * as SteamID from 'steamid';
 import { fixTeamName } from '../utils/fix-team-name';
+import { assertIsError } from '@/utils/assert-is-error';
 
 interface GameEvent {
   /* name of the game event */
@@ -188,7 +189,10 @@ export class GameEventListenerService implements OnModuleInit {
           this.logger.debug(`#${game.number}: ${gameEvent.name}`);
           gameEvent.handle(game._id, matches);
         } catch (error) {
-          this.logger.warn(`error handling event (${message}): ${error}`);
+          assertIsError(error);
+          this.logger.warn(
+            `error handling event (${message}): ${error.message}`,
+          );
         }
         break;
       }
