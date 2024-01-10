@@ -10,7 +10,7 @@ import { concatMap, from, map, merge } from 'rxjs';
 import { LogsTfApiService } from './logs-tf-api.service';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { GameLogs, GameLogsDocument } from '../models/game-logs';
+import { GameLogs } from '../models/game-logs';
 import { assertIsError } from '@/utils/assert-is-error';
 
 @Injectable()
@@ -24,7 +24,7 @@ export class LogCollectorService implements OnModuleInit {
     private readonly logsTfApiService: LogsTfApiService,
     private readonly configurationService: ConfigurationService,
     @InjectModel(GameLogs.name)
-    private readonly gameLogsModel: Model<GameLogsDocument>,
+    private readonly gameLogsModel: Model<GameLogs>,
   ) {}
 
   onModuleInit() {

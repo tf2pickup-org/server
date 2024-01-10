@@ -13,11 +13,11 @@ import { promisify } from 'util';
 import { importOrGenerateKeys } from './import-or-generate-keys';
 import { KeyName } from './key-name';
 import { KeyPair } from './key-pair';
-import { Key, KeyDocument, keySchema } from './models/key';
+import { Key, keySchema } from './models/key';
 
 describe('importOrGenerateKeys()', () => {
   let mongod: MongoMemoryServer;
-  let keyModel: Model<KeyDocument>;
+  let keyModel: Model<Key>;
   let environment: Environment;
   let connection: Connection;
 

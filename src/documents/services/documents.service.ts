@@ -4,13 +4,13 @@ import { plainToInstance } from 'class-transformer';
 import { readFile } from 'fs/promises';
 import { Error, Model } from 'mongoose';
 import { join } from 'path';
-import { Document, DocumentDocument } from '../models/document';
+import { Document } from '../models/document';
 
 @Injectable()
 export class DocumentsService implements OnModuleInit {
   constructor(
     @InjectModel(Document.name)
-    private documentModel: Model<DocumentDocument>,
+    private documentModel: Model<Document>,
   ) {}
 
   async onModuleInit() {

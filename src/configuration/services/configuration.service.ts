@@ -4,10 +4,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { ConfigurationEntry } from '../configuration-entry';
 import { ConfigurationEntryNotFoundError } from '../errors/configuration-entry-not-found.error';
-import {
-  ConfigurationItem,
-  ConfigurationItemDocument,
-} from '../models/configuration-item';
+import { ConfigurationItem } from '../models/configuration-item';
 import { generateSchema } from '@anatine/zod-openapi';
 import { ZodType, ZodTypeAny } from 'zod';
 import { SchemaObject } from 'openapi3-ts/oas31';
@@ -28,7 +25,7 @@ export class ConfigurationService {
 
   constructor(
     @InjectModel(ConfigurationItem.name)
-    private configurationItemModel: Model<ConfigurationItemDocument>,
+    private configurationItemModel: Model<ConfigurationItem>,
     private events: Events,
   ) {}
 

@@ -5,10 +5,7 @@ import { assertIsError } from '@/utils/assert-is-error';
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import {
-  PlayerActionEntry,
-  PlayerActionEntryDocument,
-} from '../models/player-action-entry';
+import { PlayerActionEntry } from '../models/player-action-entry';
 import { PlayerAction } from '../player-actions/player-action';
 import { PlayerConnectedToGameserver } from '../player-actions/player-connected-to-gameserver';
 import { PlayerOnlineStatusChanged } from '../player-actions/player-online-status-changed';
@@ -20,7 +17,7 @@ export class PlayerActionLoggerService implements OnModuleInit {
 
   constructor(
     @InjectModel(PlayerActionEntry.name)
-    private readonly playerActionEntryModel: Model<PlayerActionEntryDocument>,
+    private readonly playerActionEntryModel: Model<PlayerActionEntry>,
     private events: Events,
     private playersService: PlayersService,
     private gamesService: GamesService,

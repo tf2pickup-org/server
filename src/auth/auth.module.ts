@@ -9,7 +9,7 @@ import * as passport from 'passport';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { AuthGateway } from './gateways/auth.gateway';
 import { setRedirectUrlCookie } from './middleware/set-redirect-url-cookie';
-import { Key, KeyDocument, keySchema } from './models/key';
+import { Key, keySchema } from './models/key';
 import { Environment } from '@/environment/environment';
 import { importOrGenerateKeys } from './import-or-generate-keys';
 import { KeyName } from './key-name';
@@ -34,10 +34,7 @@ const passportModule = PassportModule.register({
       // keys used to sign & validate auth JWT
       provide: 'AUTH_TOKEN_KEY',
       inject: [getModelToken(Key.name), Environment],
-      useFactory: async (
-        keyModel: Model<KeyDocument>,
-        environment: Environment,
-      ) =>
+      useFactory: async (keyModel: Model<Key>, environment: Environment) =>
         await importOrGenerateKeys(
           keyModel,
           KeyName.auth,
@@ -52,10 +49,7 @@ const passportModule = PassportModule.register({
     {
       provide: 'CONTEXT_TOKEN_KEY',
       inject: [getModelToken(Key.name), Environment],
-      useFactory: async (
-        keyModel: Model<KeyDocument>,
-        environment: Environment,
-      ) =>
+      useFactory: async (keyModel: Model<Key>, environment: Environment) =>
         await importOrGenerateKeys(
           keyModel,
           KeyName.context,

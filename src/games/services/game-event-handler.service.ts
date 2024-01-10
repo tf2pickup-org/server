@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { PlayersService } from '@/players/services/players.service';
 import { PlayerConnectionStatus } from '../models/player-connection-status';
-import { Game, GameDocument } from '../models/game';
+import { Game } from '../models/game';
 import { Events } from '@/events/events';
 import { SlotStatus } from '../models/slot-status';
 import { GameState } from '../models/game-state';
@@ -33,7 +33,7 @@ export class GameEventHandlerService implements OnModuleInit, OnModuleDestroy {
   private timers: ReturnType<typeof setTimeout>[] = [];
 
   constructor(
-    @InjectModel(Game.name) private gameModel: Model<GameDocument>,
+    @InjectModel(Game.name) private gameModel: Model<Game>,
     private playersService: PlayersService,
     private events: Events,
     private gamesService: GamesService,

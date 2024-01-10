@@ -4,7 +4,7 @@ import { maxBy, shuffle } from 'lodash';
 import { BehaviorSubject } from 'rxjs';
 import { MapVoteResult } from '../map-vote-result';
 import { Events } from '@/events/events';
-import { MapPoolEntry, MapPoolEntryDocument } from '../models/map-pool-entry';
+import { MapPoolEntry } from '../models/map-pool-entry';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { ConfigurationService } from '@/configuration/services/configuration.service';
@@ -32,7 +32,7 @@ export class MapVoteService implements OnModuleInit {
 
   constructor(
     @InjectModel(MapPoolEntry.name)
-    private mapPoolEntryModel: Model<MapPoolEntryDocument>,
+    private mapPoolEntryModel: Model<MapPoolEntry>,
     private queueService: QueueService,
     private events: Events,
     private readonly configurationService: ConfigurationService,
