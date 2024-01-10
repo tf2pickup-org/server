@@ -159,7 +159,7 @@ describe('LogCollectorService', () => {
 
     describe('when the upload fails', () => {
       beforeEach(() => {
-        logsTfApiService.uploadLogs.mockRejectedValue('FAKE_ERROR');
+        logsTfApiService.uploadLogs.mockRejectedValue(new Error('FAKE_ERROR'));
       });
 
       // eslint-disable-next-line jest/expect-expect, @typescript-eslint/no-empty-function
