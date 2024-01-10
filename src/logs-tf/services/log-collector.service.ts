@@ -11,6 +11,7 @@ import { LogsTfApiService } from './logs-tf-api.service';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { GameLogs, GameLogsDocument } from '../models/game-logs';
+import { assertIsError } from '@/utils/assert-is-error';
 
 @Injectable()
 export class LogCollectorService implements OnModuleInit {
@@ -81,8 +82,9 @@ export class LogCollectorService implements OnModuleInit {
       this.logger.log(`game #${game.number} logs URL: ${logsUrl}`);
       this.events.logsUploaded.next({ gameId, logsUrl });
     } catch (error) {
+      assertIsError(error);
       this.logger.error(
-        `uploading logs for game #${game.number} failed: ${error}`,
+        `uploading logs for game #${game.number} failed: ${error.message}`,
       );
     }
   }

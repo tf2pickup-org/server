@@ -7,7 +7,7 @@ import {
   CertificateCreationResult,
   createCertificate as createCertificateCb,
 } from 'pem';
-import { Certificate, CertificateDocument } from '../models/certificate';
+import { Certificate } from '../models/certificate';
 
 const createCertificate = (options: CertificateCreationOptions) =>
   new Promise<CertificateCreationResult>((resolve, reject) => {
@@ -24,7 +24,7 @@ const createCertificate = (options: CertificateCreationOptions) =>
 export class CertificatesService {
   constructor(
     @InjectModel(Certificate.name)
-    private certificateModel: Model<CertificateDocument>,
+    private certificateModel: Model<Certificate>,
   ) {}
 
   async getCertificate(purpose: string): Promise<Certificate> {
@@ -35,18 +35,20 @@ export class CertificatesService {
       );
     } catch (error) {
       if (error instanceof Error.DocumentNotFoundError) {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         const { clientKey, certificate } = await createCertificate({
           days: 356 * 10,
           selfSigned: true,
         });
-        const { id } = await this.certificateModel.create({
+        const { _id } = await this.certificateModel.create({
           purpose,
           clientKey,
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
           certificate,
         });
         return plainToInstance(
           Certificate,
-          await this.certificateModel.findById(id).orFail().lean().exec(),
+          await this.certificateModel.findById(_id).orFail().lean().exec(),
         );
       } else {
         throw error;

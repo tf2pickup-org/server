@@ -1,5 +1,5 @@
 import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
-import { Game, GameDocument } from '../models/game';
+import { Game } from '../models/game';
 import { QueueSlot } from '@/queue/queue-slot';
 import { PlayerSlot, pickTeams } from '../utils/pick-teams';
 import { PlayersService } from '@/players/services/players.service';
@@ -24,13 +24,14 @@ import { PlayerConnectionStatus } from '../models/player-connection-status';
 import { PlayerReplaced } from '../models/events/player-replaced';
 import { PlayerLeftGameServer } from '../models/events/player-left-game-server';
 import { GameEndedReason } from '../models/events/game-ended';
+import { MostActivePlayers } from '../types/most-active-players';
 
 @Injectable()
 export class GamesService {
   private logger = new Logger(GamesService.name);
 
   constructor(
-    @InjectModel('Game') private gameModel: Model<GameDocument>,
+    @InjectModel('Game') private gameModel: Model<Game>,
     @Inject(forwardRef(() => PlayersService))
     private playersService: PlayersService,
     private events: Events,
@@ -276,7 +277,7 @@ export class GamesService {
     });
   }
 
-  async getMostActivePlayers() {
+  async getMostActivePlayers(): Promise<MostActivePlayers> {
     return await this.gameModel.aggregate([
       { $match: { state: GameState.ended } },
       { $unwind: '$slots' },
@@ -287,11 +288,11 @@ export class GamesService {
     ]);
   }
 
-  async getMostActiveMedics() {
+  async getMostActiveMedics(): Promise<MostActivePlayers> {
     return await this.gameModel.aggregate([
-      { $match: { state: 'ended' } },
+      { $match: { state: GameState.ended } },
       { $unwind: '$slots' },
-      { $match: { 'slots.gameClass': 'medic' } },
+      { $match: { 'slots.gameClass': Tf2ClassName.medic } },
       { $group: { _id: '$slots.player', count: { $sum: 1 } } },
       { $sort: { count: -1 } },
       { $limit: 10 },
@@ -489,7 +490,7 @@ export class GamesService {
 
     const player = await this.playersService.getById(playerId);
     if (!player) {
-      throw new Error(`no such player (${playerId})`);
+      throw new Error(`no such player (${playerId.toString()})`);
     }
 
     if (player.skill?.has(gameClass)) {

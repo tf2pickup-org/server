@@ -18,6 +18,7 @@ export class PlayerBan extends Serializable<PlayerBanDto> {
   _id!: PlayerBanId;
 
   @Expose()
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
   @Transform(({ value, obj }) => value ?? obj._id?.toString())
   id!: string;
 

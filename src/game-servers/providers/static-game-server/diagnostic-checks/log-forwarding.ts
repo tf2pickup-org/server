@@ -38,7 +38,7 @@ export class LogForwarding implements DiagnosticCheckRunner {
       });
     }
 
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       const logSecret = generateLogsecret();
       const secret = generate({ length: 32, numbers: true });
       const timer = setTimeout(
@@ -75,7 +75,8 @@ export class LogForwarding implements DiagnosticCheckRunner {
         .then(() => rcon.send(`say ${secret}`))
         .then(() => rcon.send(logAddressDel(logAddress)))
         .then(() => rcon.send(svLogsecret()))
-        .then(() => subscription.unsubscribe());
+        .then(() => subscription.unsubscribe())
+        .catch((error) => reject(error));
     });
   }
 }

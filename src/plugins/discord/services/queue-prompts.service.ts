@@ -99,7 +99,7 @@ export class QueuePromptsService implements OnModuleInit {
 
       const message = await getMessage(channel, messageId);
       if (message) {
-        message.edit({ embeds: [embed] });
+        await message.edit({ embeds: [embed] });
         return;
       }
 
@@ -167,7 +167,7 @@ export class QueuePromptsService implements OnModuleInit {
       .filter((guildConfiguration) =>
         Boolean(guildConfiguration?.queuePrompts?.channel),
       )
-      .map((guildConfig) => guildConfig.queuePrompts!.channel!);
+      .map((guildConfig) => guildConfig.queuePrompts!.channel);
 
     await Promise.all(
       enabledChannels.map(async (channelId) => {

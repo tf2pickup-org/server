@@ -34,7 +34,7 @@ export class PlayerActionLoggerService implements OnModuleInit {
             this.playersService.findBySteamId(steamId),
             this.gamesService.getById(gameId),
           ]);
-          this.logAction(
+          await this.logAction(
             new PlayerConnectedToGameserver(player, { ipAddress }, game),
           );
         } catch (error) {
@@ -46,7 +46,9 @@ export class PlayerActionLoggerService implements OnModuleInit {
     this.events.playerConnects.subscribe(async ({ playerId, metadata }) => {
       try {
         const player = await this.playersService.getById(playerId);
-        this.logAction(new PlayerOnlineStatusChanged(player, metadata, true));
+        await this.logAction(
+          new PlayerOnlineStatusChanged(player, metadata, true),
+        );
       } catch (error) {
         assertIsError(error);
         this.logger.error(error.message);
@@ -55,7 +57,7 @@ export class PlayerActionLoggerService implements OnModuleInit {
     this.events.playerSaidInGameChat.subscribe(async ({ steamId, message }) => {
       try {
         const player = await this.playersService.findBySteamId(steamId);
-        this.logAction(new PlayerSaidInMatchChat(player, {}, message));
+        await this.logAction(new PlayerSaidInMatchChat(player, {}, message));
       } catch (error) {
         assertIsError(error);
         this.logger.error(error.message);

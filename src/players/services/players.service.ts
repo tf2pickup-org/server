@@ -6,7 +6,7 @@ import {
   OnModuleInit,
 } from '@nestjs/common';
 import { Environment } from '@/environment/environment';
-import { Player, PlayerDocument } from '../models/player';
+import { Player } from '../models/player';
 import { SteamProfile } from '../steam-profile';
 import { GamesService } from '@/games/services/games.service';
 import { PlayerAvatar } from '../models/player-avatar';
@@ -40,7 +40,7 @@ export class PlayersService implements OnModuleInit {
   constructor(
     private readonly environment: Environment,
     private readonly etf2lApiService: Etf2lApiService,
-    @InjectModel('Player') private readonly playerModel: Model<PlayerDocument>,
+    @InjectModel('Player') private readonly playerModel: Model<Player>,
     @Inject(forwardRef(() => GamesService))
     private readonly gamesService: GamesService,
     private readonly steamApiService: SteamApiService,
@@ -203,7 +203,7 @@ export class PlayersService implements OnModuleInit {
       .fetchPlayerProfile(playerData.steamId)
       .catch(() => undefined);
 
-    const { id } = await this.playerModel.create({
+    const { _id: id } = await this.playerModel.create({
       etf2lProfileId: etf2lProfile?.id,
       ...playerData,
     });

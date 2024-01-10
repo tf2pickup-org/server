@@ -10,10 +10,7 @@ import { RconConnection } from '../diagnostic-checks/rcon-connection';
 import { DiagnosticCheckRunner } from '../interfaces/diagnostic-check-runner';
 import { DiagnosticCheckStatus } from '../models/diagnostic-check-status';
 import { DiagnosticRunStatus } from '../models/diagnostic-run-status';
-import {
-  GameServerDiagnosticRun,
-  GameServerDiagnosticRunDocument,
-} from '../models/game-server-diagnostic-run';
+import { GameServerDiagnosticRun } from '../models/game-server-diagnostic-run';
 import { StaticGameServersService } from './static-game-servers.service';
 
 @Injectable()
@@ -22,7 +19,7 @@ export class GameServerDiagnosticsService {
 
   constructor(
     @InjectModel(GameServerDiagnosticRun.name)
-    private readonly gameServerDiagnosticRunModel: Model<GameServerDiagnosticRunDocument>,
+    private readonly gameServerDiagnosticRunModel: Model<GameServerDiagnosticRun>,
     private readonly staticGameServersService: StaticGameServersService,
     private readonly moduleRef: ModuleRef,
   ) {}
@@ -46,13 +43,13 @@ export class GameServerDiagnosticsService {
       critical: runner.critical,
     }));
 
-    const { id } = await this.gameServerDiagnosticRunModel.create({
+    const { _id } = await this.gameServerDiagnosticRunModel.create({
       gameServer: gameServerId,
       checks,
     });
 
     const run$ = this.executeAllRunners(
-      await this.getDiagnosticRunById(id),
+      await this.getDiagnosticRunById(_id.toString()),
       runners,
     );
     run$
@@ -70,7 +67,7 @@ export class GameServerDiagnosticsService {
       )
       .subscribe();
 
-    return id;
+    return _id.toString();
   }
 
   async collectAllRunners(): Promise<DiagnosticCheckRunner[]> {
@@ -145,7 +142,7 @@ export class GameServerDiagnosticsService {
         subscriber.complete();
       };
 
-      fn();
+      fn().catch((error) => this.logger.error(error));
       return () => (shouldStop = true);
     });
   }

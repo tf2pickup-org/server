@@ -5,7 +5,7 @@ import { Socket } from 'socket.io';
 @Injectable()
 export class WsAuthorizedGuard implements CanActivate {
   canActivate(context: ExecutionContext): boolean {
-    const client = context.switchToWs().getClient() as Socket;
+    const client = context.switchToWs().getClient<Socket>();
     if (client.user) {
       return true;
     } else {

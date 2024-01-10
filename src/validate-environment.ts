@@ -30,7 +30,7 @@ const schema = z
     SERVEME_TF_API_ENDPOINT: z.string().default('serveme.tf'),
     SERVEME_TF_API_KEY: z.string().optional(),
   })
-  .refine(({ REDIS_URL, REDIS_SOCKET }) => REDIS_URL || REDIS_SOCKET, {
+  .refine(({ REDIS_URL, REDIS_SOCKET }) => REDIS_URL ?? REDIS_SOCKET, {
     message: 'either REDIS_URL or REDIS_SOCKET must be defined',
   });
 

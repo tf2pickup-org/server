@@ -167,7 +167,9 @@ export class QueueService
     }
 
     this.logger.debug(
-      `player ${playerId} joined the queue (slotId=${targetSlot.id}, gameClass=${targetSlot.gameClass})`,
+      `player ${playerId.toString()} joined the queue (slotId=${
+        targetSlot.id
+      }, gameClass=${targetSlot.gameClass})`,
     );
 
     // is player joining instead of only changing slots?

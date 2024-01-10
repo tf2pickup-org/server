@@ -76,7 +76,9 @@ export class TwitchAuthService {
       this.tokenExpirationDate.getSeconds() + expiresIn,
     );
     this.logger.debug('app access token refreshed');
-    this.logger.debug(`the new token expires at ${this.tokenExpirationDate}`);
+    this.logger.debug(
+      `the new token expires at ${this.tokenExpirationDate.toISOString()}`,
+    );
     return this.appAccessToken;
   }
 

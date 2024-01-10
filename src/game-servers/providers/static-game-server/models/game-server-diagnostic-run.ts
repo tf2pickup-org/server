@@ -9,9 +9,11 @@ import { TransformObjectId } from '@/shared/decorators/transform-object-id';
 @Schema()
 export class GameServerDiagnosticRun extends MongooseDocument {
   @Expose()
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
   @Transform(({ value, obj }) => value ?? obj._id?.toString())
   id?: string;
 
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
   @Transform(({ value }) => value.toISOString(), { toPlainOnly: true })
   @Prop({ default: () => new Date() })
   launchedAt?: Date;

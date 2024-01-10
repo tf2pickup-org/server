@@ -70,11 +70,11 @@ export function tftrueWhitelistId(whitelistId: string) {
 }
 
 export function tvPort(port?: string) {
-  return `tv_port ${port || ''}`;
+  return `tv_port ${port ?? ''}`;
 }
 
 export function tvPassword(password?: string) {
-  return `tv_password ${password || ''}`;
+  return `tv_password ${password ?? ''}`;
 }
 
 export function say(message: string) {

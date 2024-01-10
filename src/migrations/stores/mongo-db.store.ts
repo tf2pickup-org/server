@@ -8,6 +8,7 @@ export class MongoDbStore implements MigrationStore {
   async load(callback: (error: unknown, data: MigrationSet) => any) {
     const data = await this.connection.db.collection('migrations').findOne({});
     // skipcq: JS-0323
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-argument
     return callback(null, (data ?? {}) as any);
   }
 
@@ -28,6 +29,7 @@ export class MongoDbStore implements MigrationStore {
       },
     );
 
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return callback(null, result);
   }
 }

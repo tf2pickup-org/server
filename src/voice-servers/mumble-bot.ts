@@ -6,6 +6,7 @@ import { Channel, Client, User } from '@tf2pickup-org/mumble-client';
 import { toUpper } from 'lodash';
 import { MumbleChannelDoesNotExistError } from './errors/mumble-channel-does-not-exist.error';
 import { MumbleClientNotConnectedError } from './errors/mumble-client-not-connected.error';
+import { assertIsError } from '@/utils/assert-is-error';
 
 interface MumbleBotOptions {
   host: string;
@@ -156,7 +157,10 @@ export class MumbleBot {
           await channel.remove();
           this.logger.log(`channel ${channel.name} removed`);
         } catch (error) {
-          this.logger.error(`cannot remove channel ${channel.name}: ${error}`);
+          assertIsError(error);
+          this.logger.error(
+            `cannot remove channel ${channel.name}: ${error.message}`,
+          );
         }
       }),
     );

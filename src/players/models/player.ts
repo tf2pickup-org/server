@@ -23,6 +23,7 @@ export class Player extends Serializable<PlayerDto> {
   _id!: PlayerId;
 
   @Expose()
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
   @Transform(({ value, obj }) => value ?? obj._id.toString())
   id!: string;
 

@@ -68,9 +68,7 @@ export class RoundTrackerService implements OnModuleInit {
         !isUndefined(value.score?.red)
       ) {
         this.logger.verbose(
-          `round ended (winner: ${value.winner}, length: ${
-            value.lengthMs
-          } ms, score: BLU=${value.score!.blu};RED=${value.score!.red})`,
+          `round ended (winner: ${value.winner}, length: ${value.lengthMs} ms, score: BLU=${value.score.blu};RED=${value.score.red})`,
         );
         await this.gamesService.update(new Types.ObjectId(key) as GameId, {
           $push: {

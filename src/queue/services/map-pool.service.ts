@@ -3,7 +3,7 @@ import { Validator } from 'jsonschema';
 import * as mapPoolSchema from '../map-pool.schema.json';
 import * as defaultMapPool from '../map-pool.default.json';
 import { Events } from '@/events/events';
-import { MapPoolEntry, MapPoolEntryDocument } from '../models/map-pool-entry';
+import { MapPoolEntry } from '../models/map-pool-entry';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { plainToInstance } from 'class-transformer';
@@ -14,7 +14,7 @@ export class MapPoolService implements OnModuleInit {
 
   constructor(
     @InjectModel(MapPoolEntry.name)
-    private mapPoolEntryModel: Model<MapPoolEntryDocument>,
+    private mapPoolEntryModel: Model<MapPoolEntry>,
     private events: Events,
   ) {
     new Validator().validate(defaultMapPool, mapPoolSchema, {

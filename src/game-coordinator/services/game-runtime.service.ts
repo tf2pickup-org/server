@@ -100,7 +100,7 @@ export class GameRuntimeService implements OnModuleInit {
     const replacementSlot = game.findPlayerSlot(replacementId);
 
     if (!replacementSlot) {
-      throw new Error(`no slot for playerId=${replacementId}`);
+      throw new Error(`no slot for playerId=${replacementId.toString()}`);
     }
 
     await this.sayChat(

@@ -76,6 +76,7 @@ export class AuthModule implements NestModule {
     consumer
       .apply(
         setRedirectUrlCookie,
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
         passport.authenticate('steam', { session: false }),
       )
       .forRoutes('/auth/steam');

@@ -6,8 +6,8 @@
   },
   "extends": [
     "eslint:recommended",
-    "plugin:@typescript-eslint/strict",
-    "plugin:@typescript-eslint/stylistic",
+    "plugin:@typescript-eslint/recommended-type-checked",
+    "plugin:@typescript-eslint/stylistic-type-checked",
     "plugin:jest/recommended",
     "plugin:prettier/recommended"
   ],
@@ -18,13 +18,12 @@
   },
   "plugins": ["@typescript-eslint/eslint-plugin", "jest"],
   "rules": {
-    "@typescript-eslint/interface-name-prefix": "off",
     "@typescript-eslint/explicit-function-return-type": "off",
-    "@typescript-eslint/explicit-module-boundary-types": "off",
     "@typescript-eslint/no-explicit-any": "off",
     "@typescript-eslint/ban-ts-comment": "off",
     "@typescript-eslint/no-non-null-assertion": "off",
     "@typescript-eslint/no-extraneous-class": "off",
+    "@typescript-eslint/no-misused-promises": "off",
     "prettier/prettier": [
       "error",
       {
@@ -38,6 +37,7 @@
       "env": {
         "jest/globals": true
       },
+      "extends": ["plugin:@typescript-eslint/disable-type-checked"],
       "rules": {
         "@typescript-eslint/no-unused-vars": "off"
       }

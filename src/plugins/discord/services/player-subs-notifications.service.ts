@@ -16,7 +16,7 @@ import { SlotStatus } from '@/games/models/slot-status';
 import { DISCORD_CLIENT } from '../discord-client.token';
 
 const cacheKeyForPlayer = (guildId: string, playerId: PlayerId) =>
-  `player-substitute-notifications/${guildId}/${playerId}`;
+  `player-substitute-notifications/${guildId}/${playerId.toString()}`;
 
 @Injectable()
 export class PlayerSubsNotificationsService implements OnModuleInit {
@@ -110,7 +110,9 @@ export class PlayerSubsNotificationsService implements OnModuleInit {
   async notifySubstituteRequested(game: Game, playerId: PlayerId) {
     const slot = game.findPlayerSlot(playerId);
     if (!slot) {
-      throw new Error(`no such slot: ${playerId} (gameId=${game.id})`);
+      throw new Error(
+        `no such slot: ${playerId.toString()} (gameId=${game.id})`,
+      );
     }
 
     const embed = substituteRequest({
@@ -147,7 +149,9 @@ export class PlayerSubsNotificationsService implements OnModuleInit {
       SlotStatus.replaced,
     ]);
     if (!slot) {
-      throw new Error(`no such slot: ${playerId} (gameId=${game.id})`);
+      throw new Error(
+        `no such slot: ${playerId.toString()} (gameId=${game.id})`,
+      );
     }
 
     const embed = substituteWasNeeded({
@@ -157,7 +161,7 @@ export class PlayerSubsNotificationsService implements OnModuleInit {
 
     await this.forEachEnabledChannel(async ({ guild, channel }) => {
       const key = cacheKeyForPlayer(guild.id, slot.player);
-      const messageId = (await this.cache.get(key)) as string;
+      const messageId = (await this.cache.get<string>(key))!;
       const message = await channel.messages.fetch(messageId);
       if (message) {
         await message.edit({ embeds: [embed] });
@@ -196,7 +200,7 @@ export class PlayerSubsNotificationsService implements OnModuleInit {
         }
 
         const channel = guild.channels.cache.get(
-          guildConfiguration.substituteNotifications!.channel!,
+          guildConfiguration.substituteNotifications!.channel,
         );
 
         if (!channel) {

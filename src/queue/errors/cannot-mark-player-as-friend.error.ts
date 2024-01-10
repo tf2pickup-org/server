@@ -2,13 +2,13 @@ import { PlayerId } from '@/players/types/player-id';
 
 export class CannotMarkPlayerAsFriendError extends Error {
   constructor(
-    public sourcePlayerId: PlayerId,
-    public sourceGameClass: string,
-    public targetPlayerId: PlayerId,
-    public targetGameClass: string,
+    public readonly sourcePlayerId: PlayerId,
+    public readonly sourceGameClass: string,
+    public readonly targetPlayerId: PlayerId,
+    public readonly targetGameClass: string,
   ) {
     super(
-      `player ${sourcePlayerId} (added as ${sourceGameClass}) cannot mark ${targetPlayerId} (added as ${targetGameClass}) as friend`,
+      `player ${sourcePlayerId.toString()} (added as ${sourceGameClass}) cannot mark ${targetPlayerId.toString()} (added as ${targetGameClass}) as friend`,
     );
   }
 }

@@ -33,7 +33,7 @@ type PossibleLineup = Record<TeamId, TeamLineup>;
  * @return gameClass <=> lineup pairs.
  */
 function makeAllPossibleLineups(
-  gameClasses: string[],
+  gameClasses: Tf2ClassName[],
   players: PlayerSlot[],
 ): PossibleLineup[] {
   // First off, let's make all possible lineups for each class.
@@ -186,7 +186,7 @@ export function pickTeams(
   const selectedLineup = allPossibleLineups[0];
 
   return ([0, 1] as TeamId[]).flatMap((teamId) =>
-    (selectedLineup[teamId] as TeamLineup).lineup.map((slot) => ({
+    selectedLineup[teamId].lineup.map((slot) => ({
       ...slot,
       team: teams[teamId],
     })),

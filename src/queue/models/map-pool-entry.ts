@@ -32,7 +32,7 @@ export class MapPoolEntry extends Serializable<MapPoolEntryDto> {
   @Prop({ default: 0 })
   cooldown?: number;
 
-  async serialize(): Promise<MapPoolEntryDto> {
+  serialize(): MapPoolEntryDto {
     return {
       name: this.name,
       execConfig: this.execConfig,

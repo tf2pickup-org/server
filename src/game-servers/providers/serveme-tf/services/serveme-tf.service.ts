@@ -14,10 +14,7 @@ import { Model, Types } from 'mongoose';
 import { ServemeTfServerControls } from '../serveme-tf-server-controls';
 import { ServemeTfApiService } from './serveme-tf-api.service';
 import { endReservationDelay } from '../config';
-import {
-  ServemeTfReservation,
-  ServemeTfReservationDocument,
-} from '../models/serveme-tf-reservation';
+import { ServemeTfReservation } from '../models/serveme-tf-reservation';
 import { ReservationStatus } from '../models/reservation-status';
 import { GameServerDetails } from '@/game-servers/interfaces/game-server-details';
 import { assertIsError } from '@/utils/assert-is-error';
@@ -63,7 +60,7 @@ export class ServemeTfService implements GameServerProvider, OnModuleInit {
     private gameServersService: GameServersService,
     private servemeTfApiService: ServemeTfApiService,
     @InjectModel(ServemeTfReservation.name)
-    private servemeTfReservationModel: Model<ServemeTfReservationDocument>,
+    private servemeTfReservationModel: Model<ServemeTfReservation>,
   ) {}
 
   onModuleInit() {
@@ -147,7 +144,7 @@ export class ServemeTfService implements GameServerProvider, OnModuleInit {
       ReturnType<ServemeTfApiService['reserveServer']>
     >['reservation'],
   ): Promise<string> {
-    const { id } = await this.servemeTfReservationModel.create({
+    const { _id } = await this.servemeTfReservationModel.create({
       startsAt: new Date(reservation.starts_at),
       endsAt: new Date(reservation.ends_at),
       serverId: reservation.server_id,
@@ -170,6 +167,6 @@ export class ServemeTfService implements GameServerProvider, OnModuleInit {
         longitude: reservation.server.longitude,
       },
     });
-    return id;
+    return _id.toString();
   }
 }
