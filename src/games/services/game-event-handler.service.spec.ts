@@ -2,8 +2,8 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { GameEventHandlerService } from './game-event-handler.service';
 import { PlayersService } from '@/players/services/players.service';
 import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
-import { Game, GameDocument, gameSchema } from '../models/game';
-import { Player, PlayerDocument, playerSchema } from '@/players/models/player';
+import { Game, gameSchema } from '../models/game';
+import { Player, playerSchema } from '@/players/models/player';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { GamesService } from './games.service';
 import { Events } from '@/events/events';
@@ -36,10 +36,10 @@ describe('GameEventHandlerService', () => {
   let service: GameEventHandlerService;
   let mongod: MongoMemoryServer;
   let playersService: PlayersService;
-  let player1: PlayerDocument;
-  let player2: PlayerDocument;
-  let mockGame: GameDocument;
-  let gameModel: Model<GameDocument>;
+  let player1: Player;
+  let player2: Player;
+  let mockGame: Game;
+  let gameModel: Model<Game>;
   let gamesService: GamesService;
   let events: Events;
   let connection: Connection;
@@ -102,24 +102,23 @@ describe('GameEventHandlerService', () => {
 
   describe('#onMatchStarted()', () => {
     beforeEach(async () => {
-      mockGame.state = GameState.launching;
-      await mockGame.save();
+      await gamesService.update(mockGame._id, { state: GameState.launching });
     });
 
     it('should update game state', async () => {
-      const game = await service.onMatchStarted(mockGame.id);
+      const game = await service.onMatchStarted(mockGame._id);
       expect(game?.state).toEqual(GameState.started);
     });
 
     it('should push event', async () => {
-      const game = await service.onMatchStarted(mockGame.id);
+      const game = await service.onMatchStarted(mockGame._id);
       expect(
         game?.events.find((e) => e.event === GameEventType.gameStarted),
       ).toBeTruthy();
     });
 
     it('should reset game score', async () => {
-      const game = await service.onMatchStarted(mockGame.id);
+      const game = await service.onMatchStarted(mockGame._id);
       expect(game?.score).toBeTruthy();
       expect(game?.score?.get(Tf2Team.blu)).toEqual(0);
       expect(game?.score?.get(Tf2Team.red)).toEqual(0);
@@ -131,7 +130,7 @@ describe('GameEventHandlerService', () => {
         event = game;
       });
 
-      await service.onMatchStarted(mockGame.id);
+      await service.onMatchStarted(mockGame._id);
       expect(event).toMatchObject({
         id: mockGame.id,
         state: GameState.started,
@@ -140,14 +139,12 @@ describe('GameEventHandlerService', () => {
 
     describe('when the match has ended', () => {
       beforeEach(async () => {
-        const game = await gameModel.findById(mockGame.id).orFail();
-        game.state = GameState.ended;
-        await game.save();
+        await gamesService.update(mockGame._id, { state: GameState.ended });
       });
 
       it('should not update game state', async () => {
-        await service.onMatchStarted(mockGame.id);
-        const game = await gameModel.findById(mockGame.id).orFail();
+        await service.onMatchStarted(mockGame._id);
+        const game = await gameModel.findById(mockGame._id).orFail();
         expect(game.state).toEqual(GameState.ended);
       });
     });
@@ -155,18 +152,19 @@ describe('GameEventHandlerService', () => {
 
   describe('#onMatchEnded()', () => {
     beforeEach(async () => {
-      const game = await gameModel.findById(mockGame.id).orFail();
-      game.state = GameState.started;
-      await game.save();
+      await gameModel.updateOne(
+        { _id: mockGame._id },
+        { state: GameState.started },
+      );
     });
 
     it('should update state', async () => {
-      const game = await service.onMatchEnded(mockGame.id);
+      const game = await service.onMatchEnded(mockGame._id);
       expect(game.state).toEqual(GameState.ended);
     });
 
     it('should push event', async () => {
-      const game = await service.onMatchEnded(mockGame.id);
+      const game = await service.onMatchEnded(mockGame._id);
       const ended = game.events.find(
         (e) => e.event === GameEventType.gameEnded,
       ) as GameEnded;
@@ -177,7 +175,7 @@ describe('GameEventHandlerService', () => {
     it('should emit the gameChanges events', async () => {
       let event: Game | undefined;
       events.gameChanges.subscribe(({ newGame: game }) => (event = game));
-      await service.onMatchEnded(mockGame.id);
+      await service.onMatchEnded(mockGame._id);
       expect(event).toMatchObject({ id: mockGame.id, state: GameState.ended });
     });
 
@@ -189,7 +187,7 @@ describe('GameEventHandlerService', () => {
       });
 
       it('should set his status back to active', async () => {
-        const game = await service.onMatchEnded(mockGame.id);
+        const game = await service.onMatchEnded(mockGame._id);
         expect(game.slots.every((s) => s.status === SlotStatus.active)).toBe(
           true,
         );
@@ -200,15 +198,16 @@ describe('GameEventHandlerService', () => {
         events.substituteRequestsChange.subscribe(() => {
           eventEmitted = true;
         });
-        await service.onMatchEnded(mockGame.id);
+        await service.onMatchEnded(mockGame._id);
         expect(eventEmitted).toBe(true);
       });
     });
 
     describe('when there are medics in the game', () => {
       beforeEach(async () => {
-        mockGame.slots[0].gameClass = Tf2ClassName.medic;
-        await mockGame.save();
+        await gamesService.update(mockGame._id, {
+          'slots.0.gameClass': Tf2ClassName.medic,
+        });
 
         jest.useFakeTimers();
       });
@@ -216,7 +215,7 @@ describe('GameEventHandlerService', () => {
       afterEach(() => jest.useRealTimers());
 
       it('should remove assigned game from medics immediately', async () => {
-        const game = await service.onMatchEnded(mockGame.id);
+        const game = await service.onMatchEnded(mockGame._id);
         const players = await Promise.all(
           game.slots
             .filter((slot) => slot.gameClass === Tf2ClassName.medic)
@@ -229,7 +228,7 @@ describe('GameEventHandlerService', () => {
       });
 
       it('should remove assigned game from all players after 5 seconds', async () => {
-        const game = await service.onMatchEnded(mockGame.id);
+        const game = await service.onMatchEnded(mockGame._id);
         jest.advanceTimersByTime(5500);
         const players = await Promise.all(
           game.slots
@@ -291,10 +290,10 @@ describe('GameEventHandlerService', () => {
   describe('#onPlayerJoining()', () => {
     it("should update the player's online state and push an event", async () => {
       const game = await service.onPlayerJoinedGameServer(
-        mockGame.id,
+        mockGame._id,
         player1.steamId,
       );
-      expect(game.findPlayerSlot(player1.id)?.connectionStatus).toEqual(
+      expect(game.findPlayerSlot(player1._id)?.connectionStatus).toEqual(
         PlayerConnectionStatus.joining,
       );
       const event = game.events.find(
@@ -309,7 +308,7 @@ describe('GameEventHandlerService', () => {
     it('should emit the gameChanges event', async () => {
       let event: Game | undefined;
       events.gameChanges.subscribe(({ newGame: game }) => (event = game));
-      await service.onPlayerJoinedGameServer(mockGame.id, player1.steamId);
+      await service.onPlayerJoinedGameServer(mockGame._id, player1.steamId);
       expect(event).toMatchObject({ id: mockGame.id });
     });
   });
@@ -317,10 +316,10 @@ describe('GameEventHandlerService', () => {
   describe('#onPlayerConnected()', () => {
     it("should update the player's online state and push an event", async () => {
       const game = await service.onPlayerJoinedTeam(
-        mockGame.id,
+        mockGame._id,
         player1.steamId,
       );
-      expect(game.findPlayerSlot(player1.id)?.connectionStatus).toEqual(
+      expect(game.findPlayerSlot(player1._id)?.connectionStatus).toEqual(
         PlayerConnectionStatus.connected,
       );
       const event = game.events.find(
@@ -335,7 +334,7 @@ describe('GameEventHandlerService', () => {
     it('should emit the gameChanges event', async () => {
       let event: Game | undefined;
       events.gameChanges.subscribe(({ newGame: game }) => (event = game));
-      await service.onPlayerJoinedTeam(mockGame.id, player1.steamId);
+      await service.onPlayerJoinedTeam(mockGame._id, player1.steamId);
       expect(event).toMatchObject({ id: mockGame.id });
     });
   });
@@ -343,10 +342,10 @@ describe('GameEventHandlerService', () => {
   describe('#onPlayerDisconnected()', () => {
     it("should update the player's online state and push an event", async () => {
       const game = await service.onPlayerDisconnected(
-        mockGame.id,
+        mockGame._id,
         player1.steamId,
       );
-      expect(game.findPlayerSlot(player1.id)?.connectionStatus).toEqual(
+      expect(game.findPlayerSlot(player1._id)?.connectionStatus).toEqual(
         PlayerConnectionStatus.offline,
       );
       const event = game.events.find(
@@ -361,24 +360,24 @@ describe('GameEventHandlerService', () => {
     it('should emit an the gameChanges event', async () => {
       let event: Game | undefined;
       events.gameChanges.subscribe(({ newGame: game }) => (event = game));
-      await service.onPlayerDisconnected(mockGame.id, player1.steamId);
+      await service.onPlayerDisconnected(mockGame._id, player1.steamId);
       expect(event).toMatchObject({ id: mockGame.id });
     });
   });
 
   describe('#onScoreReported()', () => {
     it("should update the game's score", async () => {
-      let game = await service.onScoreReported(mockGame.id, Tf2Team.red, 2);
+      let game = await service.onScoreReported(mockGame._id, Tf2Team.red, 2);
       expect(game.score?.get('red')).toEqual(2);
 
-      game = await service.onScoreReported(mockGame.id, Tf2Team.blu, 5);
+      game = await service.onScoreReported(mockGame._id, Tf2Team.blu, 5);
       expect(game.score?.get('blu')).toEqual(5);
     });
 
     it('should emit the gameChanges event', async () => {
       let event: Game | undefined;
       events.gameChanges.subscribe(({ newGame: game }) => (event = game));
-      await service.onScoreReported(mockGame.id, Tf2Team.red, 2);
+      await service.onScoreReported(mockGame._id, Tf2Team.red, 2);
       expect(event).toMatchObject({ id: mockGame.id });
     });
   });

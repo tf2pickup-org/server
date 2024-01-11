@@ -1,5 +1,5 @@
 import { Prop, raw, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, Types } from 'mongoose';
+import { Types } from 'mongoose';
 import { Exclude, Expose, Transform, Type } from 'class-transformer';
 import { PlayerAvatar, playerAvatarSchema } from './player-avatar';
 import { PlayerRole } from './player-role';
@@ -96,5 +96,4 @@ export class Player extends Serializable<PlayerDto> {
   }
 }
 
-export type PlayerDocument = Player & Document;
 export const playerSchema = SchemaFactory.createForClass(Player);

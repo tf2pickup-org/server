@@ -5,7 +5,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { milliseconds } from 'date-fns';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { Connection } from 'mongoose';
-import { Player, PlayerDocument, playerSchema } from '../models/player';
+import { Player, playerSchema } from '../models/player';
 import { PlayerBansService } from './player-bans.service';
 import { PlayerCooldownService } from './player-cooldown.service';
 import { PlayersService } from './players.service';
@@ -84,7 +84,7 @@ describe('PlayerCooldownService', () => {
   });
 
   describe('#applyCooldown()', () => {
-    let player: PlayerDocument;
+    let player: Player;
 
     beforeEach(async () => {
       player = await playersService._createOne();

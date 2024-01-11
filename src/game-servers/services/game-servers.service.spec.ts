@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { GameServersService } from './game-servers.service';
 import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import { Game, GameDocument, gameSchema } from '@/games/models/game';
+import { Game, gameSchema } from '@/games/models/game';
 import { Connection, Model, Types } from 'mongoose';
 import {
   getConnectionToken,
@@ -41,7 +41,7 @@ class TestGameServerProvider implements GameServerProvider {
 describe('GameServersService', () => {
   let service: GameServersService;
   let mongod: MongoMemoryServer;
-  let gameModel: Model<GameDocument>;
+  let gameModel: Model<Game>;
   let connection: Connection;
   let testGameServerProvider: TestGameServerProvider;
   let events: Events;
@@ -156,7 +156,7 @@ describe('GameServersService', () => {
   });
 
   describe('#assignGameServer()', () => {
-    let game: GameDocument;
+    let game: Game;
 
     beforeEach(async () => {
       game = await gameModel.create({
@@ -259,7 +259,7 @@ describe('GameServersService', () => {
         });
 
         it('should reset the connect info', async () => {
-          const ret = await service.assignGameServer(game.id, {
+          const ret = await service.assignGameServer(game._id, {
             id: 'FAKE_GAME_SERVER',
             provider: 'test',
           });
@@ -272,29 +272,33 @@ describe('GameServersService', () => {
 
         describe('when there are players', () => {
           beforeEach(async () => {
-            game.slots = [
+            await gameModel.updateOne(
+              { _id: game._id },
               {
-                player: new Types.ObjectId() as PlayerId,
-                team: Tf2Team.blu,
-                gameClass: Tf2ClassName.soldier,
-                status: SlotStatus.active,
-                connectionStatus: PlayerConnectionStatus.connected,
-                serialize: jest.fn(),
+                slots: [
+                  {
+                    player: new Types.ObjectId() as PlayerId,
+                    team: Tf2Team.blu,
+                    gameClass: Tf2ClassName.soldier,
+                    status: SlotStatus.active,
+                    connectionStatus: PlayerConnectionStatus.connected,
+                    serialize: jest.fn(),
+                  },
+                  {
+                    player: new Types.ObjectId() as PlayerId,
+                    team: Tf2Team.red,
+                    gameClass: Tf2ClassName.soldier,
+                    status: SlotStatus.active,
+                    connectionStatus: PlayerConnectionStatus.joining,
+                    serialize: jest.fn(),
+                  },
+                ],
               },
-              {
-                player: new Types.ObjectId() as PlayerId,
-                team: Tf2Team.red,
-                gameClass: Tf2ClassName.soldier,
-                status: SlotStatus.active,
-                connectionStatus: PlayerConnectionStatus.joining,
-                serialize: jest.fn(),
-              },
-            ];
-            await game.save();
+            );
           });
 
           it('should set player connection status of all players to offline', async () => {
-            const ret = await service.assignGameServer(game.id, {
+            const ret = await service.assignGameServer(game._id, {
               id: 'FAKE_GAME_SERVER',
               provider: 'test',
             });

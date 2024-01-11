@@ -1,4 +1,4 @@
-import { Game, GameDocument, gameSchema } from '@/games/models/game';
+import { Game, gameSchema } from '@/games/models/game';
 import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
 import {
   getConnectionToken,
@@ -15,7 +15,7 @@ describe('StatisticsService', () => {
   let service: StatisticsService;
   let mongod: MongoMemoryServer;
   let connection: Connection;
-  let gameModel: Model<GameDocument>;
+  let gameModel: Model<Game>;
 
   beforeAll(async () => (mongod = await MongoMemoryServer.create()));
   afterAll(async () => await mongod.stop());

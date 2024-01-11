@@ -1,5 +1,4 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
 
 @Schema()
 export class Key {
@@ -13,5 +12,4 @@ export class Key {
   publicKeyEncoded!: string;
 }
 
-export type KeyDocument = Key & Document;
 export const keySchema = SchemaFactory.createForClass(Key);

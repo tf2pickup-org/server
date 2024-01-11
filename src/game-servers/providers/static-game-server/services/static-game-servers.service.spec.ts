@@ -3,7 +3,7 @@ import { NoFreeGameServerAvailableError } from '@/game-servers/errors/no-free-ga
 import { GameServerReleaseReason } from '@/game-servers/game-server-provider';
 import { GameServersService } from '@/game-servers/services/game-servers.service';
 import { GameId } from '@/games/game-id';
-import { Game, GameDocument, gameSchema } from '@/games/models/game';
+import { Game, gameSchema } from '@/games/models/game';
 import { GameState } from '@/games/models/game-state';
 import { GamesService } from '@/games/services/games.service';
 import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
@@ -14,13 +14,12 @@ import {
 } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
 import { sub } from 'date-fns';
-import { isUndefined } from 'lodash';
+import { isUndefined, templateSettings } from 'lodash';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { Connection, Error, Model, Types } from 'mongoose';
 import { Rcon } from 'rcon-client';
 import {
   StaticGameServer,
-  StaticGameServerDocument,
   staticGameServerSchema,
 } from '../models/static-game-server';
 import { StaticGameServerControls } from '../static-game-server-controls';
@@ -59,8 +58,8 @@ describe('StaticGameServersService', () => {
   let service: StaticGameServersService;
   let mongod: MongoMemoryServer;
   let connection: Connection;
-  let staticGameServerModel: Model<StaticGameServerDocument>;
-  let testGameServer: StaticGameServerDocument;
+  let staticGameServerModel: Model<StaticGameServer>;
+  let testGameServer: StaticGameServer;
   let events: Events;
   let gameServersService: jest.Mocked<GameServersService>;
   let gamesService: GamesService;
@@ -100,14 +99,14 @@ describe('StaticGameServersService', () => {
   });
 
   beforeEach(async () => {
-    testGameServer = (await staticGameServerModel.create({
+    testGameServer = await staticGameServerModel.create({
       name: 'TEST_GAME_SERVER',
       address: 'localhost',
       port: '27015',
       internalIpAddress: '127.0.0.1',
       rconPassword: '123456',
       isOnline: true,
-    })) as StaticGameServerDocument;
+    });
   });
 
   beforeEach(() => {
@@ -135,15 +134,16 @@ describe('StaticGameServersService', () => {
     beforeEach(async () => {
       const fiveMinutesAgo = new Date();
       fiveMinutesAgo.setMinutes(fiveMinutesAgo.getMinutes() - 6);
-      testGameServer.lastHeartbeatAt = fiveMinutesAgo;
-      await testGameServer.save();
+      await service.updateGameServer(testGameServer.id, {
+        lastHeartbeatAt: fiveMinutesAgo,
+      });
     });
 
     it('should mark dead gameservers as offline', async () => {
       await service.onModuleInit();
-      const gameServer = (await staticGameServerModel.findById(
-        testGameServer.id,
-      )) as StaticGameServerDocument;
+      const gameServer = await staticGameServerModel
+        .findById(testGameServer._id)
+        .orFail();
       expect(gameServer.isOnline).toBe(false);
     });
 
@@ -169,8 +169,9 @@ describe('StaticGameServersService', () => {
 
     describe('when there are no free gameservers', () => {
       beforeEach(async () => {
-        testGameServer.game = new Types.ObjectId() as GameId;
-        await testGameServer.save();
+        await service.updateGameServer(testGameServer.id, {
+          game: new Types.ObjectId(),
+        });
       });
 
       it('should return an empty array', async () => {
@@ -202,8 +203,9 @@ describe('StaticGameServersService', () => {
 
   describe('#releaseGameServer()', () => {
     beforeEach(async () => {
-      testGameServer.game = new Types.ObjectId() as GameId;
-      await testGameServer.save();
+      await service.updateGameServer(testGameServer.id, {
+        game: new Types.ObjectId(),
+      });
     });
 
     describe('when released manually', () => {
@@ -274,8 +276,9 @@ describe('StaticGameServersService', () => {
 
     describe('when there are no free gameservers', () => {
       beforeEach(async () => {
-        testGameServer.game = new Types.ObjectId() as GameId;
-        await testGameServer.save();
+        await service.updateGameServer(testGameServer.id, {
+          game: new Types.ObjectId(),
+        });
       });
 
       it('should throw an error', async () => {
@@ -289,8 +292,7 @@ describe('StaticGameServersService', () => {
 
     describe('when there are no online gameservers', () => {
       beforeEach(async () => {
-        testGameServer.isOnline = false;
-        await testGameServer.save();
+        await service.updateGameServer(testGameServer.id, { isOnline: false });
       });
 
       it('should throw an error', async () => {
@@ -335,8 +337,7 @@ describe('StaticGameServersService', () => {
 
     describe('when a gameserver is dead', () => {
       beforeEach(async () => {
-        testGameServer.isOnline = false;
-        await testGameServer.save();
+        await service.updateGameServer(testGameServer.id, { isOnline: false });
       });
 
       it('should not list dead server', async () => {
@@ -385,8 +386,9 @@ describe('StaticGameServersService', () => {
 
     describe('when there are no free gameservers', () => {
       beforeEach(async () => {
-        testGameServer.game = new Types.ObjectId() as GameId;
-        await testGameServer.save();
+        await service.updateGameServer(testGameServer.id, {
+          game: new Types.ObjectId(),
+        });
       });
 
       it('should return an empty array', async () => {
@@ -399,8 +401,9 @@ describe('StaticGameServersService', () => {
   describe('#getTakenGameServers()', () => {
     describe('when there are taken gameservers', () => {
       beforeEach(async () => {
-        testGameServer.game = new Types.ObjectId() as GameId;
-        await testGameServer.save();
+        await service.updateGameServer(testGameServer.id, {
+          game: new Types.ObjectId(),
+        });
       });
 
       it('should return taken gameservers', async () => {
@@ -459,8 +462,9 @@ describe('StaticGameServersService', () => {
       beforeEach(async () => {
         const fiveMinutesAgo = new Date();
         fiveMinutesAgo.setMinutes(fiveMinutesAgo.getMinutes() - 6);
-        testGameServer.lastHeartbeatAt = fiveMinutesAgo;
-        await testGameServer.save();
+        await service.updateGameServer(testGameServer.id, {
+          lastHeartbeatAt: fiveMinutesAgo,
+        });
       });
 
       it('should return the dead gameservers', async () => {
@@ -482,8 +486,9 @@ describe('StaticGameServersService', () => {
     beforeEach(async () => {
       const fiveMinutesAgo = new Date();
       fiveMinutesAgo.setMinutes(fiveMinutesAgo.getMinutes() - 6);
-      testGameServer.lastHeartbeatAt = fiveMinutesAgo;
-      await testGameServer.save();
+      await service.updateGameServer(testGameServer.id, {
+        lastHeartbeatAt: fiveMinutesAgo,
+      });
     });
 
     it('should remove dead gameservers', async () => {
@@ -496,23 +501,24 @@ describe('StaticGameServersService', () => {
   });
 
   describe('#freeUnusedGameServers()', () => {
-    let game: GameDocument;
+    let game: Game;
 
     beforeEach(async () => {
       // @ts-expect-error
       game = await gamesService._createOne();
-      game.state = GameState.ended;
-
-      game.events.push({
-        at: sub(new Date(), { minutes: 2 }),
-        event: GameEventType.gameEnded,
-        reason: GameEndedReason.matchEnded,
-        serialize: jest.fn(),
+      await gamesService.update(game._id, { state: GameState.ended });
+      await gamesService.update(game._id, {
+        $push: {
+          events: {
+            at: sub(new Date(), { minutes: 2 }),
+            event: GameEventType.gameEnded,
+            reason: GameEndedReason.matchEnded,
+            serialize: jest.fn(),
+          },
+        },
       });
-      await game.save();
 
-      testGameServer.game = game._id;
-      await testGameServer.save();
+      await service.updateGameServer(testGameServer.id, { game: game._id });
     });
 
     it('should free gameservers that no longer run any game', async () => {
@@ -525,8 +531,7 @@ describe('StaticGameServersService', () => {
 
     describe('when a game is in progress', () => {
       beforeEach(async () => {
-        game.state = GameState.started;
-        await game.save();
+        await gamesService.update(game._id, { state: GameState.started });
       });
 
       it('should not free the gameserver', async () => {

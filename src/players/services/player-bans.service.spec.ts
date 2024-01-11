@@ -1,15 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { PlayerBansService } from './player-bans.service';
-import {
-  PlayerBan,
-  PlayerBanDocument,
-  playerBanSchema,
-} from '../models/player-ban';
+import { PlayerBan, playerBanSchema } from '../models/player-ban';
 import { OnlinePlayersService } from './online-players.service';
 import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { PlayersService } from './players.service';
-import { Player, PlayerDocument, playerSchema } from '../models/player';
+import { Player, playerSchema } from '../models/player';
 import { Events } from '@/events/events';
 import { Connection, Error, Model, Types } from 'mongoose';
 import {
@@ -31,12 +27,12 @@ class OnlinePlayersServiceStub {
 describe('PlayerBansService', () => {
   let service: PlayerBansService;
   let mongod: MongoMemoryServer;
-  let playerBanModel: Model<PlayerBanDocument>;
-  let mockPlayerBan: PlayerBanDocument;
+  let playerBanModel: Model<PlayerBan>;
+  let mockPlayerBan: PlayerBan;
   let onlinePlayersService: OnlinePlayersServiceStub;
   let playersService: PlayersService;
-  let admin: PlayerDocument;
-  let player: PlayerDocument;
+  let admin: Player;
+  let player: Player;
   let events: Events;
   let connection: Connection;
 
@@ -147,7 +143,7 @@ describe('PlayerBansService', () => {
 
         newBan = {
           player: player._id,
-          admin: admin.id,
+          admin: admin._id,
           start: new Date(),
           end,
           reason: 'just testing',
@@ -198,7 +194,7 @@ describe('PlayerBansService', () => {
           _id: new Types.ObjectId() as PlayerBanId,
           id: 'FAKE_ID',
           player: new Types.ObjectId() as PlayerId,
-          admin: admin.id,
+          admin: admin._id,
           start: new Date(),
           end,
           reason: 'just testing',
@@ -214,30 +210,29 @@ describe('PlayerBansService', () => {
 
   describe('#revokeBan()', () => {
     it('should revoke the ban', async () => {
-      const ban = await service.revokeBan(mockPlayerBan.id, admin.id);
+      const ban = await service.revokeBan(mockPlayerBan._id, admin._id);
       expect(ban.end.getTime()).toBeLessThanOrEqual(new Date().getTime());
     });
 
     it('should emit the playerBanRevoked event', () =>
       new Promise<void>((resolve) => {
         events.playerBanRevoked.subscribe(({ ban, adminId }) => {
-          expect(adminId).toEqual(admin.id);
+          expect(adminId?.equals(admin.id)).toBe(true);
           expect(ban.player.toString()).toEqual(player.id.toString());
           resolve();
         });
 
-        service.revokeBan(mockPlayerBan.id, admin.id);
+        service.revokeBan(mockPlayerBan._id, admin._id);
       }));
 
     describe('when attempting to revoke an already expired ban', () => {
       beforeEach(async () => {
-        mockPlayerBan.end = new Date();
-        await mockPlayerBan.save();
+        await service.revokeBan(mockPlayerBan._id, admin._id);
       });
 
       it('should reject', async () => {
         await expect(
-          service.revokeBan(mockPlayerBan.id, admin.id),
+          service.revokeBan(mockPlayerBan._id, admin._id),
         ).rejects.toThrow();
       });
     });

@@ -3,7 +3,7 @@ import { PlayersService } from './players.service';
 import { Environment } from '@/environment/environment';
 import { SteamProfile } from '../steam-profile';
 import { GamesService } from '@/games/services/games.service';
-import { Player, PlayerDocument, playerSchema } from '../models/player';
+import { Player, playerSchema } from '../models/player';
 import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { Events } from '@/events/events';
@@ -78,8 +78,8 @@ const blacklistedProfile: Etf2lProfile = {
 describe('PlayersService', () => {
   let service: PlayersService;
   let mongod: MongoMemoryServer;
-  let playerModel: Model<PlayerDocument>;
-  let mockPlayer: PlayerDocument;
+  let playerModel: Model<Player>;
+  let mockPlayer: Player;
   let environment: EnvironmentStub;
   let etf2lApiService: jest.Mocked<Etf2lApiService>;
   let gamesService: MockedGamesService;
@@ -196,7 +196,7 @@ describe('PlayersService', () => {
 
   describe('#getById()', () => {
     it('should retrieve the player from the database', async () => {
-      const player = await service.getById(mockPlayer.id);
+      const player = await service.getById(mockPlayer._id);
       expect(player.id).toEqual(mockPlayer.id.toString());
     });
   });
@@ -443,7 +443,7 @@ describe('PlayersService', () => {
   });
 
   describe('#updatePlayer()', () => {
-    let admin: PlayerDocument;
+    let admin: Player;
 
     beforeEach(async () => {
       admin = await playerModel.create({
@@ -456,25 +456,25 @@ describe('PlayersService', () => {
 
     it('should update player name', async () => {
       const ret = await service.updatePlayer(
-        mockPlayer.id,
+        mockPlayer._id,
         { name: 'NEW_NAME' },
-        admin.id,
+        admin._id,
       );
       expect(ret.name).toEqual('NEW_NAME');
     });
 
     it('should update player roles', async () => {
       const ret1 = await service.updatePlayer(
-        mockPlayer.id,
+        mockPlayer._id,
         { roles: [PlayerRole.admin] },
-        admin.id,
+        admin._id,
       );
       expect(ret1.roles).toEqual([PlayerRole.admin]);
 
       const ret2 = await service.updatePlayer(
-        mockPlayer.id,
+        mockPlayer._id,
         { roles: [] },
-        admin.id,
+        admin._id,
       );
       expect(ret2.roles).toEqual([]);
     });
@@ -486,13 +486,13 @@ describe('PlayersService', () => {
           expect(newPlayer.name).toEqual('NEW_NAME');
           resolve();
         });
-        service.updatePlayer(mockPlayer.id, { name: 'NEW_NAME' }, admin.id);
+        service.updatePlayer(mockPlayer._id, { name: 'NEW_NAME' }, admin._id);
       }));
 
     describe('when the given player does not exist', () => {
       it('should reject', async () => {
         await expect(
-          service.updatePlayer(new Types.ObjectId() as PlayerId, {}, admin.id),
+          service.updatePlayer(new Types.ObjectId() as PlayerId, {}, admin._id),
         ).rejects.toThrow();
       });
     });
@@ -500,7 +500,7 @@ describe('PlayersService', () => {
 
   describe('#acceptTerms', () => {
     it('should accept the terms', async () => {
-      const ret = await service.acceptTerms(mockPlayer.id);
+      const ret = await service.acceptTerms(mockPlayer._id);
       expect(ret.hasAcceptedRules).toBe(true);
     });
 
@@ -544,9 +544,7 @@ describe('PlayersService', () => {
         const game = await gamesService._createOne();
         game.state = GameState.ended;
         await game.save();
-
-        mockPlayer.activeGame = game.id;
-        await mockPlayer.save();
+        await service.updatePlayer(mockPlayer._id, { activeGame: game._id });
       });
 
       it('should release the player', async () => {

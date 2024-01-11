@@ -14,10 +14,7 @@ import { Mutex } from 'async-mutex';
 import { plainToInstance } from 'class-transformer';
 import { Model, Types, UpdateQuery } from 'mongoose';
 import { filter } from 'rxjs/operators';
-import {
-  StaticGameServer,
-  StaticGameServerDocument,
-} from '../models/static-game-server';
+import { StaticGameServer } from '../models/static-game-server';
 import { staticGameServerProviderName } from '../static-game-server-provider-name';
 import { GameServerControls } from '@/game-servers/interfaces/game-server-controls';
 import { StaticGameServerControls } from '../static-game-server-controls';
@@ -59,7 +56,7 @@ export class StaticGameServersService
 
   constructor(
     @InjectModel(StaticGameServer.name)
-    private readonly staticGameServerModel: Model<StaticGameServerDocument>,
+    private readonly staticGameServerModel: Model<StaticGameServer>,
     private readonly events: Events,
     private readonly gameServersService: GameServersService,
     private readonly gamesService: GamesService,
@@ -162,7 +159,7 @@ export class StaticGameServersService
 
   async updateGameServer(
     gameServerId: string | Types.ObjectId,
-    update: UpdateQuery<StaticGameServerDocument>,
+    update: UpdateQuery<StaticGameServer>,
   ): Promise<StaticGameServer> {
     return await this.mutex.runExclusive(async () => {
       const oldGameServer = await this.getById(gameServerId);

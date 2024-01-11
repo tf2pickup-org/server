@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Expose, Transform } from 'class-transformer';
-import { Document, Types } from 'mongoose';
+import { Types } from 'mongoose';
 import { TransformObjectId } from '@/shared/decorators/transform-object-id';
 import { MongooseDocument } from '@/utils/mongoose-document';
 import { GameId } from '@/games/game-id';
@@ -57,6 +57,5 @@ export class StaticGameServer extends MongooseDocument {
   priority!: number;
 }
 
-export type StaticGameServerDocument = StaticGameServer & Document;
 export const staticGameServerSchema =
   SchemaFactory.createForClass(StaticGameServer);

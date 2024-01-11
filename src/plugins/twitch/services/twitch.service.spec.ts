@@ -10,7 +10,6 @@ import { PlayerBansService } from '@/players/services/player-bans.service';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import {
   TwitchTvProfile,
-  TwitchTvProfileDocument,
   twitchTvProfileSchema,
 } from '../models/twitch-tv-profile';
 import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
@@ -51,7 +50,7 @@ describe('TwitchService', () => {
   let playerBansService: jest.Mocked<PlayerBansService>;
   let twitchAuthService: jest.Mocked<TwitchAuthService>;
   let playersService: jest.Mocked<PlayersService>;
-  let twitchTvProfileModel: Model<TwitchTvProfileDocument>;
+  let twitchTvProfileModel: Model<TwitchTvProfile>;
   let linkedProfilesService: jest.Mocked<LinkedProfilesService>;
   let events: Events;
   let connection: Connection;

@@ -12,7 +12,7 @@ import { Events } from '@/events/events';
 import { SlotStatus } from '../models/slot-status';
 import { Model, Types } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
-import { Game, GameDocument } from '../models/game';
+import { Game } from '../models/game';
 import { plainToInstance } from 'class-transformer';
 import { PlayerNotInThisGameError } from '../errors/player-not-in-this-game.error';
 import { GameInWrongStateError } from '../errors/game-in-wrong-state.error';
@@ -35,12 +35,13 @@ export class PlayerSubstitutionService implements OnModuleInit {
   private mutex = new Mutex();
 
   constructor(
-    @Inject(forwardRef(() => GamesService)) private gamesService: GamesService,
+    @Inject(forwardRef(() => GamesService))
+    private readonly gamesService: GamesService,
     @Inject(forwardRef(() => PlayersService))
-    private playersService: PlayersService,
-    private queueService: QueueService,
-    private events: Events,
-    @InjectModel(Game.name) private gameModel: Model<GameDocument>,
+    private readonly playersService: PlayersService,
+    private readonly queueService: QueueService,
+    private readonly events: Events,
+    @InjectModel(Game.name) private readonly gameModel: Model<Game>,
   ) {}
 
   onModuleInit() {

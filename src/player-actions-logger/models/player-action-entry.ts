@@ -5,7 +5,6 @@ import { TransformObjectId } from '@/shared/decorators/transform-object-id';
 import { Serializable } from '@/shared/serializable';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Exclude } from 'class-transformer';
-import { Document } from 'mongodb';
 import { Types } from 'mongoose';
 import { PlayerActionDto } from '../dto/player-action.dto';
 
@@ -47,6 +46,5 @@ export class PlayerActionEntry extends Serializable<PlayerActionDto> {
   }
 }
 
-export type PlayerActionEntryDocument = PlayerActionEntry & Document;
 export const playerActionEntrySchema =
   SchemaFactory.createForClass(PlayerActionEntry);

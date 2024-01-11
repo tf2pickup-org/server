@@ -1,5 +1,4 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
 import { DiagnosticCheckStatus } from './diagnostic-check-status';
 
 @Schema()
@@ -20,6 +19,5 @@ export class DiagnosticCheck {
   critical!: boolean;
 }
 
-export type DiagnosticCheckDocument = DiagnosticCheck & Document;
 export const diagnosticCheckSchema =
   SchemaFactory.createForClass(DiagnosticCheck);

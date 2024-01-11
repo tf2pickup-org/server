@@ -1,7 +1,7 @@
 import { IsMongoId, IsString, IsNotEmpty } from 'class-validator';
 import { Exclude, Expose, Transform, Type } from 'class-transformer';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, Types } from 'mongoose';
+import { Types } from 'mongoose';
 import { TransformObjectId } from '@/shared/decorators/transform-object-id';
 import { Serializable } from '@/shared/serializable';
 import { PlayerBanDto } from '../dto/player-ban.dto';
@@ -58,5 +58,4 @@ export class PlayerBan extends Serializable<PlayerBanDto> {
   }
 }
 
-export type PlayerBanDocument = PlayerBan & Document;
 export const playerBanSchema = SchemaFactory.createForClass(PlayerBan);

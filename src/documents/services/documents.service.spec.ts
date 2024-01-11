@@ -2,7 +2,7 @@ import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
 import { Test, TestingModule } from '@nestjs/testing';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { DocumentsService } from './documents.service';
-import { Document, DocumentDocument, documentSchema } from '../models/document';
+import { Document, documentSchema } from '../models/document';
 import { Connection, Error, Model } from 'mongoose';
 import {
   getConnectionToken,
@@ -13,7 +13,7 @@ import {
 describe('DocumentsService', () => {
   let service: DocumentsService;
   let mongod: MongoMemoryServer;
-  let documentModel: Model<DocumentDocument>;
+  let documentModel: Model<Document>;
   let connection: Connection;
 
   beforeAll(async () => (mongod = await MongoMemoryServer.create()));

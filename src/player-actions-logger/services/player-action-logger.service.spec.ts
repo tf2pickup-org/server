@@ -1,8 +1,8 @@
 import { Events } from '@/events/events';
 import { GameId } from '@/games/game-id';
-import { Game, GameDocument, gameSchema } from '@/games/models/game';
+import { Game, gameSchema } from '@/games/models/game';
 import { GamesService } from '@/games/services/games.service';
-import { Player, PlayerDocument, playerSchema } from '@/players/models/player';
+import { Player, playerSchema } from '@/players/models/player';
 import { PlayersService } from '@/players/services/players.service';
 import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
 import { waitABit } from '@/utils/wait-a-bit';
@@ -16,7 +16,6 @@ import { MongoMemoryServer } from 'mongodb-memory-server';
 import { Connection, Model, Types } from 'mongoose';
 import {
   PlayerActionEntry,
-  PlayerActionEntryDocument,
   playerActionEntrySchema,
 } from '../models/player-action-entry';
 import { PlayerActionLoggerService } from './player-action-logger.service';
@@ -27,7 +26,7 @@ jest.mock('@/players/services/players.service');
 describe('PlayerActionLoggerService', () => {
   let service: PlayerActionLoggerService;
   let mongod: MongoMemoryServer;
-  let playerActionEntryModel: Model<PlayerActionEntryDocument>;
+  let playerActionEntryModel: Model<PlayerActionEntry>;
   let connection: Connection;
   let gamesService: GamesService;
   let playersService: PlayersService;
@@ -76,8 +75,8 @@ describe('PlayerActionLoggerService', () => {
   });
 
   describe('when player joins game server', () => {
-    let game: GameDocument;
-    let player: PlayerDocument;
+    let game: Game;
+    let player: Player;
 
     beforeEach(async () => {
       // @ts-expect-error
@@ -86,7 +85,7 @@ describe('PlayerActionLoggerService', () => {
       player = await playersService._createOne();
 
       events.playerJoinedGameServer.next({
-        gameId: game.id,
+        gameId: game._id,
         steamId: player.steamId,
         ipAddress: '127.0.0.1',
       });
@@ -103,14 +102,14 @@ describe('PlayerActionLoggerService', () => {
   });
 
   describe('when player comes online', () => {
-    let player: PlayerDocument;
+    let player: Player;
 
     beforeEach(async () => {
       // @ts-expect-error
       player = await playersService._createOne();
 
       events.playerConnects.next({
-        playerId: player.id,
+        playerId: player._id,
         metadata: {
           ipAddress: '127.0.0.1',
         },
@@ -128,7 +127,7 @@ describe('PlayerActionLoggerService', () => {
   });
 
   describe('when player says in game chat', () => {
-    let player: PlayerDocument;
+    let player: Player;
 
     beforeEach(async () => {
       // @ts-expect-error

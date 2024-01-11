@@ -33,7 +33,7 @@
   },
   "overrides": [
     {
-      "files": ["*.spec.ts", "**/__mocks__/**"],
+      "files": ["*.spec.ts", "*.e2e-spec.ts", "**/__mocks__/**"],
       "env": {
         "jest/globals": true
       },

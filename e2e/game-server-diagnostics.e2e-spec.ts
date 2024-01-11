@@ -71,10 +71,7 @@ describe('Game server diagnostics (e2e)', () => {
     const player = await playersService.findBySteamId(players[0]);
 
     const authService = app.get(AuthService);
-    authToken = await authService.generateJwtToken(
-      JwtTokenPurpose.auth,
-      player.id,
-    );
+    authToken = authService.generateJwtToken(JwtTokenPurpose.auth, player.id);
   });
 
   afterAll(async () => {

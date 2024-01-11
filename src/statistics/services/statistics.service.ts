@@ -1,4 +1,4 @@
-import { Game, GameDocument } from '@/games/models/game';
+import { Game } from '@/games/models/game';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -8,7 +8,9 @@ import { GameLaunchesPerDay } from '../interfaces/game-launches-per-day';
 
 @Injectable()
 export class StatisticsService {
-  constructor(@InjectModel(Game.name) private gameModel: Model<GameDocument>) {}
+  constructor(
+    @InjectModel(Game.name) private readonly gameModel: Model<Game>,
+  ) {}
 
   async getPlayedMapsCount(): Promise<PlayedMapCount[]> {
     return await this.gameModel.aggregate([

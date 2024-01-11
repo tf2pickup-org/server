@@ -4,7 +4,6 @@ import { MongoMemoryServer } from 'mongodb-memory-server';
 import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
 import {
   FuturePlayerSkill,
-  FuturePlayerSkillDocument,
   futurePlayerSkillSchema,
 } from '../models/future-player-skill';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
@@ -23,7 +22,7 @@ jest.mock('./players.service');
 describe('FuturePlayerSkillService', () => {
   let service: FuturePlayerSkillService;
   let mongod: MongoMemoryServer;
-  let futurePlayerSkillModel: Model<FuturePlayerSkillDocument>;
+  let futurePlayerSkillModel: Model<FuturePlayerSkill>;
   let connection: Connection;
 
   beforeAll(async () => (mongod = await MongoMemoryServer.create()));

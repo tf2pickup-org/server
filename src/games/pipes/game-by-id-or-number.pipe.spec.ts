@@ -3,7 +3,7 @@ import { getConnectionToken, MongooseModule } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { Connection, Types } from 'mongoose';
-import { Game, GameDocument, gameSchema } from '../models/game';
+import { Game, gameSchema } from '../models/game';
 import { GamesService } from '../services/games.service';
 import { GameByIdOrNumberPipe } from './game-by-id-or-number.pipe';
 // eslint-disable-next-line jest/no-mocks-import
@@ -51,7 +51,7 @@ describe('GameByIdOrNumberPipe', () => {
   });
 
   describe('#transform()', () => {
-    let game: GameDocument;
+    let game: Game;
 
     beforeEach(async () => {
       game = await gamesService._createOne();

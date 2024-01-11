@@ -7,17 +7,13 @@ import {
 import { Test, TestingModule } from '@nestjs/testing';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { Connection, Model } from 'mongoose';
-import {
-  Certificate,
-  CertificateDocument,
-  certificateSchema,
-} from '../models/certificate';
+import { Certificate, certificateSchema } from '../models/certificate';
 import { CertificatesService } from './certificates.service';
 
 describe('CertificatesService', () => {
   let service: CertificatesService;
   let mongod: MongoMemoryServer;
-  let certificateModel: Model<CertificateDocument>;
+  let certificateModel: Model<Certificate>;
   let connection: Connection;
 
   beforeAll(async () => (mongod = await MongoMemoryServer.create()));

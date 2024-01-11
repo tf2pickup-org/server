@@ -4,11 +4,7 @@ import { QueueService } from './queue.service';
 import { Events } from '@/events/events';
 import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import {
-  MapPoolEntry,
-  MapPoolEntryDocument,
-  mapPoolEntrySchema,
-} from '../models/map-pool-entry';
+import { MapPoolEntry, mapPoolEntrySchema } from '../models/map-pool-entry';
 import { skip } from 'rxjs/operators';
 import { Connection, Model, Types } from 'mongoose';
 import {
@@ -38,7 +34,7 @@ jest.mock('@/configuration/services/configuration.service', () => ({
 describe('MapVoteService', () => {
   let mongod: MongoMemoryServer;
   let service: MapVoteService;
-  let mapModel: Model<MapPoolEntryDocument>;
+  let mapModel: Model<MapPoolEntry>;
   let queueService: jest.Mocked<QueueService>;
   let events: Events;
   let connection: Connection;

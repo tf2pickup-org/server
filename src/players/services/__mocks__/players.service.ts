@@ -1,18 +1,17 @@
 import { Subject } from 'rxjs';
-import { Player, PlayerDocument } from '@/players/models/player';
+import { Player } from '@/players/models/player';
 import { Injectable } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
 import { Model, Types, UpdateQuery } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
+import { PlayerId } from '@/players/types/player-id';
 
 @Injectable()
 export class PlayersService {
   private lastId = 0;
   playerRegistered = new Subject<string>();
 
-  constructor(
-    @InjectModel('Player') private playerModel: Model<PlayerDocument>,
-  ) {}
+  constructor(@InjectModel('Player') private playerModel: Model<Player>) {}
 
   getById = jest.fn().mockImplementation(async (id: string) => {
     return plainToInstance(
@@ -52,7 +51,7 @@ export class PlayersService {
     await this.playerModel.deleteMany({}).exec();
   }
 
-  async updatePlayer(playerId: string, update: UpdateQuery<Player>) {
+  async updatePlayer(playerId: PlayerId, update: UpdateQuery<Player>) {
     const newPlayer = plainToInstance(
       Player,
       await this.playerModel

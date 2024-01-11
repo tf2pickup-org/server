@@ -2,13 +2,8 @@ import { Events } from '@/events/events';
 import { Test, TestingModule } from '@nestjs/testing';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { MapPoolService } from './map-pool.service';
-import {
-  MapPoolEntry,
-  MapPoolEntryDocument,
-  mapPoolEntrySchema,
-} from '../models/map-pool-entry';
+import { MapPoolEntry, mapPoolEntrySchema } from '../models/map-pool-entry';
 import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
-import { skip } from 'rxjs/operators';
 import { Connection, Model } from 'mongoose';
 import {
   getConnectionToken,
@@ -19,7 +14,7 @@ import {
 describe('MapPoolService', () => {
   let service: MapPoolService;
   let mongod: MongoMemoryServer;
-  let mapModel: Model<MapPoolEntryDocument>;
+  let mapModel: Model<MapPoolEntry>;
   let events: Events;
   let connection: Connection;
 
