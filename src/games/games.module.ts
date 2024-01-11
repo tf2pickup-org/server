@@ -16,6 +16,7 @@ import { GameServerAssignerService } from './services/game-server-assigner.servi
 import { QueueConfigModule } from '@/queue-config/queue-config.module';
 import { GamesConfigurationService } from './services/games-configuration.service';
 import { GameSlotsGateway } from './gateways/game-slots.gateway';
+import { VoiceChannelUrlsService } from './services/voice-channel-urls.service';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { GameSlotsGateway } from './gateways/game-slots.gateway';
     GameServerAssignerService,
     GamesConfigurationService,
     GameSlotsGateway,
+    VoiceChannelUrlsService,
   ],
   exports: [GamesService, PlayerSubstitutionService],
   controllers: [GamesController, GamesWithSubstitutionRequestsController],

@@ -11,13 +11,9 @@ import { GameState } from '../models/game-state';
 import { ConfigurationService } from '@/configuration/services/configuration.service';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, UpdateQuery, Types, FilterQuery, QueryOptions } from 'mongoose';
-import { PlayerNotInThisGameError } from '../errors/player-not-in-this-game.error';
-import { URL } from 'url';
-import { GameInWrongStateError } from '../errors/game-in-wrong-state.error';
 import { plainToInstance } from 'class-transformer';
 import { Mutex } from 'async-mutex';
 import { GameEventType } from '../models/game-event-type';
-import { VoiceServerType } from '../voice-server-type';
 import { GameId } from '../game-id';
 import { PlayerId } from '@/players/types/player-id';
 import { PlayerConnectionStatus } from '../models/player-connection-status';
@@ -25,6 +21,7 @@ import { PlayerReplaced } from '../models/events/player-replaced';
 import { PlayerLeftGameServer } from '../models/events/player-left-game-server';
 import { GameEndedReason } from '../models/events/game-ended';
 import { MostActivePlayers } from '../types/most-active-players';
+import { PlayerNotInThisGameError } from '../errors/player-not-in-this-game.error';
 
 @Injectable()
 export class GamesService {
@@ -337,72 +334,6 @@ export class GamesService {
         .lean()
         .exec(),
     );
-  }
-
-  async getVoiceChannelUrl(
-    gameId: GameId,
-    playerId: PlayerId,
-  ): Promise<string | null> {
-    const game = await this.getById(gameId);
-    if (!game.isInProgress()) {
-      throw new GameInWrongStateError(gameId, game.state);
-    }
-
-    const player = await this.playersService.getById(playerId);
-    const slot = game.findPlayerSlot(playerId);
-
-    if (!slot) {
-      throw new PlayerNotInThisGameError(playerId, gameId);
-    }
-
-    const voiceServerType =
-      await this.configurationService.get<VoiceServerType>(
-        'games.voice_server_type',
-      );
-    switch (voiceServerType) {
-      case VoiceServerType.none:
-        return null;
-
-      case VoiceServerType.staticLink:
-        return await this.configurationService.get<string>(
-          'games.voice_server.static_link',
-        );
-
-      case VoiceServerType.mumble: {
-        const [url, port, channelName, password] = await Promise.all([
-          this.configurationService.get<string>(
-            'games.voice_server.mumble.url',
-          ),
-          this.configurationService.get<number>(
-            'games.voice_server.mumble.port',
-          ),
-          this.configurationService.get<string>(
-            'games.voice_server.mumble.channel_name',
-          ),
-          this.configurationService.get<string>(
-            'games.voice_server.mumble.password',
-          ),
-        ]);
-
-        if (!url || !channelName) {
-          throw Error('mumble configuration malformed');
-        }
-
-        const mumbleDirectLink = new URL(`mumble://${url}`);
-        mumbleDirectLink.pathname = `${channelName}/${
-          game.number
-        }/${slot.team.toUpperCase()}`;
-        mumbleDirectLink.username = player.name.replace(/\s+/g, '_');
-        if (password) {
-          mumbleDirectLink.password = password;
-        }
-        mumbleDirectLink.protocol = 'mumble:';
-        mumbleDirectLink.port = `${port}`;
-        return mumbleDirectLink.toString();
-      }
-
-      // no default
-    }
   }
 
   async calculatePlayerJoinGameServerTimeout(

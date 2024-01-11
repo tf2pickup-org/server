@@ -12,8 +12,6 @@ import { SlotStatus } from '../models/slot-status';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { GameState } from '../models/game-state';
 import { ConfigurationService } from '@/configuration/services/configuration.service';
-import { PlayerNotInThisGameError } from '../errors/player-not-in-this-game.error';
-import { GameInWrongStateError } from '../errors/game-in-wrong-state.error';
 import { Connection, Model, Types } from 'mongoose';
 import {
   getConnectionToken,
@@ -22,11 +20,11 @@ import {
 } from '@nestjs/mongoose';
 import { Mutex } from 'async-mutex';
 import { GameServer } from '../models/game-server';
-import { VoiceServerType } from '../voice-server-type';
 import { PlayerConnectionStatus } from '../models/player-connection-status';
 import { GameEventType } from '../models/game-event-type';
 import { PlayerId } from '@/players/types/player-id';
 import { GameEnded, GameEndedReason } from '../models/events/game-ended';
+import { PlayerNotInThisGameError } from '../errors/player-not-in-this-game.error';
 
 jest.mock('@/players/services/players.service');
 jest.mock('@/configuration/services/configuration.service');
@@ -603,117 +601,6 @@ describe('GamesService', () => {
       expect(ret).toBeTruthy();
       expect(ret.length).toBe(1);
       expect(ret[0].number).toBe(1);
-    });
-  });
-
-  describe('#getVoiceChannelUrl()', () => {
-    let game: Game;
-    let player: Player;
-
-    beforeEach(async () => {
-      // @ts-expect-error
-      player = await playersService._createOne();
-
-      game = await gameModel.create({
-        number: 512,
-        map: 'cp_badlands',
-        slots: [
-          {
-            player: player._id,
-            team: Tf2Team.blu,
-            gameClass: Tf2ClassName.scout,
-            status: SlotStatus.active,
-          },
-        ],
-      });
-    });
-
-    describe('when the game is not running', () => {
-      beforeEach(async () => {
-        await service.update(game._id, { state: GameState.ended });
-      });
-
-      it('should throw an error', async () => {
-        await expect(
-          service.getVoiceChannelUrl(game._id, player._id),
-        ).rejects.toThrow(GameInWrongStateError);
-      });
-    });
-
-    describe('when a player is not part of the game', () => {
-      let anotherPlayer: Player;
-
-      beforeEach(async () => {
-        // @ts-expect-error
-        anotherPlayer = await playersService._createOne();
-      });
-
-      it('should throw an error', async () => {
-        await expect(
-          service.getVoiceChannelUrl(game._id, anotherPlayer._id),
-        ).rejects.toThrow(PlayerNotInThisGameError);
-      });
-    });
-
-    describe('when the voice server is none', () => {
-      beforeEach(() => {
-        configuration['games.voice_server_type'] = VoiceServerType.none;
-      });
-
-      it('should return null', async () => {
-        expect(await service.getVoiceChannelUrl(game._id, player._id)).toBe(
-          null,
-        );
-      });
-    });
-
-    describe('when the voice server is a static link', () => {
-      beforeEach(() => {
-        configuration['games.voice_server_type'] = VoiceServerType.staticLink;
-        configuration['games.voice_server.static_link'] = 'SOME_STATIC_LINK';
-      });
-
-      it('should return the static link', async () => {
-        expect(await service.getVoiceChannelUrl(game._id, player._id)).toEqual(
-          'SOME_STATIC_LINK',
-        );
-      });
-    });
-
-    describe('when the voice server is a mumble server', () => {
-      beforeEach(() => {
-        configuration['games.voice_server_type'] = VoiceServerType.mumble;
-        configuration['games.voice_server.mumble.url'] = 'melkor.tf';
-        configuration['games.voice_server.mumble.port'] = 64738;
-        configuration['games.voice_server.mumble.channel_name'] =
-          'FAKE_CHANNEL_NAME';
-      });
-
-      it('should return direct mumble channel url', async () => {
-        const url = await service.getVoiceChannelUrl(game._id, player._id);
-        expect(url).toEqual(
-          'mumble://fake_player_1@melkor.tf:64738/FAKE_CHANNEL_NAME/512/BLU',
-        );
-      });
-
-      describe('when the mumble server has a password', () => {
-        beforeEach(() => {
-          configuration['games.voice_server_type'] = VoiceServerType.mumble;
-          configuration['games.voice_server.mumble.url'] = 'melkor.tf';
-          configuration['games.voice_server.mumble.port'] = 64738;
-          configuration['games.voice_server.mumble.channel_name'] =
-            'FAKE_CHANNEL_NAME';
-          configuration['games.voice_server.mumble.password'] =
-            'FAKE_SERVER_PASSWORD';
-        });
-
-        it('should handle the password in the url', async () => {
-          const url = await service.getVoiceChannelUrl(game._id, player._id);
-          expect(url).toEqual(
-            'mumble://fake_player_1:FAKE_SERVER_PASSWORD@melkor.tf:64738/FAKE_CHANNEL_NAME/512/BLU',
-          );
-        });
-      });
     });
   });
 
