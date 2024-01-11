@@ -26,10 +26,10 @@ export class ServemeTfService implements GameServerProvider, OnModuleInit {
   private readonly logger = new Logger(ServemeTfService.name);
 
   constructor(
-    private gameServersService: GameServersService,
+    private readonly gameServersService: GameServersService,
     @Inject(SERVEME_TF_CLIENT)
     private readonly servemeTfClient: Client,
-    private servemeTfConfigurationService: ServemeTfConfigurationService,
+    private readonly servemeTfConfigurationService: ServemeTfConfigurationService,
   ) {}
 
   onModuleInit() {
