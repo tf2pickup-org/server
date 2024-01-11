@@ -58,6 +58,7 @@ describe('VoiceChannelUrlsService', () => {
   let playersService: jest.Mocked<PlayersService>;
   let configurationService: jest.Mocked<ConfigurationService>;
   let configuration: Record<string, unknown>;
+  let events: Events;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -74,6 +75,7 @@ describe('VoiceChannelUrlsService', () => {
     service = module.get<VoiceChannelUrlsService>(VoiceChannelUrlsService);
     playersService = module.get(PlayersService);
     configurationService = module.get(ConfigurationService);
+    events = module.get(Events);
   });
 
   beforeEach(() => {
@@ -89,6 +91,8 @@ describe('VoiceChannelUrlsService', () => {
     configurationService.get.mockImplementation((key: string) =>
       Promise.resolve(configuration[key]),
     );
+
+    service.onModuleInit();
   });
 
   it('should be defined', () => {
@@ -123,6 +127,24 @@ describe('VoiceChannelUrlsService', () => {
           expect(
             await service.getVoiceChannelUrl(mockGame._id, mockPlayer._id),
           ).toEqual('SOME_STATIC_LINK');
+        });
+
+        describe('but the configuration changes to none', () => {
+          beforeEach(async () => {
+            await service.getVoiceChannelUrl(mockGame._id, mockPlayer._id);
+            configuration['games.voice_server_type'] = VoiceServerType.none;
+            events.configurationChanged.next({
+              key: 'games.voice_server_type',
+              oldValue: VoiceServerType.staticLink,
+              newValue: VoiceServerType.none,
+            });
+          });
+
+          it('should return null', async () => {
+            expect(
+              await service.getVoiceChannelUrl(mockGame._id, mockPlayer._id),
+            ).toBe(null);
+          });
         });
       });
 
@@ -164,6 +186,21 @@ describe('VoiceChannelUrlsService', () => {
             expect(url).toEqual(
               'mumble://fake_player_1:FAKE_SERVER_PASSWORD@melkor.tf:64738/FAKE_CHANNEL_NAME/512/BLU',
             );
+          });
+        });
+
+        describe('when mumble configuration is malformed', () => {
+          beforeEach(() => {
+            configuration['games.voice_server_type'] = VoiceServerType.mumble;
+            configuration['games.voice_server.mumble.url'] = null;
+            configuration['games.voice_server.mumble.port'] = null;
+            configuration['games.voice_server.mumble.channel_name'] = null;
+          });
+
+          it('should throw an error', async () => {
+            await expect(
+              service.getVoiceChannelUrl(mockGame._id, mockPlayer._id),
+            ).rejects.toThrow(Error);
           });
         });
       });

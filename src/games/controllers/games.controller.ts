@@ -43,10 +43,10 @@ import { VoiceChannelUrlsService } from '../services/voice-channel-urls.service'
 @Controller('games')
 export class GamesController {
   constructor(
-    private gamesService: GamesService,
-    private playerSubstitutionService: PlayerSubstitutionService,
-    private events: Events,
-    private gameServerAssignerService: GameServerAssignerService,
+    private readonly gamesService: GamesService,
+    private readonly playerSubstitutionService: PlayerSubstitutionService,
+    private readonly events: Events,
+    private readonly gameServerAssignerService: GameServerAssignerService,
     private readonly voiceChannelUrlsService: VoiceChannelUrlsService,
   ) {}
 

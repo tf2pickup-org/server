@@ -14,7 +14,9 @@ import { Events } from '@/events/events';
 import { filter } from 'rxjs';
 
 const cacheKey = (gameId: GameId, playerId: PlayerId): string =>
-  `voice-channel-url/${gameId}/${playerId}`;
+  `voice-channel-url/${gameId.toString()}/${playerId.toString()}`;
+
+const nullValue = 'null';
 
 @Injectable()
 export class VoiceChannelUrlsService implements OnModuleInit {
@@ -44,19 +46,19 @@ export class VoiceChannelUrlsService implements OnModuleInit {
     playerId: PlayerId,
   ): Promise<string | null> {
     const key = cacheKey(gameId, playerId);
-    let value = await this.cache.get<string | null>(key);
+    let value = await this.cache.get<string>(key);
     if (isUndefined(value)) {
       value = await this.calculateVoiceChannelUrl(gameId, playerId);
-      await this.cache.set(key, value ?? '');
+      await this.cache.set(key, value);
     }
 
-    return value === '' ? null : value;
+    return value === nullValue ? null : value;
   }
 
   private async calculateVoiceChannelUrl(
     gameId: GameId,
     playerId: PlayerId,
-  ): Promise<string | null> {
+  ): Promise<string> {
     const game = await this.gamesService.getById(gameId);
     if (!game.isInProgress()) {
       throw new GameInWrongStateError(gameId, game.state);
@@ -74,7 +76,7 @@ export class VoiceChannelUrlsService implements OnModuleInit {
       );
     switch (voiceServerType) {
       case VoiceServerType.none:
-        return null;
+        return nullValue;
 
       case VoiceServerType.staticLink:
         return await this.configurationService.get<string>(
