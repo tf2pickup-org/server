@@ -20,8 +20,6 @@ import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { SlotStatus } from '@/games/models/slot-status';
 import { PlayerConnectionStatus } from '@/games/models/player-connection-status';
 import { waitABit } from '@/utils/wait-a-bit';
-import { GameState } from '@/games/models/game-state';
-import { Mode } from 'fs';
 
 jest.mock('@/games/services/games.service');
 jest.mock('@/configuration/services/configuration.service');

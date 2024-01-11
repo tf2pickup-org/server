@@ -14,7 +14,7 @@ import {
 } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
 import { sub } from 'date-fns';
-import { isUndefined, templateSettings } from 'lodash';
+import { isUndefined } from 'lodash';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { Connection, Error, Model, Types } from 'mongoose';
 import { Rcon } from 'rcon-client';

@@ -9,7 +9,7 @@ import {
 } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import { Connection, Document, Model, Types } from 'mongoose';
+import { Connection, Model, Types } from 'mongoose';
 import { ServemeTfApiService } from './serveme-tf-api.service';
 import { ServemeTfService } from './serveme-tf.service';
 import { ServemeTfServerControls } from '../serveme-tf-server-controls';
