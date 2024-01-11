@@ -14,7 +14,7 @@ import { GamesService } from './games.service';
 import { PlayersService } from '@/players/services/players.service';
 // eslint-disable-next-line jest/no-mocks-import
 import { PlayersService as MockedPlayersService } from '@/players/services/__mocks__/players.service';
-import { Player, PlayerDocument, playerSchema } from '@/players/models/player';
+import { Player, playerSchema } from '@/players/models/player';
 
 jest.mock('./games.service');
 jest.mock('@/game-servers/services/game-servers.service');
@@ -27,7 +27,7 @@ describe('GameServerAssignerService', () => {
   let events: Events;
   let gameServersService: jest.Mocked<GameServersService>;
   let playersService: MockedPlayersService;
-  let bot: PlayerDocument;
+  let bot: Player;
 
   beforeAll(async () => (mongod = await MongoMemoryServer.create()));
   afterAll(async () => await mongod.stop());

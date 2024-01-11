@@ -12,7 +12,7 @@ import { Connection, Model } from 'mongoose';
 import { LogReceiverService } from '@/log-receiver/services/log-receiver.service';
 import { Subject, take } from 'rxjs';
 import { Events } from '@/events/events';
-import { GameDocument, Game, gameSchema } from '@/games/models/game';
+import { Game, gameSchema } from '@/games/models/game';
 import { GamesService } from '@/games/services/games.service';
 import { Tf2Team } from '@/games/models/tf2-team';
 
@@ -28,8 +28,8 @@ describe('GameEventListenerService', () => {
   let service: GameEventListenerService;
   let mongod: MongoMemoryServer;
   let gamesService: GamesService;
-  let gameModel: Model<GameDocument>;
-  let game: GameDocument;
+  let gameModel: Model<Game>;
+  let game: Game;
   let logReceiverService: jest.Mocked<LogReceiverService>;
   let connection: Connection;
   let events: Events;
@@ -76,8 +76,7 @@ describe('GameEventListenerService', () => {
   beforeEach(async () => {
     // @ts-expect-error
     game = await gamesService._createOne();
-    game.logSecret = 'SOME_LOG_SECRET';
-    await game.save();
+    await gamesService.update(game._id, { logSecret: 'SOME_LOG_SECRET' });
   });
 
   afterEach(async () => {

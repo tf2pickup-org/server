@@ -4,7 +4,7 @@ import { getConnectionToken, MongooseModule } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { Connection, Types } from 'mongoose';
-import { Player, PlayerDocument, playerSchema } from '../models/player';
+import { Player, playerSchema } from '../models/player';
 import { PlayersService } from '../services/players.service';
 import { PlayerByIdPipe } from './player-by-id.pipe';
 // eslint-disable-next-line jest/no-mocks-import
@@ -63,12 +63,13 @@ describe('PlayerByIdPipe', () => {
   });
 
   describe('given a valid steam id', () => {
-    let player: PlayerDocument;
+    let player: Player;
 
     beforeEach(async () => {
       player = await playersService._createOne();
-      player.steamId = '76561198074409147';
-      await player.save();
+      player = await playersService.updatePlayer(player._id, {
+        steamId: '76561198074409147',
+      });
     });
 
     it('should fetch the player by steam id', async () => {

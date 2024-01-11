@@ -3,7 +3,7 @@ import { TransformObjectId } from '@/shared/decorators/transform-object-id';
 import { Serializable } from '@/shared/serializable';
 import { Prop, raw, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Exclude, Expose, Transform, Type } from 'class-transformer';
-import { Document, Schema as MongooseSchema } from 'mongoose';
+import { Schema as MongooseSchema } from 'mongoose';
 import { GameDto } from '../dto/game.dto';
 import { GameId } from '../game-id';
 import { GameEvent, gameEventSchema } from './game-event';
@@ -273,7 +273,6 @@ export class Game extends Serializable<GameDto> {
   }
 }
 
-export type GameDocument = Game & Document;
 export const gameSchema = SchemaFactory.createForClass(Game);
 
 const events = gameSchema.path<MongooseSchema.Types.Subdocument>('events');

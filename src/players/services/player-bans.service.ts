@@ -5,7 +5,7 @@ import {
   Inject,
   forwardRef,
 } from '@nestjs/common';
-import { PlayerBan, PlayerBanDocument } from '../models/player-ban';
+import { PlayerBan } from '../models/player-ban';
 import { merge } from 'rxjs';
 import { OnlinePlayersService } from './online-players.service';
 import { PlayersService } from './players.service';
@@ -23,11 +23,11 @@ export class PlayerBansService implements OnModuleInit {
 
   constructor(
     @InjectModel(PlayerBan.name)
-    private playerBanModel: Model<PlayerBan>,
-    private onlinePlayersService: OnlinePlayersService,
+    private readonly playerBanModel: Model<PlayerBan>,
+    private readonly onlinePlayersService: OnlinePlayersService,
     @Inject(forwardRef(() => PlayersService))
-    private playersService: PlayersService,
-    private events: Events,
+    private readonly playersService: PlayersService,
+    private readonly events: Events,
   ) {}
 
   onModuleInit() {
@@ -103,7 +103,7 @@ export class PlayerBansService implements OnModuleInit {
 
   private async updateBan(
     banId: PlayerBanId,
-    update: UpdateQuery<PlayerBanDocument>,
+    update: UpdateQuery<PlayerBan>,
   ): Promise<PlayerBan> {
     return plainToInstance(
       PlayerBan,

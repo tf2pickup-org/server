@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, Types } from 'mongoose';
+import { Types } from 'mongoose';
 import { MongooseDocument } from '@/utils/mongoose-document';
 import { Expose, Transform, Type } from 'class-transformer';
 import { DiagnosticCheck, diagnosticCheckSchema } from './diagnostic-check';
@@ -34,8 +34,6 @@ export class GameServerDiagnosticRun extends MongooseDocument {
   }
 }
 
-export type GameServerDiagnosticRunDocument = GameServerDiagnosticRun &
-  Document;
 export const gameServerDiagnosticRunSchema = SchemaFactory.createForClass(
   GameServerDiagnosticRun,
 );

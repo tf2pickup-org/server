@@ -1,7 +1,7 @@
 import { ConfigurationService } from '@/configuration/services/configuration.service';
 import { Events } from '@/events/events';
 import { LogsTfUploadMethod } from '@/games/logs-tf-upload-method';
-import { Game, GameDocument, gameSchema } from '@/games/models/game';
+import { Game, gameSchema } from '@/games/models/game';
 import { GamesService } from '@/games/services/games.service';
 import { LogReceiverService } from '@/log-receiver/services/log-receiver.service';
 import { LogMessage } from '@/log-receiver/types/log-message';
@@ -18,11 +18,7 @@ import { Connection, Model } from 'mongoose';
 import { Subject, take } from 'rxjs';
 import { LogCollectorService } from './log-collector.service';
 import { LogsTfApiService } from './logs-tf-api.service';
-import {
-  GameLogs,
-  GameLogsDocument,
-  gameLogsSchema,
-} from '../models/game-logs';
+import { GameLogs, gameLogsSchema } from '../models/game-logs';
 
 jest.mock('@/log-receiver/services/log-receiver.service');
 jest.mock('@/games/services/games.service');
@@ -36,12 +32,12 @@ describe('LogCollectorService', () => {
   let logReceiverService: jest.Mocked<LogReceiverService>;
   let log: Subject<LogMessage>;
   let gamesService: GamesService;
-  let mockGame: GameDocument;
+  let mockGame: Game;
   let events: Events;
   let logsTfApiService: jest.Mocked<LogsTfApiService>;
   let configurationService: jest.Mocked<ConfigurationService>;
   let configuration: Record<string, unknown>;
-  let gameLogsModel: Model<GameLogsDocument>;
+  let gameLogsModel: Model<GameLogs>;
 
   beforeAll(async () => (mongod = await MongoMemoryServer.create()));
   afterAll(async () => await mongod.stop());
@@ -91,8 +87,7 @@ describe('LogCollectorService', () => {
 
     // @ts-expect-error
     mockGame = await gamesService._createOne();
-    mockGame.logSecret = 'FAKE_LOGSECRET';
-    await mockGame.save();
+    await gamesService.update(mockGame._id, { logSecret: 'FAKE_LOGSECRET' });
   });
 
   beforeEach(() => service.onModuleInit());
@@ -146,7 +141,7 @@ describe('LogCollectorService', () => {
     });
 
     it('should attempt to upload logs', async () => {
-      events.matchEnded.next({ gameId: mockGame.id });
+      events.matchEnded.next({ gameId: mockGame._id });
       await waitABit(100);
 
       expect(logsTfApiService.uploadLogs).toHaveBeenCalledWith({
@@ -164,7 +159,7 @@ describe('LogCollectorService', () => {
 
       // eslint-disable-next-line jest/expect-expect, @typescript-eslint/no-empty-function
       it('should handle gracefully', async () => {
-        events.matchEnded.next({ gameId: mockGame.id });
+        events.matchEnded.next({ gameId: mockGame._id });
         await waitABit(100);
       });
     });
@@ -176,7 +171,7 @@ describe('LogCollectorService', () => {
       });
 
       it('should not upload logs', async () => {
-        events.matchEnded.next({ gameId: mockGame.id });
+        events.matchEnded.next({ gameId: mockGame._id });
         await waitABit(100);
 
         expect(logsTfApiService.uploadLogs).not.toHaveBeenCalled();

@@ -5,7 +5,7 @@ import { Events } from '@/events/events';
 import { Connection, Types } from 'mongoose';
 import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
 import { MongooseModule, getConnectionToken } from '@nestjs/mongoose';
-import { Game, GameDocument, gameSchema } from '@/games/models/game';
+import { Game, gameSchema } from '@/games/models/game';
 import { GamesService } from '@/games/services/games.service';
 // eslint-disable-next-line jest/no-mocks-import
 import { GamesService as GamesServiceMock } from '@/games/services/__mocks__/games.service';
@@ -23,7 +23,7 @@ describe('RoundTrackerService', () => {
   let connection: Connection;
   let events: Events;
   let gamesService: GamesServiceMock;
-  let mockGame: GameDocument;
+  let mockGame: Game;
 
   beforeAll(async () => (mongod = await MongoMemoryServer.create()));
   afterAll(async () => await mongod.stop());

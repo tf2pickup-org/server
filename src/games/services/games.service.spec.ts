@@ -1,9 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { GamesService } from './games.service';
 import { PlayersService } from '@/players/services/players.service';
-import { Player, PlayerDocument, playerSchema } from '@/players/models/player';
+import { Player, playerSchema } from '@/players/models/player';
 import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
-import { Game, GameDocument, gameSchema } from '../models/game';
+import { Game, gameSchema } from '../models/game';
 import { QueueSlot } from '@/queue/queue-slot';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { Tf2Team } from '../models/tf2-team';
@@ -35,7 +35,7 @@ jest.mock('@/game-servers/services/game-servers.service');
 describe('GamesService', () => {
   let service: GamesService;
   let mongod: MongoMemoryServer;
-  let gameModel: Model<GameDocument>;
+  let gameModel: Model<Game>;
   let playersService: PlayersService;
   let events: Events;
   let configurationService: jest.Mocked<ConfigurationService>;
@@ -118,7 +118,7 @@ describe('GamesService', () => {
   });
 
   describe('#getById()', () => {
-    let game: GameDocument;
+    let game: Game;
 
     beforeEach(async () => {
       game = await gameModel.create({
@@ -129,13 +129,13 @@ describe('GamesService', () => {
     });
 
     it('should get the game by its id', async () => {
-      const ret = await service.getById(game.id);
+      const ret = await service.getById(game._id);
       expect(ret.id).toEqual(game.id);
     });
   });
 
   describe('#getByNumber()', () => {
-    let game: GameDocument;
+    let game: Game;
 
     beforeEach(async () => {
       game = await gameModel.create({
@@ -151,7 +151,7 @@ describe('GamesService', () => {
   });
 
   describe('#getByLogSecret()', () => {
-    let game: GameDocument;
+    let game: Game;
 
     beforeEach(async () => {
       game = await gameModel.create({
@@ -170,10 +170,10 @@ describe('GamesService', () => {
   });
 
   describe('#getRunningGames()', () => {
-    let createdGame: GameDocument;
-    let launchingGame: GameDocument;
-    let runningGame: GameDocument;
-    let endedGame: GameDocument;
+    let createdGame: Game;
+    let launchingGame: Game;
+    let runningGame: Game;
+    let endedGame: Game;
 
     beforeEach(async () => {
       createdGame = await gameModel.create({
@@ -248,13 +248,14 @@ describe('GamesService', () => {
 
   describe('#create()', () => {
     let slots: QueueSlot[];
-    let playerWithSkill: PlayerDocument;
+    let playerWithSkill: Player;
 
     beforeEach(async () => {
       // @ts-expect-error
       playerWithSkill = await playersService._createOne();
-      playerWithSkill.skill = new Map([[Tf2ClassName.scout, 9]]);
-      await playerWithSkill.save();
+      await playersService.updatePlayer(playerWithSkill._id, {
+        skill: { [Tf2ClassName.scout]: 9 },
+      });
 
       slots = [
         {
@@ -423,8 +424,8 @@ describe('GamesService', () => {
   });
 
   describe('#forceEnd()', () => {
-    let testGame: GameDocument;
-    let testPlayer: PlayerDocument;
+    let testGame: Game;
+    let testPlayer: Player;
 
     beforeEach(async () => {
       // @ts-expect-error
@@ -442,24 +443,25 @@ describe('GamesService', () => {
         ],
       });
 
-      testPlayer.activeGame = testGame._id;
-      await testPlayer.save();
+      await playersService.updatePlayer(testPlayer._id, {
+        activeGame: testGame._id,
+      });
     });
 
     it('should mark the game as forcefully ended', async () => {
-      const game = await service.forceEnd(testGame.id);
+      const game = await service.forceEnd(testGame._id);
       expect(game.state).toEqual(GameState.interrupted);
       expect(game.error).toEqual('ended by admin');
     });
 
     it('should unassign the game', async () => {
-      await service.forceEnd(testGame.id);
-      const player = await playersService.getById(testPlayer.id);
+      await service.forceEnd(testGame._id);
+      const player = await playersService.getById(testPlayer._id);
       expect(player.activeGame).toBeUndefined();
     });
 
     it('should register the ended event', async () => {
-      const game = await service.forceEnd(testGame.id);
+      const game = await service.forceEnd(testGame._id);
       expect(game.endedAt).toBeTruthy();
       const ended = game.events.find(
         ({ event }) => event === GameEventType.gameEnded,
@@ -476,13 +478,13 @@ describe('GamesService', () => {
           expect(newGame.state).toEqual(GameState.interrupted);
           resolve();
         });
-        service.forceEnd(testGame.id);
+        service.forceEnd(testGame._id);
       }));
   });
 
   describe('#getMostActivePlayers()', () => {
-    let player1: PlayerDocument;
-    let player2: PlayerDocument;
+    let player1: Player;
+    let player2: Player;
 
     beforeEach(async () => {
       // @ts-expect-error
@@ -536,7 +538,7 @@ describe('GamesService', () => {
   });
 
   describe('#getGamesWithSubstitutionRequests()', () => {
-    let game: GameDocument;
+    let game: Game;
 
     beforeEach(async () => {
       // @ts-expect-error
@@ -605,8 +607,8 @@ describe('GamesService', () => {
   });
 
   describe('#getVoiceChannelUrl()', () => {
-    let game: GameDocument;
-    let player: PlayerDocument;
+    let game: Game;
+    let player: Player;
 
     beforeEach(async () => {
       // @ts-expect-error
@@ -628,19 +630,18 @@ describe('GamesService', () => {
 
     describe('when the game is not running', () => {
       beforeEach(async () => {
-        game.state = GameState.ended;
-        await game.save();
+        await service.update(game._id, { state: GameState.ended });
       });
 
       it('should throw an error', async () => {
         await expect(
-          service.getVoiceChannelUrl(game.id, player.id),
+          service.getVoiceChannelUrl(game._id, player._id),
         ).rejects.toThrow(GameInWrongStateError);
       });
     });
 
     describe('when a player is not part of the game', () => {
-      let anotherPlayer: PlayerDocument;
+      let anotherPlayer: Player;
 
       beforeEach(async () => {
         // @ts-expect-error
@@ -649,7 +650,7 @@ describe('GamesService', () => {
 
       it('should throw an error', async () => {
         await expect(
-          service.getVoiceChannelUrl(game.id, anotherPlayer.id),
+          service.getVoiceChannelUrl(game._id, anotherPlayer._id),
         ).rejects.toThrow(PlayerNotInThisGameError);
       });
     });
@@ -660,7 +661,9 @@ describe('GamesService', () => {
       });
 
       it('should return null', async () => {
-        expect(await service.getVoiceChannelUrl(game.id, player.id)).toBe(null);
+        expect(await service.getVoiceChannelUrl(game._id, player._id)).toBe(
+          null,
+        );
       });
     });
 
@@ -671,7 +674,7 @@ describe('GamesService', () => {
       });
 
       it('should return the static link', async () => {
-        expect(await service.getVoiceChannelUrl(game.id, player.id)).toEqual(
+        expect(await service.getVoiceChannelUrl(game._id, player._id)).toEqual(
           'SOME_STATIC_LINK',
         );
       });
@@ -687,7 +690,7 @@ describe('GamesService', () => {
       });
 
       it('should return direct mumble channel url', async () => {
-        const url = await service.getVoiceChannelUrl(game.id, player.id);
+        const url = await service.getVoiceChannelUrl(game._id, player._id);
         expect(url).toEqual(
           'mumble://fake_player_1@melkor.tf:64738/FAKE_CHANNEL_NAME/512/BLU',
         );
@@ -705,7 +708,7 @@ describe('GamesService', () => {
         });
 
         it('should handle the password in the url', async () => {
-          const url = await service.getVoiceChannelUrl(game.id, player.id);
+          const url = await service.getVoiceChannelUrl(game._id, player._id);
           expect(url).toEqual(
             'mumble://fake_player_1:FAKE_SERVER_PASSWORD@melkor.tf:64738/FAKE_CHANNEL_NAME/512/BLU',
           );
@@ -715,8 +718,8 @@ describe('GamesService', () => {
   });
 
   describe('#calculatePlayerJoinGameServerTimeout()', () => {
-    let testGame: GameDocument;
-    let testPlayer: PlayerDocument;
+    let testGame: Game;
+    let testPlayer: Player;
 
     beforeEach(async () => {
       // @ts-expect-error
@@ -734,8 +737,9 @@ describe('GamesService', () => {
         ],
       });
 
-      testPlayer.activeGame = testGame._id;
-      await testPlayer.save();
+      await playersService.updatePlayer(testPlayer._id, {
+        activeGame: testGame._id,
+      });
 
       configuration['games.join_gameserver_timeout'] = 5 * 60 * 1000;
       configuration['games.rejoin_gameserver_timeout'] = 3 * 60 * 1000;
@@ -743,8 +747,9 @@ describe('GamesService', () => {
 
     describe('when the player is online', () => {
       beforeEach(async () => {
-        testGame.slots[0].connectionStatus = PlayerConnectionStatus.connected;
-        await testGame.save();
+        await service.update(testGame._id, {
+          'slots.0.connectionStatus': PlayerConnectionStatus.connected,
+        });
       });
 
       it('should return undefined', async () => {
@@ -759,8 +764,9 @@ describe('GamesService', () => {
 
     describe('when the player is replaced', () => {
       beforeEach(async () => {
-        testGame.slots[0].status = SlotStatus.replaced;
-        await testGame.save();
+        await service.update(testGame._id, {
+          'slots.0.status': SlotStatus.replaced,
+        });
       });
 
       it('should throw', async () => {
@@ -775,8 +781,7 @@ describe('GamesService', () => {
 
     describe('when the game is not running', () => {
       beforeEach(async () => {
-        testGame.state = GameState.created;
-        await testGame.save();
+        await service.update(testGame._id, { state: GameState.created });
       });
 
       it('should return undefined', async () => {
@@ -793,13 +798,16 @@ describe('GamesService', () => {
       const initializedAt = new Date(2023, 2, 7, 23, 21, 0);
 
       beforeEach(async () => {
-        testGame.events.push({
-          event: GameEventType.gameServerInitialized,
-          at: initializedAt,
-          serialize: jest.fn(),
+        await service.update(testGame._id, { state: GameState.launching });
+        await service.update(testGame._id, {
+          $push: {
+            events: {
+              event: GameEventType.gameServerInitialized,
+              at: initializedAt,
+              serialize: jest.fn(),
+            },
+          },
         });
-        testGame.state = GameState.launching;
-        await testGame.save();
       });
 
       it('should give the player exactly 5 minutes', async () => {
@@ -813,27 +821,30 @@ describe('GamesService', () => {
 
       describe('and the player joined the game but then disconnected', () => {
         beforeEach(async () => {
-          testGame.events.push(
-            {
-              event: GameEventType.playerJoinedGameServer,
-              at: new Date(2023, 2, 7, 23, 23, 0), // 2 minutes after the gameserver was initialized
-              player: testPlayer._id,
-              serialize: jest.fn(),
+          await service.update(testGame._id, {
+            $push: {
+              events: [
+                {
+                  event: GameEventType.playerJoinedGameServer,
+                  at: new Date(2023, 2, 7, 23, 23, 0), // 2 minutes after the gameserver was initialized
+                  player: testPlayer._id,
+                  serialize: jest.fn(),
+                },
+                {
+                  event: GameEventType.playerJoinedGameServerTeam,
+                  at: new Date(2023, 2, 7, 23, 24, 0),
+                  player: testPlayer._id, // 3 minutes after the gameserver was initialized
+                  serialize: jest.fn(),
+                },
+                {
+                  event: GameEventType.playerLeftGameServer,
+                  at: new Date(2023, 2, 7, 23, 25, 0),
+                  player: testPlayer._id,
+                  serialize: jest.fn(),
+                },
+              ],
             },
-            {
-              event: GameEventType.playerJoinedGameServerTeam,
-              at: new Date(2023, 2, 7, 23, 24, 0),
-              player: testPlayer._id, // 3 minutes after the gameserver was initialized
-              serialize: jest.fn(),
-            },
-            {
-              event: GameEventType.playerLeftGameServer,
-              at: new Date(2023, 2, 7, 23, 25, 0),
-              player: testPlayer._id,
-              serialize: jest.fn(),
-            },
-          );
-          await testGame.save();
+          });
         });
 
         it('should give the player 3 minutes to come back', async () => {
@@ -863,14 +874,17 @@ describe('GamesService', () => {
 
       describe('and the player took sub more than 3 minutes before timeout', () => {
         beforeEach(async () => {
-          testGame.events.push({
-            event: GameEventType.playerReplaced,
-            at: new Date(2023, 2, 7, 23, 22, 0), // 1 minute after the gameserver was initialized
-            replacee: new Types.ObjectId() as PlayerId,
-            replacement: testPlayer._id,
-            serialize: jest.fn(),
+          await service.update(testGame._id, {
+            $push: {
+              events: {
+                event: GameEventType.playerReplaced,
+                at: new Date(2023, 2, 7, 23, 22, 0), // 1 minute after the gameserver was initialized
+                replacee: new Types.ObjectId() as PlayerId,
+                replacement: testPlayer._id,
+                serialize: jest.fn(),
+              },
+            },
           });
-          await testGame.save();
         });
 
         it('should give the player exactly 5 minutes', async () => {
@@ -885,14 +899,17 @@ describe('GamesService', () => {
 
       describe('and the player took sub less than 3 minutes before timeout', () => {
         beforeEach(async () => {
-          testGame.events.push({
-            event: GameEventType.playerReplaced,
-            at: new Date(2023, 2, 7, 23, 25, 0), // 4 minutes after the gameserver was initialized
-            replacee: new Types.ObjectId() as PlayerId,
-            replacement: testPlayer._id,
-            serialize: jest.fn(),
+          await service.update(testGame._id, {
+            $push: {
+              events: {
+                event: GameEventType.playerReplaced,
+                at: new Date(2023, 2, 7, 23, 25, 0), // 4 minutes after the gameserver was initialized
+                replacee: new Types.ObjectId() as PlayerId,
+                replacement: testPlayer._id,
+                serialize: jest.fn(),
+              },
+            },
           });
-          await testGame.save();
         });
 
         it('should give the player 3 minutes', async () => {
@@ -923,14 +940,14 @@ describe('GamesService', () => {
 
     describe('when the game is in progress', () => {
       beforeEach(async () => {
-        testGame.state = GameState.started;
-        await testGame.save();
+        await service.update(testGame._id, { state: GameState.started });
       });
 
       describe('and the player is online', () => {
         beforeEach(async () => {
-          testGame.slots[0].connectionStatus = PlayerConnectionStatus.connected;
-          await testGame.save();
+          await service.update(testGame._id, {
+            'slots.0.connectionStatus': PlayerConnectionStatus.connected,
+          });
         });
 
         it('should return undefined', async () => {
@@ -945,8 +962,9 @@ describe('GamesService', () => {
 
       describe('and the player is joining', () => {
         beforeEach(async () => {
-          testGame.slots[0].connectionStatus = PlayerConnectionStatus.joining;
-          await testGame.save();
+          await service.update(testGame._id, {
+            'slots.0.connectionStatus': PlayerConnectionStatus.joining,
+          });
         });
 
         it('should return undefined', async () => {
@@ -961,14 +979,19 @@ describe('GamesService', () => {
 
       describe('and the player is offline', () => {
         beforeEach(async () => {
-          testGame.slots[0].connectionStatus = PlayerConnectionStatus.offline;
-          testGame.events.push({
-            event: GameEventType.playerLeftGameServer,
-            at: new Date(2023, 2, 7, 23, 35, 0),
-            player: testPlayer._id,
-            serialize: jest.fn(),
+          await service.update(testGame._id, {
+            'slots.0.connectionStatus': PlayerConnectionStatus.offline,
           });
-          await testGame.save();
+          await service.update(testGame._id, {
+            $push: {
+              events: {
+                event: GameEventType.playerLeftGameServer,
+                at: new Date(2023, 2, 7, 23, 35, 0),
+                player: testPlayer._id,
+                serialize: jest.fn(),
+              },
+            },
+          });
         });
 
         it('should give the player 3 minutes', async () => {
@@ -998,15 +1021,20 @@ describe('GamesService', () => {
 
       describe('and the player joined as a sub', () => {
         beforeEach(async () => {
-          testGame.slots[0].connectionStatus = PlayerConnectionStatus.offline;
-          testGame.events.push({
-            event: GameEventType.playerReplaced,
-            at: new Date(2023, 2, 7, 23, 40, 0),
-            replacee: new Types.ObjectId() as PlayerId,
-            replacement: testPlayer._id,
-            serialize: jest.fn(),
+          await service.update(testGame._id, {
+            'slots.0.connectionStatus': PlayerConnectionStatus.offline,
           });
-          await testGame.save();
+          await service.update(testGame._id, {
+            $push: {
+              events: {
+                event: GameEventType.playerReplaced,
+                at: new Date(2023, 2, 7, 23, 40, 0),
+                replacee: new Types.ObjectId() as PlayerId,
+                replacement: testPlayer._id,
+                serialize: jest.fn(),
+              },
+            },
+          });
         });
 
         it('should give the player 3 minutes', async () => {
@@ -1020,13 +1048,16 @@ describe('GamesService', () => {
 
         describe('but then disconnected', () => {
           beforeEach(async () => {
-            testGame.events.push({
-              event: GameEventType.playerLeftGameServer,
-              at: new Date(2023, 2, 7, 23, 45, 0),
-              player: testPlayer._id,
-              serialize: jest.fn(),
+            await service.update(testGame._id, {
+              $push: {
+                events: {
+                  event: GameEventType.playerLeftGameServer,
+                  at: new Date(2023, 2, 7, 23, 45, 0),
+                  player: testPlayer._id,
+                  serialize: jest.fn(),
+                },
+              },
             });
-            await testGame.save();
           });
 
           it('should give the player 3 minutes to come back', async () => {

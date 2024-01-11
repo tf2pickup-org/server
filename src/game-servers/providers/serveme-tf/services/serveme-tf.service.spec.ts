@@ -9,13 +9,12 @@ import {
 } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import { Connection, Document, Model, Types } from 'mongoose';
+import { Connection, Model, Types } from 'mongoose';
 import { ServemeTfApiService } from './serveme-tf-api.service';
 import { ServemeTfService } from './serveme-tf.service';
 import { ServemeTfServerControls } from '../serveme-tf-server-controls';
 import {
   ServemeTfReservation,
-  ServemeTfReservationDocument,
   servemeTfReservationSchema,
 } from '../models/serveme-tf-reservation';
 import { waitABit } from '@/utils/wait-a-bit';
@@ -37,7 +36,7 @@ describe('ServemeTfService', () => {
   let service: ServemeTfService;
   let mongod: MongoMemoryServer;
   let connection: Connection;
-  let servemeTfReservationModel: Model<ServemeTfReservationDocument>;
+  let servemeTfReservationModel: Model<ServemeTfReservation>;
   let servemeTfApiService: jest.Mocked<ServemeTfApiService>;
   let gameServersService: jest.Mocked<GameServersService>;
   let events: Events;
@@ -230,7 +229,7 @@ describe('ServemeTfService', () => {
   });
 
   describe('#releaseGameServer()', () => {
-    let reservation: Document<ServemeTfReservation>;
+    let reservation: ServemeTfReservation;
 
     beforeEach(async () => {
       reservation = await servemeTfReservationModel.create({
@@ -252,7 +251,7 @@ describe('ServemeTfService', () => {
     it('should end the reservation', async () => {
       jest.useFakeTimers();
       service.releaseGameServer({
-        gameServerId: reservation.id,
+        gameServerId: reservation._id!.toString(),
         gameId: new Types.ObjectId() as GameId,
         reason: GameServerReleaseReason.GameEnded,
       });
@@ -320,7 +319,7 @@ describe('ServemeTfService', () => {
   });
 
   describe('#getControls()', () => {
-    let reservationId: string;
+    let reservationId: ServemeTfReservation['_id'];
 
     beforeEach(async () => {
       const reservation = await servemeTfReservationModel.create({
@@ -342,7 +341,7 @@ describe('ServemeTfService', () => {
     });
 
     it('should return controls', async () => {
-      const controls = await service.getControls(reservationId);
+      const controls = await service.getControls(reservationId!.toString());
       expect(controls instanceof ServemeTfServerControls).toBe(true);
     });
   });

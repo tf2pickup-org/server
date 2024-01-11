@@ -1,6 +1,6 @@
 import { PlayerId } from '@/players/types/player-id';
 import { Prop, raw, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, Types } from 'mongoose';
+import { Types } from 'mongoose';
 
 @Schema()
 export class PlayerPreferences {
@@ -16,6 +16,5 @@ export class PlayerPreferences {
   preferences!: Map<string, string>;
 }
 
-export type PlayerPreferencesDocument = PlayerPreferences & Document;
 export const playerPreferencesSchema =
   SchemaFactory.createForClass(PlayerPreferences);

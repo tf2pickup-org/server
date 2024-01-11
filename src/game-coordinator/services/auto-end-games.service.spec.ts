@@ -3,20 +3,23 @@ import { AutoEndGamesService } from './auto-end-games.service';
 import { GamesService } from '@/games/services/games.service';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
-import { MongooseModule, getConnectionToken } from '@nestjs/mongoose';
-import { Game, GameDocument, gameSchema } from '@/games/models/game';
+import {
+  MongooseModule,
+  getConnectionToken,
+  getModelToken,
+} from '@nestjs/mongoose';
+import { Game, gameSchema } from '@/games/models/game';
 import { Events } from '@/events/events';
 import { ConfigurationService } from '@/configuration/services/configuration.service';
 // eslint-disable-next-line jest/no-mocks-import
 import { GamesService as GamesServiceMock } from '@/games/services/__mocks__/games.service';
-import { Connection, Types } from 'mongoose';
+import { Connection, Model, Types } from 'mongoose';
 import { PlayerId } from '@/players/types/player-id';
 import { Tf2Team } from '@/games/models/tf2-team';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { SlotStatus } from '@/games/models/slot-status';
 import { PlayerConnectionStatus } from '@/games/models/player-connection-status';
 import { waitABit } from '@/utils/wait-a-bit';
-import { GameState } from '@/games/models/game-state';
 
 jest.mock('@/games/services/games.service');
 jest.mock('@/configuration/services/configuration.service');
@@ -26,9 +29,10 @@ describe('AutoEndGamesService', () => {
   let mongod: MongoMemoryServer;
   let gamesService: GamesServiceMock;
   let configurationService: jest.Mocked<ConfigurationService>;
-  let mockGame: GameDocument;
+  let mockGame: Game;
   let events: Events;
   let connection: Connection;
+  let gameModel: Model<Game>;
 
   beforeAll(async () => (mongod = await MongoMemoryServer.create()));
   afterAll(async () => await mongod.stop());
@@ -52,6 +56,7 @@ describe('AutoEndGamesService', () => {
     configurationService = module.get(ConfigurationService);
     events = module.get(Events);
     connection = module.get(getConnectionToken());
+    gameModel = module.get(getModelToken(Game.name));
 
     mockGame = await gamesService._createOne();
   });
@@ -83,67 +88,73 @@ describe('AutoEndGamesService', () => {
     let playerId: PlayerId;
 
     beforeEach(async () => {
-      mockGame.slots = [
-        {
-          player: new Types.ObjectId() as PlayerId,
-          team: Tf2Team.blu,
-          gameClass: Tf2ClassName.soldier,
-          status: SlotStatus.waitingForSubstitute,
-          connectionStatus: PlayerConnectionStatus.connected,
-          serialize: jest.fn(),
-        },
-        {
-          player: new Types.ObjectId() as PlayerId,
-          team: Tf2Team.blu,
-          gameClass: Tf2ClassName.soldier,
-          status: SlotStatus.waitingForSubstitute,
-          connectionStatus: PlayerConnectionStatus.connected,
-          serialize: jest.fn(),
-        },
-        {
-          player: new Types.ObjectId() as PlayerId,
-          team: Tf2Team.blu,
-          gameClass: Tf2ClassName.soldier,
-          status: SlotStatus.waitingForSubstitute,
-          connectionStatus: PlayerConnectionStatus.connected,
-          serialize: jest.fn(),
-        },
-        {
-          player: new Types.ObjectId() as PlayerId,
-          team: Tf2Team.blu,
-          gameClass: Tf2ClassName.soldier,
-          status: SlotStatus.active,
-          connectionStatus: PlayerConnectionStatus.connected,
-          serialize: jest.fn(),
-        },
-        {
-          player: new Types.ObjectId() as PlayerId,
-          team: Tf2Team.blu,
-          gameClass: Tf2ClassName.soldier,
-          status: SlotStatus.active,
-          connectionStatus: PlayerConnectionStatus.connected,
-          serialize: jest.fn(),
-        },
-        {
-          player: new Types.ObjectId() as PlayerId,
-          team: Tf2Team.blu,
-          gameClass: Tf2ClassName.soldier,
-          status: SlotStatus.active,
-          connectionStatus: PlayerConnectionStatus.connected,
-          serialize: jest.fn(),
-        },
-      ];
-
-      await mockGame.save();
+      mockGame = await gamesService.update(mockGame._id, {
+        slots: [
+          {
+            player: new Types.ObjectId() as PlayerId,
+            team: Tf2Team.blu,
+            gameClass: Tf2ClassName.soldier,
+            status: SlotStatus.waitingForSubstitute,
+            connectionStatus: PlayerConnectionStatus.connected,
+            serialize: jest.fn(),
+          },
+          {
+            player: new Types.ObjectId() as PlayerId,
+            team: Tf2Team.blu,
+            gameClass: Tf2ClassName.soldier,
+            status: SlotStatus.waitingForSubstitute,
+            connectionStatus: PlayerConnectionStatus.connected,
+            serialize: jest.fn(),
+          },
+          {
+            player: new Types.ObjectId() as PlayerId,
+            team: Tf2Team.blu,
+            gameClass: Tf2ClassName.soldier,
+            status: SlotStatus.waitingForSubstitute,
+            connectionStatus: PlayerConnectionStatus.connected,
+            serialize: jest.fn(),
+          },
+          {
+            player: new Types.ObjectId() as PlayerId,
+            team: Tf2Team.blu,
+            gameClass: Tf2ClassName.soldier,
+            status: SlotStatus.active,
+            connectionStatus: PlayerConnectionStatus.connected,
+            serialize: jest.fn(),
+          },
+          {
+            player: new Types.ObjectId() as PlayerId,
+            team: Tf2Team.blu,
+            gameClass: Tf2ClassName.soldier,
+            status: SlotStatus.active,
+            connectionStatus: PlayerConnectionStatus.connected,
+            serialize: jest.fn(),
+          },
+          {
+            player: new Types.ObjectId() as PlayerId,
+            team: Tf2Team.blu,
+            gameClass: Tf2ClassName.soldier,
+            status: SlotStatus.active,
+            connectionStatus: PlayerConnectionStatus.connected,
+            serialize: jest.fn(),
+          },
+        ],
+      });
 
       playerId = mockGame.slots[3].player;
     });
 
     describe('and 4th player gets subbed', () => {
       beforeEach(async () => {
-        mockGame.slots.find((s) => s.player.equals(playerId))!.status =
-          SlotStatus.waitingForSubstitute;
-        await mockGame.save();
+        await gameModel.findOneAndUpdate(
+          mockGame._id,
+          {
+            'slots.$[element].status': SlotStatus.waitingForSubstitute,
+          },
+          {
+            arrayFilters: [{ 'element.player': { $eq: playerId } }],
+          },
+        );
         events.substituteRequested.next({
           gameId: mockGame._id,
           playerId,

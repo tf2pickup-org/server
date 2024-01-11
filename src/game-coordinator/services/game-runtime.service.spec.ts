@@ -6,12 +6,12 @@ import { PlayersService } from '@/players/services/players.service';
 import { say } from '../utils/rcon-commands';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
-import { Player, PlayerDocument, playerSchema } from '@/players/models/player';
+import { Player, playerSchema } from '@/players/models/player';
 import { Events } from '@/events/events';
 import { getConnectionToken, MongooseModule } from '@nestjs/mongoose';
 import { Connection, Error as MongooseError, Types } from 'mongoose';
 import { Rcon } from 'rcon-client/lib';
-import { GameDocument, Game, gameSchema } from '@/games/models/game';
+import { Game, gameSchema } from '@/games/models/game';
 import { GamesService } from '@/games/services/games.service';
 import { GameServerControls } from '@/game-servers/interfaces/game-server-controls';
 import { GameServerOptionWithProvider } from '@/game-servers/interfaces/game-server-option';
@@ -32,8 +32,8 @@ describe('GameRuntimeService', () => {
   let gamesService: GamesService;
   let gameServersService: jest.Mocked<GameServersService>;
   let serverConfiguratorService: jest.Mocked<ServerConfiguratorService>;
-  let mockPlayers: PlayerDocument[];
-  let mockGame: GameDocument;
+  let mockPlayers: Player[];
+  let mockGame: Game;
   let events: Events;
   let connection: Connection;
   let controls: jest.Mocked<GameServerControls>;
@@ -80,14 +80,15 @@ describe('GameRuntimeService', () => {
     // @ts-expect-error
     mockGame = await gamesService._createOne(mockPlayers);
 
-    mockGame.gameServer = {
-      provider: 'test',
-      id: 'FAKE_GAMESERVER',
-      name: 'FAKE GAMESERVER',
-      address: 'localhost',
-      port: 27015,
-    };
-    await mockGame.save();
+    await gamesService.update(mockGame._id, {
+      gameServer: {
+        provider: 'test',
+        id: 'FAKE_GAMESERVER',
+        name: 'FAKE GAMESERVER',
+        address: 'localhost',
+        port: 27015,
+      },
+    });
 
     serverConfiguratorService.configureServer.mockResolvedValue({
       connectString: 'FAKE_CONNECT_STRING',
@@ -176,7 +177,7 @@ describe('GameRuntimeService', () => {
     });
 
     describe('when the game has no game server assigned', () => {
-      let anotherGame: GameDocument;
+      let anotherGame: Game;
 
       beforeEach(async () => {
         // @ts-expect-error
@@ -224,7 +225,7 @@ describe('GameRuntimeService', () => {
     });
 
     describe('when the given game has no game server assigned', () => {
-      let anotherGame: GameDocument;
+      let anotherGame: Game;
 
       beforeEach(async () => {
         // @ts-expect-error

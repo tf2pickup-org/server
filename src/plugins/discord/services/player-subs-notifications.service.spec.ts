@@ -12,7 +12,7 @@ import { ConfigurationService } from '@/configuration/services/configuration.ser
 import { Environment } from '@/environment/environment';
 import { CacheModule } from '@nestjs/cache-manager';
 import { GamesService } from '@/games/services/games.service';
-import { Game, GameDocument, gameSchema } from '@/games/models/game';
+import { Game, gameSchema } from '@/games/models/game';
 import { Player, playerSchema } from '@/players/models/player';
 import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
 import { MongooseModule, getConnectionToken } from '@nestjs/mongoose';
@@ -136,15 +136,16 @@ describe('PlayerSubsNotificationsService', () => {
   });
 
   describe('when a sub is requested', () => {
-    let game: GameDocument;
+    let game: Game;
     let player: Player;
 
     beforeEach(async () => {
       player = await playersService._createOne();
       game = await gamesService._createOne([player]);
 
-      game.slots[0].status = SlotStatus.waitingForSubstitute;
-      await game.save();
+      await gamesService.update(game._id, {
+        'slots.0.status': SlotStatus.waitingForSubstitute,
+      });
     });
 
     it('should notify all players', () =>
@@ -168,15 +169,16 @@ describe('PlayerSubsNotificationsService', () => {
   });
 
   describe('when a message to players is sent', () => {
-    let game: GameDocument;
+    let game: Game;
     let player: Player;
     let message: Message;
 
     beforeEach(async () => {
       player = await playersService._createOne();
       game = await gamesService._createOne([player]);
-      game.slots[0].status = SlotStatus.waitingForSubstitute;
-      await game.save();
+      await gamesService.update(game._id, {
+        'slots.0.status': SlotStatus.waitingForSubstitute,
+      });
     });
 
     beforeEach(
@@ -198,8 +200,9 @@ describe('PlayerSubsNotificationsService', () => {
 
     describe('and when the sub request is canceled', () => {
       beforeEach(async () => {
-        game.slots[0].status = SlotStatus.active;
-        await game.save();
+        await gamesService.update(game._id, {
+          'slots.0.status': SlotStatus.active,
+        });
       });
 
       it('should edit the message', () =>
@@ -220,8 +223,9 @@ describe('PlayerSubsNotificationsService', () => {
 
     describe('and when sub gets taken', () => {
       beforeEach(async () => {
-        game.slots[0].status = SlotStatus.replaced;
-        await game.save();
+        await gamesService.update(game._id, {
+          'slots.0.status': SlotStatus.replaced,
+        });
       });
 
       it('should edit the message', () =>
@@ -251,7 +255,7 @@ describe('PlayerSubsNotificationsService', () => {
             resolve();
           });
 
-          gamesService.update(game.id, {
+          gamesService.update(game._id, {
             $set: {
               state: GameState.ended,
               'slots.$[].status': SlotStatus.active,

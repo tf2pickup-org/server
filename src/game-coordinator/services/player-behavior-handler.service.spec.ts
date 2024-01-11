@@ -1,8 +1,8 @@
 import { Events } from '@/events/events';
-import { Game, GameDocument, gameSchema } from '@/games/models/game';
+import { Game, gameSchema } from '@/games/models/game';
 import { GamesService } from '@/games/services/games.service';
 import { PlayerSubstitutionService } from '@/games/services/player-substitution.service';
-import { Player, PlayerDocument, playerSchema } from '@/players/models/player';
+import { Player, playerSchema } from '@/players/models/player';
 import { PlayersService } from '@/players/services/players.service';
 import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
 import { getConnectionToken, MongooseModule } from '@nestjs/mongoose';
@@ -29,7 +29,7 @@ describe('PlayerBehaviorHandlerService', () => {
   let playersService: MockedPlayersService;
   let gamesService: MockedGamesService;
   let connection: Connection;
-  let bot: PlayerDocument;
+  let bot: Player;
   let playerSubstitutionService: jest.Mocked<PlayerSubstitutionService>;
 
   beforeAll(async () => (mongod = await MongoMemoryServer.create()));
@@ -80,15 +80,13 @@ describe('PlayerBehaviorHandlerService', () => {
   });
 
   describe('#autoSubstitutePlayers()', () => {
-    let game: GameDocument;
-    let player: PlayerDocument;
+    let game: Game;
+    let player: Player;
 
     beforeEach(async () => {
       player = await playersService._createOne();
       game = await gamesService._createOne([player]);
-
-      game.state = GameState.started;
-      await game.save();
+      await gamesService.update(game._id, { state: GameState.started });
     });
 
     describe('when the timeout is undefined', () => {

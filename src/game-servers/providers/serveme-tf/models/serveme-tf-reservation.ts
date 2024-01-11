@@ -1,6 +1,5 @@
 import { MongooseDocument } from '@/utils/mongoose-document';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
 import { ReservationStatus } from './reservation-status';
 
 @Schema()
@@ -73,4 +72,3 @@ export class ServemeTfReservation extends MongooseDocument {
 
 export const servemeTfReservationSchema =
   SchemaFactory.createForClass(ServemeTfReservation);
-export type ServemeTfReservationDocument = ServemeTfReservation & Document;

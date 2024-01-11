@@ -13,7 +13,6 @@ import { configurationEntry } from '../configuration-entry';
 import { ConfigurationEntryNotFoundError } from '../errors/configuration-entry-not-found.error';
 import {
   ConfigurationItem,
-  ConfigurationItemDocument,
   configurationItemSchema,
 } from '../models/configuration-item';
 import { ConfigurationService } from './configuration.service';
@@ -21,7 +20,7 @@ import { ConfigurationService } from './configuration.service';
 describe('ConfigurationService', () => {
   let service: ConfigurationService;
   let mongod: MongoMemoryServer;
-  let configurationItemModel: Model<ConfigurationItemDocument>;
+  let configurationItemModel: Model<ConfigurationItem>;
   let connection: Connection;
   let events: Events;
 

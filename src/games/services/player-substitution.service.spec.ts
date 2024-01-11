@@ -4,9 +4,9 @@ import { GamesService } from './games.service';
 import { PlayersService } from '@/players/services/players.service';
 import { QueueService } from '@/queue/services/queue.service';
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import { Player, PlayerDocument, playerSchema } from '@/players/models/player';
+import { Player, playerSchema } from '@/players/models/player';
 import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
-import { Game, GameDocument, gameSchema } from '../models/game';
+import { Game, gameSchema } from '../models/game';
 import { Events } from '@/events/events';
 import { SlotStatus } from '../models/slot-status';
 import { GameState } from '../models/game-state';
@@ -36,14 +36,14 @@ describe('PlayerSubstitutionService', () => {
   let gamesService: GamesService;
   let playersService: PlayersService;
   let queueService: jest.Mocked<QueueService>;
-  let player1: PlayerDocument;
-  let player2: PlayerDocument;
-  let player3: PlayerDocument;
-  let actor: PlayerDocument;
-  let mockGame: GameDocument;
+  let player1: Player;
+  let player2: Player;
+  let player3: Player;
+  let actor: Player;
+  let mockGame: Game;
   let events: Events;
   let connection: Connection;
-  let gameModel: Model<GameDocument>;
+  let gameModel: Model<Game>;
 
   beforeAll(async () => (mongod = await MongoMemoryServer.create()));
   afterAll(async () => await mongod.stop());
@@ -87,14 +87,15 @@ describe('PlayerSubstitutionService', () => {
     // @ts-expect-error
     mockGame = await gamesService._createOne([player1, player2]);
 
-    mockGame.gameServer = {
-      id: 'FAKE_GAME_SERVER_ID',
-      provider: 'test',
-      name: 'FAKE GAME SERVER',
-      address: 'localhost',
-      port: 27015,
-    };
-    await mockGame.save();
+    await gamesService.update(mockGame._id, {
+      gameServer: {
+        id: 'FAKE_GAME_SERVER_ID',
+        provider: 'test',
+        name: 'FAKE GAME SERVER',
+        address: 'localhost',
+        port: 27015,
+      },
+    });
   });
 
   afterEach(async () => {
@@ -397,8 +398,9 @@ describe('PlayerSubstitutionService', () => {
 
     describe('when the given player is involved in another game', () => {
       beforeEach(async () => {
-        player3.activeGame = new Types.ObjectId() as GameId;
-        await player3.save();
+        await playersService.updatePlayer(player3._id, {
+          activeGame: new Types.ObjectId(),
+        });
       });
 
       it('should reject', async () => {
@@ -483,9 +485,7 @@ describe('PlayerSubstitutionService', () => {
           player1._id,
         );
         expect(
-          game.slots.filter(
-            (s) => s.player.toString().localeCompare(player1._id) === 0,
-          ).length,
+          game.slots.filter((s) => s.player.equals(player1._id)).length,
         ).toEqual(2);
       });
     });

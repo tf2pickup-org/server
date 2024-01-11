@@ -19,13 +19,13 @@ import {
   logsTfTitle,
 } from '../utils/rcon-commands';
 import { Tf2Team } from '../../games/models/tf2-team';
-import { Game, GameDocument, gameSchema } from '../../games/models/game';
+import { Game, gameSchema } from '../../games/models/game';
 import { SlotStatus } from '../../games/models/slot-status';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { MapPoolService } from '@/queue/services/map-pool.service';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
-import { Player, PlayerDocument, playerSchema } from '@/players/models/player';
+import { Player, playerSchema } from '@/players/models/player';
 import { Rcon } from 'rcon-client/lib';
 import { ConfigurationService } from '@/configuration/services/configuration.service';
 import {
@@ -69,8 +69,8 @@ class RconStub {
 describe('ServerConfiguratorService', () => {
   let service: ServerConfiguratorService;
   let mongod: MongoMemoryServer;
-  let playerModel: Model<PlayerDocument>;
-  let gameModel: Model<GameDocument>;
+  let playerModel: Model<Player>;
+  let gameModel: Model<Game>;
   let playersService: jest.Mocked<PlayersService>;
   let mapPoolService: jest.Mocked<MapPoolService>;
   let configurationService: jest.Mocked<ConfigurationService>;
@@ -79,9 +79,9 @@ describe('ServerConfiguratorService', () => {
   let gameServersService: jest.Mocked<GameServersService>;
   let gameConfigsService: jest.Mocked<GameConfigsService>;
   let mockGameServerControls: jest.Mocked<GameServerControls>;
-  let mockPlayer1: PlayerDocument;
-  let mockPlayer2: PlayerDocument;
-  let mockGame: GameDocument;
+  let mockPlayer1: Player;
+  let mockPlayer2: Player;
+  let mockGame: Game;
   let configuration: Record<string, unknown>;
 
   beforeAll(async () => (mongod = await MongoMemoryServer.create()));
@@ -204,12 +204,12 @@ describe('ServerConfiguratorService', () => {
     });
 
     it('should wait for the gameserver to start', async () => {
-      await service.configureServer(mockGame.id);
+      await service.configureServer(mockGame._id);
       expect(mockGameServerControls.start).toHaveBeenCalledTimes(1);
     });
 
     it('should execute correct rcon commands', async () => {
-      await service.configureServer(mockGame.id);
+      await service.configureServer(mockGame._id);
       expect(rcon.send).toHaveBeenCalledWith(
         logAddressAdd('FAKE_RELAY_ADDRESS:1234'),
       );
@@ -251,7 +251,7 @@ describe('ServerConfiguratorService', () => {
       });
 
       it('should set the whitelist', async () => {
-        await service.configureServer(mockGame.id);
+        await service.configureServer(mockGame._id);
         expect(rcon.send).toHaveBeenCalledWith(
           tftrueWhitelistId('FAKE_WHITELIST_ID'),
         );
@@ -260,25 +260,26 @@ describe('ServerConfiguratorService', () => {
 
     describe('when one of the players is replaced', () => {
       beforeEach(async () => {
-        mockGame.slots = [
-          {
-            player: mockPlayer1._id,
-            team: Tf2Team.blu,
-            gameClass: Tf2ClassName.soldier,
-            status: SlotStatus.active,
-            connectionStatus: PlayerConnectionStatus.offline,
-            serialize: jest.fn(),
-          },
-          {
-            player: mockPlayer2._id,
-            team: Tf2Team.red,
-            gameClass: Tf2ClassName.soldier,
-            status: SlotStatus.replaced,
-            connectionStatus: PlayerConnectionStatus.offline,
-            serialize: jest.fn(),
-          },
-        ];
-        await mockGame.save();
+        await gamesService.update(mockGame._id, {
+          slots: [
+            {
+              player: mockPlayer1._id,
+              team: Tf2Team.blu,
+              gameClass: Tf2ClassName.soldier,
+              status: SlotStatus.active,
+              connectionStatus: PlayerConnectionStatus.offline,
+              serialize: jest.fn(),
+            },
+            {
+              player: mockPlayer2._id,
+              team: Tf2Team.red,
+              gameClass: Tf2ClassName.soldier,
+              status: SlotStatus.replaced,
+              connectionStatus: PlayerConnectionStatus.offline,
+              serialize: jest.fn(),
+            },
+          ],
+        });
       });
 
       it('should not add this player to the game', async () => {
@@ -310,8 +311,7 @@ describe('ServerConfiguratorService', () => {
     describe("when player's name contains non-english characters", () => {
       beforeEach(async () => {
         jest.useRealTimers();
-        mockPlayer1.name = 'mąły';
-        await mockPlayer1.save();
+        await playersService.updatePlayer(mockPlayer1._id, { name: 'mąły' });
         jest.useFakeTimers();
       });
 
@@ -350,7 +350,10 @@ describe('ServerConfiguratorService', () => {
 
     describe('when the game does not have a server assigned', () => {
       beforeEach(async () => {
-        await mockGame.updateOne({ $unset: { gameServer: 1 } });
+        await gameModel.updateOne(
+          { _id: mockGame._id },
+          { $unset: { gameServer: 1 } },
+        );
       });
 
       it('should throw', async () => {

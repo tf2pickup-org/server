@@ -11,7 +11,6 @@ import { LogForwarding } from '../diagnostic-checks/log-forwarding';
 import { RconConnection } from '../diagnostic-checks/rcon-connection';
 import {
   GameServerDiagnosticRun,
-  GameServerDiagnosticRunDocument,
   gameServerDiagnosticRunSchema,
 } from '../models/game-server-diagnostic-run';
 import { GameServerDiagnosticsService } from './game-server-diagnostics.service';
@@ -24,7 +23,7 @@ jest.mock('../diagnostic-checks/rcon-connection');
 describe('GameServerDiagnosticsService', () => {
   let service: GameServerDiagnosticsService;
   let mongod: MongoMemoryServer;
-  let gameServerDiagnosticRunModel: Model<GameServerDiagnosticRunDocument>;
+  let gameServerDiagnosticRunModel: Model<GameServerDiagnosticRun>;
   let connection: Connection;
 
   beforeAll(async () => (mongod = await MongoMemoryServer.create()));

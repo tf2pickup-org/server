@@ -2,7 +2,7 @@ import { TransformObjectId } from '@/shared/decorators/transform-object-id';
 import { Serializable } from '@/shared/serializable';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { IsOptional, IsString } from 'class-validator';
-import { Document, Types } from 'mongoose';
+import { Types } from 'mongoose';
 import { MapPoolEntryDto } from '../dto/map-pool-item.dto';
 
 @Schema({ collection: 'maps' })
@@ -40,5 +40,4 @@ export class MapPoolEntry extends Serializable<MapPoolEntryDto> {
   }
 }
 
-export type MapPoolEntryDocument = MapPoolEntry & Document;
 export const mapPoolEntrySchema = SchemaFactory.createForClass(MapPoolEntry);

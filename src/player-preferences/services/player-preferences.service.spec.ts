@@ -3,7 +3,6 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import {
   PlayerPreferences,
-  PlayerPreferencesDocument,
   playerPreferencesSchema,
 } from '../models/player-preferences';
 import { PlayerPreferencesService } from './player-preferences.service';
@@ -18,7 +17,7 @@ import { PlayerId } from '@/players/types/player-id';
 describe('PlayerPreferencesService', () => {
   let service: PlayerPreferencesService;
   let mongod: MongoMemoryServer;
-  let playerPreferencesModel: Model<PlayerPreferencesDocument>;
+  let playerPreferencesModel: Model<PlayerPreferences>;
   let connection: Connection;
 
   beforeAll(async () => (mongod = await MongoMemoryServer.create()));
