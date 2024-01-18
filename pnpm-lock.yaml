@@ -54,8 +54,8 @@ dependencies:
     specifier: 3.1.0
     version: 3.1.0
   async-mutex:
-    specifier: 0.4.0
-    version: 0.4.0
+    specifier: 0.4.1
+    version: 0.4.1
   axios:
     specifier: 1.6.5
     version: 1.6.5
@@ -2680,8 +2680,8 @@ packages:
       tslib: 2.6.2
     dev: true
 
-  /async-mutex@0.4.0:
-    resolution: {integrity: sha512-eJFZ1YhRR8UN8eBLoNzcDPcy/jqjsg6I1AP+KvWQX80BqOSW1oJPJXDylPUEeMr2ZQvHgnQ//Lp6f3RQ1zI7HA==}
+  /async-mutex@0.4.1:
+    resolution: {integrity: sha512-WfoBo4E/TbCX1G95XTjbWTE3X2XLG0m1Xbv2cwOtuPdyH9CZvnaA5nCt1ucjaKEgW2A5IF71hxrRhr83Je5xjA==}
     dependencies:
       tslib: 2.6.2
 
@@ -6420,7 +6420,7 @@ packages:
     resolution: {integrity: sha512-3H/dq5II+XcSbK80hicMw4zFlDxcpjt4oWJq76RlOVuLoaf3AFqVheR6Vqx9ymlIqER4Jni58FMCIIRbesia1A==}
     engines: {node: '>=14.20.1'}
     dependencies:
-      async-mutex: 0.4.0
+      async-mutex: 0.4.1
       camelcase: 6.3.0
       debug: 4.3.4
       find-cache-dir: 3.3.2

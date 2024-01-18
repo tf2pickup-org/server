@@ -32,7 +32,7 @@
     "@redis/client": "1.5.13",
     "@tf2pickup-org/mumble-client": "0.7.3",
     "app-root-path": "3.1.0",
-    "async-mutex": "0.4.0",
+    "async-mutex": "0.4.1",
     "axios": "1.6.5",
     "cache-manager": "5.3.2",
     "cache-manager-redis-yet": "4.1.2",
