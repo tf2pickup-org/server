@@ -284,8 +284,8 @@ devDependencies:
     specifier: 2.0.1
     version: 2.0.1
   ts-jest:
-    specifier: 29.1.1
-    version: 29.1.1(@babel/core@7.23.6)(jest@29.7.0)(typescript@5.3.3)
+    specifier: 29.1.2
+    version: 29.1.2(@babel/core@7.23.6)(jest@29.7.0)(typescript@5.3.3)
   ts-loader:
     specifier: 9.5.1
     version: 9.5.1(typescript@5.3.3)(webpack@5.89.0)
@@ -6275,6 +6275,7 @@ packages:
 
   /memory-pager@1.5.0:
     resolution: {integrity: sha512-ZS4Bp4r/Zoeq6+NLJpP+0Zzm0pR8whtGPf1XExKLJBAczGMnSi3It14OiNCStjQjM6NU1okjQGSxgEZN8eBYKg==}
+    requiresBuild: true
 
   /meow@12.1.1:
     resolution: {integrity: sha512-BhXM0Au22RwUneMPwSCnyhTOizdWoIEPU9sp0Aqa1PnDMR5Wv2FGXYDjuzJEIX+Eo2Rb8xuYe5jrnm5QowQFkw==}
@@ -7829,6 +7830,7 @@ packages:
 
   /sparse-bitfield@3.0.3:
     resolution: {integrity: sha512-kvzhi7vqKTfkh0PZU+2D2PIllw2ymqJKujUcyPMd9Y75Nv4nPbGJZXNhxsgdQab2BmlDct1YnfQCguEvHr7VsQ==}
+    requiresBuild: true
     dependencies:
       memory-pager: 1.5.0
 
@@ -8245,9 +8247,9 @@ packages:
     engines: {node: '>=14.13.1'}
     dev: false
 
-  /ts-jest@29.1.1(@babel/core@7.23.6)(jest@29.7.0)(typescript@5.3.3):
-    resolution: {integrity: sha512-D6xjnnbP17cC85nliwGiL+tpoKN0StpgE0TeOjXQTU6MVCfsB4v7aW05CgQ/1OywGb0x/oy9hHFnN+sczTiRaA==}
-    engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
+  /ts-jest@29.1.2(@babel/core@7.23.6)(jest@29.7.0)(typescript@5.3.3):
+    resolution: {integrity: sha512-br6GJoH/WUX4pu7FbZXuWGKGNDuU7b8Uj77g/Sp7puZV6EXzuByl6JrECvm0MzVzSTkSHWTihsXt+5XYER5b+g==}
+    engines: {node: ^16.10.0 || ^18.0.0 || >=20.0.0}
     hasBin: true
     peerDependencies:
       '@babel/core': '>=7.0.0-beta.0 <8'
