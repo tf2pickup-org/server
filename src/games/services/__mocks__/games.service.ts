@@ -8,7 +8,7 @@ import { Model, UpdateQuery } from 'mongoose';
 import { Events } from '@/events/events';
 import { Mutex } from 'async-mutex';
 import { Tf2Team } from '@/games/models/tf2-team';
-import { GameId } from '@/games/game-id';
+import { GameId } from '@/games/types/game-id';
 
 const orig = jest.requireActual('../games.service');
 const OriginalGamesService = orig.GamesService;

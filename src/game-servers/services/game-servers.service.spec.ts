@@ -23,7 +23,7 @@ import { SlotStatus } from '@/games/models/slot-status';
 import { PlayerConnectionStatus } from '@/games/models/player-connection-status';
 import { GameState } from '@/games/models/game-state';
 import { PlayerId } from '@/players/types/player-id';
-import { GameId } from '@/games/game-id';
+import { GameId } from '@/games/types/game-id';
 import { GameEventType } from '@/games/models/game-event-type';
 import { GameServerAssigned } from '@/games/models/events/game-server-assigned';
 

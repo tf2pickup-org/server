@@ -1,7 +1,7 @@
 import { ConfigurationService } from '@/configuration/services/configuration.service';
 import { Events } from '@/events/events';
-import { GameId } from '@/games/game-id';
-import { LogsTfUploadMethod } from '@/games/logs-tf-upload-method';
+import { GameId } from '@/games/types/game-id';
+import { LogsTfUploadMethod } from '@/games/types/logs-tf-upload-method';
 import { GamesService } from '@/games/services/games.service';
 import { LogReceiverService } from '@/log-receiver/services/log-receiver.service';
 import { LogMessage } from '@/log-receiver/types/log-message';

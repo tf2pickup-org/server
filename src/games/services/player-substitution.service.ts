@@ -18,7 +18,7 @@ import { PlayerNotInThisGameError } from '../errors/player-not-in-this-game.erro
 import { GameInWrongStateError } from '../errors/game-in-wrong-state.error';
 import { merge } from 'rxjs';
 import { Mutex } from 'async-mutex';
-import { GameId } from '../game-id';
+import { GameId } from '../types/game-id';
 import { PlayerId } from '@/players/types/player-id';
 import { GameEventType } from '../models/game-event-type';
 import {

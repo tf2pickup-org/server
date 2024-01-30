@@ -13,7 +13,7 @@ import { Tf2Team } from '@/games/models/tf2-team';
 import { GameEventType } from '@/games/models/game-event-type';
 import { RoundEnded } from '@/games/models/events/round-ended';
 import { waitABit } from '@/utils/wait-a-bit';
-import { GameId } from '@/games/game-id';
+import { GameId } from '@/games/types/game-id';
 
 jest.mock('@/games/services/games.service');
 

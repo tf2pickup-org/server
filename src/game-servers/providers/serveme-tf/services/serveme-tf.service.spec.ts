@@ -19,7 +19,7 @@ import {
 } from '../models/serveme-tf-reservation';
 import { waitABit } from '@/utils/wait-a-bit';
 import { GameServerReleaseReason } from '@/game-servers/game-server-provider';
-import { GameId } from '@/games/game-id';
+import { GameId } from '@/games/types/game-id';
 
 jest.mock('@/game-servers/services/game-servers.service');
 jest.mock('./serveme-tf-api.service');

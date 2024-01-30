@@ -4,7 +4,7 @@ import { AuthService } from '@/auth/services/auth.service';
 import { ConfigurationService } from '@/configuration/services/configuration.service';
 import { configureApplication } from '@/configure-application';
 import { Events } from '@/events/events';
-import { GameId } from '@/games/game-id';
+import { GameId } from '@/games/types/game-id';
 import { GamesService } from '@/games/services/games.service';
 import { PlayersService } from '@/players/services/players.service';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
@@ -41,9 +41,7 @@ describe('Player does not join the gameserver and gets substituted (e2e)', () =>
 
     const leaverPlayerToken = await authService.generateJwtToken(
       JwtTokenPurpose.websocket,
-      (
-        await playersService.findBySteamId(players[1])
-      ).id,
+      (await playersService.findBySteamId(players[1])).id,
     );
 
     leaverPlayerSocket = io(
@@ -55,9 +53,7 @@ describe('Player does not join the gameserver and gets substituted (e2e)', () =>
 
     const replacementPlayerToken = await authService.generateJwtToken(
       JwtTokenPurpose.websocket,
-      (
-        await playersService.findBySteamId(players[12])
-      ).id,
+      (await playersService.findBySteamId(players[12])).id,
     );
 
     replacementPlayerSocket = io(

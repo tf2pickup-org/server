@@ -16,7 +16,7 @@ import { GamesService } from '@/games/services/games.service';
 import { GameServerControls } from '@/game-servers/interfaces/game-server-controls';
 import { GameServerOptionWithProvider } from '@/game-servers/interfaces/game-server-option';
 import { waitABit } from '@/utils/wait-a-bit';
-import { GameId } from '@/games/game-id';
+import { GameId } from '@/games/types/game-id';
 import { PlayerId } from '@/players/types/player-id';
 
 jest.mock('@/games/services/games.service');

@@ -1,4 +1,4 @@
-import { GameId } from '@/games/game-id';
+import { GameId } from '@/games/types/game-id';
 import { GameServerControls } from './interfaces/game-server-controls';
 import { GameServerDetails } from './interfaces/game-server-details';
 import { GameServerOption } from './interfaces/game-server-option';

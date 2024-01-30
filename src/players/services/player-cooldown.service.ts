@@ -1,5 +1,5 @@
 import { ConfigurationService } from '@/configuration/services/configuration.service';
-import { CooldownLevel } from '@/games/cooldown-level';
+import { CooldownLevel } from '@/games/types/cooldown-level';
 import { Injectable, Logger } from '@nestjs/common';
 import { PlayerId } from '../types/player-id';
 import { PlayerBansService } from './player-bans.service';

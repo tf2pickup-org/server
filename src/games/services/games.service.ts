@@ -14,7 +14,7 @@ import { Model, UpdateQuery, Types, FilterQuery, QueryOptions } from 'mongoose';
 import { plainToInstance } from 'class-transformer';
 import { Mutex } from 'async-mutex';
 import { GameEventType } from '../models/game-event-type';
-import { GameId } from '../game-id';
+import { GameId } from '../types/game-id';
 import { PlayerId } from '@/players/types/player-id';
 import { PlayerConnectionStatus } from '../models/player-connection-status';
 import { PlayerReplaced } from '../models/events/player-replaced';

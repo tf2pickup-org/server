@@ -1,4 +1,4 @@
-import { GameId } from '@/games/game-id';
+import { GameId } from '@/games/types/game-id';
 import { Game } from '@/games/models/game';
 import { Tf2Team } from '@/games/models/tf2-team';
 import { Player } from '@/players/models/player';

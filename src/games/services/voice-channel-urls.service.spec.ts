@@ -10,12 +10,12 @@ import { Events } from '@/events/events';
 import { GameState } from '../models/game-state';
 import { Types } from 'mongoose';
 import { PlayerId } from '@/players/types/player-id';
-import { GameId } from '../game-id';
+import { GameId } from '../types/game-id';
 import { Tf2Team } from '../models/tf2-team';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { SlotStatus } from '../models/slot-status';
 import { GameSlot } from '../models/game-slot';
-import { VoiceServerType } from '../voice-server-type';
+import { VoiceServerType } from '../types/voice-server-type';
 import { GameInWrongStateError } from '../errors/game-in-wrong-state.error';
 import { PlayerNotInThisGameError } from '../errors/player-not-in-this-game.error';
 

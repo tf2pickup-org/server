@@ -43,7 +43,7 @@ import { GameServerControls } from '@/game-servers/interfaces/game-server-contro
 import { GameServerNotAssignedError } from '../errors/game-server-not-assigned.error';
 import { PlayerConnectionStatus } from '@/games/models/player-connection-status';
 import { CannotConfigureGameError } from '../errors/cannot-configure-game.error';
-import { LogsTfUploadMethod } from '@/games/logs-tf-upload-method';
+import { LogsTfUploadMethod } from '@/games/types/logs-tf-upload-method';
 import { GameEventType } from '@/games/models/game-event-type';
 
 jest.mock('@/queue/services/map-pool.service');

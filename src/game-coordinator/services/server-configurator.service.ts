@@ -31,9 +31,9 @@ import { Events } from '@/events/events';
 import { filter, map } from 'rxjs';
 import { CannotConfigureGameError } from '../errors/cannot-configure-game.error';
 import { assertIsError } from '@/utils/assert-is-error';
-import { LogsTfUploadMethod } from '@/games/logs-tf-upload-method';
+import { LogsTfUploadMethod } from '@/games/types/logs-tf-upload-method';
 import { GameState } from '@/games/models/game-state';
-import { GameId } from '@/games/game-id';
+import { GameId } from '@/games/types/game-id';
 import { GameEventType } from '@/games/models/game-event-type';
 
 @Injectable()

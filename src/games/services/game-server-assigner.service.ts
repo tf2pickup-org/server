@@ -7,7 +7,7 @@ import { Cron, CronExpression } from '@nestjs/schedule';
 import { Mutex } from 'async-mutex';
 import { CannotAssignGameServerError } from '../errors/cannot-assign-gameserver.error';
 import { GameInWrongStateError } from '../errors/game-in-wrong-state.error';
-import { GameId } from '../game-id';
+import { GameId } from '../types/game-id';
 import { Game } from '../models/game';
 import { GamesService } from './games.service';
 import { PlayerId } from '@/players/types/player-id';

@@ -5,7 +5,7 @@ import { Prop, raw, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Exclude, Expose, Transform, Type } from 'class-transformer';
 import { Schema as MongooseSchema } from 'mongoose';
 import { GameDto } from '../dto/game.dto';
-import { GameId } from '../game-id';
+import { GameId } from '../types/game-id';
 import { GameEvent, gameEventSchema } from './game-event';
 import { GameServer, gameServerSchema } from './game-server';
 import { GameSlot, gameSlotSchema } from './game-slot';

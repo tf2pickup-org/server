@@ -15,7 +15,7 @@ import { Game } from '@/games/models/game';
 import { GameRuntimeService } from '@/game-coordinator/services/game-runtime.service';
 import { version } from '../../package.json';
 import { MumbleBot } from './mumble-bot';
-import { VoiceServerType } from '@/games/voice-server-type';
+import { VoiceServerType } from '@/games/types/voice-server-type';
 import { assertIsError } from '@/utils/assert-is-error';
 
 @Injectable()

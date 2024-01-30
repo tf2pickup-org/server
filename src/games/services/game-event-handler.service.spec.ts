@@ -20,7 +20,7 @@ import { Mutex } from 'async-mutex';
 import { Tf2Team } from '../models/tf2-team';
 import { isUndefined } from 'lodash';
 import { PlayerConnectionStatus } from '../models/player-connection-status';
-import { GameId } from '../game-id';
+import { GameId } from '../types/game-id';
 import { GameEventType } from '../models/game-event-type';
 import { PlayerJoinedGameServer } from '../models/events/player-joined-game-server';
 import { PlayerJoinedGameServerTeam } from '../models/events/player-joined-game-server-team';

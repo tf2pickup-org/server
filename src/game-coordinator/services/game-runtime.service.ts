@@ -14,7 +14,7 @@ import { Events } from '@/events/events';
 import { GamesService } from '@/games/services/games.service';
 import { GameServerOptionWithProvider } from '@/game-servers/interfaces/game-server-option';
 import { assertIsError } from '@/utils/assert-is-error';
-import { GameId } from '@/games/game-id';
+import { GameId } from '@/games/types/game-id';
 import { PlayerId } from '@/players/types/player-id';
 
 @Injectable()

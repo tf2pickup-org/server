@@ -7,7 +7,7 @@ import { Socket } from 'socket.io';
 import { Player } from '@/players/models/player';
 import { Types } from 'mongoose';
 import { PlayerId } from '@/players/types/player-id';
-import { GameId } from '../game-id';
+import { GameId } from '../types/game-id';
 import { PlayersService } from '@/players/services/players.service';
 import { ConfigurationService } from '@/configuration/services/configuration.service';
 import { PlayerBansService } from '@/players/services/player-bans.service';

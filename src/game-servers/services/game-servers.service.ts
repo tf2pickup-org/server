@@ -25,7 +25,7 @@ import { GameServerDetailsWithProvider } from '../interfaces/game-server-details
 import { isUndefined } from 'lodash';
 import { GameState } from '@/games/models/game-state';
 import { PlayerConnectionStatus } from '@/games/models/player-connection-status';
-import { GameId } from '@/games/game-id';
+import { GameId } from '@/games/types/game-id';
 import { GameEventType } from '@/games/models/game-event-type';
 import { PlayerId } from '@/players/types/player-id';
 

@@ -1,6 +1,6 @@
 import { ConfigurationService } from '@/configuration/services/configuration.service';
 import { Events } from '@/events/events';
-import { GameId } from '@/games/game-id';
+import { GameId } from '@/games/types/game-id';
 import { SlotStatus } from '@/games/models/slot-status';
 import { GamesService } from '@/games/services/games.service';
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';

@@ -3,7 +3,7 @@ import { Injectable, NotFoundException, PipeTransform } from '@nestjs/common';
 import { Game } from '../models/game';
 import { GamesService } from '../services/games.service';
 import { Error } from 'mongoose';
-import { GameId } from '../game-id';
+import { GameId } from '../types/game-id';
 
 @Injectable()
 export class GameByIdOrNumberPipe implements PipeTransform {
