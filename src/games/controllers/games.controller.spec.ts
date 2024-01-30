@@ -10,11 +10,15 @@ import { Types } from 'mongoose';
 import { PlayerId } from '@/players/types/player-id';
 import { GameState } from '../models/game-state';
 import { VoiceChannelUrlsService } from '../services/voice-channel-urls.service';
+import { GameLogsService } from '../services/game-logs.service';
+import { Environment } from '@/environment/environment';
 
 jest.mock('../services/player-substitution.service');
 jest.mock('../services/game-server-assigner.service');
 jest.mock('@/players/pipes/player-by-id.pipe');
 jest.mock('../services/voice-channel-urls.service');
+jest.mock('../services/game-logs.service');
+jest.mock('@/environment/environment');
 
 class GamesServiceStub {
   games: Game[] = [
@@ -70,6 +74,8 @@ describe('Games Controller', () => {
         Events,
         GameServerAssignerService,
         VoiceChannelUrlsService,
+        GameLogsService,
+        Environment,
       ],
       controllers: [GamesController],
     }).compile();

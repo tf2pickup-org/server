@@ -3,6 +3,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-return */
+import { StreamableFile } from '@nestjs/common';
 import { Serializable } from './serializable';
 
 type StringIndex = Record<string, any>;
@@ -20,8 +21,12 @@ export async function serialize<T>(
 
 export async function serialize<T extends StringIndex>(
   object: T | T[],
-): Promise<SerializeResult<T> | SerializeResult<T>[]> {
-  if (typeof object !== 'object' || object === null) {
+): Promise<SerializeResult<T> | SerializeResult<T>[] | StreamableFile> {
+  if (
+    typeof object !== 'object' ||
+    object === null ||
+    object instanceof StreamableFile
+  ) {
     return object;
   }
 

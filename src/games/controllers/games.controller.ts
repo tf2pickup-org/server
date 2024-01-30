@@ -12,6 +12,9 @@ import {
   Body,
   Put,
   ValidationPipe,
+  StreamableFile,
+  NotFoundException,
+  Logger,
 } from '@nestjs/common';
 import { GamesService } from '../services/games.service';
 import { Auth } from '@/auth/decorators/auth.decorator';
@@ -39,15 +42,21 @@ import { GameState } from '../models/game-state';
 import { FilterQuery } from 'mongoose';
 import { ParseEnumArrayPipe } from '@/shared/pipes/parse-enum-array.pipe';
 import { VoiceChannelUrlsService } from '../services/voice-channel-urls.service';
+import { GameLogsService } from '../services/game-logs.service';
+import { Environment } from '@/environment/environment';
 
 @Controller('games')
 export class GamesController {
+  readonly logger = new Logger(GamesController.name);
+
   constructor(
     private readonly gamesService: GamesService,
     private readonly playerSubstitutionService: PlayerSubstitutionService,
     private readonly events: Events,
     private readonly gameServerAssignerService: GameServerAssignerService,
     private readonly voiceChannelUrlsService: VoiceChannelUrlsService,
+    private readonly gameLogsService: GameLogsService,
+    private readonly environment: Environment,
   ) {}
 
   @Get()
@@ -209,5 +218,26 @@ export class GamesController {
       },
       admin._id,
     );
+  }
+
+  @Get(':id/logs')
+  @UseFilters(DocumentNotFoundFilter)
+  async downloadLogs(
+    @Param('id', GameByIdOrNumberPipe) game: Game,
+  ): Promise<StreamableFile> {
+    if (game.logSecret === undefined) {
+      throw new NotFoundException('Logs are not available for this game.');
+    }
+
+    const logs = await this.gameLogsService.getLogs(game.logSecret);
+    const fileName = `${this.environment.websiteName.replace(
+      /[/\\?%*:|"<>]/g,
+      '_',
+    )}-${game.number}.log`;
+
+    return new StreamableFile(Buffer.from(logs), {
+      type: 'text/plain',
+      disposition: `attachment; filename=${fileName}`,
+    });
   }
 }

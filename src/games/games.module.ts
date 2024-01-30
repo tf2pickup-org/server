@@ -18,10 +18,15 @@ import { GamesConfigurationService } from './services/games-configuration.servic
 import { GameSlotsGateway } from './gateways/game-slots.gateway';
 import { VoiceChannelUrlsService } from './services/voice-channel-urls.service';
 import { GAME_MODEL_MUTEX } from './tokens/game-model-mutex.token';
+import { GameLogsService } from './services/game-logs.service';
+import { GameLogs, gameLogsSchema } from './models/game-logs';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: Game.name, schema: gameSchema }]),
+    MongooseModule.forFeature([
+      { name: Game.name, schema: gameSchema },
+      { name: GameLogs.name, schema: gameLogsSchema },
+    ]),
     forwardRef(() => GameServersModule),
     forwardRef(() => PlayersModule),
     QueueModule,
@@ -41,6 +46,7 @@ import { GAME_MODEL_MUTEX } from './tokens/game-model-mutex.token';
     GamesConfigurationService,
     GameSlotsGateway,
     VoiceChannelUrlsService,
+    GameLogsService,
   ],
   exports: [GamesService, PlayerSubstitutionService],
   controllers: [GamesController, GamesWithSubstitutionRequestsController],
