@@ -20,6 +20,8 @@ import { VoiceChannelUrlsService } from './services/voice-channel-urls.service';
 import { GAME_MODEL_MUTEX } from './tokens/game-model-mutex.token';
 import { GameLogsService } from './services/game-logs.service';
 import { GameLogs, gameLogsSchema } from './models/game-logs';
+import { LogReceiverModule } from '@/log-receiver/log-receiver.module';
+import { LogsTfModule } from '@/logs-tf/logs-tf.module';
 
 @Module({
   imports: [
@@ -32,6 +34,8 @@ import { GameLogs, gameLogsSchema } from './models/game-logs';
     QueueModule,
     ConfigurationModule,
     QueueConfigModule,
+    LogReceiverModule,
+    LogsTfModule,
   ],
   providers: [
     {
