@@ -3,7 +3,7 @@ import { Expose, Transform } from 'class-transformer';
 import { Types } from 'mongoose';
 import { TransformObjectId } from '@/shared/decorators/transform-object-id';
 import { MongooseDocument } from '@/utils/mongoose-document';
-import { GameId } from '@/games/game-id';
+import { GameId } from '@/games/types/game-id';
 
 @Schema()
 export class StaticGameServer extends MongooseDocument {

@@ -12,7 +12,7 @@ import { configureApplication } from '@/configure-application';
 import { AuthService } from '@/auth/services/auth.service';
 import { JwtTokenPurpose } from '@/auth/jwt-token-purpose';
 import { waitForTheGameToLaunch } from './utils/wait-for-the-game-to-launch';
-import { GameId } from '@/games/game-id';
+import { GameId } from '@/games/types/game-id';
 
 jest.setTimeout(250 * 1000);
 

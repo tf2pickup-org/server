@@ -1,5 +1,5 @@
 import { Events } from '@/events/events';
-import { GameId } from '@/games/game-id';
+import { GameId } from '@/games/types/game-id';
 import { GameEventType } from '@/games/models/game-event-type';
 import { Tf2Team } from '@/games/models/tf2-team';
 import { GamesService } from '@/games/services/games.service';

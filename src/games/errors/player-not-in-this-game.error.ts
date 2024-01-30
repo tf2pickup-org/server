@@ -1,5 +1,5 @@
 import { PlayerId } from '@/players/types/player-id';
-import { GameId } from '../game-id';
+import { GameId } from '../types/game-id';
 
 export class PlayerNotInThisGameError extends Error {
   constructor(

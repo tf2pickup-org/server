@@ -1,7 +1,7 @@
 import { setApp } from '@/app';
 import { ConfigurationService } from '@/configuration/services/configuration.service';
 import { Events } from '@/events/events';
-import { GameId } from '@/games/game-id';
+import { GameId } from '@/games/types/game-id';
 import { GamesService } from '@/games/services/games.service';
 import { PlayerPreferencesService } from '@/player-preferences/services/player-preferences.service';
 import { Player } from '@/players/models/player';

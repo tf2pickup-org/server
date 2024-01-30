@@ -9,7 +9,7 @@ import { PlayerDto } from '../dto/player.dto';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { GamesService } from '@/games/services/games.service';
 import { app } from '@/app';
-import { GameId } from '@/games/game-id';
+import { GameId } from '@/games/types/game-id';
 import { PlayerId } from '../types/player-id';
 import { GameState } from '@/games/models/game-state';
 

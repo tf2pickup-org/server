@@ -21,7 +21,7 @@ import { Serializable } from '@/shared/serializable';
 import { GameDto } from '../dto/game.dto';
 import { WebsocketEventEmitter } from '@/shared/websocket-event-emitter';
 import { Types } from 'mongoose';
-import { GameId } from '../game-id';
+import { GameId } from '../types/game-id';
 import { PlayerId } from '@/players/types/player-id';
 import { CanReplacePlayerGuard } from '../guards/can-replace-player.guard';
 import { z } from 'zod';

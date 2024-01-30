@@ -19,7 +19,7 @@ import { Connection, Error, Model, Types } from 'mongoose';
 import { PlayerNotInThisGameError } from '../errors/player-not-in-this-game.error';
 import { GameInWrongStateError } from '../errors/game-in-wrong-state.error';
 import { PlayerId } from '@/players/types/player-id';
-import { GameId } from '../game-id';
+import { GameId } from '../types/game-id';
 import { GameEventType } from '../models/game-event-type';
 import { SubstituteRequested } from '../models/events/substitute-requested';
 import { PlayerReplaced } from '../models/events/player-replaced';

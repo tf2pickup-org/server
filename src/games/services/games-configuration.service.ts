@@ -4,8 +4,8 @@ import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
 import { milliseconds } from 'date-fns';
 import { z } from 'zod';
-import { LogsTfUploadMethod } from '../logs-tf-upload-method';
-import { VoiceServerType } from '../voice-server-type';
+import { LogsTfUploadMethod } from '../types/logs-tf-upload-method';
+import { VoiceServerType } from '../types/voice-server-type';
 import { QueueConfig } from '@/queue-config/interfaces/queue-config';
 import { QUEUE_CONFIG } from '@/queue-config/queue-config.token';
 

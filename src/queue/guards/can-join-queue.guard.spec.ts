@@ -1,5 +1,5 @@
 import { ConfigurationService } from '@/configuration/services/configuration.service';
-import { GameId } from '@/games/game-id';
+import { GameId } from '@/games/types/game-id';
 import { Player } from '@/players/models/player';
 import { PlayerBan } from '@/players/models/player-ban';
 import { PlayerBansService } from '@/players/services/player-bans.service';

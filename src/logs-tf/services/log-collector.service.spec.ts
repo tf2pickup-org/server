@@ -1,6 +1,6 @@
 import { ConfigurationService } from '@/configuration/services/configuration.service';
 import { Events } from '@/events/events';
-import { LogsTfUploadMethod } from '@/games/logs-tf-upload-method';
+import { LogsTfUploadMethod } from '@/games/types/logs-tf-upload-method';
 import { Game, gameSchema } from '@/games/models/game';
 import { GamesService } from '@/games/services/games.service';
 import { LogReceiverService } from '@/log-receiver/services/log-receiver.service';

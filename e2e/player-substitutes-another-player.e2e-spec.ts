@@ -2,7 +2,7 @@ import { AppModule } from '@/app.module';
 import { JwtTokenPurpose } from '@/auth/jwt-token-purpose';
 import { AuthService } from '@/auth/services/auth.service';
 import { configureApplication } from '@/configure-application';
-import { GameId } from '@/games/game-id';
+import { GameId } from '@/games/types/game-id';
 import { GamesService } from '@/games/services/games.service';
 import { PlayersService } from '@/players/services/players.service';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
@@ -35,16 +35,12 @@ describe('Player substitutes another player (e2e)', () => {
     const authService = app.get(AuthService);
     adminToken = await authService.generateJwtToken(
       JwtTokenPurpose.auth,
-      (
-        await playersService.findBySteamId(players[0])
-      ).id,
+      (await playersService.findBySteamId(players[0])).id,
     );
 
     const playerToken = await authService.generateJwtToken(
       JwtTokenPurpose.websocket,
-      (
-        await playersService.findBySteamId(players[12])
-      ).id,
+      (await playersService.findBySteamId(players[12])).id,
     );
 
     playerSocket = io(

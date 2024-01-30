@@ -18,7 +18,7 @@ import { plainToInstance } from 'class-transformer';
 import { GamesService } from './games.service';
 import { Mutex } from 'async-mutex';
 import { Tf2Team } from '../models/tf2-team';
-import { GameId } from '../game-id';
+import { GameId } from '../types/game-id';
 import { GameEventType } from '../models/game-event-type';
 import { GameEndedReason } from '../models/events/game-ended';
 

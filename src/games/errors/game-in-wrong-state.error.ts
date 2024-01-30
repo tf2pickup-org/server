@@ -1,4 +1,4 @@
-import { GameId } from '../game-id';
+import { GameId } from '../types/game-id';
 import { GameState } from '../models/game-state';
 
 export class GameInWrongStateError extends Error {

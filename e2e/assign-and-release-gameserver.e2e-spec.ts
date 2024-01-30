@@ -12,7 +12,7 @@ import { configureApplication } from '@/configure-application';
 import { Events } from '@/events/events';
 import { waitForTheGameToLaunch } from './utils/wait-for-the-game-to-launch';
 import { GameServer } from '@/games/models/game-server';
-import { GameId } from '@/games/game-id';
+import { GameId } from '@/games/types/game-id';
 
 jest.setTimeout(250 * 1000);
 

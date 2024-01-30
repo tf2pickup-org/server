@@ -1,5 +1,5 @@
 import { Events } from '@/events/events';
-import { GameId } from '@/games/game-id';
+import { GameId } from '@/games/types/game-id';
 import { Game, gameSchema } from '@/games/models/game';
 import { GamesService } from '@/games/services/games.service';
 import { Player, playerSchema } from '@/players/models/player';
