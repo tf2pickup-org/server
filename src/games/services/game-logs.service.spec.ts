@@ -178,4 +178,19 @@ describe('GameLogsService', () => {
       });
     });
   });
+
+  describe('#getLogs()', () => {
+    beforeEach(async () => {
+      await gameLogsModel.create({
+        logSecret: 'FAKE_LOGSECRET',
+        logs: ['LOG_LINE_1', 'LOG_LINE_2'],
+      });
+    });
+
+    it('should return the logs', async () => {
+      expect(await service.getLogs('FAKE_LOGSECRET')).toEqual(
+        'L LOG_LINE_1\nL LOG_LINE_2',
+      );
+    });
+  });
 });
