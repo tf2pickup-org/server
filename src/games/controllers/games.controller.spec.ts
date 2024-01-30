@@ -12,6 +12,7 @@ import { GameState } from '../models/game-state';
 import { VoiceChannelUrlsService } from '../services/voice-channel-urls.service';
 import { GameLogsService } from '../services/game-logs.service';
 import { Environment } from '@/environment/environment';
+import { BadRequestException, NotFoundException } from '@nestjs/common';
 
 jest.mock('../services/player-substitution.service');
 jest.mock('../services/game-server-assigner.service');
@@ -30,7 +31,7 @@ class GamesServiceStub {
       id: 'FAKE_GAME_ID',
       number: 1,
       map: 'cp_fake_rc1',
-      state: 'ended',
+      state: GameState.ended,
       launchedAt: new Date(1635884999789),
       endedAt: new Date(1635888599789),
       assignedSkills: new Map([['FAKE_PLAYER_ID', 1]]),
@@ -40,7 +41,7 @@ class GamesServiceStub {
       id: 'FAKE_GAME_2_ID',
       number: 2,
       map: 'cp_fake_rc2',
-      state: 'launching',
+      state: GameState.launching,
       assignedSkills: new Map([['FAKE_PLAYER_ID', 5]]),
     } as Game,
   ];
@@ -222,7 +223,23 @@ describe('Games Controller', () => {
       it('should throw NotFoundException', async () => {
         await expect(
           controller.downloadLogs(gamesService.games[1]),
-        ).rejects.toThrow('Logs are not available for this game.');
+        ).rejects.toThrow(NotFoundException);
+      });
+    });
+
+    describe('when the game state is not ended or interrupted', () => {
+      beforeEach(() => {
+        gamesService.games[0].state = GameState.started;
+      });
+
+      afterEach(() => {
+        gamesService.games[0].state = GameState.ended;
+      });
+
+      it('should throw BadRequestException', async () => {
+        await expect(
+          controller.downloadLogs(gamesService.games[0]),
+        ).rejects.toThrow(BadRequestException);
       });
     });
   });

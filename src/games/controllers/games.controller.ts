@@ -15,6 +15,7 @@ import {
   StreamableFile,
   NotFoundException,
   Logger,
+  BadRequestException,
 } from '@nestjs/common';
 import { GamesService } from '../services/games.service';
 import { Auth } from '@/auth/decorators/auth.decorator';
@@ -226,7 +227,11 @@ export class GamesController {
     @Param('id', GameByIdOrNumberPipe) game: Game,
   ): Promise<StreamableFile> {
     if (game.logSecret === undefined) {
-      throw new NotFoundException('Logs are not available for this game.');
+      throw new NotFoundException('logs are not available for this game');
+    }
+
+    if (![GameState.ended, GameState.interrupted].includes(game.state)) {
+      throw new BadRequestException('logs are available only for ended games');
     }
 
     const logs = await this.gameLogsService.getLogs(game.logSecret);
