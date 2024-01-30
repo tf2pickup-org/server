@@ -13,7 +13,7 @@ import { Connection } from 'mongoose';
 import { MumbleBotService } from './mumble-bot.service';
 import { MumbleBot } from './mumble-bot';
 import { GameState } from '@/games/models/game-state';
-import { VoiceServerType } from '@/games/voice-server-type';
+import { VoiceServerType } from '@/games/types/voice-server-type';
 
 jest.mock('@/environment/environment');
 jest.mock('@/configuration/services/configuration.service');
