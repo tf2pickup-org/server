@@ -22,6 +22,7 @@ import { PlayerLeftGameServer } from '../models/events/player-left-game-server';
 import { GameEndedReason } from '../models/events/game-ended';
 import { MostActivePlayers } from '../types/most-active-players';
 import { PlayerNotInThisGameError } from '../errors/player-not-in-this-game.error';
+import { GAME_MODEL_MUTEX } from '../tokens/game-model-mutex.token';
 
 @Injectable()
 export class GamesService {
@@ -33,7 +34,7 @@ export class GamesService {
     private playersService: PlayersService,
     private events: Events,
     private configurationService: ConfigurationService,
-    @Inject('GAME_MODEL_MUTEX') private mutex: Mutex,
+    @Inject(GAME_MODEL_MUTEX) private mutex: Mutex,
   ) {}
 
   async getGameCount(filter: FilterQuery<Game> = {}): Promise<number> {

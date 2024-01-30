@@ -21,6 +21,7 @@ import { Tf2Team } from '../models/tf2-team';
 import { GameId } from '../types/game-id';
 import { GameEventType } from '../models/game-event-type';
 import { GameEndedReason } from '../models/events/game-ended';
+import { GAME_MODEL_MUTEX } from '../tokens/game-model-mutex.token';
 
 // https://github.com/microsoft/TypeScript/issues/33308
 type PickEnum<T, K extends T> = {
@@ -37,7 +38,7 @@ export class GameEventHandlerService implements OnModuleInit, OnModuleDestroy {
     private playersService: PlayersService,
     private events: Events,
     private gamesService: GamesService,
-    @Inject('GAME_MODEL_MUTEX') private mutex: Mutex,
+    @Inject(GAME_MODEL_MUTEX) private mutex: Mutex,
   ) {}
 
   onModuleInit() {
