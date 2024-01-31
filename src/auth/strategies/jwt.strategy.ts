@@ -6,12 +6,13 @@ import { KeyPair } from '../key-pair';
 import { Error, Types } from 'mongoose';
 import { PlayerId } from '@/players/types/player-id';
 import { Request } from 'express';
+import { AUTH_TOKEN_KEY } from '../tokens/auth-token-key.token';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(
     private playersService: PlayersService,
-    @Inject('AUTH_TOKEN_KEY') authTokenKey: KeyPair,
+    @Inject(AUTH_TOKEN_KEY) authTokenKey: KeyPair,
   ) {
     super({
       jsonWebTokenOptions: { algorithms: ['ES512'] },

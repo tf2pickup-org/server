@@ -1,0 +1,1 @@
+export const CONTEXT_TOKEN_KEY = 'CONTEXT_TOKEN_KEY';

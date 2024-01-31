@@ -4,6 +4,9 @@ import { generateKeyPairSync } from 'crypto';
 import { decode } from 'jsonwebtoken';
 import { JwtTokenPurpose } from '../jwt-token-purpose';
 import { KeyPair } from '../key-pair';
+import { AUTH_TOKEN_KEY } from '../tokens/auth-token-key.token';
+import { WEBSOCKET_SECRET } from '../tokens/websocket-secret.token';
+import { CONTEXT_TOKEN_KEY } from '../tokens/context-token-key.token';
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -14,13 +17,13 @@ describe('AuthService', () => {
       providers: [
         AuthService,
         {
-          provide: 'AUTH_TOKEN_KEY',
+          provide: AUTH_TOKEN_KEY,
           useFactory: () =>
             generateKeyPairSync('ec', { namedCurve: 'secp521r1' }),
         },
-        { provide: 'WEBSOCKET_SECRET', useValue: 'websocket_secret' },
+        { provide: WEBSOCKET_SECRET, useValue: 'websocket_secret' },
         {
-          provide: 'CONTEXT_TOKEN_KEY',
+          provide: CONTEXT_TOKEN_KEY,
           useFactory: () =>
             generateKeyPairSync('ec', { namedCurve: 'secp521r1' }),
         },
@@ -28,7 +31,7 @@ describe('AuthService', () => {
     }).compile();
 
     service = module.get<AuthService>(AuthService);
-    authKeys = module.get('AUTH_TOKEN_KEY');
+    authKeys = module.get(AUTH_TOKEN_KEY);
   });
 
   it('should be defined', () => {

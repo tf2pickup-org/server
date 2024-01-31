@@ -17,6 +17,9 @@ import { generate } from 'generate-password';
 import { getModelToken, MongooseModule } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { GameServerSecretStrategy } from './strategies/game-server-secret.strategy';
+import { AUTH_TOKEN_KEY } from './tokens/auth-token-key.token';
+import { WEBSOCKET_SECRET } from './tokens/websocket-secret.token';
+import { CONTEXT_TOKEN_KEY } from './tokens/context-token-key.token';
 
 const passportModule = PassportModule.register({
   defaultStrategy: 'jwt',
@@ -32,7 +35,7 @@ const passportModule = PassportModule.register({
   providers: [
     {
       // keys used to sign & validate auth JWT
-      provide: 'AUTH_TOKEN_KEY',
+      provide: AUTH_TOKEN_KEY,
       inject: [getModelToken(Key.name), Environment],
       useFactory: async (keyModel: Model<Key>, environment: Environment) =>
         await importOrGenerateKeys(
@@ -42,12 +45,12 @@ const passportModule = PassportModule.register({
         ),
     },
     {
-      provide: 'WEBSOCKET_SECRET',
+      provide: WEBSOCKET_SECRET,
       useFactory: () =>
         generate({ length: 32, numbers: true, uppercase: true }),
     },
     {
-      provide: 'CONTEXT_TOKEN_KEY',
+      provide: CONTEXT_TOKEN_KEY,
       inject: [getModelToken(Key.name), Environment],
       useFactory: async (keyModel: Model<Key>, environment: Environment) =>
         await importOrGenerateKeys(

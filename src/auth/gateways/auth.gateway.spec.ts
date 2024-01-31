@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AuthGateway } from './auth.gateway';
 import { PlayersService } from '@/players/services/players.service';
+import { WEBSOCKET_SECRET } from '../tokens/websocket-secret.token';
 
 class PlayersServiceStub {}
 
@@ -12,7 +13,7 @@ describe('AuthGateway', () => {
       providers: [
         AuthGateway,
         { provide: PlayersService, useClass: PlayersServiceStub },
-        { provide: 'WEBSOCKET_SECRET', useValue: 'secret' },
+        { provide: WEBSOCKET_SECRET, useValue: 'secret' },
       ],
     }).compile();
 
