@@ -139,9 +139,14 @@ export class ServerConfiguratorService implements OnModuleInit {
       )
       .filter((line) => Boolean(line));
 
+    const endListener = () => {
+      this.logger.verbose(`[${game.gameServer!.name}] rcon ended remotely`);
+    };
+
     let rcon: Rcon | undefined;
     try {
       rcon = await controls.rcon();
+      rcon.on('end', () => endListener);
 
       // reset connect info
       game = await this.gamesService.update(game._id, {
@@ -163,12 +168,12 @@ export class ServerConfiguratorService implements OnModuleInit {
         throw new GameServerNotAssignedError(game.id);
       }
 
-      this.logger.debug(
+      this.logger.verbose(
         `[${game.gameServer.name}] logsecret is ${game.logSecret}`,
       );
 
       for (const line of configLines) {
-        this.logger.debug(`[${game.gameServer.name}] ${line}`);
+        this.logger.verbose(`[${game.gameServer.name}] ${line}`);
         await rcon.send(line);
         if (/^changelevel|exec/.test(line)) {
           await waitABit(1000 * 10);
@@ -180,7 +185,7 @@ export class ServerConfiguratorService implements OnModuleInit {
         }
       }
 
-      this.logger.debug(`[${game.gameServer.name}] server ready.`);
+      this.logger.verbose(`[${game.gameServer.name}] server ready.`);
 
       const connectString = makeConnectString({
         address: game.gameServer.address,
@@ -222,6 +227,7 @@ export class ServerConfiguratorService implements OnModuleInit {
       assertIsError(error);
       throw new CannotConfigureGameError(game, error.message);
     } finally {
+      rcon?.off('end', endListener);
       await rcon?.end();
     }
   }

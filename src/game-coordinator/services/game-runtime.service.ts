@@ -75,7 +75,7 @@ export class GameRuntimeService implements OnModuleInit {
       });
     } catch (e) {
       assertIsError(e);
-      this.logger.error(e.message);
+      this.logger.error(e);
     }
 
     return game;
