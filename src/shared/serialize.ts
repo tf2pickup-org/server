@@ -7,9 +7,8 @@ import { Serializable } from './serializable';
 
 type StringIndex = Record<string, any>;
 
-type SerializeResult<T> = T extends Serializable<infer R>
-  ? R
-  : Record<keyof T, unknown>;
+type SerializeResult<T> =
+  T extends Serializable<infer R> ? R : Record<keyof T, unknown>;
 
 // skipcq: JS-0323
 type Flatten<T> = T extends any[] ? T[number] : T;
