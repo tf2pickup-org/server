@@ -1,21 +1,22 @@
-import { ConfigurationService } from '@/configuration/services/configuration.service';
-import { Events } from '@/events/events';
-import { GameId } from '@/games/types/game-id';
-import { LogsTfUploadMethod } from '@/games/types/logs-tf-upload-method';
-import { GamesService } from '@/games/services/games.service';
-import { LogReceiverService } from '@/log-receiver/services/log-receiver.service';
-import { LogMessage } from '@/log-receiver/types/log-message';
-import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import { concatMap, from, map, merge } from 'rxjs';
-import { LogsTfApiService } from './logs-tf-api.service';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { GameLogs } from '../models/game-logs';
+import { Game } from '../models/game';
+import { ConfigurationService } from '@/configuration/services/configuration.service';
+import { LogReceiverService } from '@/log-receiver/services/log-receiver.service';
+import { LogsTfApiService } from '@/logs-tf/services/logs-tf-api.service';
+import { GamesService } from './games.service';
+import { concatMap, from, map, merge } from 'rxjs';
+import { Events } from '@/events/events';
+import { LogMessage } from '@/log-receiver/types/log-message';
+import { GameId } from '../types/game-id';
+import { LogsTfUploadMethod } from '../types/logs-tf-upload-method';
 import { assertIsError } from '@/utils/assert-is-error';
+import { GameLogs } from '../models/game-logs';
 
 @Injectable()
-export class LogCollectorService implements OnModuleInit {
-  private readonly logger = new Logger(LogCollectorService.name);
+export class GameLogsService {
+  private readonly logger = new Logger(GameLogsService.name);
 
   constructor(
     private readonly logReceiverService: LogReceiverService,
@@ -63,17 +64,14 @@ export class LogCollectorService implements OnModuleInit {
     }
 
     const game = await this.gamesService.getById(gameId);
+    if (!game.logSecret) {
+      throw new Error(`game #${game.number} has no log secret`);
+    }
+
     this.logger.log(`uploading logs for game #${game.number}...`);
 
     try {
-      const gameLogs = await this.gameLogsModel
-        .findOne({
-          logSecret: game.logSecret,
-        })
-        .orFail()
-        .exec();
-
-      const logFile = gameLogs.logs.map((line) => `L ${line}`).join('\n');
+      const logFile = await this.getLogs(game.logSecret);
       const logsUrl = await this.logsTfApiService.uploadLogs({
         mapName: game.map,
         gameNumber: game.number,
@@ -87,5 +85,15 @@ export class LogCollectorService implements OnModuleInit {
         `uploading logs for game #${game.number} failed: ${error.message}`,
       );
     }
+  }
+
+  async getLogs(logSecret: NonNullable<Game['logSecret']>): Promise<string> {
+    const gameLogs = await this.gameLogsModel
+      .findOne({ logSecret })
+      .orFail()
+      .select('logs')
+      .lean()
+      .exec();
+    return gameLogs.logs.map((line) => `L ${line}`).join('\n');
   }
 }

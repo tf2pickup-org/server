@@ -10,11 +10,20 @@ import { Types } from 'mongoose';
 import { PlayerId } from '@/players/types/player-id';
 import { GameState } from '../models/game-state';
 import { VoiceChannelUrlsService } from '../services/voice-channel-urls.service';
+import { GameLogsService } from '../services/game-logs.service';
+import { Environment } from '@/environment/environment';
+import { BadRequestException, NotFoundException } from '@nestjs/common';
 
 jest.mock('../services/player-substitution.service');
 jest.mock('../services/game-server-assigner.service');
 jest.mock('@/players/pipes/player-by-id.pipe');
 jest.mock('../services/voice-channel-urls.service');
+jest.mock('../services/game-logs.service');
+jest.mock('@/environment/environment', () => ({
+  Environment: jest.fn().mockImplementation(() => ({
+    websiteName: 'tf2pickup.pl',
+  })),
+}));
 
 class GamesServiceStub {
   games: Game[] = [
@@ -22,16 +31,17 @@ class GamesServiceStub {
       id: 'FAKE_GAME_ID',
       number: 1,
       map: 'cp_fake_rc1',
-      state: 'ended',
+      state: GameState.ended,
       launchedAt: new Date(1635884999789),
       endedAt: new Date(1635888599789),
       assignedSkills: new Map([['FAKE_PLAYER_ID', 1]]),
+      logSecret: 'FAKE_LOG_SECRET',
     } as Game,
     {
       id: 'FAKE_GAME_2_ID',
       number: 2,
       map: 'cp_fake_rc2',
-      state: 'launching',
+      state: GameState.launching,
       assignedSkills: new Map([['FAKE_PLAYER_ID', 5]]),
     } as Game,
   ];
@@ -61,6 +71,8 @@ describe('Games Controller', () => {
   let events: Events;
   let gameServerAssignerService: GameServerAssignerService;
   let voiceChannelUrlsService: jest.Mocked<VoiceChannelUrlsService>;
+  let gameLogsService: jest.Mocked<GameLogsService>;
+  let environment: jest.Mocked<Environment>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -70,6 +82,8 @@ describe('Games Controller', () => {
         Events,
         GameServerAssignerService,
         VoiceChannelUrlsService,
+        GameLogsService,
+        Environment,
       ],
       controllers: [GamesController],
     }).compile();
@@ -80,6 +94,8 @@ describe('Games Controller', () => {
     events = module.get(Events);
     gameServerAssignerService = module.get(GameServerAssignerService);
     voiceChannelUrlsService = module.get(VoiceChannelUrlsService);
+    gameLogsService = module.get(GameLogsService);
+    environment = module.get(Environment);
   });
 
   it('should be defined', () => {
@@ -187,6 +203,44 @@ describe('Games Controller', () => {
     it('should return given game assigned skills', () => {
       const ret = controller.getGameSkills(gamesService.games[0]);
       expect(ret).toEqual(gamesService.games[0].assignedSkills);
+    });
+  });
+
+  describe('#downloadLogs()', () => {
+    beforeEach(() => {
+      gameLogsService.getLogs.mockResolvedValue('FAKE_LOGS');
+    });
+
+    it('should return logs', async () => {
+      const ret = await controller.downloadLogs(gamesService.games[0]);
+      expect(ret.options.type).toEqual('text/plain');
+      expect(ret.options.disposition).toEqual(
+        'attachment; filename=tf2pickup.pl-1.log',
+      );
+    });
+
+    describe('when the logSecret is undefined', () => {
+      it('should throw NotFoundException', async () => {
+        await expect(
+          controller.downloadLogs(gamesService.games[1]),
+        ).rejects.toThrow(NotFoundException);
+      });
+    });
+
+    describe('when the game state is not ended or interrupted', () => {
+      beforeEach(() => {
+        gamesService.games[0].state = GameState.started;
+      });
+
+      afterEach(() => {
+        gamesService.games[0].state = GameState.ended;
+      });
+
+      it('should throw BadRequestException', async () => {
+        await expect(
+          controller.downloadLogs(gamesService.games[0]),
+        ).rejects.toThrow(BadRequestException);
+      });
     });
   });
 });

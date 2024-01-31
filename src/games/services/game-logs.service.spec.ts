@@ -1,32 +1,32 @@
-import { ConfigurationService } from '@/configuration/services/configuration.service';
-import { Events } from '@/events/events';
-import { LogsTfUploadMethod } from '@/games/types/logs-tf-upload-method';
-import { Game, gameSchema } from '@/games/models/game';
-import { GamesService } from '@/games/services/games.service';
+import { Test, TestingModule } from '@nestjs/testing';
+import { GameLogsService } from './game-logs.service';
+import { MongoMemoryServer } from 'mongodb-memory-server';
+import { Connection, Model } from 'mongoose';
 import { LogReceiverService } from '@/log-receiver/services/log-receiver.service';
+import { Subject, take } from 'rxjs';
 import { LogMessage } from '@/log-receiver/types/log-message';
+import { GamesService } from './games.service';
+import { Game, gameSchema } from '../models/game';
+import { Events } from '@/events/events';
+import { LogsTfApiService } from '@/logs-tf/services/logs-tf-api.service';
+import { ConfigurationService } from '@/configuration/services/configuration.service';
+import { GameLogs, gameLogsSchema } from '../models/game-logs';
 import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
-import { waitABit } from '@/utils/wait-a-bit';
 import {
   MongooseModule,
   getConnectionToken,
   getModelToken,
 } from '@nestjs/mongoose';
-import { Test, TestingModule } from '@nestjs/testing';
-import { MongoMemoryServer } from 'mongodb-memory-server';
-import { Connection, Model } from 'mongoose';
-import { Subject, take } from 'rxjs';
-import { LogCollectorService } from './log-collector.service';
-import { LogsTfApiService } from './logs-tf-api.service';
-import { GameLogs, gameLogsSchema } from '../models/game-logs';
+import { LogsTfUploadMethod } from '../types/logs-tf-upload-method';
+import { waitABit } from '@/utils/wait-a-bit';
 
 jest.mock('@/log-receiver/services/log-receiver.service');
-jest.mock('@/games/services/games.service');
-jest.mock('./logs-tf-api.service');
+jest.mock('./games.service');
+jest.mock('@/logs-tf/services/logs-tf-api.service');
 jest.mock('@/configuration/services/configuration.service');
 
-describe('LogCollectorService', () => {
-  let service: LogCollectorService;
+describe('GameLogsService', () => {
+  let service: GameLogsService;
   let mongod: MongoMemoryServer;
   let connection: Connection;
   let logReceiverService: jest.Mocked<LogReceiverService>;
@@ -53,7 +53,7 @@ describe('LogCollectorService', () => {
         ]),
       ],
       providers: [
-        LogCollectorService,
+        GameLogsService,
         LogReceiverService,
         GamesService,
         Events,
@@ -63,7 +63,7 @@ describe('LogCollectorService', () => {
       ],
     }).compile();
 
-    service = module.get<LogCollectorService>(LogCollectorService);
+    service = module.get<GameLogsService>(GameLogsService);
     connection = module.get(getConnectionToken());
     logReceiverService = module.get(LogReceiverService);
     gamesService = module.get(GamesService);
@@ -176,6 +176,21 @@ describe('LogCollectorService', () => {
 
         expect(logsTfApiService.uploadLogs).not.toHaveBeenCalled();
       });
+    });
+  });
+
+  describe('#getLogs()', () => {
+    beforeEach(async () => {
+      await gameLogsModel.create({
+        logSecret: 'FAKE_LOGSECRET',
+        logs: ['LOG_LINE_1', 'LOG_LINE_2'],
+      });
+    });
+
+    it('should return the logs', async () => {
+      expect(await service.getLogs('FAKE_LOGSECRET')).toEqual(
+        'L LOG_LINE_1\nL LOG_LINE_2',
+      );
     });
   });
 });
