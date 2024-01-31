@@ -114,8 +114,8 @@ dependencies:
     specifier: 4.17.21
     version: 4.17.21
   migrate:
-    specifier: 2.0.1
-    version: 2.0.1
+    specifier: 2.1.0
+    version: 2.1.0
   moment:
     specifier: 2.30.1
     version: 2.30.1
@@ -6359,8 +6359,8 @@ packages:
       picomatch: 2.3.1
     dev: true
 
-  /migrate@2.0.1:
-    resolution: {integrity: sha512-t9yzYd4kPdx+soNL/Cc4YQoVYOgPK28LNEmkW7kn0x9duVBNsV+cDaETby8nZ9Dm+LsQTB4SPJ586i8WQgjM5g==}
+  /migrate@2.1.0:
+    resolution: {integrity: sha512-xSwTScy7ozxQtzDtO/LpmZzWTmItXBC3k3wOQGf8TjHpudQUS/m7uyboBHHsv2nFmioyyC7gtbcI7IPj89aJLA==}
     engines: {node: '>= 14.0.0'}
     hasBin: true
     dependencies:
