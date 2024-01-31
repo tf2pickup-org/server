@@ -30,6 +30,11 @@ module.exports.up = async function (next) {
     }
   }
 
-  await mongo.db().collection('servemetfreservations').drop();
+  try {
+    await mongo.db().collection('servemetfreservations').drop();
+  } catch (error) {
+    // empty
+  }
+
   next();
 };
