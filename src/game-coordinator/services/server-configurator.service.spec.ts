@@ -64,6 +64,8 @@ class RconStub {
   send = jest.fn().mockResolvedValue(null);
   end = jest.fn();
   connect = jest.fn();
+  on = jest.fn();
+  off = jest.fn();
 }
 
 describe('ServerConfiguratorService', () => {
