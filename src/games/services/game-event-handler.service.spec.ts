@@ -27,6 +27,7 @@ import { PlayerJoinedGameServerTeam } from '../models/events/player-joined-game-
 import { PlayerLeftGameServer } from '../models/events/player-left-game-server';
 import { waitABit } from '@/utils/wait-a-bit';
 import { GameEnded, GameEndedReason } from '../models/events/game-ended';
+import { GAME_MODEL_MUTEX } from '../tokens/game-model-mutex.token';
 
 jest.mock('@/players/services/players.service');
 jest.mock('@nestjs/config');
@@ -58,7 +59,7 @@ describe('GameEventHandlerService', () => {
       ],
       providers: [
         {
-          provide: 'GAME_MODEL_MUTEX',
+          provide: GAME_MODEL_MUTEX,
           useValue: new Mutex(),
         },
         GameEventHandlerService,

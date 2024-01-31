@@ -25,6 +25,7 @@ import { GameEventType } from '../models/game-event-type';
 import { PlayerId } from '@/players/types/player-id';
 import { GameEnded, GameEndedReason } from '../models/events/game-ended';
 import { PlayerNotInThisGameError } from '../errors/player-not-in-this-game.error';
+import { GAME_MODEL_MUTEX } from '../tokens/game-model-mutex.token';
 
 jest.mock('@/players/services/players.service');
 jest.mock('@/configuration/services/configuration.service');
@@ -54,7 +55,7 @@ describe('GamesService', () => {
       ],
       providers: [
         {
-          provide: 'GAME_MODEL_MUTEX',
+          provide: GAME_MODEL_MUTEX,
           useValue: new Mutex(),
         },
         GamesService,

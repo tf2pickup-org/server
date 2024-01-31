@@ -17,6 +17,7 @@ import { QueueConfigModule } from '@/queue-config/queue-config.module';
 import { GamesConfigurationService } from './services/games-configuration.service';
 import { GameSlotsGateway } from './gateways/game-slots.gateway';
 import { VoiceChannelUrlsService } from './services/voice-channel-urls.service';
+import { GAME_MODEL_MUTEX } from './tokens/game-model-mutex.token';
 
 @Module({
   imports: [
@@ -29,7 +30,7 @@ import { VoiceChannelUrlsService } from './services/voice-channel-urls.service';
   ],
   providers: [
     {
-      provide: 'GAME_MODEL_MUTEX',
+      provide: GAME_MODEL_MUTEX,
       useValue: new Mutex(),
     },
     GamesService,

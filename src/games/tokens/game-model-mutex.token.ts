@@ -1,0 +1,1 @@
+export const GAME_MODEL_MUTEX = 'GAME_MODEL_MUTEX';
