@@ -41,6 +41,13 @@
       "rules": {
         "@typescript-eslint/no-unused-vars": "off"
       }
+    },
+    {
+      "files": ["migrations/*.js"],
+      "extends": ["plugin:@typescript-eslint/disable-type-checked"],
+      "rules": {
+        "@typescript-eslint/no-var-requires": "off"
+      }
     }
   ]
 }

@@ -1,19 +1,13 @@
 import { GameServerControls } from '@/game-servers/interfaces/game-server-controls';
 import { createRcon } from '@/utils/create-rcon';
 import { Rcon } from 'rcon-client/lib';
-import { ServemeTfReservation } from './models/serveme-tf-reservation';
-import { ServemeTfApiService } from './services/serveme-tf-api.service';
+import { Reservation } from '@tf2pickup-org/serveme-tf-client';
 
 export class ServemeTfServerControls implements GameServerControls {
-  constructor(
-    private readonly reservation: ServemeTfReservation,
-    private readonly servemeTfApiService: ServemeTfApiService,
-  ) {}
+  constructor(private readonly reservation: Reservation) {}
 
   async start(): Promise<void> {
-    await this.servemeTfApiService.waitForServerToStart(
-      this.reservation.reservationId,
-    );
+    await this.reservation.waitForStarted();
   }
 
   async rcon(): Promise<Rcon> {
@@ -25,6 +19,6 @@ export class ServemeTfServerControls implements GameServerControls {
   }
 
   getLogsecret(): string {
-    return this.reservation.logsecret;
+    return this.reservation.logSecret;
   }
 }
