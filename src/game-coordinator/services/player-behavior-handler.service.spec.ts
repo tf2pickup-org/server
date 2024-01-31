@@ -16,6 +16,7 @@ import { PlayersService as MockedPlayersService } from '@/players/services/__moc
 import { GamesService as MockedGamesService } from '@/games/services/__mocks__/games.service';
 import { GameState } from '@/games/models/game-state';
 import { PlayerCooldownService } from '@/players/services/player-cooldown.service';
+import { SlotStatus } from '@/games/models/slot-status';
 
 jest.mock('@/games/services/games.service');
 jest.mock('@/players/services/players.service');
@@ -101,6 +102,21 @@ describe('PlayerBehaviorHandlerService', () => {
         expect(
           playerSubstitutionService.substitutePlayer,
         ).not.toHaveBeenCalled();
+      });
+    });
+
+    describe('when the slot is already replaced', () => {
+      beforeEach(async () => {
+        await gamesService.update(game._id, {
+          'slots.0.status': SlotStatus.replaced,
+        });
+      });
+
+      it('should not process the slot', async () => {
+        await service.autoSubstitutePlayers();
+        expect(
+          gamesService.calculatePlayerJoinGameServerTimeout,
+        ).not.toHaveBeenCalledWith(game._id, player._id);
       });
     });
   });
