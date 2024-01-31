@@ -2,13 +2,16 @@ import { Inject, Injectable } from '@nestjs/common';
 import { sign, verify } from 'jsonwebtoken';
 import { JwtTokenPurpose } from '../jwt-token-purpose';
 import { KeyPair } from '../key-pair';
+import { AUTH_TOKEN_KEY } from '../tokens/auth-token-key.token';
+import { WEBSOCKET_SECRET } from '../tokens/websocket-secret.token';
+import { CONTEXT_TOKEN_KEY } from '../tokens/context-token-key.token';
 
 @Injectable()
 export class AuthService {
   constructor(
-    @Inject('AUTH_TOKEN_KEY') private authTokenKey: KeyPair,
-    @Inject('WEBSOCKET_SECRET') private websocketSecret: string,
-    @Inject('CONTEXT_TOKEN_KEY') private contextTokenKey: KeyPair,
+    @Inject(AUTH_TOKEN_KEY) private readonly authTokenKey: KeyPair,
+    @Inject(WEBSOCKET_SECRET) private readonly websocketSecret: string,
+    @Inject(CONTEXT_TOKEN_KEY) private readonly contextTokenKey: KeyPair,
   ) {}
 
   generateJwtToken(purpose: JwtTokenPurpose, userId: string): string {

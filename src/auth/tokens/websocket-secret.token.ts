@@ -1,0 +1,1 @@
+export const WEBSOCKET_SECRET = 'WEBSOCKET_SECRET';

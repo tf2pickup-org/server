@@ -7,6 +7,7 @@ import { Player } from '@/players/models/player';
 import { assertIsError } from '@/utils/assert-is-error';
 import { Types } from 'mongoose';
 import { PlayerId } from '@/players/types/player-id';
+import { WEBSOCKET_SECRET } from '../tokens/websocket-secret.token';
 
 declare module 'socket.io' {
   interface Socket {
@@ -21,7 +22,7 @@ export class AuthGateway implements OnModuleInit {
 
   constructor(
     private playersService: PlayersService,
-    @Inject('WEBSOCKET_SECRET') private websocketSecret: string,
+    @Inject(WEBSOCKET_SECRET) private websocketSecret: string,
   ) {}
 
   onModuleInit() {
