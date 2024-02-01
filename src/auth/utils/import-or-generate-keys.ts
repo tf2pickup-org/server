@@ -4,11 +4,11 @@ import {
   generateKeyPair as generateKeyPairCb,
 } from 'crypto';
 import { promisify } from 'util';
-import { KeyName } from './key-name';
-import { KeyPair } from './key-pair';
+import { KeyName } from '../types/key-name';
+import { KeyPair } from '../types/key-pair';
 import { Logger } from '@nestjs/common';
 import { Error, Model } from 'mongoose';
-import { Key } from './models/key';
+import { Key } from '../models/key';
 
 const generateKeyPair = promisify(generateKeyPairCb);
 

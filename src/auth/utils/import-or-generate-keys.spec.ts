@@ -11,9 +11,9 @@ import { MongoMemoryServer } from 'mongodb-memory-server';
 import { Connection, Model } from 'mongoose';
 import { promisify } from 'util';
 import { importOrGenerateKeys } from './import-or-generate-keys';
-import { KeyName } from './key-name';
-import { KeyPair } from './key-pair';
-import { Key, keySchema } from './models/key';
+import { KeyName } from '../types/key-name';
+import { KeyPair } from '../types/key-pair';
+import { Key, keySchema } from '../models/key';
 
 describe('importOrGenerateKeys()', () => {
   let mongod: MongoMemoryServer;

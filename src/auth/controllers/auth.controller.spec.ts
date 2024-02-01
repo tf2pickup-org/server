@@ -4,7 +4,7 @@ import { Environment } from '@/environment/environment';
 import { HttpAdapterHost } from '@nestjs/core';
 import { AuthService } from '../services/auth.service';
 import { Player } from '@/players/models/player';
-import { JwtTokenPurpose } from '../jwt-token-purpose';
+import { JwtTokenPurpose } from '../types/jwt-token-purpose';
 
 class EnvironmentStub {
   clientUrl = '';

@@ -20,7 +20,7 @@ import { PlayerRole } from '@/players/models/player-role';
 import { Secret } from '@/auth/decorators/secret.decorator';
 import { GameServerHeartbeat } from '../dto/game-server-heartbeat';
 import { RealIp } from 'nestjs-real-ip';
-import { SecretPurpose } from '@/auth/secret-purpose';
+import { SecretPurpose } from '@/auth/types/secret-purpose';
 import { StaticGameServersService } from '../services/static-game-servers.service';
 import { Types } from 'mongoose';
 

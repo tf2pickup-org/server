@@ -13,7 +13,7 @@ import { TwitchService } from '../services/twitch.service';
 import { TwitchAuthService } from '../services/twitch-auth.service';
 import { AuthService } from '@/auth/services/auth.service';
 import { JsonWebTokenError } from 'jsonwebtoken';
-import { JwtTokenPurpose } from '@/auth/jwt-token-purpose';
+import { JwtTokenPurpose } from '@/auth/types/jwt-token-purpose';
 import { Auth } from '@/auth/decorators/auth.decorator';
 import { User } from '@/auth/decorators/user.decorator';
 import { Player } from '@/players/models/player';
