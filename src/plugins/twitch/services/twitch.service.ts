@@ -1,54 +1,20 @@
 import { Injectable, OnModuleInit, Logger } from '@nestjs/common';
 import { TwitchStream } from '../models/twitch-stream';
 import { Cron, CronExpression } from '@nestjs/schedule';
-import { Environment } from '@/environment/environment';
-import { map, distinctUntilChanged } from 'rxjs/operators';
-import { BehaviorSubject, firstValueFrom } from 'rxjs';
+import { distinctUntilChanged } from 'rxjs/operators';
+import { BehaviorSubject } from 'rxjs';
 import { TwitchGateway } from '../gateways/twitch.gateway';
 import { TwitchAuthService } from './twitch-auth.service';
 import { PlayerBansService } from '@/players/services/player-bans.service';
-import { twitchTvApiEndpoint } from '@configs/urls';
 import { TwitchTvProfile } from '../models/twitch-tv-profile';
 import { plainToInstance } from 'class-transformer';
 import { LinkedProfilesService } from '@/players/services/linked-profiles.service';
 import { Events } from '@/events/events';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
-import { HttpService } from '@nestjs/axios';
 import { ConfigurationService } from '@/configuration/services/configuration.service';
 import { PlayerId } from '@/players/types/player-id';
-
-interface TwitchGetUsersResponse {
-  data: {
-    broadcaster_type: string;
-    description: string;
-    display_name: string;
-    email: string;
-    id: string;
-    login: string;
-    offline_image_url: string;
-    profile_image_url: string;
-    type: string;
-    view_count: number;
-  }[];
-}
-
-interface TwitchGetStreamsResponse {
-  data: {
-    game_id: string;
-    id: string;
-    language: string;
-    pagination: string;
-    started_at: string;
-    tag_ids: string;
-    thumbnail_url: string;
-    title: string;
-    type: 'live' | '';
-    user_id: string;
-    user_name: string;
-    viewer_count: number;
-  }[];
-}
+import { TwitchTvApiService } from './twitch-tv-api.service';
 
 @Injectable()
 export class TwitchService implements OnModuleInit {
@@ -60,16 +26,15 @@ export class TwitchService implements OnModuleInit {
   }
 
   constructor(
-    private httpService: HttpService,
-    private environment: Environment,
-    private twitchGateway: TwitchGateway,
-    private twitchAuthService: TwitchAuthService,
-    private playerBansService: PlayerBansService,
+    private readonly twitchGateway: TwitchGateway,
+    private readonly twitchAuthService: TwitchAuthService,
+    private readonly playerBansService: PlayerBansService,
     @InjectModel(TwitchTvProfile.name)
-    private twitchTvProfileModel: Model<TwitchTvProfile>,
-    private linkedProfilesService: LinkedProfilesService,
-    private events: Events,
+    private readonly twitchTvProfileModel: Model<TwitchTvProfile>,
+    private readonly linkedProfilesService: LinkedProfilesService,
+    private readonly events: Events,
     private readonly configurationService: ConfigurationService,
+    private readonly twitchTvApiService: TwitchTvApiService,
   ) {}
 
   onModuleInit() {
@@ -99,23 +64,9 @@ export class TwitchService implements OnModuleInit {
     );
   }
 
-  async fetchUserProfile(accessToken: string) {
-    // https://dev.twitch.tv/docs/api/reference#get-users
-    const token = this.httpService
-      .get<TwitchGetUsersResponse>(`${twitchTvApiEndpoint}/users`, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          'Client-ID': this.environment.twitchClientId,
-        },
-      })
-      .pipe(map((response) => response.data.data[0]));
-
-    return await firstValueFrom(token);
-  }
-
   async saveUserProfile(playerId: PlayerId, code: string) {
     const token = await this.twitchAuthService.fetchUserAccessToken(code);
-    const profile = await this.fetchUserProfile(token);
+    const profile = await this.twitchTvApiService.getUser(token);
     await this.twitchTvProfileModel.create({
       player: new Types.ObjectId(playerId),
       userId: profile.id,
@@ -145,7 +96,7 @@ export class TwitchService implements OnModuleInit {
     const promotedStreams = await this.configurationService.get<string[]>(
       'twitchtv.promoted_streams',
     );
-    const rawStreams = await this.fetchStreams({
+    const rawStreams = await this.twitchTvApiService.getStreams({
       userIds: users.map((user) => user.userId),
       userLogins: promotedStreams,
     });
@@ -190,26 +141,5 @@ export class TwitchService implements OnModuleInit {
 
     this._streams.next(streams);
     this.logger.debug('streams refreshed');
-  }
-
-  private async fetchStreams(params: {
-    userIds: string[];
-    userLogins: string[];
-  }) {
-    // https://dev.twitch.tv/docs/api/reference#get-streams
-    const streams = this.httpService
-      .get<TwitchGetStreamsResponse>(`${twitchTvApiEndpoint}/streams`, {
-        params: {
-          user_id: params.userIds,
-          user_login: params.userLogins,
-        },
-        headers: {
-          'Client-ID': this.environment.twitchClientId,
-          Authorization: `Bearer ${await this.twitchAuthService.getAppAccessToken()}`,
-        },
-      })
-      .pipe(map((response) => response.data.data));
-
-    return await firstValueFrom(streams);
   }
 }
