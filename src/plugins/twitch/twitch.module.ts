@@ -13,6 +13,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { HttpModule } from '@nestjs/axios';
 import { ConfigurationModule } from '@/configuration/configuration.module';
 import { TwitchTvConfigurationService } from './services/twitch-tv-configuration.service';
+import { TwitchTvApiService } from './services/twitch-tv-api.service';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { TwitchTvConfigurationService } from './services/twitch-tv-configuration
     TwitchAuthService,
     TwitchGateway,
     TwitchTvConfigurationService,
+    TwitchTvApiService,
   ],
   exports: [TwitchService],
   controllers: [TwitchController],
