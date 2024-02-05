@@ -1,5 +1,36 @@
 
 
+# [11.5.0](https://github.com/tf2pickup-org/server/compare/11.4.4...11.5.0) (2024-02-05)
+
+
+### Bug Fixes
+
+* cleanup logs ([#2790](https://github.com/tf2pickup-org/server/issues/2790)) ([92e559b](https://github.com/tf2pickup-org/server/commit/92e559bc2f52ea649afb1fe7b89617f077a725e4))
+* **deps:** update dependency async-mutex to v0.4.1 ([2851b6e](https://github.com/tf2pickup-org/server/commit/2851b6e8bc57abce03383238b21a646e3f6d1d69))
+* **deps:** update dependency axios to v1.6.6 ([f036a87](https://github.com/tf2pickup-org/server/commit/f036a87fecb4731748f26db6beba9ff119b71847))
+* **deps:** update dependency axios to v1.6.7 ([efecb73](https://github.com/tf2pickup-org/server/commit/efecb732c2b8e68d7f516919540809cb78cbda73))
+* **deps:** update dependency cache-manager to v5.4.0 ([06da132](https://github.com/tf2pickup-org/server/commit/06da1322b7e614e635b9741a7f85a07b7dbe6dcd))
+* **deps:** update dependency class-validator to v0.14.1 ([d1d5606](https://github.com/tf2pickup-org/server/commit/d1d5606f7a43be6a17c7fc0f94b5802f10cc9ec7))
+* **deps:** update dependency dotenv to v16.3.2 ([75de618](https://github.com/tf2pickup-org/server/commit/75de6185fcbc24a62d055f56cdb57474dcbe0091))
+* **deps:** update dependency dotenv to v16.4.0 ([1fdce7a](https://github.com/tf2pickup-org/server/commit/1fdce7a0c86689d8a8fa8d456af34ca2945edc27))
+* **deps:** update dependency dotenv to v16.4.1 ([ba2fe5f](https://github.com/tf2pickup-org/server/commit/ba2fe5f499c2722a373b839512087f296dd9d239))
+* **deps:** update dependency migrate to v2.1.0 ([fc916a6](https://github.com/tf2pickup-org/server/commit/fc916a68b2036657b23247cdfc3987384bc7aa10))
+* **deps:** update dependency mongoose to v8.0.4 ([#2773](https://github.com/tf2pickup-org/server/issues/2773)) ([39511f6](https://github.com/tf2pickup-org/server/commit/39511f6f2745f65b4b7e31565f01193bd66781a1))
+* **deps:** update dependency mongoose to v8.1.0 ([676859d](https://github.com/tf2pickup-org/server/commit/676859db3f999345fbca451de915e42d3fbb9da4))
+* **deps:** update dependency mongoose to v8.1.1 ([2f0b680](https://github.com/tf2pickup-org/server/commit/2f0b680fb35226cffa626ad03fb6209a7259b974))
+* **deps:** update nest monorepo to v10.3.1 ([723aad0](https://github.com/tf2pickup-org/server/commit/723aad0f65294f7ec2b72e1dfc3a55342bce4600))
+* **deps:** update socket.io packages ([4ed3f96](https://github.com/tf2pickup-org/server/commit/4ed3f96bbdd78982342b94fc094518d03bef3d60))
+* **games:** don't auto-sub already replaced players ([#2784](https://github.com/tf2pickup-org/server/issues/2784)) ([9fa663e](https://github.com/tf2pickup-org/server/commit/9fa663eba4f4dbebee3a5eedb62a3c68f275bad2))
+* **games:** fix rcon error handling ([#2785](https://github.com/tf2pickup-org/server/issues/2785)) ([9387473](https://github.com/tf2pickup-org/server/commit/9387473ce5baf1c8c821a455c9821fe412dda6be))
+* **twitch.tv:** query up to 100 user ids with one request ([#2789](https://github.com/tf2pickup-org/server/issues/2789)) ([09e1f9b](https://github.com/tf2pickup-org/server/commit/09e1f9b447dd700bed966bbfa678fe25e0c8c963))
+
+
+### Features
+
+* **games:** cache voice channel url ([#2726](https://github.com/tf2pickup-org/server/issues/2726)) ([d6daad0](https://github.com/tf2pickup-org/server/commit/d6daad0637c133f62b625e9ae2b015d7f766dd72))
+* **games:** download game logs ([#2779](https://github.com/tf2pickup-org/server/issues/2779)) ([36ff65a](https://github.com/tf2pickup-org/server/commit/36ff65ad60e70252f136cb01509bf7b74980ccac))
+* **serveme.tf:** use serveme.tf client ([#2766](https://github.com/tf2pickup-org/server/issues/2766)) ([505d11f](https://github.com/tf2pickup-org/server/commit/505d11ffb8df1f75216188be79cafecbbc02df9d))
+
 ## [11.4.4](https://github.com/tf2pickup-org/server/compare/11.4.3...11.4.4) (2024-01-09)
 
 
