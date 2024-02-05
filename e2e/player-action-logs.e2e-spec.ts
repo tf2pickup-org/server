@@ -7,7 +7,7 @@ import { configureApplication } from '@/configure-application';
 import { PlayersService } from '@/players/services/players.service';
 import { players } from './test-data';
 import { AuthService } from '@/auth/services/auth.service';
-import { JwtTokenPurpose } from '@/auth/jwt-token-purpose';
+import { JwtTokenPurpose } from '@/auth/types/jwt-token-purpose';
 
 describe('Player action logs (e2e)', () => {
   let app: INestApplication;

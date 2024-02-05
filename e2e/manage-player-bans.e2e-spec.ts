@@ -1,5 +1,5 @@
 import { AppModule } from '@/app.module';
-import { JwtTokenPurpose } from '@/auth/jwt-token-purpose';
+import { JwtTokenPurpose } from '@/auth/types/jwt-token-purpose';
 import { AuthService } from '@/auth/services/auth.service';
 import { configureApplication } from '@/configure-application';
 import { PlayersService } from '@/players/services/players.service';
@@ -30,16 +30,12 @@ describe('Manage player bans (e2e)', () => {
     const authService = app.get(AuthService);
     adminToken = await authService.generateJwtToken(
       JwtTokenPurpose.auth,
-      (
-        await playersService.findBySteamId(players[0])
-      ).id,
+      (await playersService.findBySteamId(players[0])).id,
     );
 
     const playerToken = await authService.generateJwtToken(
       JwtTokenPurpose.websocket,
-      (
-        await playersService.findBySteamId(players[1])
-      ).id,
+      (await playersService.findBySteamId(players[1])).id,
     );
 
     playerSocket = io(

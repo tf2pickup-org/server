@@ -1,5 +1,5 @@
 import { AppModule } from '@/app.module';
-import { JwtTokenPurpose } from '@/auth/jwt-token-purpose';
+import { JwtTokenPurpose } from '@/auth/types/jwt-token-purpose';
 import { AuthService } from '@/auth/services/auth.service';
 import { ConfigurationService } from '@/configuration/services/configuration.service';
 import { configureApplication } from '@/configure-application';

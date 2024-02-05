@@ -10,7 +10,7 @@ import * as request from 'supertest';
 import { StaticGameServersService } from '@/game-servers/providers/static-game-server/services/static-game-servers.service';
 import { configureApplication } from '@/configure-application';
 import { AuthService } from '@/auth/services/auth.service';
-import { JwtTokenPurpose } from '@/auth/jwt-token-purpose';
+import { JwtTokenPurpose } from '@/auth/types/jwt-token-purpose';
 import { waitForTheGameToLaunch } from './utils/wait-for-the-game-to-launch';
 import { GameId } from '@/games/types/game-id';
 
