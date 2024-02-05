@@ -115,7 +115,7 @@ export class MumbleBot {
     ];
     if (red && blu) {
       await red.link(blu);
-      this.logger.log(`channels for game #${game.number} linked`);
+      this.logger.verbose(`channels for game #${game.number} linked`);
     } else {
       throw new Error('BLU or RED subchannel does not exist');
     }
@@ -155,7 +155,7 @@ export class MumbleBot {
           }
 
           await channel.remove();
-          this.logger.log(`channel ${channel.name} removed`);
+          this.logger.verbose(`channel ${channel.name} removed`);
         } catch (error) {
           assertIsError(error);
           this.logger.error(

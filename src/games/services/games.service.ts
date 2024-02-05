@@ -188,7 +188,7 @@ export class GamesService {
     )._id;
 
     const game = await this.getById(id);
-    this.logger.debug(`game #${game.number} created`);
+    this.logger.log(`game #${game.number} created`);
     this.events.gameCreated.next({ game });
 
     await Promise.all(

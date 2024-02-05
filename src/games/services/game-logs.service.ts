@@ -68,7 +68,7 @@ export class GameLogsService {
       throw new Error(`game #${game.number} has no log secret`);
     }
 
-    this.logger.log(`uploading logs for game #${game.number}...`);
+    this.logger.verbose(`uploading logs for game #${game.number}...`);
 
     try {
       const logFile = await this.getLogs(game.logSecret);
