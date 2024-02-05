@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { sign, verify } from 'jsonwebtoken';
-import { JwtTokenPurpose } from '../jwt-token-purpose';
-import { KeyPair } from '../key-pair';
+import { JwtTokenPurpose } from '../types/jwt-token-purpose';
+import { KeyPair } from '../types/key-pair';
 import { AUTH_TOKEN_KEY } from '../tokens/auth-token-key.token';
 import { WEBSOCKET_SECRET } from '../tokens/websocket-secret.token';
 import { CONTEXT_TOKEN_KEY } from '../tokens/context-token-key.token';

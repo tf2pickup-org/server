@@ -8,7 +8,7 @@ import { User } from '../decorators/user.decorator';
 import { Auth } from '../decorators/auth.decorator';
 import { redirectUrlCookieName } from '../middleware/set-redirect-url-cookie';
 import { Player } from '@/players/models/player';
-import { JwtTokenPurpose } from '../jwt-token-purpose';
+import { JwtTokenPurpose } from '../types/jwt-token-purpose';
 import { SteamApiError } from '@/steam/errors/steam-api.error';
 import { InsufficientTf2InGameHoursError } from '@/players/errors/insufficient-tf2-in-game-hours.error';
 import { NoEtf2lAccountError } from '@/etf2l/errors/no-etf2l-account.error';

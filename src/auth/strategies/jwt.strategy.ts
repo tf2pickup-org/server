@@ -2,7 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { PassportStrategy } from '@nestjs/passport';
 import { PlayersService } from '@/players/services/players.service';
-import { KeyPair } from '../key-pair';
+import { KeyPair } from '../types/key-pair';
 import { Error, Types } from 'mongoose';
 import { PlayerId } from '@/players/types/player-id';
 import { Request } from 'express';

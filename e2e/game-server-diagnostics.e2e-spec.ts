@@ -5,7 +5,7 @@ import * as request from 'supertest';
 import { AppModule } from '@/app.module';
 import { PlayersService } from '@/players/services/players.service';
 import { AuthService } from '@/auth/services/auth.service';
-import { JwtTokenPurpose } from '@/auth/jwt-token-purpose';
+import { JwtTokenPurpose } from '@/auth/types/jwt-token-purpose';
 import { GameServerDiagnosticsService } from '@/game-servers/providers/static-game-server/services/game-server-diagnostics.service';
 import { DiagnosticRunStatus } from '@/game-servers/providers/static-game-server/models/diagnostic-run-status';
 import { players } from './test-data';

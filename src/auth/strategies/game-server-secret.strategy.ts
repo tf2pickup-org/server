@@ -3,7 +3,7 @@ import { assertIsError } from '@/utils/assert-is-error';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { HeaderAPIKeyStrategy } from 'passport-headerapikey';
-import { SecretPurpose } from '../secret-purpose';
+import { SecretPurpose } from '../types/secret-purpose';
 
 @Injectable()
 export class GameServerSecretStrategy extends PassportStrategy(
