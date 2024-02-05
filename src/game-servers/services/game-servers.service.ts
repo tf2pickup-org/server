@@ -187,7 +187,7 @@ export class GameServersService
           },
         },
       });
-      this.logger.log(
+      this.logger.verbose(
         `using gameserver ${game.gameServer!.name} for game #${game.number}`,
       );
 
