@@ -5,7 +5,7 @@ import { Player } from '@/players/models/player';
 import { LinkedProfilesService } from '@/players/services/linked-profiles.service';
 import { OnlinePlayersService } from '@/players/services/online-players.service';
 import { PlayerBansService } from '@/players/services/player-bans.service';
-import { QueueConfig } from '@/queue-config/interfaces/queue-config';
+import { QueueConfig } from '@/queue-config/types/queue-config';
 import { MapVoteService } from '@/queue/services/map-vote.service';
 import { WebsocketEvent } from '@/websocket-event';
 import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
@@ -14,7 +14,7 @@ import { ProfileDto } from '../dto/profile.dto';
 import { Restriction, RestrictionReason } from '../interfaces/restriction';
 import { serialize } from '@/shared/serialize';
 import { isUndefined } from 'lodash';
-import { QUEUE_CONFIG } from '@/queue-config/queue-config.token';
+import { QUEUE_CONFIG } from '@/queue-config/tokens/queue-config.token';
 
 const playersEqual = (a: Player, b: Player) => {
   return a.name === b.name;

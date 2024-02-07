@@ -6,8 +6,8 @@ import { milliseconds } from 'date-fns';
 import { z } from 'zod';
 import { LogsTfUploadMethod } from '../types/logs-tf-upload-method';
 import { VoiceServerType } from '../types/voice-server-type';
-import { QueueConfig } from '@/queue-config/interfaces/queue-config';
-import { QUEUE_CONFIG } from '@/queue-config/queue-config.token';
+import { QueueConfig } from '@/queue-config/types/queue-config';
+import { QUEUE_CONFIG } from '@/queue-config/tokens/queue-config.token';
 
 @Injectable()
 export class GamesConfigurationService implements OnModuleInit {

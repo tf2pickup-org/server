@@ -1,6 +1,6 @@
 import { Environment } from '@/environment/environment';
 import { Events } from '@/events/events';
-import { QueueConfig } from '@/queue-config/interfaces/queue-config';
+import { QueueConfig } from '@/queue-config/types/queue-config';
 import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { catchError, concatMap, debounceTime, from, map, of } from 'rxjs';
 import { queuePreview } from '../notifications';
@@ -21,7 +21,7 @@ import { Cron, CronExpression } from '@nestjs/schedule';
 import { QueueService } from '@/queue/services/queue.service';
 import { QueueSlot } from '@/queue/queue-slot';
 import { DISCORD_CLIENT } from '../discord-client.token';
-import { QUEUE_CONFIG } from '@/queue-config/queue-config.token';
+import { QUEUE_CONFIG } from '@/queue-config/tokens/queue-config.token';
 
 const queuePromptMessageIdCacheKey = (guildId: string) =>
   `queue-prompt-message-id/${guildId}`;

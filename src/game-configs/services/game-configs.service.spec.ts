@@ -1,7 +1,7 @@
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { Test, TestingModule } from '@nestjs/testing';
 import { GameConfigsService } from './game-configs.service';
-import { QUEUE_CONFIG } from '@/queue-config/queue-config.token';
+import { QUEUE_CONFIG } from '@/queue-config/tokens/queue-config.token';
 
 describe('GameConfigsService', () => {
   let service: GameConfigsService;

@@ -1,5 +1,5 @@
-import { QueueConfig } from '@/queue-config/interfaces/queue-config';
-import { QUEUE_CONFIG } from '@/queue-config/queue-config.token';
+import { QueueConfig } from '@/queue-config/types/queue-config';
+import { QUEUE_CONFIG } from '@/queue-config/tokens/queue-config.token';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import {
   BadRequestException,

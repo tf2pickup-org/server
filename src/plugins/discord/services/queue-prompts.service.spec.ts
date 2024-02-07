@@ -23,7 +23,7 @@ import { QueueService } from '@/queue/services/queue.service';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { Cache } from 'cache-manager';
 import { DISCORD_CLIENT } from '../discord-client.token';
-import { QUEUE_CONFIG } from '@/queue-config/queue-config.token';
+import { QUEUE_CONFIG } from '@/queue-config/tokens/queue-config.token';
 
 jest.mock('@/configuration/services/configuration.service');
 jest.mock('@/players/services/players.service');

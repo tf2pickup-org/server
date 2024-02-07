@@ -3,7 +3,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { PlayerSkillRecordMalformedError } from '../errors/player-skill-record-malformed.error';
 import { FuturePlayerSkillService } from './future-player-skill.service';
 import { ImportExportSkillService } from './import-export-skill.service';
-import { QUEUE_CONFIG } from '@/queue-config/queue-config.token';
+import { QUEUE_CONFIG } from '@/queue-config/tokens/queue-config.token';
 
 jest.mock('./future-player-skill.service');
 

@@ -1,4 +1,4 @@
-import { QueueConfig } from '@/queue-config/interfaces/queue-config';
+import { QueueConfig } from '@/queue-config/types/queue-config';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { BadRequestException } from '@nestjs/common';
 import { ValidateSkillPipe } from './validate-skill.pipe';

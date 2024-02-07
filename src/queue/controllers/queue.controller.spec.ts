@@ -11,7 +11,7 @@ import { MapPoolEntry } from '../models/map-pool-entry';
 import { Player } from '@/players/models/player';
 import { Types } from 'mongoose';
 import { PlayerId } from '@/players/types/player-id';
-import { QUEUE_CONFIG } from '@/queue-config/queue-config.token';
+import { QUEUE_CONFIG } from '@/queue-config/tokens/queue-config.token';
 
 jest.mock('../services/queue.service');
 jest.mock('../services/map-vote.service');

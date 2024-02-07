@@ -27,9 +27,9 @@ import { QueueWrapper } from './queue-wrapper';
 import { MapPoolEntryDto } from '../dto/map-pool-item.dto';
 import { User } from '@/auth/decorators/user.decorator';
 import { Player } from '@/players/models/player';
-import { QueueConfig } from '@/queue-config/interfaces/queue-config';
+import { QueueConfig } from '@/queue-config/types/queue-config';
 import { MongoDbErrorFilter } from '@/shared/filters/mongo-db-error.filter';
-import { QUEUE_CONFIG } from '@/queue-config/queue-config.token';
+import { QUEUE_CONFIG } from '@/queue-config/tokens/queue-config.token';
 
 @Controller('queue')
 export class QueueController {
