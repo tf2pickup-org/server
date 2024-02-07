@@ -1,5 +1,14 @@
 
 
+## [11.5.1](https://github.com/tf2pickup-org/server/compare/11.5.0...11.5.1) (2024-02-07)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @nestjs/axios to v3.0.2 ([f2f8585](https://github.com/tf2pickup-org/server/commit/f2f8585d4f6a4ea45a6e76a3282bcbdf40a0967d))
+* **deps:** update dependency @redis/client to v1.5.14 ([83c5bbc](https://github.com/tf2pickup-org/server/commit/83c5bbc0a76d5fbb52505e633322f16db7fc58d1))
+* **queue-config:** cleanup queue config module ([#2792](https://github.com/tf2pickup-org/server/issues/2792)) ([bb86e7e](https://github.com/tf2pickup-org/server/commit/bb86e7eae86d82f6bbb3316d2fb067ca137fabff))
+
 # [11.5.0](https://github.com/tf2pickup-org/server/compare/11.4.4...11.5.0) (2024-02-05)
 
 
