@@ -13,10 +13,10 @@ import { LinkedProfileProviderName } from '../types/linked-profile-provider-name
 import { Types } from 'mongoose';
 import { ImportExportSkillService } from '../services/import-export-skill.service';
 import { PlayerSkillRecordMalformedError } from '../errors/player-skill-record-malformed.error';
-import { QueueConfig } from '@/queue-config/interfaces/queue-config';
+import { QueueConfig } from '@/queue-config/types/queue-config';
 import { PlayerId } from '../types/player-id';
 import { CacheModule } from '@nestjs/cache-manager';
-import { QUEUE_CONFIG } from '@/queue-config/queue-config.token';
+import { QUEUE_CONFIG } from '@/queue-config/tokens/queue-config.token';
 
 jest.mock('../services/linked-profiles.service');
 jest.mock('../services/import-export-skill.service');

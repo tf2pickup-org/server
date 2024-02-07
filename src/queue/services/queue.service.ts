@@ -16,13 +16,13 @@ import { PlayerNotInTheQueueError } from '../errors/player-not-in-the-queue.erro
 import { WrongQueueStateError } from '../errors/wrong-queue-state.error';
 import { CannotJoinAtThisQueueStateError } from '../errors/cannot-join-at-this-queue-state.error';
 import { Cache } from 'cache-manager';
-import { QueueConfig } from '@/queue-config/interfaces/queue-config';
+import { QueueConfig } from '@/queue-config/types/queue-config';
 import { ConfigurationService } from '@/configuration/services/configuration.service';
 import { PlayerId } from '@/players/types/player-id';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { Types } from 'mongoose';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import { QUEUE_CONFIG } from '@/queue-config/queue-config.token';
+import { QUEUE_CONFIG } from '@/queue-config/tokens/queue-config.token';
 
 interface Queue {
   slots: {

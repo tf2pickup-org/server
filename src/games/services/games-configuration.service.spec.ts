@@ -1,7 +1,7 @@
 import { ConfigurationService } from '@/configuration/services/configuration.service';
 import { Test, TestingModule } from '@nestjs/testing';
 import { GamesConfigurationService } from './games-configuration.service';
-import { QUEUE_CONFIG } from '@/queue-config/queue-config.token';
+import { QUEUE_CONFIG } from '@/queue-config/tokens/queue-config.token';
 
 jest.mock('@/configuration/services/configuration.service');
 

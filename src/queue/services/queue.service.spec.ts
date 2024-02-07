@@ -13,7 +13,7 @@ import { QueueSlot } from '../queue-slot';
 import { ConfigurationService } from '@/configuration/services/configuration.service';
 import { PlayerBanId } from '@/players/types/player-ban-id';
 import { PlayerId } from '@/players/types/player-id';
-import { QUEUE_CONFIG } from '@/queue-config/queue-config.token';
+import { QUEUE_CONFIG } from '@/queue-config/tokens/queue-config.token';
 
 jest.mock('@/configuration/services/configuration.service', () => ({
   ConfigurationService: jest.fn().mockImplementation(() => {

@@ -19,7 +19,7 @@ import { Types } from 'mongoose';
 import { Subject } from 'rxjs';
 import { RestrictionReason } from '../interfaces/restriction';
 import { ProfileService } from './profile.service';
-import { QUEUE_CONFIG } from '@/queue-config/queue-config.token';
+import { QUEUE_CONFIG } from '@/queue-config/tokens/queue-config.token';
 
 jest.mock('@/players/services/online-players.service');
 jest.mock('@/players/services/linked-profiles.service');
