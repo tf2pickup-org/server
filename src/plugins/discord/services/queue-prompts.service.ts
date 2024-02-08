@@ -19,7 +19,7 @@ import { ConfigurationService } from '@/configuration/services/configuration.ser
 import { GuildConfiguration } from '../types/guild-configuration';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { QueueService } from '@/queue/services/queue.service';
-import { QueueSlot } from '@/queue/queue-slot';
+import { QueueSlot } from '@/queue/types/queue-slot';
 import { DISCORD_CLIENT } from '../discord-client.token';
 import { QUEUE_CONFIG } from '@/queue-config/tokens/queue-config.token';
 

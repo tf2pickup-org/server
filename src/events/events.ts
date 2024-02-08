@@ -8,9 +8,9 @@ import { MapPoolEntry } from '@/queue/models/map-pool-entry';
 import { UserMetadata } from '@/shared/user-metadata';
 import { Injectable, Logger } from '@nestjs/common';
 import { Subject } from 'rxjs';
-import { MapVoteResult } from '../queue/map-vote-result';
-import { QueueSlot } from '../queue/queue-slot';
-import { QueueState } from '../queue/queue-state';
+import { MapVoteResult } from '../queue/types/map-vote-result';
+import { QueueSlot } from '../queue/types/queue-slot';
+import { QueueState } from '../queue/types/queue-state';
 import { Friendship } from '../queue/services/friends.service';
 
 /**

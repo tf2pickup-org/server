@@ -6,8 +6,8 @@ import {
   OnModuleDestroy,
   OnApplicationBootstrap,
 } from '@nestjs/common';
-import { QueueSlot } from '@/queue/queue-slot';
-import { QueueState } from '../queue-state';
+import { QueueSlot } from '@/queue/types/queue-slot';
+import { QueueState } from '../types/queue-state';
 import { Events } from '@/events/events';
 import { NoSuchSlotError } from '../errors/no-such-slot.error';
 import { SlotOccupiedError } from '../errors/slot-occupied.error';
@@ -68,7 +68,7 @@ export class QueueService
   constructor(
     @Inject(QUEUE_CONFIG)
     private readonly queueConfig: QueueConfig,
-    private events: Events,
+    private readonly events: Events,
     @Inject(CACHE_MANAGER) private readonly cache: Cache,
     private readonly configurationService: ConfigurationService,
   ) {}

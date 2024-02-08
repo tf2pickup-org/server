@@ -4,7 +4,7 @@ import { Events } from '@/events/events';
 import { PlayerNotInTheQueueError } from '../errors/player-not-in-the-queue.error';
 import { CannotMarkPlayerAsFriendError } from '../errors/cannot-mark-player-as-friend.error';
 import { PlayerAlreadyMarkedAsFriendError } from '../errors/player-already-marked-as-friend.error';
-import { QueueState } from '../queue-state';
+import { QueueState } from '../types/queue-state';
 import { PlayerId } from '@/players/types/player-id';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 

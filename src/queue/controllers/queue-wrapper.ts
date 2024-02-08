@@ -1,11 +1,11 @@
 import { Serializable } from '@/shared/serializable';
 import { QueueDto } from '../dto/queue.dto';
-import { MapVoteResult } from '../map-vote-result';
+import { MapVoteResult } from '../types/map-vote-result';
 import { QueueConfig } from '@/queue-config/types/queue-config';
-import { QueueSlot } from '../queue-slot';
-import { QueueState } from '../queue-state';
+import { QueueSlot } from '../types/queue-slot';
+import { QueueState } from '../types/queue-state';
 import { Friendship } from '../services/friends.service';
-import { SubstituteRequest } from '../substitute-request';
+import { SubstituteRequest } from '../types/substitute-request';
 import { QueueSlotWrapper } from './queue-slot-wrapper';
 
 interface QueueWrapperParams {
