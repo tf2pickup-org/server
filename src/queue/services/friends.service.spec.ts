@@ -1,13 +1,13 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { FriendsService } from './friends.service';
-import { QueueSlot } from '../queue-slot';
+import { QueueSlot } from '../types/queue-slot';
 import { QueueService } from './queue.service';
 import { Events } from '@/events/events';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { PlayerAlreadyMarkedAsFriendError } from '../errors/player-already-marked-as-friend.error';
 import { PlayerNotInTheQueueError } from '../errors/player-not-in-the-queue.error';
 import { CannotMarkPlayerAsFriendError } from '../errors/cannot-mark-player-as-friend.error';
-import { QueueState } from '../queue-state';
+import { QueueState } from '../types/queue-state';
 import { Types } from 'mongoose';
 import { PlayerId } from '@/players/types/player-id';
 

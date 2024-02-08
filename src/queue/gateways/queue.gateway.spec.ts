@@ -8,7 +8,7 @@ import { Events } from '@/events/events';
 import { Socket } from 'socket.io';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { QueueSlotWrapper } from '../controllers/queue-slot-wrapper';
-import { QueueState } from '../queue-state';
+import { QueueState } from '../types/queue-state';
 import { ConfigurationService } from '@/configuration/services/configuration.service';
 import { PlayerBansService } from '@/players/services/player-bans.service';
 import { PlayersService } from '@/players/services/players.service';

@@ -1,12 +1,10 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import { Validator } from 'jsonschema';
-import * as mapPoolSchema from '../map-pool.schema.json';
-import * as defaultMapPool from '../map-pool.default.json';
 import { Events } from '@/events/events';
 import { MapPoolEntry } from '../models/map-pool-entry';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { plainToInstance } from 'class-transformer';
+import { defaultMapPool } from '../default-map-pool';
 
 @Injectable()
 export class MapPoolService implements OnModuleInit {
@@ -14,13 +12,9 @@ export class MapPoolService implements OnModuleInit {
 
   constructor(
     @InjectModel(MapPoolEntry.name)
-    private mapPoolEntryModel: Model<MapPoolEntry>,
-    private events: Events,
-  ) {
-    new Validator().validate(defaultMapPool, mapPoolSchema, {
-      throwError: true,
-    });
-  }
+    private readonly mapPoolEntryModel: Model<MapPoolEntry>,
+    private readonly events: Events,
+  ) {}
 
   async onModuleInit() {
     const mapCount = await this.mapPoolEntryModel.countDocuments();
@@ -28,7 +22,7 @@ export class MapPoolService implements OnModuleInit {
       this.logger.log(
         'Map pool empty! Initializing it with the default one...',
       );
-      await this.mapPoolEntryModel.insertMany(defaultMapPool.maps);
+      await this.mapPoolEntryModel.insertMany(defaultMapPool);
     }
 
     await this.refreshMaps();

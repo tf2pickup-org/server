@@ -2,7 +2,7 @@ import { app } from '@/app';
 import { PlayersService } from '@/players/services/players.service';
 import { Serializable } from '@/shared/serializable';
 import { QueueSlotDto } from '../dto/queue-slot.dto';
-import { QueueSlot } from '../queue-slot';
+import { QueueSlot } from '../types/queue-slot';
 
 export class QueueSlotWrapper extends Serializable<QueueSlotDto> {
   constructor(public readonly slot: QueueSlot) {

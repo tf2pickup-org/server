@@ -5,7 +5,7 @@ import { GamesService } from '@/games/services/games.service';
 import { filter } from 'rxjs/operators';
 import { FriendsService } from './friends.service';
 import { Events } from '@/events/events';
-import { QueueState } from '../queue-state';
+import { QueueState } from '../types/queue-state';
 
 /**
  * Automatically launches a game once the queue is ready to play it.
@@ -16,11 +16,11 @@ import { QueueState } from '../queue-state';
 @Injectable()
 export class AutoGameLauncherService {
   constructor(
-    private queueService: QueueService,
-    private mapVoteService: MapVoteService,
-    private gamesService: GamesService,
-    private friendsService: FriendsService,
-    private events: Events,
+    private readonly queueService: QueueService,
+    private readonly mapVoteService: MapVoteService,
+    private readonly gamesService: GamesService,
+    private readonly friendsService: FriendsService,
+    private readonly events: Events,
   ) {}
 
   onModuleInit() {

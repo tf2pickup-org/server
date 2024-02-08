@@ -1,6 +1,6 @@
 import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
 import { Game } from '../models/game';
-import { QueueSlot } from '@/queue/queue-slot';
+import { QueueSlot } from '@/queue/types/queue-slot';
 import { PlayerSlot, pickTeams } from '../utils/pick-teams';
 import { PlayersService } from '@/players/services/players.service';
 import { shuffle } from 'lodash';

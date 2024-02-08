@@ -8,8 +8,8 @@ import { PlayerNotInTheQueueError } from '../errors/player-not-in-the-queue.erro
 import { WrongQueueStateError } from '../errors/wrong-queue-state.error';
 import { Types } from 'mongoose';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import { QueueState } from '../queue-state';
-import { QueueSlot } from '../queue-slot';
+import { QueueState } from '../types/queue-state';
+import { QueueSlot } from '../types/queue-slot';
 import { ConfigurationService } from '@/configuration/services/configuration.service';
 import { PlayerBanId } from '@/players/types/player-ban-id';
 import { PlayerId } from '@/players/types/player-id';

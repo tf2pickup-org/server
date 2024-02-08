@@ -5,9 +5,9 @@ import { MapVoteService } from './map-vote.service';
 import { GamesService } from '@/games/services/games.service';
 import { FriendsService } from './friends.service';
 import { Events } from '@/events/events';
-import { QueueState } from '../queue-state';
+import { QueueState } from '../types/queue-state';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
-import { QueueSlot } from '../queue-slot';
+import { QueueSlot } from '../types/queue-slot';
 import { Types } from 'mongoose';
 import { PlayerId } from '@/players/types/player-id';
 

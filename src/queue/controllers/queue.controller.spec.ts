@@ -6,7 +6,7 @@ import { QueueAnnouncementsService } from '../services/queue-announcements.servi
 import { FriendsService } from '../services/friends.service';
 import { Tf2ClassName } from '@/shared/models/tf2-class-name';
 import { MapPoolService } from '../services/map-pool.service';
-import { QueueState } from '../queue-state';
+import { QueueState } from '../types/queue-state';
 import { MapPoolEntry } from '../models/map-pool-entry';
 import { Player } from '@/players/models/player';
 import { Types } from 'mongoose';

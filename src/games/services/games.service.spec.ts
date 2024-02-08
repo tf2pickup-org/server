@@ -4,7 +4,7 @@ import { PlayersService } from '@/players/services/players.service';
 import { Player, playerSchema } from '@/players/models/player';
 import { mongooseTestingModule } from '@/utils/testing-mongoose-module';
 import { Game, gameSchema } from '../models/game';
-import { QueueSlot } from '@/queue/queue-slot';
+import { QueueSlot } from '@/queue/types/queue-slot';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { Tf2Team } from '../models/tf2-team';
 import { Events } from '@/events/events';
