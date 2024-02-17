@@ -25,7 +25,7 @@ dependencies:
     version: 10.3.3(@nestjs/common@10.3.3)(@nestjs/platform-express@10.3.3)(@nestjs/websockets@10.3.3)(reflect-metadata@0.2.1)(rxjs@7.8.1)
   '@nestjs/mongoose':
     specifier: 10.0.4
-    version: 10.0.4(@nestjs/common@10.3.3)(@nestjs/core@10.3.3)(mongoose@8.1.2)(rxjs@7.8.1)
+    version: 10.0.4(@nestjs/common@10.3.3)(@nestjs/core@10.3.3)(mongoose@8.1.3)(rxjs@7.8.1)
   '@nestjs/passport':
     specifier: 10.0.3
     version: 10.0.3(@nestjs/common@10.3.3)(passport@0.7.0)
@@ -123,8 +123,8 @@ dependencies:
     specifier: 0.9.7
     version: 0.9.7
   mongoose:
-    specifier: 8.1.2
-    version: 8.1.2
+    specifier: 8.1.3
+    version: 8.1.3
   multer:
     specifier: ^1.4.5-lts.1
     version: 1.4.5-lts.1
@@ -1292,7 +1292,7 @@ packages:
     transitivePeerDependencies:
       - encoding
 
-  /@nestjs/mongoose@10.0.4(@nestjs/common@10.3.3)(@nestjs/core@10.3.3)(mongoose@8.1.2)(rxjs@7.8.1):
+  /@nestjs/mongoose@10.0.4(@nestjs/common@10.3.3)(@nestjs/core@10.3.3)(mongoose@8.1.3)(rxjs@7.8.1):
     resolution: {integrity: sha512-OXcguhrv+ahXmpPD3FJgnCLU3eUSBcbE7OwClJL+3inpPAyvMbhLrYvk3Zi7/34aMCzBOILdCBh95AQ7ghd1sg==}
     peerDependencies:
       '@nestjs/common': ^8.0.0 || ^9.0.0 || ^10.0.0
@@ -1302,7 +1302,7 @@ packages:
     dependencies:
       '@nestjs/common': 10.3.3(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.1)(rxjs@7.8.1)
       '@nestjs/core': 10.3.3(@nestjs/common@10.3.3)(@nestjs/platform-express@10.3.3)(@nestjs/websockets@10.3.3)(reflect-metadata@0.2.1)(rxjs@7.8.1)
-      mongoose: 8.1.2
+      mongoose: 8.1.3
       rxjs: 7.8.1
     dev: false
 
@@ -2030,7 +2030,7 @@ packages:
   /@types/mongoose@5.11.96:
     resolution: {integrity: sha512-keiY22ljJtXyM7osgScmZOHV6eL5VFUD5tQumlu+hjS++HND5nM8jNEdj5CSWfKIJpVwQfPuwQ2SfBqUnCAVRw==}
     dependencies:
-      mongoose: 8.1.2
+      mongoose: 8.1.3
     transitivePeerDependencies:
       - '@aws-sdk/credential-providers'
       - '@mongodb-js/zstd'
@@ -6635,8 +6635,8 @@ packages:
       bson: 6.2.0
       mongodb-connection-string-url: 3.0.0
 
-  /mongoose@8.1.2:
-    resolution: {integrity: sha512-5KMq7k6KmFCIB8/YMKMFsWdsdNkBwuARDRHDRpp5GKC78eT0LwHIaMEKo6gDUg3zBuMoy9OdcM/6f4dkW06C/A==}
+  /mongoose@8.1.3:
+    resolution: {integrity: sha512-a5MajZSDJiQgy0iQcR+MIpFe7zehGJI4doJ6Dh1MvnGh8/HNNhr5pn07RPA86KCTjP2vuKdffpFmvXxcHiUOjw==}
     engines: {node: '>=16.20.1'}
     dependencies:
       bson: 6.2.0
