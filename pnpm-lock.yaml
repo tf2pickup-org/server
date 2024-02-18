@@ -183,7 +183,7 @@ devDependencies:
     version: 10.3.3(@nestjs/common@10.3.3)(@nestjs/core@10.3.3)(@nestjs/platform-express@10.3.3)
   '@release-it/conventional-changelog':
     specifier: 8.0.1
-    version: 8.0.1(release-it@17.0.5)
+    version: 8.0.1(release-it@17.1.0)
   '@types/cache-manager':
     specifier: 4.0.6
     version: 4.0.6
@@ -272,8 +272,8 @@ devDependencies:
     specifier: 3.2.5
     version: 3.2.5
   release-it:
-    specifier: 17.0.5
-    version: 17.0.5(typescript@5.3.3)
+    specifier: 17.1.0
+    version: 17.1.0(typescript@5.3.3)
   socket.io-client:
     specifier: 4.7.4
     version: 4.7.4
@@ -1728,7 +1728,7 @@ packages:
       '@redis/client': 1.5.14
     dev: false
 
-  /@release-it/conventional-changelog@8.0.1(release-it@17.0.5):
+  /@release-it/conventional-changelog@8.0.1(release-it@17.1.0):
     resolution: {integrity: sha512-pwc9jaBYDaSX5TXw6rEnPfqDkKJN2sFBhYpON1kBi9T3sA9EOBncC4ed0Bv3L1ciNb6eqEJXPfp+tQMqVlv/eg==}
     engines: {node: '>=18'}
     peerDependencies:
@@ -1737,7 +1737,7 @@ packages:
       concat-stream: 2.0.0
       conventional-changelog: 5.1.0
       conventional-recommended-bump: 9.0.0
-      release-it: 17.0.5(typescript@5.3.3)
+      release-it: 17.1.0(typescript@5.3.3)
       semver: 7.5.4
     dev: true
 
@@ -4758,7 +4758,7 @@ packages:
     hasBin: true
     dependencies:
       meow: 12.1.1
-      semver: 7.5.4
+      semver: 7.6.0
     dev: true
 
   /git-up@7.0.0:
@@ -7511,8 +7511,8 @@ packages:
       rc: 1.2.8
     dev: true
 
-  /release-it@17.0.5(typescript@5.3.3):
-    resolution: {integrity: sha512-97FcBu/2IjPd4qMvliZSnavpCO0+BWi8lZr+BgVJTXs6ihX8HLPucYR5RsgUUcZoGKj3beO8cunrsMuvEWTzGQ==}
+  /release-it@17.1.0(typescript@5.3.3):
+    resolution: {integrity: sha512-1/vS82JuEVQt2mENqq9/9HQo48R/ECSxYDKhNd3JHnmoyYGaHQdN3ojHNvHgUD4mwJsxGANYNXZR7SCD6G/c6Q==}
     engines: {node: '>=18'}
     hasBin: true
     dependencies:
