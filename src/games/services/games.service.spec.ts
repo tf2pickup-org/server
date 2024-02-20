@@ -704,7 +704,7 @@ describe('GamesService', () => {
             testGame._id,
             testPlayer._id,
           ),
-        ).toEqual(new Date(2023, 2, 7, 23, 26, 0).getTime());
+        ).toEqual(new Date(2023, 2, 7, 23, 26, 0));
       });
 
       describe('and the player joined the game but then disconnected', () => {
@@ -741,7 +741,7 @@ describe('GamesService', () => {
               testGame._id,
               testPlayer._id,
             ),
-          ).toEqual(new Date(2023, 2, 7, 23, 28, 0).getTime());
+          ).toEqual(new Date(2023, 2, 7, 23, 28, 0));
         });
       });
 
@@ -781,7 +781,7 @@ describe('GamesService', () => {
               testGame._id,
               testPlayer._id,
             ),
-          ).toEqual(new Date(2023, 2, 7, 23, 26, 0).getTime());
+          ).toEqual(new Date(2023, 2, 7, 23, 26, 0));
         });
       });
 
@@ -806,7 +806,7 @@ describe('GamesService', () => {
               testGame._id,
               testPlayer._id,
             ),
-          ).toEqual(new Date(2023, 2, 7, 23, 28, 0).getTime());
+          ).toEqual(new Date(2023, 2, 7, 23, 28, 0));
         });
 
         describe('but the rejoin timeout is not specified', () => {
@@ -888,7 +888,7 @@ describe('GamesService', () => {
               testGame._id,
               testPlayer._id,
             ),
-          ).toEqual(new Date(2023, 2, 7, 23, 38, 0).getTime());
+          ).toEqual(new Date(2023, 2, 7, 23, 38, 0));
         });
 
         describe('but the rejoin timeout is not specified', () => {
@@ -931,7 +931,7 @@ describe('GamesService', () => {
               testGame._id,
               testPlayer._id,
             ),
-          ).toEqual(new Date(2023, 2, 7, 23, 43, 0).getTime());
+          ).toEqual(new Date(2023, 2, 7, 23, 43, 0));
         });
 
         describe('but then disconnected', () => {
@@ -954,7 +954,7 @@ describe('GamesService', () => {
                 testGame._id,
                 testPlayer._id,
               ),
-            ).toEqual(new Date(2023, 2, 7, 23, 48, 0).getTime());
+            ).toEqual(new Date(2023, 2, 7, 23, 48, 0));
           });
         });
       });

@@ -108,22 +108,21 @@ export class GamesController {
     @Param('id', GameByIdOrNumberPipe) game: Game,
     @User() player: Player,
   ): Promise<ConnectInfoDto> {
-    const joinGameServerTimeout =
-      await this.gamesService.calculatePlayerJoinGameServerTimeout(
+    const [joinGameServerTimeout, voiceChannelUrl] = await Promise.all([
+      this.gamesService.calculatePlayerJoinGameServerTimeout(
         game._id,
         player._id,
-      );
+      ),
+      this.voiceChannelUrlsService.getVoiceChannelUrl(game._id, player._id),
+    ]);
+
     return {
       gameId: game.id,
       connectInfoVersion: game.connectInfoVersion,
       connectString: game.connectString,
-      voiceChannelUrl:
-        (await this.voiceChannelUrlsService.getVoiceChannelUrl(
-          game._id,
-          player._id,
-        )) ?? undefined,
+      ...(voiceChannelUrl && { voiceChannelUrl }),
       ...(joinGameServerTimeout && {
-        joinGameServerTimeout: new Date(joinGameServerTimeout).toISOString(),
+        joinGameServerTimeout: joinGameServerTimeout.toISOString(),
       }),
     };
   }
