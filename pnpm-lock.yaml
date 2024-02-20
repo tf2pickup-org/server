@@ -90,8 +90,8 @@ dependencies:
     specifier: 14.14.1
     version: 14.14.1
   dotenv:
-    specifier: 16.4.4
-    version: 16.4.4
+    specifier: 16.4.5
+    version: 16.4.5
   form-data:
     specifier: 4.0.0
     version: 4.0.0
@@ -3872,8 +3872,8 @@ packages:
     engines: {node: '>=12'}
     dev: false
 
-  /dotenv@16.4.4:
-    resolution: {integrity: sha512-XvPXc8XAQThSjAbY6cQ/9PcBXmFoWuw1sQ3b8HqUCR6ziGXjkTi//kB9SWa2UwqlgdAIuRqAa/9hVljzPehbYg==}
+  /dotenv@16.4.5:
+    resolution: {integrity: sha512-ZmdL2rui+eB2YwhsWzjInR8LldtZHGDoQ1ugH85ppHKwpUHL7j7rN0Ti9NCnGiQbhaZ11FpR+7ao1dNsmduNUg==}
     engines: {node: '>=12'}
     dev: false
 
@@ -6422,7 +6422,7 @@ packages:
       chalk: 4.1.2
       commander: 2.20.3
       dateformat: 4.6.3
-      dotenv: 16.4.4
+      dotenv: 16.4.5
       inherits: 2.0.4
       minimatch: 9.0.3
       mkdirp: 3.0.1
