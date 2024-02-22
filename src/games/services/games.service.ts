@@ -340,7 +340,7 @@ export class GamesService {
   async calculatePlayerJoinGameServerTimeout(
     gameId: GameId,
     playerId: PlayerId,
-  ): Promise<number | undefined> {
+  ): Promise<Date | undefined> {
     const game = await this.getById(gameId);
     const slot = game.findPlayerSlot(playerId);
     if (!slot) {
@@ -385,12 +385,14 @@ export class GamesService {
           throw new Error('invalid game state');
         }
 
-        return Math.max(
-          configuredAt.getTime() + joinGameServerTimeout,
-          replacedAt ? replacedAt.getTime() + rejoinGameServerTimeout : 0,
-          disconnectedAt
-            ? disconnectedAt.getTime() + rejoinGameServerTimeout
-            : 0,
+        return new Date(
+          Math.max(
+            configuredAt.getTime() + joinGameServerTimeout,
+            replacedAt ? replacedAt.getTime() + rejoinGameServerTimeout : 0,
+            disconnectedAt
+              ? disconnectedAt.getTime() + rejoinGameServerTimeout
+              : 0,
+          ),
         );
       }
 
@@ -399,11 +401,13 @@ export class GamesService {
           return undefined;
         }
 
-        return Math.max(
-          replacedAt ? replacedAt.getTime() + rejoinGameServerTimeout : 0,
-          disconnectedAt
-            ? disconnectedAt.getTime() + rejoinGameServerTimeout
-            : 0,
+        return new Date(
+          Math.max(
+            replacedAt ? replacedAt.getTime() + rejoinGameServerTimeout : 0,
+            disconnectedAt
+              ? disconnectedAt.getTime() + rejoinGameServerTimeout
+              : 0,
+          ),
         );
       }
 

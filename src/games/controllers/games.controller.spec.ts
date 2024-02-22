@@ -182,7 +182,7 @@ describe('Games Controller', () => {
       expect(ret.voiceChannelUrl).toEqual('FAKE_VOICE_CHANNEL_URL');
     });
 
-    describe('when the connect info is undefined', () => {
+    describe('when the connect string is undefined', () => {
       beforeEach(() => {
         jest.spyOn(gamesService, 'getById').mockResolvedValue({
           id: 'FAKE_ID',
@@ -195,6 +195,19 @@ describe('Games Controller', () => {
           id: 'FAKE_PLAYER_ID',
         } as Player);
         expect(ret.connectString).toBe(undefined);
+      });
+    });
+
+    describe('when voice channel url is null', () => {
+      beforeEach(() => {
+        voiceChannelUrlsService.getVoiceChannelUrl.mockResolvedValue(null);
+      });
+
+      it('should not return voice channel url', async () => {
+        const ret = await controller.getConnectInfo(gamesService.games[0], {
+          id: 'FAKE_PLAYER_ID',
+        } as Player);
+        expect(ret.voiceChannelUrl).toBe(undefined);
       });
     });
   });

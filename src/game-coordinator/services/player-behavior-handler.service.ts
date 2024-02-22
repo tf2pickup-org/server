@@ -40,10 +40,10 @@ export class PlayerBehaviorHandlerService {
             continue;
           }
 
-          if (timeout < new Date().getTime()) {
+          if (timeout.getTime() < new Date().getTime()) {
             const player = await this.playersService.getById(slot.player);
             this.logger.debug(
-              `[${player.name}] now=${new Date().getTime()} timeout=${timeout}`,
+              `[${player.name}] now=${new Date().getTime()} timeout=${timeout.getTime()}`,
             );
             this.logger.log(
               `player ${player.name} is offline; requesting substitute`,
