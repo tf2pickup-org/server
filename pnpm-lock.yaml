@@ -266,8 +266,8 @@ devDependencies:
     specifier: 29.7.0
     version: 29.7.0(@types/node@20.11.25)(ts-node@10.9.2)
   mongodb-memory-server:
-    specifier: 9.1.6
-    version: 9.1.6
+    specifier: 9.1.7
+    version: 9.1.7
   prettier:
     specifier: 3.2.5
     version: 3.2.5
@@ -5104,16 +5104,6 @@ packages:
       resolve-alpn: 1.2.1
     dev: true
 
-  /https-proxy-agent@7.0.2:
-    resolution: {integrity: sha512-NmLNjm6ucYwtcUmL7JQC1ZQ57LmHP4lT15FQ8D61nak1rO6DH+fz5qNK2Ap5UN4ZapYICE3/0KodcLYSPsPbaA==}
-    engines: {node: '>= 14'}
-    dependencies:
-      agent-base: 7.1.0
-      debug: 4.3.4
-    transitivePeerDependencies:
-      - supports-color
-    dev: true
-
   /https-proxy-agent@7.0.3:
     resolution: {integrity: sha512-kCnwztfX0KZJSLOBrcL0emLeFako55NWMovvyPP2AjsghNk9RB1yjSI+jVumPHYZsNXegNoqupSW9IY3afSH8w==}
     engines: {node: '>= 14'}
@@ -6592,8 +6582,8 @@ packages:
       '@types/whatwg-url': 11.0.3
       whatwg-url: 13.0.0
 
-  /mongodb-memory-server-core@9.1.6:
-    resolution: {integrity: sha512-3H/dq5II+XcSbK80hicMw4zFlDxcpjt4oWJq76RlOVuLoaf3AFqVheR6Vqx9ymlIqER4Jni58FMCIIRbesia1A==}
+  /mongodb-memory-server-core@9.1.7:
+    resolution: {integrity: sha512-q8geqCmt5hGuxaDhRo03ZUB0ITr6lnJ3jffdNiC4nDq13WbHUfY2A1RQq3OHDbdrY6aRYvZphx2bcXYBFRis3A==}
     engines: {node: '>=14.20.1'}
     dependencies:
       async-mutex: 0.4.1
@@ -6601,7 +6591,7 @@ packages:
       debug: 4.3.4
       find-cache-dir: 3.3.2
       follow-redirects: 1.15.4(debug@4.3.4)
-      https-proxy-agent: 7.0.2
+      https-proxy-agent: 7.0.3
       mongodb: 5.9.2
       new-find-package-json: 2.0.0
       semver: 7.6.0
@@ -6617,12 +6607,12 @@ packages:
       - supports-color
     dev: true
 
-  /mongodb-memory-server@9.1.6:
-    resolution: {integrity: sha512-gzcpgGYlPhuKmria37W+bvYy6W+OkX2UVG7MoP41OWFvQv2Hn7A+fLXkV+lsMmhog1lMQprdV6AR+gixgheLaw==}
+  /mongodb-memory-server@9.1.7:
+    resolution: {integrity: sha512-Yxw1cUMoCKTK6jxk4cKG07P+Z/qOmuCVyt3ScIDaoHeOCbOlg2sEtXYO9vEK/tzpj/1KHdDStU2oYrsJ8Fvm0A==}
     engines: {node: '>=14.20.1'}
     requiresBuild: true
     dependencies:
-      mongodb-memory-server-core: 9.1.6
+      mongodb-memory-server-core: 9.1.7
       tslib: 2.6.2
     transitivePeerDependencies:
       - '@aws-sdk/credential-providers'
