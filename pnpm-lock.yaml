@@ -51,8 +51,8 @@ dependencies:
     specifier: 0.7.3
     version: 0.7.3
   '@tf2pickup-org/serveme-tf-client':
-    specifier: ^0.0.3
-    version: 0.0.3
+    specifier: ^0.0.4
+    version: 0.0.4
   app-root-path:
     specifier: 3.1.0
     version: 3.1.0
@@ -1779,8 +1779,8 @@ packages:
       '@protobuf-ts/runtime': 2.9.0
     dev: false
 
-  /@tf2pickup-org/serveme-tf-client@0.0.3:
-    resolution: {integrity: sha512-t/pUvAew84fYnTzV8/UNecgnncOFJCbfS4zLTyv+NNBYu4s7IdvlZ3ZH4XV1anZmq4cxiqNncRv5QBafWIltWQ==}
+  /@tf2pickup-org/serveme-tf-client@0.0.4:
+    resolution: {integrity: sha512-05Z2mwITaaNqad/3HLAzJbjsamFzMi8NFh+hP6eVjboszJR0A/h+Dwfgt1JUw0lZtgtx2KbpltIrBCVLJ22lJA==}
     dependencies:
       date-fns: 3.4.0
       generate-password: 1.7.1
