@@ -25,7 +25,7 @@ dependencies:
     version: 10.3.3(@nestjs/common@10.3.3)(@nestjs/platform-express@10.3.3)(@nestjs/websockets@10.3.3)(reflect-metadata@0.2.1)(rxjs@7.8.1)
   '@nestjs/mongoose':
     specifier: 10.0.4
-    version: 10.0.4(@nestjs/common@10.3.3)(@nestjs/core@10.3.3)(mongoose@8.2.1)(rxjs@7.8.1)
+    version: 10.0.4(@nestjs/common@10.3.3)(@nestjs/core@10.3.3)(mongoose@8.2.2)(rxjs@7.8.1)
   '@nestjs/passport':
     specifier: 10.0.3
     version: 10.0.3(@nestjs/common@10.3.3)(passport@0.7.0)
@@ -123,8 +123,8 @@ dependencies:
     specifier: 0.9.7
     version: 0.9.7
   mongoose:
-    specifier: 8.2.1
-    version: 8.2.1
+    specifier: 8.2.2
+    version: 8.2.2
   multer:
     specifier: ^1.4.5-lts.1
     version: 1.4.5-lts.1
@@ -1293,7 +1293,7 @@ packages:
     transitivePeerDependencies:
       - encoding
 
-  /@nestjs/mongoose@10.0.4(@nestjs/common@10.3.3)(@nestjs/core@10.3.3)(mongoose@8.2.1)(rxjs@7.8.1):
+  /@nestjs/mongoose@10.0.4(@nestjs/common@10.3.3)(@nestjs/core@10.3.3)(mongoose@8.2.2)(rxjs@7.8.1):
     resolution: {integrity: sha512-OXcguhrv+ahXmpPD3FJgnCLU3eUSBcbE7OwClJL+3inpPAyvMbhLrYvk3Zi7/34aMCzBOILdCBh95AQ7ghd1sg==}
     peerDependencies:
       '@nestjs/common': ^8.0.0 || ^9.0.0 || ^10.0.0
@@ -1303,7 +1303,7 @@ packages:
     dependencies:
       '@nestjs/common': 10.3.3(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.1)(rxjs@7.8.1)
       '@nestjs/core': 10.3.3(@nestjs/common@10.3.3)(@nestjs/platform-express@10.3.3)(@nestjs/websockets@10.3.3)(reflect-metadata@0.2.1)(rxjs@7.8.1)
-      mongoose: 8.2.1
+      mongoose: 8.2.2
       rxjs: 7.8.1
     dev: false
 
@@ -1997,7 +1997,7 @@ packages:
   /@types/mongoose@5.11.96:
     resolution: {integrity: sha512-keiY22ljJtXyM7osgScmZOHV6eL5VFUD5tQumlu+hjS++HND5nM8jNEdj5CSWfKIJpVwQfPuwQ2SfBqUnCAVRw==}
     dependencies:
-      mongoose: 8.2.1
+      mongoose: 8.2.2
     transitivePeerDependencies:
       - '@aws-sdk/credential-providers'
       - '@mongodb-js/zstd'
@@ -3057,6 +3057,7 @@ packages:
   /bson@6.4.0:
     resolution: {integrity: sha512-6/gSSEdbkuFlSb+ufj5jUSU4+wo8xQOwm2bDSqwmxiPE17JTpsP63eAwoN8iF8Oy4gJYj+PAL3zdRCTdaw5Y1g==}
     engines: {node: '>=16.20.1'}
+    deprecated: a critical bug affecting zSeries s390x big-endian systems is fixed in bson@6.5.0
 
   /buffer-crc32@0.2.13:
     resolution: {integrity: sha512-VO9Ht/+p3SN7SKWqcrgEzjGbRSJYTx+Q1pTQC0wrWqHx0vpJraQ6GtHx8tvcg1rlK1byhU5gccxgOgj7B0TDkQ==}
@@ -6758,8 +6759,8 @@ packages:
       mongodb-connection-string-url: 3.0.0
     dev: false
 
-  /mongoose@8.2.1:
-    resolution: {integrity: sha512-UgZZbXSJH0pdU936qj3FyVI+sBsMoGowFnL5R/RYrA50ayn6+ZYdVr8ehsRgNxRcMYwoNld5XzHIfkFRJTePEw==}
+  /mongoose@8.2.2:
+    resolution: {integrity: sha512-6sMxe1d3k/dBjiOX4ExNTNOP0g1x0iq8eXyg+ttgIXM3HLnQ0IUyXRwVVAPFFY6O4/8uYN5dB0Ec72FrexbPpw==}
     engines: {node: '>=16.20.1'}
     dependencies:
       bson: 6.4.0
