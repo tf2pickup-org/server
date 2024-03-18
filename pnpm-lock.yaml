@@ -85,7 +85,7 @@ dependencies:
     version: 5.5.5
   date-fns:
     specifier: ^3.0.0
-    version: 3.5.0
+    version: 3.6.0
   discord.js:
     specifier: 14.14.1
     version: 14.14.1
@@ -1782,7 +1782,7 @@ packages:
   /@tf2pickup-org/serveme-tf-client@0.0.4:
     resolution: {integrity: sha512-05Z2mwITaaNqad/3HLAzJbjsamFzMi8NFh+hP6eVjboszJR0A/h+Dwfgt1JUw0lZtgtx2KbpltIrBCVLJ22lJA==}
     dependencies:
-      date-fns: 3.5.0
+      date-fns: 3.6.0
       generate-password: 1.7.1
     dev: false
 
@@ -3030,8 +3030,8 @@ packages:
     engines: {node: ^6 || ^7 || ^8 || ^9 || ^10 || ^11 || ^12 || >=13.7}
     hasBin: true
     dependencies:
-      caniuse-lite: 1.0.30001597
-      electron-to-chromium: 1.4.707
+      caniuse-lite: 1.0.30001599
+      electron-to-chromium: 1.4.708
       node-releases: 2.0.14
       update-browserslist-db: 1.0.13(browserslist@4.23.0)
     dev: true
@@ -3172,8 +3172,8 @@ packages:
     resolution: {integrity: sha512-tYq/6MoXhdezDLFZuCO/TKboTzuQ/xR5cFdgXPfDtM7/kchBO3b4VWghE/OAi/DV7tTdhmLjZiZBZi1fA/GheQ==}
     dev: true
 
-  /caniuse-lite@1.0.30001597:
-    resolution: {integrity: sha512-7LjJvmQU6Sj7bL0j5b5WY/3n7utXUJvAe1lxhsHDbLmwX9mdL86Yjtr+5SRCyf8qME4M7pU2hswj0FpyBVCv9w==}
+  /caniuse-lite@1.0.30001599:
+    resolution: {integrity: sha512-LRAQHZ4yT1+f9LemSMeqdMpMxZcc4RMWdj4tiFe3G8tNkWK+E58g+/tzotb5cU6TbcVJLr4fySiAW7XmxQvZQA==}
     dev: true
 
   /chalk@2.4.2:
@@ -3711,8 +3711,8 @@ packages:
     engines: {node: '>= 14'}
     dev: true
 
-  /date-fns@3.5.0:
-    resolution: {integrity: sha512-a+DwyXn7NOfdJireCzAA0B9p7jIXEu/Q9JKCyMYvH6+0vPUNbQceA0neXrdfJ/xzl3mhOh5vibQQ3936Tssm6A==}
+  /date-fns@3.6.0:
+    resolution: {integrity: sha512-fRHTG8g/Gif+kSh50gaGEdToemgfj74aRX3swtiouboip5JDLAyDE9F11nHMIcvOaXeOC6D7SpNhi7uFyB7Uww==}
     dev: false
 
   /dateformat@4.6.3:
@@ -3967,8 +3967,8 @@ packages:
     resolution: {integrity: sha512-1n7zWYh8eS0L9Uy+GskE0lkBUNK83cXTVJI0pU3mGprFsbfSdAc15VTFbo+A+Bq4pwstmL30AVcEU3Fo463lNg==}
     dev: true
 
-  /electron-to-chromium@1.4.707:
-    resolution: {integrity: sha512-qRq74Mo7ChePOU6GHdfAJ0NREXU8vQTlVlfWz3wNygFay6xrd/fY2J7oGHwrhFeU30OVctGLdTh/FcnokTWpng==}
+  /electron-to-chromium@1.4.708:
+    resolution: {integrity: sha512-iWgEEvREL4GTXXHKohhh33+6Y8XkPI5eHihDmm8zUk5Zo7HICEW+wI/j5kJ2tbuNUCXJ/sNXa03ajW635DiJXA==}
     dev: true
 
   /emittery@0.13.1:
