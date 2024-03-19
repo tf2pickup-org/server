@@ -7,7 +7,7 @@ settings:
 dependencies:
   '@anatine/zod-openapi':
     specifier: ^2.0.0
-    version: 2.2.3(openapi3-ts@4.2.2)(zod@3.22.4)
+    version: 2.2.4(openapi3-ts@4.2.2)(zod@3.22.4)
   '@nestjs/axios':
     specifier: 3.0.2
     version: 3.0.2(@nestjs/common@10.3.4)(axios@1.6.8)(rxjs@7.8.1)
@@ -311,8 +311,8 @@ packages:
       '@jridgewell/trace-mapping': 0.3.20
     dev: true
 
-  /@anatine/zod-openapi@2.2.3(openapi3-ts@4.2.2)(zod@3.22.4):
-    resolution: {integrity: sha512-6trBwIszayH9yYQcIFZnnD3kwlDrMkRw5yiOLL3c74Brxa1kC3rcMk1UPH9gxlDwau6mX1g7A24X3HqJG88MKA==}
+  /@anatine/zod-openapi@2.2.4(openapi3-ts@4.2.2)(zod@3.22.4):
+    resolution: {integrity: sha512-r2WBwQ/oO8nS45YRuCB7ckDUIZPjQ3vvwifoxJUKbkkol/XMdbgGA/TOi3/B2xw5dXCSwU+Wxh9274L7wfQOZQ==}
     peerDependencies:
       openapi3-ts: ^4.1.2
       zod: ^3.20.0
@@ -3012,7 +3012,7 @@ packages:
     hasBin: true
     dependencies:
       caniuse-lite: 1.0.30001599
-      electron-to-chromium: 1.4.708
+      electron-to-chromium: 1.4.711
       node-releases: 2.0.14
       update-browserslist-db: 1.0.13(browserslist@4.23.0)
     dev: true
@@ -3948,8 +3948,8 @@ packages:
     resolution: {integrity: sha512-1n7zWYh8eS0L9Uy+GskE0lkBUNK83cXTVJI0pU3mGprFsbfSdAc15VTFbo+A+Bq4pwstmL30AVcEU3Fo463lNg==}
     dev: true
 
-  /electron-to-chromium@1.4.708:
-    resolution: {integrity: sha512-iWgEEvREL4GTXXHKohhh33+6Y8XkPI5eHihDmm8zUk5Zo7HICEW+wI/j5kJ2tbuNUCXJ/sNXa03ajW635DiJXA==}
+  /electron-to-chromium@1.4.711:
+    resolution: {integrity: sha512-hRg81qzvUEibX2lDxnFlVCHACa+LtrCPIsWAxo161LDYIB3jauf57RGsMZV9mvGwE98yGH06icj3zBEoOkxd/w==}
     dev: true
 
   /emittery@0.13.1:
@@ -4105,6 +4105,10 @@ packages:
 
   /es-module-lexer@1.4.1:
     resolution: {integrity: sha512-cXLGjP0c4T3flZJKQSuziYoq7MlT+rnvfZjfp7h+I7K9BNX54kP9nyWvdbwjQ4u1iWbOL4u96fgeZLToQlZC7w==}
+    dev: true
+
+  /es-module-lexer@1.4.2:
+    resolution: {integrity: sha512-7nOqkomXZEaxUDJw21XZNtRk739QvrPSoZoRtbsEfcii00vdzZUh6zh1CQwHhrib8MdEtJfv5rJiGeb4KuV/vw==}
     dev: true
 
   /es-set-tostringtag@2.0.2:
@@ -9014,7 +9018,7 @@ packages:
       browserslist: 4.23.0
       chrome-trace-event: 1.0.3
       enhanced-resolve: 5.16.0
-      es-module-lexer: 1.4.1
+      es-module-lexer: 1.4.2
       eslint-scope: 5.1.1
       events: 3.3.0
       glob-to-regexp: 0.4.1
