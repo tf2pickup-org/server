@@ -31,7 +31,7 @@
     "@nestjs/websockets": "10.3.4",
     "@redis/client": "1.5.14",
     "@tf2pickup-org/mumble-client": "0.7.3",
-    "@tf2pickup-org/serveme-tf-client": "^0.0.4",
+    "@tf2pickup-org/serveme-tf-client": "^0.1.0",
     "app-root-path": "3.1.0",
     "async-mutex": "0.5.0",
     "axios": "1.6.8",
