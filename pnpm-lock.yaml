@@ -236,8 +236,8 @@ devDependencies:
     specifier: 1.14.4
     version: 1.14.4
   '@types/socket.io':
-    specifier: 3.0.1
-    version: 3.0.1
+    specifier: 3.0.2
+    version: 3.0.2
   '@types/steamid':
     specifier: 2.0.3
     version: 2.0.3
@@ -2091,10 +2091,11 @@ packages:
       '@types/node': 20.11.30
     dev: true
 
-  /@types/socket.io@3.0.1:
-    resolution: {integrity: sha512-XSma2FhVD78ymvoxYV4xGXrIH/0EKQ93rR+YR0Y+Kw1xbPzLDCip/UWSejZ08FpxYeYNci/PZPQS9anrvJRqMA==}
+  /@types/socket.io@3.0.2:
+    resolution: {integrity: sha512-pu0sN9m5VjCxBZVK8hW37ZcMe8rjn4HHggBN5CbaRTvFwv5jOmuIRZEuddsBPa9Th0ts0SIo3Niukq+95cMBbQ==}
+    deprecated: This is a stub types definition. socket.io provides its own type definitions, so you do not need this installed.
     dependencies:
-      socket.io: 4.7.4
+      socket.io: 4.7.5
     transitivePeerDependencies:
       - bufferutil
       - supports-color
@@ -8019,6 +8020,7 @@ packages:
       - bufferutil
       - supports-color
       - utf-8-validate
+    dev: false
 
   /socket.io@4.7.5:
     resolution: {integrity: sha512-DmeAkF6cwM9jSfmp6Dr/5/mfMwb5Z5qRrSXLpo3Fq5SqyU8CMF15jIN4ZhfSwu35ksM1qmHZDQ/DK5XTccSTvA==}
