@@ -215,8 +215,8 @@ devDependencies:
     specifier: 0.9.4
     version: 0.9.4
   '@types/mongoose':
-    specifier: 5.11.96
-    version: 5.11.96
+    specifier: 5.11.97
+    version: 5.11.97
   '@types/multer':
     specifier: ^1.4.7
     version: 1.4.11
@@ -1994,8 +1994,9 @@ packages:
     resolution: {integrity: sha512-VmSX8yXZwS80/sDSlXJfGVMj5Q/fRlYxQWndOPRa7TIDfdKnXDjbwZxQ8h+rWgk/7HXA4Ga2c+w+X2U5jRDPnw==}
     dev: true
 
-  /@types/mongoose@5.11.96:
-    resolution: {integrity: sha512-keiY22ljJtXyM7osgScmZOHV6eL5VFUD5tQumlu+hjS++HND5nM8jNEdj5CSWfKIJpVwQfPuwQ2SfBqUnCAVRw==}
+  /@types/mongoose@5.11.97:
+    resolution: {integrity: sha512-cqwOVYT3qXyLiGw7ueU2kX9noE8DPGRY6z8eUxudhXY8NZ7DMKYAxyZkLSevGfhCX3dO/AoX5/SO9lAzfjon0Q==}
+    deprecated: Mongoose publishes its own types, so you do not need to install this package.
     dependencies:
       mongoose: 8.2.2
     transitivePeerDependencies:
