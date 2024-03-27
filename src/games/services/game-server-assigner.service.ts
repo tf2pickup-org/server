@@ -79,6 +79,7 @@ export class GameServerAssignerService implements OnModuleInit {
     try {
       game = await this.gameServersService.assignGameServer(
         game._id,
+        game.map,
         gameServerId,
         actorId,
       );

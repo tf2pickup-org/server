@@ -9,19 +9,19 @@ export enum GameServerReleaseReason {
   GameInterrupted,
 }
 
-export interface TakeGameServerParams {
-  gameServerId: string;
+export interface TakeFirstFreeGameServerParams {
   gameId: GameId;
+  map: string;
+}
+
+export interface TakeGameServerParams extends TakeFirstFreeGameServerParams {
+  gameServerId: string;
 }
 
 export interface ReleaseGameServerParams {
   gameServerId: string;
   gameId: GameId;
   reason: GameServerReleaseReason;
-}
-
-export interface TakeFirstFreeGameServerParams {
-  gameId: GameId;
 }
 
 export interface GameServerProvider {

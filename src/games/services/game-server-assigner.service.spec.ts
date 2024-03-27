@@ -112,6 +112,7 @@ describe('GameServerAssignerService', () => {
       });
       expect(gameServersService.assignGameServer).toHaveBeenCalledWith(
         game._id,
+        'cp_badlands',
         undefined,
         bot._id,
       );
@@ -133,6 +134,7 @@ describe('GameServerAssignerService', () => {
       });
       expect(gameServersService.assignGameServer).toHaveBeenCalledWith(
         game._id,
+        'cp_badlands',
         {
           id: 'FAKE_GAMESERVER_ID',
           provider: 'test',

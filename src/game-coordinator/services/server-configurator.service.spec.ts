@@ -216,7 +216,6 @@ describe('ServerConfiguratorService', () => {
         logAddressAdd('FAKE_RELAY_ADDRESS:1234'),
       );
       expect(rcon.send).toHaveBeenCalledWith(kickAll());
-      expect(rcon.send).toHaveBeenCalledWith(changelevel('cp_badlands'));
       expect(rcon.send).toHaveBeenCalledWith('mp_tournament_readymode 1');
       expect(rcon.send).toHaveBeenCalledWith(execConfig('etf2l_6v6_5cp'));
       expect(rcon.send).toHaveBeenCalledWith(
@@ -399,6 +398,20 @@ describe('ServerConfiguratorService', () => {
       it('should enable logs.tf upload', async () => {
         await service.configureServer(mockGame._id);
         expect(rcon.send).toHaveBeenCalledWith('logstf_autoupload 2');
+      });
+    });
+
+    describe('when static game provider is used', () => {
+      beforeEach(async () => {
+        await gameModel.updateOne(
+          { _id: mockGame._id },
+          { $set: { 'gameServer.provider': 'static' } },
+        );
+      });
+
+      it('should changelevel', async () => {
+        await service.configureServer(mockGame._id);
+        expect(rcon.send).toHaveBeenCalledWith(changelevel('cp_badlands'));
       });
     });
   });

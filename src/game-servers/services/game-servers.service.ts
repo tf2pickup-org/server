@@ -98,11 +98,12 @@ export class GameServersService
 
   async takeFirstFreeGameServer(
     gameId: GameId,
+    map: string,
   ): Promise<GameServerDetailsWithProvider> {
     for (const provider of this.providers) {
       try {
         // skipcq: JS-0032
-        const option = await provider.takeFirstFreeGameServer({ gameId });
+        const option = await provider.takeFirstFreeGameServer({ gameId, map });
         return {
           ...option,
           provider: provider.gameServerProviderName,
@@ -118,11 +119,13 @@ export class GameServersService
   async takeGameServer(
     gameServerId: GameServerOptionIdentifier,
     gameId: GameId,
+    map: string,
   ): Promise<GameServerDetailsWithProvider> {
     const provider = this.providerByName(gameServerId.provider);
     const gameServer = await provider.takeGameServer({
       gameServerId: gameServerId.id,
       gameId,
+      map,
     });
     return { ...gameServer, provider: provider.gameServerProviderName };
   }
@@ -136,6 +139,7 @@ export class GameServersService
 
   async assignGameServer(
     gameId: GameId,
+    map: string,
     gameServerId?: GameServerOptionIdentifier,
     actorId?: PlayerId,
   ): Promise<Game> {
@@ -169,9 +173,9 @@ export class GameServersService
 
       let gameServer: GameServerDetailsWithProvider;
       if (isUndefined(gameServerId)) {
-        gameServer = await this.takeFirstFreeGameServer(gameId);
+        gameServer = await this.takeFirstFreeGameServer(gameId, map);
       } else {
-        gameServer = await this.takeGameServer(gameServerId, gameId);
+        gameServer = await this.takeGameServer(gameServerId, gameId, map);
       }
 
       game = await this.gamesService.update(game._id, {

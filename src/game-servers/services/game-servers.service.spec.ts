@@ -83,9 +83,9 @@ describe('GameServersService', () => {
   describe('#takeFirstFreeGameServer()', () => {
     describe('when there are no registered providers', () => {
       it('should throw an error', async () => {
-        await expect(service.takeFirstFreeGameServer(gameId)).rejects.toThrow(
-          NoFreeGameServerAvailableError,
-        );
+        await expect(
+          service.takeFirstFreeGameServer(gameId, 'cp_badlands'),
+        ).rejects.toThrow(NoFreeGameServerAvailableError);
       });
     });
 
@@ -100,7 +100,10 @@ describe('GameServersService', () => {
       });
 
       it('should return this gameserver', async () => {
-        const gameServer = await service.takeFirstFreeGameServer(gameId);
+        const gameServer = await service.takeFirstFreeGameServer(
+          gameId,
+          'cp_badlands',
+        );
         expect(gameServer.id).toEqual('FAKE_GAME_SERVER');
         expect(gameServer.provider).toEqual('test');
       });
@@ -121,10 +124,12 @@ describe('GameServersService', () => {
       const server = await service.takeGameServer(
         { id: 'FAKE_GAME_SERVER', provider: 'test' },
         gameId,
+        'cp_badlands',
       );
       expect(testGameServerProvider.takeGameServer).toHaveBeenCalledWith({
         gameServerId: 'FAKE_GAME_SERVER',
         gameId,
+        map: 'cp_badlands',
       });
       expect(server.id).toEqual('FAKE_GAME_SERVER');
       expect(server.provider).toEqual('test');
@@ -174,12 +179,13 @@ describe('GameServersService', () => {
     });
 
     it('should assign the server', async () => {
-      const newGame = await service.assignGameServer(game._id);
+      const newGame = await service.assignGameServer(game._id, 'cp_badlands');
       expect(newGame.gameServer?.id).toEqual('FAKE_GAME_SERVER');
       expect(
         testGameServerProvider.takeFirstFreeGameServer,
       ).toHaveBeenCalledWith({
         gameId: game._id,
+        map: 'cp_badlands',
       });
     });
 
@@ -187,6 +193,7 @@ describe('GameServersService', () => {
       const actorId = new Types.ObjectId() as PlayerId;
       const newGame = await service.assignGameServer(
         game._id,
+        'cp_badlands',
         undefined,
         actorId,
       );
@@ -205,7 +212,9 @@ describe('GameServersService', () => {
       });
 
       it('should throw', async () => {
-        await expect(service.assignGameServer(game._id)).rejects.toThrow();
+        await expect(
+          service.assignGameServer(game._id, 'cp_badlands'),
+        ).rejects.toThrow();
       });
     });
 
@@ -220,14 +229,19 @@ describe('GameServersService', () => {
       });
 
       it('should assign the given gameserver', async () => {
-        const newGame = await service.assignGameServer(game._id, {
-          id: 'FAKE_GAME_SERVER',
-          provider: 'test',
-        });
+        const newGame = await service.assignGameServer(
+          game._id,
+          'cp_badlands',
+          {
+            id: 'FAKE_GAME_SERVER',
+            provider: 'test',
+          },
+        );
         expect(newGame.gameServer?.id).toEqual('FAKE_GAME_SERVER');
         expect(testGameServerProvider.takeGameServer).toHaveBeenCalledWith({
           gameServerId: 'FAKE_GAME_SERVER',
           gameId: game._id,
+          map: 'cp_badlands',
         });
       });
 
@@ -240,11 +254,11 @@ describe('GameServersService', () => {
             port: 27025,
           });
 
-          await service.assignGameServer(game._id);
+          await service.assignGameServer(game._id, 'cp_badlands');
         });
 
         it('should release the assigned gameserver', async () => {
-          await service.assignGameServer(game._id, {
+          await service.assignGameServer(game._id, 'cp_badlands', {
             id: 'FAKE_GAME_SERVER',
             provider: 'test',
           });
@@ -259,7 +273,7 @@ describe('GameServersService', () => {
         });
 
         it('should reset the connect info', async () => {
-          const ret = await service.assignGameServer(game._id, {
+          const ret = await service.assignGameServer(game._id, 'cp_badlands', {
             id: 'FAKE_GAME_SERVER',
             provider: 'test',
           });
@@ -298,10 +312,14 @@ describe('GameServersService', () => {
           });
 
           it('should set player connection status of all players to offline', async () => {
-            const ret = await service.assignGameServer(game._id, {
-              id: 'FAKE_GAME_SERVER',
-              provider: 'test',
-            });
+            const ret = await service.assignGameServer(
+              game._id,
+              'cp_badlands',
+              {
+                id: 'FAKE_GAME_SERVER',
+                provider: 'test',
+              },
+            );
             expect(ret.slots.length > 0).toBe(true);
             expect(
               ret.slots.every(

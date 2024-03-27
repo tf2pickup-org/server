@@ -2,6 +2,7 @@ import { NoFreeGameServerAvailableError } from '@/game-servers/errors/no-free-ga
 import {
   GameServerProvider,
   ReleaseGameServerParams,
+  TakeFirstFreeGameServerParams,
   TakeGameServerParams,
 } from '@/game-servers/game-server-provider';
 import { GameServerControls } from '@/game-servers/interfaces/game-server-controls';
@@ -50,11 +51,13 @@ export class ServemeTfService implements GameServerProvider, OnModuleInit {
 
   async takeGameServer({
     gameServerId,
+    map,
   }: TakeGameServerParams): Promise<GameServerDetails> {
     const reservation = await this.servemeTfClient.create({
       serverId: parseInt(gameServerId, 10) as ServerId,
       enableDemosTf: true,
       enablePlugins: true,
+      firstMap: map,
     });
 
     return {
@@ -78,7 +81,9 @@ export class ServemeTfService implements GameServerProvider, OnModuleInit {
     }, endReservationDelay);
   }
 
-  async takeFirstFreeGameServer(): Promise<GameServerDetails> {
+  async takeFirstFreeGameServer({
+    map,
+  }: TakeFirstFreeGameServerParams): Promise<GameServerDetails> {
     try {
       const { servers } = await this.servemeTfClient.findOptions();
       const [preferredRegion, banGameservers] = await Promise.all([
@@ -103,6 +108,7 @@ export class ServemeTfService implements GameServerProvider, OnModuleInit {
         serverId: server.id,
         enableDemosTf: true,
         enablePlugins: true,
+        firstMap: map,
       });
 
       return {

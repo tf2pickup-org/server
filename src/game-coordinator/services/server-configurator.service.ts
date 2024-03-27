@@ -91,7 +91,15 @@ export class ServerConfiguratorService implements OnModuleInit {
       ),
     ]
       .concat(kickAll())
-      .concat(changelevel(game.map))
+      .concat(
+        (() => {
+          if (game.gameServer.provider === 'static') {
+            return [changelevel(game.map)];
+          } else {
+            return [];
+          }
+        })(),
+      )
       .concat(this.gameConfigsService.compileConfig())
       .concat(
         await (async () => {
@@ -147,6 +155,12 @@ export class ServerConfiguratorService implements OnModuleInit {
     try {
       rcon = await controls.rcon();
       rcon.on('end', () => endListener);
+      rcon.on('error', (error) => {
+        assertIsError(error);
+        this.logger.error(
+          `[${game.gameServer!.name}] rcon error: ${error.message}`,
+        );
+      });
 
       // reset connect info
       game = await this.gamesService.update(game._id, {

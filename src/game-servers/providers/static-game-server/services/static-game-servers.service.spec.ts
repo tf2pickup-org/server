@@ -187,6 +187,7 @@ describe('StaticGameServersService', () => {
       const gameServer = await service.takeGameServer({
         gameServerId: testGameServer.id,
         gameId,
+        map: 'cp_badlands',
       });
       testGameServer = await staticGameServerModel
         .findById(gameServer.id)
@@ -269,6 +270,7 @@ describe('StaticGameServersService', () => {
         const gameId = new Types.ObjectId() as GameId;
         const gameServer = await service.takeFirstFreeGameServer({
           gameId,
+          map: 'cp_badlands',
         });
         expect(gameServer.id).toEqual(testGameServer.id);
       });
@@ -285,6 +287,7 @@ describe('StaticGameServersService', () => {
         await expect(
           service.takeFirstFreeGameServer({
             gameId: new Types.ObjectId() as GameId,
+            map: 'cp_badlands',
           }),
         ).rejects.toThrow(NoFreeGameServerAvailableError);
       });
@@ -299,6 +302,7 @@ describe('StaticGameServersService', () => {
         await expect(
           service.takeFirstFreeGameServer({
             gameId: new Types.ObjectId() as GameId,
+            map: 'cp_badlands',
           }),
         ).rejects.toThrow(NoFreeGameServerAvailableError);
       });
