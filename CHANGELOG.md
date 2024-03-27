@@ -1,5 +1,55 @@
 
 
+# [11.6.0](https://github.com/tf2pickup-org/server/compare/11.5.1...11.6.0) (2024-03-27)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @anatine/zod-openapi to v2.2.3 ([461db9b](https://github.com/tf2pickup-org/server/commit/461db9b70872d136b65b7ed53bf4a17a05d24ef7))
+* **deps:** update dependency @anatine/zod-openapi to v2.2.4 ([4c4899a](https://github.com/tf2pickup-org/server/commit/4c4899a3b2605ed7c23aa6d1a907b09158e1fe68))
+* **deps:** update dependency @nestjs/cache-manager to v2.2.1 ([d1e6470](https://github.com/tf2pickup-org/server/commit/d1e6470171072b38d9305d3b5b0e251c3353af35))
+* **deps:** update dependency @nestjs/cache-manager to v2.2.2 ([78e4476](https://github.com/tf2pickup-org/server/commit/78e4476b6a3c4fdd89add37950ecb7df5576d5fb))
+* **deps:** update dependency @nestjs/config to v3.2.0 ([5c5dd79](https://github.com/tf2pickup-org/server/commit/5c5dd79a2424025a8794f63ecd8bfc819ad4500a))
+* **deps:** update dependency @nestjs/config to v3.2.1 ([#2808](https://github.com/tf2pickup-org/server/issues/2808)) ([a569c46](https://github.com/tf2pickup-org/server/commit/a569c461356d6747fd0665e97843d0ba88ed29fa))
+* **deps:** update dependency @nestjs/mongoose to v10.0.4 ([ffad8bf](https://github.com/tf2pickup-org/server/commit/ffad8bfe775d936f2514f3f1f8e0d4ab0244b68d))
+* **deps:** update dependency @nestjs/schedule to v4.0.1 ([bc75b22](https://github.com/tf2pickup-org/server/commit/bc75b22eab5037673252add49859287c0ee497f9))
+* **deps:** update dependency @nestjs/serve-static to v4.0.1 ([6f55f80](https://github.com/tf2pickup-org/server/commit/6f55f80a9af47dc8767e4065e2edbe6e0e125e99))
+* **deps:** update dependency @tf2pickup-org/serveme-tf-client to ^0.0.4 ([#2803](https://github.com/tf2pickup-org/server/issues/2803)) ([3556de8](https://github.com/tf2pickup-org/server/commit/3556de86d19b008f13ef16b01c55c9fbc4970032))
+* **deps:** update dependency @tf2pickup-org/serveme-tf-client to ^0.1.0 ([4f330b9](https://github.com/tf2pickup-org/server/commit/4f330b9173e20a2f3f6a01c07da87f87f5613cb2))
+* **deps:** update dependency async-mutex to v0.5.0 ([87c95cd](https://github.com/tf2pickup-org/server/commit/87c95cdd590e8462f4a239b55cacd348c7d09a70))
+* **deps:** update dependency axios to v1.6.8 ([cca8ba0](https://github.com/tf2pickup-org/server/commit/cca8ba03fd95be7dc8bad950c3e37b4c5bdb2dc0))
+* **deps:** update dependency cache-manager-redis-yet to v4.2.0 ([7096526](https://github.com/tf2pickup-org/server/commit/709652670852c039339100843e112a3d18b0cfe1))
+* **deps:** update dependency csv-parse to v5.5.4 ([015f6b1](https://github.com/tf2pickup-org/server/commit/015f6b19cb5ff0acfb6048784e3a02e06cf8f5a1))
+* **deps:** update dependency csv-parse to v5.5.5 ([#2801](https://github.com/tf2pickup-org/server/issues/2801)) ([1a5c40f](https://github.com/tf2pickup-org/server/commit/1a5c40f1afce33b992dd9993f7c06e9948c32a7f))
+* **deps:** update dependency date-fns to v3.3.1 ([548711a](https://github.com/tf2pickup-org/server/commit/548711a20aa95a4aa4507ab43add24e46aa524a1))
+* **deps:** update dependency date-fns to v3.4.0 ([#2802](https://github.com/tf2pickup-org/server/issues/2802)) ([89560b9](https://github.com/tf2pickup-org/server/commit/89560b92feb64158c53e8cd6f8edc4d38b027e44))
+* **deps:** update dependency date-fns to v3.5.0 ([#2804](https://github.com/tf2pickup-org/server/issues/2804)) ([49f2707](https://github.com/tf2pickup-org/server/commit/49f27076ca09b0b57fb6dee5713cb6e7e038fe96))
+* **deps:** update dependency date-fns to v3.6.0 ([9362c52](https://github.com/tf2pickup-org/server/commit/9362c52cb388c732b669db51472ff6ee75f2a043))
+* **deps:** update dependency dotenv to v16.4.2 ([7753a39](https://github.com/tf2pickup-org/server/commit/7753a39dbff9ba1ae6f97a06f2469d06302fdf7c))
+* **deps:** update dependency dotenv to v16.4.3 ([82a6038](https://github.com/tf2pickup-org/server/commit/82a60380590fd650a12707624945d74994255a2d))
+* **deps:** update dependency dotenv to v16.4.4 ([db86828](https://github.com/tf2pickup-org/server/commit/db86828de95b0087769fb2c865b723d9aa417fe3))
+* **deps:** update dependency dotenv to v16.4.5 ([49c861f](https://github.com/tf2pickup-org/server/commit/49c861f385c966c3901df3fea48274cbb63e0550))
+* **deps:** update dependency mongodb to v6.4.0 ([c4441e0](https://github.com/tf2pickup-org/server/commit/c4441e046c8ed859f07d703c7d69e20758fe9001))
+* **deps:** update dependency mongodb to v6.5.0 ([dfbfc08](https://github.com/tf2pickup-org/server/commit/dfbfc08b4796d8356f1c1e0a0652b4fe9e7124b6))
+* **deps:** update dependency mongoose to v8.1.2 ([3df32c9](https://github.com/tf2pickup-org/server/commit/3df32c9f11f44c3313655e7b5689ba96da8f38a5))
+* **deps:** update dependency mongoose to v8.1.3 ([33026c3](https://github.com/tf2pickup-org/server/commit/33026c3d9d2bafa72d714b2283a3f97fec22963d))
+* **deps:** update dependency mongoose to v8.2.0 ([1588d9c](https://github.com/tf2pickup-org/server/commit/1588d9cc37e774ede1fbb65924a69cb0b659828c))
+* **deps:** update dependency mongoose to v8.2.1 ([08cc99e](https://github.com/tf2pickup-org/server/commit/08cc99ed5961cef0f4f8bf86525cfa4c129cd382))
+* **deps:** update dependency mongoose to v8.2.2 ([52a13e9](https://github.com/tf2pickup-org/server/commit/52a13e9f7934c39dbd691fca226ffb391e0c722f))
+* **deps:** update dependency openapi3-ts to v4.2.2 ([701cbba](https://github.com/tf2pickup-org/server/commit/701cbbab1961bcc20886cb07f87a218152b41b90))
+* **deps:** update dependency socket.io to v4.7.4 ([a59dea3](https://github.com/tf2pickup-org/server/commit/a59dea3dcc66546da9c0a82fd5201236fe916997))
+* **deps:** update nest monorepo ([#2794](https://github.com/tf2pickup-org/server/issues/2794)) ([24060a3](https://github.com/tf2pickup-org/server/commit/24060a3ac41872d4b4859749e54e036d65cf568d))
+* **deps:** update nest monorepo to v10.3.3 ([4ee9241](https://github.com/tf2pickup-org/server/commit/4ee9241323a2b8e5b998edbb845206010f7a5e8f))
+* **deps:** update nest monorepo to v10.3.4 ([99e4920](https://github.com/tf2pickup-org/server/commit/99e4920ed82257d5ee7fa7c154e21b1f6f944d8d))
+* **deps:** update nest monorepo to v10.3.5 ([fee81f0](https://github.com/tf2pickup-org/server/commit/fee81f0d636a4d9f0a307a6aa2e462859ec1626a))
+* **games:** use Date type for GamesService.calculatePlayerJoinGameServerTimeout() ([#2799](https://github.com/tf2pickup-org/server/issues/2799)) ([f3e1226](https://github.com/tf2pickup-org/server/commit/f3e12261fa88464821f326c0987e53bc3f9b9898))
+* **queue:** cleanup queue module ([#2793](https://github.com/tf2pickup-org/server/issues/2793)) ([b3312c8](https://github.com/tf2pickup-org/server/commit/b3312c84f27f4ec5d926c1340ec34ae9160caedf))
+
+
+### Features
+
+* **serveme.tf:** initialize servers with first map ([#2809](https://github.com/tf2pickup-org/server/issues/2809)) ([d9d5e19](https://github.com/tf2pickup-org/server/commit/d9d5e194a19efeceff1404101a5998a136d620da))
+
 ## [11.5.1](https://github.com/tf2pickup-org/server/compare/11.5.0...11.5.1) (2024-02-07)
 
 
