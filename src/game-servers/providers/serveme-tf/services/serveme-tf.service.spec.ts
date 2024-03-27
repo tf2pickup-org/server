@@ -152,11 +152,13 @@ describe('ServemeTfService', () => {
       const gameServer = await service.takeGameServer({
         gameServerId: '42',
         gameId: new Types.ObjectId() as GameId,
+        map: 'cp_badlands',
       });
       expect(servemeTfClient.create).toHaveBeenCalledWith({
         serverId: 42,
         enableDemosTf: true,
         enablePlugins: true,
+        firstMap: 'cp_badlands',
       });
       expect(gameServer).toEqual({
         id: expect.any(String),
@@ -191,7 +193,10 @@ describe('ServemeTfService', () => {
 
   describe('#takeFirstFreeGameServer()', () => {
     it('should return the gameserver', async () => {
-      const ret = await service.takeFirstFreeGameServer();
+      const ret = await service.takeFirstFreeGameServer({
+        gameId: new Types.ObjectId() as GameId,
+        map: 'cp_badlands',
+      });
       expect(ret).toBeTruthy();
       expect(ret.name).toEqual('FAKE_SERVER_NAME');
     });
@@ -204,12 +209,16 @@ describe('ServemeTfService', () => {
       });
 
       it('should return the gameserver', async () => {
-        const ret = await service.takeFirstFreeGameServer();
+        const ret = await service.takeFirstFreeGameServer({
+          gameId: new Types.ObjectId() as GameId,
+          map: 'cp_badlands',
+        });
         expect(ret).toBeTruthy();
         expect(servemeTfClient.create).toHaveBeenCalledWith({
           serverId: 1, // make sure we are taking German server
           enableDemosTf: true,
           enablePlugins: true,
+          firstMap: 'cp_badlands',
         });
       });
 
@@ -235,9 +244,12 @@ describe('ServemeTfService', () => {
         });
 
         it('should throw an error', async () => {
-          await expect(service.takeFirstFreeGameServer()).rejects.toThrow(
-            NoFreeGameServerAvailableError,
-          );
+          await expect(
+            service.takeFirstFreeGameServer({
+              gameId: new Types.ObjectId() as GameId,
+              map: 'cp_badlands',
+            }),
+          ).rejects.toThrow(NoFreeGameServerAvailableError);
         });
       });
     });
@@ -250,12 +262,16 @@ describe('ServemeTfService', () => {
       });
 
       it('should return the gameserver', async () => {
-        const ret = await service.takeFirstFreeGameServer();
+        const ret = await service.takeFirstFreeGameServer({
+          gameId: new Types.ObjectId() as GameId,
+          map: 'cp_badlands',
+        });
         expect(ret).toBeTruthy();
         expect(servemeTfClient.create).toHaveBeenCalledWith({
           serverId: 2, // make sure we are not taking banned server
           enableDemosTf: true,
           enablePlugins: true,
+          firstMap: 'cp_badlands',
         });
       });
 
@@ -281,9 +297,12 @@ describe('ServemeTfService', () => {
         });
 
         it('should throw an error', async () => {
-          await expect(service.takeFirstFreeGameServer()).rejects.toThrow(
-            NoFreeGameServerAvailableError,
-          );
+          await expect(
+            service.takeFirstFreeGameServer({
+              gameId: new Types.ObjectId() as GameId,
+              map: 'cp_badlands',
+            }),
+          ).rejects.toThrow(NoFreeGameServerAvailableError);
         });
       });
     });
@@ -294,9 +313,12 @@ describe('ServemeTfService', () => {
       });
 
       it('should throw', async () => {
-        await expect(service.takeFirstFreeGameServer()).rejects.toThrow(
-          NoFreeGameServerAvailableError,
-        );
+        await expect(
+          service.takeFirstFreeGameServer({
+            gameId: new Types.ObjectId() as GameId,
+            map: 'cp_badlands',
+          }),
+        ).rejects.toThrow(NoFreeGameServerAvailableError);
       });
     });
   });
