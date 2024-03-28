@@ -127,6 +127,10 @@ export class Events {
     newValue: unknown;
   }>();
 
+  readonly errorNoFreeGameServerAvailable = new Subject<{
+    gameId: GameId;
+  }>();
+
   constructor() {
     for (const eventName in this) {
       const prop = this[eventName];

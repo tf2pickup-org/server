@@ -15,6 +15,7 @@ import { PlayersService } from '@/players/services/players.service';
 // eslint-disable-next-line jest/no-mocks-import
 import { PlayersService as MockedPlayersService } from '@/players/services/__mocks__/players.service';
 import { Player, playerSchema } from '@/players/models/player';
+import { NoFreeGameServerAvailableError } from '@/game-servers/errors/no-free-game-server-available.error';
 
 jest.mock('./games.service');
 jest.mock('@/game-servers/services/game-servers.service');
@@ -172,6 +173,30 @@ describe('GameServerAssignerService', () => {
             provider: 'test',
           }),
         ).rejects.toThrow(CannotAssignGameServerError);
+      });
+    });
+
+    describe('when no free gameservers are available', () => {
+      let emitted: boolean;
+
+      beforeEach(() => {
+        gameServersService.assignGameServer.mockRejectedValue(
+          new NoFreeGameServerAvailableError(),
+        );
+        events.errorNoFreeGameServerAvailable.subscribe(() => {
+          emitted = true;
+        });
+        emitted = false;
+      });
+
+      it('should emit event', async () => {
+        try {
+          await service.assignGameServer(game._id);
+        } catch (error) {
+          // empty
+        }
+
+        expect(emitted).toBe(true);
       });
     });
   });
