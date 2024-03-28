@@ -1,4 +1,3 @@
-import { Game } from '@/games/models/game';
 import { EmbedBuilder } from 'discord.js';
 
 interface NoFreeGameServersAvailableOptions {
