@@ -25,7 +25,7 @@ dependencies:
     version: 10.3.7(@nestjs/common@10.3.7)(@nestjs/platform-express@10.3.7)(@nestjs/websockets@10.3.7)(reflect-metadata@0.2.1)(rxjs@7.8.1)
   '@nestjs/mongoose':
     specifier: 10.0.4
-    version: 10.0.4(@nestjs/common@10.3.7)(@nestjs/core@10.3.7)(mongoose@8.2.2)(rxjs@7.8.1)
+    version: 10.0.4(@nestjs/common@10.3.7)(@nestjs/core@10.3.7)(mongoose@8.2.3)(rxjs@7.8.1)
   '@nestjs/passport':
     specifier: 10.0.3
     version: 10.0.3(@nestjs/common@10.3.7)(passport@0.7.0)
@@ -123,8 +123,8 @@ dependencies:
     specifier: 0.9.7
     version: 0.9.7
   mongoose:
-    specifier: 8.2.2
-    version: 8.2.2
+    specifier: 8.2.3
+    version: 8.2.3
   multer:
     specifier: ^1.4.5-lts.1
     version: 1.4.5-lts.1
@@ -1293,7 +1293,7 @@ packages:
     transitivePeerDependencies:
       - encoding
 
-  /@nestjs/mongoose@10.0.4(@nestjs/common@10.3.7)(@nestjs/core@10.3.7)(mongoose@8.2.2)(rxjs@7.8.1):
+  /@nestjs/mongoose@10.0.4(@nestjs/common@10.3.7)(@nestjs/core@10.3.7)(mongoose@8.2.3)(rxjs@7.8.1):
     resolution: {integrity: sha512-OXcguhrv+ahXmpPD3FJgnCLU3eUSBcbE7OwClJL+3inpPAyvMbhLrYvk3Zi7/34aMCzBOILdCBh95AQ7ghd1sg==}
     peerDependencies:
       '@nestjs/common': ^8.0.0 || ^9.0.0 || ^10.0.0
@@ -1303,7 +1303,7 @@ packages:
     dependencies:
       '@nestjs/common': 10.3.7(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.1)(rxjs@7.8.1)
       '@nestjs/core': 10.3.7(@nestjs/common@10.3.7)(@nestjs/platform-express@10.3.7)(@nestjs/websockets@10.3.7)(reflect-metadata@0.2.1)(rxjs@7.8.1)
-      mongoose: 8.2.2
+      mongoose: 8.2.3
       rxjs: 7.8.1
     dev: false
 
@@ -1999,7 +1999,7 @@ packages:
     resolution: {integrity: sha512-cqwOVYT3qXyLiGw7ueU2kX9noE8DPGRY6z8eUxudhXY8NZ7DMKYAxyZkLSevGfhCX3dO/AoX5/SO9lAzfjon0Q==}
     deprecated: Mongoose publishes its own types, so you do not need to install this package.
     dependencies:
-      mongoose: 8.2.2
+      mongoose: 8.2.3
     transitivePeerDependencies:
       - '@aws-sdk/credential-providers'
       - '@mongodb-js/zstd'
@@ -6736,8 +6736,8 @@ packages:
       mongodb-connection-string-url: 3.0.0
     dev: false
 
-  /mongoose@8.2.2:
-    resolution: {integrity: sha512-6sMxe1d3k/dBjiOX4ExNTNOP0g1x0iq8eXyg+ttgIXM3HLnQ0IUyXRwVVAPFFY6O4/8uYN5dB0Ec72FrexbPpw==}
+  /mongoose@8.2.3:
+    resolution: {integrity: sha512-ZB8K8AgbVgLCcqjtmZMxaQBEztwEEZCtAIPMx2Q56Uo4WWKmwf5Nu/EEIFo8d/17P946X0z6xzxwIqCxUMKxrA==}
     engines: {node: '>=16.20.1'}
     dependencies:
       bson: 6.4.0
