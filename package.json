@@ -65,7 +65,7 @@
     "passport-steam": "1.0.18",
     "pem": "1.14.8",
     "rcon-client": "4.2.4",
-    "reflect-metadata": "0.2.1",
+    "reflect-metadata": "0.2.2",
     "rimraf": "5.0.5",
     "rxjs": "7.8.1",
     "socket.io": "^4.7.2",
