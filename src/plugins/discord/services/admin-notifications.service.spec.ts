@@ -440,4 +440,25 @@ describe('AdminNotificationsService', () => {
         });
       }));
   });
+
+  describe('when no free game servers are available', () => {
+    let game: Game;
+    beforeEach(async () => {
+      game = await gamesService._createOne();
+    });
+
+    it('should send a notification to admins channel', () =>
+      new Promise<void>((resolve) => {
+        sentMessages.subscribe((message) => {
+          expect(message.embeds[0].toJSON().title).toEqual(
+            'No free game servers available',
+          );
+          resolve();
+        });
+
+        events.errorNoFreeGameServerAvailable.next({
+          gameId: game._id,
+        });
+      }));
+  });
 });

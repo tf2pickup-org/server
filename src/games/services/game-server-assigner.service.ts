@@ -12,6 +12,7 @@ import { Game } from '../models/game';
 import { GamesService } from './games.service';
 import { PlayerId } from '@/players/types/player-id';
 import { PlayersService } from '@/players/services/players.service';
+import { NoFreeGameServerAvailableError } from '@/game-servers/errors/no-free-game-server-available.error';
 
 @Injectable()
 export class GameServerAssignerService implements OnModuleInit {
@@ -90,6 +91,11 @@ export class GameServerAssignerService implements OnModuleInit {
       return game;
     } catch (error) {
       assertIsError(error);
+
+      if (error instanceof NoFreeGameServerAvailableError) {
+        this.events.errorNoFreeGameServerAvailable.next({ gameId });
+      }
+
       throw new CannotAssignGameServerError(game, error.message);
     }
   }

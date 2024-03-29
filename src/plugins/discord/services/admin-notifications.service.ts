@@ -27,6 +27,7 @@ import { GamesService } from '@/games/services/games.service';
 import { substituteRequested } from '../notifications/substitute-requested';
 import { version } from '../../../../package.json';
 import { DISCORD_CLIENT } from '../discord-client.token';
+import { noFreeGameServersAvailable } from '../notifications/no-free-game-servers-available';
 
 @Injectable()
 export class AdminNotificationsService implements OnModuleInit {
@@ -371,6 +372,24 @@ export class AdminNotificationsService implements OnModuleInit {
               name: actor.name,
               profileUrl: `${this.environment.clientUrl}/player/${actor.id}`,
               avatarUrl: actor.avatar?.small,
+            },
+            client: {
+              name: new URL(this.environment.clientUrl).hostname,
+              iconUrl: `${this.environment.clientUrl}/${iconUrlPath}`,
+            },
+          }),
+        ),
+      )
+      .subscribe((embed) => this.notifications.next(embed));
+
+    this.events.errorNoFreeGameServerAvailable
+      .pipe(
+        concatMap(({ gameId }) => from(this.gamesService.getById(gameId))),
+        map((game) =>
+          noFreeGameServersAvailable({
+            game: {
+              number: `${game.number}`,
+              url: `${this.environment.clientUrl}/game/${game.id}`,
             },
             client: {
               name: new URL(this.environment.clientUrl).hostname,
