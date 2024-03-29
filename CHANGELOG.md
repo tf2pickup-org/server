@@ -1,5 +1,20 @@
 
 
+# [11.7.0](https://github.com/tf2pickup-org/server/compare/11.6.0...11.7.0) (2024-03-29)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @nestjs/serve-static to v4.0.2 ([e8dc7f8](https://github.com/tf2pickup-org/server/commit/e8dc7f8dc3d138b2e2b801ca0f408c980324bfa2))
+* **deps:** update dependency reflect-metadata to v0.2.2 ([40fb8cf](https://github.com/tf2pickup-org/server/commit/40fb8cf1ffd641df347158c1d99bd42e6aa99bd5))
+* **deps:** update nest monorepo to v10.3.6 ([#2810](https://github.com/tf2pickup-org/server/issues/2810)) ([bd7743d](https://github.com/tf2pickup-org/server/commit/bd7743d25ba6e72ba584b5d13f6a37bb7f1b326b))
+* **deps:** update nest monorepo to v10.3.7 ([826751b](https://github.com/tf2pickup-org/server/commit/826751b76be22b12bf68af54c7d42b81a12c33e3))
+
+
+### Features
+
+* **discord:** notify when no game servers are available ([#2811](https://github.com/tf2pickup-org/server/issues/2811)) ([e0b666d](https://github.com/tf2pickup-org/server/commit/e0b666d4d51d84f1603552a9d38a0692c66ea50b))
+
 # [11.6.0](https://github.com/tf2pickup-org/server/compare/11.5.1...11.6.0) (2024-03-27)
 
 
