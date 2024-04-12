@@ -24,8 +24,8 @@ dependencies:
     specifier: 10.3.7
     version: 10.3.7(@nestjs/common@10.3.7)(@nestjs/platform-express@10.3.7)(@nestjs/websockets@10.3.7)(reflect-metadata@0.2.2)(rxjs@7.8.1)
   '@nestjs/mongoose':
-    specifier: 10.0.5
-    version: 10.0.5(@nestjs/common@10.3.7)(@nestjs/core@10.3.7)(mongoose@8.2.2)(rxjs@7.8.1)
+    specifier: 10.0.6
+    version: 10.0.6(@nestjs/common@10.3.7)(@nestjs/core@10.3.7)(mongoose@8.2.2)(rxjs@7.8.1)
   '@nestjs/passport':
     specifier: 10.0.3
     version: 10.0.3(@nestjs/common@10.3.7)(passport@0.7.0)
@@ -1293,8 +1293,8 @@ packages:
     transitivePeerDependencies:
       - encoding
 
-  /@nestjs/mongoose@10.0.5(@nestjs/common@10.3.7)(@nestjs/core@10.3.7)(mongoose@8.2.2)(rxjs@7.8.1):
-    resolution: {integrity: sha512-P5vwsT1RiL1+nGXfVMLMnqowkKy/azecSkAlE/0GBjoRJd7diJIJTVgOKCDysIQFtG1qinT3yXhusS1IM2jWBw==}
+  /@nestjs/mongoose@10.0.6(@nestjs/common@10.3.7)(@nestjs/core@10.3.7)(mongoose@8.2.2)(rxjs@7.8.1):
+    resolution: {integrity: sha512-J8jFgSvCDEKMXU57QAIdXIlWQsOFWK+x0PM1KI/0zHe3/4JrAtFGTFD08hRX3IHk+WJT9g/XQIpMSNM7/10Jlg==}
     peerDependencies:
       '@nestjs/common': ^8.0.0 || ^9.0.0 || ^10.0.0
       '@nestjs/core': ^8.0.0 || ^9.0.0 || ^10.0.0
