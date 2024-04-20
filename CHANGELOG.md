@@ -1,5 +1,19 @@
 
 
+## [11.7.1](https://github.com/tf2pickup-org/server/compare/11.7.0...11.7.1) (2024-04-20)
+
+
+### Bug Fixes
+
+* **auth:** log auth error properly ([#2823](https://github.com/tf2pickup-org/server/issues/2823)) ([83cb62a](https://github.com/tf2pickup-org/server/commit/83cb62aa52d95d61aedba03b9e455b2f94dcfa61))
+* **deps:** update dependency @nestjs/config to v3.2.2 ([19446bc](https://github.com/tf2pickup-org/server/commit/19446bcff4b23d5044886ac6be3b54d1ccd910f7))
+* **deps:** update dependency @nestjs/mongoose to v10.0.5 ([#2813](https://github.com/tf2pickup-org/server/issues/2813)) ([da05d9e](https://github.com/tf2pickup-org/server/commit/da05d9e36ef37ba4ffb9df3fc1f0e7e87df7f81d))
+* **deps:** update dependency @nestjs/mongoose to v10.0.6 ([#2819](https://github.com/tf2pickup-org/server/issues/2819)) ([d1c6e77](https://github.com/tf2pickup-org/server/commit/d1c6e772bd63317bba819acec00fff1479cc292a))
+* **deps:** update dependency @nestjs/schedule to v4.0.2 ([4d714c8](https://github.com/tf2pickup-org/server/commit/4d714c85ccc7e7b8d9f750613700a717b3b765cd))
+* **deps:** update dependency cache-manager to v5.5.0 ([6c581d2](https://github.com/tf2pickup-org/server/commit/6c581d222d29e30f710116b23f735bda40d367f3))
+* **deps:** update dependency cache-manager to v5.5.1 ([#2815](https://github.com/tf2pickup-org/server/issues/2815)) ([83a69e1](https://github.com/tf2pickup-org/server/commit/83a69e1d29a14efaecaaf4a5054c40f1f84ab746))
+* **deps:** update dependency openapi3-ts to v4.3.1 ([#2812](https://github.com/tf2pickup-org/server/issues/2812)) ([6cee948](https://github.com/tf2pickup-org/server/commit/6cee948c356f592dd398715277c9f963c56ec0e4))
+
 # [11.7.0](https://github.com/tf2pickup-org/server/compare/11.6.0...11.7.0) (2024-03-29)
 
 
