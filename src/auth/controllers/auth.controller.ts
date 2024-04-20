@@ -36,7 +36,7 @@ export class AuthController {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call
         return passport.authenticate(
           'steam',
-          (error: Error, player: Player) => {
+          (error: unknown, player: Player) => {
             let url = this.environment.clientUrl;
             if (req.headers.cookie) {
               const cookies = parse(req.headers.cookie);
@@ -49,7 +49,14 @@ export class AuthController {
             }
 
             if (error) {
-              this.logger.warn(`Login error: ${error.message}`);
+              if (error instanceof Error) {
+                this.logger.warn(`Login error: ${error.message}`);
+              } else if (typeof error === 'string') {
+                this.logger.warn(`Login error: ${error}`);
+              } else {
+                this.logger.warn(`Login error: ${JSON.stringify(error)}`);
+              }
+
               const clientErrorCode = this.mapToClientError(error);
               return res.redirect(`${url}/auth-error?error=${clientErrorCode}`);
             }
