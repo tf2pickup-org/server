@@ -7,7 +7,7 @@ settings:
 dependencies:
   '@anatine/zod-openapi':
     specifier: ^2.0.0
-    version: 2.2.4(openapi3-ts@4.3.1)(zod@3.22.4)
+    version: 2.2.4(openapi3-ts@4.3.1)(zod@3.23.4)
   '@nestjs/axios':
     specifier: 3.0.2
     version: 3.0.2(@nestjs/common@10.3.8)(axios@1.6.8)(rxjs@7.8.1)
@@ -169,7 +169,7 @@ dependencies:
     version: 2.0.0
   zod:
     specifier: ^3.20.2
-    version: 3.22.4
+    version: 3.23.4
 
 devDependencies:
   '@nestjs/cli':
@@ -311,7 +311,7 @@ packages:
       '@jridgewell/trace-mapping': 0.3.20
     dev: true
 
-  /@anatine/zod-openapi@2.2.4(openapi3-ts@4.3.1)(zod@3.22.4):
+  /@anatine/zod-openapi@2.2.4(openapi3-ts@4.3.1)(zod@3.23.4):
     resolution: {integrity: sha512-r2WBwQ/oO8nS45YRuCB7ckDUIZPjQ3vvwifoxJUKbkkol/XMdbgGA/TOi3/B2xw5dXCSwU+Wxh9274L7wfQOZQ==}
     peerDependencies:
       openapi3-ts: ^4.1.2
@@ -319,7 +319,7 @@ packages:
     dependencies:
       openapi3-ts: 4.3.1
       ts-deepmerge: 6.2.1
-      zod: 3.22.4
+      zod: 3.23.4
     dev: false
 
   /@angular-devkit/core@17.1.2(chokidar@3.6.0):
@@ -3023,8 +3023,8 @@ packages:
     engines: {node: ^6 || ^7 || ^8 || ^9 || ^10 || ^11 || ^12 || >=13.7}
     hasBin: true
     dependencies:
-      caniuse-lite: 1.0.30001603
-      electron-to-chromium: 1.4.723
+      caniuse-lite: 1.0.30001612
+      electron-to-chromium: 1.4.749
       node-releases: 2.0.14
       update-browserslist-db: 1.0.13(browserslist@4.23.0)
     dev: true
@@ -3169,8 +3169,8 @@ packages:
     resolution: {integrity: sha512-tYq/6MoXhdezDLFZuCO/TKboTzuQ/xR5cFdgXPfDtM7/kchBO3b4VWghE/OAi/DV7tTdhmLjZiZBZi1fA/GheQ==}
     dev: true
 
-  /caniuse-lite@1.0.30001603:
-    resolution: {integrity: sha512-iL2iSS0eDILMb9n5yKQoTBim9jMZ0Yrk8g0N9K7UzYyWnfIKzXBZD5ngpM37ZcL/cv0Mli8XtVMRYMQAfFpi5Q==}
+  /caniuse-lite@1.0.30001612:
+    resolution: {integrity: sha512-lFgnZ07UhaCcsSZgWW0K5j4e69dK1u/ltrL9lTUiFOwNHs12S3UMIEYgBV0Z6C6hRDev7iRnMzzYmKabYdXF9g==}
     dev: true
 
   /chalk@2.4.2:
@@ -3954,8 +3954,8 @@ packages:
     resolution: {integrity: sha512-1n7zWYh8eS0L9Uy+GskE0lkBUNK83cXTVJI0pU3mGprFsbfSdAc15VTFbo+A+Bq4pwstmL30AVcEU3Fo463lNg==}
     dev: true
 
-  /electron-to-chromium@1.4.723:
-    resolution: {integrity: sha512-rxFVtrMGMFROr4qqU6n95rUi9IlfIm+lIAt+hOToy/9r6CDv0XiEcQdC3VP71y1pE5CFTzKV0RvxOGYCPWWHPw==}
+  /electron-to-chromium@1.4.749:
+    resolution: {integrity: sha512-LRMMrM9ITOvue0PoBrvNIraVmuDbJV5QC9ierz/z5VilMdPOVMjOtpICNld3PuXuTZ3CHH/UPxX9gHhAPwi+0Q==}
     dev: true
 
   /emittery@0.13.1:
@@ -9266,6 +9266,6 @@ packages:
     engines: {node: '>=12.20'}
     dev: true
 
-  /zod@3.22.4:
-    resolution: {integrity: sha512-iC+8Io04lddc+mVqQ9AZ7OQ2MrUKGN+oIQyq1vemgt46jwCwLfhq7/pwnBnNXXXZb8VTVLKwp9EDkx+ryxIWmg==}
+  /zod@3.23.4:
+    resolution: {integrity: sha512-/AtWOKbBgjzEYYQRNfoGKHObgfAZag6qUJX1VbHo2PRBgS+wfWagEY2mizjfyAPcGesrJOcx/wcl0L9WnVrHFw==}
     dev: false
