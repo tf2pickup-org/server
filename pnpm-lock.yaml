@@ -7,7 +7,7 @@ settings:
 dependencies:
   '@anatine/zod-openapi':
     specifier: ^2.0.0
-    version: 2.2.4(openapi3-ts@4.3.1)(zod@3.23.7)
+    version: 2.2.4(openapi3-ts@4.3.1)(zod@3.23.8)
   '@nestjs/axios':
     specifier: 3.0.2
     version: 3.0.2(@nestjs/common@10.3.8)(axios@1.6.8)(rxjs@7.8.1)
@@ -169,7 +169,7 @@ dependencies:
     version: 2.0.0
   zod:
     specifier: ^3.20.2
-    version: 3.23.7
+    version: 3.23.8
 
 devDependencies:
   '@nestjs/cli':
@@ -311,7 +311,7 @@ packages:
       '@jridgewell/trace-mapping': 0.3.20
     dev: true
 
-  /@anatine/zod-openapi@2.2.4(openapi3-ts@4.3.1)(zod@3.23.7):
+  /@anatine/zod-openapi@2.2.4(openapi3-ts@4.3.1)(zod@3.23.8):
     resolution: {integrity: sha512-r2WBwQ/oO8nS45YRuCB7ckDUIZPjQ3vvwifoxJUKbkkol/XMdbgGA/TOi3/B2xw5dXCSwU+Wxh9274L7wfQOZQ==}
     peerDependencies:
       openapi3-ts: ^4.1.2
@@ -319,7 +319,7 @@ packages:
     dependencies:
       openapi3-ts: 4.3.1
       ts-deepmerge: 6.2.1
-      zod: 3.23.7
+      zod: 3.23.8
     dev: false
 
   /@angular-devkit/core@17.1.2(chokidar@3.6.0):
@@ -2953,7 +2953,7 @@ packages:
     hasBin: true
     dependencies:
       caniuse-lite: 1.0.30001616
-      electron-to-chromium: 1.4.758
+      electron-to-chromium: 1.4.759
       node-releases: 2.0.14
       update-browserslist-db: 1.0.15(browserslist@4.23.0)
     dev: true
@@ -3885,8 +3885,8 @@ packages:
     resolution: {integrity: sha512-1n7zWYh8eS0L9Uy+GskE0lkBUNK83cXTVJI0pU3mGprFsbfSdAc15VTFbo+A+Bq4pwstmL30AVcEU3Fo463lNg==}
     dev: true
 
-  /electron-to-chromium@1.4.758:
-    resolution: {integrity: sha512-/o9x6TCdrYZBMdGeTifAP3wlF/gVT+TtWJe3BSmtNh92Mw81U9hrYwW9OAGUh+sEOX/yz5e34sksqRruZbjYrw==}
+  /electron-to-chromium@1.4.759:
+    resolution: {integrity: sha512-qZJc+zsuI+/5UjOSFnpkJBwwLMH1AZgyKqJ7LUNnRsB7v/cDjMu9DvXgp9kH6PTTZxjnPXGp2Uhurw+2Ll4Hjg==}
     dev: true
 
   /emittery@0.13.1:
@@ -9194,6 +9194,6 @@ packages:
     engines: {node: '>=12.20'}
     dev: true
 
-  /zod@3.23.7:
-    resolution: {integrity: sha512-NBeIoqbtOiUMomACV/y+V3Qfs9+Okr18vR5c/5pHClPpufWOrsx8TENboDPe265lFdfewX2yBtNTLPvnmCxwog==}
+  /zod@3.23.8:
+    resolution: {integrity: sha512-XBx9AXhXktjUqnepgTiE5flcKIYWi/rme0Eaj+5Y0lftuGBq+jyRu/md4WnuxqgP1ubdpNCsYEYPxrzVHD8d6g==}
     dev: false
