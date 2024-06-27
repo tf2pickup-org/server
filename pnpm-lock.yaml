@@ -117,8 +117,8 @@ dependencies:
     specifier: 2.30.1
     version: 2.30.1
   mongodb:
-    specifier: 6.7.0
-    version: 6.7.0
+    specifier: 6.8.0
+    version: 6.8.0
   mongodb-uri:
     specifier: 0.9.7
     version: 0.9.7
@@ -6789,8 +6789,8 @@ packages:
       bson: 6.7.0
       mongodb-connection-string-url: 3.0.0
 
-  /mongodb@6.7.0:
-    resolution: {integrity: sha512-TMKyHdtMcO0fYBNORiYdmM25ijsHs+Njs963r4Tro4OQZzqYigAzYQouwWRg4OIaiLRUEGUh/1UAcH5lxdSLIA==}
+  /mongodb@6.8.0:
+    resolution: {integrity: sha512-HGQ9NWDle5WvwMnrvUxsFYPd3JEbqD3RgABHBQRuoCEND0qzhsd0iH5ypHsf1eJ+sXmvmyKpP+FLOKY8Il7jMw==}
     engines: {node: '>=16.20.1'}
     peerDependencies:
       '@aws-sdk/credential-providers': ^3.188.0
