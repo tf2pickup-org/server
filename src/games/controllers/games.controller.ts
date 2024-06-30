@@ -34,6 +34,7 @@ import { GameServerAssignerService } from '../services/game-server-assigner.serv
 import { ParseSortParamsPipe } from '../pipes/parse-sort-params.pipe';
 import { GameByIdOrNumberPipe } from '../pipes/game-by-id-or-number.pipe';
 import { PlayerByIdPipe } from '@/players/pipes/player-by-id.pipe';
+import { ParseDatePipe } from '@/shared/pipes/parse-date.pipe';
 import { GameServerOptionIdentifier } from '../dto/game-server-option-identifier';
 import { PlayerNotInThisGameErrorFilter } from '../filters/player-not-in-this-game-error.filter';
 import { GameInWrongStateErrorFilter } from '../filters/game-in-wrong-state-error.filter';
@@ -75,10 +76,27 @@ export class GamesController {
     state: GameState[],
     @Query('player', PlayerByIdPipe)
     player?: Player,
+    @Query('from', ParseDatePipe)
+    from?: Date,
+    @Query('to', ParseDatePipe)
+    to?: Date,
   ): Promise<PaginatedGameListDto> {
     const filter: FilterQuery<Game> = { state };
+
     if (player) {
       filter['slots.player'] = player._id;
+    }
+
+    if (from && to) {
+      filter['events'] = {
+        $elemMatch: { event: 'ended', at: { $gte: from, $lte: to } },
+      };
+    } else if (from) {
+      filter['events'] = {
+        $elemMatch: { event: 'ended', at: { $gte: from } },
+      };
+    } else if (to) {
+      filter['events'] = { $elemMatch: { event: 'ended', at: { $lte: to } } };
     }
 
     const [results, itemCount] = await Promise.all([
