@@ -99,7 +99,9 @@ export class GamesController {
         $elemMatch: { event: 'ended', at: { $gte: from } },
       };
     } else if (to) {
-      filter['events'] = { $elemMatch: { event: 'ended', at: { $lte: to } } };
+      filter['events'] = {
+        $elemMatch: { event: 'ended', at: { $lte: to } },
+      };
     }
 
     const [results, itemCount] = await Promise.all([
