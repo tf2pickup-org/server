@@ -92,15 +92,15 @@ export class GamesController {
         throw new BadRequestException("'from' date cannot be later than 'to'");
       }
       filter.events = {
-        $elemMatch: { event: 'ended', at: { $gte: from, $lte: to } },
+        $elemMatch: { event: 'created', at: { $gte: from, $lte: to } },
       };
     } else if (from) {
       filter.events = {
-        $elemMatch: { event: 'ended', at: { $gte: from } },
+        $elemMatch: { event: 'created', at: { $gte: from } },
       };
     } else if (to) {
       filter.events = {
-        $elemMatch: { event: 'ended', at: { $lte: to } },
+        $elemMatch: { event: 'created', at: { $lte: to } },
       };
     }
 
