@@ -107,7 +107,7 @@
     "mongodb-memory-server": "9.4.0",
     "prettier": "3.3.2",
     "release-it": "17.4.1",
-    "socket.io-client": "4.7.4",
+    "socket.io-client": "4.7.5",
     "supertest": "7.0.0",
     "trace-unhandled": "2.0.1",
     "ts-jest": "29.1.5",
