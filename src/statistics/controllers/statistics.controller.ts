@@ -1,5 +1,5 @@
 import { Controller, DefaultValuePipe, Get, Query } from '@nestjs/common';
-import { ParseDatePipe } from '../pipes/parse-date.pipe';
+import { ParseDatePipe } from '../../shared/pipes/parse-date.pipe';
 import { StatisticsService } from '../services/statistics.service';
 import { sub } from 'date-fns';
 
