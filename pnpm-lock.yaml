@@ -45,8 +45,8 @@ dependencies:
     specifier: 10.3.10
     version: 10.3.10(@nestjs/common@10.3.10)(@nestjs/core@10.3.10)(@nestjs/platform-socket.io@10.3.10)(reflect-metadata@0.2.2)(rxjs@7.8.1)
   '@redis/client':
-    specifier: 1.5.16
-    version: 1.5.16
+    specifier: 1.5.17
+    version: 1.5.17
   '@tf2pickup-org/mumble-client':
     specifier: 0.7.3
     version: 0.7.3
@@ -1654,12 +1654,12 @@ packages:
       '@redis/client': 1.5.14
     dev: false
 
-  /@redis/bloom@1.2.0(@redis/client@1.5.16):
+  /@redis/bloom@1.2.0(@redis/client@1.5.17):
     resolution: {integrity: sha512-HG2DFjYKbpNmVXsa0keLHp/3leGJz1mjh09f2RLGGLQZzSHpkmZWuwJbAvo3QcRY8p80m5+ZdXZdYOSBLlp7Cg==}
     peerDependencies:
       '@redis/client': ^1.0.0
     dependencies:
-      '@redis/client': 1.5.16
+      '@redis/client': 1.5.17
     dev: false
 
   /@redis/client@1.5.14:
@@ -1671,8 +1671,8 @@ packages:
       yallist: 4.0.0
     dev: false
 
-  /@redis/client@1.5.16:
-    resolution: {integrity: sha512-X1a3xQ5kEMvTib5fBrHKh6Y+pXbeKXqziYuxOUo1ojQNECg4M5Etd1qqyhMap+lFUOAh8S7UYevgJHOm4A+NOg==}
+  /@redis/client@1.5.17:
+    resolution: {integrity: sha512-IPvU9A31qRCZ7lds/x+ksuK/UMndd0EASveAvCvEtFFKIZjZ+m/a4a0L7S28KEWoR5ka8526hlSghDo4Hrc2Hg==}
     engines: {node: '>=14'}
     dependencies:
       cluster-key-slot: 1.1.2
@@ -1688,12 +1688,12 @@ packages:
       '@redis/client': 1.5.14
     dev: false
 
-  /@redis/graph@1.1.1(@redis/client@1.5.16):
+  /@redis/graph@1.1.1(@redis/client@1.5.17):
     resolution: {integrity: sha512-FEMTcTHZozZciLRl6GiiIB4zGm5z5F3F6a6FZCyrfxdKOhFlGkiAqlexWMBzCi4DcRoyiOsuLfW+cjlGWyExOw==}
     peerDependencies:
       '@redis/client': ^1.0.0
     dependencies:
-      '@redis/client': 1.5.16
+      '@redis/client': 1.5.17
     dev: false
 
   /@redis/json@1.0.6(@redis/client@1.5.14):
@@ -1704,12 +1704,12 @@ packages:
       '@redis/client': 1.5.14
     dev: false
 
-  /@redis/json@1.0.6(@redis/client@1.5.16):
+  /@redis/json@1.0.6(@redis/client@1.5.17):
     resolution: {integrity: sha512-rcZO3bfQbm2zPRpqo82XbW8zg4G/w4W3tI7X8Mqleq9goQjAGLL7q/1n1ZX4dXEAmORVZ4s1+uKLaUOg7LrUhw==}
     peerDependencies:
       '@redis/client': ^1.0.0
     dependencies:
-      '@redis/client': 1.5.16
+      '@redis/client': 1.5.17
     dev: false
 
   /@redis/search@1.1.6(@redis/client@1.5.14):
@@ -1720,12 +1720,12 @@ packages:
       '@redis/client': 1.5.14
     dev: false
 
-  /@redis/search@1.1.6(@redis/client@1.5.16):
+  /@redis/search@1.1.6(@redis/client@1.5.17):
     resolution: {integrity: sha512-mZXCxbTYKBQ3M2lZnEddwEAks0Kc7nauire8q20oA0oA/LoA+E/b5Y5KZn232ztPb1FkIGqo12vh3Lf+Vw5iTw==}
     peerDependencies:
       '@redis/client': ^1.0.0
     dependencies:
-      '@redis/client': 1.5.16
+      '@redis/client': 1.5.17
     dev: false
 
   /@redis/time-series@1.0.5(@redis/client@1.5.14):
@@ -1736,12 +1736,12 @@ packages:
       '@redis/client': 1.5.14
     dev: false
 
-  /@redis/time-series@1.0.5(@redis/client@1.5.16):
+  /@redis/time-series@1.0.5(@redis/client@1.5.17):
     resolution: {integrity: sha512-IFjIgTusQym2B5IZJG3XKr5llka7ey84fw/NOYqESP5WUfQs9zz1ww/9+qoz4ka/S6KcGBodzlCeZ5UImKbscg==}
     peerDependencies:
       '@redis/client': ^1.0.0
     dependencies:
-      '@redis/client': 1.5.16
+      '@redis/client': 1.5.17
     dev: false
 
   /@release-it/conventional-changelog@8.0.1(release-it@17.4.1):
@@ -3005,12 +3005,12 @@ packages:
     resolution: {integrity: sha512-3Exp8Hv52G/K8oY5U8OwS2A7MJEJmNUvn9DPEnNSo/yu+Ken4v9VEnIAq9YZ6b6E0LN1NwPXNF3N+IaQM9RcTQ==}
     engines: {node: '>= 16.17.0'}
     dependencies:
-      '@redis/bloom': 1.2.0(@redis/client@1.5.16)
-      '@redis/client': 1.5.16
-      '@redis/graph': 1.1.1(@redis/client@1.5.16)
-      '@redis/json': 1.0.6(@redis/client@1.5.16)
-      '@redis/search': 1.1.6(@redis/client@1.5.16)
-      '@redis/time-series': 1.0.5(@redis/client@1.5.16)
+      '@redis/bloom': 1.2.0(@redis/client@1.5.17)
+      '@redis/client': 1.5.17
+      '@redis/graph': 1.1.1(@redis/client@1.5.17)
+      '@redis/json': 1.0.6(@redis/client@1.5.17)
+      '@redis/search': 1.1.6(@redis/client@1.5.17)
+      '@redis/time-series': 1.0.5(@redis/client@1.5.17)
       cache-manager: 5.6.1
       redis: 4.6.13
     dev: false
