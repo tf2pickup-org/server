@@ -39,7 +39,7 @@
     "cache-manager-redis-yet": "4.2.0",
     "class-transformer": "0.5.1",
     "class-validator": "0.14.1",
-    "cookie": "0.6.0",
+    "cookie": "0.7.0",
     "cookie-parser": "1.4.6",
     "csv-parse": "^5.3.1",
     "date-fns": "^3.0.0",
