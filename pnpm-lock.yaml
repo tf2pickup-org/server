@@ -266,8 +266,8 @@ devDependencies:
     specifier: 29.7.0
     version: 29.7.0(@types/node@20.16.11)(ts-node@10.9.2)
   mongodb-memory-server:
-    specifier: 10.0.0
-    version: 10.0.0
+    specifier: 10.1.0
+    version: 10.1.0
   prettier:
     specifier: 3.3.3
     version: 3.3.3
@@ -2739,7 +2739,7 @@ packages:
   /axios@1.7.4:
     resolution: {integrity: sha512-DukmaFRnY6AzAALSH4J2M3k6PkaC+MfaAGdEERRWcC9q3/TWQwLpHR8ZRLKTdQ3aBDL64EdluRDjJqKw+BPZEw==}
     dependencies:
-      follow-redirects: 1.15.6(debug@4.3.5)
+      follow-redirects: 1.15.6
       form-data: 4.0.0
       proxy-from-env: 1.1.0
     transitivePeerDependencies:
@@ -3641,6 +3641,18 @@ packages:
     dependencies:
       ms: 2.1.2
 
+  /debug@4.3.7:
+    resolution: {integrity: sha512-Er2nc/H7RrMXZBFCEim6TCmMk02Z8vLC2Rbi1KEBggpo0fS6l0S1nnapwmIi3yW/+GOJap1Krg4w0Hg80oCqgQ==}
+    engines: {node: '>=6.0'}
+    peerDependencies:
+      supports-color: '*'
+    peerDependenciesMeta:
+      supports-color:
+        optional: true
+    dependencies:
+      ms: 2.1.3
+    dev: true
+
   /decompress-response@6.0.0:
     resolution: {integrity: sha512-aW35yZM6Bb/4oJlZncMH2LCoZtJXTRxES17vE3hoRiowU2kWHaJKFkSBDnDR+cm9J+9QhXmREyIfv0pji9ejCQ==}
     engines: {node: '>=10'}
@@ -4421,7 +4433,7 @@ packages:
     resolution: {integrity: sha512-36yxDn5H7OFZQla0/jFJmbIKTdZAQHngCedGxiMmpNfEZM0sdEeT+WczLQrjK6D7o2aiyLYDnkw0R3JK0Qv1RQ==}
     dev: true
 
-  /follow-redirects@1.15.6(debug@4.3.5):
+  /follow-redirects@1.15.6:
     resolution: {integrity: sha512-wWN62YITEaOpSK584EZXJafH1AGpO8RVgElfkuXbTOrPX4fIfOyEpW/CsiNd8JdYrAoOvafRTOEnvsO++qCqFA==}
     engines: {node: '>=4.0'}
     peerDependencies:
@@ -4429,8 +4441,19 @@ packages:
     peerDependenciesMeta:
       debug:
         optional: true
+    dev: false
+
+  /follow-redirects@1.15.9(debug@4.3.7):
+    resolution: {integrity: sha512-gew4GsXizNgdoRyqmyfMHyAmXsZDk6mHkSxZFCzW9gwlbtOW44CDtYavM+y+72qD/Vq2l550kMF52DT8fOLJqQ==}
+    engines: {node: '>=4.0'}
+    peerDependencies:
+      debug: '*'
+    peerDependenciesMeta:
+      debug:
+        optional: true
     dependencies:
-      debug: 4.3.5
+      debug: 4.3.7
+    dev: true
 
   /foreground-child@2.0.0:
     resolution: {integrity: sha512-dCIq9FpEcyQyXKCkyzmlPTFNgrCzPudOe+mhvJU5zAtlBnGVy2yKxtfsxK2tQBThwq225jcvBjpw1Gr40uzZCA==}
@@ -4887,7 +4910,7 @@ packages:
     engines: {node: '>= 14'}
     dependencies:
       agent-base: 7.1.0
-      debug: 4.3.5
+      debug: 4.3.7
     transitivePeerDependencies:
       - supports-color
     dev: true
@@ -6233,21 +6256,21 @@ packages:
       '@types/whatwg-url': 11.0.3
       whatwg-url: 13.0.0
 
-  /mongodb-memory-server-core@10.0.0:
-    resolution: {integrity: sha512-AdYi4nVqe3Pk95fRJ+DegbDdEfAG9wujNsVvJWbwh8+ZJd+d3JJK1PHxRyJ9rMvoczvlli5M30eMig7zBuF5pQ==}
+  /mongodb-memory-server-core@10.1.0:
+    resolution: {integrity: sha512-eib56lLOWiJneikoLJE0R0mfnVcKD6wYiEuUNc5bxdhKQZRyPGy6SDp8tVCoJNJdxAgCjlUIurhaq1NtUIHe1A==}
     engines: {node: '>=16.20.1'}
     dependencies:
       async-mutex: 0.5.0
       camelcase: 6.3.0
-      debug: 4.3.5
+      debug: 4.3.7
       find-cache-dir: 3.3.2
-      follow-redirects: 1.15.6(debug@4.3.5)
+      follow-redirects: 1.15.9(debug@4.3.7)
       https-proxy-agent: 7.0.5
-      mongodb: 6.8.0
+      mongodb: 6.9.0
       new-find-package-json: 2.0.0
       semver: 7.6.3
       tar-stream: 3.1.7
-      tslib: 2.6.3
+      tslib: 2.7.0
       yauzl: 3.1.3
     transitivePeerDependencies:
       - '@aws-sdk/credential-providers'
@@ -6260,13 +6283,13 @@ packages:
       - supports-color
     dev: true
 
-  /mongodb-memory-server@10.0.0:
-    resolution: {integrity: sha512-7Geo/s4lst/QHw+N8/stdnyb08xn68O0zbSee62jgoPfWOXfSPhX9a8OvyOY/o23oYk9ra2EpA2Oejenb3JKfw==}
+  /mongodb-memory-server@10.1.0:
+    resolution: {integrity: sha512-muyyvITwY3MIfzOedskcO5LJeZs+JBt/T5q5beeXWuXEsMED8o1AGMXzbv2Y2mrmXQscbYnJ1aNXIOfV54HPPQ==}
     engines: {node: '>=16.20.1'}
     requiresBuild: true
     dependencies:
-      mongodb-memory-server-core: 10.0.0
-      tslib: 2.6.3
+      mongodb-memory-server-core: 10.1.0
+      tslib: 2.7.0
     transitivePeerDependencies:
       - '@aws-sdk/credential-providers'
       - '@mongodb-js/zstd'
@@ -6344,6 +6367,39 @@ packages:
       '@mongodb-js/saslprep': 1.1.7
       bson: 6.7.0
       mongodb-connection-string-url: 3.0.0
+    dev: false
+
+  /mongodb@6.9.0:
+    resolution: {integrity: sha512-UMopBVx1LmEUbW/QE0Hw18u583PEDVQmUmVzzBRH0o/xtE9DBRA5ZYLOjpLIa03i8FXjzvQECJcqoMvCXftTUA==}
+    engines: {node: '>=16.20.1'}
+    peerDependencies:
+      '@aws-sdk/credential-providers': ^3.188.0
+      '@mongodb-js/zstd': ^1.1.0
+      gcp-metadata: ^5.2.0
+      kerberos: ^2.0.1
+      mongodb-client-encryption: '>=6.0.0 <7'
+      snappy: ^7.2.2
+      socks: ^2.7.1
+    peerDependenciesMeta:
+      '@aws-sdk/credential-providers':
+        optional: true
+      '@mongodb-js/zstd':
+        optional: true
+      gcp-metadata:
+        optional: true
+      kerberos:
+        optional: true
+      mongodb-client-encryption:
+        optional: true
+      snappy:
+        optional: true
+      socks:
+        optional: true
+    dependencies:
+      '@mongodb-js/saslprep': 1.1.7
+      bson: 6.7.0
+      mongodb-connection-string-url: 3.0.0
+    dev: true
 
   /mongoose@8.2.2:
     resolution: {integrity: sha512-6sMxe1d3k/dBjiOX4ExNTNOP0g1x0iq8eXyg+ttgIXM3HLnQ0IUyXRwVVAPFFY6O4/8uYN5dB0Ec72FrexbPpw==}
@@ -6450,7 +6506,7 @@ packages:
     resolution: {integrity: sha512-lDcBsjBSMlj3LXH2v/FW3txlh2pYTjmbOXPYJD93HI5EwuLzI11tdHSIpUMmfq/IOsldj4Ps8M8flhm+pCK4Ew==}
     engines: {node: '>=12.22.0'}
     dependencies:
-      debug: 4.3.5
+      debug: 4.3.7
     transitivePeerDependencies:
       - supports-color
     dev: true
@@ -8116,6 +8172,10 @@ packages:
 
   /tslib@2.6.3:
     resolution: {integrity: sha512-xNvxJEOUiWPGhUuUdQgAJPKOOJfGnIyKySOc09XkKsgdUV/3E2zvwZYdejjmRgPCgcym1juLH3226yA7sEFJKQ==}
+
+  /tslib@2.7.0:
+    resolution: {integrity: sha512-gLXCKdN1/j47AiHiOkJN69hJmcbGTHI0ImLmbYLHykhgeN0jVGola9yVjFgzCUklsZQMW55o+dW7IXv3RCXDzA==}
+    dev: true
 
   /type-check@0.4.0:
     resolution: {integrity: sha512-XleUoc9uwGXqjWwXaUTZAmzMcFZ5858QA2vvx1Ur5xIcixXIP+8LnFDgRplU30us6teqdlskFfu+ae4K79Ooew==}
