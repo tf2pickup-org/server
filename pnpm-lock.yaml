@@ -150,8 +150,8 @@ dependencies:
     specifier: 1.14.8
     version: 1.14.8
   rcon-client:
-    specifier: 4.2.4
-    version: 4.2.4
+    specifier: 4.2.5
+    version: 4.2.5
   reflect-metadata:
     specifier: 0.2.2
     version: 0.2.2
@@ -7125,8 +7125,8 @@ packages:
       strip-json-comments: 2.0.1
     dev: true
 
-  /rcon-client@4.2.4:
-    resolution: {integrity: sha512-sTHYLbcu2qrrOX4TOD3rvcLZNs7xiAhTsnZZIvxviSpa0yeV63sPAVI0PeScn5IvhKOCMURGt1NmnQ8h/GxjtA==}
+  /rcon-client@4.2.5:
+    resolution: {integrity: sha512-AnX1GU/ZTlwtYup3H6h0J1hwfP3OYltXVe+8ReBzmNEepX3xGH8nDg7gYqT5Y9rpAS/LmQ48h0BKINt1YGd8bA==}
     dependencies:
       typed-emitter: 0.1.0
     dev: false
