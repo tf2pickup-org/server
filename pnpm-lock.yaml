@@ -10,7 +10,7 @@ dependencies:
     version: 2.2.4(openapi3-ts@4.3.3)(zod@3.23.8)
   '@nestjs/axios':
     specifier: 3.0.3
-    version: 3.0.3(@nestjs/common@10.3.10)(axios@1.7.4)(rxjs@7.8.1)
+    version: 3.0.3(@nestjs/common@10.3.10)(axios@1.7.7)(rxjs@7.8.1)
   '@nestjs/cache-manager':
     specifier: 2.2.2
     version: 2.2.2(@nestjs/common@10.3.10)(@nestjs/core@10.3.10)(cache-manager@5.7.6)(rxjs@7.8.1)
@@ -60,8 +60,8 @@ dependencies:
     specifier: 0.5.0
     version: 0.5.0
   axios:
-    specifier: 1.7.4
-    version: 1.7.4
+    specifier: 1.7.7
+    version: 1.7.7
   cache-manager:
     specifier: 5.7.6
     version: 5.7.6
@@ -1170,7 +1170,7 @@ packages:
     dependencies:
       sparse-bitfield: 3.0.3
 
-  /@nestjs/axios@3.0.3(@nestjs/common@10.3.10)(axios@1.7.4)(rxjs@7.8.1):
+  /@nestjs/axios@3.0.3(@nestjs/common@10.3.10)(axios@1.7.7)(rxjs@7.8.1):
     resolution: {integrity: sha512-h6TCn3yJwD6OKqqqfmtRS5Zo4E46Ip2n+gK1sqwzNBC+qxQ9xpCu+ODVRFur6V3alHSCSBxb3nNtt73VEdluyA==}
     peerDependencies:
       '@nestjs/common': ^7.0.0 || ^8.0.0 || ^9.0.0 || ^10.0.0
@@ -1178,7 +1178,7 @@ packages:
       rxjs: ^6.0.0 || ^7.0.0
     dependencies:
       '@nestjs/common': 10.3.10(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1)
-      axios: 1.7.4
+      axios: 1.7.7
       rxjs: 7.8.1
     dev: false
 
@@ -2736,10 +2736,10 @@ packages:
   /asynckit@0.4.0:
     resolution: {integrity: sha512-Oei9OH4tRh0YqU3GxhX79dM/mwVgvbZJaSNaRk+bshkj0S5cfHcgYakreBjrHwatXKbz+IoIdYLxrKim2MjW0Q==}
 
-  /axios@1.7.4:
-    resolution: {integrity: sha512-DukmaFRnY6AzAALSH4J2M3k6PkaC+MfaAGdEERRWcC9q3/TWQwLpHR8ZRLKTdQ3aBDL64EdluRDjJqKw+BPZEw==}
+  /axios@1.7.7:
+    resolution: {integrity: sha512-S4kL7XrjgBmvdGut0sN3yJxqYzrDOnivkBiN0OFs6hLiUam3UPvswUo0kqGyhqUZGEOytHyumEdXsAkgCOUf3Q==}
     dependencies:
-      follow-redirects: 1.15.6
+      follow-redirects: 1.15.9(debug@4.3.7)
       form-data: 4.0.0
       proxy-from-env: 1.1.0
     transitivePeerDependencies:
@@ -3651,7 +3651,6 @@ packages:
         optional: true
     dependencies:
       ms: 2.1.3
-    dev: true
 
   /decompress-response@6.0.0:
     resolution: {integrity: sha512-aW35yZM6Bb/4oJlZncMH2LCoZtJXTRxES17vE3hoRiowU2kWHaJKFkSBDnDR+cm9J+9QhXmREyIfv0pji9ejCQ==}
@@ -4433,16 +4432,6 @@ packages:
     resolution: {integrity: sha512-36yxDn5H7OFZQla0/jFJmbIKTdZAQHngCedGxiMmpNfEZM0sdEeT+WczLQrjK6D7o2aiyLYDnkw0R3JK0Qv1RQ==}
     dev: true
 
-  /follow-redirects@1.15.6:
-    resolution: {integrity: sha512-wWN62YITEaOpSK584EZXJafH1AGpO8RVgElfkuXbTOrPX4fIfOyEpW/CsiNd8JdYrAoOvafRTOEnvsO++qCqFA==}
-    engines: {node: '>=4.0'}
-    peerDependencies:
-      debug: '*'
-    peerDependenciesMeta:
-      debug:
-        optional: true
-    dev: false
-
   /follow-redirects@1.15.9(debug@4.3.7):
     resolution: {integrity: sha512-gew4GsXizNgdoRyqmyfMHyAmXsZDk6mHkSxZFCzW9gwlbtOW44CDtYavM+y+72qD/Vq2l550kMF52DT8fOLJqQ==}
     engines: {node: '>=4.0'}
@@ -4453,7 +4442,6 @@ packages:
         optional: true
     dependencies:
       debug: 4.3.7
-    dev: true
 
   /foreground-child@2.0.0:
     resolution: {integrity: sha512-dCIq9FpEcyQyXKCkyzmlPTFNgrCzPudOe+mhvJU5zAtlBnGVy2yKxtfsxK2tQBThwq225jcvBjpw1Gr40uzZCA==}
@@ -6656,7 +6644,7 @@ packages:
     resolution: {integrity: sha512-JAq4HWu9W9CYk83KOP4f8zwGfwwMrFOz9AAlji7h1oLGag+/ZqyfqKror0/TTHM1OV2mBpqNAv8CAPIhEDWB2A==}
     engines: {node: '>= 0.6.0'}
     dependencies:
-      axios: 1.7.4
+      axios: 1.7.7
       qs: 6.11.2
     transitivePeerDependencies:
       - debug
