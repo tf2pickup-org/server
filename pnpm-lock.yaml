@@ -266,8 +266,8 @@ devDependencies:
     specifier: 29.7.0
     version: 29.7.0(@types/node@20.16.11)(ts-node@10.9.2)
   mongodb-memory-server:
-    specifier: 10.1.1
-    version: 10.1.1
+    specifier: 10.1.2
+    version: 10.1.2
   prettier:
     specifier: 3.3.3
     version: 3.3.3
@@ -2258,7 +2258,7 @@ packages:
     dependencies:
       '@typescript-eslint/typescript-estree': 7.17.0(typescript@5.4.5)
       '@typescript-eslint/utils': 7.17.0(eslint@8.57.1)(typescript@5.4.5)
-      debug: 4.3.5
+      debug: 4.3.7
       eslint: 8.57.1
       ts-api-utils: 1.3.0(typescript@5.4.5)
       typescript: 5.4.5
@@ -3769,7 +3769,7 @@ packages:
     resolution: {integrity: sha512-9Z0qLB0NIisTRt1DZ/8U2k12RJn8yls/nXMZLn+/N8hANT3TcYjKFKcwbw5zFQiN4NTde3TSY9zb79e1ij6j9Q==}
     dependencies:
       '@socket.io/component-emitter': 3.1.0
-      debug: 4.3.5
+      debug: 4.3.7
       engine.io-parser: 5.2.1
       ws: 8.11.0
       xmlhttprequest-ssl: 2.0.0
@@ -3799,7 +3799,7 @@ packages:
       base64id: 2.0.0
       cookie: 0.4.2
       cors: 2.8.5
-      debug: 4.3.5
+      debug: 4.3.7
       engine.io-parser: 5.2.2
       ws: 8.11.0
     transitivePeerDependencies:
@@ -6049,8 +6049,8 @@ packages:
       '@types/whatwg-url': 11.0.3
       whatwg-url: 13.0.0
 
-  /mongodb-memory-server-core@10.1.1:
-    resolution: {integrity: sha512-q9BOUM9gc3kjWFtPMtZDztaqqdC7Ewckd4xFdHzlpZfQ+mCsBpFGDzRZSoMJWaIlg9KK2MsZXkuw4wQ825u17Q==}
+  /mongodb-memory-server-core@10.1.2:
+    resolution: {integrity: sha512-5Wpz712CuDCKTn/40UZ+kMZlav4Y2imbpWuJU5wjuZk6s3+Jg8akTIBW9jQiFS8wgymu6iTg99Iw0XcypsLyQA==}
     engines: {node: '>=16.20.1'}
     dependencies:
       async-mutex: 0.5.0
@@ -6076,12 +6076,12 @@ packages:
       - supports-color
     dev: true
 
-  /mongodb-memory-server@10.1.1:
-    resolution: {integrity: sha512-FuLEORKL9uIJzA1/eDPCQ3VGsTdsvrSIiNtdmgjIGG9bCBf3v3Q2wh7OHKg2IwZyK+DwAeAwrdDUQSiN4DgrGA==}
+  /mongodb-memory-server@10.1.2:
+    resolution: {integrity: sha512-aDGEWuUVHTiBvaaq03LbpvvSk8IVtepbvp314p1cq7f2xdSpl7igMnYpPfYY5nkks1I5I6OL2ypHjaJj4kBp+g==}
     engines: {node: '>=16.20.1'}
     requiresBuild: true
     dependencies:
-      mongodb-memory-server-core: 10.1.1
+      mongodb-memory-server-core: 10.1.2
       tslib: 2.7.0
     transitivePeerDependencies:
       - '@aws-sdk/credential-providers'
@@ -7303,7 +7303,7 @@ packages:
   /socket.io-adapter@2.5.4:
     resolution: {integrity: sha512-wDNHGXGewWAjQPt3pyeYBtpWSq9cLE5UW1ZUPL/2eGK9jtse/FpXib7epSTsz0Q0m+6sg6Y4KtcFTlah1bdOVg==}
     dependencies:
-      debug: 4.3.5
+      debug: 4.3.7
       ws: 8.11.0
     transitivePeerDependencies:
       - bufferutil
@@ -7329,7 +7329,7 @@ packages:
     engines: {node: '>=10.0.0'}
     dependencies:
       '@socket.io/component-emitter': 3.1.0
-      debug: 4.3.5
+      debug: 4.3.7
     transitivePeerDependencies:
       - supports-color
 
