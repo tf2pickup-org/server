@@ -102,8 +102,8 @@ dependencies:
     specifier: 4.7.8
     version: 4.7.8
   helmet:
-    specifier: 7.1.0
-    version: 7.1.0
+    specifier: 7.2.0
+    version: 7.2.0
   jsonwebtoken:
     specifier: 9.0.2
     version: 9.0.2
@@ -1968,7 +1968,7 @@ packages:
     resolution: {integrity: sha512-ONIn/nSNQA57yRge3oaMQESef/6QhoeX7llWeDli0UZIfz8TQMkfNPTXA8VnnyeA1WUjG2pGqdjEIueYonMdfQ==}
     deprecated: This is a stub types definition. helmet provides its own type definitions, so you do not need this installed.
     dependencies:
-      helmet: 7.1.0
+      helmet: 7.2.0
     dev: true
 
   /@types/http-errors@2.0.4:
@@ -4742,8 +4742,8 @@ packages:
       spawn-wrap: 2.0.0
     dev: true
 
-  /helmet@7.1.0:
-    resolution: {integrity: sha512-g+HZqgfbpXdCkme/Cd/mZkV0aV3BZZZSugecH03kl38m/Kmdx8jKjBikpDj2cr+Iynv4KpYEviojNdTJActJAg==}
+  /helmet@7.2.0:
+    resolution: {integrity: sha512-ZRiwvN089JfMXokizgqEPXsl2Guk094yExfoDXR0cBYWxtBbaSww/w+vT4WEJsBW2iTUi1GgZ6swmoug3Oy4Xw==}
     engines: {node: '>=16.0.0'}
 
   /hexoid@1.0.0:
