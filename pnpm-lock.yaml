@@ -209,8 +209,8 @@ devDependencies:
     specifier: 9.0.7
     version: 9.0.7
   '@types/lodash':
-    specifier: 4.17.10
-    version: 4.17.10
+    specifier: 4.17.12
+    version: 4.17.12
   '@types/mongodb-uri':
     specifier: 0.9.4
     version: 0.9.4
@@ -2010,8 +2010,8 @@ packages:
       '@types/node': 20.16.11
     dev: true
 
-  /@types/lodash@4.17.10:
-    resolution: {integrity: sha512-YpS0zzoduEhuOWjAotS6A5AVCva7X4lVlYLF0FYHAY9sdraBfnatttHItlWeZdGhuEkf+OzMNg2ZYAx8t+52uQ==}
+  /@types/lodash@4.17.12:
+    resolution: {integrity: sha512-sviUmCE8AYdaF/KIHLDJBQgeYzPBI0vf/17NaYehBJfYD1j6/L95Slh07NlyK2iNyBNaEkb3En2jRt+a8y3xZQ==}
     dev: true
 
   /@types/luxon@3.4.2:
