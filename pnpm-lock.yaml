@@ -183,7 +183,7 @@ devDependencies:
     version: 10.4.6(@nestjs/common@10.4.6)(@nestjs/core@10.4.6)(@nestjs/platform-express@10.4.6)
   '@release-it/conventional-changelog':
     specifier: 9.0.1
-    version: 9.0.1(release-it@17.9.0)
+    version: 9.0.1(release-it@17.10.0)
   '@types/cache-manager':
     specifier: 4.0.6
     version: 4.0.6
@@ -272,8 +272,8 @@ devDependencies:
     specifier: 3.3.3
     version: 3.3.3
   release-it:
-    specifier: 17.9.0
-    version: 17.9.0(typescript@5.4.5)
+    specifier: 17.10.0
+    version: 17.10.0(typescript@5.4.5)
   socket.io-client:
     specifier: 4.7.4
     version: 4.7.4
@@ -1787,7 +1787,7 @@ packages:
       '@redis/client': 1.6.0
     dev: false
 
-  /@release-it/conventional-changelog@9.0.1(release-it@17.9.0):
+  /@release-it/conventional-changelog@9.0.1(release-it@17.10.0):
     resolution: {integrity: sha512-7vGLMLcj/MaQjktNPR0rI6fdFVvVDXpOqk/fVTaFSeMVd9vjpVGrvRg5+Ko82Z/dOsiLGLEMFMQ9Xu31YjvJ5g==}
     engines: {node: ^18.18.0 || ^20.9.0 || ^22.0.0}
     peerDependencies:
@@ -1797,7 +1797,7 @@ packages:
       conventional-changelog: 6.0.0
       conventional-recommended-bump: 10.0.0
       git-semver-tags: 8.0.0(conventional-commits-parser@6.0.0)
-      release-it: 17.9.0(typescript@5.4.5)
+      release-it: 17.10.0(typescript@5.4.5)
       semver: 7.6.3
     transitivePeerDependencies:
       - conventional-commits-filter
@@ -7028,8 +7028,8 @@ packages:
       rc: 1.2.8
     dev: true
 
-  /release-it@17.9.0(typescript@5.4.5):
-    resolution: {integrity: sha512-KAZqvYcfYI/Rva8yr7vzVruM3mN8kuUR1WeQfOtGrc4ub7bGYf8eN91NOXC73LJE1uNpVlppF5xB8KOvKtQosg==}
+  /release-it@17.10.0(typescript@5.4.5):
+    resolution: {integrity: sha512-00cXYEl7RFD5NnjXpwaH9JFjpwe8w3NcfUd4XPxrKQkszp1xppPo42zK9eSbxStKyPA5CVk2KmKPDPDiAKVJTA==}
     engines: {node: ^18.18.0 || ^20.9.0 || ^22.0.0}
     hasBin: true
     dependencies:
