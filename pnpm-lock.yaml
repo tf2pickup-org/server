@@ -52,7 +52,7 @@ dependencies:
     version: 0.7.3
   '@tf2pickup-org/serveme-tf-client':
     specifier: ^0.1.0
-    version: 0.1.0
+    version: 0.1.2
   app-root-path:
     specifier: 3.1.0
     version: 3.1.0
@@ -1832,10 +1832,10 @@ packages:
       '@protobuf-ts/runtime': 2.9.0
     dev: false
 
-  /@tf2pickup-org/serveme-tf-client@0.1.0:
-    resolution: {integrity: sha512-SI0ALPdOZZk5mvj/lm9qM9T0c+F56RkBNbC+BFrTXKWiBghXFPhna2i/s0CgkQ3Yzg2YTwt74npnjhPHnCh6bQ==}
+  /@tf2pickup-org/serveme-tf-client@0.1.2:
+    resolution: {integrity: sha512-cVEEbUwfc9ooVHLsjirXzHgWfzwjJ7seXy6blzxgKv2KpcB59iGDyzQq80Hu4b6C6OXOQctQCndfZqupKTednQ==}
     dependencies:
-      date-fns: 3.6.0
+      date-fns: 4.1.0
       generate-password: 1.7.1
     dev: false
 
@@ -2516,6 +2516,14 @@ packages:
       acorn: 8.12.1
     dev: true
 
+  /acorn-import-attributes@1.9.5(acorn@8.13.0):
+    resolution: {integrity: sha512-n02Vykv5uA3eHGM/Z2dQrcD56kL8TyDb2p1+0P83PClMnC/nc+anbQRhIOWnSq4Ke/KvDPrY3C9hDtC/A3eHnQ==}
+    peerDependencies:
+      acorn: ^8
+    dependencies:
+      acorn: 8.13.0
+    dev: true
+
   /acorn-jsx@5.3.2(acorn@8.12.1):
     resolution: {integrity: sha512-rq9s+JNhf0IChjtDXxllJ7g41oZk5SlXtp0LHwyA5cejwn7vKmKp4pPri6YEePv2PU65sAsegbXtIinmDFDXgQ==}
     peerDependencies:
@@ -2537,6 +2545,12 @@ packages:
 
   /acorn@8.12.1:
     resolution: {integrity: sha512-tcpGyI9zbizT9JbV6oYE477V6mTlXvvi0T0G3SNIYE2apm/G5huBa1+K89VGeovbg+jycCrfhl3ADxErOuO6Jg==}
+    engines: {node: '>=0.4.0'}
+    hasBin: true
+    dev: true
+
+  /acorn@8.13.0:
+    resolution: {integrity: sha512-8zSiw54Oxrdym50NlZ9sUusyO1Z1ZchgRLWRaK6c86XJFClyCgFKetdowBg5bKxyp/u+CDBJG4Mpp0m3HLZl9w==}
     engines: {node: '>=0.4.0'}
     hasBin: true
     dev: true
@@ -2903,15 +2917,15 @@ packages:
       update-browserslist-db: 1.0.16(browserslist@4.23.1)
     dev: true
 
-  /browserslist@4.24.0:
-    resolution: {integrity: sha512-Rmb62sR1Zpjql25eSanFGEhAxcFwfA1K0GuQcLoaJBAcENegrQut3hYdhXFF1obQfiDyqIW/cLM5HSJ/9k884A==}
+  /browserslist@4.24.2:
+    resolution: {integrity: sha512-ZIc+Q62revdMcqC6aChtW4jz3My3klmCO1fEmINZY/8J3EpBg5/A/D0AKmBveUh6pgoeycoMkVMko84tuYS+Gg==}
     engines: {node: ^6 || ^7 || ^8 || ^9 || ^10 || ^11 || ^12 || >=13.7}
     hasBin: true
     dependencies:
-      caniuse-lite: 1.0.30001668
-      electron-to-chromium: 1.5.38
+      caniuse-lite: 1.0.30001669
+      electron-to-chromium: 1.5.45
       node-releases: 2.0.18
-      update-browserslist-db: 1.1.1(browserslist@4.24.0)
+      update-browserslist-db: 1.1.1(browserslist@4.24.2)
     dev: true
 
   /bs-logger@0.2.6:
@@ -3029,8 +3043,8 @@ packages:
     resolution: {integrity: sha512-udx3o7yHJfUxMLkGohMlVHCvFvWmirKh9JAH/d7WOLPetlH+LTL5cocMZ0t7oZx/mdlOWXti97xLZWc8uURRHg==}
     dev: true
 
-  /caniuse-lite@1.0.30001668:
-    resolution: {integrity: sha512-nWLrdxqCdblixUO+27JtGJJE/txpJlyUy5YN1u53wLZkP0emYCo5zgS6QYft7VUYR42LGgi/S5hdLZTrnyIddw==}
+  /caniuse-lite@1.0.30001669:
+    resolution: {integrity: sha512-DlWzFDJqstqtIVx1zeSpIMLjunf5SmwOw0N2Ck/QSQdS8PLS4+9HrLaYei4w8BIAL7IB/UEDu889d8vhCTPA0w==}
     dev: true
 
   /chalk@2.4.2:
@@ -3553,6 +3567,10 @@ packages:
     resolution: {integrity: sha512-fRHTG8g/Gif+kSh50gaGEdToemgfj74aRX3swtiouboip5JDLAyDE9F11nHMIcvOaXeOC6D7SpNhi7uFyB7Uww==}
     dev: false
 
+  /date-fns@4.1.0:
+    resolution: {integrity: sha512-Ukq0owbQXxa/U3EGtsdVBkR1w7KOQ5gIBqdH2hkvknzZPYvBxb/aa6E8L7tmjFtkwZBu3UXBbjIgPo/Ez4xaNg==}
+    dev: false
+
   /dateformat@4.6.3:
     resolution: {integrity: sha512-2P0p0pFGzHS5EMnhdxQi7aJN+iMheud0UhG4dlE1DLAlvL8JHjJJTX/CSm4JXwV0Ka5nGk3zC5mcb5bUQUxxMA==}
     dev: false
@@ -3789,8 +3807,8 @@ packages:
     resolution: {integrity: sha512-NglN/xprcM+SHD2XCli4oC6bWe6kHoytcyLKCWXmRL854F0qhPhaYgUswUsglnPxYaNQIg2uMY4BvaomIf3kLA==}
     dev: true
 
-  /electron-to-chromium@1.5.38:
-    resolution: {integrity: sha512-VbeVexmZ1IFh+5EfrYz1I0HTzHVIlJa112UEWhciPyeOcKJGeTv6N8WnG4wsQB81DGCaVEGhpSb6o6a8WYFXXg==}
+  /electron-to-chromium@1.5.45:
+    resolution: {integrity: sha512-vOzZS6uZwhhbkZbcRyiy99Wg+pYFV5hk+5YaECvx0+Z31NR3Tt5zS6dze2OepT6PCTzVzT0dIJItti+uAW5zmw==}
     dev: true
 
   /emittery@0.13.1:
@@ -6695,8 +6713,8 @@ packages:
     resolution: {integrity: sha512-anP1Z8qwhkbmu7MFP5iTt+wQKXgwzf7zTyGlcdzabySa9vd0Xt392U0rVmz9poOaBj0uHJKyyo9/upk0HrEQew==}
     dev: true
 
-  /picocolors@1.1.0:
-    resolution: {integrity: sha512-TQ92mBOW0l3LeMeyLV6mzy/kWr8lkd/hp3mTg7wYK7zJhuBStmGMBG0BdeDZS/dZx1IukaX6Bk11zcln25o1Aw==}
+  /picocolors@1.1.1:
+    resolution: {integrity: sha512-xceH2snhtb5M9liqDsmEw56le376mTZkEX/jEb/RxNFyegNul7eNslCXP9FDj/Lcu0X8KEyMceP2ntpaHrDEVA==}
     dev: true
 
   /picomatch@2.3.1:
@@ -7988,15 +8006,15 @@ packages:
       picocolors: 1.0.1
     dev: true
 
-  /update-browserslist-db@1.1.1(browserslist@4.24.0):
+  /update-browserslist-db@1.1.1(browserslist@4.24.2):
     resolution: {integrity: sha512-R8UzCaa9Az+38REPiJ1tXlImTJXlVfgHZsglwBD/k6nj76ctsH1E3q4doGrukiLQd3sGQYu56r5+lo5r94l29A==}
     hasBin: true
     peerDependencies:
       browserslist: '>= 4.21.0'
     dependencies:
-      browserslist: 4.24.0
+      browserslist: 4.24.2
       escalade: 3.2.0
-      picocolors: 1.1.0
+      picocolors: 1.1.1
     dev: true
 
   /update-notifier@7.3.1:
@@ -8164,9 +8182,9 @@ packages:
       '@webassemblyjs/ast': 1.12.1
       '@webassemblyjs/wasm-edit': 1.12.1
       '@webassemblyjs/wasm-parser': 1.12.1
-      acorn: 8.12.1
-      acorn-import-attributes: 1.9.5(acorn@8.12.1)
-      browserslist: 4.24.0
+      acorn: 8.13.0
+      acorn-import-attributes: 1.9.5(acorn@8.13.0)
+      browserslist: 4.24.2
       chrome-trace-event: 1.0.4
       enhanced-resolve: 5.17.1
       es-module-lexer: 1.5.4
