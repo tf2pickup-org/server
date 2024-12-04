@@ -224,8 +224,8 @@ devDependencies:
     specifier: 20.17.9
     version: 20.17.9
   '@types/passport':
-    specifier: 1.0.16
-    version: 1.0.16
+    specifier: 1.0.17
+    version: 1.0.17
   '@types/passport-jwt':
     specifier: 4.0.1
     version: 4.0.1
@@ -2123,18 +2123,18 @@ packages:
     resolution: {integrity: sha512-18oLDA1NkjzpCpwRtcIOIA0v6byklu81KsDxIRUaV9Wjmy26al+HCGlIrQYiyNxzR+dZfR/j3/D3GL5xLv3jJA==}
     dependencies:
       '@types/express': 5.0.0
-      '@types/passport': 1.0.16
+      '@types/passport': 1.0.17
     dev: true
 
   /@types/passport-strategy@0.2.38:
     resolution: {integrity: sha512-GC6eMqqojOooq993Tmnmp7AUTbbQSgilyvpCYQjT+H6JfG/g6RGc7nXEniZlp0zyKJ0WUdOiZWLBZft9Yug1uA==}
     dependencies:
       '@types/express': 5.0.0
-      '@types/passport': 1.0.16
+      '@types/passport': 1.0.17
     dev: true
 
-  /@types/passport@1.0.16:
-    resolution: {integrity: sha512-FD0qD5hbPWQzaM0wHUnJ/T0BBCJBxCeemtnCwc/ThhTg3x9jfrAcRUmj5Dopza+MfFS9acTe3wk7rcVnRIp/0A==}
+  /@types/passport@1.0.17:
+    resolution: {integrity: sha512-aciLyx+wDwT2t2/kJGJR2AEeBz0nJU4WuRX04Wu9Dqc5lSUtwu0WERPHYsLhF9PtseiAMPBGNUOtFjxZ56prsg==}
     dependencies:
       '@types/express': 5.0.0
     dev: true
