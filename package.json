@@ -85,7 +85,7 @@
     "@types/helmet": "4.0.0",
     "@types/jest": "29.5.14",
     "@types/jsonwebtoken": "9.0.7",
-    "@types/lodash": "4.17.12",
+    "@types/lodash": "4.17.13",
     "@types/mongodb-uri": "0.9.4",
     "@types/mongoose": "5.11.97",
     "@types/multer": "^1.4.7",
