@@ -194,8 +194,8 @@ devDependencies:
     specifier: 0.6.0
     version: 0.6.0
   '@types/cookie-parser':
-    specifier: 1.4.7
-    version: 1.4.7
+    specifier: 1.4.8
+    version: 1.4.8(@types/express@5.0.0)
   '@types/express':
     specifier: 5.0.0
     version: 5.0.0
@@ -1943,8 +1943,10 @@ packages:
       '@types/node': 20.17.0
     dev: true
 
-  /@types/cookie-parser@1.4.7:
-    resolution: {integrity: sha512-Fvuyi354Z+uayxzIGCwYTayFKocfV7TuDYZClCdIP9ckhvAu/ixDtCB6qx2TT0FKjPLf1f3P/J1rgf6lPs64mw==}
+  /@types/cookie-parser@1.4.8(@types/express@5.0.0):
+    resolution: {integrity: sha512-l37JqFrOJ9yQfRQkljb41l0xVphc7kg5JTjjr+pLRZ0IyZ49V4BQ8vbF4Ut2C2e+WH4al3xD3ZwYwIUfnbT4NQ==}
+    peerDependencies:
+      '@types/express': '*'
     dependencies:
       '@types/express': 5.0.0
     dev: true
