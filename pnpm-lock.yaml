@@ -48,8 +48,8 @@ dependencies:
     specifier: 1.6.0
     version: 1.6.0
   '@tf2pickup-org/mumble-client':
-    specifier: 0.7.3
-    version: 0.7.3
+    specifier: 0.8.0
+    version: 0.8.0
   '@tf2pickup-org/serveme-tf-client':
     specifier: ^0.1.0
     version: 0.1.2
@@ -1654,8 +1654,8 @@ packages:
       config-chain: 1.1.13
     dev: true
 
-  /@protobuf-ts/runtime@2.9.0:
-    resolution: {integrity: sha512-DnJtLZFMglADv9jiawBmg0RaET4a6fNSAaAHuU6Ovw2ZhJ23ehIY0NrlYLS0Lc8HRH0S5rkLI1QF1A1h8uKUnA==}
+  /@protobuf-ts/runtime@2.9.4:
+    resolution: {integrity: sha512-vHRFWtJJB/SiogWDF0ypoKfRIZ41Kq+G9cEFj6Qm1eQaAhJ1LDFvgZ7Ja4tb3iLOQhz0PaoPnnOijF1qmEqTxg==}
     dev: false
 
   /@redis/bloom@1.2.0(@redis/client@1.5.14):
@@ -1819,17 +1819,18 @@ packages:
     resolution: {integrity: sha512-wlt6JW69MHqLY2M6Sm/jVyCojNRKq2CBvwH0Hbx24SFhDQQGkgEjeKxVutDxHSyrWixFaOSLXC27euzxijhyMQ==}
     dev: false
 
-  /@tf2pickup-org/mumble-client@0.7.3:
-    resolution: {integrity: sha512-+A+x2AZd3RWKKl84pVjWRnCVMLDeuKr/8u9/mGtmkiriw12PYW/JWF8BkeKgBBpJkz+lvHcmQseT51C5BO4kPg==}
+  /@tf2pickup-org/mumble-client@0.8.0:
+    resolution: {integrity: sha512-p77iDbDPs7xQgO2DZprzeyfgEKVbYyXZjw9est2p0ZeLB8iM1iQe+eAONS85LWejD1hPzpnntMvc2aoD4XIsxQ==}
     dependencies:
-      '@tf2pickup-org/mumble-protocol': 1.0.2
+      '@protobuf-ts/runtime': 2.9.4
+      '@tf2pickup-org/mumble-protocol': 1.0.5
       rxjs: 7.8.1
     dev: false
 
-  /@tf2pickup-org/mumble-protocol@1.0.2:
-    resolution: {integrity: sha512-UbS6mK822N/i/37pD/KekHFSgNXVAFiSJ60Fgbc98zo1ROcuJin9FyJF9w9WPXbQIFicYP7w1i5tmjgi1hN6Zg==}
+  /@tf2pickup-org/mumble-protocol@1.0.5:
+    resolution: {integrity: sha512-nqFc6QskL6+w+A6w3j2Pa5na7Xy9Yij6bM0RUtnL+5t59QAFrBSHASHbdS0Yhdb9xhAApTrwcxob590oQhwy2g==}
     dependencies:
-      '@protobuf-ts/runtime': 2.9.0
+      '@protobuf-ts/runtime': 2.9.4
     dev: false
 
   /@tf2pickup-org/serveme-tf-client@0.1.2:
