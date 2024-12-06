@@ -165,8 +165,8 @@ dependencies:
     specifier: ^4.7.2
     version: 4.8.1
   steamid:
-    specifier: 2.0.0
-    version: 2.0.0
+    specifier: 2.1.0
+    version: 2.1.0
   zod:
     specifier: ^3.20.2
     version: 3.23.8
@@ -7346,8 +7346,8 @@ packages:
       qs: 6.13.0
     dev: false
 
-  /steamid@2.0.0:
-    resolution: {integrity: sha512-+BFJMbo+IxzyfovLR37E7APkaNfmrL3S+88T7wTMRHnQ6LBhzEawPnjfWNKM9eUL/dH45j+7vhSX4WaGXoa4/Q==}
+  /steamid@2.1.0:
+    resolution: {integrity: sha512-ndt1cvuuSC+i8fcxVsmeyRlgGsR1QsoAuIXz+eabj8/Y4GIWE2+mgHA7Hys61JDHOxttfWtXHtN2m5TNYTlORg==}
     engines: {node: '>=12.0.0'}
     dev: false
 
