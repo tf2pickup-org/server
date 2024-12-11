@@ -7,7 +7,7 @@ settings:
 dependencies:
   '@anatine/zod-openapi':
     specifier: ^2.0.0
-    version: 2.2.4(openapi3-ts@4.4.0)(zod@3.23.8)
+    version: 2.2.6(openapi3-ts@4.4.0)(zod@3.23.8)
   '@nestjs/axios':
     specifier: 3.1.3
     version: 3.1.3(@nestjs/common@10.4.13)(axios@1.7.9)(rxjs@7.8.1)
@@ -311,8 +311,8 @@ packages:
       '@jridgewell/trace-mapping': 0.3.20
     dev: true
 
-  /@anatine/zod-openapi@2.2.4(openapi3-ts@4.4.0)(zod@3.23.8):
-    resolution: {integrity: sha512-r2WBwQ/oO8nS45YRuCB7ckDUIZPjQ3vvwifoxJUKbkkol/XMdbgGA/TOi3/B2xw5dXCSwU+Wxh9274L7wfQOZQ==}
+  /@anatine/zod-openapi@2.2.6(openapi3-ts@4.4.0)(zod@3.23.8):
+    resolution: {integrity: sha512-Z5sr2Nq2xifEpPbPdUcvyl776LY652oR3VHMV++WFSmRrRL8RDP2XTkbuGn+vgfVNOD7UrndYwCWnxaiw7IZog==}
     peerDependencies:
       openapi3-ts: ^4.1.2
       zod: ^3.20.0
