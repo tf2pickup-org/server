@@ -182,8 +182,8 @@ devDependencies:
     specifier: 10.4.13
     version: 10.4.13(@nestjs/common@10.4.13)(@nestjs/core@10.4.13)(@nestjs/platform-express@10.4.13)
   '@release-it/conventional-changelog':
-    specifier: 9.0.3
-    version: 9.0.3(release-it@17.10.0)
+    specifier: 9.0.4
+    version: 9.0.4(release-it@17.10.0)
   '@types/cache-manager':
     specifier: 4.0.6
     version: 4.0.6
@@ -1761,8 +1761,8 @@ packages:
       '@redis/client': 1.6.0
     dev: false
 
-  /@release-it/conventional-changelog@9.0.3(release-it@17.10.0):
-    resolution: {integrity: sha512-+3TL+B89Kc+VTbfGxpTvJkbegWt5XIzkovsYVJyoZpOZDG07v25FU8c5R5Q8yNUs76Ikfq0sp+ZTTxmefG4Hiw==}
+  /@release-it/conventional-changelog@9.0.4(release-it@17.10.0):
+    resolution: {integrity: sha512-eSZVATX2qiyxzpXdIVNczxTGR+uD4lG/ZEfDDYBJ8vKIj6fKp+eYicIS8Ff/eL3bA9XiQTmllKqxPRzmz9d45w==}
     engines: {node: ^18.18.0 || ^20.9.0 || ^22.0.0}
     peerDependencies:
       release-it: ^17.0.0
@@ -4459,6 +4459,7 @@ packages:
   /git-raw-commits@5.0.0(conventional-commits-parser@6.0.0):
     resolution: {integrity: sha512-I2ZXrXeOc0KrCvC7swqtIFXFN+rbjnC7b2T943tvemIOVNl+XP8YnA9UVwqFhzzLClnSA60KR/qEjLpXzs73Qg==}
     engines: {node: '>=18'}
+    deprecated: This package is no longer maintained. For the JavaScript API, please use @conventional-changelog/git-client instead.
     hasBin: true
     dependencies:
       '@conventional-changelog/git-client': 1.0.1(conventional-commits-filter@5.0.0)(conventional-commits-parser@6.0.0)
@@ -4471,6 +4472,7 @@ packages:
   /git-semver-tags@8.0.0(conventional-commits-parser@6.0.0):
     resolution: {integrity: sha512-N7YRIklvPH3wYWAR2vysaqGLPRcpwQ0GKdlqTiVN5w1UmCdaeY3K8s6DMKRCh54DDdzyt/OAB6C8jgVtb7Y2Fg==}
     engines: {node: '>=18'}
+    deprecated: This package is no longer maintained. For the JavaScript API, please use @conventional-changelog/git-client instead.
     hasBin: true
     dependencies:
       '@conventional-changelog/git-client': 1.0.1(conventional-commits-filter@5.0.0)(conventional-commits-parser@6.0.0)
