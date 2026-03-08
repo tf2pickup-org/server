@@ -6,6 +6,9 @@
 
 <h3 align="center">The tf2pickup.org server</h3>
 
+> [!WARNING]
+> This project is deprecated and no longer maintained. It has been replaced by [tf2pickup v4](https://github.com/tf2pickup-org/tf2pickup).
+
 <p align="center">
   <a href="https://github.com/tf2pickup-org/server/releases">
     <img src="https://img.shields.io/github/v/release/tf2pickup-org/server" alt="Latest release">
